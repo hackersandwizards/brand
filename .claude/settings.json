@@ -1,4 +1,5 @@
 {
+  "subagentPromptCacheTtl": "1h",
   "claudeMdExcludes": [
     "/Users/*/.claude/rules/**",
     "/home/*/.claude/rules/**"
