@@ -5,7 +5,8 @@ static fonts, logos, the expert UI layer and the document components, plus a rea
 drift report over the sibling repos. Option B of
 `os/docs/tracking/2026-10-29-brand-system-repo.md`, decided by Benedikt on 2026-10-29.
 
-How the package reaches the other repos is not decided yet (SY-1 researches it, Benedikt decides).
+How the package reaches the other repos is not decided yet (SY-1's recommendation:
+`os/docs/tracking/2026-10-29-brand-distribution.md`; Benedikt decides).
 Until then nothing here writes into another repo: no sync, no copy script, no remote, no push. The
 planned host is `github.com/hackersandwizards/brand`. `"private": true` in `package.json` blocks an
 accidental publish; remove it only with the distribution decision.

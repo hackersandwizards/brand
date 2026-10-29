@@ -11,7 +11,7 @@ each repo's copies still match this one.
 
 ```sh
 bun install
-bun run check    # format, typecheck, tests
+bun run check    # format, lint, typecheck, tests, generated/ up to date
 bun run report   # scan the sibling repos, compare their copies, rebuild catalogue.html
 ```
 
@@ -34,4 +34,5 @@ missing, the scan skips it with a warning.
 | `@hackersandwizards/brand/document/<Name>.astro` | document components          |
 | `@hackersandwizards/brand/logos/<file>`          | logos                        |
 
-How the package reaches the other repos is still open. Nothing is published yet.
+How the package reaches the other repos is still open: SY-1's recommendation is in
+`os/docs/tracking/2026-10-29-brand-distribution.md`, and Benedikt decides. Nothing is published yet.
