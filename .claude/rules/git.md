@@ -41,7 +41,8 @@ Other sessions share this working tree and its index.
   Never delete it.
 - Read `HEAD` back with `git ls-tree HEAD -- <paths>` before reporting anything committed. `git
   commit <path>` answering `no changes added to commit` usually means another session swept your
-  edit into its own commit: find it with `git log -S` before editing again.
+  edit into its own commit: find it with `git log -m -S` before editing again,
+  since a plain `-S` skips merge diffs.
 - The commit author is the machine's git identity for every session. An agent commit is marked only
   by its `Co-Authored-By` line, so git history never says who decided a change: that evidence is a
   message, a record body or a run transcript, and is often unrecorded.

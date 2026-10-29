@@ -63,7 +63,8 @@ mutate live systems or require new approval.
   given the skill directory rather than one file: a walker confined to one file reports as missing
   what sits next door by design.
 - A rule that fires on a minority of turns gets `paths:` frontmatter or becomes a skill. Reference
-  material is never always-on.
+  material is never always-on. A `paths:` rule loads on a Read, `cat` or Write of a matching file,
+  never on a grep or the Skill tool, so a clause that must fire before any Read stays always-on.
 - A rule rising into a router is re-scoped per mode as a list of what each mode may write, never
   universalized into one sentence. A surface several operations share (reading a profile) is its
   own file, and a step whose mechanics contradict the shared ones is a surface, not an operation.

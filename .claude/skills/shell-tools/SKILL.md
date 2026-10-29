@@ -16,7 +16,10 @@ Prefer these over their classic equivalents.
 **GNU vs BSD:** unprefixed CLI tools are BSD on macOS, GNU on Linux. Write scripts to run on both (POSIX, no flavor-specific flags). GNU builds are `g*` (`gsed`, `gdate`, `gtimeout`).
 
 **Text and file navigation:**
-- `eza` over `ls`, `bat` over `cat` and `less`
+- `eza` over `ls`, `bat` over `cat` and `less` when typing. In a Bash-tool pipeline or script write
+  `command ls`, `command cat` and `command grep`: the shell snapshot aliases the first two, which can
+  block on stdin, and wraps `grep` in a function that has kept a line `grep -v` should drop. Prove a
+  filter a safeguard rests on with a control: `diff` shows exactly the dropped line.
 - `fd` over `find` for terse search; `bfs` when `find` syntax is needed
 - `rg` over `grep` for code search; `ugrep` for searching inside archives, compressed files, or PDFs
 - `rg` recurses by default. Never pass `-r`: it is `--replace` and silently rewrites output. Write `rg -il`, never `rg -ril`.

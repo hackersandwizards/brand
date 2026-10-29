@@ -24,7 +24,9 @@ prompts) and in any document. Say the least that fully does the job, then stop.
 - No interface, factory or config for a single case, and no scaffolding for later.
 - Change what exists by removal first, then replacement, then addition. Where a removal drops a
   rule you still want, replace it.
-- Fewest files possible. The shortest working diff wins.
+- Fewest files possible, each stating what is true now: git holds the history, so a document, log
+  or memory replaces a superseded version or a finished round rather than appending to it. The
+  shortest working diff wins.
 - One owner per fact or rule: state it once, in the file that owns it, and point there. This stops
   at a skill's edge: a skill's files point only at that skill's own files and at the repository data
   and scripts it acts on, never at another skill, rule, agent or memory file. It may name the
