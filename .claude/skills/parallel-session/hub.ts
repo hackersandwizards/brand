@@ -5,23 +5,14 @@
 // "reviewed" moves to a collapsed section at the bottom. Folders starting with "_" or "." are
 // skipped. Usage: bun hub.ts [--check] [--dir <hub>] [<repo> ...] (repos default to the current
 // directory). --check only validates every items.js row and review.json and exits 1 on a defect.
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
 const escHtml = (s: string) =>
   s.replace(
     /[&<>"']/g,
-    (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-        c
-      ]!,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
   );
 
 type Candidate = {
@@ -50,9 +41,7 @@ const checkAt = args.indexOf("--check");
 const checkOnly = checkAt >= 0 && !!args.splice(checkAt, 1);
 const dirAt = args.indexOf("--dir");
 const root = resolve(
-  dirAt >= 0
-    ? args.splice(dirAt, 2)[1]
-    : join(homedir(), "Downloads", "stand-entscheidungen"),
+  dirAt >= 0 ? args.splice(dirAt, 2)[1] : join(homedir(), "Downloads", "stand-entscheidungen"),
 );
 const repos = (args.length ? args : ["."]).map((r) => resolve(r));
 const repo = repos[0];
@@ -70,44 +59,29 @@ for (const r of repos) {
     if (!before.has(key)) lists.push({ path: r, key });
 }
 const rows = Object.values(decisionWindow.DECISION_REPOS ?? {}).flat();
-const REQUIRED = [
-  "id",
-  "title",
-  "area",
-  "priority",
-  "order",
-  "status",
-  "context",
-];
-const defects = Object.entries(decisionWindow.DECISION_REPOS ?? {}).flatMap(
-  ([repoKey, list]) => {
-    const seen = new Set<string>();
-    return list.flatMap((r) => {
-      const at = `${repoKey}:${r.id ?? "?"}`;
-      const out = REQUIRED.filter((k) => r[k] === undefined || r[k] === "").map(
-        (k) => `${at} lacks ${k}`,
-      );
-      if (seen.has(r.id)) out.push(`${at} duplicate id`);
-      seen.add(r.id);
-      if (!["open", "assumed", "decided"].includes(r.status))
-        out.push(`${at} status ${r.status}`);
-      if (![1, 2, 3].includes(r.priority as number))
-        out.push(`${at} priority ${r.priority}`);
-      const keys = ((r.options as { key: string }[]) ?? []).map((o) => o.key);
-      if (r.recommended && !keys.includes(r.recommended as string))
-        out.push(`${at} recommended not an option`);
-      if (r.status === "decided" && !r.decision)
-        out.push(`${at} decided without decision`);
-      return out;
-    });
-  },
-);
+const REQUIRED = ["id", "title", "area", "priority", "order", "status", "context"];
+const defects = Object.entries(decisionWindow.DECISION_REPOS ?? {}).flatMap(([repoKey, list]) => {
+  const seen = new Set<string>();
+  return list.flatMap((r) => {
+    const at = `${repoKey}:${r.id ?? "?"}`;
+    const out = REQUIRED.filter((k) => r[k] === undefined || r[k] === "").map(
+      (k) => `${at} lacks ${k}`,
+    );
+    if (seen.has(r.id)) out.push(`${at} duplicate id`);
+    seen.add(r.id);
+    if (!["open", "assumed", "decided"].includes(r.status)) out.push(`${at} status ${r.status}`);
+    if (![1, 2, 3].includes(r.priority as number)) out.push(`${at} priority ${r.priority}`);
+    const keys = ((r.options as { key: string }[]) ?? []).map((o) => o.key);
+    if (r.recommended && !keys.includes(r.recommended as string))
+      out.push(`${at} recommended not an option`);
+    if (r.status === "decided" && !r.decision) out.push(`${at} decided without decision`);
+    return out;
+  });
+});
 const ids = new Set(rows.map((r) => r.id));
 const reviewFiles = existsSync(root)
   ? readdirSync(root)
-      .filter(
-        (n) => !/^[_.]/.test(n) && existsSync(join(root, n, "review.json")),
-      )
+      .filter((n) => !/^[_.]/.test(n) && existsSync(join(root, n, "review.json")))
       .map((n) => join(root, n, "review.json"))
   : [];
 for (const file of reviewFiles) {
@@ -121,21 +95,12 @@ for (const file of reviewFiles) {
   }
   if (rv.status && !["decide", "use", "info"].includes(rv.status))
     defects.push(`${at} status ${rv.status}`);
-  if ((rv.current?.candidates?.length ?? 0) > 3)
-    defects.push(`${at} more than three candidates`);
-  if (
-    rv.row &&
-    !rv.row.endsWith("*") &&
-    !rv.current?.decision &&
-    ids.size &&
-    !ids.has(rv.row)
-  )
+  if ((rv.current?.candidates?.length ?? 0) > 3) defects.push(`${at} more than three candidates`);
+  if (rv.row && !rv.row.endsWith("*") && !rv.current?.decision && ids.size && !ids.has(rv.row))
     defects.push(`${at} row ${rv.row} not found`);
 }
 if (checkOnly) {
-  console.log(
-    defects.length ? defects.join("\n") : `ok: ${repos.length} repo(s)`,
-  );
+  console.log(defects.length ? defects.join("\n") : `ok: ${repos.length} repo(s)`);
   process.exit(defects.length ? 1 : 0);
 }
 const decided = (row?: string) => {
@@ -166,9 +131,7 @@ function firstImage(dir: string, index?: string): string | undefined {
 }
 
 const topics = readdirSync(root)
-  .filter(
-    (name) => !/^[_.]/.test(name) && statSync(join(root, name)).isDirectory(),
-  )
+  .filter((name) => !/^[_.]/.test(name) && statSync(join(root, name)).isDirectory())
   .map((name) => {
     const dir = join(root, name);
     const reviewPath = join(dir, "review.json");
@@ -186,10 +149,7 @@ const topics = readdirSync(root)
     const candidates = [...(review.current?.candidates ?? [])]
       .sort((a, b) => Number(!!b.recommended) - Number(!!a.recommended))
       .slice(0, 3);
-    const thumb =
-      review.thumb ??
-      candidates.find((c) => c.image)?.image ??
-      firstImage(dir, index);
+    const thumb = review.thumb ?? candidates.find((c) => c.image)?.image ?? firstImage(dir, index);
     const mtime = statSync(index ? join(dir, index) : dir).mtimeMs;
     return { name, review, index, title, candidates, thumb, mtime };
   })
@@ -197,11 +157,7 @@ const topics = readdirSync(root)
 
 const reportHref = (p: string) =>
   "file://" +
-  (p.startsWith("/")
-    ? p
-    : p.startsWith("~/")
-      ? join(homedir(), p.slice(2))
-      : join(repo, p));
+  (p.startsWith("/") ? p : p.startsWith("~/") ? join(homedir(), p.slice(2)) : join(repo, p));
 
 const LABEL = { decide: "decision", use: "upload or use", info: "information" };
 
@@ -234,8 +190,7 @@ function card(t: (typeof topics)[number]): string {
 const listItem = ({ path, key }: { path: string; key: string }) => {
   const l = decisionWindow.DECISION_REPOS![key];
   const n = (st: string) => l.filter((r) => r.status === st).length;
-  const href =
-    "file://" + join(path, ".claude/skills/parallel-session/decisions.html");
+  const href = "file://" + join(path, ".claude/skills/parallel-session/decisions.html");
   return `<li><a href="${escHtml(href)}">${escHtml(key)}</a>: ${n("open")} open, ${n("assumed")} assumptions</li>`;
 };
 const urgent = lists.flatMap(({ key }) =>
@@ -243,12 +198,8 @@ const urgent = lists.flatMap(({ key }) =>
     .DECISION_REPOS![key].filter((r) => r.status === "open" && r.priority === 1)
     .map((row) => ({ key, row })),
 );
-const done = topics.filter(
-  (t) => decided(t.review.row) || !!t.review.current?.decision,
-);
-const info = topics.filter(
-  (t) => !done.includes(t) && t.review.status === "info",
-);
+const done = topics.filter((t) => decided(t.review.row) || !!t.review.current?.decision);
+const info = topics.filter((t) => !done.includes(t) && t.review.status === "info");
 const open = topics.filter((t) => !done.includes(t) && !info.includes(t));
 const stamp = new Date().toLocaleString("en-GB", {
   dateStyle: "medium",
