@@ -5,7 +5,7 @@ import { parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
 const tokens = parseTokens(readFileSync(SOURCE, "utf8"));
 
 test("reads every declaration of tokens.css", () => {
-  expect(Object.keys(tokens)).toHaveLength(132);
+  expect(Object.keys(tokens)).toHaveLength(134);
   expect(tokens["--color-teal"]).toBe("#1a7285");
 });
 

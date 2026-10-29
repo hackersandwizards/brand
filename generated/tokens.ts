@@ -26,6 +26,8 @@ export const tokens = {
   "--color-night-ink": "color-mix(in srgb, white 92%, var(--color-night))",
   "--color-night-muted": "color-mix(in srgb, white 80%, var(--color-night))",
   "--color-night-subtle": "color-mix(in srgb, white 60%, var(--color-night))",
+  "--color-teal-night": "#6aa4b0",
+  "--color-purple-night": "#b97af1",
   "--font-mono": "\"JetBrains Mono Variable\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
   "--font-code": "\"JetBrains Mono Variable\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
   "--font-sans": "\"Inter Variable\", \"Inter\", system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
@@ -159,5 +161,7 @@ export const colors = {
   "--color-night-2": "#111a24",
   "--color-night-ink": "#ebeced",
   "--color-night-muted": "#cecfd1",
-  "--color-night-subtle": "#9da0a3"
+  "--color-night-subtle": "#9da0a3",
+  "--color-teal-night": "#6aa4b0",
+  "--color-purple-night": "#b97af1"
 } as const;

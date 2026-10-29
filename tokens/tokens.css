@@ -41,6 +41,10 @@
   --color-night-ink: color-mix(in srgb, white 92%, var(--color-night));
   --color-night-muted: color-mix(in srgb, white 80%, var(--color-night));
   --color-night-subtle: color-mix(in srgb, white 60%, var(--color-night));
+  /* Teal and purple on night in brand assets: the pixel wordmark's -night cut, its "&" in
+     ampersand-light, and the accents of covers, banners and backgrounds (Benedikt, 2026-10-29). */
+  --color-teal-night: #6aa4b0;
+  --color-purple-night: #b97af1;
 
   /* Headings, labels and stats. Code has its own family, so swapping this
      one leaves code as it is. */

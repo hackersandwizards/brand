@@ -2,11 +2,7 @@
   "website": {
     "path": "../website",
     "catalogues": ["http://website.localhost/design-system/"],
-    "copies": [
-      ["tokens/", "src/styles/brand/"],
-      ["logos/type-logo-long.svg", "public/logos/hw-type-long.svg"],
-      ["logos/type-logo-short.svg", "public/logos/hw-type-short.svg"]
-    ]
+    "copies": [["tokens/", "src/styles/brand/"]]
   },
   "os": {
     "path": "../os",

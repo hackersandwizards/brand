@@ -36,6 +36,13 @@ Then import what you need:
 | `@hackersandwizards/brand/document.css`    | print document base          |
 | `@hackersandwizards/brand/logos/<file>`    | logos                        |
 
+The logo is the wizard beside the pixel wordmark, with no line under it: `logos/lockup.svg`, the
+wordmark alone `logos/wordmark.svg`, the stacked `logos/lockup-compact.svg`, each with a `-night`
+cut for dark grounds and a PNG beside it. The wordmark's box is 952 units tall for 851 units of
+letters, centred on the line midway between the box middle and the x-height middle of the letters
+(blind-tested, 2026-10-29). A text or icon set beside it centres on its box (`align-items: center`,
+the text at `line-height: 1`) and sits centred on the letters.
+
 ## Work on the package
 
 ```sh
