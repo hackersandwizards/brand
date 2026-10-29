@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dependency updates"
+  short_description: "Fix advisories and raise patch and minor versions"
+  default_prompt: "Use $dependency-updates to update this repository's dependencies."
