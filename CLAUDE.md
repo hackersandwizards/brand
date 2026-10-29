@@ -7,8 +7,10 @@ drift report over the sibling repos. Option B of
 
 Benedikt decided on 2026-10-29: this repo stays private on GitHub
 (`github.com/hackersandwizards/brand`, team `trainers` read), consumers install it as a Git
-dependency pinned to a tag (`git+https://github.com/hackersandwizards/brand.git#v0.1.0` or the
-`git+ssh` form), no registry, and the rollout is staged: this core first, component packages from
+dependency pinned to a tag, `git+ssh://git@github.com/hackersandwizards/brand.git#v0.1.0`. Only
+the SSH form installs with Bun 1.4.4: it rewrites `git+https://github.com/...` and `github:` to
+GitHub's unauthenticated tarball API, which answers 404 for a private repo, `GITHUB_TOKEN` set or
+not. No registry. The rollout is staged: this core first, component packages from
 talks and os later, moving into the core only once two surfaces share them. `"private": true`
 stays: nothing is ever published. A release is a tag `v<version>` matching `package.json`. Nothing
 here writes into another repo: no sync, no copy script.
