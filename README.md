@@ -41,8 +41,14 @@ The logo is the wizard beside the pixel wordmark, with no line under it: `logos/
 wordmark alone `logos/wordmark.svg`, the stacked `logos/lockup-compact.svg`, each with a `-night`
 cut for dark grounds and a PNG beside it. The wordmark's box is 952 units tall for 851 units of
 letters, centred on the line midway between the box middle and the x-height middle of the letters
-(blind-tested, 2026-10-29). A text or icon set beside it centres on its box (`align-items: center`,
-the text at `line-height: 1`) and sits centred on the letters.
+(blind-tested, 2026-10-29). A text set beside it centres on its box (`align-items: center`, the
+text at `line-height: 1`) and sits centred on the letters. The wizard, taller than the letters,
+centres on that box too and then rises by 7.8% of its own height, `translate: 0
+var(--logo-wizard-lift)`, so its mass sits on the letters rather than its box (blind-tested, LGD-2).
+Where an icon is no taller than the letters, it takes no lift. `logos/lockup.svg` carries the lift
+built in, so its box is the wizard's and the wordmark's centre line lies 7.8% of the lockup's height
+below the box centre: a text after the lockup centres on that line once the lockup takes the same
+`translate: 0 var(--logo-wizard-lift)`.
 
 ## Work on the package
 

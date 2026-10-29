@@ -197,6 +197,12 @@
   /* Where wordmark, header CTA and menu button fit one row (Nav.astro). */
   --breakpoint-header-cta: 30rem;
 
+  /* The wizard beside the pixel wordmark: centred on the wordmark's box, then raised by 7.8% of
+     its own height (`translate: 0 var(--logo-wizard-lift)`), so its mass, not its box, sits on the
+     letters (blind rounds, LGD-2). Where the wizard is no taller than the letters, no lift.
+     logos/lockup*.svg carry it built in. */
+  --logo-wizard-lift: -7.8%;
+
   --gradient-magic: linear-gradient(
     135deg,
     var(--color-teal) 0%,

@@ -212,11 +212,11 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "e86ee391ca2d25f4b566a4679b1a660d61b1c7d1788a4dcd66a3dc0eac14818a",
+      "sha256": "cd63b2ad624e5adf9ade3b6492dea397ef78ce5f44910ba030601367b0e1efef",
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/tokens.css",
-        "commit": "d370f4a558d06e7f8c206ee2e1238b59215982e6",
+        "commit": "11f18c940e7b2d063fdfcb3941bfdc7f1610b39a",
         "lfs": false
       }
     },
@@ -328,19 +328,19 @@
     },
     {
       "path": "logos/lockup.svg",
-      "sha256": "c12182b4e78b34fbb3c860d376d97eb1e7f9ee02c189be706a15d6ab7557d4fd"
+      "sha256": "baacfeaa7679301f3a57927e70c995e74ffda90c0f6517c497e92ef1e0d0342e"
     },
     {
       "path": "logos/lockup.png",
-      "sha256": "013020df663eab1bd817268364d19ad9817424089af4eb699b6c9a20ebc3e727"
+      "sha256": "343372697cd0db80e9d58711a428a131ebc35759f450f9a17ca85104ef4a6941"
     },
     {
       "path": "logos/lockup-night.svg",
-      "sha256": "654fccd1b90e9d8c19392f63d8845975ec5cbb77eda9388612d12de44901388f"
+      "sha256": "2dad0f8a96680e6d8339ab1b6b0bb90ca4806a4d24c534bc48b38176d3cb3e26"
     },
     {
       "path": "logos/lockup-night.png",
-      "sha256": "d080ef07e919acd26dd43f5bdfff1bc3ced9e8ae78b3ce9b355cf291bfbd23ec"
+      "sha256": "c814a7e1e4ae8bc009b07fa31d92f7b0dbf18298fcefe10237a408e2486d7f61"
     },
     {
       "path": "logos/lockup-compact.svg",
@@ -364,7 +364,7 @@
     },
     {
       "path": "document/document.css",
-      "sha256": "08e8281e9b12624b37d71784400c119d7e78342b7777c896ee7e51b14164d90e"
+      "sha256": "2cc365b7f51b1d2d5a4408fbbc6a245adfcefdcd7d59f080c60f9fb3e062ce0a"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -396,7 +396,7 @@
     },
     {
       "path": "document/components/DocHeader.astro",
-      "sha256": "ff3078f92238bea3363a1fd15c53fe001f57035beb20ec56453374b92af33dcf"
+      "sha256": "93e3c2bbddb4f53256ec0fdcdf97cb2bea7f35cc4daab238327e30a861a5ca47"
     },
     {
       "path": "document/components/DocLead.astro",

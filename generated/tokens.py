@@ -133,6 +133,7 @@ TOKENS = {
     "--container-measure-h2": "26ch",
     "--breakpoint-xs": "25rem",
     "--breakpoint-header-cta": "30rem",
+    "--logo-wizard-lift": "-7.8%",
     "--gradient-magic": "linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%)"
 }
 
