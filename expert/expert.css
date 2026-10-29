@@ -1,0 +1,278 @@
+/* The expert set: the h&w brand as the internal expert systems wear it, dense and in two themes.
+   Company OS owns this file; the trainer hub copies it byte for byte. It needs
+   assets/brand/tokens.css imported before it, and it adds only what an expert system needs on
+   top of the brand: the dense type steps, the theme neutrals and accents, the status and hue
+   roles, and the app primitives. Anything one app alone needs stays in that app's global.css. */
+
+/* The UI scale: an expert system is read at desk distance all day, so it takes the brand's
+   families, colours, roles and corner, and sets its own sizes here, in one place, instead of the
+   website's marketing steps. Sizes are the UI column of the role table in
+   docs/tracking/2026-10-28-typography-strategy.md, section 3.3. Every text in the app takes one
+   of these steps; the brand's web steps (display, h2, h3, title, lead, body, small) stay unused. */
+@theme {
+  /* h1: the page title, in the heading face. */
+  --text-page: 1.5rem;
+  --text-page--line-height: 1.25;
+  /* h2: a dialog, pane or board heading. */
+  --text-heading: 1.25rem;
+  --text-heading--line-height: 1.3;
+  /* h3: a card or group title, a KPI figure. */
+  --text-subheading: 1rem;
+  --text-subheading--line-height: 1.35;
+  /* Body and h4: every control, row, table cell and section title. */
+  --text-ui: 0.875rem;
+  --text-ui--line-height: 1.5;
+  /* Small: secondary row text, metadata, pills. */
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: calc(18 / 13);
+  /* The label size: counters, badges, key hints and caps labels, never running text. */
+  --text-micro: 0.75rem;
+  --text-micro--line-height: calc(16 / 12);
+  /* Mono caps sit in wide cells already; the web's 0.1em reads spaced out at UI sizes. */
+  --tracking-label: 0.06em;
+
+  /* The header: the website's structure (strip, row, hairline) at the UI's density. */
+  --spacing-strip: 3px;
+  --spacing-header-row: 3.5rem;
+  --spacing-logo: 2rem;
+  --spacing-app-header: calc(
+    var(--spacing-strip) + var(--spacing-header-row) + 1px + env(safe-area-inset-top)
+  );
+
+  --font-heading: var(--font-mono);
+}
+
+/* Light neutrals are the brand's. --muted is a surface fill, not the brand's muted text colour:
+   the @theme inline block below redefines --color-muted to it. */
+:root,
+html[data-theme="light"] {
+  --background: #f7f9fa;
+  --foreground: #19283a;
+  /* The brand teals mixed 70/30 with ink, like the hue roles: the brand teal alone is 3.8:1 on its
+     own 15 percent wash, which a selected chip or an assignee pill sits on. */
+  --accent: color-mix(in srgb, #1a7285 70%, #19283a);
+  --accent-light: color-mix(in srgb, #155b6a 70%, #19283a);
+  --accent-secondary: #9333ea;
+  --accent-secondary-light: #a855f7;
+  /* Text on an accent fill: a filled button, an active toggle, a counter badge. */
+  --on-accent: white;
+  /* Purple in both themes, whichever hue the theme makes the primary accent. */
+  --focus: #9333ea;
+  --muted: color-mix(in srgb, #19283a 7%, #f7f9fa);
+  --border: #d0d2d8;
+
+  /* Status roles: what a state means. Each is a text colour that clears 4.5:1 on the page, on a
+     card and on its own 15 percent wash over either, so `bg-error/15 text-error` reads in both
+     themes. The brand hues alone do not on their wash (3.6 to 4.3:1 here), so light mixes each
+     70/30 with ink, 4.7 to 5.0:1 on the wash, and night lifts its error a fifth toward white. */
+  --error: color-mix(in srgb, #dc2626 70%, #19283a);
+  --warning: color-mix(in srgb, #b45309 70%, #19283a);
+  --success: color-mix(in srgb, #15803d 70%, #19283a);
+  --info: color-mix(in srgb, #1a7285 70%, #19283a);
+
+  /* Hue roles: categories with no status meaning (a product, a partner type, a channel). One per
+     brand hue, so a category never borrows a status colour. Like the status roles they clear
+     4.5:1 on their own 15 percent wash, so light mixes each 70/30 with ink (4.7 to 4.9:1, the
+     brand hues alone 3.4 to 4.2); slate clears it unmixed (4.8). */
+  --hue-teal: color-mix(in srgb, #1a7285 70%, #19283a);
+  --hue-purple: color-mix(in srgb, #9333ea 70%, #19283a);
+  --hue-amber: color-mix(in srgb, #b45309 70%, #19283a);
+  --hue-green: color-mix(in srgb, #15803d 70%, #19283a);
+  --hue-rust: color-mix(in srgb, #a3402a 70%, #19283a);
+  --hue-slate: #545861;
+
+  /* The least foreground share dimmed text may take: 4.6:1 on the page, a card and the muted fill.
+     The utilities below hold every text-foreground/<n> to it. */
+  --dim-floor: 67%;
+}
+
+/* The website's night neutrals. The accents keep the inverted order Benedikt decided: purple
+   leads in dark, teal is secondary. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0b1118;
+  --foreground: color-mix(in srgb, white 92%, #0b1118);
+  /* #a855f7, the brand's purple step, is 4.4:1 on a card and 3.96:1 under white text, so the
+     accent takes the light step: 6.6:1 on a card, 7.2:1 under night text. */
+  --accent: #c084fc;
+  --accent-light: #d8b4fe;
+  --on-accent: #0b1118;
+  --accent-secondary: #2db5d4;
+  --accent-secondary-light: #5fc9e0;
+  /* The website's --color-purple-light, 10:1 on night. */
+  --focus: color-mix(in srgb, #9333ea 40%, white);
+  --muted: #111a24;
+  --border: color-mix(in srgb, white 18%, #0b1118);
+
+  --error: color-mix(in srgb, #ef4444 80%, white);
+  --warning: #f59e0b;
+  --success: #4ade80;
+  --info: #2db5d4;
+
+  --hue-teal: #2db5d4;
+  --hue-purple: color-mix(in srgb, #9333ea 40%, white);
+  --hue-amber: #f59e0b;
+  --hue-green: #4ade80;
+  --hue-rust: #f29a80;
+  --hue-slate: color-mix(in srgb, #7c849c 60%, white);
+
+  --dim-floor: 51%;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-secondary-light: var(--accent-secondary-light);
+  --color-on-accent: var(--on-accent);
+  --color-focus: var(--focus);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-info: var(--info);
+  --color-hue-teal: var(--hue-teal);
+  --color-hue-purple: var(--hue-purple);
+  --color-hue-amber: var(--hue-amber);
+  --color-hue-green: var(--hue-green);
+  --color-hue-rust: var(--hue-rust);
+  --color-hue-slate: var(--hue-slate);
+}
+
+/* Dimmed text: a text-foreground/<n> below --dim-floor takes the floor. In the utilities layer
+   after Tailwind's own, so a variant such as hover: still wins. */
+@layer utilities {
+  .text-foreground\/20 {
+    color: color-mix(in oklab, var(--foreground) max(20%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/25 {
+    color: color-mix(in oklab, var(--foreground) max(25%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/30 {
+    color: color-mix(in oklab, var(--foreground) max(30%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/40 {
+    color: color-mix(in oklab, var(--foreground) max(40%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/45 {
+    color: color-mix(in oklab, var(--foreground) max(45%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/50 {
+    color: color-mix(in oklab, var(--foreground) max(50%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/60 {
+    color: color-mix(in oklab, var(--foreground) max(60%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/65 {
+    color: color-mix(in oklab, var(--foreground) max(65%, var(--dim-floor)), transparent);
+  }
+}
+
+/* Shared by overview and detail pages, so body content lands at the same Y on every route. */
+.page-title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  /* Fixed, not min-height: a growable row let an action button push the H1 down,
+     so the title jumped between routes. 12px cap around a 38px button. */
+  --page-title-row-h: 3.875rem;
+  height: var(--page-title-row-h);
+}
+@media (min-width: 640px) {
+  .page-title-row {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+}
+/* Stacked rows have no shared baseline to fight over, so the fixed height is
+   unnecessary here and only crowds the layout. */
+@media (max-width: 639px) {
+  .page-title-row {
+    height: auto;
+    min-height: var(--page-title-row-h);
+    padding-top: 0.75rem;
+  }
+  .page-title-lead {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+}
+.page-title-lead {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  min-width: 0;
+  overflow: hidden;
+}
+.page-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-page);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--foreground);
+  flex-shrink: 0;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.page-subtitle {
+  font-size: var(--text-ui);
+  color: color-mix(in srgb, var(--foreground) 65%, transparent);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.page-title-action {
+  flex-shrink: 0;
+}
+
+/* Both variants carry a 1px border, transparent on primary, so they render at
+   the same pixel height when they share a row. */
+/* `hover:` still matches a disabled button, so without the `disabled:hover` pins, a button
+   disabled mid-mutation keeps lighting up under the cursor. */
+.btn-primary {
+  @apply rounded-lg border border-transparent bg-accent px-4 py-2 text-ui text-on-accent transition-colors hover:bg-accent-light disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-accent;
+}
+.btn-secondary {
+  @apply rounded-lg border border-border px-4 py-2 text-ui transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent;
+}
+
+.chip-link {
+  @apply inline-flex items-center gap-1 rounded-full bg-muted/50 px-2.5 py-0.5 text-meta text-foreground/70 transition-colors hover:bg-accent/10 hover:text-accent;
+}
+.chip-link-muted {
+  @apply inline-flex items-center gap-1 rounded-full bg-muted/50 px-2.5 py-0.5 text-meta text-foreground/65;
+}
+
+/* Shape only; width is the caller's. The 40px min-height matches a native
+ * `<select>`, which reserves room for its arrow: unpinned a row renders 38/40/40. */
+.form-input {
+  @apply rounded-lg border bg-background px-3 py-2 text-ui text-foreground focus:ring-2 focus:ring-focus/50 focus:outline-none;
+  min-height: 2.5rem;
+}
+
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.625rem center;
+  background-size: 0.75rem 0.5rem;
+  padding-right: 2rem;
+}
+html[data-theme="dark"] select.form-input {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+}

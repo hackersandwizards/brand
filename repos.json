@@ -1,0 +1,98 @@
+{
+  "website": {
+    "path": "../website",
+    "catalogues": ["http://website.localhost/design-system/"],
+    "copies": [
+      ["tokens/", "src/styles/brand/"],
+      ["logos/type-logo-long.svg", "public/logos/hw-type-long.svg"],
+      ["logos/type-logo-short.svg", "public/logos/hw-type-short.svg"]
+    ]
+  },
+  "os": {
+    "path": "../os",
+    "catalogues": ["http://os.localhost/design-system/"],
+    "copies": [
+      ["tokens/", "assets/brand/"],
+      ["expert/expert.css", "src/styles/expert.css"],
+      ["document/document.css", "assets/document.css"],
+      ["document/components/DocCard.astro", "src/components/DocCard.astro"],
+      ["document/components/DocClosing.astro", "src/components/DocClosing.astro"],
+      ["document/components/DocHeader.astro", "src/components/DocHeader.astro"],
+      ["document/components/DocLead.astro", "src/components/DocLead.astro"],
+      ["document/components/DocPriceTable.astro", "src/components/DocPriceTable.astro"],
+      ["document/components/DocRecipient.astro", "src/components/DocRecipient.astro"],
+      ["document/components/DocTitle.astro", "src/components/DocTitle.astro"],
+      [
+        "logos/emoji-logo-long-cmyk.tif",
+        "src/content/documents/company/design-guide/logos/emoji-logo-long-cmyk.tif"
+      ],
+      [
+        "logos/emoji-logo-long.png",
+        "src/content/documents/company/design-guide/logos/emoji-logo-long.png"
+      ],
+      [
+        "logos/emoji-logo-short-cmyk.tif",
+        "src/content/documents/company/design-guide/logos/emoji-logo-short-cmyk.tif"
+      ],
+      [
+        "logos/emoji-logo-short-quote.png",
+        "src/content/documents/company/design-guide/logos/emoji-logo-short-quote.png"
+      ],
+      [
+        "logos/emoji-logo-short.png",
+        "src/content/documents/company/design-guide/logos/emoji-logo-short.png"
+      ],
+      [
+        "logos/type-logo-long.png",
+        "src/content/documents/company/design-guide/logos/type-logo-long.png"
+      ],
+      [
+        "logos/type-logo-long.svg",
+        "src/content/documents/company/design-guide/logos/type-logo-long.svg"
+      ],
+      [
+        "logos/type-logo-short.png",
+        "src/content/documents/company/design-guide/logos/type-logo-short.png"
+      ],
+      [
+        "logos/type-logo-short.svg",
+        "src/content/documents/company/design-guide/logos/type-logo-short.svg"
+      ]
+    ]
+  },
+  "trainer-hub": {
+    "path": "../trainer-hub",
+    "catalogues": ["http://trainer-hub.localhost/design-system/"],
+    "copies": [
+      ["tokens/", "src/styles/brand/"],
+      ["expert/expert.css", "src/styles/expert.css"],
+      ["document/document.css", "src/styles/document.css"],
+      ["logos/type-logo-long.png", "public/hw-type-logo-long.png"],
+      ["logos/type-logo-short.svg", "public/hw-logo.svg"],
+      ["logos/emoji-logo-short-quote.png", "public/handout/hw-logo-short.png"]
+    ]
+  },
+  "talks": {
+    "path": "../talks",
+    "catalogues": ["http://talks.localhost/design-system"],
+    "copies": [
+      ["tokens/tokens.css", "styles/brand/tokens.css"],
+      ["tokens/fonts/", "assets/fonts/"],
+      ["logos/type-logo-long.png", "public/hw-type-logo-long.png"],
+      ["logos/type-logo-short.svg", "public/hw-logo.svg"]
+    ]
+  },
+  "hycle-private": {
+    "path": "../../products/hycle-private",
+    "catalogues": [],
+    "copies": [
+      ["tokens/tokens.css", "talks/styles/brand/tokens.css"],
+      ["tokens/fonts/", "talks/assets/fonts/"]
+    ]
+  },
+  "certificate-verifier": {
+    "path": "../../tools/certificate-verifier",
+    "catalogues": ["https://certificates.hackersandwizards.dev/design-system"],
+    "copies": []
+  }
+}

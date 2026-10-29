@@ -1,0 +1,190 @@
+/* The h&w print layer for every PDF, beside tokens.css: static font faces,
+   the print size of every type role, the print corner and the page box.
+   Plain CSS; the website never loads it.
+
+   The website's font set as one static instance per weight: Chrome embeds a
+   variable font in a PDF as Type 3 glyphs, whatever the @font-face declares.
+   Same font versions as the website's files (Inter 4.001, JetBrains Mono
+   2.211). The family names are the ones tokens.css names, so --font-sans,
+   --font-mono and --font-code reach these files. Latin subset, plus latin-ext
+   for Inter 400 and 600, the weights print sets names in, so a certificate
+   prints Ł and ř in Inter. Arrows (Inter, JetBrains Mono) and box drawing
+   (JetBrains Mono, for file trees in code) come as separate files under a
+   unicode-range, cut from the Google Fonts release of the same versions, so a
+   page without them loads nothing extra. Licences: the OFL files in fonts/. */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("fonts/inter-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("fonts/inter-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("fonts/inter-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("fonts/inter-latin-ext-600-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("fonts/inter-arrows-400-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("fonts/inter-arrows-500-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("fonts/inter-arrows-600-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("fonts/inter-arrows-700-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("fonts/jetbrains-mono-symbols-400-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("fonts/jetbrains-mono-symbols-500-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("fonts/jetbrains-mono-symbols-600-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("fonts/jetbrains-mono-symbols-700-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+:root {
+  /* The type roles of tokens.css at paper size, A4: each medium has its own
+     scale. Family and weight stay the role's. Body sets tighter on paper so
+     the larger small, label and code sizes add no pages; label caps take less
+     tracking; secondary grey is darker. The small sizes come from OS-1's
+     three blind rounds of PDFs at 70% zoom, where both reviewers ranked small
+     type the top readability problem each time. Load after tokens.css. */
+  --type-display-size: 26pt;
+  --type-h1-size: 20pt;
+  --type-h2-size: 15pt;
+  --type-h3-size: 12pt;
+  --type-h4-size: 11pt;
+  --type-lead-size: 12pt;
+  --type-body-size: 10pt;
+  --type-body-line-height: 1.45;
+  --type-small-size: 9.5pt;
+  --type-label-size: 8.5pt;
+  --type-label-tracking: 0.04em;
+  --type-stat-size: 20pt;
+  --type-code-size: 9.5pt;
+  --color-muted: color-mix(in srgb, var(--color-ink) 85%, white);
+
+  /* The brand corner at paper size, as the onepager draws it. */
+  --print-radius: 16px 4px;
+
+  /* The side margin sits on body, not on @page: Chrome clips content to the
+     page box, and the brand strip has to reach the paper edge. */
+  --print-side: 16mm;
+}
+
+@page {
+  size: A4;
+  margin: 14mm 0 16mm;
+}

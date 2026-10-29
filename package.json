@@ -1,0 +1,49 @@
+{
+  "name": "@hackersandwizards/brand",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and the document components.",
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "engines": {
+    "bun": ">=1.3.0"
+  },
+  "exports": {
+    "./tokens.css": "./tokens/tokens.css",
+    "./tokens.root.css": "./generated/tokens.root.css",
+    "./tokens.json": "./generated/tokens.json",
+    "./tokens": "./generated/tokens.ts",
+    "./tokens.py": "./generated/tokens.py",
+    "./print.css": "./tokens/print.css",
+    "./fonts/*": "./tokens/fonts/*",
+    "./expert.css": "./expert/expert.css",
+    "./document.css": "./document/document.css",
+    "./document/*": "./document/components/*",
+    "./logos/*": "./logos/*"
+  },
+  "files": [
+    "tokens",
+    "generated",
+    "expert",
+    "document",
+    "logos/*.svg",
+    "logos/type-logo-long.png",
+    "logos/type-logo-short.png",
+    "logos/emoji-logo-short-quote.png"
+  ],
+  "scripts": {
+    "check": "prettier --check . && tsc --noEmit && bun test && bun scripts/tokens.ts --check",
+    "format": "prettier --write .",
+    "tokens": "bun scripts/tokens.ts",
+    "scan": "bun scripts/scan.ts",
+    "drift": "bun scripts/drift.ts",
+    "catalogue": "bun scripts/catalogue.ts",
+    "report": "bun scripts/scan.ts; bun scripts/drift.ts && bun scripts/catalogue.ts",
+    "import": "bun scripts/import.ts && bun scripts/tokens.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.4",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3"
+  }
+}
