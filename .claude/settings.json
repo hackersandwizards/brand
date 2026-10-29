@@ -1,0 +1,6 @@
+{
+  "claudeMdExcludes": [
+    "/Users/*/.claude/rules/**",
+    "/home/*/.claude/rules/**"
+  ]
+}
