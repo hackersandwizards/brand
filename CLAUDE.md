@@ -23,8 +23,11 @@ accidental publish; remove it only with the distribution decision.
 
 ## Commands
 
-- `bun run check`: format, typecheck, tests (manifest hashes, tokens, scanner, allowlist ratchet,
-  drift control) and the freshness of `generated/`. Must pass before a commit.
+- `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
+  scanner, allowlist ratchet, drift control) and the freshness of `generated/`. Must pass before a
+  commit; `.githooks/pre-commit` runs it after `gitleaks` scans the staged changes. `bun install`
+  points `core.hooksPath` at `.githooks/`.
+- `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run report`: scan, drift and `catalogue.html`. The scan exits 1 where a sibling's count rises
   above the allowlist; the drift report never fails.
 - `bun run scan -- --tighten`: lower the allowlist to today's counts. Never raise an entry by hand.
@@ -40,3 +43,11 @@ accidental publish; remove it only with the distribution decision.
 - The scan and drift read each sibling's last commit through git and never its working tree.
 - Large logos live in Git LFS (`.gitattributes`). The two print TIFFs and the two 4096 px emoji PNGs
   stay out of the package's `files`.
+
+## Behavioral rules
+
+Project rules live in `.claude/rules/*.md`. Read and apply them each session. Claude loads them
+natively. Codex and pi must read the directory themselves. Ignore the global `~/.claude/rules` set
+in this repository. These project rules supersede it. The rules and skills under `.claude/` are
+mirrored from the agent-config hub (`~/.claude/scripts/sync-agent-config.sh`): change them there,
+never here.

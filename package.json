@@ -32,8 +32,13 @@
     "logos/emoji-logo-short-quote.png"
   ],
   "scripts": {
-    "check": "prettier --check . && tsc --noEmit && bun test && bun scripts/tokens.ts --check",
+    "postinstall": "git rev-parse --git-dir > /dev/null 2>&1 && git config core.hooksPath .githooks || true",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "fix": "eslint . --fix && prettier --write .",
     "tokens": "bun scripts/tokens.ts",
     "scan": "bun scripts/scan.ts",
     "drift": "bun scripts/drift.ts",
@@ -42,8 +47,12 @@
     "import": "bun scripts/import.ts && bun scripts/tokens.ts"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@types/bun": "1.4.4",
+    "eslint": "10.13.0",
+    "eslint-config-prettier": "10.1.8",
     "prettier": "3.9.10",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0"
   }
 }

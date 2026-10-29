@@ -8,12 +8,23 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import manifest from "../manifest.json";
 import repos from "../repos.json";
+import type { drift as driftReport } from "./drift";
 import { ROOT } from "./git";
+import type { Counts, scan as scanReport } from "./scan";
 import { parseTokens, resolveColors, SOURCE } from "./tokens";
 
 const read = (p: string) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
-const scan = read("reports/scan.json");
-const drift = read("reports/drift.json");
+type ScanRepo = {
+  commit: string;
+  files: number;
+  totals: Counts;
+  offHex: { hex: string; count: number; near?: string; distance?: number }[];
+};
+const scan: Omit<ReturnType<typeof scanReport>, "repos"> & {
+  repos: Record<string, ScanRepo>;
+  aboveAllowlist: string[];
+} = read("reports/scan.json");
+const drift: { date: string; repos: ReturnType<typeof driftReport> } = read("reports/drift.json");
 const allow = read("scan-allowlist.json");
 const tokens = parseTokens(readFileSync(SOURCE, "utf8"));
 const colors = resolveColors(tokens);
@@ -60,17 +71,17 @@ const logos = manifest.files
   )
   .join("");
 
-const driftRows = Object.entries(drift.repos as Record<string, any>).map(([name, r]) => [
+const driftRows = Object.entries(drift.repos).map(([name, r]) => [
   esc(name),
   esc(r.status),
   r.commit ? code(r.commit.slice(0, 9)) : "",
   r.rows
-    .filter((x: any) => x.status !== "identical")
-    .map((x: any) => `${esc(x.status)}: ${code(x.copy)}`)
+    .filter((x) => x.status !== "identical")
+    .map((x) => `${esc(x.status)}: ${code(x.copy)}`)
     .join("<br>") || "",
 ]);
 
-const scanRows = Object.entries(scan.repos as Record<string, any>).map(([name, r]) => [
+const scanRows = Object.entries(scan.repos).map(([name, r]) => [
   esc(name),
   code(r.commit.slice(0, 9)),
   r.files,
@@ -80,13 +91,12 @@ const scanRows = Object.entries(scan.repos as Record<string, any>).map(([name, r
   r.totals.palette,
   r.offHex
     .map(
-      (h: any) =>
-        `${code(h.hex)} ${h.count}x${h.near ? ` (near ${esc(h.near)}, ${h.distance})` : ""}`,
+      (h) => `${code(h.hex)} ${h.count}x${h.near ? ` (near ${esc(h.near)}, ${h.distance})` : ""}`,
     )
     .join(", ") || "none",
 ]);
 
-const dupRows = Object.entries(scan.duplicates as Record<string, any[]>).map(([k, l]) => [
+const dupRows = Object.entries(scan.duplicates).map(([k, l]) => [
   code(k),
   l.map((x) => `${esc(x.repo)}: ${code(x.path)}`).join("<br>"),
   l[0].identical ? "yes" : "no",

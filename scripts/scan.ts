@@ -15,7 +15,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import repos from "../repos.json";
 import { blobs, head, isRepo, ROOT, sha256, tree } from "./git";
-import { parseTokens, resolveColors, SOURCE } from "./tokens";
+import { parseTokens, resolveColors, rgb, SOURCE } from "./tokens";
 
 export type Counts = { hex: number; tokenHex: number; font: number; palette: number };
 export const METRICS = ["hex", "tokenHex", "font", "palette"] as const;
@@ -24,7 +24,6 @@ export type Allowlist = {
   duplicates: Record<string, string>;
 };
 
-const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const palette = new Map<string, string>(
   Object.entries(resolveColors(parseTokens(readFileSync(SOURCE, "utf8")))).map(([k, v]) => [v, k]),
 );

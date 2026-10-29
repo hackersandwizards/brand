@@ -21,7 +21,7 @@ export const parseTokens = (css: string) => {
   return tokens;
 };
 
-const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+export const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const hex = (c: number[]) =>
   "#" + c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");
 const NAMED: Record<string, string> = { white: "#ffffff", black: "#000000" };
