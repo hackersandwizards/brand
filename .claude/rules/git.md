@@ -50,6 +50,4 @@ Other sessions share this working tree and its index.
   delegate's `isolation: worktree`, is allowed where it pays off, which `parallel-session` weighs.
   It starts from `origin/main`, so this tree's uncommitted and unpushed work is absent there. Its
   commits reach `main` within the same delegate run (`git fetch`, `git rebase origin/main`,
-  `git push origin HEAD:main`). Never push a branch and never open a pull request. Remove a
-  worktree only once `git log origin/main..HEAD` prints nothing and `git status --porcelain` is
-  empty: `git worktree remove` deletes a clean worktree's unpushed commits without a warning.
+  `git push origin HEAD:main`). Never push a branch and never open a pull request.

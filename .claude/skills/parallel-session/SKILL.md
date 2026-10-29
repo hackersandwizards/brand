@@ -73,10 +73,11 @@ so each worktree's full gate runs beside the others.
   first commit, since the hook needs them. It commits there, then runs `git fetch`, `git rebase origin/main` and
   `git push origin HEAD:main`, repeating on rejection, before its run ends. Check:
   `git log origin/main..HEAD` prints nothing.
-- After the delegate reports, remove the worktree with `git worktree remove <path>` only once,
-  inside it, `git log origin/main..HEAD` and `git status --porcelain` both print nothing. Delete a
-  `worktree-<name>` branch with `git branch -D` only once `git log origin/main..worktree-<name>`
-  prints nothing.
+- Remove each worktree as soon as its delegate's work is on `main`, while the session goes on, so
+  none outlives it: `git worktree remove <path>` once, inside it, `git log origin/main..HEAD` and
+  `git status --porcelain` both print nothing. Delete a `worktree-<name>` branch with
+  `git branch -D` once `git log origin/main..worktree-<name>` prints nothing. `git worktree remove`
+  drops a clean worktree's unpushed commits without a warning.
 
 ## items.js
 
