@@ -2,8 +2,9 @@
 
 Write every page, report, deck, note or document a run produces as a file in the repository it
 belongs to, in the folder that repository's `CLAUDE.md` names for such documents, else in `docs/`.
-Commit it like any other change and give the reader its path. A page to view is an `.html` file
-opened from disk.
+Run the repository's formatter on it as you write it, since an unformatted file reds every
+session's gate, and keep raw dumps and review rounds in the scratchpad. Commit it like any other change and give
+the reader its path. A page to view is an `.html` file opened from disk.
 
 Never publish one with the Artifact tool, never create one through the Claude Docs connector, and
 never upload one to claude.ai any other way. A request for an artifact, a doc, a page or a link to
