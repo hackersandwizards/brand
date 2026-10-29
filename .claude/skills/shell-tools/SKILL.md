@@ -50,8 +50,12 @@ Prefer these over their classic equivalents.
 - `cdxe` to start Codex exec. It is aliased to `codex exec --yolo`: no approvals, no sandbox.
 
 **JavaScript/TypeScript:**
-- `bun` instead of `node` for running scripts
-- `bunx` instead of `npx` for one-off package execution
+- bun is the package manager in every repository of ours: `bun install`, `bun run`, `bun.lock`,
+  `"packageManager": "bun@<version>"`, and those lines in its README and CLAUDE.md. The training
+  repositories under `internal/trainings/` use npm and node instead, in commands, lockfile,
+  `packageManager`, README and MCP config, because most participants have no bun.
+- `bun` instead of `node` for running scripts, and `bunx` instead of `npx` for one-off package
+  execution, outside a training repository
 - `bun install -g` for globals at `~/.bun/bin`
 - built-in `Bun.Image` for image processing (Sharp-shaped, JPEG/PNG/WebP/HEIC/AVIF, no npm deps)
 
