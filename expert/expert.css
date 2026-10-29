@@ -1,5 +1,5 @@
 /* The expert set: the h&w brand as the internal expert systems wear it, dense and in two themes.
-   Company OS owns this file; @hackersandwizards/brand ships it to the trainer hub. It needs the
+   Company OS and the trainer hub import it from this package. It needs the
    package's tokens.css imported before it, and it adds only what an expert system needs on
    top of the brand: the dense type steps, the theme neutrals and accents, the status and hue
    roles, and the app primitives. Anything one app alone needs stays in that app's global.css. */
