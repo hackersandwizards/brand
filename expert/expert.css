@@ -1,6 +1,6 @@
 /* The expert set: the h&w brand as the internal expert systems wear it, dense and in two themes.
-   Company OS owns this file; the trainer hub copies it byte for byte. It needs
-   assets/brand/tokens.css imported before it, and it adds only what an expert system needs on
+   Company OS owns this file; @hackersandwizards/brand ships it to the trainer hub. It needs the
+   package's tokens.css imported before it, and it adds only what an expert system needs on
    top of the brand: the dense type steps, the theme neutrals and accents, the status and hue
    roles, and the app primitives. Anything one app alone needs stays in that app's global.css. */
 
@@ -53,7 +53,6 @@ html[data-theme="light"] {
   --accent: color-mix(in srgb, #1a7285 70%, #19283a);
   --accent-light: color-mix(in srgb, #155b6a 70%, #19283a);
   --accent-secondary: #9333ea;
-  --accent-secondary-light: #a855f7;
   /* Text on an accent fill: a filled button, an active toggle, a counter badge. */
   --on-accent: white;
   /* Purple in both themes, whichever hue the theme makes the primary accent. */
@@ -98,7 +97,6 @@ html[data-theme="dark"] {
   --accent-light: #d8b4fe;
   --on-accent: #0b1118;
   --accent-secondary: #2db5d4;
-  --accent-secondary-light: #5fc9e0;
   /* The website's --color-purple-light, 10:1 on night. */
   --focus: color-mix(in srgb, #9333ea 40%, white);
   --muted: #111a24;
@@ -125,7 +123,6 @@ html[data-theme="dark"] {
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
   --color-accent-secondary: var(--accent-secondary);
-  --color-accent-secondary-light: var(--accent-secondary-light);
   --color-on-accent: var(--on-accent);
   --color-focus: var(--focus);
   --color-muted: var(--muted);

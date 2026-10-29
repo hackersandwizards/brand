@@ -30,7 +30,8 @@ missing, the scan skips it with a warning.
 | `@hackersandwizards/brand/print.css`       | print scale and static fonts |
 | `@hackersandwizards/brand/fonts/<file>`    | font files                   |
 | `@hackersandwizards/brand/expert.css`      | expert UI layer              |
+| `@hackersandwizards/brand/document.css`    | print document base          |
 | `@hackersandwizards/brand/logos/<file>`    | logos                        |
 
 The package is private and never published: consumers install this repo as a Git dependency pinned
-to a tag. The document components in `document/` are not part of the package.
+to a tag. The document components in `document/components/` are not part of the package.

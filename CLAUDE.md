@@ -7,7 +7,7 @@ drift report over the sibling repos. Option B of
 
 Benedikt decided on 2026-10-29: this repo stays private on GitHub
 (`github.com/hackersandwizards/brand`, team `trainers` read), consumers install it as a Git
-dependency pinned to a tag, `git+ssh://git@github.com/hackersandwizards/brand.git#v0.1.0`. Only
+dependency pinned to a tag, `git+ssh://git@github.com/hackersandwizards/brand.git#v<version>`. Only
 the SSH form installs with Bun 1.4.4: it rewrites `git+https://github.com/...` and `github:` to
 GitHub's unauthenticated tarball API, which answers 404 for a private repo, `GITHUB_TOKEN` set or
 not. No registry. The rollout is staged: this core first, component packages from
@@ -50,8 +50,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
   Until this repo is the source, the origins in `manifest.json` own their files: change them there
   and re-import.
 - The scan and drift read each sibling's last commit through git and never its working tree.
-- The package holds the core only: tokens, generated formats, print and expert layers, fonts with
-  their OFL texts, small logos and `LICENSE`. `test/package.test.ts` fails on anything else.
+- The package holds the core only: tokens, generated formats, print and expert layers, the document
+  base `document/document.css`, fonts with their OFL texts, small logos and `LICENSE`. `test/package.test.ts` fails on anything else.
 - The slide engine stays private to talks and never enters this package, not even a primitive.
 - The document components stay in the repo but out of the package: `DocHeader.astro` imports os
   internals. They ship later in os's component package.

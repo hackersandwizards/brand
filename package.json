@@ -1,8 +1,8 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos and the expert UI layer.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and the document base.",
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "packageManager": "bun@1.4.4",
@@ -18,12 +18,14 @@
     "./print.css": "./tokens/print.css",
     "./fonts/*": "./tokens/fonts/*",
     "./expert.css": "./expert/expert.css",
+    "./document.css": "./document/document.css",
     "./logos/*": "./logos/*"
   },
   "files": [
     "tokens",
     "generated",
     "expert",
+    "document/document.css",
     "logos/*.svg",
     "logos/type-logo-long.png",
     "logos/type-logo-short.png",
