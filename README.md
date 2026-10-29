@@ -50,6 +50,10 @@ built in, so its box is the wizard's and the wordmark's centre line lies 7.8% of
 below the box centre: a text after the lockup centres on that line once the lockup takes the same
 `translate: 0 var(--logo-wizard-lift)`.
 
+The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides
+(Benedikt, 2026-10-29). `bun scripts/ampersand.ts` writes that offset into every one-line logo,
+renders its PNG and rehashes both in `manifest.json`.
+
 ## Work on the package
 
 ```sh

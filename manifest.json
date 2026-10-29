@@ -312,51 +312,51 @@
     },
     {
       "path": "logos/wordmark.svg",
-      "sha256": "959ef57c56275104b562475663a55303c637fc5d271c84834197a038b2966982"
+      "sha256": "2b064ef95a5e3ff8d00935a63bfb66b0ecc90d4858e6d93cb11c91db7e4394ea"
     },
     {
       "path": "logos/wordmark.png",
-      "sha256": "8236747258b0fbc0a6acb3c1c8ddc1e8ff5e0ecea143e0dba64fd4dd82e9113c"
+      "sha256": "826ec76fe36bfac5dde86104d0ddd1ea93be5d7e2e29d2b5bd68d6892bd6785d"
     },
     {
       "path": "logos/wordmark-night.svg",
-      "sha256": "5d0678e315fd31be2c967cfe6760cb99ed977bf2add45105ac23b09ae584ed20"
+      "sha256": "074572f5a35665c02bfa45cf50b98e8d1ef59fe69441ddd8d6d0ea27f179d6c5"
     },
     {
       "path": "logos/wordmark-night.png",
-      "sha256": "583eb9543b3873e8a1aec00e42880d8194a13e33bb9596be699dddc1b94b9598"
+      "sha256": "16a8efad2187bc2d87cae685695260b139626f09a8c4cd28d31dfe070830f5ee"
     },
     {
       "path": "logos/lockup.svg",
-      "sha256": "baacfeaa7679301f3a57927e70c995e74ffda90c0f6517c497e92ef1e0d0342e"
+      "sha256": "e67b16861baaaf01bcaff188d50c4ba8900c6f58d0506a2541a682142e03ef52"
     },
     {
       "path": "logos/lockup.png",
-      "sha256": "343372697cd0db80e9d58711a428a131ebc35759f450f9a17ca85104ef4a6941"
+      "sha256": "954165d1137f4f57979021922fafaf0c69345051db958a11efd7ed22a119b0c2"
     },
     {
       "path": "logos/lockup-night.svg",
-      "sha256": "2dad0f8a96680e6d8339ab1b6b0bb90ca4806a4d24c534bc48b38176d3cb3e26"
+      "sha256": "30272a0df6dbfb3cceda3d894a4e1d75704971f52071cc8ac544199a936d5bd3"
     },
     {
       "path": "logos/lockup-night.png",
-      "sha256": "c814a7e1e4ae8bc009b07fa31d92f7b0dbf18298fcefe10237a408e2486d7f61"
+      "sha256": "7b5bf2dc0406dda114d80a44a6c521f8f4451a6a7e7ba2f36b3f3b472fff0b71"
     },
     {
       "path": "logos/lockup-compact.svg",
-      "sha256": "7433f870a05f43112072667296dd9ec3143a8aa2a7584184697db5b15a3b0852"
+      "sha256": "78a2ca5e09e010c27abdc06b24b42342bae27c9a1fdb22d6b62738ea4db9720d"
     },
     {
       "path": "logos/lockup-compact.png",
-      "sha256": "c9e8fe9a14feba713658ce6358ebad7061eb858bf433af12c2fdbf72cd2fde72"
+      "sha256": "535b382b7798a0fee1683b3524527253e9751d934e38ea55730dc1209da84acc"
     },
     {
       "path": "logos/lockup-compact-night.svg",
-      "sha256": "4f3f1ff3d3a7c842b3f67f961371242c5b930adf2b4aedac8317428e2e248764"
+      "sha256": "ae889ff2edf2c929028a93a9eb84535500d4395f89eb969852a053e8001588a0"
     },
     {
       "path": "logos/lockup-compact-night.png",
-      "sha256": "8eda29edbba0c4982b0bfe3cc6abc0e930ab12470a5b6111610a68a19d5956ea"
+      "sha256": "c20d6ddb5083585c792a946a8e824841f9380370f37c70b32a749d2a0ab8a8a6"
     },
     {
       "path": "expert/expert.css",
