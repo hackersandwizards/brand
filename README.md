@@ -20,19 +20,17 @@ missing, the scan skips it with a warning.
 
 ## Package entry points
 
-| Import                                           | File                         |
-| ------------------------------------------------ | ---------------------------- |
-| `@hackersandwizards/brand/tokens.css`            | Tailwind 4 `@theme` tokens   |
-| `@hackersandwizards/brand/tokens.root.css`       | the same tokens on `:root`   |
-| `@hackersandwizards/brand/tokens.json`           | tokens and resolved colours  |
-| `@hackersandwizards/brand/tokens`                | the same as TypeScript       |
-| `@hackersandwizards/brand/tokens.py`             | the same as a Python module  |
-| `@hackersandwizards/brand/print.css`             | print scale and static fonts |
-| `@hackersandwizards/brand/fonts/<file>`          | font files                   |
-| `@hackersandwizards/brand/expert.css`            | expert UI layer              |
-| `@hackersandwizards/brand/document.css`          | document base                |
-| `@hackersandwizards/brand/document/<Name>.astro` | document components          |
-| `@hackersandwizards/brand/logos/<file>`          | logos                        |
+| Import                                     | File                         |
+| ------------------------------------------ | ---------------------------- |
+| `@hackersandwizards/brand/tokens.css`      | Tailwind 4 `@theme` tokens   |
+| `@hackersandwizards/brand/tokens.root.css` | the same tokens on `:root`   |
+| `@hackersandwizards/brand/tokens.json`     | tokens and resolved colours  |
+| `@hackersandwizards/brand/tokens`          | the same as TypeScript       |
+| `@hackersandwizards/brand/tokens.py`       | the same as a Python module  |
+| `@hackersandwizards/brand/print.css`       | print scale and static fonts |
+| `@hackersandwizards/brand/fonts/<file>`    | font files                   |
+| `@hackersandwizards/brand/expert.css`      | expert UI layer              |
+| `@hackersandwizards/brand/logos/<file>`    | logos                        |
 
-How the package reaches the other repos is still open: SY-1's recommendation is in
-`os/docs/tracking/2026-10-29-brand-distribution.md`, and Benedikt decides. Nothing is published yet.
+The package is private and not published. Which private channel carries it to the other repos is
+still open. The document components in `document/` are not part of the package.

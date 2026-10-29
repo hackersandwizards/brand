@@ -5,11 +5,12 @@ static fonts, logos, the expert UI layer and the document components, plus a rea
 drift report over the sibling repos. Option B of
 `os/docs/tracking/2026-10-29-brand-system-repo.md`, decided by Benedikt on 2026-10-29.
 
-How the package reaches the other repos is not decided yet (SY-1's recommendation:
-`os/docs/tracking/2026-10-29-brand-distribution.md`; Benedikt decides).
-Until then nothing here writes into another repo: no sync, no copy script, no remote, no push. The
-planned host is `github.com/hackersandwizards/brand`. `"private": true` in `package.json` blocks an
-accidental publish; remove it only with the distribution decision.
+Benedikt decided on 2026-10-29: the package and this repo stay private, never on a public registry,
+and the rollout is staged: this core first, component packages from talks and os later, moving into
+the core only once two surfaces share them. Which private channel carries it is still open (row
+`brand-package-distribution` in `os/docs/tracking/decisions/items.js`). Until then nothing here
+writes into another repo: no sync, no copy script, no remote, no push. `"private": true` in
+`package.json` blocks any publish; remove it only once the channel is decided.
 
 ## Layout
 
@@ -42,6 +43,11 @@ accidental publish; remove it only with the distribution decision.
   Until this repo is the source, the origins in `manifest.json` own their files: change them there
   and re-import.
 - The scan and drift read each sibling's last commit through git and never its working tree.
+- The package holds the core only: tokens, generated formats, print and expert layers, fonts with
+  their OFL texts, small logos and `LICENSE`. `test/package.test.ts` fails on anything else.
+- The slide engine stays private to talks and never enters this package, not even a primitive.
+- The document components stay in the repo but out of the package: `DocHeader.astro` imports os
+  internals. They ship later in os's component package.
 - Large logos live in Git LFS (`.gitattributes`). The two print TIFFs and the two 4096 px emoji PNGs
   stay out of the package's `files`.
 

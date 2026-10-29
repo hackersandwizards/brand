@@ -2,7 +2,8 @@
   "name": "@hackersandwizards/brand",
   "version": "0.1.0",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and the document components.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos and the expert UI layer.",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "packageManager": "bun@1.4.4",
   "engines": {
@@ -17,22 +18,19 @@
     "./print.css": "./tokens/print.css",
     "./fonts/*": "./tokens/fonts/*",
     "./expert.css": "./expert/expert.css",
-    "./document.css": "./document/document.css",
-    "./document/*": "./document/components/*",
     "./logos/*": "./logos/*"
   },
   "files": [
     "tokens",
     "generated",
     "expert",
-    "document",
     "logos/*.svg",
     "logos/type-logo-long.png",
     "logos/type-logo-short.png",
     "logos/emoji-logo-short-quote.png"
   ],
   "scripts": {
-    "postinstall": "git rev-parse --git-dir > /dev/null 2>&1 && git config core.hooksPath .githooks || true",
+    "prepare": "git rev-parse --git-dir > /dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check",
     "lint": "eslint --cache --concurrency=auto .",
     "typecheck": "tsc --noEmit",

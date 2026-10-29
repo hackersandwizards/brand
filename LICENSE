@@ -1,0 +1,16 @@
+Copyright (c) 2026 hackers&wizards GmbH. All rights reserved.
+
+This package is not public. hackers&wizards GmbH makes it available to its own
+staff and to the trainers and partners it chooses, for work for hackers&wizards
+only. Passing it on, in whole or in part, needs written permission.
+
+Code and design tokens: tokens/tokens.css, tokens/print.css, generated/ and
+expert/. All rights reserved.
+
+Logos: logos/. The name hackers&wizards and the logos are trademarks of
+hackers&wizards GmbH. All rights reserved.
+
+Fonts: tokens/fonts/*.woff2 are Inter and JetBrains Mono under the SIL Open Font
+License 1.1, which this notice does not restrict. The licence texts with their
+copyright notices are tokens/fonts/OFL-Inter.txt and
+tokens/fonts/OFL-JetBrainsMono.txt.
