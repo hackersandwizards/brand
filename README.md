@@ -35,3 +35,22 @@ missing, the scan skips it with a warning.
 
 The package is private and never published: consumers install this repo as a Git dependency pinned
 to a tag. The document components in `document/components/` are not part of the package.
+
+## Install
+
+A consumer names the dependency in exactly this form, pinned to a tag:
+
+```json
+"@hackersandwizards/brand": "git+ssh://git@github.com/hackersandwizards/brand.git#v0.3.1"
+```
+
+Bun rewrites `git+https://github.com/...` and `github:` to GitHub's tarball API, which answers 404
+for a private repo, `GITHUB_TOKEN` set or not. With the `git+ssh://` form Bun clones through git
+instead: first over HTTPS with the machine's credential helper, then over SSH. So an install needs
+GitHub read access to `hackersandwizards/brand`, through `gh auth login` plus `gh auth setup-git`,
+or an SSH key. With neither, Bun stops at
+`error: InstallFailed cloning repository for @hackersandwizards/brand`, which names no cause, and
+no `preinstall` script runs that could explain it.
+
+A machine without access cannot open this README, so each consumer's README carries the two access
+checks and both fixes in its setup section.
