@@ -34,11 +34,11 @@
   "scripts": {
     "postinstall": "git rev-parse --git-dir > /dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check",
-    "lint": "eslint .",
+    "lint": "eslint --cache --concurrency=auto .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "fix": "eslint . --fix && prettier --write .",
+    "fix": "eslint --cache --concurrency=auto . --fix && prettier --write .",
     "tokens": "bun scripts/tokens.ts",
     "scan": "bun scripts/scan.ts",
     "drift": "bun scripts/drift.ts",

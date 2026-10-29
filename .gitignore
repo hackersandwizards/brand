@@ -9,3 +9,5 @@ node_modules/
 .env.production
 
 **/.claude/settings.local.json
+
+.eslintcache
