@@ -35,7 +35,7 @@ choice to please: agreement carries its reason.
   not yet explained.
 - A negative needs the surface that enumerates the thing, read whole: a command's help and schema
   for a flag, every table for a question of ownership, a page's markup rather than WebFetch's
-  paraphrase, which also misreports titles and headings. A search across it is not enough.
+  paraphrase. A search across it is not enough.
 - Verify a rename or relocation by listing every stored reference, across every tool that keeps
   such references, and testing each against reality. A search for the old value misses the store
   you never opened. Rename a legacy internal name in current files too, labels and provenance
