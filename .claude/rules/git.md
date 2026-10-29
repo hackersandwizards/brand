@@ -10,6 +10,9 @@ Other sessions share this working tree and its index.
 - `git add` each new file by name, and both paths of a `git mv`, before committing. A pathspec
   skips untracked files, and naming only a rename's destination leaves the file at both paths. The
   local gate still passes, because it reads the working tree rather than the commit.
+- A pathspec commit takes the working tree, so `git commit -- <path>` re-adds a file that
+  `git rm --cached` only untracked, `.gitignore` notwithstanding. Move the file out of the tree for
+  that commit and back afterwards.
 - A case-only rename commits nothing through a pathspec where `core.ignorecase` is true: the commit
   reports success and leaves the rename staged. Rename through an intermediate name in two commits
   (`Foo` -> `foo-case` -> `foo`) and read `git ls-tree HEAD -- <dir>` afterwards.

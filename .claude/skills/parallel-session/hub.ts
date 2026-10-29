@@ -59,11 +59,17 @@ for (const r of repos) {
     if (!before.has(key)) lists.push({ path: r, key });
 }
 const rows = Object.values(decisionWindow.DECISION_REPOS ?? {}).flat();
+// Defects the build cannot survive; --check reports them with the rest.
+const broken: string[] = [];
 const REQUIRED = ["id", "title", "area", "priority", "order", "status", "context"];
 const defects = Object.entries(decisionWindow.DECISION_REPOS ?? {}).flatMap(([repoKey, list]) => {
   const seen = new Set<string>();
-  return list.flatMap((r) => {
-    const at = `${repoKey}:${r.id ?? "?"}`;
+  return list.flatMap((r, i) => {
+    if (!r.id) {
+      broken.push(`${repoKey} row ${i + 1} (${String(r.title ?? "untitled")}) has no id`);
+      return [];
+    }
+    const at = `${repoKey}:${r.id}`;
     const out = REQUIRED.filter((k) => r[k] === undefined || r[k] === "").map(
       (k) => `${at} lacks ${k}`,
     );
@@ -79,18 +85,24 @@ const defects = Object.entries(decisionWindow.DECISION_REPOS ?? {}).flatMap(([re
   });
 });
 const ids = new Set(rows.map((r) => r.id));
-const reviewFiles = existsSync(root)
-  ? readdirSync(root)
-      .filter((n) => !/^[_.]/.test(n) && existsSync(join(root, n, "review.json")))
-      .map((n) => join(root, n, "review.json"))
-  : [];
+if (!existsSync(root)) {
+  console.error(`hub folder ${root} does not exist`);
+  process.exit(1);
+}
+const reviewFiles = readdirSync(root)
+  .filter((n) => !/^[_.]/.test(n) && existsSync(join(root, n, "review.json")))
+  .map((n) => join(root, n, "review.json"));
 for (const file of reviewFiles) {
   const at = file.slice(root.length + 1);
   let rv: Review;
   try {
     rv = JSON.parse(readFileSync(file, "utf8"));
-  } catch {
-    defects.push(`${at} is not JSON`);
+  } catch (e) {
+    broken.push(`${at} is not valid JSON: ${(e as Error).message}`);
+    continue;
+  }
+  if (!rv || typeof rv !== "object" || Array.isArray(rv)) {
+    broken.push(`${at} is not a JSON object`);
     continue;
   }
   if (rv.status && !["decide", "use", "info"].includes(rv.status))
@@ -99,9 +111,14 @@ for (const file of reviewFiles) {
   if (rv.row && !rv.row.endsWith("*") && !rv.current?.decision && ids.size && !ids.has(rv.row))
     defects.push(`${at} row ${rv.row} not found`);
 }
+defects.unshift(...broken);
 if (checkOnly) {
   console.log(defects.length ? defects.join("\n") : `ok: ${repos.length} repo(s)`);
   process.exit(defects.length ? 1 : 0);
+}
+if (broken.length) {
+  console.error(broken.join("\n"));
+  process.exit(1);
 }
 const decided = (row?: string) => {
   if (!row) return false;

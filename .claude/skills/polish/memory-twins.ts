@@ -6,6 +6,7 @@
  *
  * Usage: bun .claude/skills/polish/memory-twins.ts [memory root]
  */
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 
@@ -137,6 +138,8 @@ interface Unit {
 async function memoryUnits(root: string): Promise<{ files: Unit[]; lines: Unit[] }> {
   const files: Unit[] = [];
   const lines: Unit[] = [];
+  // A repository without agent memory has nothing to compare.
+  if (!existsSync(root)) return { files, lines };
   const entries = await readdir(root, { withFileTypes: true, recursive: true });
   for (const e of entries.filter((x) => x.isFile() && x.name.endsWith(".md"))) {
     const path = join(e.parentPath, e.name);

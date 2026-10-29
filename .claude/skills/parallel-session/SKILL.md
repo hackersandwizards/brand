@@ -47,6 +47,9 @@ rows plus the `open` and `assumed` rows in `items.js`. No third list exists.
    `bun ${CLAUDE_SKILL_DIR}/hub.ts <repo> ...` with every repo the session touched. Check: the
    hub's `index.html` shows the topic. That page is the person's one entry point: it also links
    each repo's decision list with its open and assumed counts, and lists every open priority-1 row.
+   A batch that changes an asset hub topics show, such as a logo, colour or lockup, re-renders every
+   topic showing the old asset or moves it to `_archiv/`, in that batch. Check: no topic folder
+   showing that asset is older than the change.
 8. When the person returns, report from the rows, ordered by what each costs if missed. Before
    ending the session, read the transcript from its first message: every item of the first report,
    every question put and its answer, every promise. Check: each unfinished one has a row.

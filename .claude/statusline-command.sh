@@ -29,8 +29,10 @@ SEP="${GRAY}·${RESET}"
 # caps at 8000, so the reserve is a fixed 21000 tokens at any window size. Not in the
 # statusline JSON: re-sync if Anthropic changes the constants.
 CTX_RESERVE_TOKENS=21000
-# Calibrated to warn at ~150k and ~250k live tokens in a 1M window.
-CTX_BAR_RED=26  CTX_BAR_YELLOW=16
+# Warn at 150k and 250k live tokens, each capped at a share of the usable window
+# (yellow 75%, red 90%) so a 200k window still warns before auto-compact.
+CTX_YELLOW_TOKENS=150000  CTX_RED_TOKENS=250000
+CTX_YELLOW_CAP=75  CTX_RED_CAP=90
 
 RL5_RED=80   RL5_YELLOW=50
 
@@ -177,7 +179,14 @@ else
 fi
 
 bar_idx=$(( pct / 10 ))
-pct_color "$pct" "$CTX_BAR_RED" "$CTX_BAR_YELLOW" bar_color
+# Token thresholds as "% used" of this session's usable window, rounded up.
+ctx_threshold() { # tokens cap var
+    local t=$(( $1 < usable * $2 / 100 ? $1 : usable * $2 / 100 ))
+    printf -v "$3" '%s' "$(( (t * 100 + usable - 1) / usable ))"
+}
+ctx_threshold "$CTX_RED_TOKENS" "$CTX_RED_CAP" ctx_red
+ctx_threshold "$CTX_YELLOW_TOKENS" "$CTX_YELLOW_CAP" ctx_yellow
+pct_color "$pct" "$ctx_red" "$ctx_yellow" bar_color
 
 # Trailing " ${SEP} " means "more may follow"; leading means "only join if something
 # rendered before us". The inconsistency is load-bearing.
