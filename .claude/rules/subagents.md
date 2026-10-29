@@ -32,7 +32,9 @@
 - Stop a finished delegate's task before you stop the process it left running. Stopping the process
   first wakes the delegate to re-report its whole context, which cost two 650,000-token re-sends in
   one evening. Leave idle entries of finished delegates alone. Read the scratch folder named in a
-  process's command line before stopping it: it may be a live delegate's run.
+  process's command line before stopping it: it may be a live delegate's run. Stop a process by its own
+  PID, from your launch or a `pgrep` or `lsof` line whose command line you read, never by a pattern
+  such as `pkill -f`: parallel sessions run the same commands.
 - A stall, a timeout or a resumed transcript means a delegate's report may be incomplete. Read its
   commits and working tree over the window, reconcile every hunk against what it said it did, count
   the files it opened against the files you assigned, and hand any contradiction back.
