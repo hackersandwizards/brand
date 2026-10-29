@@ -384,7 +384,7 @@
     },
     {
       "path": "document/components/DocCertificate.astro",
-      "sha256": "0539fd8627cd0ae3623806c6178f8f104564111fb97e177cb1c554f07e3337c7"
+      "sha256": "f2f7fd83968471bc6ad9dfba83ab2ea87de11b43e6e0ce484b5cad97c49d810b"
     },
     {
       "path": "document/components/DocClosing.astro",
