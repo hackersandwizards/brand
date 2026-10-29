@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 // Read-only comparison of each repo's copies (repos.json) against manifest.json, at each repo's
-// last commit, LFS pointers compared by their object id. Writes reports/drift.json and prints a
-// summary. Reports only: it exits 0 on drift, and it never writes into another repo.
+// last commit, LFS pointers compared by their object id. A directory copy covers only files with
+// an origin: a file brand owns is no copy. Writes reports/drift.json and prints a summary. Reports
+// only: it exits 0 on drift, and it never writes into another repo.
 // Usage: bun scripts/drift.ts
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -27,7 +28,7 @@ export const drift = () => {
     for (const [from, to] of repo.copies) {
       const pairs = from.endsWith("/")
         ? manifest.files
-            .filter((f) => f.path.startsWith(from))
+            .filter((f) => f.path.startsWith(from) && "origin" in f)
             .map((f) => [f.path, to + f.path.slice(from.length)])
         : [[from, to]];
       for (const [brand, copy] of pairs) {

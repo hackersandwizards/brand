@@ -141,7 +141,7 @@
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
     },
     "os:src/styles/global.css": {
-      "hex": 35,
+      "hex": 33,
       "tokenHex": 16,
       "font": 1,
       "palette": 0,
@@ -408,7 +408,7 @@
     },
     "certificate-verifier:src/worker.ts": {
       "hex": 0,
-      "tokenHex": 15,
+      "tokenHex": 0,
       "font": 2,
       "palette": 0,
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."

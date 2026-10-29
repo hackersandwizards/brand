@@ -16,3 +16,8 @@ test.skipIf(!isRepo(join(ROOT, repos.os.path)))("a changed hash shows as drift",
     entry.sha256 = real;
   }
 });
+
+test.skipIf(!isRepo(join(ROOT, repos.website.path)))("a file brand owns is never a copy", () => {
+  const own = manifest.files.filter((f) => !("origin" in f)).map((f) => f.path);
+  expect(drift().website.rows.filter((r) => own.includes(r.brand))).toEqual([]);
+});
