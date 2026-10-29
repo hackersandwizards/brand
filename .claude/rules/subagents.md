@@ -19,6 +19,10 @@
   report lands. Serialise only work sharing a heavy resource on one machine, such as a whole test
   gate, a browser suite or a load run. Fan out as parallel
   Agent calls, never through the Workflow tool.
+- Hand a delegate or reviewer a screenshot judged only on layout, content or presence downscaled to
+  1000 px on its long side (`sips -Z 1000 in.png --out out.png`), and one judged on legibility,
+  typography or logo detail at full size or as a full-resolution crop of that detail. An image
+  costs `⌈width / 28⌉ × ⌈height / 28⌉` tokens, up to 4,784 at a 2,576 px long edge.
 - Delegates in one session share its scratchpad. Prefix every scratch file with its run, and fetch
   into a directory named for the run, since a resume guard adopts files another run left.
 - Check that SendMessage is available before fanning out: a fan-out you cannot prod runs serially
