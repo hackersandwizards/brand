@@ -5,11 +5,12 @@ test("counts off-token hex, token hex, off-brand fonts and palette classes", () 
   const { counts, hexes, fonts } = scanSource(
     `.a { color: #123456; background: #1A7285; font-family: Georgia, serif; }
      .b { font-family: var(--font-sans); } /* #ffffff in a comment */
-     <div class="bg-red-500 text-slate-700" id="#add">`,
+     <div class="bg-red-500 text-slate-700" id="#add">
+     .c { box-shadow: 0 0 4px #12345680; color: #1A728580; border-color: #3458; }`,
     ".astro",
   );
-  expect(counts).toEqual({ hex: 1, tokenHex: 1, font: 1, palette: 2 });
-  expect(hexes).toEqual(["#123456"]);
+  expect(counts).toEqual({ hex: 3, tokenHex: 2, font: 1, palette: 2 });
+  expect(hexes).toEqual(["#123456", "#12345680", "#3458"]);
   expect(fonts).toEqual(["Georgia"]);
 });
 
@@ -40,4 +41,9 @@ test("tightening lowers and drops entries, never raises or adds", () => {
   });
   expect(tighten(report({ "os:a.css": 1 }), allow).files["os:a.css"].hex).toBe(1);
   expect(tighten(report({}), allow).files).toEqual({});
+});
+
+test("tightening with a repo skipped keeps every allowlisted duplicate", () => {
+  const skipped = { ...report({}), skipped: ["talks"] };
+  expect(tighten(skipped, allow).duplicates).toEqual({ card: "r" });
 });

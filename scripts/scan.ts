@@ -59,7 +59,8 @@ const strip = (s: string, ext: string) =>
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .replace(/(^|[^:"'`])\/\/.*$/gm, "$1")
         .replace(/<!--[\s\S]*?-->/g, "");
-const HEX = /(?<![&\w])#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![\w-])/g;
+// 8 and 4 digits carry an alpha channel; the colour part decides token or off-token.
+const HEX = /(?<![&\w])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g;
 const isColour3 = (h: string) => /\d/.test(h) || /^(.)\1\1$/.test(h);
 const FONT = /font-family\s*:\s*([^;}"'`\n]+|["'][^;}\n]+)|fontFamily\s*[:=]\s*["'`]([^"'`]+)/g;
 const BRAND_FONT =
@@ -74,12 +75,14 @@ export const scanSource = (raw: string, ext: string) => {
   const hexes: string[] = [];
   const fonts: string[] = [];
   for (const [, h] of src.matchAll(HEX)) {
-    if (h.length === 3 && !isColour3(h)) continue;
-    const value = "#" + (h.length === 3 ? [...h].map((x) => x + x).join("") : h).toLowerCase();
-    if (palette.has(value)) counts.tokenHex++;
+    const short = h.length <= 4;
+    if (short && !isColour3(h)) continue;
+    const rgb6 = short ? [...h.slice(0, 3)].map((x) => x + x).join("") : h.slice(0, 6);
+    const colour = "#" + rgb6.toLowerCase();
+    if (palette.has(colour)) counts.tokenHex++;
     else {
       counts.hex++;
-      hexes.push(value);
+      hexes.push(h.length % 4 ? colour : "#" + h.toLowerCase());
     }
   }
   for (const m of src.matchAll(FONT)) {
@@ -194,7 +197,8 @@ export const tighten = (report: ReturnType<typeof scan>, allow: Allowlist | unde
     ) as Counts;
     if (METRICS.some((k) => next[k])) files[file] = { ...next, reason: prior?.reason ?? BASELINE };
   }
-  const duplicates: Allowlist["duplicates"] = {};
+  // A duplicate does not name its repos, so with any repo skipped every entry stays.
+  const duplicates: Allowlist["duplicates"] = report.skipped.length ? { ...allow?.duplicates } : {};
   for (const key of Object.keys(report.duplicates))
     if (!allow || key in allow.duplicates) duplicates[key] = allow?.duplicates[key] ?? BASELINE;
   return { files, duplicates };

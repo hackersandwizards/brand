@@ -48,7 +48,7 @@
     "scan": "bun scripts/scan.ts",
     "drift": "bun scripts/drift.ts",
     "catalogue": "bun scripts/catalogue.ts",
-    "report": "bun scripts/scan.ts; bun scripts/drift.ts && bun scripts/catalogue.ts",
+    "report": "bun scripts/scan.ts; s=$?; bun scripts/drift.ts && bun scripts/catalogue.ts && exit $s",
     "import": "bun scripts/import.ts && bun scripts/tokens.ts"
   },
   "devDependencies": {

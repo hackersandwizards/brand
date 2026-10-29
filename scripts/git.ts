@@ -41,12 +41,17 @@ export const lfsObject = (repo: string, oid: string) => {
   return b;
 };
 
-/** Every file path at HEAD under a directory, relative to the directory. */
-export const listDir = (repo: string, dir: string) =>
-  (git(repo, ["ls-tree", "-r", "-z", "--name-only", "HEAD", "--", `${dir}/`])?.toString() ?? "")
+/** Every file path at HEAD under a directory, relative to the directory. Throws where `repo` is no
+ *  checkout, so a missing owner never reads as an empty folder. */
+export const listDir = (repo: string, dir: string) => {
+  const out = git(repo, ["ls-tree", "-r", "-z", "--name-only", "HEAD", "--", `${dir}/`]);
+  if (!out) throw new Error(`${repo} is not a git checkout`);
+  return out
+    .toString()
     .split("\0")
     .filter(Boolean)
     .map((p) => p.slice(dir.length + 1));
+};
 
 /** Every blob at HEAD as [path, blob id]. */
 export const tree = (repo: string): [string, string][] =>

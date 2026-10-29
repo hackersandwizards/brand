@@ -25,6 +25,10 @@ const sources: [string, Origin][] = [
     .map((p): [string, Origin] => [`logos/${p}`, { repo: "os", path: `${logos}/${p}` }]),
 ];
 
+const ownPaths = new Set(manifest.files.filter((f) => !f.origin).map((f) => f.path));
+const clash = sources.filter(([path]) => ownPaths.has(path)).map(([path]) => path);
+if (clash.length) throw new Error(`an origin holds files this repo owns: ${clash.join(", ")}`);
+
 const files = sources.map(([path, origin]) => {
   const repo = owner(origin.repo);
   let bytes = show(repo, origin.path)!;
