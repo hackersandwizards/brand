@@ -9,7 +9,7 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
-const escHtml = (s: string) =>
+const htmlEscape = (s: string) =>
   s.replace(
     /[&<>"']/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
@@ -172,26 +172,26 @@ function card(t: (typeof topics)[number]): string {
       ? `<ol>${t.candidates
           .map(
             (k) =>
-              `<li>${k.recommended ? "<b>Recommended:</b> " : ""}${escHtml(k.label)}${k.score ? ` <span class="score">${escHtml(String(k.score))}</span>` : ""}</li>`,
+              `<li>${k.recommended ? "<b>Recommended:</b> " : ""}${htmlEscape(k.label)}${k.score ? ` <span class="score">${htmlEscape(String(k.score))}</span>` : ""}</li>`,
           )
           .join("")}</ol>`
       : "";
-  return `<article data-topic="${escHtml(t.name)}" data-title="${escHtml(t.title)}" data-question="${escHtml(ask)}">
-  <a class="thumb" href="${escHtml(link)}">${t.thumb ? `<img loading="lazy" src="${escHtml(`${t.name}/${t.thumb}`)}" alt="">` : "<span>no image</span>"}</a>
-  <div><h3>${escHtml(t.title)} <small>${r.status ? LABEL[r.status] : "new, not classified"}</small>${isDecided ? ' <span class="badge">decided</span>' : ""}</h3>
-  ${isDecided ? `<p><b>Decided:</b> ${escHtml(c.decision ?? "see the row")}</p>` : c.question ? `<p><b>Question:</b> ${escHtml(c.question)}</p>` : ""}${c.todo ? `<p><b>To do:</b> ${escHtml(c.todo)}</p>` : ""}${c.result ? `<p>${escHtml(c.result)}</p>` : ""}
+  return `<article data-topic="${htmlEscape(t.name)}" data-title="${htmlEscape(t.title)}" data-question="${htmlEscape(ask)}">
+  <a class="thumb" href="${htmlEscape(link)}">${t.thumb ? `<img loading="lazy" src="${htmlEscape(`${t.name}/${t.thumb}`)}" alt="">` : "<span>no image</span>"}</a>
+  <div><h3>${htmlEscape(t.title)} <small>${r.status ? LABEL[r.status] : "new, not classified"}</small>${isDecided ? ' <span class="badge">decided</span>' : ""}</h3>
+  ${isDecided ? `<p><b>Decided:</b> ${htmlEscape(c.decision ?? "see the row")}</p>` : c.question ? `<p><b>Question:</b> ${htmlEscape(c.question)}</p>` : ""}${c.todo ? `<p><b>To do:</b> ${htmlEscape(c.todo)}</p>` : ""}${c.result ? `<p>${htmlEscape(c.result)}</p>` : ""}
   ${list}
-  <p class="links"><a href="${escHtml(link)}">Open topic</a>${r.report ? ` · Report: <a href="${escHtml(reportHref(r.report))}">${escHtml(r.report)}</a>` : ""}${r.row ? ` · Row <code>${escHtml(r.row)}</code>` : ""}
+  <p class="links"><a href="${htmlEscape(link)}">Open topic</a>${r.report ? ` · Report: <a href="${htmlEscape(reportHref(r.report))}">${htmlEscape(r.report)}</a>` : ""}${r.row ? ` · Row <code>${htmlEscape(r.row)}</code>` : ""}
   <label class="seen"><input type="checkbox"> reviewed</label></p>
   <textarea placeholder="Your feedback"></textarea></div>
 </article>`;
 }
 
-const listItem = ({ path, key }: { path: string; key: string }) => {
+const decisionListItem = ({ path, key }: { path: string; key: string }) => {
   const l = decisionWindow.DECISION_REPOS![key];
   const n = (st: string) => l.filter((r) => r.status === st).length;
   const href = "file://" + join(path, ".claude/skills/parallel-session/decisions.html");
-  return `<li><a href="${escHtml(href)}">${escHtml(key)}</a>: ${n("open")} open, ${n("assumed")} assumptions</li>`;
+  return `<li><a href="${htmlEscape(href)}">${htmlEscape(key)}</a>: ${n("open")} open, ${n("assumed")} assumptions</li>`;
 };
 const urgent = lists.flatMap(({ key }) =>
   decisionWindow
@@ -228,11 +228,11 @@ textarea{width:100%;box-sizing:border-box;min-height:56px;margin-top:8px;font:in
 button{font:600 14px "JetBrains Mono",monospace;background:#1A7285;color:#fff;border:0;border-radius:4px;padding:10px 14px;cursor:pointer}
 .note{color:#545861;font-size:14px}.badge{font-size:12px;background:#1A7285;color:#fff;padding:1px 8px;border-radius:4px}#count{color:#9333EA}
 </style></head><body><main>
-<header><div><h1>Decision review: <span id="count"></span> open</h1><div class="note">Built ${escHtml(stamp)}. Newest first. Feedback and ticks stay saved in this browser.</div></div>
+<header><div><h1>Decision review: <span id="count"></span> open</h1><div class="note">Built ${htmlEscape(stamp)}. Newest first. Feedback and ticks stay saved in this browser.</div></div>
 <button id="export">Export feedback</button></header>
 <p class="note">"reviewed" replaces deleting: the tick moves the topic to the bottom and the files stay. "Export feedback" downloads every field with text as one Markdown file.</p>
 <article data-topic="_allgemein" data-title="General" data-question=""><span></span><div><h3>General</h3><textarea placeholder="What applies to every topic"></textarea></div></article>
-${lists.length ? `<h2>Decision lists</h2>\n<ul>${lists.map(listItem).join("")}</ul>${urgent.length ? `<h3>Open with priority 1</h3>\n<ol>${urgent.map((u) => `<li>${escHtml(u.key)}: ${escHtml(String(u.row.title))}</li>`).join("")}</ol>` : ""}` : ""}
+${lists.length ? `<h2>Decision lists</h2>\n<ul>${lists.map(decisionListItem).join("")}</ul>${urgent.length ? `<h3>Open with priority 1</h3>\n<ol>${urgent.map((u) => `<li>${htmlEscape(u.key)}: ${htmlEscape(String(u.row.title))}</li>`).join("")}</ol>` : ""}` : ""}
 <h2>Open</h2>
 <section id="open">${open.map(card).join("\n")}</section>
 ${done.length ? `<h2>Decided</h2>\n<section id="decided">${done.map(card).join("\n")}</section>` : ""}
