@@ -1,24 +1,27 @@
 # @hackersandwizards/brand
 
-The one source of the hackers&wizards brand: design tokens, the print layer with its static fonts,
-the logos, the expert UI layer of Company OS and the trainer hub, and the document components the
-PDFs are built from.
+The hackers&wizards brand as one private package: design tokens, the print layer with its static
+fonts, the logos and the expert UI layer that Company OS and the trainer hub use. The repo also keeps
+the document components the PDFs are built from, outside the package.
 
-Open `catalogue.html` from disk to see the tokens, the logos, the scan of every repo and whether
-each repo's copies still match this one.
+Maintainer: Benedikt Stemmildt. Trainers can read the whole repo, its history
+included, so nothing goes in that a trainer may not see.
 
-## Use
+## Use it in another repo
 
-```sh
-bun install
-bun run check    # format, lint, typecheck, tests, generated/ up to date
-bun run report   # scan the sibling repos, compare their copies, rebuild catalogue.html
+Add the dependency in exactly this form, pinned to the newest tag
+(`git ls-remote --tags https://github.com/hackersandwizards/brand.git` lists them). Your machine needs
+GitHub read access to this repo; the check is in your repo's README, the reason below.
+
+```json
+"@hackersandwizards/brand": "git+ssh://git@github.com/hackersandwizards/brand.git#v0.3.1"
 ```
 
-The sibling repos are read from their checkouts next to this one (`repos.json`). Where one is
-missing, the scan skips it with a warning.
+Then import what you need:
 
-## Package entry points
+```css
+@import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
+```
 
 | Import                                     | File                         |
 | ------------------------------------------ | ---------------------------- |
@@ -33,24 +36,33 @@ missing, the scan skips it with a warning.
 | `@hackersandwizards/brand/document.css`    | print document base          |
 | `@hackersandwizards/brand/logos/<file>`    | logos                        |
 
-The package is private and never published: consumers install this repo as a Git dependency pinned
-to a tag. The document components in `document/components/` are not part of the package.
+## Work on the package
 
-## Install
-
-A consumer names the dependency in exactly this form, pinned to a tag:
-
-```json
-"@hackersandwizards/brand": "git+ssh://git@github.com/hackersandwizards/brand.git#v0.3.1"
+```sh
+bun install      # also points the git hooks at .githooks/
+bun run check    # format, lint, typecheck, tests, generated/ up to date
+bun run report   # scan the sibling repos, compare their copies, rebuild catalogue.html
 ```
 
-Bun rewrites `git+https://github.com/...` and `github:` to GitHub's tarball API, which answers 404
-for a private repo, `GITHUB_TOKEN` set or not. With the `git+ssh://` form Bun clones through git
-instead: first over HTTPS with the machine's credential helper, then over SSH. So an install needs
-GitHub read access to `hackersandwizards/brand`, through `gh auth login` plus `gh auth setup-git`,
-or an SSH key. With neither, Bun stops at
-`error: InstallFailed cloning repository for @hackersandwizards/brand`, which names no cause, and
-no `preinstall` script runs that could explain it.
+Open `catalogue.html` from disk to see the tokens, the logos, the scan of every repo and whether
+each repo's copies still match this one. The scan reads the sibling repos from their checkouts next
+to this one (`repos.json`) and skips a missing one with a warning.
+
+A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
+tag in their dependency line. Which files change here and which in their origin repo, and the rest of
+the rules: [CLAUDE.md](CLAUDE.md).
+
+## Why the `git+ssh://` form
+
+The package is never published to a registry. Bun rewrites `git+https://github.com/...` and
+`github:` to GitHub's tarball API, which answers 404 for a private repo, `GITHUB_TOKEN` set or not.
+With the `git+ssh://` form Bun clones through git: first over HTTPS with the machine's credential
+helper, then over SSH. An install therefore needs GitHub read access to `hackersandwizards/brand`,
+through `gh auth login` plus `gh auth setup-git`, or an SSH key. With neither, Bun stops at
+`error: InstallFailed cloning repository for @hackersandwizards/brand`, which names no cause, and no
+`preinstall` script runs that could explain it.
 
 A machine without access cannot open this README, so each consumer's README carries the two access
 checks and both fixes in its setup section.
+
+Licence: proprietary, see [LICENSE](LICENSE).

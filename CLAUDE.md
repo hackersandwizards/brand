@@ -8,7 +8,7 @@ drift report over the sibling repos. Option B of
 Benedikt decided on 2026-10-29: this repo stays private on GitHub
 (`github.com/hackersandwizards/brand`, team `trainers` read), consumers install it as a Git
 dependency pinned to a tag, `git+ssh://git@github.com/hackersandwizards/brand.git#v<version>`. Only
-this address form installs; why, and the access it needs: `README.md`, "Install". No registry. The rollout is staged: this core first, component packages from
+this address form installs; why, and the access it needs: `README.md`, "Why the `git+ssh://` form". No registry. The rollout is staged: this core first, component packages from
 talks and os later, moving into the core only once two surfaces share them. `"private": true`
 stays: nothing is ever published. A release is a tag `v<version>` matching `package.json`. Nothing
 here writes into another repo: no sync, no copy script.
