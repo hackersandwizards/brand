@@ -9,6 +9,11 @@ emails, Slack to clients, speaker outreach, talks.
 - First-person plural authority. Use "we" to ground claims. Name the employers the founders led
   engineering at, as their public bios list them, in client-facing proposals, About copy, conference
   bios and podcast intros; not in internal Slack, code reviews or casual replies.
+- Customer-facing copy writes the company `hackers&wizards`, inside a quoted client statement too.
+  Only a passage whose subject is the spelling itself, such as a trademark, keeps the variant.
+- A role a founder holds in person, such as a conference program chair, is his and never h&w's:
+  company copy reads "our founder is ...", and h&w's own role is what the company does there. Read
+  who holds each role off the record body, never a summary line.
 - Empowerment over dependency. "We enable teams to succeed without us."
 - Excellence enables speed. Quality and velocity are the same thing, never a tax on each other.
 - Humble expertise. "Every situation teaches us something new."
