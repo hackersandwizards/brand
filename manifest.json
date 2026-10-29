@@ -360,11 +360,11 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "512cd82e230befce72101325439b8a9655b7fd0a609ccbbeabf33158d0dea825"
+      "sha256": "3232a9eccd0b6b66748235e1828dcdf0013c8a215725b7ef4aef7a1a88ee7328"
     },
     {
       "path": "document/document.css",
-      "sha256": "e3b663f5e004c7d94d26761a1cc9fdf31374de1da4a8f25bf1c2442ab55b51a0"
+      "sha256": "d64cc936550d2eaed8cfc0568ac9c37d3ba5eb882c866141cd2a3e50371eb163"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -444,7 +444,7 @@
     },
     {
       "path": "document/components/DocTotalRow.astro",
-      "sha256": "628ed5f6392c81acff2326816a6bd3e0e4e66a2f566a507d4d2c8fbc32cd07a1"
+      "sha256": "53f973b8ee1721295c2aa120436112556ab0f34f85d30c3e104755f3a10d4eca"
     }
   ]
 }

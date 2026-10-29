@@ -81,5 +81,3 @@ if (import.meta.main) {
   }
   if (stale) process.exit(1);
 }
-
-export { generate };

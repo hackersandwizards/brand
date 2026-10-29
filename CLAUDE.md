@@ -21,8 +21,9 @@ discount, margin, offer, invoice, client term, personal data or secret.
 
 - `tokens/`, `logos/`, `expert/`, `document/`: the brand files, each listed in `manifest.json`
   with its sha256. A file another repo still owns carries the repo, path and commit it was
-  imported from. This repo owns `expert/expert.css`, `document/` and the two variable
-  fonts `tokens/fonts/*-wght-normal.woff2`, which carry no origin.
+  imported from. This repo owns `expert/expert.css`, `document/`, the wordmark and lockup logos
+  (`logos/wordmark*`, `logos/lockup*`) and the two variable fonts
+  `tokens/fonts/*-wght-normal.woff2`, which carry no origin.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
 - `repos.json`: each sibling repo, its path from here, its own catalogue and where it holds copies.

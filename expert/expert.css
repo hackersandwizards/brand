@@ -7,7 +7,7 @@
 /* The UI scale: an expert system is read at desk distance all day, so it takes the brand's
    families, colours, roles and corner, and sets its own sizes here, in one place, instead of the
    website's marketing steps. Sizes are the UI column of the role table in
-   docs/tracking/2026-10-28-typography-strategy.md, section 3.3. Every text in the app takes one
+   os/docs/tracking/2026-10-28-typography-strategy.md, section 3.3. Every text in the app takes one
    of these steps; the brand's web steps (display, h2, h3, title, lead, body, small) stay unused. */
 @theme {
   /* h1: the page title, in the heading face. */

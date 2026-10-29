@@ -14,7 +14,7 @@ Add the dependency in exactly this form, pinned to the newest tag
 GitHub read access to this repo; the check is in your repo's README, the reason below.
 
 ```json
-"@hackersandwizards/brand": "git+ssh://git@github.com/hackersandwizards/brand.git#v0.3.1"
+"@hackersandwizards/brand": "git+ssh://git@github.com/hackersandwizards/brand.git#v<version>"
 ```
 
 Then import what you need:
