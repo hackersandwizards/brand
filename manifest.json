@@ -6,7 +6,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/OFL-Inter.txt",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -16,7 +16,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/OFL-JetBrainsMono.txt",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -26,7 +26,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-arrows-400-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -36,7 +36,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-arrows-500-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -46,7 +46,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-arrows-600-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -56,7 +56,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-arrows-700-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -66,7 +66,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-latin-400-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -76,7 +76,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-latin-500-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -86,7 +86,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-latin-600-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -96,7 +96,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-latin-700-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -106,7 +106,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-latin-ext-400-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -116,7 +116,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/inter-latin-ext-600-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -126,7 +126,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-latin-400-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -136,7 +136,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-latin-500-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -146,7 +146,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-latin-600-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -156,7 +156,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-latin-700-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -166,7 +166,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-symbols-400-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -176,7 +176,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-symbols-500-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -186,7 +186,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-symbols-600-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -196,7 +196,7 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/fonts/jetbrains-mono-symbols-700-normal.woff2",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
@@ -206,17 +206,177 @@
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/print.css",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
         "lfs": false
       }
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "7e9f1bc08b366b1598823b08da197ae8870210ae90aa4bf5e7f1fc13e084c3b2",
+      "sha256": "89465cbc775396ef25e89aef1b1d6e4d20399bd332de8199780e9a4f4b7a744f",
       "origin": {
         "repo": "website",
         "path": "src/styles/brand/tokens.css",
-        "commit": "797d09a932d35c6c0e1955b77f433705ae3dacb0",
+        "commit": "ecae15253a2adc4736a76599fe2a56c47fd40c33",
+        "lfs": false
+      }
+    },
+    {
+      "path": "document/components/DocCard.astro",
+      "sha256": "f4b1504b28f582b12ce915d36427379c2162641e4d1c66f670cc869276930267",
+      "origin": {
+        "repo": "os",
+        "path": "src/components/DocCard.astro",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "document/components/DocClosing.astro",
+      "sha256": "9b977966cd285799a6e520df49afe3b6d0f2b5cc97ee25fea74b45200694a2ce",
+      "origin": {
+        "repo": "os",
+        "path": "src/components/DocClosing.astro",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "document/components/DocHeader.astro",
+      "sha256": "e80e9ab7bd58b7c21e22878ee824b436e90549e9fe2ec70eb940d9f4415972c5",
+      "origin": {
+        "repo": "os",
+        "path": "src/components/DocHeader.astro",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "document/components/DocLead.astro",
+      "sha256": "3883ff8a625a63ebe43fbc6c553b9a7d49acc448b5e8fc2038722bb4d45d2733",
+      "origin": {
+        "repo": "os",
+        "path": "src/components/DocLead.astro",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "document/components/DocPriceTable.astro",
+      "sha256": "05aee3ddaf3b4d000a27886a105a683ad22cedb72a997931aa50fc1c99531f28",
+      "origin": {
+        "repo": "os",
+        "path": "src/components/DocPriceTable.astro",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "document/components/DocRecipient.astro",
+      "sha256": "77e517e63d1593a81191b238916a60a6840ad2eaf3cc477051b929e66ded7e27",
+      "origin": {
+        "repo": "os",
+        "path": "src/components/DocRecipient.astro",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "document/components/DocTitle.astro",
+      "sha256": "3e9f1fc61ed0da6c9efe1ebc91748111ac6c2a77e5e7eec06a9c3f739476ca67",
+      "origin": {
+        "repo": "os",
+        "path": "src/components/DocTitle.astro",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "logos/emoji-logo-long-cmyk.tif",
+      "sha256": "9824ed2f3e2daa0a7e3a64b9ddda6c491d6c455b1ee4cd23db0c4b392226e0a8",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/emoji-logo-long-cmyk.tif",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": true
+      }
+    },
+    {
+      "path": "logos/emoji-logo-long.png",
+      "sha256": "47358449e1e89e609101a276e253a05f38a1068e20294017bda7d6c90a30bba4",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/emoji-logo-long.png",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": true
+      }
+    },
+    {
+      "path": "logos/emoji-logo-short-cmyk.tif",
+      "sha256": "0d2629445877009ac7c947fcbd6e40dcac652d3fabe2bd9b7f4616ad1b56b850",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short-cmyk.tif",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": true
+      }
+    },
+    {
+      "path": "logos/emoji-logo-short-quote.png",
+      "sha256": "e817a96b7d9bb4fe4f01bc4302ae09de56bcb6e067a8540009f7aa8e7f2b5d9c",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short-quote.png",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": true
+      }
+    },
+    {
+      "path": "logos/emoji-logo-short.png",
+      "sha256": "d4302a294ded586d81019000e468447d75274a4d9b9e7ef04f0e917fd7a1b547",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short.png",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": true
+      }
+    },
+    {
+      "path": "logos/type-logo-long.png",
+      "sha256": "b33f8a9ebaae5efd84254a2950b6b6251ddb336e52b7924934667c9d89706434",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/type-logo-long.png",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": true
+      }
+    },
+    {
+      "path": "logos/type-logo-long.svg",
+      "sha256": "31f281a5919db5fdbf09865992e0f2a77c2c9f8e776b12ad52f3a8766e315a89",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/type-logo-long.svg",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": false
+      }
+    },
+    {
+      "path": "logos/type-logo-short.png",
+      "sha256": "226391accc1b216635cf0a7f69442906880b2c5d084e932f9fd5291304d33ff5",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/type-logo-short.png",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
+        "lfs": true
+      }
+    },
+    {
+      "path": "logos/type-logo-short.svg",
+      "sha256": "c694b79b843184a299a62ccaaa7bc57599a654f1c95913dcf21300ddcee2bb25",
+      "origin": {
+        "repo": "os",
+        "path": "src/content/documents/company/design-guide/logos/type-logo-short.svg",
+        "commit": "ec2a4f05a5a75fbf0412a9556a1cf17458f882f1",
         "lfs": false
       }
     },
@@ -227,166 +387,6 @@
     {
       "path": "document/document.css",
       "sha256": "809e65f195e8e3a45e939a591af6750bf5fc765eec4737612530cb4bbab277f9"
-    },
-    {
-      "path": "document/components/DocCard.astro",
-      "sha256": "f4b1504b28f582b12ce915d36427379c2162641e4d1c66f670cc869276930267",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocCard.astro",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocClosing.astro",
-      "sha256": "9b977966cd285799a6e520df49afe3b6d0f2b5cc97ee25fea74b45200694a2ce",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocClosing.astro",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocHeader.astro",
-      "sha256": "e80e9ab7bd58b7c21e22878ee824b436e90549e9fe2ec70eb940d9f4415972c5",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocHeader.astro",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocLead.astro",
-      "sha256": "3883ff8a625a63ebe43fbc6c553b9a7d49acc448b5e8fc2038722bb4d45d2733",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocLead.astro",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocPriceTable.astro",
-      "sha256": "05aee3ddaf3b4d000a27886a105a683ad22cedb72a997931aa50fc1c99531f28",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocPriceTable.astro",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocRecipient.astro",
-      "sha256": "77e517e63d1593a81191b238916a60a6840ad2eaf3cc477051b929e66ded7e27",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocRecipient.astro",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocTitle.astro",
-      "sha256": "3e9f1fc61ed0da6c9efe1ebc91748111ac6c2a77e5e7eec06a9c3f739476ca67",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocTitle.astro",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "logos/emoji-logo-long-cmyk.tif",
-      "sha256": "9824ed2f3e2daa0a7e3a64b9ddda6c491d6c455b1ee4cd23db0c4b392226e0a8",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-long-cmyk.tif",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": true
-      }
-    },
-    {
-      "path": "logos/emoji-logo-long.png",
-      "sha256": "47358449e1e89e609101a276e253a05f38a1068e20294017bda7d6c90a30bba4",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-long.png",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": true
-      }
-    },
-    {
-      "path": "logos/emoji-logo-short-cmyk.tif",
-      "sha256": "0d2629445877009ac7c947fcbd6e40dcac652d3fabe2bd9b7f4616ad1b56b850",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short-cmyk.tif",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": true
-      }
-    },
-    {
-      "path": "logos/emoji-logo-short-quote.png",
-      "sha256": "e817a96b7d9bb4fe4f01bc4302ae09de56bcb6e067a8540009f7aa8e7f2b5d9c",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short-quote.png",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": true
-      }
-    },
-    {
-      "path": "logos/emoji-logo-short.png",
-      "sha256": "d4302a294ded586d81019000e468447d75274a4d9b9e7ef04f0e917fd7a1b547",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short.png",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": true
-      }
-    },
-    {
-      "path": "logos/type-logo-long.png",
-      "sha256": "b33f8a9ebaae5efd84254a2950b6b6251ddb336e52b7924934667c9d89706434",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-long.png",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": true
-      }
-    },
-    {
-      "path": "logos/type-logo-long.svg",
-      "sha256": "31f281a5919db5fdbf09865992e0f2a77c2c9f8e776b12ad52f3a8766e315a89",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-long.svg",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
-    },
-    {
-      "path": "logos/type-logo-short.png",
-      "sha256": "226391accc1b216635cf0a7f69442906880b2c5d084e932f9fd5291304d33ff5",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-short.png",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": true
-      }
-    },
-    {
-      "path": "logos/type-logo-short.svg",
-      "sha256": "c694b79b843184a299a62ccaaa7bc57599a654f1c95913dcf21300ddcee2bb25",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-short.svg",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",

@@ -2,6 +2,7 @@
 export const tokens = {
   "--radius-brand": "20px 5px",
   "--color-bg": "#f7f9fa",
+  "--color-white": "#ffffff",
   "--color-ink": "#19283a",
   "--color-muted": "#545861",
   "--color-subtle": "color-mix(in srgb, var(--color-ink) 70%, white)",
@@ -135,6 +136,7 @@ export const tokens = {
 
 export const colors = {
   "--color-bg": "#f7f9fa",
+  "--color-white": "#ffffff",
   "--color-ink": "#19283a",
   "--color-muted": "#545861",
   "--color-subtle": "#5e6975",
