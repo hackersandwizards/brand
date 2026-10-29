@@ -1,8 +1,9 @@
 /* The h&w brand tokens: colour, both font families, the type scale and its
    roles, spacing, the brand corner and the gradient. The one source for every
-   h&w repository: Company OS, the trainer hub, the slide engine and the
-   certificate verifier copy this file, so edit it here, never in a copy. A plain-CSS consumer
-   rewrites @theme to :root. Print values live beside it in print.css. */
+   h&w repository: the brand repository copies this file and ships it, with the
+   values it generates from it, in the package the other repositories install,
+   so edit it here, never in a copy. A plain-CSS consumer rewrites @theme to
+   :root. Print values live beside it in print.css. */
 @theme {
   /* The brand corner: large top-left and bottom-right, small elsewhere.
      Also the rounded-brand utility. */
