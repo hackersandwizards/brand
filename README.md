@@ -32,5 +32,5 @@ missing, the scan skips it with a warning.
 | `@hackersandwizards/brand/expert.css`      | expert UI layer              |
 | `@hackersandwizards/brand/logos/<file>`    | logos                        |
 
-The package is private and not published. Which private channel carries it to the other repos is
-still open. The document components in `document/` are not part of the package.
+The package is private and never published: consumers install this repo as a Git dependency pinned
+to a tag. The document components in `document/` are not part of the package.

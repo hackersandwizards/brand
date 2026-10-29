@@ -33,3 +33,13 @@ test("every shipped PNG is an image, not a Git LFS pointer", () => {
       magic: "PNG",
     });
 });
+
+// Consumers install this repo as a Git dependency, which reads files through Git: a shipped file in
+// LFS reaches a machine without git-lfs as a pointer.
+test("no shipped file is tracked by Git LFS", () => {
+  const attrs = Bun.spawnSync(["git", "check-attr", "filter", "--", ...packed], { cwd: ROOT })
+    .stdout.toString()
+    .split("\n")
+    .filter((line) => line.endsWith(": filter: lfs"));
+  expect(attrs).toEqual([]);
+});

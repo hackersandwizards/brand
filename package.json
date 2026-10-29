@@ -30,7 +30,7 @@
     "logos/emoji-logo-short-quote.png"
   ],
   "scripts": {
-    "prepare": "git rev-parse --git-dir > /dev/null 2>&1 && git config core.hooksPath .githooks || true",
+    "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$PWD\" ] && git config core.hooksPath .githooks || true",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check",
     "lint": "eslint --cache --concurrency=auto .",
     "typecheck": "tsc --noEmit",

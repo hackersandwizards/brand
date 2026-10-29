@@ -5,12 +5,15 @@ static fonts, logos, the expert UI layer and the document components, plus a rea
 drift report over the sibling repos. Option B of
 `os/docs/tracking/2026-10-29-brand-system-repo.md`, decided by Benedikt on 2026-10-29.
 
-Benedikt decided on 2026-10-29: the package and this repo stay private, never on a public registry,
-and the rollout is staged: this core first, component packages from talks and os later, moving into
-the core only once two surfaces share them. Which private channel carries it is still open (row
-`brand-package-distribution` in `os/docs/tracking/decisions/items.js`). Until then nothing here
-writes into another repo: no sync, no copy script, no remote, no push. `"private": true` in
-`package.json` blocks any publish; remove it only once the channel is decided.
+Benedikt decided on 2026-10-29: this repo stays private on GitHub (planned
+`github.com/hackersandwizards/brand`), consumers install it as a Git dependency pinned to a tag, no
+registry, and the rollout is staged: this core first, component packages from talks and os later,
+moving into the core only once two surfaces share them. `"private": true` stays: nothing is ever
+published. Until the repo has its remote, nothing here writes into another repo.
+
+**External trainers can read this whole repo, its history included**, because the trainer hub
+installs it as a Git dependency. Nothing goes in that a trainer may not see: no price, rate,
+discount, margin, offer, invoice, client term, personal data or secret.
 
 ## Layout
 
@@ -48,8 +51,10 @@ writes into another repo: no sync, no copy script, no remote, no push. `"private
 - The slide engine stays private to talks and never enters this package, not even a primitive.
 - The document components stay in the repo but out of the package: `DocHeader.astro` imports os
   internals. They ship later in os's component package.
-- Large logos live in Git LFS (`.gitattributes`). The two print TIFFs and the two 4096 px emoji PNGs
-  stay out of the package's `files`.
+- Only the print masters live in Git LFS: the two CMYK TIFFs and the two 4096 px emoji PNGs
+  (`.gitattributes`). `.lfsconfig` keeps clones from fetching them, so a consumer's install stays
+  small; fetch them here with `git -c lfs.fetchexclude= lfs pull`. Every file the package ships is
+  a plain Git file, and `test/package.test.ts` fails on one in LFS.
 
 ## Behavioral rules
 

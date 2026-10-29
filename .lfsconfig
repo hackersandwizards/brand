@@ -1,0 +1,4 @@
+# Consumers install this repo as a Git dependency: Git LFS skips the print masters on clone.
+# Fetch them here with: git -c lfs.fetchexclude= lfs pull
+[lfs]
+	fetchexclude = logos/*.tif,logos/emoji-logo-long.png,logos/emoji-logo-short.png
