@@ -110,7 +110,7 @@ const catalogueRows = Object.entries(repos).map(([name, r]) => [
 
 const origins = Object.entries(
   manifest.files.reduce<Record<string, number>>((m, f) => {
-    const k = `${f.origin.repo} ${f.origin.commit.slice(0, 9)}`;
+    const k = f.origin ? `${f.origin.repo} ${f.origin.commit.slice(0, 9)}` : "brand";
     m[k] = (m[k] ?? 0) + 1;
     return m;
   }, {}),

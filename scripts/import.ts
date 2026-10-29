@@ -1,11 +1,13 @@
 #!/usr/bin/env bun
-// Seeds this repo from the files' current owners, each read from the owner's last commit (LFS
-// pointers resolved from the owner's local object store), and writes manifest.json with each
-// file's origin repo, path, commit and sha256. Reads the owners, writes only here. Run it again
-// while an owner still edits its file (DS-D's document set); drop it once this repo is the source.
+// Re-reads the files another repo still owns (the website's tokens and fonts, os's document
+// components and logos), each from the owner's last commit (LFS pointers resolved from the owner's
+// local object store), and writes manifest.json with each file's origin repo, path, commit and
+// sha256. Entries without an origin are this repo's own files; they keep their place, rehashed.
+// Reads the owners, writes only here.
 // Usage: bun scripts/import.ts
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import manifest from "../manifest.json";
 import repos from "../repos.json";
 import { head, lfsObject, lfsOid, listDir, ROOT, sha256, show } from "./git";
 
@@ -20,8 +22,6 @@ const sources: [string, Origin][] = [
     `tokens/${p}`,
     { repo: "website", path: `src/styles/brand/${p}` },
   ]),
-  ["expert/expert.css", { repo: "os", path: "src/styles/expert.css" }],
-  ["document/document.css", { repo: "os", path: "assets/document.css" }],
   ...[
     "DocCard",
     "DocClosing",
@@ -49,5 +49,12 @@ const files = sources.map(([path, origin]) => {
   return { path, sha256: sha256(bytes), origin: { ...origin, commit: head(repo), lfs: !!oid } };
 });
 
-writeFileSync(join(ROOT, "manifest.json"), JSON.stringify({ files }, null, 2) + "\n");
+const own = manifest.files
+  .filter((f) => !f.origin)
+  .map(({ path }) => ({ path, sha256: sha256(readFileSync(join(ROOT, path))) }));
+
+writeFileSync(
+  join(ROOT, "manifest.json"),
+  JSON.stringify({ files: [...files, ...own] }, null, 2) + "\n",
+);
 console.log(`imported ${files.length} files`);

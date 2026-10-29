@@ -12,9 +12,6 @@
     "path": "../os",
     "catalogues": ["http://os.localhost/design-system/"],
     "copies": [
-      ["tokens/", "assets/brand/"],
-      ["expert/expert.css", "src/styles/expert.css"],
-      ["document/document.css", "assets/document.css"],
       ["document/components/DocCard.astro", "src/components/DocCard.astro"],
       ["document/components/DocClosing.astro", "src/components/DocClosing.astro"],
       ["document/components/DocHeader.astro", "src/components/DocHeader.astro"],
@@ -63,32 +60,17 @@
   "trainer-hub": {
     "path": "../trainer-hub",
     "catalogues": ["http://trainer-hub.localhost/design-system/"],
-    "copies": [
-      ["tokens/", "src/styles/brand/"],
-      ["expert/expert.css", "src/styles/expert.css"],
-      ["document/document.css", "src/styles/document.css"],
-      ["logos/type-logo-long.png", "public/hw-type-logo-long.png"],
-      ["logos/type-logo-short.svg", "public/hw-logo.svg"],
-      ["logos/emoji-logo-short-quote.png", "public/handout/hw-logo-short.png"]
-    ]
+    "copies": []
   },
   "talks": {
     "path": "../talks",
     "catalogues": ["http://talks.localhost/design-system"],
-    "copies": [
-      ["tokens/tokens.css", "styles/brand/tokens.css"],
-      ["tokens/fonts/", "assets/fonts/"],
-      ["logos/type-logo-long.png", "public/hw-type-logo-long.png"],
-      ["logos/type-logo-short.svg", "public/hw-logo.svg"]
-    ]
+    "copies": []
   },
   "hycle-private": {
     "path": "../../products/hycle-private",
     "catalogues": [],
-    "copies": [
-      ["tokens/tokens.css", "talks/styles/brand/tokens.css"],
-      ["tokens/fonts/", "talks/assets/fonts/"]
-    ]
+    "copies": []
   },
   "certificate-verifier": {
     "path": "../../tools/certificate-verifier",

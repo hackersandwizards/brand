@@ -222,23 +222,11 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "6805cd76f4616e509943c56b8f8a0d33fcde2d1672eedc77ebbfac71f5f7e55f",
-      "origin": {
-        "repo": "os",
-        "path": "src/styles/expert.css",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
+      "sha256": "6805cd76f4616e509943c56b8f8a0d33fcde2d1672eedc77ebbfac71f5f7e55f"
     },
     {
       "path": "document/document.css",
-      "sha256": "809e65f195e8e3a45e939a591af6750bf5fc765eec4737612530cb4bbab277f9",
-      "origin": {
-        "repo": "os",
-        "path": "assets/document.css",
-        "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
-        "lfs": false
-      }
+      "sha256": "809e65f195e8e3a45e939a591af6750bf5fc765eec4737612530cb4bbab277f9"
     },
     {
       "path": "document/components/DocCard.astro",
@@ -399,6 +387,14 @@
         "commit": "31d5b2b7c243aa7b292d8387e31b4c53f25eddc7",
         "lfs": false
       }
+    },
+    {
+      "path": "tokens/fonts/inter-latin-wght-normal.woff2",
+      "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+    },
+    {
+      "path": "tokens/fonts/jetbrains-mono-latin-wght-normal.woff2",
+      "sha256": "18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e"
     }
   ]
 }

@@ -21,8 +21,10 @@ discount, margin, offer, invoice, client term, personal data or secret.
 
 ## Layout
 
-- `tokens/`, `logos/`, `expert/`, `document/`: the brand files. Each one is listed in
-  `manifest.json` with the repo, path and commit it was imported from, and its sha256.
+- `tokens/`, `logos/`, `expert/`, `document/`: the brand files, each listed in `manifest.json`
+  with its sha256. A file another repo still owns carries the repo, path and commit it was
+  imported from. This repo owns `expert/expert.css`, `document/document.css` and the two variable
+  fonts `tokens/fonts/*-wght-normal.woff2`, which carry no origin.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
 - `repos.json`: each sibling repo, its path from here, its own catalogue and where it holds copies.
@@ -40,15 +42,13 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - `bun run report`: scan, drift and `catalogue.html`. The scan exits 1 where a sibling's count rises
   above the allowlist; the drift report never fails.
 - `bun run scan -- --tighten`: lower the allowlist to today's counts. Never raise an entry by hand.
-- `bun run import`: re-read every file from its origin's last commit and rewrite the manifest. Only
-  while an origin still owns its file (DS-D's document set in os); retire it once this repo is the
-  source.
+- `bun run import`: re-read every file that has an origin from that origin's last commit and
+  rewrite the manifest; files without an origin keep their entry.
 
 ## Rules
 
-- A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
-  Until this repo is the source, the origins in `manifest.json` own their files: change them there
-  and re-import.
+- A file without an origin changes here, then `manifest.json` and `bun run tokens` follow in the
+  same commit. A file with an origin changes in that repo and is re-imported.
 - The scan and drift read each sibling's last commit through git and never its working tree.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, fonts with their OFL texts, small logos and `LICENSE`. `test/package.test.ts` fails on anything else.
