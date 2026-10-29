@@ -8,13 +8,6 @@
     "path": "../os",
     "catalogues": ["http://os.localhost/design-system/"],
     "copies": [
-      ["document/components/DocCard.astro", "src/components/DocCard.astro"],
-      ["document/components/DocClosing.astro", "src/components/DocClosing.astro"],
-      ["document/components/DocHeader.astro", "src/components/DocHeader.astro"],
-      ["document/components/DocLead.astro", "src/components/DocLead.astro"],
-      ["document/components/DocPriceTable.astro", "src/components/DocPriceTable.astro"],
-      ["document/components/DocRecipient.astro", "src/components/DocRecipient.astro"],
-      ["document/components/DocTitle.astro", "src/components/DocTitle.astro"],
       [
         "logos/emoji-logo-long-cmyk.tif",
         "src/content/documents/company/design-guide/logos/emoji-logo-long-cmyk.tif"

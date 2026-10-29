@@ -21,7 +21,7 @@ discount, margin, offer, invoice, client term, personal data or secret.
 
 - `tokens/`, `logos/`, `expert/`, `document/`: the brand files, each listed in `manifest.json`
   with its sha256. A file another repo still owns carries the repo, path and commit it was
-  imported from. This repo owns `expert/expert.css`, `document/document.css` and the two variable
+  imported from. This repo owns `expert/expert.css`, `document/` and the two variable
   fonts `tokens/fonts/*-wght-normal.woff2`, which carry no origin.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
@@ -49,10 +49,14 @@ discount, margin, offer, invoice, client term, personal data or secret.
   same commit. A file with an origin changes in that repo and is re-imported.
 - The scan and drift read each sibling's last commit through git and never its working tree.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
-  base `document/document.css`, fonts with their OFL texts, small logos and `LICENSE`. `test/package.test.ts` fails on anything else.
+  base `document/document.css`, the document components, fonts with their OFL texts, small logos
+  and `LICENSE`. `test/package.test.ts` fails on anything else.
 - The slide engine stays private to talks and never enters this package, not even a primitive.
-- The document components stay in the repo but out of the package: `DocHeader.astro` imports os
-  internals. They ship later in os's component package.
+- The document components (`document/components/Doc*.astro`) ship in the package and are this
+  repo's own: Benedikt decided on 2026-10-29 (os row `brand-unification-plan`, D1 b) that os and the
+  trainer hub both consume them from here. A component imports only this repo's files (logos inline,
+  no app paths), and every rate or term is a prop. `test/components.test.ts` renders each one
+  standalone; a new component needs placeholder props there.
 - Only the print masters live in Git LFS: the two CMYK TIFFs and the two 4096 px emoji PNGs
   (`.gitattributes`). `.lfsconfig` keeps clones from fetching them, so a consumer's install stays
   small; fetch them here with `git -c lfs.fetchexclude= lfs pull`. Every file the package ships is

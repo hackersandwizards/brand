@@ -1,8 +1,8 @@
 # @hackersandwizards/brand
 
 The hackers&wizards brand as one private package: design tokens, the print layer with its static
-fonts, the logos and the expert UI layer that Company OS and the trainer hub use. The repo also keeps
-the document components the PDFs are built from, outside the package.
+fonts, the logos, the expert UI layer and the document components the PDFs are built from, which
+Company OS and the trainer hub use.
 
 Maintainer: Benedikt Stemmildt. Trainers can read the whole repo, its history
 included, so nothing goes in that a trainer may not see.
@@ -23,18 +23,19 @@ Then import what you need:
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
 ```
 
-| Import                                     | File                         |
-| ------------------------------------------ | ---------------------------- |
-| `@hackersandwizards/brand/tokens.css`      | Tailwind 4 `@theme` tokens   |
-| `@hackersandwizards/brand/tokens.root.css` | the same tokens on `:root`   |
-| `@hackersandwizards/brand/tokens.json`     | tokens and resolved colours  |
-| `@hackersandwizards/brand/tokens`          | the same as TypeScript       |
-| `@hackersandwizards/brand/tokens.py`       | the same as a Python module  |
-| `@hackersandwizards/brand/print.css`       | print scale and static fonts |
-| `@hackersandwizards/brand/fonts/<file>`    | font files                   |
-| `@hackersandwizards/brand/expert.css`      | expert UI layer              |
-| `@hackersandwizards/brand/document.css`    | print document base          |
-| `@hackersandwizards/brand/logos/<file>`    | logos                        |
+| Import                                                      | File                         |
+| ----------------------------------------------------------- | ---------------------------- |
+| `@hackersandwizards/brand/tokens.css`                       | Tailwind 4 `@theme` tokens   |
+| `@hackersandwizards/brand/tokens.root.css`                  | the same tokens on `:root`   |
+| `@hackersandwizards/brand/tokens.json`                      | tokens and resolved colours  |
+| `@hackersandwizards/brand/tokens`                           | the same as TypeScript       |
+| `@hackersandwizards/brand/tokens.py`                        | the same as a Python module  |
+| `@hackersandwizards/brand/print.css`                        | print scale and static fonts |
+| `@hackersandwizards/brand/fonts/<file>`                     | font files                   |
+| `@hackersandwizards/brand/expert.css`                       | expert UI layer              |
+| `@hackersandwizards/brand/document.css`                     | print document base          |
+| `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components          |
+| `@hackersandwizards/brand/logos/<file>`                     | logos                        |
 
 The logo is the wizard beside the pixel wordmark, with no line under it: `logos/lockup.svg`, the
 wordmark alone `logos/wordmark.svg`, the stacked `logos/lockup-compact.svg`, each with a `-night`

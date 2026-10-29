@@ -221,76 +221,6 @@
       }
     },
     {
-      "path": "document/components/DocCard.astro",
-      "sha256": "f4b1504b28f582b12ce915d36427379c2162641e4d1c66f670cc869276930267",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocCard.astro",
-        "commit": "75e3857d21dd2070423777cac051bf2cb4e68c3a",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocClosing.astro",
-      "sha256": "9b977966cd285799a6e520df49afe3b6d0f2b5cc97ee25fea74b45200694a2ce",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocClosing.astro",
-        "commit": "75e3857d21dd2070423777cac051bf2cb4e68c3a",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocHeader.astro",
-      "sha256": "0f326af455e043c0edec368359d1c0d364e31a739e7250baaadaf4505f87b94e",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocHeader.astro",
-        "commit": "75e3857d21dd2070423777cac051bf2cb4e68c3a",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocLead.astro",
-      "sha256": "3883ff8a625a63ebe43fbc6c553b9a7d49acc448b5e8fc2038722bb4d45d2733",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocLead.astro",
-        "commit": "75e3857d21dd2070423777cac051bf2cb4e68c3a",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocPriceTable.astro",
-      "sha256": "05aee3ddaf3b4d000a27886a105a683ad22cedb72a997931aa50fc1c99531f28",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocPriceTable.astro",
-        "commit": "75e3857d21dd2070423777cac051bf2cb4e68c3a",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocRecipient.astro",
-      "sha256": "77e517e63d1593a81191b238916a60a6840ad2eaf3cc477051b929e66ded7e27",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocRecipient.astro",
-        "commit": "75e3857d21dd2070423777cac051bf2cb4e68c3a",
-        "lfs": false
-      }
-    },
-    {
-      "path": "document/components/DocTitle.astro",
-      "sha256": "3e9f1fc61ed0da6c9efe1ebc91748111ac6c2a77e5e7eec06a9c3f739476ca67",
-      "origin": {
-        "repo": "os",
-        "path": "src/components/DocTitle.astro",
-        "commit": "75e3857d21dd2070423777cac051bf2cb4e68c3a",
-        "lfs": false
-      }
-    },
-    {
       "path": "logos/emoji-logo-long-cmyk.tif",
       "sha256": "9824ed2f3e2daa0a7e3a64b9ddda6c491d6c455b1ee4cd23db0c4b392226e0a8",
       "origin": {
@@ -443,6 +373,78 @@
     {
       "path": "tokens/fonts/jetbrains-mono-latin-wght-normal.woff2",
       "sha256": "18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e"
+    },
+    {
+      "path": "document/components/DocCallout.astro",
+      "sha256": "af2d3f6de85a467d1077c53b3a7b503cbbc170f6faddd60e9c71663ecec4da93"
+    },
+    {
+      "path": "document/components/DocCard.astro",
+      "sha256": "fb06703e1b666aece32a83857c4b88cacb0d13f092de9bb59d7c5cd8c7c3e28d"
+    },
+    {
+      "path": "document/components/DocCertificate.astro",
+      "sha256": "0539fd8627cd0ae3623806c6178f8f104564111fb97e177cb1c554f07e3337c7"
+    },
+    {
+      "path": "document/components/DocClosing.astro",
+      "sha256": "d669fd04c6f4e6c3f3d88255ae4e2226c20e2a7db05de451d134c53749739fe8"
+    },
+    {
+      "path": "document/components/DocConfirmation.astro",
+      "sha256": "88425424f45ddd297525d1ba8e9e1e26ab66947d9a52ec55b7ed1010a525f44a"
+    },
+    {
+      "path": "document/components/DocHeader.astro",
+      "sha256": "ff3078f92238bea3363a1fd15c53fe001f57035beb20ec56453374b92af33dcf"
+    },
+    {
+      "path": "document/components/DocLead.astro",
+      "sha256": "3883ff8a625a63ebe43fbc6c553b9a7d49acc448b5e8fc2038722bb4d45d2733"
+    },
+    {
+      "path": "document/components/DocLeistungsnachweis.astro",
+      "sha256": "e0cea12c0111fc91702dde9afa3bbb6a2e3251869171cf8b108dde75b2f25015"
+    },
+    {
+      "path": "document/components/DocMarkdown.astro",
+      "sha256": "c6ff81951129cc84e973f71c3d7e76b58e1c7818cad233a7bf85618c2701cdb5"
+    },
+    {
+      "path": "document/components/DocPriceTable.astro",
+      "sha256": "be58411f0e06c116f016edbc536214ebc577a171c1394963ffca0a2d1369bc77"
+    },
+    {
+      "path": "document/components/DocProposal.astro",
+      "sha256": "44e21eca44890701ac0329029bbc625f707660d891b7cc57e3b107a0c989e7e8"
+    },
+    {
+      "path": "document/components/DocProse.astro",
+      "sha256": "2848b838fc1a0ee551ae4edaddd1fc6c65c1f87c364b6610e021376bc29f7586"
+    },
+    {
+      "path": "document/components/DocRateCard.astro",
+      "sha256": "f7bc27a9937fcaf07406643f1eb90f07f3d996e6eafc550e374104e2a7280410"
+    },
+    {
+      "path": "document/components/DocRecipient.astro",
+      "sha256": "b982c74d5c90782dc84dfc5b9bf82e5e164daeb3449d50d8ae8e8dae1bb75997"
+    },
+    {
+      "path": "document/components/DocSectionHead.astro",
+      "sha256": "1711afd55c8c0455758f67034ade919328523db4313ede08cce7d3e506143474"
+    },
+    {
+      "path": "document/components/DocSteps.astro",
+      "sha256": "f09972c4cc37694b8dbed69f2f78fc3868a6ba7e560093c5f2f06e4d4d569923"
+    },
+    {
+      "path": "document/components/DocTitle.astro",
+      "sha256": "3e9f1fc61ed0da6c9efe1ebc91748111ac6c2a77e5e7eec06a9c3f739476ca67"
+    },
+    {
+      "path": "document/components/DocTotalRow.astro",
+      "sha256": "628ed5f6392c81acff2326816a6bd3e0e4e66a2f566a507d4d2c8fbc32cd07a1"
     }
   ]
 }
