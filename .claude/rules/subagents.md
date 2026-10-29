@@ -68,4 +68,4 @@
   its default and says so. The run reports how far back it reached. A task whose work belongs
   to its own day or slot says in one line that it does not catch up.
 - Name a skill for its function and a scheduled task for its job, with the cadence as the last
-  segment.
+  segment. Create the task without a `title`, so the app shows that name.
