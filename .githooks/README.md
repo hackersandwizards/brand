@@ -1,12 +1,12 @@
 # Git hooks
 
-Project-scoped hooks at `.githooks/`, enabled per-clone via `git config core.hooksPath .githooks` (`bun install` sets it, never in user-global git config). Hosts the brand package's `pre-commit` gate plus explicit LFS pass-through for the `post-commit`, `post-merge`, `post-checkout`, and `pre-push` events.
+Project-scoped hooks at `.githooks/`, enabled per-clone via `git config core.hooksPath .githooks` (`bun install` sets it, never in user-global git config). Hosts the `pre-commit` secret, format and lint check plus explicit LFS pass-through for the `post-commit`, `post-merge`, `post-checkout`, and `pre-push` events.
 
 ## What fires when
 
 | Hook | Trigger | Action |
 |------|---------|--------|
-| `pre-commit` | every commit | `gitleaks` over the staged changes, then `bun run check` |
+| `pre-commit` | every commit | `gitleaks` over the staged changes, `prettier --check` and `eslint` on the staged files |
 | `post-commit` | every commit (incl. `--amend`) | LFS post-commit |
 | `post-merge` | `git pull`, `git merge` | LFS smudge |
 | `post-checkout` | branch switch (incl. each rebase step) | LFS smudge |

@@ -26,9 +26,9 @@ writes into another repo: no sync, no copy script, no remote, no push. `"private
 ## Commands
 
 - `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
-  scanner, allowlist ratchet, drift control) and the freshness of `generated/`. Must pass before a
-  commit; `.githooks/pre-commit` runs it after `gitleaks` scans the staged changes. `bun install`
-  points `core.hooksPath` at `.githooks/`.
+  scanner, allowlist ratchet, drift control) and the freshness of `generated/`. No hook runs it:
+  `.githooks/pre-commit` scans the staged changes with `gitleaks` and runs `prettier --check` and
+  `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run report`: scan, drift and `catalogue.html`. The scan exits 1 where a sibling's count rises
   above the allowlist; the drift report never fails.
