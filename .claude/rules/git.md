@@ -36,8 +36,8 @@ Other sessions share this working tree and its index.
   Where the merge fails, read each record you act on from `origin/<default branch>` with `git show`.
   Where the fetch fails, act on nothing outside the repository, such as mail, Qonto or the calendar,
   and say why.
-- `.git/index.lock` is another session committing. The pre-commit hook holds it for over a minute:
-  wait and retry, and if it outlives a couple of minutes, name the owning process and report it.
+- `.git/index.lock` is another session committing. A commit holds it for seconds: wait and
+  retry, and if it outlives a couple of minutes, name the owning process and report it.
   Never delete it.
 - Read `HEAD` back with `git ls-tree HEAD -- <paths>` before reporting anything committed. `git
   commit <path>` answering `no changes added to commit` usually means another session swept your

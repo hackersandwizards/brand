@@ -23,6 +23,13 @@ handling that prevents data loss, security measures, or accessibility basics.
   left no trace of the skip. Find the window between the corruption and the repair, then check the
   repaired records against their untouched siblings.
 - Write no comment except for a fact neither the code nor a doc file states, such as an ordering constraint, an external quirk or the bug a guard exists for. Keep directive comments.
+- Verify each change with the checks that fit it, from the commands the repository's CLAUDE.md
+  lists. You choose which; nothing requires the full gate every time. No hook runs tests, and CI
+  runs at most the one test a deploy needs, so your run is the only full one before the deploy.
+- A git hook holds only what is irreversible or takes under about a second: the staged secret scan
+  and a staged format and lint check. CI builds, runs the integration tests a deploy needs, deploys
+  and applies Terraform after a plan. A schedule runs only to notice an absence no commit reveals,
+  such as a new advisory against an unchanged lockfile.
 - Remove or replace a dependency with a known vulnerability before excusing it. An audit
   exception names the advisory ID.
 - Module-scope function names are unique per repository, except a framework-dictated name or a
