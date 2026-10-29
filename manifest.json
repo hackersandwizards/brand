@@ -416,7 +416,7 @@
     },
     {
       "path": "document/components/DocProposal.astro",
-      "sha256": "44e21eca44890701ac0329029bbc625f707660d891b7cc57e3b107a0c989e7e8"
+      "sha256": "c7316759465cf442a437d32182cbfe7769a957d380f2cf292cff3c2e2e0a68bd"
     },
     {
       "path": "document/components/DocProse.astro",

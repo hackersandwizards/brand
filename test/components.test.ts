@@ -130,3 +130,19 @@ test.each(components)(
   },
   30_000,
 );
+
+// validUntil and subtotal are optional: the trainer variant and a price-free proposal leave them out.
+test.each(["de", "en"])(
+  "DocProposal %s without validUntil or subtotal prints no undefined",
+  async (lang) => {
+    const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+    const component = (await server.ssrLoadModule("/document/components/DocProposal.astro"))
+      .default;
+    const container = await experimental_AstroContainer.create();
+    const html: string = await container.renderToString(component, {
+      props: { ...proposal, validUntil: undefined, lang, price: { rows: [{ item: P, basis: P }] } },
+    });
+    expect(html).toContain(P);
+    expect(html).not.toContain("undefined");
+  },
+);
