@@ -46,6 +46,9 @@ const SKIP =
 const EXT = new Set([".css", ".astro", ".tsx", ".ts", ".jsx", ".js", ".mjs", ".html", ".py"]);
 const TEST = /(\.test\.|\.spec\.|__tests__\/|(^|\/)tests?\/)/;
 const BRAND = /(^|\/)(styles\/brand|assets\/brand)\//;
+// Agent tooling the hub (~/.claude) syncs into every repo, non-h&w ones included, so it may not
+// take its colours from this package: not brand surface.
+const HUB = /^\.claude\/skills\/parallel-session\//;
 const ENGINE =
   /^(talks\/)?(components\/(slides|ui)|lib|types|src\/slides\/(components|lib|types))\//;
 
@@ -121,6 +124,7 @@ export const scan = () => {
         !p.startsWith("src/content/") &&
         !TEST.test(p) &&
         !BRAND.test(p) &&
+        !HUB.test(p) &&
         !copies.some((c) => (c.endsWith("/") ? p.startsWith(c) : p === c)),
     );
     const content = blobs(
