@@ -5,11 +5,13 @@ static fonts, logos, the expert UI layer and the document components, plus a rea
 drift report over the sibling repos. Option B of
 `os/docs/tracking/2026-10-29-brand-system-repo.md`, decided by Benedikt on 2026-10-29.
 
-Benedikt decided on 2026-10-29: this repo stays private on GitHub (planned
-`github.com/hackersandwizards/brand`), consumers install it as a Git dependency pinned to a tag, no
-registry, and the rollout is staged: this core first, component packages from talks and os later,
-moving into the core only once two surfaces share them. `"private": true` stays: nothing is ever
-published. Until the repo has its remote, nothing here writes into another repo.
+Benedikt decided on 2026-10-29: this repo stays private on GitHub
+(`github.com/hackersandwizards/brand`, team `trainers` read), consumers install it as a Git
+dependency pinned to a tag (`git+https://github.com/hackersandwizards/brand.git#v0.1.0` or the
+`git+ssh` form), no registry, and the rollout is staged: this core first, component packages from
+talks and os later, moving into the core only once two surfaces share them. `"private": true`
+stays: nothing is ever published. A release is a tag `v<version>` matching `package.json`. Nothing
+here writes into another repo: no sync, no copy script.
 
 **External trainers can read this whole repo, its history included**, because the trainer hub
 installs it as a Git dependency. Nothing goes in that a trainer may not see: no price, rate,
