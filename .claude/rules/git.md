@@ -46,6 +46,10 @@ Other sessions share this working tree and its index.
 - The commit author is the machine's git identity for every session. An agent commit is marked only
   by its `Co-Authored-By` line, so git history never says who decided a change: that evidence is a
   message, a record body or a run transcript, and is often unrecorded.
-- Never create or enter a git worktree, and never give a delegate `isolation: worktree`. A worktree
-  branches from `origin/main` rather than from this tree, and what it leaves uncommitted dies with
-  it.
+- Work in the shared checkout by default. A worktree, made with `git worktree add` or by a
+  delegate's `isolation: worktree`, is allowed where it pays off, which `parallel-session` weighs.
+  It starts from `origin/main`, so this tree's uncommitted and unpushed work is absent there. Its
+  commits reach `main` within the same delegate run (`git fetch`, `git rebase origin/main`,
+  `git push origin HEAD:main`). Never push a branch and never open a pull request. Remove a
+  worktree only once `git log origin/main..HEAD` prints nothing and `git status --porcelain` is
+  empty: `git worktree remove` deletes a clean worktree's unpushed commits without a warning.
