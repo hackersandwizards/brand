@@ -64,7 +64,7 @@
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
     },
     "os:scripts/attendee-survey/report.ts": {
-      "hex": 1,
+      "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
@@ -83,13 +83,6 @@
       "font": 1,
       "palette": 0,
       "reason": "System font stack for mail on purpose (2026-10-29-brand-system-repo.md, section 6)."
-    },
-    "os:scripts/linkedin/frame.ts": {
-      "hex": 2,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
     },
     "os:src/components/DeliverableListRow.astro": {
       "hex": 0,
@@ -141,7 +134,7 @@
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
     },
     "os:src/styles/global.css": {
-      "hex": 33,
+      "hex": 32,
       "tokenHex": 16,
       "font": 1,
       "palette": 0,
@@ -260,7 +253,7 @@
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
     },
     "talks:app/page.tsx": {
-      "hex": 5,
+      "hex": 3,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
@@ -416,15 +409,8 @@
   },
   "duplicates": {
     "card": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "filterchip": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "filterchipbar": "Present at the first scan on 2026-10-29, not yet reviewed.",
     "image": "The slide engine's adapter, different per repo on purpose (talks CLAUDE.md).",
     "listrow": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "pageheader": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "pill": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "sectionheader": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "spacenav": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "spacenavtree": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "themetoggle": "Present at the first scan on 2026-10-29, not yet reviewed."
+    "sectionheader": "Present at the first scan on 2026-10-29, not yet reviewed."
   }
 }
