@@ -61,10 +61,15 @@ renders its PNG and rehashes both in `manifest.json`.
 bun install      # also points the git hooks at .githooks/
 bun run check    # format, lint, typecheck, tests, generated/ up to date
 bun run report   # scan the sibling repos, compare their copies, rebuild catalogue.html
+bun run capture  # photograph every system's catalogue into captures/, rebuild catalogue.html
 ```
 
-Open `catalogue.html` from disk to see the tokens, the logos, the scan of every repo and whether
-each repo's copies still match this one. The scan reads the sibling repos from their checkouts next
+Open `catalogue.html` from disk to see the whole brand on one page: the tokens, the logos on light
+and on dark, every component of every system's catalogue, the brand applications from Company OS,
+the scan of every repo and whether each repo's copies still match this one. `bun run capture`
+photographs each repo's catalogue from its last build and the Company OS assets into `captures/`,
+which stays on this machine because the os and trainer hub stories carry fixtures trainers may not
+see. The scan reads the sibling repos from their checkouts next
 to this one (`repos.json`) and skips a missing one with a warning.
 
 A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
