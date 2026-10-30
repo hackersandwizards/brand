@@ -484,11 +484,11 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     ],
     "lw-stack-c": [["k", 560, 408, 620]],
     "lw-stack-low": [["k", 480, 448, 1017]],
-    // Benedikt's iPad, 30.10.: the lock screen shows the file 1.155 times enlarged around (688, 704);
+    // Measured on Benedikt's iPad: the lock screen shows the file 1.155 times enlarged around (688, 704);
     // the clock ends at y 470 of the file, notifications rise from the bottom. A smaller stack under
     // the clock, as wide as the clock.
     "lw-stack-up": [["k", 360, 508, 500]],
-    // Benedikt's iPad, landscape, 30.10. evening: the lock screen shows the file 1.28 times enlarged
+    // Measured on Benedikt's iPad, landscape: the lock screen shows the file 1.28 times enlarged
     // with its top left at file point (91, 91), so the clock axis lies at file x 625, the clock ends at
     // y 256 and a notification starts at y 800. The stack on that axis, a third of the way down the gap.
     "lw-stack-axis": [["k", 360, 445, 350]],
@@ -507,7 +507,7 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
   },
   "ipad-home": {
     "logo-band": [["l", 62, 521, 960]],
-    // Benedikt's iPad, 30.10.: landscape home shows rows 219-1251 unscaled; the lockup sat behind the
+    // Measured on Benedikt's iPad: landscape home shows rows 219-1251 unscaled; the lockup sat behind the
     // last icon row. Free band between the widgets (to y 1052) and the Dock (from y 1153).
     "logo-gap": [["l", 44, 570, 1081]],
     // Same evening: landscape home shows rows 275-1298 unscaled; the lockup centred between the
@@ -534,10 +534,10 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
       ["l", 44, 102, 500],
     ],
     "lw-stack-c": [["k", 300, 70, 470]],
-    // Benedikt's phone, 30.10.: notifications cover y 516-727, so the stack sits under the clock.
+    // Measured on Benedikt's phone: notifications cover y 516-727, so the stack sits under the clock.
     "lw-stack-up": [["k", 270, 85, 277]],
     "lw-stack-low": [["k", 240, 100, 777]],
-    // Benedikt's phone, 30.10. evening: it shows the file 1.1525 times enlarged around its centre;
+    // Measured on Benedikt's phone: it shows the file 1.1525 times enlarged around its centre;
     // the stack 50 pt lower, clear of the clock and still above two expanded notifications.
     "lw-stack-mid": [["k", 270, 85, 327]],
     "logo-c": [["l", 44, 102, 520]],
@@ -550,7 +550,7 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
   },
   "iphone-home": {
     "logo-band": [["l", 40.5, 111, 752]],
-    // Benedikt's phone, 30.10.: the Search pill sits at y 770-798, so the lockup moves into the gap
+    // Measured on Benedikt's phone: the Search pill sits at y 770-798, so the lockup moves into the gap
     // between the last icon row (to y 688) and the pill.
     "logo-gap": [["l", 40.5, 111, 708]],
     "logo-band-s": [["l", 30, 139, 762]],
@@ -576,7 +576,7 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
 };
 
 // A lockup inlined with the 4096 px wizard master in place of the 512 px PNG the brand SVG embeds:
-// the iPad lock draws the wizard at 435 px and iPadOS enlarges it 1.155 times (30.10.).
+// the iPad lock draws the wizard at 435 px and iPadOS enlarges it 1.155 times.
 function inlineLockup(url: string, width: number, height: number, pos: string) {
   const svg = readFileSync(url.replace("file://", ""), "utf8");
   const [, , vw, vh] = svg
