@@ -492,6 +492,11 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // with its top left at file point (91, 91), so the clock axis lies at file x 625, the clock ends at
     // y 256 and a notification starts at y 800. The stack on that axis, a third of the way down the gap.
     "lw-stack-axis": [["k", 360, 445, 350]],
+    // 21:13, after setting lw-stack-axis: 1.146 times, horizontally centred, top at file y 153; clock
+    // ends at y 337, the notifications start at y 945. iPadOS picks a new crop each time the file is
+    // set, so the stack sits on the file's centre axis and inside the band both crops keep clear
+    // (y 337-800).
+    "lw-stack-centre": [["k", 360, 508, 440]],
     "logo-c": [["l", 80, 473, 800]],
     "logo-low": [["l", 56, 538, 1200]],
     "logo-ll": [["l", 56, 228, 1200]],
@@ -508,6 +513,9 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // Same evening: landscape home shows rows 275-1298 unscaled; the lockup centred between the
     // last app labels (y 1064) and the Dock (y 1201).
     "logo-gap-c": [["l", 44, 570, 1110]],
+    // 21:13: rows 352-1374. The two measured crops differ by 77 points, so a smaller lockup sits
+    // where it clears the app labels and the Dock under both.
+    "logo-gap-r": [["l", 36, 591.4, 1153]],
     "logo-band-s": [["l", 44, 570, 972]],
     "logo-ll": [["l", 44, 90, 1000]],
     "logo-lr": [["l", 44, 1050, 1000]],
