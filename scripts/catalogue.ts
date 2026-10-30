@@ -141,7 +141,7 @@ const logoCard = (base: string) => {
   });
   return `<article class="logo${former ? " former" : ""}" id="logo-${base}"><div class="pair">${
     show ? `<img class="on-light" src="${show}" alt="${esc(base)} on light">` : ""
-  }${night ? `<img class="on-dark" src="${night}" alt="${esc(base)} on dark">` : ""}${outline ? `<img class="on-purple-love" src="${outline}" alt="${esc(base)} outlined on Purple Love">` : ""}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
+  }${night ? `<img class="on-dark" src="${night}" alt="${esc(base)} on dark">` : ""}${outline ? `<img class="on-purple-love" src="${outline}" alt="${esc(base)} outlined on Purple Love"><img class="on-gradient" src="${outline}" alt="${esc(base)} outlined on the gradient">` : ""}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
     .map(
       (p) =>
         `<a href="${p}" download>${esc(
@@ -549,7 +549,7 @@ const pages: [string, string, string][] = [
   [
     "logos",
     "Logos",
-    `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black, black textile and Stargazer take the night cut, without an outline; on Purple Love the outline cut, a white outline round the letters. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
+    `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black, black textile and Stargazer take the night cut, without an outline; on Purple Love and the gradient the outline cut, a white outline round the letters. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
   ],
   ["compare", "Compare", compareHtml],
   ...systems.map((s): [string, string, string] => [`sys-${s.name}`, s.name, systemPage(s)]),
@@ -611,6 +611,7 @@ const html = `<!doctype html>
   .pair img { width: 100%; height: 6rem; object-fit: contain; padding: 0.75rem; box-sizing: border-box; border-radius: 12px 3px; }
   .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
   .on-dark { background: var(--color-night); }
+  .on-gradient { background: var(--gradient-magic); }
   .on-purple-love { background: #6c5a9e; } /* Purple Love, the Stanley/Stella textile C115, no brand token */
   .dl a, .chips a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: 999px; color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
   .dl a::before { content: "↓ "; }

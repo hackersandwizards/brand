@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 // Writes the -outline cut of each one-line logo: the day colours over a white outline of 48 SVG
-// units round the wordmark, the wizard unoutlined. For Purple Love (os logo-system
+// units round the wordmark, the wizard unoutlined. For Purple Love and the gradient (os logo-system
 // study, 2026-10-30): the study's generator dilated the wordmark with a 97-unit square, which a
 // mitred 96-unit stroke under the letters reproduces. The letter positions stay where the source
 // file has them; the box grows to hold the outline, by the same amount above and below so a text
