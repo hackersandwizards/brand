@@ -44,7 +44,9 @@
 
 /* Every colour is a brand token or a mix of tokens, by the roles in tokens.css. --muted is a
    surface fill, not the brand's muted text colour: the @theme inline block below redefines
-   --color-muted to it. */
+   --color-muted to it, and --color-border to --border. A role that needs either token's own value
+   therefore writes it as a hex, which test/expert.test.ts holds equal to tokens.css: a var()
+   would point back at the role itself. */
 :root,
 html[data-theme="light"] {
   --background: var(--color-bg);
@@ -60,7 +62,7 @@ html[data-theme="light"] {
   --focus: var(--color-purple);
   /* The 7 percent ink tint on bg. */
   --muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
-  --border: var(--color-border);
+  --border: #d0d2d8; /* --color-border */
 
   /* Status roles: what a state means. Each is a text colour that clears 4.5:1 on the page, on a
      card and on its own 15 percent wash over either, so `bg-error/15 text-error` reads in both
@@ -79,7 +81,7 @@ html[data-theme="light"] {
   --hue-amber: color-mix(in srgb, var(--color-amber-dark) 70%, var(--color-ink));
   --hue-green: color-mix(in srgb, var(--color-green-dark) 70%, var(--color-ink));
   --hue-rust: color-mix(in srgb, var(--color-factory) 70%, var(--color-ink));
-  --hue-slate: var(--color-muted);
+  --hue-slate: #545861; /* --color-muted */
 
   /* The least foreground share dimmed text may take: 4.6:1 on the page, a card and the muted fill.
      The utilities below hold every text-foreground/<n> to it. */
