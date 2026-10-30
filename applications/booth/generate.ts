@@ -133,10 +133,10 @@ function wizardEdge(cut: string) {
   const [, ex, ey, side, href] =
     /<image class="wizard-edge" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="[\d.]+" href="([^"]+)"/.exec(
       svg,
-    )!;
+    ) ?? [];
   const [, wx, wy, ww] = /<image x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)"/.exec(svg)!;
-  const day = readFileSync(join(BOOTH, "../../logos/lockup.svg"), "utf8");
-  const dayX = Number(/<image x="([-\d.]+)"/.exec(day)![1]);
+  // The wizard's x in the box the CSS lockup's 24 mm gap was measured on, in SVG units.
+  const dayX = -1432;
   const pct = (v: number) => `${(100 * v) / Number(ww)}%`;
   return {
     href,
@@ -156,7 +156,7 @@ const boothLockup = (v: Variant, wiz = 150) => {
   const e = cut && wizardEdge(cut);
   const wizard = e
     ? `<div style="position:relative;width:calc(${wiz} * var(--mm));translate:${e.shift} var(--logo-wizard-lift)"><img src="${e.href}" alt="" style="position:absolute;left:${e.left};top:${e.top};width:${e.width};translate:none"><img src="${brand.emoji}" alt="" style="position:relative;display:block;width:100%"></div>`
-    : `<img src="${brand.emoji}" alt="" style="width:calc(${wiz} * var(--mm))">`;
+    : `<img src="${brand.emoji}" alt="" style="width:calc(${wiz} * var(--mm));translate:${wizardEdge("lockup").shift} var(--logo-wizard-lift)">`;
   return `<div class="lockup">${wizard}<img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"></div>`;
 };
 const space = (mm: number) => `<div style="height:calc(${mm} * var(--mm))"></div>`;

@@ -204,8 +204,6 @@ const live: { date: string; systems: System[] } | undefined = existsSync(
 )
   ? read("captures/live/index.json")
   : undefined;
-const day = (iso: string) => esc(iso.slice(0, 10));
-const stamp = (iso: string) => `${esc(iso.slice(0, 16).replace("T", " "))} UTC`;
 const systems = live?.systems ?? [];
 
 // The kinds a reader compares by: the first match on the name wins, else on the group.
@@ -268,7 +266,7 @@ const tree = systems
       for (const c of g.c)
         index.push({ t: c.n, k: s.name, h: `sys-${s.name}/${g.id}/${c.id}`, x: `${g.g} ${c.k}` });
     }
-    return { name: s.name, built: s.built!.slice(0, 10), colours: s.colours ?? {}, groups };
+    return { name: s.name, colours: s.colours ?? {}, groups };
   });
 const DATA = {
   capture: `${CAPTURES}/live/`,
@@ -497,7 +495,7 @@ const summaryRows = Object.entries(scan.repos).map(([name, r]) => {
   return [
     esc(name),
     sys?.commit
-      ? `${code(sys.commit)} ${day(sys.built!)}${r.commit.startsWith(sys.commit) ? "" : ' <strong class="stale">older than the scanned commit</strong>'}`
+      ? `${code(sys.commit)}${r.commit.startsWith(sys.commit) ? "" : ' <strong class="stale">older than the scanned commit</strong>'}`
       : "no catalogue",
     code(r.commit.slice(0, 9)),
     esc(drift.repos[name]?.status ?? ""),
@@ -509,10 +507,10 @@ const summaryRows = Object.entries(scan.repos).map(([name, r]) => {
 const health = `<p>Per repo: the build its components were captured from, the commit the scan read, whether its copies of brand files still match, and its off-token hex count against the allowlist.</p>
 ${table(["Repo", "Captured build", "Scanned commit", "Copies", "Off-token hex", "Allowlist"], summaryRows)}
 <h3 id="drift">Drift: do the repos' copies still match?</h3>
-<p><strong>${driftLine}.</strong> ${driftBad.length ? `Drifted: ${driftBad.map(([n]) => esc(n)).join(", ")}.` : "Every copy is byte-identical with this repo."} A repo without copies imports the package or nothing, so drift does not apply to it; the scan below covers every repo. Drift of ${esc(drift.date)}, each repo at its last commit.</p>
+<p><strong>${driftLine}.</strong> ${driftBad.length ? `Drifted: ${driftBad.map(([n]) => esc(n)).join(", ")}.` : "Every copy is byte-identical with this repo."} A repo without copies imports the package or nothing, so drift does not apply to it; the scan below covers every repo. Each repo at its last commit.</p>
 ${table(["Repo", "Status", "Commit", "Not identical"], driftRows)}
 <h3 id="scan">Scan: off-token values per repo</h3>
-<p>Hex literals off the token set, hex literals that repeat a token value, font stacks without a brand family, Tailwind default palette classes. Scan of ${esc(scan.date)}. ${Object.keys(allow.files).length} files and ${Object.keys(allow.duplicates).length} duplicates are allowlisted; the list may only shrink.</p>
+<p>Hex literals off the token set, hex literals that repeat a token value, font stacks without a brand family, Tailwind default palette classes. ${Object.keys(allow.files).length} files and ${Object.keys(allow.duplicates).length} duplicates are allowlisted; the list may only shrink.</p>
 ${scan.aboveAllowlist.length ? `<p class="warn"><strong>Above the allowlist:</strong> ${scan.aboveAllowlist.map(code).join(", ")}</p>` : "<p>Every count is within the allowlist.</p>"}
 ${table(["Repo", "Commit", "Files", "Off-token hex", "Token value as hex", "Off-brand fonts", "Palette classes", "Most frequent off-token hex"], scanRows)}
 <h3 id="duplicates">Components in more than one repo</h3>
@@ -527,22 +525,17 @@ ${tile("colours", "Colours", `${own.length} colours in four families, their role
 ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
 ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
 ${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
-${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live · build ${day(s.built!)}` : "not rendered")).join("")}
+${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live` : "not rendered")).join("")}
 ${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, booth, banners, avatars, gradients, mail signatures, slides, documents`)}
 ${tile("health", "Health", `${driftLine} · off-token hex: ${offHex} · ${scan.aboveAllowlist.length} file(s) above the allowlist`)}
 </div>
-<h3>Freshness</h3>
+<h3>Refresh</h3>
 ${table(
-  ["Source", "As of", "Refresh"],
+  ["Source", "Refresh"],
   [
-    ["Tokens, logos", `v${esc(pkg.version)}`, code("bun run tokens")],
-    [
-      "Live component pages",
-      live ? stamp(live.date) : "none",
-      `${code("bun run live")}, after building each repo`,
-    ],
-    ["Drift", esc(drift.date), code("bun run report")],
-    ["Scan", esc(scan.date), code("bun run report")],
+    ["Tokens, logos", code("bun run tokens")],
+    ["Live component pages", `${code("bun run live")}, after building each repo`],
+    ["Drift, scan", code("bun run report")],
   ],
 )}
 <h3>Quick start</h3>
@@ -780,7 +773,7 @@ const renderSys = (name, gid, cid) => {
     const list = all.filter((x) => x.gid === gid);
     return crumbs([["sys-" + name, name]]) + head(g.g, list.length + " components") + frames(name, list);
   }
-  const meta = all.length + " components" + (single ? "" : " in " + s.groups.length + " groups") + " · build of " + h(s.built) + " · each frame is the system's own HTML and CSS";
+  const meta = all.length + " components" + (single ? "" : " in " + s.groups.length + " groups") + " · each frame is the system's own HTML and CSS";
   if (single) return crumbs([["", "Components"]]) + head(name, meta) + frames(name, all);
   return crumbs([["", "Components"]]) + head(name, meta) + '<div class="groups">' + s.groups.map((x) => '<article class="group"><h3><a href="#sys-' + h(name) + "/" + x.id + '">' + h(x.g) + "</a><small>" + x.c.length + "</small></h3><ul>" + x.c.map((y) => '<li><a href="#sys-' + h(name) + "/" + x.id + "/" + y.id + '">' + h(y.n) + "</a></li>").join("") + "</ul>" + (x.c.length > 1 ? '<a class="all" href="#sys-' + h(name) + "/" + x.id + '">All ' + x.c.length + " live →</a>" : "") + "</article>").join("") + "</div>";
 };
@@ -874,7 +867,7 @@ const compare = (sys, kind, q) => {
   grid.innerHTML = '<div class="cols" style="grid-template-columns:repeat(' + sys.length + ',minmax(18rem,1fr))">' + sys.map((s) => {
     const list = flat(s).filter(match);
     const kinds = Object.entries(flat(s).reduce((m, c) => ((m[c.k] = (m[c.k] || 0) + 1), m), {})).map(([k, n]) => h(k) + " " + n).join(", ");
-    return "<div><h3>" + h(s) + ' <span class="label">' + list.length + " · build " + h(DATA.systems[s].built) + "</span></h3>" + (list.map((c) => frame(s, c.gid, c)).join("") || "<p class=warn><strong>" + h(s) + "'s catalogue holds no component of this kind.</strong> What it holds: " + kinds + ".</p>") + "</div>";
+    return "<div><h3>" + h(s) + ' <span class="label">' + list.length + "</span></h3>" + (list.map((c) => frame(s, c.gid, c)).join("") || "<p class=warn><strong>" + h(s) + "'s catalogue holds no component of this kind.</strong> What it holds: " + kinds + ".</p>") + "</div>";
   }).join("") + "</div>";
 };
 const fromHash = () => {

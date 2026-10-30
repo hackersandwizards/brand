@@ -184,7 +184,7 @@ export const violations = (report: ReturnType<typeof scan>, allow: Allowlist) =>
 };
 
 export const tighten = (report: ReturnType<typeof scan>, allow: Allowlist | undefined) => {
-  const BASELINE = "Present at the first scan on 2026-10-29, not yet reviewed.";
+  const BASELINE = "Present at the first scan, not yet reviewed.";
   const skipped = (key: string) => report.skipped.includes(key.split(":")[0]);
   const files: Allowlist["files"] = {};
   for (const [file, entry] of Object.entries(allow?.files ?? {}))

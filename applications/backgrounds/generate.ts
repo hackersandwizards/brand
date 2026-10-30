@@ -585,8 +585,9 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     "lw-stack-up": [["k", 270, 85, 277]],
     "lw-stack-low": [["k", 240, 100, 777]],
     // Measured on Benedikt's phone: it shows the file 1.1525 times enlarged around its centre;
-    // the stack 50 pt lower, clear of the clock and still above two expanded notifications.
-    "lw-stack-mid": [["k", 270, 85, 327]],
+    // the stack 53 pt lower, clear of the clock and still above two expanded notifications, the
+    // wizard's edge 5 pt below the widget row (y 316).
+    "lw-stack-mid": [["k", 270, 85, 330]],
     "logo-c": [["l", 44, 102, 520]],
     "logo-up": [["l", 40, 113, 360]],
     "logo-low": [["l", 40, 113, 816]],
@@ -622,10 +623,16 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
   },
 };
 
+// The boxes the layouts measure the lockup and the compact lockup by, in SVG units: each cut sits
+// so its letters land where they sit in these, whatever its own box holds round the wizard.
+const LAYOUT_BOX: Record<string, number[]> = {
+  lockup: [-1321.814, -288.642, 7988.814, 1489],
+  "lockup-compact": [96, -2322.396, 6571, 3269.396],
+};
+
 // A lockup inlined with the 4096 px wizard master in place of the 512 px PNG the brand SVG embeds:
 // the iPad lock draws the wizard at 435 px and iPadOS enlarges it 1.155 times. Width, height and
-// position name the day file's box: a night cut's box, grown round the wizard's edge, sits so its
-// letters and wizard land where the day file's would.
+// position name the layout box.
 function inlineLockup(url: string, width: number, height: number, x: number, y: number) {
   const box = (file: string) =>
     readFileSync(file.replace("file://", ""), "utf8")
@@ -634,7 +641,7 @@ function inlineLockup(url: string, width: number, height: number, x: number, y: 
       .map(Number);
   const svg = readFileSync(url.replace("file://", ""), "utf8");
   const [vx, vy, vw, vh] = box(url);
-  const [dx, dy, dw, dh] = box(url.replace("-night.svg", ".svg"));
+  const [dx, dy, dw, dh] = LAYOUT_BOX[/(lockup(-compact)?)(-night)?\.svg$/.exec(url)![1]];
   const k = width ? width / dw : height / dh;
   const pos = `left:${x - (dx - vx) * k}px;top:${y - (dy - vy) * k}px`;
   return svg
