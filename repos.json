@@ -7,44 +7,7 @@
   "os": {
     "path": "../os",
     "catalogues": ["http://os.localhost/design-system/"],
-    "copies": [
-      [
-        "logos/emoji-logo-long-cmyk.tif",
-        "src/content/documents/company/design-guide/logos/emoji-logo-long-cmyk.tif"
-      ],
-      [
-        "logos/emoji-logo-long.png",
-        "src/content/documents/company/design-guide/logos/emoji-logo-long.png"
-      ],
-      [
-        "logos/emoji-logo-short-cmyk.tif",
-        "src/content/documents/company/design-guide/logos/emoji-logo-short-cmyk.tif"
-      ],
-      [
-        "logos/emoji-logo-short-quote.png",
-        "src/content/documents/company/design-guide/logos/emoji-logo-short-quote.png"
-      ],
-      [
-        "logos/emoji-logo-short.png",
-        "src/content/documents/company/design-guide/logos/emoji-logo-short.png"
-      ],
-      [
-        "logos/type-logo-long.png",
-        "src/content/documents/company/design-guide/logos/type-logo-long.png"
-      ],
-      [
-        "logos/type-logo-long.svg",
-        "src/content/documents/company/design-guide/logos/type-logo-long.svg"
-      ],
-      [
-        "logos/type-logo-short.png",
-        "src/content/documents/company/design-guide/logos/type-logo-short.png"
-      ],
-      [
-        "logos/type-logo-short.svg",
-        "src/content/documents/company/design-guide/logos/type-logo-short.svg"
-      ]
-    ]
+    "copies": []
   },
   "trainer-hub": {
     "path": "../trainer-hub",

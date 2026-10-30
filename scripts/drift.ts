@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
-// Read-only comparison of each repo's copies (repos.json) against manifest.json, at each repo's
-// last commit, LFS pointers compared by their object id. A directory copy covers only files with
-// an origin: a file brand owns is no copy. Writes reports/drift.json and prints a summary. Reports
-// only: it exits 0 on drift, and it never writes into another repo.
+// Read-only comparison of the brand files a repo still holds as copies (repos.json) against
+// manifest.json, at each repo's last commit, LFS pointers compared by their object id. A directory
+// copy covers the files the repo holds there; one brand lacks is "extra". Writes reports/drift.json
+// and prints a summary. Reports only: it exits 0 on drift, and it never writes into another repo.
 // Usage: bun scripts/drift.ts
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -27,23 +27,17 @@ export const drift = () => {
     const rows: Row[] = [];
     for (const [from, to] of repo.copies) {
       const pairs = from.endsWith("/")
-        ? manifest.files
-            .filter((f) => f.path.startsWith(from) && "origin" in f)
-            .map((f) => [f.path, to + f.path.slice(from.length)])
+        ? listDir(root, to.slice(0, -1)).map((rel) => [from + rel, to + rel])
         : [[from, to]];
       for (const [brand, copy] of pairs) {
-        const want = manifest.files.find((f) => f.path === brand)!.sha256;
+        const want = manifest.files.find((f) => f.path === brand)?.sha256;
         const got = contentHash(root, copy);
         rows.push({
-          brand,
+          brand: want ? brand : "",
           copy,
-          status: !got ? "missing" : got === want ? "identical" : "differs",
+          status: !want ? "extra" : !got ? "missing" : got === want ? "identical" : "differs",
         });
       }
-      if (from.endsWith("/"))
-        for (const rel of listDir(root, to.slice(0, -1)))
-          if (!manifest.files.some((f) => f.path === from + rel))
-            rows.push({ brand: "", copy: to + rel, status: "extra" });
     }
     const bad = rows.filter((r) => r.status !== "identical").length;
     out[name] = {

@@ -52,8 +52,7 @@
     "drift": "bun scripts/drift.ts",
     "catalogue": "bun scripts/catalogue.ts",
     "live": "bun scripts/live.ts && bun scripts/catalogue.ts",
-    "report": "bun scripts/scan.ts; s=$?; bun scripts/drift.ts && bun scripts/catalogue.ts && exit $s",
-    "import": "bun scripts/import.ts && bun scripts/tokens.ts"
+    "report": "bun scripts/scan.ts; s=$?; bun scripts/drift.ts && bun scripts/catalogue.ts && exit $s"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

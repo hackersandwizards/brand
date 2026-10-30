@@ -20,16 +20,14 @@ discount, margin, offer, invoice, client term, personal data or secret.
 ## Layout
 
 - `tokens/`, `logos/`, `expert/`, `document/`: the brand files, each listed in `manifest.json`
-  with its sha256. A file another repo still owns carries the repo, path and commit it was
-  imported from. This repo owns `expert/expert.css`, `document/`, the wordmark and lockup logos
-  (`logos/wordmark*`, `logos/lockup*`) and the two variable fonts
-  `tokens/fonts/*-wght-normal.woff2`, which carry no origin.
+  with its sha256. This repo owns every one of them: no other repo is a source.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
   name and mark file in display order, keeping neighbours from different industries, with the
   mark's source where known. Outside `manifest.json`.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
-- `repos.json`: each sibling repo, its path from here, its own catalogue and where it holds copies.
+- `repos.json`: each sibling repo, its path from here, its own catalogue and where it still holds
+  copies of brand files instead of installing the package.
 - `scan-allowlist.json`: the scan's ratchet. It may only shrink; a test fails where it grows
   against `HEAD`.
 - `reports/`, `catalogue.html`: the last scan and drift run and the page that shows them.
@@ -47,13 +45,11 @@ discount, margin, offer, invoice, client term, personal data or secret.
   with that repo's own CSS, in `captures/live/` (gitignored: the os and trainer-hub stories carry
   Company OS fixtures), and rebuilds `catalogue.html`, which embeds them as frames.
 - `bun run scan -- --tighten`: lower the allowlist to today's counts. Never raise an entry by hand.
-- `bun run import`: re-read every file that has an origin from that origin's last commit and
-  rewrite the manifest; files without an origin keep their entry.
 
 ## Rules
 
-- A file without an origin changes here, then `manifest.json` and `bun run tokens` follow in the
-  same commit. A file with an origin changes in that repo and is re-imported.
+- A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
+  Other repos take it from the package; a copy one still holds shows as drift until it goes.
 - The scan and drift read each sibling's last commit through git and never its working tree.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, the document components, fonts with their OFL texts, small logos,

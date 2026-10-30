@@ -73,8 +73,8 @@ Open `catalogue.html` from disk for the brand portal: tokens, logos, every syste
 Rebuild the systems, then `bun run live`; `captures/` stays on this machine because the os and trainer hub stories carry fixtures trainers may not see.
 
 A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
-tag in their dependency line. Which files change here and which in their origin repo, and the rest of
-the rules: [CLAUDE.md](CLAUDE.md).
+tag in their dependency line. Every brand file changes here; the rest of the rules:
+[CLAUDE.md](CLAUDE.md).
 
 ## Why the `git+ssh://` form
 
