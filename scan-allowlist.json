@@ -82,7 +82,7 @@
       "tokenHex": 0,
       "font": 1,
       "palette": 0,
-      "reason": "System font stack for mail on purpose (2026-10-29-brand-system-repo.md, section 6)."
+      "reason": "System font stack for mail on purpose (os git history: docs/tracking/2026-10-29-brand-system-repo.md, section 6)."
     },
     "os:src/components/DeliverableListRow.astro": {
       "hex": 0,

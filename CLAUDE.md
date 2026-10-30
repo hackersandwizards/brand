@@ -2,8 +2,8 @@
 
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
 static fonts, logos, the expert UI layer and the document components, plus a read-only scan and
-drift report over the sibling repos. Option B of
-`os/docs/tracking/2026-10-29-brand-system-repo.md`, decided by Benedikt on 2026-10-29.
+drift report over the sibling repos. Decided by Benedikt on 2026-10-29; the reasoning is in os
+`docs/tracking/2026-10-29-brand-distribution.md`.
 
 Benedikt decided on 2026-10-29: this repo stays private on GitHub
 (`github.com/hackersandwizards/brand`, team `trainers` read), consumers install it as a Git
