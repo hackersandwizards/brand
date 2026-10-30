@@ -47,9 +47,10 @@ and lock screens. The mail signature keeps its typed wordmark. Each has a PNG be
 cut for night, black, black textile and Stargazer, and an `-outline` cut, a white outline round the
 letters, for Purple Love and the gradient. In both, the wizard of the lockup and the compact lockup
 carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night
-cut, white in the outline cut. The wizard sits further from the wordmark by the edge's width, so
-the gap between its outer contour and the letters stays the day file's. `bun scripts/outline.ts` writes both cuts from the day
-files. The wordmark's box is 952 units tall for 851 units of
+cut, white in the outline cut. The gap between wizard and letters is part of the logo and the same
+on every ground: 0.321 of the cap height in the lockup and 0.381 in the compact lockup, measured
+between the contours, and from the edge's outer contour 0.351 and 0.411 in the cuts.
+`bun scripts/outline.ts` sets the gap in the day files and writes both cuts from them. The wordmark's box is 952 units tall for 851 units of
 letters, centred on the line midway between the box middle and the x-height middle of the letters.
 A text set beside it centres on its box (`align-items: center`, the
 text at `line-height: 1`) and sits centred on the letters. The wizard, taller than the letters,

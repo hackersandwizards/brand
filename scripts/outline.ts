@@ -1,21 +1,26 @@
 #!/usr/bin/env bun
-// Writes the -night and -outline cuts of each logo from its day file. The night cut takes the
-// night colours: teal-night, purple-night and ampersand-light for the &. The outline cut keeps the
-// day colours over a white outline of 48 SVG units round the wordmark, which a mitred 96-unit
-// stroke under the letters draws. In both cuts of the lockup and the compact lockup the wizard
-// carries an edge of 64 units, 7.6% of the letters' 840-unit cap height (1.5 px at a 36 px lockup,
+// Sets the gap between the wizard and the wordmark in the day logos, then writes the -night and
+// -outline cuts of each logo from its day file.
+// The gap is a property of the logo, the same share of the letters' 840-unit cap height on every
+// ground: 1.25 times the gap the day files were drawn with (GAP), measured between the wizard's
+// and the letters' contours at alpha 50%. The wizard moves for it, left in the lockup and up in
+// the compact lockup; the letters never move.
+// The night cut takes the night colours: teal-night, purple-night and ampersand-light for the &.
+// The outline cut keeps the day colours over a white outline of 48 SVG units round the wordmark,
+// which a mitred 96-unit stroke under the letters draws. In both cuts of the lockup and the compact
+// lockup the wizard carries an edge of 64 units, 7.6% of the cap height (1.5 px at a 36 px lockup,
 // 2.6 pt on a compact lockup 270 pt wide): grey (ampersand-light) in the night cut, white in the
 // outline cut. The edge is a flat raster under the wizard, `<image class="wizard-edge">`, built
-// from the wizard's own pixels. The wizard moves away from the wordmark, left in the lockup and up
-// in the compact lockup, until the edge's outer contour lies as far from the letters as the
-// wizard's own contour does in the day file, plus 20 units: the bright edge shows to its rim,
-// where the dark wizard's soft rim fades into the ground, so without them the gap reads about one
-// screen pixel tighter on small surfaces.
-// The letters stay where the day file has them; the box grows to hold edge and outline. In the
-// lockup and the wordmark it grows so the wordmark's centre line keeps its share of the box height
-// below the box centre (lockup 7.8%, wordmark 0), so a text beside it still centres on the letters;
-// in the compact lockup it grows only as far as needed. Renders each PNG at its day PNG's scale and
-// rehashes both in manifest.json. Run after any change to a day logo.
+// from the wizard's own pixels. Its outer contour keeps 1.25 times GAP plus 20 units from the
+// letters: the bright edge shows to its rim, where the dark wizard's soft rim fades into the
+// ground, so without them the gap reads about one screen pixel tighter on small surfaces.
+// Lockup 0.351 and compact lockup 0.411 of the cap height from the edge, 0.321 and 0.381 in the
+// day files.
+// Each box holds wizard, edge and outline. In the lockup and the wordmark it grows so the
+// wordmark's centre line keeps its share of the box height below the box centre (lockup 7.8%,
+// wordmark 0), so a text beside it still centres on the letters; in the compact lockup it grows
+// only as far as needed. Renders each PNG at its day PNG's scale and rehashes both in
+// manifest.json. A second run changes nothing.
 // Usage: bun scripts/outline.ts
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -40,6 +45,9 @@ const NIGHT: [string, string][] = [
 const LIFT: Record<string, number | null> = { wordmark: 0, lockup: 0.078, "lockup-compact": null };
 const EDGE = 64;
 const RIM = 20; // added to the gap, see above
+const WIDEN = 1.25;
+// The day files' gap before it widened, in SVG units at K.
+const GAP: Record<string, number> = { lockup: 216, "lockup-compact": 256 };
 const AWAY: Record<string, [number, number]> = { lockup: [-1, 0], "lockup-compact": [0, -1] };
 const K = 0.5; // px per SVG unit for the gap measurement
 
@@ -95,9 +103,9 @@ async function alpha(svg: string, box: number[]) {
   return { data, n: info.width };
 }
 
-/** How far (SVG units) the wizard moves along AWAY so that its contour widened by EDGE lies the
- * day file's gap plus RIM from the letters, both contours at alpha 50%; and that gap. */
-async function keepGap(base: string, src: string) {
+/** How far (SVG units) the wizard moves along AWAY from where `src` has it, negative towards the
+ * letters, so that its contour widened by `widen` lies `target` from theirs, both at alpha 50%. */
+async function moveFor(base: string, src: string, target: number, widen = 0) {
   const vb = /viewBox="([^"]+)"/.exec(src)![1].split(" ").map(Number);
   const box = [vb[0] - 600, vb[1] - 600, vb[2] + 1200, vb[3] + 1200];
   const letters = await alpha(src.replace(WIZARD, ""), box);
@@ -116,16 +124,70 @@ async function keepGap(base: string, src: string) {
       const y = Math.round(Math.floor(i / n) + ay * t * K);
       d = Math.min(d, field[y * n + x]);
     }
-    return Math.sqrt(d) / K;
+    return Math.sqrt(d) / K - widen;
   };
-  const day = gap(0);
-  let [lo, hi] = [0, 4 * EDGE];
+  let [lo, hi] = [-500, 500];
   while (hi - lo > 0.5) {
     const t = (lo + hi) / 2;
-    if (gap(t) - EDGE < day + RIM) lo = t;
+    if (gap(t) < target) lo = t;
     else hi = t;
   }
-  return { shift: hi, day };
+  return Math.abs(hi) < 2.5 ? 0 : hi; // within the measurement's precision at K
+}
+
+/** The wizard's ink (alpha > 0) in SVG units, x0 y0 x1 y1. */
+async function wizardInk(b64: string, x: number, y: number, w: number) {
+  const { data, info } = await sharp(Buffer.from(b64, "base64"))
+    .ensureAlpha()
+    .extractChannel(3)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  let [x0, y0, x1, y1] = [info.width, info.height, -1, -1];
+  for (let i = 0; i < data.length; i++)
+    if (data[i]) {
+      const [px, py] = [i % info.width, Math.floor(i / info.width)];
+      [x0, y0, x1, y1] = [
+        Math.min(x0, px),
+        Math.min(y0, py),
+        Math.max(x1, px + 1),
+        Math.max(y1, py + 1),
+      ];
+    }
+  const u = w / info.width;
+  return [x + x0 * u, y + y0 * u, x + x1 * u, y + y1 * u];
+}
+
+/** Moves the day file's wizard to the logo's gap and fits its box round letters and wizard. */
+async function writeDay(base: string) {
+  const path = join(ROOT, "logos", `${base}.svg`);
+  const src = readFileSync(path, "utf8");
+  const [tag, wx, wy, ww, b64] = WIZARD.exec(src)!;
+  const t = await moveFor(base, src, WIDEN * GAP[base]);
+  const [dx, dy] = AWAY[base];
+  const [x, y] = [+(Number(wx) + dx * t).toFixed(3), +(Number(wy) + dy * t).toFixed(3)];
+  const ink = await wizardInk(b64, x, y, Number(ww));
+  const letters = [INK.x0, INK.y0, INK.x1 - INK.x0, INK.y1 - INK.y0];
+  const old = /viewBox="([^"]+)"/.exec(src)![1].split(" ").map(Number);
+  const next = grow(base, letters, ink);
+  const svg = src
+    .replace(tag, tag.replace(`x="${wx}" y="${wy}"`, `x="${x}" y="${y}"`))
+    .replace(/viewBox="[^"]+"/, `viewBox="${next.join(" ")}"`)
+    .replace(
+      / width="\d+" height="\d+"/,
+      ` width="${Math.round(next[2])}" height="${Math.round(next[3])}"`,
+    );
+  writeFileSync(path, svg);
+  const png = join(ROOT, "logos", `${base}.png`);
+  const { width } = await sharp(png).metadata();
+  await sharp(Buffer.from(svg))
+    .resize(Math.round((width * next[2]) / old[2]))
+    .png({ compressionLevel: 9, adaptiveFiltering: true })
+    .toFile(png);
+  for (const p of [`logos/${base}.svg`, `logos/${base}.png`]) {
+    const entry = manifest.files.find((f) => f.path === p)!;
+    entry.sha256 = sha256(readFileSync(join(ROOT, p)));
+  }
+  console.log(`${base}: wizard moves ${t.toFixed(1)} for a gap of ${WIDEN * GAP[base]} units`);
 }
 
 /** The edge raster: the wizard's silhouette (alpha >= 50%) widened by `r` px, antialiased. */
@@ -207,10 +269,10 @@ async function writeCut(base: string, kind: "night" | "outline") {
     const size = 1024; // twice the embedded wizard, for a smooth contour
     const unit = Number(ww) / size;
     const colour = kind === "night" ? tokenHex("ampersand-light") : "#FFFFFF";
-    const { shift, day } = await keepGap(base, src);
+    const shift = await moveFor(base, src, WIDEN * (GAP[base] + RIM), EDGE);
     const [dx, dy] = AWAY[base];
     const [x, y] = [+(Number(wx) + dx * shift).toFixed(3), +(Number(wy) + dy * shift).toFixed(3)];
-    console.log(`${base}-${kind}: gap ${day.toFixed(1)} units, wizard moves ${shift.toFixed(1)}`);
+    console.log(`${base}-${kind}: wizard moves ${shift.toFixed(1)} beyond the day file`);
     const edge = await edgeRaster(Buffer.from(b64, "base64"), size, EDGE / unit, colour);
     const [ex, ey] = [x - edge.pad * unit, y - edge.pad * unit];
     take(edge.ink.map((v, i) => +(i % 2 ? ey : ex) + v * unit));
@@ -242,6 +304,7 @@ async function writeCut(base: string, kind: "night" | "outline") {
   }
 }
 
+for (const base of Object.keys(GAP)) await writeDay(base);
 for (const base of Object.keys(LIFT))
   for (const kind of ["night", "outline"] as const) await writeCut(base, kind);
 writeFileSync(join(ROOT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");

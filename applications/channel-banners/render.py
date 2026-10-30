@@ -35,12 +35,10 @@ LOCKUP = BRAND / "logos/lockup-night.png"
 LIFT = 0.078  # the wordmark's centre line lies this share of the lockup height below its box centre
 
 
-def view_box(name):
-    return [float(v) for v in re.search(r'viewBox="([^"]+)"', (BRAND / "logos" / name).read_text()).group(1).split()]
-
-
-# A layout's "h" and edges name the day lockup's box; the night cut's box grows round the wizard's edge.
-DAY_BOX, NIGHT_BOX = view_box("lockup.svg"), view_box("lockup-night.svg")
+# The box a layout's "h" and edges measure the lockup by, in SVG units: the night cut sits so its
+# letters land where they sit in it, whatever its own box holds round the wizard.
+LAYOUT_BOX = [-1321.814, -288.642, 7988.814, 1489]
+NIGHT_BOX = [float(v) for v in re.search(r'viewBox="([^"]+)"', (BRAND / "logos/lockup-night.svg").read_text()).group(1).split()]
 
 BASE = (11, 17, 24)
 WHITE = (234, 235, 236)
@@ -235,8 +233,8 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
         ink.paste(255, (x0, y0), mask)
     lk = s["lockup"]
     lh = lk["h"] * k
-    u = lh / DAY_BOX[3]  # px per SVG unit
-    lw = DAY_BOX[2] * u
+    u = lh / LAYOUT_BOX[3]  # px per SVG unit
+    lw = LAYOUT_BOX[2] * u
     lock = Image.open(LOCKUP).convert("RGBA")
     lock = lock.resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
     left, _, right, _ = ink.point(lambda v: 255 if v > 110 else 0).getbbox()
@@ -245,7 +243,7 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
     else:
         x = left if lk["align"] == "left" else right - lw
     top = lk["anchor"] * k - lh / 2 - LIFT * lh
-    x, top = x - (DAY_BOX[0] - NIGHT_BOX[0]) * u, top - (DAY_BOX[1] - NIGHT_BOX[1]) * u
+    x, top = x - (LAYOUT_BOX[0] - NIGHT_BOX[0]) * u, top - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
     img.paste(lock, (round(x), round(top)), lock)
     return img
 

@@ -5,77 +5,77 @@
       "tokenHex": 0,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "website:scripts/og/template.html": {
       "hex": 0,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "website:src/components/blocks/LogoStrip.astro": {
       "hex": 0,
       "tokenHex": 5,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "website:src/components/islands/hero-feed.ts": {
       "hex": 1,
       "tokenHex": 0,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "website:src/components/sections/Factory.astro": {
       "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "website:src/components/sections/StandardSections.astro": {
       "hex": 0,
       "tokenHex": 0,
       "font": 0,
       "palette": 1,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "website:src/components/templates/SelfCheckPage.astro": {
       "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "website:src/layouts/Layout.astro": {
       "hex": 0,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:.claude/skills/email/test_draft_optimize.py": {
       "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:scripts/attendee-survey/report.ts": {
       "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:scripts/delivery/survey-qr.py": {
       "hex": 0,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:scripts/gmail/draft.py": {
       "hex": 0,
@@ -89,117 +89,117 @@
       "tokenHex": 0,
       "font": 0,
       "palette": 2,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:src/components/PipelineBoard.astro": {
       "hex": 0,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:src/config.ts": {
       "hex": 14,
       "tokenHex": 7,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:src/pages/companies/[slug].astro": {
       "hex": 0,
       "tokenHex": 0,
       "font": 0,
       "palette": 6,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:src/pages/surveys.astro": {
       "hex": 0,
       "tokenHex": 0,
       "font": 0,
       "palette": 6,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:src/pages/workflow.astro": {
       "hex": 28,
       "tokenHex": 0,
       "font": 2,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:src/stories/demos/DocumentHoverPreviewDemo.astro": {
       "hex": 8,
       "tokenHex": 0,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "os:src/styles/global.css": {
       "hex": 32,
       "tokenHex": 16,
       "font": 1,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "trainer-hub:.claude/skills/print-pdf/hw-pdf-style.css": {
       "hex": 0,
       "tokenHex": 7,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "trainer-hub:src/slides/lib/decks.ts": {
       "hex": 0,
       "tokenHex": 4,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "trainer-hub:src/stories/Home.astro": {
       "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "trainer-hub:src/stories/SlideFrame.astro": {
       "hex": 0,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "trainer-hub:src/stories/Slides/Slide parts/Particles.stories.ts": {
       "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "trainer-hub:src/styles/tokens.css": {
       "hex": 0,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "talks:app/page.tsx": {
       "hex": 3,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     },
     "certificate-verifier:src/worker.ts": {
       "hex": 0,
       "tokenHex": 0,
       "font": 2,
       "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
+      "reason": "Present at the first scan, not yet reviewed."
     }
   },
   "duplicates": {
-    "card": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "listrow": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "sectionheader": "Present at the first scan on 2026-10-29, not yet reviewed."
+    "card": "Present at the first scan, not yet reviewed.",
+    "listrow": "Present at the first scan, not yet reviewed.",
+    "sectionheader": "Present at the first scan, not yet reviewed."
   }
 }
