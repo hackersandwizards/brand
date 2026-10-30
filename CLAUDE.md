@@ -24,6 +24,13 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
   name and mark file in display order, keeping neighbours from different industries, with the
   mark's source where known. Outside `manifest.json`.
+- `applications/<family>/`: the files made from the brand for one use each, outside the package:
+  device and call backgrounds, channel banners, avatars, booth banners, gradients, overlays,
+  visuals, merch print files. Where a script builds a family it sits beside the files and writes
+  there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`,
+  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). The banners
+  with client logos never enter this repo: `render.py` writes them only to `--clients-out`. A
+  retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
 - `repos.json`: each sibling repo, its path from here, its own catalogue and where it still holds
@@ -67,9 +74,9 @@ discount, margin, offer, invoice, client term, personal data or secret.
   trainer hub both consume them from here. A component imports only this repo's files (logos inline,
   no app paths), and every rate or term is a prop. `test/components.test.ts` renders each one
   standalone; a new component needs placeholder props there.
-- Only the print masters live in Git LFS: the two CMYK TIFFs and the two 4096 px emoji PNGs
-  (`.gitattributes`). `.lfsconfig` keeps clones from fetching them, so a consumer's install stays
-  small; fetch them here with `git -c lfs.fetchexclude= lfs pull`. Every file the package ships is
+- Only the print masters (the two CMYK TIFFs and the two 4096 px emoji PNGs) and the PNG, PDF and
+  AI files under `applications/` live in Git LFS (`.gitattributes`). `.lfsconfig` keeps clones,
+  a consumer's `bun install` included, from fetching them, so the install stays small; fetch them here with `git -c lfs.fetchexclude= lfs pull`. Every file the package ships is
   a plain Git file, and `test/package.test.ts` fails on one in LFS.
 
 ## Behavioral rules

@@ -1,0 +1,154 @@
+/* Banner components. A sheet is the file format: final format plus 20 mm bleed (Pixlip GO). */
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+body {
+  background: var(--night);
+}
+.sheet {
+  position: relative;
+  width: calc((var(--w) + 40) * var(--mm));
+  height: calc((var(--h) + 40) * var(--mm));
+  background: var(--night);
+  color: var(--ink-on-night);
+  font-family: Inter;
+  overflow: hidden;
+}
+.final {
+  position: absolute;
+  inset: var(--bleed);
+  padding: calc(var(--pad-y) * var(--mm)) calc(var(--pad-x) * var(--mm));
+  display: flex;
+  flex-direction: column;
+}
+.rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--bleed) + var(--rail));
+  background: linear-gradient(90deg, var(--teal), var(--purple));
+}
+.rail.top {
+  top: 0;
+}
+.rail.bottom {
+  bottom: 0;
+}
+.lockup {
+  display: flex;
+  align-items: center;
+  gap: calc(24 * var(--mm));
+}
+.lockup img:first-child {
+  width: calc(var(--wiz) * var(--mm));
+  height: auto;
+  translate: 0 var(--logo-wizard-lift);
+}
+/* The pixel wordmark: --wm is the cap size of the mono wordmark it replaces; its box, centred on its letters, is 1.2 times that. */
+.wordmark {
+  display: block;
+  width: auto;
+  height: calc(var(--wm) * 1.2 * var(--mm));
+}
+.pixel {
+  display: block;
+  width: calc(var(--logo-w) * var(--mm));
+  height: auto;
+}
+.pixel.outlined {
+  filter: drop-shadow(calc(6 * var(--mm)) 0 0 #fff) drop-shadow(calc(-6 * var(--mm)) 0 0 #fff)
+    drop-shadow(0 calc(6 * var(--mm)) 0 #fff) drop-shadow(0 calc(-6 * var(--mm)) 0 #fff);
+}
+.headline {
+  font-family: "JetBrains Mono";
+  font-weight: 700;
+  color: #fff;
+  font-size: calc(var(--h1) * var(--mm));
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+.offer {
+  font-family: "JetBrains Mono";
+  font-weight: 700;
+  color: var(--teal-light);
+  font-size: calc(var(--h2) * var(--mm));
+  line-height: 1.15;
+}
+.audience {
+  font-weight: 600;
+  font-size: calc(var(--h3) * var(--mm));
+  line-height: 1.3;
+  color: var(--ink-on-night);
+}
+.proof {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--proof-gap) * var(--mm));
+}
+.proof li {
+  position: relative;
+  padding-left: calc(var(--proof) * 1.3 * var(--mm));
+  font-size: calc(var(--proof) * var(--mm));
+  line-height: 1.3;
+  color: var(--muted-on-night);
+}
+.proof li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 0.5em;
+  height: 0.5em;
+  background: var(--teal-light);
+  border-radius: 0.16em 0;
+}
+.contact {
+  display: flex;
+  align-items: center;
+  gap: calc(32 * var(--mm));
+}
+.contact img {
+  width: calc(var(--qr) * var(--mm));
+  height: calc(var(--qr) * var(--mm));
+  background: #fff;
+  padding: calc(var(--qr) * 0.07 * var(--mm));
+  border-radius: calc(24 * var(--mm)) calc(6 * var(--mm));
+}
+.contact .label {
+  font-family: "JetBrains Mono";
+  font-weight: 500;
+  font-size: calc(var(--label, calc(var(--url) * 0.75)) * var(--mm));
+  color: var(--muted-on-night);
+  margin-bottom: calc(10 * var(--mm));
+}
+.contact .url {
+  font-family: "JetBrains Mono";
+  font-weight: 700;
+  font-size: calc(var(--url) * var(--mm));
+  color: #fff;
+}
+.url-line {
+  font-family: "JetBrains Mono";
+  font-weight: 700;
+  font-size: calc(var(--url) * var(--mm));
+  color: #fff;
+  margin-top: calc(28 * var(--mm));
+  white-space: nowrap;
+}
+.mascot {
+  display: block;
+  width: calc(var(--mascot) * var(--mm));
+  height: auto;
+}
+.grow {
+  flex: 1;
+}
+.headline,
+.offer,
+.audience,
+.proof li {
+  text-wrap: balance;
+}

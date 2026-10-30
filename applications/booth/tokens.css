@@ -1,0 +1,43 @@
+/* Booth tokens: brand values from @hackersandwizards/brand's tokens, on the booth scale.
+   --mm is one millimetre of the printed banner: 1mm for print, 0.8px for screen previews. */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url(../../tokens/fonts/jetbrains-mono-latin-700-normal.woff2);
+  font-weight: 700;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url(../../tokens/fonts/jetbrains-mono-latin-500-normal.woff2);
+  font-weight: 500;
+}
+@font-face {
+  font-family: Inter;
+  src: url(../../tokens/fonts/inter-latin-400-normal.woff2);
+  font-weight: 400;
+}
+@font-face {
+  font-family: Inter;
+  src: url(../../tokens/fonts/inter-latin-600-normal.woff2);
+  font-weight: 600;
+}
+:root {
+  --mm: 0.8px;
+  --night: #0b1118;
+  --ink-on-night: #edeef0;
+  --muted-on-night: #c9cdd3;
+  --teal: #1a7285;
+  --purple: #9333ea;
+  --amp: #7c849c;
+  --teal-light: #a3c7ce;
+  --purple-light: #d4adf7;
+  /* The wizard beside the wordmark rises by 7.8% of its height (@hackersandwizards/brand --logo-wizard-lift). */
+  --logo-wizard-lift: -7.8%;
+  --bleed: calc(20 * var(--mm));
+  --safe: calc(20 * var(--mm));
+  --rail: calc(16 * var(--mm));
+}
+@media print {
+  :root {
+    --mm: 1mm;
+  }
+}
