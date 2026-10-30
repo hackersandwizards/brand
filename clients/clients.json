@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Tchibo",
+    "file": "tchibo.webp"
+  },
+  {
+    "name": "SIGNAL IDUNA",
+    "file": "signal-iduna.webp"
+  },
+  {
+    "name": "IONOS",
+    "file": "ionos.webp"
+  },
+  {
+    "name": "Krombacher",
+    "file": "krombacher.webp"
+  },
+  {
+    "name": "Mercedes-Benz",
+    "file": "mercedes-benz.webp"
+  },
+  {
+    "name": "eventim",
+    "file": "eventim.webp"
+  },
+  {
+    "name": "OBI",
+    "file": "obi.webp"
+  },
+  {
+    "name": "blau direkt",
+    "file": "blau-direkt.webp"
+  },
+  {
+    "name": "Picnic",
+    "file": "picnic.svg",
+    "source": "Wikimedia Commons File:Picnic_logo.svg, letters only"
+  },
+  {
+    "name": "Haufe Group",
+    "file": "haufe-group.webp"
+  },
+  {
+    "name": "MOIA",
+    "file": "moia.svg",
+    "source": "Inline SVG on https://www.moia.io/en"
+  },
+  {
+    "name": "Vorwerk",
+    "file": "vorwerk.webp"
+  },
+  {
+    "name": "Moonfare",
+    "file": "moonfare.svg"
+  },
+  {
+    "name": "LichtBlick",
+    "file": "lichtblick.webp"
+  },
+  {
+    "name": "dm",
+    "file": "dm.webp"
+  },
+  {
+    "name": "EGYM",
+    "file": "egym.webp"
+  },
+  {
+    "name": "Statista",
+    "file": "statista.svg",
+    "source": "Company OS src/content/companies/logos/statista.svg"
+  },
+  {
+    "name": "EUROGATE",
+    "file": "eurogate.webp"
+  },
+  {
+    "name": "bonprix",
+    "file": "bonprix.webp"
+  },
+  {
+    "name": "adesso insurance solutions",
+    "file": "adesso-insurance-solutions.webp"
+  },
+  {
+    "name": "1GLOBAL",
+    "file": "1global.webp"
+  },
+  {
+    "name": "OMR",
+    "file": "omr.svg",
+    "source": "Company OS src/content/companies/logos/omr.svg"
+  },
+  {
+    "name": "Bünting",
+    "file": "bunting.webp"
+  },
+  {
+    "name": "Unzer",
+    "file": "unzer.png",
+    "source": "Pink wordmark cut from https://a.storyblok.com/f/91629/3042x1393/f616cf145e/unzer__primarylogo_chalk_rgb.jpg on https://www.unzer.com/de/download"
+  },
+  {
+    "name": "SDK",
+    "file": "sdk.svg",
+    "source": "Company OS src/content/companies/logos/sdk.svg"
+  },
+  {
+    "name": "Suiteify",
+    "file": "suiteify.webp"
+  },
+  {
+    "name": "Fricke Gruppe",
+    "file": "fricke-gruppe.png",
+    "source": "Company OS src/content/companies/logos/fricke-gruppe.png"
+  },
+  {
+    "name": "neue fische",
+    "file": "neue-fische.webp",
+    "source": "public/media/ecosystem/neue-fische.webp, the former partner-wall mark"
+  }
+]

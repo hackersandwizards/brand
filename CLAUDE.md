@@ -24,6 +24,9 @@ discount, margin, offer, invoice, client term, personal data or secret.
   imported from. This repo owns `expert/expert.css`, `document/`, the wordmark and lockup logos
   (`logos/wordmark*`, `logos/lockup*`) and the two variable fonts
   `tokens/fonts/*-wght-normal.woff2`, which carry no origin.
+- `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
+  name and mark file in display order, keeping neighbours from different industries, with the
+  mark's source where known. Outside `manifest.json`.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
 - `repos.json`: each sibling repo, its path from here, its own catalogue and where it holds copies.
@@ -53,8 +56,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
   same commit. A file with an origin changes in that repo and is re-imported.
 - The scan and drift read each sibling's last commit through git and never its working tree.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
-  base `document/document.css`, the document components, fonts with their OFL texts, small logos
-  and `LICENSE`. `test/package.test.ts` fails on anything else.
+  base `document/document.css`, the document components, fonts with their OFL texts, small logos,
+  the client marks and `LICENSE`. `test/package.test.ts` fails on anything else.
 - The slide engine stays private to talks and never enters this package, not even a primitive.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
   both render, this repo's own since Benedikt's D2 decision on 2026-10-30 (os row
