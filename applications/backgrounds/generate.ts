@@ -22,6 +22,8 @@ const DEVICES: Record<Device, { w: number; h: number; s: number }> = {
   iphone: { w: 440, h: 956, s: 3 },
   call: { w: 1920, h: 1080, s: 1 },
 };
+// iPad Pro 12.9" in landscape, the screen's own size: a 4:3 file leaves iPadOS no vertical play.
+const IPAD_WIDE = { w: 1366, h: 1024, s: 2 };
 
 const C = {
   teal: "#1A7285",
@@ -227,8 +229,7 @@ export const VARIANTS: Record<string, Variant> = {
   },
 };
 
-function page(d: Device, bg: string, layers: Layer[]) {
-  const { w, h } = DEVICES[d];
+function page(d: Device, bg: string, layers: Layer[], { w, h } = DEVICES[d]) {
   return `<!doctype html><meta charset="utf-8"><style>${fontFaces}*{margin:0}body{width:${w}px;height:${h}px;overflow:hidden;position:relative;background:${bg}}</style>${layers.join("")}`;
 }
 
@@ -436,7 +437,7 @@ async function generateBackgrounds() {
 const NIGHT = `radial-gradient(ellipse 60% 50% at 100% 0%, rgba(147,51,234,.24), transparent 70%), radial-gradient(ellipse 45% 45% at 0% 100%, rgba(26,114,133,.32), transparent 70%), linear-gradient(180deg, #111A24, #0B1118)`;
 const PASTEL_HOME = `linear-gradient(135deg, ${tint(C.teal, 88)}, ${tint(C.purple, 84)})`;
 type Base = "dark" | "light";
-type WallFile = "mac" | "ipad" | "ipad-home" | "iphone" | "iphone-home" | "call";
+type WallFile = "mac" | "ipad" | "ipad-home" | "ipad-home-wide" | "iphone" | "iphone-home" | "call";
 type Screen =
   "mac-desktop" | "mac-lock" | "ipad-lock" | "ipad-home" | "iphone-lock" | "iphone-home" | "call";
 const SCREEN_FILE: Record<Screen, WallFile> = {
@@ -448,7 +449,8 @@ const SCREEN_FILE: Record<Screen, WallFile> = {
   "iphone-home": "iphone-home",
   call: "call",
 };
-const fileDevice = (f: WallFile) => f.replace("-home", "") as Device;
+const fileDevice = (f: WallFile) => f.replace(/-home(-wide)?$/, "") as Device;
+const fileSize = (f: WallFile) => (f === "ipad-home-wide" ? IPAD_WIDE : DEVICES[fileDevice(f)]);
 
 // An element in the file's points, top left: wizard by width, lockup and wordmark by height,
 // the stacked lockup (wizard over wordmark) by width. Lockup 5.365:1, wordmark 6.9:1, stack 2.01:1.
@@ -504,6 +506,14 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     "wiz-br": [["w", 600, 584, 776]],
     "wiz-c": [["w", 520, 428, 640]],
     "wiz-giant": [["w", 1100, 364, 476]],
+  },
+  "ipad-home-wide": {
+    // Five landscape home screenshots showed the square file at full width with its top 220 to 345
+    // points down: 125 points of play against the 104 the band between labels and Dock leaves a
+    // 36-point lockup, so no row of the square file clears all. Screen points of his landscape home
+    // screen: the lowest app labels end at y 789.5, the Dock starts at 925.8. The lockup's ink
+    // (841.5-875) centred between them, 52 and 51 points from each.
+    "logo-gap": [["l", 36, 586.4, 838.7]],
   },
   "ipad-home": {
     "logo-band": [["l", 62, 521, 960]],
@@ -599,9 +609,9 @@ function layoutWall(base: Base, f: WallFile, layout: string) {
   const els = LAYOUTS[f][layout];
   if (!els) throw new Error(`unknown layout ${f}:${layout}`);
   // White-ink marks on the dark ground and on the deep light home ground.
-  const night = base === "dark" || f.endsWith("-home");
+  const night = base === "dark" || f.includes("-home");
   const bg =
-    base === "dark" ? NIGHT : f === "mac" ? MID : f.endsWith("-home") ? PASTEL_HOME : PASTEL;
+    base === "dark" ? NIGHT : f === "mac" ? MID : f.includes("-home") ? PASTEL_HOME : PASTEL;
   const glow =
     base === "light" && f === "call"
       ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse 900px 380px at 0% 100%, ${tint(C.teal, 80)}, transparent)"></div>`
@@ -613,7 +623,7 @@ function layoutWall(base: Base, f: WallFile, layout: string) {
     if (k === "m") return img(night ? brand.wordmarkNight : brand.wordmark, `height:${n}px;${pos}`);
     return inlineLockup(night ? brand.compactNight : brand.compact, n, 0, pos);
   });
-  return page(fileDevice(f), bg, [glow, ...layers]);
+  return page(fileDevice(f), bg, [glow, ...layers], fileSize(f));
 }
 
 const phoneFrame = (html: string) =>
@@ -700,8 +710,7 @@ async function generateLayouts() {
   try {
     for (const base of bases) {
       for (const f of Object.keys(LAYOUTS) as WallFile[]) {
-        const d = fileDevice(f);
-        const { w, h, s } = DEVICES[d];
+        const { w, h, s } = fileSize(f);
         for (const layout of Object.keys(LAYOUTS[f])) {
           if (only && !only.includes(`${f}:${layout}`)) continue;
           mkdirSync(join(out, base, f), { recursive: true });
