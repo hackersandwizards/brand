@@ -8,6 +8,7 @@
 // (1000 px long edge) plus -detail.jpg (the system text at real size, where the mock is larger).
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { crc32 } from "node:zlib";
 import sharp from "sharp";
 import { brand, browser, fontFaces, tint, toJpeg } from "./render.ts";
 
@@ -24,6 +25,8 @@ const DEVICES: Record<Device, { w: number; h: number; s: number }> = {
 };
 // iPad Pro 12.9" in landscape, the screen's own size: a 4:3 file leaves iPadOS no vertical play.
 const IPAD_WIDE = { w: 1366, h: 1024, s: 2 };
+// Apple Studio Display 27", 5120 x 2880 at 2x: its own file, as a MacBook file left bars there.
+const STUDIO = { w: 2560, h: 1440, s: 2 };
 
 const C = {
   teal: "#1A7285",
@@ -437,7 +440,15 @@ async function generateBackgrounds() {
 const NIGHT = `radial-gradient(ellipse 60% 50% at 100% 0%, rgba(147,51,234,.24), transparent 70%), radial-gradient(ellipse 45% 45% at 0% 100%, rgba(26,114,133,.32), transparent 70%), linear-gradient(180deg, #111A24, #0B1118)`;
 const PASTEL_HOME = `linear-gradient(135deg, ${tint(C.teal, 88)}, ${tint(C.purple, 84)})`;
 type Base = "dark" | "light";
-type WallFile = "mac" | "ipad" | "ipad-home" | "ipad-home-wide" | "iphone" | "iphone-home" | "call";
+type WallFile =
+  | "mac"
+  | "mac-studio"
+  | "ipad"
+  | "ipad-home"
+  | "ipad-home-wide"
+  | "iphone"
+  | "iphone-home"
+  | "call";
 type Screen =
   "mac-desktop" | "mac-lock" | "ipad-lock" | "ipad-home" | "iphone-lock" | "iphone-home" | "call";
 const SCREEN_FILE: Record<Screen, WallFile> = {
@@ -449,8 +460,25 @@ const SCREEN_FILE: Record<Screen, WallFile> = {
   "iphone-home": "iphone-home",
   call: "call",
 };
-const fileDevice = (f: WallFile) => f.replace(/-home(-wide)?$/, "") as Device;
-const fileSize = (f: WallFile) => (f === "ipad-home-wide" ? IPAD_WIDE : DEVICES[fileDevice(f)]);
+const fileDevice = (f: WallFile) => f.replace(/-(home(-wide)?|studio)$/, "") as Device;
+const fileSize = (f: WallFile) =>
+  f === "ipad-home-wide" ? IPAD_WIDE : f === "mac-studio" ? STUDIO : DEVICES[fileDevice(f)];
+
+// A pHYs chunk after IHDR, so macOS reads a 2x desktop file at its point size and fills the screen
+// even with "Center". The pixels and every other byte stay as Chrome wrote them.
+function withDpi(png: Buffer, dpi: number) {
+  const ppm = Math.round(dpi / 0.0254);
+  const body = Buffer.alloc(13);
+  body.write("pHYs");
+  body.writeUInt32BE(ppm, 4);
+  body.writeUInt32BE(ppm, 8);
+  body[12] = 1;
+  const chunk = Buffer.alloc(21);
+  chunk.writeUInt32BE(9);
+  body.copy(chunk, 4);
+  chunk.writeUInt32BE(crc32(body), 17);
+  return Buffer.concat([png.subarray(0, 33), chunk, png.subarray(33)]);
+}
 
 // An element in the file's points, top left: wizard by width, lockup and wordmark by height,
 // the stacked lockup (wizard over wordmark) by width. Lockup 5.365:1, wordmark 6.9:1, stack 2.01:1.
@@ -463,6 +491,11 @@ type El = ["w" | "l" | "m" | "k", number, number, number];
 // y 222, widgets to y 316, lock buttons at the bottom corners; iPhone home free band y 740-800;
 // call head x 810-1110 from y 250, name label bottom left.
 const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
+  // The MacBook's lw-stack-r at the same point size, 80 pt from the right and 130 pt from the
+  // bottom edge as there.
+  "mac-studio": {
+    "lw-stack-r": [["k", 440, 2040, 1091]],
+  },
   mac: {
     "lw-split": [
       ["w", 420, 1258, 697],
@@ -611,7 +644,13 @@ function layoutWall(base: Base, f: WallFile, layout: string) {
   // White-ink marks on the dark ground and on the deep light home ground.
   const night = base === "dark" || f.includes("-home");
   const bg =
-    base === "dark" ? NIGHT : f === "mac" ? MID : f.includes("-home") ? PASTEL_HOME : PASTEL;
+    base === "dark"
+      ? NIGHT
+      : fileDevice(f) === "mac"
+        ? MID
+        : f.includes("-home")
+          ? PASTEL_HOME
+          : PASTEL;
   const glow =
     base === "light" && f === "call"
       ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse 900px 380px at 0% 100%, ${tint(C.teal, 80)}, transparent)"></div>`
@@ -715,8 +754,9 @@ async function generateLayouts() {
           if (only && !only.includes(`${f}:${layout}`)) continue;
           mkdirSync(join(out, base, f), { recursive: true });
           const wall = join(out, base, f, `${layout}.png`);
-          writeFileSync(wall, await b.shot(layoutWall(base, f, layout), w, h, s));
-          const tone = base === "dark" ? "dark" : f === "mac" ? "mid" : "light";
+          const png = await b.shot(layoutWall(base, f, layout), w, h, s);
+          writeFileSync(wall, fileDevice(f) === "mac" ? withDpi(png, 72 * s) : png);
+          const tone = base === "dark" ? "dark" : fileDevice(f) === "mac" ? "mid" : "light";
           for (const screen of Object.keys(SCREEN_FILE) as Screen[]) {
             if (SCREEN_FILE[screen] !== f) continue;
             const [html, mw, mh, regions] = screenMock(screen, wall, tone);
