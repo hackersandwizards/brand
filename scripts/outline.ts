@@ -1,58 +1,247 @@
 #!/usr/bin/env bun
-// Writes the -outline cut of each one-line logo: the day colours over a white outline of 48 SVG
-// units round the wordmark, the wizard unoutlined. For Purple Love and the gradient (os logo-system
-// study, 2026-10-30): the study's generator dilated the wordmark with a 97-unit square, which a
-// mitred 96-unit stroke under the letters reproduces. The letter positions stay where the source
-// file has them; the box grows to hold the outline, by the same amount above and below so a text
-// beside it still centres on the letters. Renders each PNG at its source PNG's scale and adds or
-// rehashes both in manifest.json. Run after any change to a source logo.
+// Writes the -night and -outline cuts of each logo from its day file. The night cut takes the
+// night colours: teal-night, purple-night and ampersand-light for the &. The outline cut keeps the
+// day colours over a white outline of 48 SVG units round the wordmark, which a mitred 96-unit
+// stroke under the letters draws. In both cuts of the lockup and the compact lockup the wizard
+// carries an edge of 64 units, 7.6% of the letters' 840-unit cap height (1.5 px at a 36 px lockup,
+// 2.6 pt on a compact lockup 270 pt wide): grey (ampersand-light) in the night cut, white in the
+// outline cut. The edge is a flat raster under the wizard, `<image class="wizard-edge">`, built
+// from the wizard's own pixels. The wizard moves away from the wordmark, left in the lockup and up
+// in the compact lockup, until the edge's outer contour lies as far from the letters as the
+// wizard's own contour does in the day file, plus 20 units: the bright edge shows to its rim,
+// where the dark wizard's soft rim fades into the ground, so without them the gap reads about one
+// screen pixel tighter on small surfaces.
+// The letters stay where the day file has them; the box grows to hold edge and outline. In the
+// lockup and the wordmark it grows so the wordmark's centre line keeps its share of the box height
+// below the box centre (lockup 7.8%, wordmark 0), so a text beside it still centres on the letters;
+// in the compact lockup it grows only as far as needed. Renders each PNG at its day PNG's scale and
+// rehashes both in manifest.json. Run after any change to a day logo.
 // Usage: bun scripts/outline.ts
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import manifest from "../manifest.json";
+import { colors } from "../generated/tokens";
 import { ROOT, sha256 } from "./git";
 
 const OUTLINE = 48;
 const INK = { x0: 96, y0: 96, x1: 6667, y1: 947 }; // the wordmark's letters in SVG units
+const LINE = 572; // the wordmark's centre line, the middle of its 952-unit box
 const WORDMARK = /<g fill="#1A7285">[\s\S]*(?=<\/svg>)/;
+const WIZARD =
+  /<image x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="[\d.]+" href="data:image\/png;base64,([^"]+)"\/?>/;
+const tokenHex = (token: string) => colors[`--color-${token}` as keyof typeof colors].toUpperCase();
+const NIGHT: [string, string][] = [
+  ["teal", "teal-night"],
+  ["purple", "purple-night"],
+  ["ampersand", "ampersand-light"],
+].map(([day, night]) => [tokenHex(day), tokenHex(night)]);
+// The wordmark's centre line below the box centre, as a share of the box height; null: no rule.
+const LIFT: Record<string, number | null> = { wordmark: 0, lockup: 0.078, "lockup-compact": null };
+const EDGE = 64;
+const RIM = 20; // added to the gap, see above
+const AWAY: Record<string, [number, number]> = { lockup: [-1, 0], "lockup-compact": [0, -1] };
+const K = 0.5; // px per SVG unit for the gap measurement
 
-for (const base of ["wordmark", "lockup", "lockup-compact"]) {
+/** Squared distance of each sample to the nearest zero, along one line (Felzenszwalb). */
+function line(f: Float64Array) {
+  const n = f.length;
+  const d = new Float64Array(n);
+  const v = new Int32Array(n);
+  const z = new Float64Array(n + 1);
+  let k = 0;
+  z[0] = -Infinity;
+  z[1] = Infinity;
+  for (let q = 1; q < n; q++) {
+    let s: number;
+    for (;;) {
+      s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+      if (s > z[k]) break;
+      k--;
+    }
+    v[++k] = q;
+    z[k] = s;
+    z[k + 1] = Infinity;
+  }
+  for (let q = 0, j = 0; q < n; q++) {
+    while (z[j + 1] < q) j++;
+    d[q] = (q - v[j]) ** 2 + f[v[j]];
+  }
+  return d;
+}
+
+/** Squared distance of each pixel of an n-wide grid to the nearest pixel that is 0. */
+function distance(grid: Float64Array, n: number) {
+  const m = grid.length / n;
+  for (let y = 0; y < m; y++) grid.set(line(grid.subarray(y * n, (y + 1) * n)), y * n);
+  const col = new Float64Array(m);
+  for (let x = 0; x < n; x++) {
+    for (let y = 0; y < m; y++) col[y] = grid[y * n + x];
+    const d = line(col);
+    for (let y = 0; y < m; y++) grid[y * n + x] = d[y];
+  }
+  return grid;
+}
+
+/** Alpha of `svg` with its viewBox set to `box`, rendered at K px per unit. */
+async function alpha(svg: string, box: number[]) {
+  const s = svg.replace(/viewBox="[^"]+"/, `viewBox="${box.join(" ")}"`);
+  const { data, info } = await sharp(Buffer.from(s))
+    .resize(Math.round(box[2] * K), Math.round(box[3] * K))
+    .ensureAlpha()
+    .extractChannel(3)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  return { data, n: info.width };
+}
+
+/** How far (SVG units) the wizard moves along AWAY so that its contour widened by EDGE lies the
+ * day file's gap plus RIM from the letters, both contours at alpha 50%; and that gap. */
+async function keepGap(base: string, src: string) {
+  const vb = /viewBox="([^"]+)"/.exec(src)![1].split(" ").map(Number);
+  const box = [vb[0] - 600, vb[1] - 600, vb[2] + 1200, vb[3] + 1200];
+  const letters = await alpha(src.replace(WIZARD, ""), box);
+  const wizard = await alpha(src.replace(WORDMARK, ""), box);
+  const n = letters.n;
+  const field = distance(
+    Float64Array.from(letters.data, (a) => (a >= 128 ? 0 : 1e12)),
+    n,
+  );
+  const points = [...wizard.data.keys()].filter((i) => wizard.data[i] >= 128);
+  const [ax, ay] = AWAY[base];
+  const gap = (t: number) => {
+    let d = Infinity;
+    for (const i of points) {
+      const x = Math.round((i % n) + ax * t * K);
+      const y = Math.round(Math.floor(i / n) + ay * t * K);
+      d = Math.min(d, field[y * n + x]);
+    }
+    return Math.sqrt(d) / K;
+  };
+  const day = gap(0);
+  let [lo, hi] = [0, 4 * EDGE];
+  while (hi - lo > 0.5) {
+    const t = (lo + hi) / 2;
+    if (gap(t) - EDGE < day + RIM) lo = t;
+    else hi = t;
+  }
+  return { shift: hi, day };
+}
+
+/** The edge raster: the wizard's silhouette (alpha >= 50%) widened by `r` px, antialiased. */
+async function edgeRaster(wizard: Buffer, size: number, r: number, colour: string) {
+  const pad = Math.ceil(r) + 2;
+  const { data } = await sharp(wizard)
+    .resize(size, size, { kernel: "lanczos3" })
+    .ensureAlpha()
+    .extend({ top: pad, bottom: pad, left: pad, right: pad, background: "#0000" })
+    .extractChannel(3)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const n = size + 2 * pad;
+  const grid = distance(
+    Float64Array.from(data, (a) => (a >= 128 ? 0 : 1e12)),
+    n,
+  );
+  const [cr, cg, cb] = [1, 3, 5].map((i) => parseInt(colour.slice(i, i + 2), 16));
+  const px = Buffer.alloc(n * n * 4);
+  let [x0, y0, x1, y1] = [n, n, -1, -1];
+  for (let i = 0; i < n * n; i++) {
+    const a = Math.max(Math.min(r + 0.5 - Math.sqrt(grid[i]), 1, 1), data[i] / 255, 0);
+    px.set([cr, cg, cb, Math.round(a * 255)], i * 4);
+    if (a > 0) {
+      const [x, y] = [i % n, Math.floor(i / n)];
+      [x0, y0, x1, y1] = [
+        Math.min(x0, x),
+        Math.min(y0, y),
+        Math.max(x1, x + 1),
+        Math.max(y1, y + 1),
+      ];
+    }
+  }
+  const png = await sharp(px, { raw: { width: n, height: n, channels: 4 } })
+    .png({ palette: true, compressionLevel: 9 })
+    .toBuffer();
+  return { png, pad, n, ink: [x0, y0, x1, y1] };
+}
+
+/** The box holding `ink` (x0 y0 x1 y1), grown from `box` (x y w h) by the base's rule. */
+function grow(base: string, box: number[], ink: number[]) {
+  const [x, y, w, h] = box;
+  const x0 = Math.min(x, ink[0]);
+  const x1 = Math.max(x + w, ink[2]);
+  const lift = LIFT[base];
+  let [y0, y1] = [Math.min(y, ink[1]), Math.max(y + h, ink[3])];
+  if (lift !== null) {
+    const height = Math.max((LINE - y0) / (0.5 + lift), (y1 - LINE) / (0.5 - lift));
+    y0 = LINE - height * (0.5 + lift);
+    y1 = y0 + height;
+  }
+  return [x0, y0, x1 - x0, y1 - y0].map((n) => +n.toFixed(3));
+}
+
+async function writeCut(base: string, kind: "night" | "outline") {
   const src = readFileSync(join(ROOT, "logos", `${base}.svg`), "utf8");
+  const box = /viewBox="([^"]+)"/.exec(src)![1].split(" ").map(Number);
   const letters = WORDMARK.exec(src)?.[0];
   if (!letters) throw new Error(`logos/${base}.svg carries no wordmark group`);
-  const [x, y, w, h] = /viewBox="([^"]+)"/.exec(src)![1].split(" ").map(Number);
-  const x0 = Math.min(x, INK.x0 - OUTLINE);
-  const x1 = Math.max(x + w, INK.x1 + OUTLINE);
-  const dy = Math.max(0, y - (INK.y0 - OUTLINE), INK.y1 + OUTLINE - (y + h));
-  const box = [x0, y - dy, x1 - x0, h + 2 * dy].map((n) => +n.toFixed(3));
-  const white = letters.replace(/fill="#[0-9A-F]{6}"/g, 'fill="#FFFFFF"');
-  const svg = src
-    .replace(/viewBox="[^"]+"/, `viewBox="${box.join(" ")}"`)
-    .replace(
-      / width="\d+" height="\d+"/,
-      ` width="${Math.round(box[2])}" height="${Math.round(box[3])}"`,
-    )
-    .replace(
+  let svg = src;
+  const ink = [box[0], box[1], box[0] + box[2], box[1] + box[3]];
+  const take = (b: number[]) => {
+    [ink[0], ink[1]] = [Math.min(ink[0], b[0]), Math.min(ink[1], b[1])];
+    [ink[2], ink[3]] = [Math.max(ink[2], b[2]), Math.max(ink[3], b[3])];
+  };
+  if (kind === "night") {
+    for (const [day, night] of NIGHT) svg = svg.replaceAll(`fill="${day}"`, `fill="${night}"`);
+  } else {
+    const white = letters.replace(/fill="#[0-9A-F]{6}"/g, 'fill="#FFFFFF"');
+    svg = svg.replace(
       WORDMARK,
       `<g stroke="#FFFFFF" stroke-width="${2 * OUTLINE}" stroke-linejoin="miter">${white}</g>${letters}`,
     );
-  const svgPath = `logos/${base}-outline.svg`;
-  const pngPath = `logos/${base}-outline.png`;
+    take([INK.x0 - OUTLINE, INK.y0 - OUTLINE, INK.x1 + OUTLINE, INK.y1 + OUTLINE]);
+  }
+  const wizard = WIZARD.exec(svg);
+  if (wizard) {
+    const [tag, wx, wy, ww, b64] = wizard;
+    const size = 1024; // twice the embedded wizard, for a smooth contour
+    const unit = Number(ww) / size;
+    const colour = kind === "night" ? tokenHex("ampersand-light") : "#FFFFFF";
+    const { shift, day } = await keepGap(base, src);
+    const [dx, dy] = AWAY[base];
+    const [x, y] = [+(Number(wx) + dx * shift).toFixed(3), +(Number(wy) + dy * shift).toFixed(3)];
+    console.log(`${base}-${kind}: gap ${day.toFixed(1)} units, wizard moves ${shift.toFixed(1)}`);
+    const edge = await edgeRaster(Buffer.from(b64, "base64"), size, EDGE / unit, colour);
+    const [ex, ey] = [x - edge.pad * unit, y - edge.pad * unit];
+    take(edge.ink.map((v, i) => +(i % 2 ? ey : ex) + v * unit));
+    const side = +(edge.n * unit).toFixed(3);
+    const image = `<image class="wizard-edge" x="${+ex.toFixed(3)}" y="${+ey.toFixed(3)}" width="${side}" height="${side}" href="data:image/png;base64,${edge.png.toString("base64")}"/>`;
+    svg = svg
+      .replace(tag, image + tag.replace(`x="${wx}" y="${wy}"`, `x="${x}" y="${y}"`))
+      .replace(", so the box is the wizard's:", ", the box holds the wizard's edge, and");
+  }
+  const next = grow(base, box, ink);
+  svg = svg
+    .replace(/viewBox="[^"]+"/, `viewBox="${next.join(" ")}"`)
+    .replace(
+      / width="\d+" height="\d+"/,
+      ` width="${Math.round(next[2])}" height="${Math.round(next[3])}"`,
+    );
+  const svgPath = `logos/${base}-${kind}.svg`;
+  const pngPath = `logos/${base}-${kind}.png`;
   writeFileSync(join(ROOT, svgPath), svg);
   const { width } = await sharp(join(ROOT, "logos", `${base}.png`)).metadata();
   await sharp(Buffer.from(svg))
-    .resize(Math.round((width * box[2]) / w))
+    .resize(Math.round((width * next[2]) / box[2]))
     .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toFile(join(ROOT, pngPath));
   for (const path of [svgPath, pngPath]) {
-    const sha = sha256(readFileSync(join(ROOT, path)));
     const entry = manifest.files.find((f) => f.path === path);
-    if (entry) entry.sha256 = sha;
-    else {
-      const after = manifest.files.findIndex((f) => f.path === `logos/${base}-night.png`);
-      manifest.files.splice(after + 1 + (path.endsWith(".png") ? 1 : 0), 0, { path, sha256: sha });
-    }
+    if (!entry) throw new Error(`${path} is missing from manifest.json`);
+    entry.sha256 = sha256(readFileSync(join(ROOT, path)));
   }
 }
+
+for (const base of Object.keys(LIFT))
+  for (const kind of ["night", "outline"] as const) await writeCut(base, kind);
 writeFileSync(join(ROOT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");

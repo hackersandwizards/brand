@@ -5,7 +5,7 @@
 // views <out>/views/<variant>-6m.jpg and -2m.jpg (with --wall <variant>-<wall>-6m.jpg, with --lit
 // <variant>-lit-6m.jpg: LED-backlit frames in a dark hall before the dark wall), and with --pdf the print files
 // <out>/<variant>-100x200.pdf and -100x100.pdf (final format plus 20 mm bleed).
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { brand, browser, tint, toJpeg } from "../backgrounds/render.ts";
@@ -126,8 +126,39 @@ function docHead(title: string, w: number, h: number, v: Variant | null) {
   return `<!doctype html><html lang="en"><head><title>${title}</title><meta charset="utf-8">${boothCss("tokens.css")}${boothCss("banner.css")}<style>@page{size:${w + 40}mm ${h + 40}mm;margin:0}</style>${over}</head><body>`;
 }
 
-const boothLockup = (wm: string, wiz = 150) =>
-  `<div class="lockup"><img src="${brand.emoji}" alt="" style="width:calc(${wiz} * var(--mm))"><img class="wordmark" src="${wm}" alt="hackers&amp;wizards"></div>`;
+// The wizard's edge on a dark or coloured ground, as the brand's night and outline lockups draw it:
+// the edge raster and the wizard's move away from the wordmark, as shares of the wizard's box.
+function wizardEdge(cut: string) {
+  const svg = readFileSync(join(BOOTH, "../../logos", `${cut}.svg`), "utf8");
+  const [, ex, ey, side, href] =
+    /<image class="wizard-edge" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="[\d.]+" href="([^"]+)"/.exec(
+      svg,
+    )!;
+  const [, wx, wy, ww] = /<image x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)"/.exec(svg)!;
+  const day = readFileSync(join(BOOTH, "../../logos/lockup.svg"), "utf8");
+  const dayX = Number(/<image x="([-\d.]+)"/.exec(day)![1]);
+  const pct = (v: number) => `${(100 * v) / Number(ww)}%`;
+  return {
+    href,
+    left: pct(+ex - +wx),
+    top: pct(+ey - +wy),
+    width: pct(+side),
+    shift: pct(+wx - dayX),
+  };
+}
+const boothLockup = (v: Variant, wiz = 150) => {
+  const cut =
+    v.wordmark === brand.wordmark
+      ? null
+      : v.ground === GRADIENT
+        ? "lockup-outline"
+        : "lockup-night";
+  const e = cut && wizardEdge(cut);
+  const wizard = e
+    ? `<div style="position:relative;width:calc(${wiz} * var(--mm));translate:${e.shift} var(--logo-wizard-lift)"><img src="${e.href}" alt="" style="position:absolute;left:${e.left};top:${e.top};width:${e.width};translate:none"><img src="${brand.emoji}" alt="" style="position:relative;display:block;width:100%"></div>`
+    : `<img src="${brand.emoji}" alt="" style="width:calc(${wiz} * var(--mm))">`;
+  return `<div class="lockup">${wizard}<img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"></div>`;
+};
 const space = (mm: number) => `<div style="height:calc(${mm} * var(--mm))"></div>`;
 const headline = (accent: string) =>
   `<h1 class="headline">Everyone has coding agents. <span style="color:${accent}">Releases come no faster.</span></h1>`;
@@ -146,7 +177,7 @@ function tall(v: Variant) {
   if (v.layout === "emoji") {
     // Wall: the wizard's cut edge sits on the line where the brand block meets the white wall.
     // Emoji: the wizard stands on a brand rail between offer and proof, so its cut edge never floats.
-    body = `${boothLockup(v.wordmark)}${space(70)}${headline(v.accent)}${space(40)}${offer}<div style="flex:1"></div><div style="display:flex;flex-direction:column;align-items:center"><img src="${brand.emoji}" alt="" style="width:calc(470 * var(--mm));display:block"><div style="align-self:stretch;height:calc(14 * var(--mm));background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:calc(7*var(--mm))"></div></div>${space(50)}${proof(1)}<div style="flex:0.6"></div>${contact}`;
+    body = `${boothLockup(v)}${space(70)}${headline(v.accent)}${space(40)}${offer}<div style="flex:1"></div><div style="display:flex;flex-direction:column;align-items:center"><img src="${brand.emoji}" alt="" style="width:calc(470 * var(--mm));display:block"><div style="align-self:stretch;height:calc(14 * var(--mm));background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:calc(7*var(--mm))"></div></div>${space(50)}${proof(1)}<div style="flex:0.6"></div>${contact}`;
   } else if (v.layout === "wall") {
     // The block above holds the lockup; the message sits on the white wall below it.
     body = `<div style="position:absolute;left:0;right:0;top:calc(-20 * var(--mm));height:calc(670 * var(--mm));background:${GRADIENT}"></div><div style="position:relative;height:calc(560 * var(--mm));display:flex;flex-direction:column;align-items:center"><img class="wordmark" src="${brand.wordmarkNight}" alt="hackers&amp;wizards"><div style="flex:1"></div><img src="${brand.emoji}" alt="" style="width:calc(400 * var(--mm));display:block"></div><div style="position:relative;display:flex;flex-direction:column;flex:1">${space(80)}${headline(v.accent)}${space(40)}${offer}<div style="flex:0.5"></div>${proof()}<div style="flex:0.9"></div>${contact}</div>`;
@@ -157,7 +188,7 @@ function tall(v: Variant) {
         VARS_200,
         VARS_200.replace("--wiz:150;--wm:78;--h1:96", "--wiz:160;--wm:78;--h1:108"),
       );
-    body = `${boothLockup(v.wordmark)}${space(80)}${headline(v.accent)}${space(50)}${offer}${space(24)}${audience}<div style="flex:0.5"></div>${proof()}<div style="flex:0.9"></div>${contact}`;
+    body = `${boothLockup(v)}${space(80)}${headline(v.accent)}${space(50)}${offer}${space(24)}${audience}<div style="flex:0.5"></div>${proof()}<div style="flex:0.9"></div>${contact}`;
   }
   return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000, v)}<div class="sheet" style="${VARS_200}">${rails}<div class="final">${body}</div>${bottom}</div></body></html>`;
 }

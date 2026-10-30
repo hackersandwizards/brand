@@ -158,19 +158,19 @@
     },
     {
       "path": "logos/lockup-night.svg",
-      "sha256": "92a5aeb8087295c2ebcaf27bc57dc1e41ffacb72ae0dffb513e3b58e17d311d1"
+      "sha256": "de940778eb8cd3ab88e0bc0ba6015b381937427556902a71513233c88c78b3be"
     },
     {
       "path": "logos/lockup-night.png",
-      "sha256": "7b7893c8370af4345375a419c562af596aa402a42616eb826dfe712e2ab555b3"
+      "sha256": "c97eadbcc37dea5a53be11f70a2de19d58c24dbe7357933c001a4ab688e5775b"
     },
     {
       "path": "logos/lockup-outline.svg",
-      "sha256": "02bc52d4db545e97a8f0f04d6c3079e0e23dd6733ec18cae7c322e5a8cb44e89"
+      "sha256": "21156fc9d43c46ad79a3f102903d10f0be838f782795462ac9b5655735c51f7a"
     },
     {
       "path": "logos/lockup-outline.png",
-      "sha256": "8c7448f02a8706b86f4863490fa1c0d1c9a1d7cbfe4a25f26545ef6e3d1a61b5"
+      "sha256": "0764a1808bab772793d1f57752d7b392afb65d668e0d8a624e6e06f18c2b40c4"
     },
     {
       "path": "logos/lockup-compact.svg",
@@ -182,19 +182,19 @@
     },
     {
       "path": "logos/lockup-compact-night.svg",
-      "sha256": "19ba48b2da69a7f3d52b68276eeae20701a9f9cc334fde3305d4136a15253516"
+      "sha256": "ede2048c7af2b0b801a24c66c73e20e67e9f9df98269fcfbb7fbb660c4f81ce3"
     },
     {
       "path": "logos/lockup-compact-night.png",
-      "sha256": "feed5d9bce0b92c9a03cfd8dcc69b618fdd5bb4e130e937967e22a3f0a9b21a9"
+      "sha256": "74654ee8acb2fae3a6a7f4401795dfac8674eef6e65d084ec6cb7e437fb48fcb"
     },
     {
       "path": "logos/lockup-compact-outline.svg",
-      "sha256": "cdf5739fd358e81c921914f0555c703c2da8e1b12aec12819d4bc41c70b653ce"
+      "sha256": "d32cb995ab5c41dc85523b365f0a3cafd1886a8e19db009aa4282441abd8a69d"
     },
     {
       "path": "logos/lockup-compact-outline.png",
-      "sha256": "3aa6995db5924d2423b3911b6edd4f940a0eeac340b397ce18da4fcd4c5407b1"
+      "sha256": "56a2c44d26386b8be00e71707caaad802be644e7ab9ba78c58bab6239d6b9260"
     },
     {
       "path": "expert/expert.css",
