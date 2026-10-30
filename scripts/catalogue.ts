@@ -119,11 +119,6 @@ const LOGO_NOTES: Record<string, string> = {
     "Stacked, for small and square spots: mug, lock screens. The iPhone lock screen keeps it at its smaller size.",
   wordmark:
     "The wordmark alone, for textiles: shirts, hoodie and stickers. Also where the wizard already appears nearby.",
-  "emoji-logo-long": "The conceptual origin 👨🏼‍💻 🧙🏼‍♂️, not the logo.",
-  "emoji-logo-short": "The conceptual origin, short. Not the logo.",
-  "emoji-logo-short-quote": "The conceptual origin as a quote mark. Not the logo.",
-  "type-logo-long": "Former logo: new work never uses it, replace on sight.",
-  "type-logo-short": "Former logo: new work never uses it, replace on sight.",
 };
 const logoCard = (base: string) => {
   const files = logoFiles.filter((p) =>
@@ -132,14 +127,13 @@ const logoCard = (base: string) => {
   const show = files.find((p) => p.endsWith(`${base}.svg`)) ?? files.find((p) => /png$/.test(p));
   const night = files.find((p) => p.endsWith(`${base}-night.svg`)) ?? show;
   const outline = files.find((p) => p.endsWith(`${base}-outline.svg`));
-  const former = base.startsWith("type-logo") || base.startsWith("emoji");
   index.push({
     t: base,
     k: "logo",
     h: `logos/logo-${base}`,
-    x: `${files.join(" ")} download ${former ? "" : "logo"}`,
+    x: `${files.join(" ")} download logo`,
   });
-  return `<article class="logo${former ? " former" : ""}" id="logo-${base}"><div class="pair">${
+  return `<article class="logo" id="logo-${base}"><div class="pair">${
     show ? `<img class="on-light" src="${show}" alt="${esc(base)} on light">` : ""
   }${night ? `<img class="on-dark" src="${night}" alt="${esc(base)} on dark">` : ""}${outline ? `<img class="on-purple-love" src="${outline}" alt="${esc(base)} outlined on Purple Love"><img class="on-gradient" src="${outline}" alt="${esc(base)} outlined on the gradient">` : ""}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
     .map(
@@ -155,15 +149,12 @@ const logoCard = (base: string) => {
 };
 const order = (b: string) =>
   ["lockup", "lockup-compact", "wordmark"].indexOf(b) + 1 || 10 + bases.indexOf(b);
+// The package still ships the former type-logo and the emoji files for the code that reads them;
+// the page shows only the logos in use.
 const isLogo = (b: string) => b.startsWith("lockup") || b.startsWith("wordmark");
 const logosHtml = `<div class="logos">${bases
   .filter(isLogo)
   .sort((a, b) => order(a) - order(b))
-  .map(logoCard)
-  .join("")}</div>
-<h3>Not the logo: the conceptual origin and the former logo</h3>
-<div class="logos">${bases
-  .filter((b) => !isLogo(b))
   .map(logoCard)
   .join("")}</div>`;
 
@@ -302,7 +293,8 @@ const compareHtml = systems.length
 <div id="cmp-grid"></div>`
   : "<p>No live pages yet: build the repos, then run <code>bun run live</code>.</p>";
 
-// Applications: every family of brand files in use.
+// Applications: every family of brand files in use. A file whose os sidecar says `status: expired`
+// is no longer used and stays off the page; git history keeps it.
 const OS_DG = "../os/src/content/documents/company/design-guide";
 type Family = {
   id: string;
@@ -321,18 +313,11 @@ const FAMILIES: Family[] = [
     match: /\.png$/,
   },
   {
-    id: "merch",
-    title: "Merch",
-    note: "Shirt, hoodie, mug, notebook, stickers and cleaning cloth. Textiles and stickers carry the wordmark alone (see Logos).",
-    dir: "../os/docs/tracking/2026-10-29-merch/mockups",
-    match: /^(?!.*-crop\.).*\.jpg$/,
-  },
-  {
     id: "booth",
     title: "Booth banners",
-    note: "Light grey #E6EAED in the light frame; the dark pair is the second version for light walls.",
-    dir: `${OS_DG}/booth-export`,
-    match: /\.pdf$/,
+    note: "Pixlip frames, 1 x 1 m and 1 x 2 m: the light grey (#E6EAED) pair for dark stand walls, the dark pair for light walls.",
+    dir: "../os/src/content/documents/marketing/codetalks",
+    match: /^booth-banner.*\.pdf$/,
   },
   {
     id: "channel-banners",
@@ -347,13 +332,6 @@ const FAMILIES: Family[] = [
     note: "The favicon tile, one file per platform.",
     dir: `${OS_DG}/avatars`,
     match: /\.(png|svg)$/,
-  },
-  {
-    id: "linkedin",
-    title: "LinkedIn visuals",
-    note: "The LinkedIn image set and company banner in use today.",
-    dir: `${OS_DG}/linkedin`,
-    match: /\.png$/,
   },
   {
     id: "gradients",
@@ -389,11 +367,13 @@ const FAMILIES: Family[] = [
     link: ["#sys-os", "the document components in os, live"],
   },
 ];
+const readIfExists = (p: string) => (existsSync(p) ? readFileSync(p, "utf8") : "");
 const assetFiles = (dir: string, match: RegExp) => {
   const abs = join(ROOT, dir);
   return existsSync(abs)
     ? readdirSync(abs)
         .filter((f) => match.test(f))
+        .filter((f) => !/^status: expired$/m.test(readIfExists(join(abs, `${f}.md`))))
         .sort()
     : [];
 };
@@ -516,7 +496,7 @@ ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
 ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
 ${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
 ${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live · build ${day(s.built!)}` : "not rendered")).join("")}
-${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, merch, booth, banners, avatars, slides, documents`)}
+${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, booth, banners, avatars, gradients, slides, documents`)}
 ${tile("health", "Health", `${driftLine} · off-token hex: ${offHex} · ${scan.aboveAllowlist.length} file(s) above the allowlist`)}
 </div>
 <h3>Freshness</h3>
@@ -603,8 +583,6 @@ const html = `<!doctype html>
   .tile span { color: var(--color-muted); }
   .logos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
   .logo { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
-  .logo.former { border-style: dashed; }
-  .logo.former h3, .logo.former p { color: var(--color-muted); }
   .logo h3 { margin: 0.75rem 0 0.25rem; }
   .logo p { margin: 0.25rem 0; }
   .pair { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.5rem; }
