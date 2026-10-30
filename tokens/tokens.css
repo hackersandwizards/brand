@@ -16,6 +16,9 @@
   --color-subtle: color-mix(in srgb, var(--color-ink) 70%, white);
   --color-border: #d0d2d8;
   --color-border-strong: color-mix(in srgb, var(--color-ink) 50%, white);
+  /* The ground of a social image (LinkedIn post frame, certificate share image): bg blends into
+     LinkedIn's white feed, this tint scored higher in two blind feed rounds. */
+  --color-tint: #eef1f4;
 
   --color-teal: #1a7285;
   --color-teal-dark: #155b6a;
@@ -36,6 +39,8 @@
   /* Software Factory area hue: 6:1 on bg and white, light 8.8:1 on night. */
   --color-factory: #a3402a;
   --color-factory-light: #f29a80;
+  /* Error, warning and anti-pattern marks in documents, the expert systems and slides. */
+  --color-red: #dc2626;
 
   --color-night: #0b1118;
   --color-night-2: #111a24;
@@ -203,6 +208,9 @@
      letters (blind rounds, LGD-2). Where the wizard is no taller than the letters, no lift.
      logos/lockup*.svg carry it built in. */
   --logo-wizard-lift: -7.8%;
+
+  /* A white card lifted off its ground. */
+  --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   --gradient-magic: linear-gradient(
     135deg,

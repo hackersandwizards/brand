@@ -1,8 +1,8 @@
 # @hackersandwizards/brand
 
 The hackers&wizards brand as one private package: design tokens, the print layer with its static
-fonts, the logos, the expert UI layer and the document components the PDFs are built from, which
-Company OS and the trainer hub use.
+fonts, the logos, the expert UI layer with the components Company OS and the trainer hub share, and the document
+components the PDFs are built from.
 
 Maintainer: Benedikt Stemmildt. Trainers can read the whole repo, its history
 included, so nothing goes in that a trainer may not see.
@@ -33,6 +33,7 @@ Then import what you need:
 | `@hackersandwizards/brand/print.css`                        | print scale and static fonts |
 | `@hackersandwizards/brand/fonts/<file>`                     | font files                   |
 | `@hackersandwizards/brand/expert.css`                       | expert UI layer              |
+| `@hackersandwizards/brand/expert/components/<name>.astro`   | expert UI components         |
 | `@hackersandwizards/brand/document.css`                     | print document base          |
 | `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components          |
 | `@hackersandwizards/brand/logos/<file>`                     | logos                        |

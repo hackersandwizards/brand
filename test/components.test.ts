@@ -5,12 +5,15 @@ import { getViteConfig } from "astro/config";
 import { createServer, type ViteDevServer } from "vite";
 import { ROOT } from "../scripts/git";
 
-// Every document component renders standalone, through Astro's compiler, from this repository
-// alone: an import of an app's internals fails here. Placeholder props, no figure or term of ours.
-const dir = join(ROOT, "document/components");
-const components = readdirSync(dir)
-  .filter((f) => f.endsWith(".astro"))
-  .map((f) => f.replace(/\.astro$/, ""));
+// Every document and expert component renders standalone, through Astro's compiler, from this
+// repository alone: an import of an app's internals fails here. Placeholder props, no figure or
+// term of ours.
+const components = ["document/components", "expert/components"].flatMap((dir) =>
+  readdirSync(join(ROOT, dir))
+    .filter((f) => f.endsWith(".astro"))
+    .map((f) => `${dir}/${f.replace(/\.astro$/, "")}`),
+);
+const nameOf = (path: string) => path.slice(path.lastIndexOf("/") + 1);
 
 const P = "[PLACEHOLDER]";
 const row = { date: "01.01.", day: "Mo", time: "09:00 – 10:00", hours: "1,00", activity: P };
@@ -38,6 +41,7 @@ const proposal = {
   signOff: P,
   personName: P,
 };
+const node = { href: "/space/page", label: P, order: 0, hasPage: true, children: [] };
 const props: Record<string, Record<string, unknown>> = {
   DocCallout: { title: P },
   DocCard: { title: P },
@@ -91,6 +95,13 @@ const props: Record<string, Record<string, unknown>> = {
   DocSteps: { steps: [{ when: P, name: P }] },
   DocTitle: { title: P },
   DocTotalRow: { label: P, span: 1, figures: [P] },
+  FilterChip: { label: P, removeHref: "/" },
+  FilterChipBar: { show: true, clearHref: "/" },
+  PageHeader: { title: P },
+  Pill: { label: P },
+  SpaceNav: { label: P, base: "/space", nodes: [node], currentPath: "/space", pageCount: 1 },
+  SpaceNavTree: { nodes: [node], currentPath: "/space" },
+  ThemeToggle: {},
 };
 
 let server: ViteDevServer;
@@ -111,20 +122,21 @@ beforeAll(async () => {
 afterAll(() => server?.close());
 
 test("every component has placeholder props here", () => {
-  expect(components.sort()).toEqual(Object.keys(props).sort());
+  expect(components.map(nameOf).sort()).toEqual(Object.keys(props).sort());
 });
 
 test.each(components)(
   "%s renders standalone",
-  async (name) => {
+  async (path) => {
+    const name = nameOf(path);
     const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-    const component = (await server.ssrLoadModule(`/document/components/${name}.astro`)).default;
+    const component = (await server.ssrLoadModule(`/${path}.astro`)).default;
     const container = await experimental_AstroContainer.create();
     const html: string = await container.renderToString(component, {
       props: props[name],
       slots: { default: `<p>${P}</p>`, aside: `<p>${P}</p>` },
     });
-    expect(html).toContain(P);
+    expect(html).toContain(name === "ThemeToggle" ? 'id="theme-toggle"' : P);
     if (["DocHeader", "DocProposal", "DocRateCard", "DocMarkdown"].includes(name))
       expect(html).toMatch(/data:image\/png;base64,iVBOR[\s\S]*data:image\/svg\+xml;base64,/);
   },

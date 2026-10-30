@@ -1,0 +1,94 @@
+---
+interface Props {
+  color?: string;
+  icon?: string;
+  label?: string;
+  title?: string;
+  as?: "span" | "button";
+  emphasis?: "muted" | "strong";
+  size?: "xs" | "sm" | "md";
+  class?: string;
+  id?: string;
+  data?: Record<string, string | number | boolean | undefined>;
+  "aria-label"?: string;
+  "aria-haspopup"?: "menu" | "dialog" | "true" | "false";
+  "aria-expanded"?: "true" | "false";
+}
+
+const {
+  // The neutral fill. On a card whose surface is the muted fill (the trainer hub in dark) it
+  // vanishes, so such an app passes its own color.
+  color = "bg-muted text-foreground/70",
+  icon,
+  label,
+  title,
+  as = "span",
+  emphasis = "muted",
+  size = "sm",
+  class: extraClass = "",
+  id,
+  data,
+  "aria-label": ariaLabel,
+  "aria-haspopup": ariaHasPopup,
+  "aria-expanded": ariaExpanded,
+}: Props = Astro.props;
+
+// min-height + leading-none: emoji glyphs are taller than Latin and would drift the box height.
+const sizeClass =
+  size === "md"
+    ? "px-2.5 py-1 text-ui leading-none min-h-[28px]"
+    : size === "xs"
+      ? "px-1.5 py-0.5 text-meta leading-none min-h-[20px]"
+      : "px-2 py-0.5 text-meta leading-none min-h-[22px]";
+
+// The transparent border reserves a strong pill's border width, keeping a mixed row aligned.
+const classes = [
+  "inline-flex items-center gap-1 rounded-full font-medium whitespace-nowrap border",
+  sizeClass,
+  color,
+  emphasis === "strong" ? "border-current/30 shadow-sm" : "border-transparent",
+  as === "button" ? "cursor-pointer select-none transition-colors" : "",
+  extraClass,
+]
+  .filter(Boolean)
+  .join(" ");
+
+const dataAttrs: Record<string, string> = {};
+if (data) {
+  for (const [k, v] of Object.entries(data)) {
+    if (v === undefined) continue;
+    const key = k.startsWith("data-") ? k : `data-${k}`;
+    dataAttrs[key] = String(v);
+  }
+}
+---
+
+{as === "button" ? (
+  <button
+    type="button"
+    id={id}
+    class={classes}
+    title={title}
+    aria-label={ariaLabel}
+    aria-haspopup={ariaHasPopup}
+    aria-expanded={ariaExpanded}
+    {...dataAttrs}
+  >
+    {icon && <span aria-hidden="true">{icon}</span>}
+    {label && <span>{label}</span>}
+    <slot />
+  </button>
+) : (
+  <span
+    id={id}
+    class={classes}
+    title={title}
+    aria-label={ariaLabel}
+    role={ariaLabel && !label ? "img" : undefined}
+    {...dataAttrs}
+  >
+    {icon && <span aria-hidden="true">{icon}</span>}
+    {label && <span>{label}</span>}
+    <slot />
+  </span>
+)}

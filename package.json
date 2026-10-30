@@ -1,8 +1,8 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.4.6",
+  "version": "0.5.0",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer, the document base and the document components.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base and the document components.",
   "keywords": [
     "astro-component"
   ],
@@ -21,6 +21,7 @@
     "./print.css": "./tokens/print.css",
     "./fonts/*": "./tokens/fonts/*",
     "./expert.css": "./expert/expert.css",
+    "./expert/components/*": "./expert/components/*",
     "./document.css": "./document/document.css",
     "./document/components/*": "./document/components/*",
     "./logos/*": "./logos/*"

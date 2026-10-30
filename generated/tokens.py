@@ -8,6 +8,7 @@ TOKENS = {
     "--color-subtle": "color-mix(in srgb, var(--color-ink) 70%, white)",
     "--color-border": "#d0d2d8",
     "--color-border-strong": "color-mix(in srgb, var(--color-ink) 50%, white)",
+    "--color-tint": "#eef1f4",
     "--color-teal": "#1a7285",
     "--color-teal-dark": "#155b6a",
     "--color-teal-light": "color-mix(in srgb, var(--color-teal) 40%, white)",
@@ -21,6 +22,7 @@ TOKENS = {
     "--color-amber-dark": "#b45309",
     "--color-factory": "#a3402a",
     "--color-factory-light": "#f29a80",
+    "--color-red": "#dc2626",
     "--color-night": "#0b1118",
     "--color-night-2": "#111a24",
     "--color-night-ink": "color-mix(in srgb, white 92%, var(--color-night))",
@@ -134,6 +136,7 @@ TOKENS = {
     "--breakpoint-xs": "25rem",
     "--breakpoint-header-cta": "30rem",
     "--logo-wizard-lift": "-7.8%",
+    "--shadow-card": "0 2px 4px rgba(0, 0, 0, 0.05)",
     "--gradient-magic": "linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%)"
 }
 
@@ -145,6 +148,7 @@ COLORS = {
     "--color-subtle": "#5e6975",
     "--color-border": "#d0d2d8",
     "--color-border-strong": "#8c949d",
+    "--color-tint": "#eef1f4",
     "--color-teal": "#1a7285",
     "--color-teal-dark": "#155b6a",
     "--color-teal-light": "#a3c7ce",
@@ -158,6 +162,7 @@ COLORS = {
     "--color-amber-dark": "#b45309",
     "--color-factory": "#a3402a",
     "--color-factory-light": "#f29a80",
+    "--color-red": "#dc2626",
     "--color-night": "#0b1118",
     "--color-night-2": "#111a24",
     "--color-night-ink": "#ebeced",

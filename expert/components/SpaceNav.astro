@@ -1,0 +1,65 @@
+---
+import SpaceNavTree from "./SpaceNavTree.astro";
+import { navLinkClass, type SpaceNode } from "./space-nav";
+
+interface Props {
+  label: string;
+  base: string;
+  nodes: SpaceNode[];
+  currentPath: string;
+  pageCount: number;
+  /** Links under the tree, set off by a rule: pages outside the space's folders. */
+  extra?: Array<{ href: string; label: string }>;
+}
+
+const { label, base, nodes, currentPath, pageCount, extra = [] } = Astro.props;
+---
+
+<nav
+  aria-label={`${label} sections`}
+  class="lg:sticky lg:top-(--nav-offset) lg:max-h-[calc(100vh-var(--nav-offset))] lg:w-60 lg:shrink-0 lg:self-start lg:overflow-y-auto lg:py-6"
+>
+  <button
+    id="space-nav-toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="space-nav-tree"
+    class="mt-4 flex w-full items-center justify-between rounded-md border border-foreground/10 px-3 py-2 text-ui lg:hidden"
+  >
+    <span class="font-medium">Browse {label}</span>
+    <span class="text-foreground/65">{pageCount} pages <span aria-hidden="true">▾</span></span>
+  </button>
+
+  <div id="space-nav-tree" class="hidden pt-2 lg:block lg:pt-0">
+    <a
+      href={base}
+      aria-current={currentPath === base ? "page" : undefined}
+      class:list={[...navLinkClass(base, currentPath), "mb-1 font-medium"]}
+    >
+      {label} home
+    </a>
+    <SpaceNavTree nodes={nodes} currentPath={currentPath} />
+    {extra.length > 0 && (
+      <div class="mt-2 border-t border-foreground/10 pt-2">
+        {extra.map((item) => (
+          <a
+            href={item.href}
+            aria-current={item.href === currentPath ? "page" : undefined}
+            class:list={navLinkClass(item.href, currentPath)}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</nav>
+
+<script>
+  const toggle = document.getElementById("space-nav-toggle");
+  const tree = document.getElementById("space-nav-tree");
+  toggle?.addEventListener("click", () => {
+    const open = tree?.classList.toggle("hidden") === false;
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+</script>

@@ -53,6 +53,13 @@ discount, margin, offer, invoice, client term, personal data or secret.
   base `document/document.css`, the document components, fonts with their OFL texts, small logos
   and `LICENSE`. `test/package.test.ts` fails on anything else.
 - The slide engine stays private to talks and never enters this package, not even a primitive.
+- The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
+  both render, this repo's own since Benedikt's D2 decision on 2026-10-30 (os row
+  `brand-unification-plan`): a component one app alone uses stays in that app. Where the apps
+  differ on purpose, the difference is a prop or a token the app sets, never a fork: the hub's
+  `--dim-floor` of 70% lifts every `text-foreground/65` to its projector rule, and a hub pill on a
+  card passes its own `color`. Their CSS lives in `expert/expert.css`; a consumer adds
+  `@source` on `expert/components` so Tailwind sees their classes.
 - The document components (`document/components/Doc*.astro`) ship in the package and are this
   repo's own: Benedikt decided on 2026-10-29 (os row `brand-unification-plan`, D1 b) that os and the
   trainer hub both consume them from here. A component imports only this repo's files (logos inline,

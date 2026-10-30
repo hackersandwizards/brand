@@ -1,0 +1,16 @@
+---
+interface Props {
+  show: boolean;
+  clearHref: string;
+}
+const { show, clearHref } = Astro.props;
+---
+
+{show && (
+  <div class="mb-2 flex flex-wrap items-center gap-2">
+    <slot />
+    <a href={clearHref} class="ml-1 text-meta text-foreground/65 hover:text-foreground">
+      Clear all
+    </a>
+  </div>
+)}

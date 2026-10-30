@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  subtitleText?: string;
+}
+
+const { title, subtitleText } = Astro.props;
+const hasSubtitleSlot = Astro.slots.has("subtitle");
+const hasAction = Astro.slots.has("action");
+const hasLegend = Astro.slots.has("legend");
+---
+
+<div class="page-title-row">
+  <div class="page-title-lead">
+    <h1 class="page-title">{title}</h1>
+    {hasSubtitleSlot ? (
+      <span class="page-subtitle">
+        <slot name="subtitle" />
+      </span>
+    ) : subtitleText ? (
+      <span class="page-subtitle">{subtitleText}</span>
+    ) : null}
+  </div>
+  {(hasAction || hasLegend) && (
+    <div class="page-title-action flex items-center gap-2">
+      <slot name="legend" />
+      <slot name="action" />
+    </div>
+  )}
+</div>

@@ -1,0 +1,75 @@
+---
+import { containsPath, navLinkClass, type SpaceNode } from "./space-nav";
+
+interface Props {
+  nodes: SpaceNode[];
+  currentPath: string;
+  depth?: number;
+}
+
+const { nodes, currentPath, depth = 0 } = Astro.props;
+
+const linkClass = (href: string) => navLinkClass(href, currentPath);
+---
+
+<ul class:list={["space-y-px", depth > 0 && "ml-2 border-l border-foreground/10 pl-2"]}>
+  {nodes.map((node) =>
+    node.children.length === 0 ? (
+      <li>
+        <a
+          href={node.href}
+          aria-current={node.href === currentPath ? "page" : undefined}
+          class:list={linkClass(node.href)}
+        >
+          {node.label}
+        </a>
+      </li>
+    ) : (
+      <li>
+        <details class="space-branch" open={containsPath(node, currentPath)}>
+          <summary class="flex cursor-pointer items-center gap-1 rounded px-1 py-1 text-ui font-medium text-foreground/80 hover:bg-muted/50">
+            <svg
+              class="branch-chevron h-3 w-3 shrink-0 text-foreground/65 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span class="truncate">{node.label}</span>
+          </summary>
+          {node.hasPage && (
+            <div class="ml-2 border-l border-foreground/10 pl-2">
+              <a
+                href={node.href}
+                aria-current={node.href === currentPath ? "page" : undefined}
+                class:list={linkClass(node.href)}
+              >
+                Overview
+              </a>
+            </div>
+          )}
+          <Astro.self nodes={node.children} currentPath={currentPath} depth={depth + 1} />
+        </details>
+      </li>
+    ),
+  )}
+</ul>
+
+<style>
+  .space-branch > summary {
+    list-style: none;
+  }
+  .space-branch > summary::-webkit-details-marker {
+    display: none;
+  }
+  .space-branch[open] > summary .branch-chevron {
+    transform: rotate(90deg);
+  }
+</style>

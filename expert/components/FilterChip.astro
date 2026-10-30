@@ -1,0 +1,15 @@
+---
+interface Props {
+  label?: string;
+  removeHref: string;
+}
+
+const { label, removeHref } = Astro.props;
+---
+
+<span class="filter-chip">
+  {label ?? <slot />}
+  <a href={removeHref} class="chip-remove" aria-label={label ? `Clear filter ${label}` : "Clear filter"}>
+    &times;
+  </a>
+</span>
