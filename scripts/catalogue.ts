@@ -57,8 +57,11 @@ const family = (k: string) =>
       : /green|amber|factory|red/.test(k)
         ? "Status"
         : "Surface and ink";
+// A former name is a token whose value is another colour token: it resolves, but adds no colour.
+const former = Object.keys(colors).filter((k) => /^var\(--color-[\w-]+\)$/.test(tokens[k]));
+const own = Object.entries(colors).filter(([k]) => !former.includes(k));
 const colourGroups = ["Surface and ink", "Brand", "Status", "Night"].map((g) => {
-  const list = Object.entries(colors).filter(([k]) => family(k) === g);
+  const list = own.filter(([k]) => family(k) === g);
   for (const [k, hex] of list)
     index.push({ t: k, k: "colour", h: `colours/${slug(k)}`, x: `${hex} ${g}` });
   return `<h3 class="label">${g}</h3><div class="grid">${list
@@ -70,6 +73,33 @@ const colourGroups = ["Surface and ink", "Brand", "Status", "Night"].map((g) => 
     )
     .join("")}</div>`;
 });
+
+// The role table and the chart order, read from tokens.css.
+const swatchCell = (name: string) =>
+  `<span class="sw" style="background:var(--color-${name})"></span>${code(name)}`;
+const tintCell = (base: string, p: number) =>
+  `<span class="sw" style="background:color-mix(in srgb, var(--color-${base}) ${p}%, white)"></span>${p} %`;
+const roleRows = [
+  ...readFileSync(SOURCE, "utf8").matchAll(
+    /^\s*([\w-]+)\s*\|\s*([\w-]+)\s*\|\s*([\w-]+)\s*(?:\*\/)?$/gm,
+  ),
+].map(([, base, text, night]) => [
+  swatchCell(base),
+  swatchCell(text),
+  `<span class="night-cell">${swatchCell(night)}</span>`,
+  tintCell(base, 7),
+  tintCell(base, 40),
+]);
+const chart = Object.keys(tokens)
+  .filter((k) => k.startsWith("--chart-"))
+  .map((k) => swatchCell(tokens[k].match(/--color-([\w-]+)/)![1]));
+const rolesHtml = `<h3 class="label" id="roles">Roles</h3>
+<p>Each hue has a base, a text colour on light, one colour on night, and two tints. Text on light clears 4.5:1 on bg and white, night clears 4.5:1 on night and night-2.</p>
+${table(["Base", "Text on light", "Night", "Tint 7 %", "Tint 40 %"], roleRows)}
+<h3 class="label" id="chart">Chart order</h3>
+<p>Series take this order, ${code("--chart-1")} to ${code(`--chart-${chart.length}`)}; on night each takes its hue's night colour.</p>
+<ol class="chart">${chart.map((c) => `<li>${c}</li>`).join("")}</ol>
+${former.length ? `<p class="meta">Former names, resolving to their successor: ${former.map((k) => `${code(k)} → ${code(tokens[k].slice(4, -1))}`).join(", ")}.</p>` : ""}`;
 
 const roles = [
   ...new Set(Object.keys(tokens).flatMap((k) => k.match(/^--type-(\w+)-family$/)?.[1] ?? [])),
@@ -92,9 +122,7 @@ const preview = (k: string) =>
         : k.startsWith("--gradient-")
           ? `<div class="pv" style="background:var(${k})"></div>`
           : "";
-const otherTokens = Object.entries(tokens).filter(
-  ([k]) => !k.startsWith("--color-") && !k.startsWith("--type-") && !k.startsWith("--text-"),
-);
+const otherTokens = Object.entries(tokens).filter(([k]) => !/^--(color|type|text|chart)-/.test(k));
 const tokenKinds = [...new Set(otherTokens.map(([k]) => k.split("-")[2]))];
 const tokensHtml = tokenKinds
   .map((kind) => {
@@ -495,7 +523,7 @@ const tile = (href: string, title: string, body: string) =>
   `<a class="tile" href="#${href}"><strong>${title}</strong><span>${body}</span></a>`;
 const overview = `<p class="lead">Everything the hackers&amp;wizards brand is made of, from the tokens to every component of every system, and whether each repo still matches.</p>
 <div class="tiles">
-${tile("colours", "Colours", `${Object.keys(colors).length} tokens in four families, click to copy`)}
+${tile("colours", "Colours", `${own.length} colours in four families, their roles and the chart order, click to copy`)}
 ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
 ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
 ${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
@@ -527,7 +555,7 @@ ${table(
 
 const pages: [string, string, string][] = [
   ["overview", "Overview", overview],
-  ["colours", "Colours", colourGroups.join("")],
+  ["colours", "Colours", colourGroups.join("") + rolesHtml],
   ["type", "Type", roles],
   ["tokens", "Spacing, radius, shadow, layout", tokensHtml],
   [
@@ -686,6 +714,9 @@ const html = `<!doctype html>
   .pager a { text-decoration: none; }
   .pager a:hover { text-decoration: underline; }
   .cols { display: grid; gap: 1rem; align-items: start; }
+  .night-cell { display: inline-block; padding: 0.15rem 0.4rem; background: var(--color-night); color: var(--color-night-ink); border-radius: 4px; }
+  .night-cell code { color: inherit; }
+  .chart { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding-left: 1.25rem; }
   .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
   .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
   .asset { margin: 0; }
