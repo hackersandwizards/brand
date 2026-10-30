@@ -10,7 +10,7 @@ Run from the brand repo root:
 
 The banners with client logos (profile slide 2, the Featured link) never enter this repo, since
 trainers read it: they render only with --clients-out, into the folder it names, from the marks
-in clients/. Layout values are measured from the airy set as shipped on 29 October 2026.
+in clients/. Layout values are measured from the airy set as shipped.
 """
 
 import argparse
@@ -61,7 +61,7 @@ def logos(band, radius, items):
     return {"band": band, "radius": radius, "items": items}
 
 
-# "align": the lockup's left or right edge on the same edge of the content block (blind review BAN-1)
+# "align": the lockup's left or right edge on the same edge of the content block
 PROFILE_LOCKUP = {"h": 79.8}
 S2_HEAD = (479, 110, 49.0, -0.050)
 SURFACES = {
