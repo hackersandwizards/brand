@@ -2,10 +2,10 @@
 
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
 static fonts, logos, the expert UI layer and the document components, plus a read-only scan and
-drift report over the sibling repos. Decided by Benedikt on 2026-10-29; the reasoning is in os
+drift report over the sibling repos. The reasoning is in os
 `docs/tracking/2026-10-29-brand-distribution.md`.
 
-Benedikt decided on 2026-10-29: this repo stays private on GitHub
+This repo stays private on GitHub
 (`github.com/hackersandwizards/brand`, team `trainers` read), consumers install it as a Git
 dependency pinned to a tag, `git+ssh://git@github.com/hackersandwizards/brand.git#v<version>`. Only
 this address form installs; why, and the access it needs: `README.md`, "Why the `git+ssh://` form". No registry. The rollout is staged: this core first, component packages from
@@ -61,17 +61,16 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, the document components, fonts with their OFL texts, small logos,
   the client marks and `LICENSE`. `test/package.test.ts` fails on anything else.
-- The slide engine stays private to talks and never enters this package, not even a primitive.
+- The slide engine is its own package, `@hackersandwizards/slides`, and never enters this package,
+  not even a primitive.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
-  both render, this repo's own since Benedikt's D2 decision on 2026-10-30 (os row
-  `brand-unification-plan`): a component one app alone uses stays in that app. Where the apps
+  both render, this repo's own: a component one app alone uses stays in that app. Where the apps
   differ on purpose, the difference is a prop or a token the app sets, never a fork: the hub's
   `--dim-floor` of 70% lifts every `text-foreground/65` to its projector rule, and a hub pill on a
   card passes its own `color`. Their CSS lives in `expert/expert.css`; a consumer adds
   `@source` on `expert/components` so Tailwind sees their classes.
 - The document components (`document/components/Doc*.astro`) ship in the package and are this
-  repo's own: Benedikt decided on 2026-10-29 (os row `brand-unification-plan`, D1 b) that os and the
-  trainer hub both consume them from here. A component imports only this repo's files (logos inline,
+  repo's own: os and the trainer hub both consume them from here. A component imports only this repo's files (logos inline,
   no app paths), and every rate or term is a prop. `test/components.test.ts` renders each one
   standalone; a new component needs placeholder props there.
 - Only the print masters (the two CMYK TIFFs and the two 4096 px emoji PNGs) and the PNG, PDF and
