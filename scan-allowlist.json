@@ -147,72 +147,9 @@
       "palette": 0,
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
     },
-    "trainer-hub:src/slides/components/slides/ChartPlots.tsx": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/components/slides/ContentSlide.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/components/slides/PresenterView.tsx": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 22,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/components/slides/SlideNavigation.tsx": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 10,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/components/slides/Visuals.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/components/ui/particles.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/lib/code-highlight.tsx": {
-      "hex": 2,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/lib/deck-edit-mode.tsx": {
-      "hex": 0,
-      "tokenHex": 3,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
     "trainer-hub:src/slides/lib/decks.ts": {
       "hex": 0,
       "tokenHex": 4,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "trainer-hub:src/slides/lib/theme.ts": {
-      "hex": 0,
-      "tokenHex": 3,
       "font": 0,
       "palette": 0,
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
@@ -238,13 +175,6 @@
       "palette": 0,
       "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
     },
-    "trainer-hub:src/styles/slides.css": {
-      "hex": 26,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
     "trainer-hub:src/styles/tokens.css": {
       "hex": 0,
       "tokenHex": 2,
@@ -254,146 +184,6 @@
     },
     "talks:app/page.tsx": {
       "hex": 3,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:components/slides/ChartPlots.tsx": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:components/slides/ContentSlide.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:components/slides/PresenterView.tsx": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 22,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:components/slides/SlideNavigation.tsx": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 10,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:components/slides/Visuals.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:components/ui/particles.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:lib/code-highlight.tsx": {
-      "hex": 2,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:lib/deck-edit-mode.tsx": {
-      "hex": 0,
-      "tokenHex": 3,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:lib/theme.ts": {
-      "hex": 0,
-      "tokenHex": 3,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "talks:styles/slides.css": {
-      "hex": 26,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/components/slides/ChartPlots.tsx": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/components/slides/ContentSlide.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/components/slides/PresenterView.tsx": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 22,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/components/slides/SlideNavigation.tsx": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 10,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/components/slides/Visuals.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/components/ui/particles.tsx": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/lib/code-highlight.tsx": {
-      "hex": 2,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/lib/deck-edit-mode.tsx": {
-      "hex": 0,
-      "tokenHex": 3,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/lib/theme.ts": {
-      "hex": 0,
-      "tokenHex": 3,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan on 2026-10-29, not yet reviewed."
-    },
-    "hycle-private:talks/styles/slides.css": {
-      "hex": 26,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
@@ -409,7 +199,6 @@
   },
   "duplicates": {
     "card": "Present at the first scan on 2026-10-29, not yet reviewed.",
-    "image": "The slide engine's adapter, different per repo on purpose (talks CLAUDE.md).",
     "listrow": "Present at the first scan on 2026-10-29, not yet reviewed.",
     "sectionheader": "Present at the first scan on 2026-10-29, not yet reviewed."
   }
