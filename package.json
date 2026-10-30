@@ -24,7 +24,8 @@
     "./expert/components/*": "./expert/components/*",
     "./document.css": "./document/document.css",
     "./document/components/*": "./document/components/*",
-    "./logos/*": "./logos/*"
+    "./logos/*": "./logos/*",
+    "./clients/*": "./clients/*"
   },
   "files": [
     "tokens",
@@ -35,7 +36,8 @@
     "logos/*.svg",
     "logos/type-logo-long.png",
     "logos/type-logo-short.png",
-    "logos/emoji-logo-short-quote.png"
+    "logos/emoji-logo-short-quote.png",
+    "clients"
   ],
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$PWD\" ] && git config core.hooksPath .githooks || true",
