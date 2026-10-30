@@ -45,8 +45,11 @@ The logo is one line, with no line under it: the wizard beside the pixel wordmar
 (shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug
 and lock screens. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
 cut for night, black, black textile and Stargazer, and an `-outline` cut, a white outline round the
-letters, for Purple Love and the gradient. `bun scripts/outline.ts` writes the outline cuts from
-the day files. The wordmark's box is 952 units tall for 851 units of
+letters, for Purple Love and the gradient. In both, the wizard of the lockup and the compact lockup
+carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night
+cut, white in the outline cut. The wizard sits further from the wordmark by the edge's width, so
+the gap between its outer contour and the letters stays the day file's. `bun scripts/outline.ts` writes both cuts from the day
+files. The wordmark's box is 952 units tall for 851 units of
 letters, centred on the line midway between the box middle and the x-height middle of the letters.
 A text set beside it centres on its box (`align-items: center`, the
 text at `line-height: 1`) and sits centred on the letters. The wizard, taller than the letters,
@@ -54,7 +57,8 @@ centres on that box too and then rises by 7.8% of its own height, `translate: 0
 var(--logo-wizard-lift)`, so its mass sits on the letters rather than its box.
 Where an icon is no taller than the letters, it takes no lift. `logos/lockup.svg` carries the lift
 built in, so its box is the wizard's and the wordmark's centre line lies 7.8% of the lockup's height
-below the box centre: a text after the lockup centres on that line once the lockup takes the same
+below the box centre; the night and outline cuts grow their box round the wizard's edge and keep that
+7.8%: a text after the lockup centres on that line once the lockup takes the same
 `translate: 0 var(--logo-wizard-lift)`.
 
 The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides.

@@ -561,7 +561,7 @@ const pages: [string, string, string][] = [
   [
     "logos",
     "Logos",
-    `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black, black textile and Stargazer take the night cut, without an outline; on Purple Love and the gradient the outline cut, a white outline round the letters. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
+    `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black, black textile and Stargazer take the night cut, with a grey edge round the wizard; on Purple Love and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
   ],
   ["compare", "Compare", compareHtml],
   ["applications", "Applications: the brand in use", applicationsHtml],

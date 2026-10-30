@@ -623,19 +623,24 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
 };
 
 // A lockup inlined with the 4096 px wizard master in place of the 512 px PNG the brand SVG embeds:
-// the iPad lock draws the wizard at 435 px and iPadOS enlarges it 1.155 times.
-function inlineLockup(url: string, width: number, height: number, pos: string) {
+// the iPad lock draws the wizard at 435 px and iPadOS enlarges it 1.155 times. Width, height and
+// position name the day file's box: a night cut's box, grown round the wizard's edge, sits so its
+// letters and wizard land where the day file's would.
+function inlineLockup(url: string, width: number, height: number, x: number, y: number) {
+  const box = (file: string) =>
+    readFileSync(file.replace("file://", ""), "utf8")
+      .match(/viewBox="([^"]+)"/)![1]
+      .split(" ")
+      .map(Number);
   const svg = readFileSync(url.replace("file://", ""), "utf8");
-  const [, , vw, vh] = svg
-    .match(/viewBox="([^"]+)"/)![1]
-    .split(" ")
-    .map(Number);
-  const w = width || (height * vw) / vh;
-  const h = height || (width * vh) / vw;
+  const [vx, vy, vw, vh] = box(url);
+  const [dx, dy, dw, dh] = box(url.replace("-night.svg", ".svg"));
+  const k = width ? width / dw : height / dh;
+  const pos = `left:${x - (dx - vx) * k}px;top:${y - (dy - vy) * k}px`;
   return svg
-    .replace(/ width="[\d.]+" height="[\d.]+"/, ` width="${w}" height="${h}"`)
+    .replace(/ width="[\d.]+" height="[\d.]+"/, ` width="${vw * k}" height="${vh * k}"`)
     .replace("<svg ", `<svg style="position:absolute;${pos}" `)
-    .replace(/href="data:image\/png;base64,[^"]+"/, `href="${brand.emoji}"`);
+    .replace(/(<image x=[^>]*href=)"data:image\/png;base64,[^"]+"/, `$1"${brand.emoji}"`);
 }
 
 function layoutWall(base: Base, f: WallFile, layout: string) {
@@ -658,9 +663,9 @@ function layoutWall(base: Base, f: WallFile, layout: string) {
   const layers = els.map(([k, n, x, y]) => {
     const pos = `left:${x}px;top:${y}px`;
     if (k === "w") return img(brand.emoji, `width:${n}px;height:${n}px;${pos}`);
-    if (k === "l") return inlineLockup(night ? brand.lockupNight : brand.lockup, 0, n, pos);
+    if (k === "l") return inlineLockup(night ? brand.lockupNight : brand.lockup, 0, n, x, y);
     if (k === "m") return img(night ? brand.wordmarkNight : brand.wordmark, `height:${n}px;${pos}`);
-    return inlineLockup(night ? brand.compactNight : brand.compact, n, 0, pos);
+    return inlineLockup(night ? brand.compactNight : brand.compact, n, 0, x, y);
   });
   return page(fileDevice(f), bg, [glow, ...layers], fileSize(f));
 }
