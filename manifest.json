@@ -222,7 +222,7 @@
     },
     {
       "path": "document/components/DocCertificate.astro",
-      "sha256": "bc8a2278cea62c22ab79cc350fcb9e47413ede7adf04a7de4575e6bbc8b01b88"
+      "sha256": "f6331efc8ebbaf83e3c39e829926a80769154feb343d0619155917d234e42cb1"
     },
     {
       "path": "document/components/DocClosing.astro",
