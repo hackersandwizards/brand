@@ -15,6 +15,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { basename, dirname, join, posix, relative } from "node:path";
 import repos from "../repos.json";
 import { head, isRepo, ROOT, sha256 } from "./git";
@@ -200,10 +201,19 @@ for (const [name, src] of Object.entries(SOURCES)) {
     writeFileSync(join(out, file), snapshot(name, repo, src, p.html, out, css));
     return { group: p.group, name: p.name, story: p.story, file: `${name}/${file}` };
   });
+  // A build older than the repo's last commit shows an old state: say so here, where it can be
+  // rebuilt, not on the page. A tracked `built` is source rendered on each run, never stale.
+  const built = statSync(join(repo, src.built)).mtime;
+  const git = (...a: string[]) => spawnSync("git", ["-C", repo, ...a]);
+  if (
+    git("ls-files", "--error-unmatch", src.built).status !== 0 &&
+    Number(git("log", "-1", "--format=%ct").stdout.toString()) * 1000 > built.getTime()
+  )
+    console.warn(`${name}: the build predates the last commit; rebuild it, then run bun run live`);
   systems.push({
     name,
     commit: head(repo).slice(0, 9),
-    built: statSync(join(repo, src.built)).mtime.toISOString(),
+    built: built.toISOString(),
     stories,
     colours: colourTokens(css.join("\n")),
   });
