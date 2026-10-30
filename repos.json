@@ -28,5 +28,10 @@
     "path": "../../tools/certificate-verifier",
     "catalogues": ["https://certificates.hackersandwizards.dev/design-system"],
     "copies": []
+  },
+  "slides": {
+    "path": "../slides",
+    "catalogues": [],
+    "copies": []
   }
 }
