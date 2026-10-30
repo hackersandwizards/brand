@@ -23,20 +23,21 @@ Then import what you need:
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
 ```
 
-| Import                                                      | File                         |
-| ----------------------------------------------------------- | ---------------------------- |
-| `@hackersandwizards/brand/tokens.css`                       | Tailwind 4 `@theme` tokens   |
-| `@hackersandwizards/brand/tokens.root.css`                  | the same tokens on `:root`   |
-| `@hackersandwizards/brand/tokens.json`                      | tokens and resolved colours  |
-| `@hackersandwizards/brand/tokens`                           | the same as TypeScript       |
-| `@hackersandwizards/brand/tokens.py`                        | the same as a Python module  |
-| `@hackersandwizards/brand/print.css`                        | print scale and static fonts |
-| `@hackersandwizards/brand/fonts/<file>`                     | font files                   |
-| `@hackersandwizards/brand/expert.css`                       | expert UI layer              |
-| `@hackersandwizards/brand/expert/components/<name>.astro`   | expert UI components         |
-| `@hackersandwizards/brand/document.css`                     | print document base          |
-| `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components          |
-| `@hackersandwizards/brand/logos/<file>`                     | logos                        |
+| Import                                                      | File                            |
+| ----------------------------------------------------------- | ------------------------------- |
+| `@hackersandwizards/brand/tokens.css`                       | Tailwind 4 `@theme` tokens      |
+| `@hackersandwizards/brand/tokens.root.css`                  | the same tokens on `:root`      |
+| `@hackersandwizards/brand/tokens.json`                      | tokens and resolved colours     |
+| `@hackersandwizards/brand/tokens`                           | the same as TypeScript          |
+| `@hackersandwizards/brand/tokens.py`                        | the same as a Python module     |
+| `@hackersandwizards/brand/print.css`                        | print scale and static fonts    |
+| `@hackersandwizards/brand/fonts/<file>`                     | font files                      |
+| `@hackersandwizards/brand/expert.css`                       | expert UI layer                 |
+| `@hackersandwizards/brand/expert/components/<name>.astro`   | expert UI components            |
+| `@hackersandwizards/brand/document.css`                     | print document base             |
+| `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components             |
+| `@hackersandwizards/brand/logos/<file>`                     | logos                           |
+| `@hackersandwizards/brand/clients/<file>`                   | client marks and `clients.json` |
 
 The logo is one line, with no line under it: the wizard beside the pixel wordmark,
 `logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
