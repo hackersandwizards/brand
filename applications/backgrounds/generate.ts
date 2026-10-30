@@ -516,6 +516,10 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // 21:13: rows 352-1374. The two measured crops differ by 77 points, so a smaller lockup sits
     // where it clears the app labels and the Dock under both.
     "logo-gap-r": [["l", 36, 591.4, 1153]],
+    // His third landscape screenshot with logo-gap-r set: rows 344-1376 unscaled (bottom-aligned, as
+    // the second), last app labels end at y 1143, Dock from y 1279. The lockup's centre on the
+    // band's centre (y 1211). Under the first crop (rows 275-1298) its lower half sits behind the Dock.
+    "logo-gap-low": [["l", 36, 591.4, 1191]],
     "logo-band-s": [["l", 44, 570, 972]],
     "logo-ll": [["l", 44, 90, 1000]],
     "logo-lr": [["l", 44, 1050, 1000]],
