@@ -294,9 +294,8 @@ const navTree = tree
   })
   .join("");
 
-// Applications: every family of brand files in use. A file whose os sidecar says `status: expired`
-// is no longer used and stays off the page; git history keeps it.
-const OS_DG = "../os/src/content/documents/company/design-guide";
+// Applications: every family of brand files in use, from applications/. A retired file is deleted;
+// git history keeps it.
 type Family = {
   id: string;
   title: string;
@@ -310,50 +309,57 @@ const FAMILIES: Family[] = [
     id: "backgrounds",
     title: "Backgrounds for devices and calls",
     note: "The dark (night) family: the wizard over the wordmark on MacBook and lock screens, the lockup across the home screens, a small lockup above the head in calls. Set on the devices by hand.",
-    dir: `${OS_DG}/backgrounds`,
+    dir: `applications/backgrounds`,
     match: /\.png$/,
   },
   {
     id: "booth",
     title: "Booth banners",
     note: "Pixlip frames, 1 x 1 m and 1 x 2 m: the light grey (#E6EAED) pair for dark stand walls, the dark pair for light walls.",
-    dir: "../os/src/content/documents/marketing/codetalks",
+    dir: "applications/booth",
     match: /^booth-banner.*\.pdf$/,
   },
   {
     id: "channel-banners",
     title: "Channel banners",
     note: "The airy version in light teal with two profile slides, one file per platform.",
-    dir: `${OS_DG}/channel-banners`,
+    dir: `applications/channel-banners`,
     match: /\.png$/,
   },
   {
     id: "avatars",
     title: "Avatars and workspace icons",
     note: "The favicon tile, one file per platform.",
-    dir: `${OS_DG}/avatars`,
+    dir: `applications/avatars`,
     match: /\.(png|svg)$/,
   },
   {
     id: "gradients",
     title: "Gradients",
     note: "Linear, mesh and radial brand gradients; the Illustrator source sits beside them.",
-    dir: `${OS_DG}/gradients`,
+    dir: `applications/gradients`,
     match: /\.png$/,
   },
   {
     id: "overlays",
     title: "Overlays",
     note: "Brand overlays for images.",
-    dir: `${OS_DG}/overlays`,
+    dir: `applications/overlays`,
     match: /\.png$/,
   },
   {
     id: "visuals",
     title: "Visuals",
     note: "The party visual, with and without background.",
-    dir: `${OS_DG}/visuals`,
+    dir: `applications/visuals`,
     match: /\.png$/,
+  },
+  {
+    id: "merch",
+    title: "Merch print files",
+    note: "Shirt, hoodie, stickers, cleaning cloths, mug and notebook, each as SVG in millimetres with a PDF beside it; the embroidery source emoji-logo-7color.ai sits with them.",
+    dir: "applications/merch",
+    match: /\.svg$/,
   },
   {
     id: "slides",
@@ -368,13 +374,11 @@ const FAMILIES: Family[] = [
     link: ["#sys-os", "the document components in os, live"],
   },
 ];
-const readIfExists = (p: string) => (existsSync(p) ? readFileSync(p, "utf8") : "");
 const assetFiles = (dir: string, match: RegExp) => {
   const abs = join(ROOT, dir);
   return existsSync(abs)
     ? readdirSync(abs)
         .filter((f) => match.test(f))
-        .filter((f) => !/^status: expired$/m.test(readIfExists(join(abs, `${f}.md`))))
         .sort()
     : [];
 };
@@ -392,7 +396,7 @@ const assetCard = (dir: string, f: string, fam: Family) => {
       : `<img src="${href}" alt="${esc(f)}" loading="lazy">`
   }</a><figcaption>${code(f)} <a href="${href}" download>download</a></figcaption></figure>`;
 };
-const applicationsHtml = `<p>Every family of brand files in use. The files open from the os checkout next to this repo.</p>
+const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],
   FAMILIES.map((f) => [
@@ -508,7 +512,7 @@ ${table(
 <ul>
 <li>Logo for a slide or a document: <a href="logos/lockup.svg" download>lockup.svg</a>, on dark <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, square <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>.</li>
 <li>Slides: there is no slide template file. Decks are built in the talks slide engine (<code>styles/slides.css</code>); its title, content and closing slides are under <a href="#sys-talks">talks</a>.</li>
-<li>Workshop kit for trainers: the lockup above, the night call background <a href="${OS_DG}/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the talks slide engine.</li>
+<li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the talks slide engine.</li>
 <li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
 </ul>`;
 
