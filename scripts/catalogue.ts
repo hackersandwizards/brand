@@ -1,10 +1,12 @@
 #!/usr/bin/env bun
 // Writes catalogue.html, the brand portal: one file opened from disk, with a left nav, a search
 // over every token, logo and component, and one view per area (overview, colours, type, tokens,
-// logos, a Compare that renders the systems a reader picks side by side, one page per system,
-// applications with their state, health). Components are each system's own pages from
-// captures/live/ (`bun run live`), embedded as frames; application files open from the os checkout
-// next to this repo. CAPTURES=<dir or URL> points the live pages elsewhere, for a copy of the page.
+// logos, a Compare that renders the systems a reader picks side by side, applications, health).
+// Under Components the nav is a tree as in Storybook, system > group > component, and the page
+// renders a system's index, a group's gallery or one component from the hash. Components are each
+// system's own pages from captures/live/ (`bun run live`), embedded as frames; application files
+// open from the os checkout next to this repo. CAPTURES=<dir or URL> points the live pages
+// elsewhere, for a copy of the page.
 // Usage: bun scripts/catalogue.ts
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -209,89 +211,88 @@ const components = (s: System) => {
   for (const c of m.values()) c.stories.sort((a, b) => plain(a) - plain(b));
   return [...m.values()];
 };
-const src = (f: string) => `${CAPTURES}/live/${esc(f)}`;
-const frame = (sys: string, c: Component) =>
-  `<figure class="live" id="c-${slug(`${sys}-${c.group}-${c.name}`)}"><figcaption><strong>${esc(c.name)}</strong> <span class="label">${esc(sys)}${c.group ? ` · ${esc(c.group)}` : ""}</span> <a class="open" href="${src(c.stories[0].file)}" target="_blank">open alone</a></figcaption>${
-    c.stories.length > 1
-      ? `<p class="states">${c.stories.map((s, i) => `<button data-src="${src(s.file)}"${i ? "" : ' class="on"'}>${esc(s.story)}</button>`).join("")}</p>`
-      : ""
-  }<iframe loading="lazy" src="${src(c.stories[0].file)}" title="${esc(`${sys} ${c.name}`)}"></iframe></figure>`;
-
-const systemPage = (s: System) => {
-  if (s.error) return `<p>Not rendered: ${esc(s.error)}</p>`;
-  const list = components(s);
-  const groups = [...new Set(list.map((c) => c.group))];
-  for (const c of list)
-    index.push({
-      t: c.name,
-      k: s.name,
-      h: `sys-${s.name}/c-${slug(`${s.name}-${c.group}-${c.name}`)}`,
-      x: `${c.group} ${c.kind}`,
-    });
-  const scanned = scan.repos[s.name]?.commit;
-  const stale =
-    scanned && !scanned.startsWith(s.commit!)
-      ? ` · <strong class="stale">rendered from ${esc(s.commit)}, the repo is at ${esc(scanned.slice(0, 9))}: rebuild it and run <code>bun run live</code></strong>`
-      : "";
-  return `<p class="meta">Live from the build of ${stamp(s.built!)}, commit ${code(s.commit)}${stale} · ${list.length} components, ${s.stories!.length} states · each frame is the system's own HTML and CSS</p>${
-    groups.length > 1
-      ? `<p class="chips">${groups.map((g) => `<a href="#sys-${s.name}/g-${slug(`${s.name}-${g}`)}">${esc(g || "Other")}</a>`).join("")}</p>`
-      : ""
-  }${groups
-    .map(
-      (g) =>
-        `${groups.length > 1 ? `<h3 class="label" id="g-${slug(`${s.name}-${g}`)}">${esc(g || "Other")}</h3>` : ""}<div class="lives">${list
-          .filter((c) => c.group === g)
-          .map((c) => frame(s.name, c))
-          .join("")}</div>`,
-    )
-    .join("")}`;
-};
-
-// Compare: the data the page renders from when a reader picks systems and a kind.
-const COMPARE = {
+// Each system as groups of components: the left nav's tree and the data the page renders a
+// system, a group or a component from. A system whose catalogue has no groups gets one, "all".
+const tree = systems
+  .filter((s) => s.stories)
+  .map((s) => {
+    const list = components(s);
+    const groups = [...new Set(list.map((c) => c.group))].map((g) => ({
+      g,
+      id: slug(g || "all").replace(/^-|-$/g, ""),
+      c: list
+        .filter((c) => c.group === g)
+        .map((c) => ({
+          n: c.name,
+          id: slug(c.name),
+          k: c.kind,
+          s: c.stories.map((x) => [x.story, x.file]),
+        })),
+    }));
+    for (const g of groups) {
+      if (g.g)
+        index.push({
+          t: g.g,
+          k: s.name,
+          h: `sys-${s.name}/${g.id}`,
+          x: `group ${g.c.length} components`,
+        });
+      for (const c of g.c)
+        index.push({ t: c.n, k: s.name, h: `sys-${s.name}/${g.id}/${c.id}`, x: `${g.g} ${c.k}` });
+    }
+    return { name: s.name, built: s.built!.slice(0, 10), colours: s.colours ?? {}, groups };
+  });
+const DATA = {
   capture: `${CAPTURES}/live/`,
   brand: colors,
-  systems: Object.fromEntries(
-    systems
-      .filter((s) => s.stories)
-      .map((s) => [
-        s.name,
-        {
-          built: s.built!.slice(0, 10),
-          colours: s.colours ?? {},
-          components: components(s).map((c) => ({
-            k: c.kind,
-            g: c.group,
-            n: c.name,
-            s: c.stories.map((x) => [x.story, x.file]),
-          })),
-        },
-      ]),
-  ),
+  systems: Object.fromEntries(tree.map((t) => [t.name, t])),
 };
+
 const kindNames = [...KINDS.map(([k]) => k), "Other"];
 for (const k of kindNames)
   index.push({ t: k, k: "compare", h: `compare/website+trainer-hub/${slug(k)}` });
 index.push({ t: "Colour tokens", k: "compare", h: "compare/website+os+trainer-hub/colour-tokens" });
-const compareHtml = systems.length
-  ? `<p class="lead">Compare: pick two or more systems and one kind of component or token, and each system's own version appears side by side, rendered from its last build with its own CSS.</p>
-<form id="cmp-form" class="controls"><fieldset><legend class="label">Systems</legend>${systems
-      .filter((s) => s.stories)
+const compareHtml = tree.length
+  ? `<p class="lead">Pick two or more systems and one kind of component or token: each system's own version appears side by side, rendered from its last build with its own CSS.</p>
+<form id="cmp-form" class="controls">
+<div class="field wide"><span class="label" id="cmp-sys">Systems</span><div class="chips" role="group" aria-labelledby="cmp-sys">${tree
       .map(
         (s) =>
-          `<label><input type="checkbox" name="sys" value="${esc(s.name)}"> ${esc(s.name)}</label>`,
+          `<label class="chip"><input type="checkbox" name="sys" value="${esc(s.name)}"><span>${esc(s.name)}</span><small data-count="${esc(s.name)}"></small></label>`,
       )
-      .join("")}</fieldset><label><span class="label">Kind</span><select name="kind">${[
+      .join("")}</div></div>
+<label class="field"><span class="label">Kind</span><select class="input" name="kind">${[
       "colour-tokens",
       ...kindNames.map(slug),
     ]
       .map((v, i) => `<option value="${v}">${esc(i ? kindNames[i - 1] : "Colour tokens")}</option>`)
-      .join(
-        "",
-      )}</select></label><label><span class="label">Name contains</span><input type="search" name="q" placeholder="e.g. button"></label></form>
+      .join("")}</select></label>
+<label class="field"><span class="label">Name contains</span><input class="input" type="search" name="q" placeholder="e.g. button" autocomplete="off"></label>
+</form>
 <div id="cmp-grid"></div>`
   : "<p>No live pages yet: build the repos, then run <code>bun run live</code>.</p>";
+
+// The left nav under Components, as in Storybook: system > group > component.
+const navTree = tree
+  .map((s) => {
+    const count = s.groups.reduce((n, g) => n + g.c.length, 0);
+    const top = `<a href="#sys-${s.name}"><span>${esc(s.name)}</span><small>${count}</small></a>`;
+    const leaf = (g: (typeof s.groups)[number]) =>
+      g.c
+        .map((c) => `<a class="leaf" href="#sys-${s.name}/${g.id}/${c.id}">${esc(c.n)}</a>`)
+        .join("");
+    const inner =
+      s.groups.length === 1
+        ? leaf(s.groups[0])
+        : s.groups
+            .map(
+              (g) =>
+                `<details><summary><a href="#sys-${s.name}/${g.id}"><span>${esc(g.g)}</span><small>${g.c.length}</small></a></summary>${leaf(g)}</details>`,
+            )
+            .join("");
+    return `<details><summary>${top}</summary><div class="kids">${inner}</div></details>`;
+  })
+  .join("");
 
 // Applications: every family of brand files in use. A file whose os sidecar says `status: expired`
 // is no longer used and stays off the page; git history keeps it.
@@ -532,12 +533,13 @@ const pages: [string, string, string][] = [
     `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black, black textile and Stargazer take the night cut, without an outline; on Purple Love and the gradient the outline cut, a white outline round the letters. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
   ],
   ["compare", "Compare", compareHtml],
-  ...systems.map((s): [string, string, string] => [`sys-${s.name}`, s.name, systemPage(s)]),
   ["applications", "Applications: the brand in use", applicationsHtml],
   ["health", "Health: drift and scan", health],
 ];
 const nav = (id: string, title: string, extra = "") =>
-  `<a href="#${id}" data-page="${id}">${esc(title)}${extra}</a>`;
+  `<a href="#${id}"><span>${esc(title)}</span>${extra}</a>`;
+const chevron = (stroke: string) =>
+  `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='${stroke}' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.6' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E")`;
 
 const html = `<!doctype html>
 <html lang="en">
@@ -548,30 +550,76 @@ const html = `<!doctype html>
 <link rel="stylesheet" href="generated/tokens.root.css">
 <link rel="stylesheet" href="tokens/print.css">
 <style>
-  body { margin: 0; display: grid; grid-template-columns: 16rem 1fr; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
-  aside { position: sticky; top: 0; height: 100vh; overflow: auto; box-sizing: border-box; padding: 1.25rem 1rem; border-right: 1px solid var(--color-border); background: var(--color-white); border-top: 3px solid; border-image: var(--gradient-magic) 1; }
-  aside img { width: 100%; margin-bottom: 0.25rem; }
-  aside nav { display: grid; gap: 1px; margin-top: 1rem; }
-  aside nav a { padding: 0.3rem 0.5rem; border-radius: 4px; color: var(--color-ink); text-decoration: none; display: flex; justify-content: space-between; }
-  aside nav a:hover { background: var(--color-tint); }
-  aside nav a.on { background: var(--color-teal); color: var(--color-white); }
-  aside nav a small { color: inherit; opacity: 0.7; }
-  aside .label { margin: 1rem 0.5rem 0.25rem; }
-  input[type=search] { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: inherit; border: 1px solid var(--color-border-strong); border-radius: 6px; }
+  /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
+     pill that fills teal-dark when checked, focus is the 3 px purple ring. */
+  html { accent-color: var(--color-teal); caret-color: var(--color-purple); }
+  :focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
+  body { margin: 0; display: grid; grid-template-columns: 17rem 1fr; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
+  aside.side { position: sticky; top: 0; height: 100vh; overflow: auto; box-sizing: border-box; padding: 1.25rem 0.75rem 2rem; border-right: 1px solid var(--color-border); background: var(--color-white); border-top: 3px solid; border-image: var(--gradient-magic) 1; }
+  aside.side > a img { width: 100%; margin-bottom: 0.25rem; padding: 0 0.25rem; box-sizing: border-box; }
+  aside.side .version { margin: 0 0.5rem 0.75rem; }
+  aside.side nav { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; margin-top: 0.5rem; }
+  aside.side nav a { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.3rem 0.5rem; border-radius: 6px; color: var(--color-ink); text-decoration: none; }
+  aside.side nav a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  aside.side nav a:hover { background: var(--color-tint); }
+  aside.side nav a.on { background: var(--color-teal-dark); color: var(--color-white); }
+  aside.side nav a.trail { color: var(--color-teal-dark); font-weight: 600; }
+  aside.side nav small { color: var(--color-muted); font: 0.7rem var(--font-code); align-self: center; }
+  aside.side nav a.on small { color: inherit; opacity: 0.8; }
+  aside.side .label { margin: 1.25rem 0.5rem 0.25rem; }
+  aside.side details > summary { list-style: none; display: flex; align-items: center; cursor: pointer; }
+  aside.side details > summary::-webkit-details-marker { display: none; }
+  aside.side details > summary::before { content: ""; flex: none; width: 1rem; height: 1rem; margin-left: -0.15rem; background: ${chevron("%23545861")} center / 0.55rem no-repeat; transform: rotate(-90deg); transition: transform 0.15s; }
+  aside.side details[open] > summary::before { transform: none; }
+  aside.side details > summary > a { flex: 1; min-width: 0; padding-left: 0.2rem; }
+  aside.side .kids { margin-left: 0.45rem; padding-left: 0.4rem; border-left: 1px solid var(--color-border); display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; }
+  aside.side .kids details .leaf, aside.side .kids > .leaf { margin-left: 0.85rem; }
+  aside.side .kids a { padding-block: 0.2rem; font-size: 0.8125rem; line-height: 1.35; }
+  aside.side .kids a span { white-space: normal; }
+  aside.side .leaf { color: var(--color-muted); }
+  .label, th { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
+  .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
+  .input::placeholder { color: var(--color-muted); }
+  .input:hover { border-color: var(--color-border-strong); }
+  .input:focus-visible { border-color: var(--color-teal); }
+  select.input { appearance: none; padding-right: 2.25rem; cursor: pointer; background: var(--color-white) ${chevron("%23155b6a")} right 0.875rem center / 0.7rem no-repeat; }
+  input[type=search]::-webkit-search-cancel-button { cursor: pointer; }
+  .controls { display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(12rem, 1fr); gap: 1.25rem 1.5rem; align-items: end; padding: 1.25rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); margin-bottom: 1.5rem; }
+  .field { display: grid; gap: 0.375rem; }
+  .field.wide { grid-column: 1 / -1; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.5rem; box-sizing: border-box; padding: 0 0.875rem; border: 1px solid color-mix(in srgb, var(--color-teal-dark) 20%, transparent); border-radius: 999px; font-weight: 500; cursor: pointer; user-select: none; transition: background-color 0.15s; }
+  .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+  .chip::before { content: ""; width: 0.875rem; height: 0.875rem; box-sizing: border-box; border: 1.5px solid var(--color-border-strong); border-radius: 4px; }
+  .chip:hover { background: color-mix(in srgb, var(--color-teal) 10%, transparent); }
+  .chip:has(:checked) { background: var(--color-teal-dark); border-color: var(--color-teal-dark); color: var(--color-white); }
+  .chip:has(:checked)::before { border-color: var(--color-white); background: var(--color-white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23155b6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2.5 6.2 5 8.7 9.5 3.5'/%3E%3C/svg%3E") center / 100% no-repeat; }
+  .chip:has(:focus-visible) { outline: 3px solid var(--color-purple); outline-offset: 2px; }
+  .chip small { font: 0.7rem var(--font-code); opacity: 0.75; }
+  .chip small:empty { display: none; }
+  .btn { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.5rem; box-sizing: border-box; padding: 0 1.25rem; border: 1px solid var(--color-teal); border-radius: var(--radius-brand); font: 500 var(--text-small) var(--font-sans); text-decoration: none; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; background: var(--color-white); color: var(--color-teal-dark); }
+  .btn:hover { border-color: var(--color-purple); color: var(--color-purple); }
+  .btn.primary { background: var(--color-teal); color: var(--color-white); }
+  .btn.primary:hover { background: var(--color-purple); border-color: var(--color-purple); color: var(--color-white); }
+  #q { margin: 0 0.25rem; width: calc(100% - 0.5rem); }
   main { padding: 1.5rem clamp(1rem, 3vw, 3rem) 4rem; min-width: 0; }
   section { display: none; max-width: var(--container-wide); }
   section.on { display: block; }
   h1, h2, h3 { font-family: var(--font-mono); letter-spacing: -0.02em; }
   h2 { font-size: var(--text-h2); margin: 0 0 1rem; }
   h3 { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: 1rem; }
-  .label, th { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 400; }
   .lead { font-size: var(--text-lead); max-width: 40em; }
   .meta { color: var(--color-muted); }
+  .crumbs { margin: 0 0 0.25rem; }
+  .crumbs a { color: inherit; text-decoration: none; }
+  .crumbs a:hover { color: var(--color-teal-dark); text-decoration: underline; }
   code { font-family: var(--font-code); font-size: 0.9em; }
+  a { color: var(--color-teal-dark); }
   table { border-collapse: collapse; width: 100%; background: var(--color-white); }
   th, td { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
   .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
   .swatch { all: unset; cursor: copy; display: grid; gap: 0.15rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 0.5rem; }
+  .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
   .swatch span { height: 3.5rem; border-radius: 12px 3px; border: 1px solid var(--color-border); margin-bottom: 0.3rem; }
   .swatch strong { font-family: var(--font-code); }
   .swatch small { color: var(--color-muted); font-size: 0.7rem; }
@@ -591,16 +639,9 @@ const html = `<!doctype html>
   .on-dark { background: var(--color-night); }
   .on-gradient { background: var(--gradient-magic); }
   .on-purple-love { background: #6c5a9e; } /* Purple Love, the Stanley/Stella textile C115, no brand token */
-  .dl a, .chips a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: 999px; color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
+  .dl a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: 999px; color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
   .dl a::before { content: "↓ "; }
-  .dl a:hover, .chips a:hover { background: var(--color-tint); }
-  .shots { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
-  .shot { margin: 0; }
-  .shot img { display: block; width: 100%; height: 13rem; object-fit: cover; object-position: top; border: 1px solid var(--color-border); border-radius: 12px 3px; background: var(--color-white); }
-  .cmp { grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr)); }
-  .cmp .shot img { height: 24rem; }
-  .apps .shot img { height: 8rem; object-fit: contain; background: var(--color-tint); }
-  .shot figcaption { padding-top: 0.3rem; overflow-wrap: anywhere; }
+  .dl a:hover { background: var(--color-tint); }
   .pv { width: 4rem; height: 2rem; background: var(--color-white); border: 1px solid var(--color-border); }
   .pv.bar { height: 0.5rem; max-width: 100%; background: var(--color-teal); border: 0; }
   .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
@@ -612,25 +653,35 @@ const html = `<!doctype html>
   #results a:hover { background: var(--color-tint); }
   #results .label { min-width: 7rem; }
   .stale { color: var(--color-amber-dark); }
-  dialog { width: 96vw; max-width: none; height: 92vh; padding: 1rem; border: 0; border-radius: var(--radius-brand); }
-  dialog::backdrop { background: rgb(11 17 24 / 0.7); }
-  dialog div { display: grid; gap: 1rem; grid-auto-flow: column; grid-auto-columns: minmax(28rem, 1fr); align-items: start; }
-  dialog figure { margin: 0; }
-  dialog img { width: 100%; border: 1px solid var(--color-border); }
-  .shot img { cursor: zoom-in; }
+  .groups { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); align-items: start; }
+  .group { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem 1.1rem; }
+  .group h3 { margin: 0 0 0.5rem; display: flex; justify-content: space-between; gap: 0.5rem; }
+  .group h3 a { color: var(--color-ink); text-decoration: none; }
+  .group h3 a:hover { color: var(--color-teal-dark); }
+  .group h3 small { font: 0.75rem var(--font-code); color: var(--color-muted); }
+  .group ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
+  .group .all { display: inline-block; margin-top: 0.75rem; font-size: 0.8125rem; font-weight: 500; text-decoration: none; }
+  .group .all:hover { text-decoration: underline; }
+  .group li a { color: var(--color-muted); text-decoration: none; font-size: 0.8125rem; }
+  .group li a:hover { color: var(--color-teal-dark); text-decoration: underline; }
   .lives { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr)); align-items: start; }
-  .live { margin: 0 0 1rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: 12px 3px; padding: 0.5rem; min-width: 0; }
+  .live { margin: 0 0 1rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: 12px 3px; padding: 0.5rem; min-width: 0; scroll-margin-top: 1rem; }
   .live figcaption { display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; padding: 0 0.25rem 0.4rem; }
-  .live .open { margin-left: auto; font-size: 0.75rem; }
+  .live figcaption a.name { color: var(--color-ink); text-decoration: none; font-weight: 600; }
+  .live figcaption a.name:hover { color: var(--color-teal-dark); text-decoration: underline; }
+  .open { margin-left: auto; font-size: 0.75rem; text-decoration: none; }
+  .open:hover { text-decoration: underline; }
   .live iframe { display: block; width: 100%; height: 20rem; border: 0; border-top: 1px solid var(--color-border); }
-  .states { margin: 0 0 0.4rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
-  .states button { font: 0.7rem var(--font-code); padding: 0.1rem 0.45rem; border: 1px solid var(--color-border-strong); border-radius: 999px; background: none; cursor: pointer; }
-  .states button.on { background: var(--color-teal); color: var(--color-white); border-color: var(--color-teal); }
-  .controls { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: end; padding: 1rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); margin-bottom: 1rem; }
-  .controls fieldset { border: 0; padding: 0; margin: 0; display: flex; gap: 0.75rem; flex-wrap: wrap; }
-  .controls label { display: grid; gap: 0.2rem; }
-  .controls fieldset label { display: flex; gap: 0.3rem; align-items: center; }
-  .controls select, .controls input[type=search] { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: 6px; }
+  .live.big { padding: 0.75rem; }
+  .live.big iframe { min-height: 24rem; }
+  .states { margin: 0 0 0.5rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .states button { font: 0.75rem var(--font-code); min-height: 1.75rem; padding: 0 0.6rem; border: 1px solid color-mix(in srgb, var(--color-teal-dark) 20%, transparent); border-radius: 999px; background: var(--color-white); color: var(--color-ink); cursor: pointer; }
+  .states button:hover { background: color-mix(in srgb, var(--color-teal) 10%, transparent); }
+  .states button.on { background: var(--color-teal-dark); color: var(--color-white); border-color: var(--color-teal-dark); }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin: 1rem 0; }
+  .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+  .pager a { text-decoration: none; }
+  .pager a:hover { text-decoration: underline; }
   .cols { display: grid; gap: 1rem; align-items: start; }
   .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
   .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
@@ -640,17 +691,17 @@ const html = `<!doctype html>
 </style>
 </head>
 <body>
-<aside>
+<aside class="side">
 <a href="#overview"><img src="logos/lockup.svg" alt="hackers&amp;wizards"></a>
-<p class="label" style="margin:0">Brand v${esc(pkg.version)}</p>
-<input type="search" id="q" placeholder="Search tokens, logos, components  /" autocomplete="off">
+<p class="label version">Brand v${esc(pkg.version)}</p>
+<input type="search" id="q" class="input" placeholder="Search  /" aria-label="Search tokens, logos and components" autocomplete="off">
 <nav>
 ${nav("overview", "Overview")}
 <p class="label">Foundations</p>
 ${nav("colours", "Colours")}${nav("type", "Type")}${nav("tokens", "Spacing and more")}${nav("logos", "Logos")}
 <p class="label">Components</p>
 ${nav("compare", "Compare")}
-${systems.map((s) => nav(`sys-${s.name}`, s.name, `<small>${s.stories ? components(s).length : "–"}</small>`)).join("")}
+${navTree}
 <p class="label">Brand in use</p>
 ${nav("applications", "Applications")}${nav("health", "Health", `<small>${driftBad.length + scan.aboveAllowlist.length || "ok"}</small>`)}
 </nav>
@@ -658,15 +709,70 @@ ${nav("applications", "Applications")}${nav("health", "Health", `<small>${driftB
 <main>
 <section id="results"><h2>Search</h2><div></div></section>
 ${pages.map(([id, title, body]) => `<section id="${id}" data-page><h2>${esc(title)}</h2>${body}</section>`).join("\n")}
+<section id="sys" data-page></section>
 </main>
 <script>
 const INDEX = ${JSON.stringify(index).replace(/</g, "\\u003c")};
-const q = document.getElementById("q"), results = document.getElementById("results");
+const DATA = ${JSON.stringify(DATA).replace(/</g, "\\u003c")};
+const q = document.getElementById("q"), results = document.getElementById("results"), sysView = document.getElementById("sys");
+const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const kslug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const flat = (s) => DATA.systems[s].groups.flatMap((g) => g.c.map((c) => ({ ...c, g: g.g, gid: g.id })));
+// One live frame: the system's own page for the component's first state, with a pill per state.
+const frame = (sys, gid, c, big) => {
+  const f = DATA.capture + c.s[0][1];
+  const name = big ? "" : '<a class="name" href="#sys-' + h(sys) + "/" + gid + "/" + c.id + '">' + h(c.n) + "</a>" + (c.g ? ' <span class="label">' + h(c.g) + "</span>" : "");
+  return '<figure class="live' + (big ? " big" : "") + '" id="c-' + h(sys) + "-" + c.id + '"><figcaption>' + name + (c.s.length > 1 ? '<span class="states">' + c.s.map((x, i) => '<button type="button" data-src="' + h(DATA.capture + x[1]) + '"' + (i ? "" : ' class="on"') + ">" + h(x[0]) + "</button>").join("") + "</span>" : "") + '<a class="open" href="' + h(f) + '" target="_blank">open alone ↗</a></figcaption><iframe' + (big ? "" : ' loading="lazy"') + ' src="' + h(f) + '" title="' + h(sys + " " + c.n) + '"></iframe></figure>';
+};
+const crumbs = (parts) => '<p class="label crumbs">' + parts.map(([href, t]) => (href ? '<a href="#' + href + '">' + h(t) + "</a>" : h(t))).join(" / ") + "</p>";
+const frames = (sys, list) => '<div class="lives">' + list.map((c) => frame(sys, c.gid, { ...c, g: "" })).join("") + "</div>";
+const renderSys = (name, gid, cid) => {
+  const s = DATA.systems[name];
+  const all = flat(name);
+  const single = s.groups.length === 1;
+  const g = s.groups.find((x) => x.id === gid);
+  const c = g && g.c.find((x) => x.id === cid);
+  if (c) {
+    const i = all.findIndex((x) => x.gid === gid && x.id === cid), prev = all[i - 1], next = all[i + 1];
+    const others = Object.keys(DATA.systems).filter((o) => o !== name && flat(o).some((x) => x.k === c.k));
+    const link = (x, label) => x ? '<a href="#sys-' + h(name) + "/" + x.gid + "/" + x.id + '">' + label + "</a>" : "<span></span>";
+    return crumbs([["sys-" + name, name]].concat(single ? [] : [["sys-" + name + "/" + gid, g.g]])) + "<h2>" + h(c.n) + '</h2><p class="meta">' + h(c.k) + " · " + c.s.length + (c.s.length > 1 ? " states" : " state") + "</p>" + frame(name, gid, { ...c, g: g.g }, true) + '<p class="actions">' + (single || g.c.length < 2 ? "" : '<a class="btn" href="#sys-' + h(name) + "/" + gid + '">All ' + g.c.length + " in " + h(g.g) + " live</a>") + (others.length ? '<a class="btn" href="#compare/' + [name].concat(others).join("+") + "/" + kslug(c.k) + '">Compare ' + h(c.k.toLowerCase()) + " across systems</a>" : "") + "</p>" + '<nav class="pager">' + link(prev, "← " + h(prev ? prev.n : "")) + link(next, h(next ? next.n : "") + " →") + "</nav>";
+  }
+  const head = (title, meta) => "<h2>" + h(title) + '</h2><p class="meta">' + meta + "</p>";
+  if (g && !single) {
+    const list = all.filter((x) => x.gid === gid);
+    return crumbs([["sys-" + name, name]]) + head(g.g, list.length + " components") + frames(name, list);
+  }
+  const meta = all.length + " components" + (single ? "" : " in " + s.groups.length + " groups") + " · build of " + h(s.built) + " · each frame is the system's own HTML and CSS";
+  if (single) return crumbs([["", "Components"]]) + head(name, meta) + frames(name, all);
+  return crumbs([["", "Components"]]) + head(name, meta) + '<div class="groups">' + s.groups.map((x) => '<article class="group"><h3><a href="#sys-' + h(name) + "/" + x.id + '">' + h(x.g) + "</a><small>" + x.c.length + "</small></h3><ul>" + x.c.map((y) => '<li><a href="#sys-' + h(name) + "/" + x.id + "/" + y.id + '">' + h(y.n) + "</a></li>").join("") + "</ul>" + (x.c.length > 1 ? '<a class="all" href="#sys-' + h(name) + "/" + x.id + '">All ' + x.c.length + " live →</a>" : "") + "</article>").join("") + "</div>";
+};
+let shownSys = "";
 const show = () => {
-  const [page, anchor] = decodeURIComponent(location.hash.slice(1)).split("/");
-  const target = document.getElementById(page)?.matches("[data-page]") ? page : "overview";
+  const path = decodeURIComponent(location.hash.slice(1));
+  const [page, anchor, third] = path.split("/");
+  const sys = page.startsWith("sys-") && DATA.systems[page.slice(4)] ? page.slice(4) : "";
+  const target = sys ? "sys" : document.getElementById(page)?.matches("[data-page]") ? page : "overview";
   for (const s of document.querySelectorAll("section[data-page]")) s.classList.toggle("on", s.id === target && !q.value);
-  for (const a of document.querySelectorAll("aside nav a")) a.classList.toggle("on", a.dataset.page === target);
+  // The nav marks the exact entry and the trail above it, and opens the trail.
+  const key = sys ? path : target;
+  // Only the current branch stays open, as in Carbon's and Atlassian's trees.
+  for (const d of document.querySelectorAll("aside nav details")) d.open = false;
+  for (const a of document.querySelectorAll("aside nav a")) {
+    const href = a.getAttribute("href").slice(1);
+    a.classList.toggle("on", href === key);
+    a.classList.toggle("trail", !a.classList.contains("on") && sys !== "" && key.startsWith(href + "/"));
+    if (a.classList.contains("on") || a.classList.contains("trail")) for (let d = a.closest("details"); d; d = d.parentElement.closest("details")) d.open = true;
+  }
+  if (sys) {
+    const g = DATA.systems[sys].groups;
+    const gid = g.length === 1 && anchor && !third ? g[0].id : anchor;
+    const cid = g.length === 1 && anchor && !third ? anchor : third;
+    const key2 = sys + "/" + gid + "/" + cid;
+    if (shownSys !== key2) { sysView.innerHTML = renderSys(sys, gid, cid); shownSys = key2; }
+    scrollTo(0, 0);
+    return;
+  }
   const el = page !== "compare" && anchor && document.getElementById(anchor);
   if (el) { el.scrollIntoView({ block: "start" }); el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); }
   else scrollTo(0, 0);
@@ -675,14 +781,25 @@ const search = () => {
   const words = q.value.toLowerCase().split(/\\s+/).filter(Boolean);
   results.classList.toggle("on", words.length > 0);
   const hits = INDEX.filter((e) => words.every((w) => (e.t + " " + e.k + " " + (e.x || "")).toLowerCase().includes(w))).slice(0, 60);
-  results.querySelector("div").innerHTML = hits.map((e) => '<a href="#' + e.h + '"><span class="label">' + e.k + "</span>" + (e.k === "colour" ? '<i style="width:1rem;height:1rem;border-radius:4px;border:1px solid var(--color-border);background:' + e.x.split(" ")[0] + '"></i>' : "") + "<strong>" + e.t.replace(/[&<]/g, (c) => ({ "&": "&amp;", "<": "&lt;" })[c]) + "</strong><span class=meta>" + (e.x || "").replace(/[&<]/g, "") .slice(0, 80) + "</span></a>").join("") || "<p>Nothing found.</p>";
+  results.querySelector("div").innerHTML = hits.map((e) => '<a href="#' + e.h + '"><span class="label">' + e.k + "</span>" + (e.k === "colour" ? '<i style="width:1rem;height:1rem;border-radius:4px;border:1px solid var(--color-border);background:' + e.x.split(" ")[0] + '"></i>' : "") + "<strong>" + h(e.t) + "</strong><span class=meta>" + h(e.x || "").slice(0, 80) + "</span></a>").join("") || "<p>Nothing found.</p>";
   show();
 };
 q.addEventListener("input", search);
 results.addEventListener("click", () => { q.value = ""; results.classList.remove("on"); });
 addEventListener("hashchange", show);
-addEventListener("keydown", (e) => { if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); } });
-// A live frame reports its content height; states switch the frame's page.
+// Keys as in Storybook: / or Cmd+K searches, Alt+Up and Alt+Down step through a system's components.
+addEventListener("keydown", (e) => {
+  const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if ((e.key === "/" && !typing) || (e.key === "k" && (e.metaKey || e.ctrlKey))) { e.preventDefault(); q.focus(); return; }
+  if (!e.altKey || typing || !/^Arrow(Up|Down)$/.test(e.key)) return;
+  const [page] = location.hash.slice(1).split("/");
+  if (!page.startsWith("sys-") || !DATA.systems[page.slice(4)]) return;
+  const all = flat(page.slice(4)).map((c) => page + "/" + c.gid + "/" + c.id);
+  const i = all.indexOf(decodeURIComponent(location.hash.slice(1)));
+  const next = all[e.key === "ArrowDown" ? i + 1 : i < 0 ? 0 : i - 1];
+  if (next) { e.preventDefault(); location.hash = next; }
+});
+// A live frame reports its content height; a state pill switches the frame's page.
 addEventListener("message", (e) => {
   if (!e.data || !e.data.liveHeight) return;
   for (const f of document.querySelectorAll("iframe")) if (f.contentWindow === e.source) f.style.height = Math.min(e.data.liveHeight, 1400) + "px";
@@ -699,43 +816,40 @@ document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-copy]");
   if (b) navigator.clipboard?.writeText(b.dataset.copy).then(() => { b.classList.add("copied"); setTimeout(() => b.classList.remove("copied"), 1200); });
 });
-// Compare: #compare/<system>+<system>/<kind>, rendered from COMPARE.
-const COMPARE = ${JSON.stringify(COMPARE).replace(/</g, "\\u003c")};
+// Compare: #compare/<system>+<system>/<kind>[/<name>], rendered from DATA.
 const form = document.getElementById("cmp-form"), grid = document.getElementById("cmp-grid");
-const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const kslug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const compare = (sys, kind, q) => {
   if (!form) return;
   form.querySelectorAll("[name=sys]").forEach((c) => (c.checked = sys.includes(c.value)));
   form.kind.value = kind;
   form.q.value = q;
+  const match = (c) => kslug(c.k) === kind && (c.n + " " + c.g).toLowerCase().includes(q.toLowerCase());
+  form.querySelectorAll("[data-count]").forEach((el) => (el.textContent = kind === "colour-tokens" ? "" : flat(el.dataset.count).filter(match).length));
   if (sys.length < 2) { grid.innerHTML = "<p>Pick at least two systems.</p>"; return; }
   if (kind === "colour-tokens") {
-    const own = Object.keys(COMPARE.brand).filter((n) => n.includes(q));
-    const extra = [...new Set(sys.flatMap((s) => Object.keys(COMPARE.systems[s].colours)))].filter((n) => !COMPARE.brand[n] && n.includes(q)).sort();
+    const own = Object.keys(DATA.brand).filter((n) => n.includes(q));
+    const extra = [...new Set(sys.flatMap((s) => Object.keys(DATA.systems[s].colours)))].filter((n) => !DATA.brand[n] && n.includes(q)).sort();
     const cell = (v, ref) => v ? '<span class="sw" style="background:' + h(v) + '"></span>' + h(v) + (ref && v.toLowerCase() !== ref.toLowerCase() ? ' <strong class="stale">differs</strong>' : "") : '<span class="meta">not declared</span>';
-    const rows = (names) => "<table><thead><tr><th>Token</th><th>brand</th>" + sys.map((s) => "<th>" + h(s) + "</th>").join("") + "</tr></thead><tbody>" + names.map((n) => "<tr><td><code>" + h(n) + "</code></td><td>" + cell(COMPARE.brand[n]) + "</td>" + sys.map((s) => "<td>" + cell(COMPARE.systems[s].colours[n], COMPARE.brand[n]) + "</td>").join("") + "</tr>").join("") + "</tbody></table>";
+    const rows = (names) => "<table><thead><tr><th>Token</th><th>brand</th>" + sys.map((s) => "<th>" + h(s) + "</th>").join("") + "</tr></thead><tbody>" + names.map((n) => "<tr><td><code>" + h(n) + "</code></td><td>" + cell(DATA.brand[n]) + "</td>" + sys.map((s) => "<td>" + cell(DATA.systems[s].colours[n], DATA.brand[n]) + "</td>").join("") + "</tr>").join("") + "</tbody></table>";
     grid.innerHTML = "<p class=meta>The brand's colour tokens against each system's built CSS, first declaration wins; a value written as var() or in another notation shows as it stands.</p>" + rows(own) + (extra.length ? "<details><summary>" + extra.length + " colour tokens only a system declares</summary>" + rows(extra) + "</details>" : "");
     return;
   }
   grid.innerHTML = '<div class="cols" style="grid-template-columns:repeat(' + sys.length + ',minmax(18rem,1fr))">' + sys.map((s) => {
-    const list = COMPARE.systems[s].components.filter((c) => kslug(c.k) === kind && (c.n + " " + c.g).toLowerCase().includes(q.toLowerCase()));
-    const kinds = Object.entries(COMPARE.systems[s].components.reduce((m, c) => ((m[c.k] = (m[c.k] || 0) + 1), m), {})).map(([k, n]) => h(k) + " " + n).join(", ");
-    return '<div><h3>' + h(s) + ' <span class="label">' + list.length + " · build " + h(COMPARE.systems[s].built) + "</span></h3>" + (list.map((c) => {
-      const f = COMPARE.capture + c.s[0][1];
-      return '<figure class="live"><figcaption><strong>' + h(c.n) + '</strong> <span class="label">' + h(c.g) + '</span> <a class="open" href="' + h(f) + '" target="_blank">open alone</a></figcaption>' + (c.s.length > 1 ? '<p class="states">' + c.s.map((x, i) => '<button data-src="' + h(COMPARE.capture + x[1]) + '"' + (i ? "" : ' class="on"') + ">" + h(x[0]) + "</button>").join("") + "</p>" : "") + '<iframe loading="lazy" src="' + h(f) + '"></iframe></figure>';
-    }).join("") || "<p class=warn><strong>" + h(s) + "'s catalogue holds no component of this kind.</strong> That is the catalogue's own content, not a gap in the mapping. What it holds: " + kinds + ".</p>") + "</div>";
+    const list = flat(s).filter(match);
+    const kinds = Object.entries(flat(s).reduce((m, c) => ((m[c.k] = (m[c.k] || 0) + 1), m), {})).map(([k, n]) => h(k) + " " + n).join(", ");
+    return "<div><h3>" + h(s) + ' <span class="label">' + list.length + " · build " + h(DATA.systems[s].built) + "</span></h3>" + (list.map((c) => frame(s, c.gid, c)).join("") || "<p class=warn><strong>" + h(s) + "'s catalogue holds no component of this kind.</strong> What it holds: " + kinds + ".</p>") + "</div>";
   }).join("") + "</div>";
 };
 const fromHash = () => {
   const [page, sys, kind, q] = decodeURIComponent(location.hash.slice(1)).split("/");
-  if (page === "compare") compare(sys ? sys.split("+").filter((s) => COMPARE.systems[s]) : ["website", "trainer-hub"], kind || "buttons-and-links", q || "");
+  if (page === "compare") compare(sys ? sys.split("+").filter((s) => DATA.systems[s]) : ["website", "trainer-hub"], kind || "buttons-and-links", q || "");
 };
 form?.addEventListener("input", () => {
   const sys = [...form.querySelectorAll("[name=sys]:checked")].map((c) => c.value);
   history.replaceState(null, "", "#compare/" + sys.join("+") + "/" + form.kind.value + (form.q.value ? "/" + form.q.value : ""));
   compare(sys, form.kind.value, form.q.value);
 });
+form?.addEventListener("submit", (e) => e.preventDefault());
 addEventListener("hashchange", fromHash);
 fromHash();
 show();
