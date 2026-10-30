@@ -40,9 +40,9 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run report`: scan, drift and `catalogue.html`. The scan exits 1 where a sibling's count rises
   above the allowlist; the drift report never fails.
-- `bun run capture`: serves each repo's catalogue from its last build, photographs every component
-  into `captures/` (gitignored: the os and trainer-hub stories carry Company OS fixtures), thumbnails
-  the Company OS brand applications and rebuilds `catalogue.html`.
+- `bun run live`: turns each repo's catalogue, from its last build, into pages that open from disk
+  with that repo's own CSS, in `captures/live/` (gitignored: the os and trainer-hub stories carry
+  Company OS fixtures), and rebuilds `catalogue.html`, which embeds them as frames.
 - `bun run scan -- --tighten`: lower the allowlist to today's counts. Never raise an entry by hand.
 - `bun run import`: re-read every file that has an origin from that origin's last commit and
   rewrite the manifest; files without an origin keep their entry.

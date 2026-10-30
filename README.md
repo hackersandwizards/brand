@@ -65,16 +65,11 @@ renders its PNG and rehashes both in `manifest.json`.
 bun install      # also points the git hooks at .githooks/
 bun run check    # format, lint, typecheck, tests, generated/ up to date
 bun run report   # scan the sibling repos, compare their copies, rebuild catalogue.html
-bun run capture  # photograph every system's catalogue into captures/, rebuild catalogue.html
+bun run live     # every system's catalogue from its last build into captures/, rebuild catalogue.html
 ```
 
-Open `catalogue.html` from disk for the brand portal: a left nav over overview, colours (click to
-copy), type, tokens, logos with downloads, one page per system, components compared across systems,
-the Company OS applications and health (drift and scan), and a search over all of it (`/`). `bun run capture`
-photographs each repo's catalogue from its last build and the Company OS assets into `captures/`,
-which stays on this machine because the os and trainer hub stories carry fixtures trainers may not
-see. The scan reads the sibling repos from their checkouts next
-to this one (`repos.json`) and skips a missing one with a warning.
+Open `catalogue.html` from disk for the brand portal: tokens, logos, every system's components live with its own CSS, a Compare of any systems you pick, the applications with their state, and health.
+Rebuild the systems, then `bun run live`; `captures/` stays on this machine because the os and trainer hub stories carry fixtures trainers may not see.
 
 A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
 tag in their dependency line. Which files change here and which in their origin repo, and the rest of

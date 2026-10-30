@@ -1,15 +1,15 @@
 #!/usr/bin/env bun
 // Writes catalogue.html, the brand portal: one file opened from disk, with a left nav, a search
 // over every token, logo and component, and one view per area (overview, colours, type, tokens,
-// logos, one page per system, components compared across systems, applications, health). Reads
-// tokens, manifest.json, reports/ and captures/ (`bun run capture`) as they stand; every link is
-// relative. CAPTURES=<dir or URL> points the capture links elsewhere, for a copy of the page.
+// logos, a Compare that renders the systems a reader picks side by side, one page per system,
+// applications with their state, health). Components are each system's own pages from
+// captures/live/ (`bun run live`), embedded as frames; application files open from the os checkout
+// next to this repo. CAPTURES=<dir or URL> points the live pages elsewhere, for a copy of the page.
 // Usage: bun scripts/catalogue.ts
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
-import repos from "../repos.json";
 import type { drift as driftReport } from "./drift";
 import { ROOT } from "./git";
 import type { Counts, scan as scanReport } from "./scan";
@@ -167,87 +167,284 @@ const logosHtml = `<div class="logos">${bases
   .map(logoCard)
   .join("")}</div>`;
 
-// Captures of every system and the Company OS applications.
-type Capture = { group: string; name: string; file: string; source: string; states?: number };
-type System = { name: string; error?: string; commit?: string; built?: string; items?: Capture[] };
-type Captures = {
-  date: string;
-  systems: System[];
-  applications: { title: string; dir: string; items: Capture[] }[];
+// Every system's catalogue as live pages (`bun scripts/live.ts`): each story's own markup with its
+// own app's CSS, embedded in a frame, so what the portal shows is the component itself.
+type Story = { group: string; name: string; story: string; file: string };
+type System = {
+  name: string;
+  error?: string;
+  commit?: string;
+  built?: string;
+  stories?: Story[];
+  colours?: Record<string, string>;
 };
-const captures: Captures | undefined = existsSync(join(ROOT, "captures/index.json"))
-  ? read("captures/index.json")
+const live: { date: string; systems: System[] } | undefined = existsSync(
+  join(ROOT, "captures/live/index.json"),
+)
+  ? read("captures/live/index.json")
   : undefined;
 const day = (iso: string) => esc(iso.slice(0, 10));
 const stamp = (iso: string) => `${esc(iso.slice(0, 16).replace("T", " "))} UTC`;
-const shotCard = (s: string, c: Capture, file = `${s}/${c.file}`) =>
-  `<figure class="shot" id="c-${slug(`${s}-${c.file}`)}"><a href="${CAPTURES}/${esc(file)}"><img src="${CAPTURES}/${esc(file)}" alt="${esc(c.name)}" loading="lazy"></a><figcaption><strong>${esc(c.name)}</strong> <span class="label">${esc(s)}${c.states && c.states > 1 ? ` · ${c.states} states` : ""}</span><br>${code(c.source)}</figcaption></figure>`;
-const systems = captures?.systems ?? [];
+const systems = live?.systems ?? [];
+
+// The kinds a reader compares by: the first match on the name wins, else on the group.
+const KINDS: [string, RegExp][] = [
+  ["Slides", /slide/],
+  ["Buttons and links", /button|cta|action|link|elements/],
+  ["Chips, pills and badges", /chip|pill|badge|tag|label|topic/],
+  ["Cards and tiles", /card|tile|panel/],
+  ["Notices and callouts", /callout|notice|warning|alert|banner|note|quote|not-found|unavailable/],
+  ["Lists and tables", /list|table|row|facts/],
+  ["Forms and search", /input|form|field|select|search|checkbox|toggle|filter|dialog|edit/],
+  ["Navigation, header, footer", /header|nav|footer|menu|breadcrumb|sidebar/],
+  ["Type and headings", /heading|title|type|text|prose|eyebrow|kicker/],
+  ["Logos", /logo|brand|wordmark|lockup/],
+  ["Tokens and lengths", /token|length|colou?r/],
+];
+const kindOf = (group: string, name: string) =>
+  (KINDS.find(([, re]) => re.test(name.toLowerCase())) ??
+    KINDS.find(([, re]) => re.test(group.toLowerCase())))?.[0] ?? "Other";
+type Component = { kind: string; group: string; name: string; stories: Story[] };
+const components = (s: System) => {
+  const m = new Map<string, Component>();
+  for (const st of s.stories ?? []) {
+    const key = `${st.group}/${st.name}`;
+    if (!m.has(key))
+      m.set(key, { kind: kindOf(st.group, st.name), group: st.group, name: st.name, stories: [] });
+    m.get(key)!.stories.push(st);
+  }
+  // A frame opens on the plain state where the system has one.
+  const plain = (s: Story) => (/^(primary|default|rest|base)/.test(s.story) ? 0 : 1);
+  for (const c of m.values()) c.stories.sort((a, b) => plain(a) - plain(b));
+  return [...m.values()];
+};
+const src = (f: string) => `${CAPTURES}/live/${esc(f)}`;
+const frame = (sys: string, c: Component) =>
+  `<figure class="live" id="c-${slug(`${sys}-${c.group}-${c.name}`)}"><figcaption><strong>${esc(c.name)}</strong> <span class="label">${esc(sys)}${c.group ? ` · ${esc(c.group)}` : ""}</span> <a class="open" href="${src(c.stories[0].file)}" target="_blank">open alone</a></figcaption>${
+    c.stories.length > 1
+      ? `<p class="states">${c.stories.map((s, i) => `<button data-src="${src(s.file)}"${i ? "" : ' class="on"'}>${esc(s.story)}</button>`).join("")}</p>`
+      : ""
+  }<iframe loading="lazy" src="${src(c.stories[0].file)}" title="${esc(`${sys} ${c.name}`)}"></iframe></figure>`;
+
 const systemPage = (s: System) => {
-  if (s.error) return `<p>Not captured: ${esc(s.error)}</p>`;
-  const groups = [...new Set(s.items!.map((i) => i.group))];
-  for (const i of s.items!)
+  if (s.error) return `<p>Not rendered: ${esc(s.error)}</p>`;
+  const list = components(s);
+  const groups = [...new Set(list.map((c) => c.group))];
+  for (const c of list)
     index.push({
-      t: i.name,
+      t: c.name,
       k: s.name,
-      h: `sys-${s.name}/c-${slug(`${s.name}-${i.file}`)}`,
-      x: `${i.group} ${i.source}`,
+      h: `sys-${s.name}/c-${slug(`${s.name}-${c.group}-${c.name}`)}`,
+      x: `${c.group} ${c.kind}`,
     });
   const scanned = scan.repos[s.name]?.commit;
   const stale =
     scanned && !scanned.startsWith(s.commit!)
-      ? ` · <strong class="stale">captured from ${esc(s.commit)}, the repo is at ${esc(scanned.slice(0, 9))}: rebuild and run <code>bun run capture</code></strong>`
+      ? ` · <strong class="stale">rendered from ${esc(s.commit)}, the repo is at ${esc(scanned.slice(0, 9))}: rebuild it and run <code>bun run live</code></strong>`
       : "";
-  return `<p class="meta">commit ${code(s.commit)} · build of ${stamp(s.built!)}${stale} · ${s.items!.length} components · <a href="${esc(
-    (repos as Record<string, { catalogues: string[] }>)[s.name]?.catalogues[0] ?? "#",
-  )}">live catalogue</a></p>${
+  return `<p class="meta">Live from the build of ${stamp(s.built!)}, commit ${code(s.commit)}${stale} · ${list.length} components, ${s.stories!.length} states · each frame is the system's own HTML and CSS</p>${
     groups.length > 1
       ? `<p class="chips">${groups.map((g) => `<a href="#sys-${s.name}/g-${slug(`${s.name}-${g}`)}">${esc(g || "Other")}</a>`).join("")}</p>`
       : ""
   }${groups
     .map(
       (g) =>
-        `${groups.length > 1 ? `<h3 class="label" id="g-${slug(`${s.name}-${g}`)}">${esc(g || "Other")}</h3>` : ""}<div class="shots">${s
-          .items!.filter((i) => i.group === g)
-          .map((i) => shotCard(s.name, i))
+        `${groups.length > 1 ? `<h3 class="label" id="g-${slug(`${s.name}-${g}`)}">${esc(g || "Other")}</h3>` : ""}<div class="lives">${list
+          .filter((c) => c.group === g)
+          .map((c) => frame(s.name, c))
           .join("")}</div>`,
     )
     .join("")}`;
 };
 
-// Components that more than one system carries, by name, plus every action and button.
-const byName = new Map<string, [string, Capture][]>();
-for (const s of systems)
-  for (const i of s.items ?? []) {
-    const key = /button|cta|primitives/.test(i.name) ? "buttons and actions" : i.name;
-    if (i.group === "" && s.name === "website") continue;
-    byName.set(key, [...(byName.get(key) ?? []), [s.name, i]]);
-  }
-const shared = [...byName].filter(([, l]) => new Set(l.map(([s]) => s)).size > 1);
-for (const [k] of shared) index.push({ t: k, k: "compare", h: `compare/cmp-${slug(k)}` });
-const compareHtml = shared.length
-  ? shared
+// Compare: the data the page renders from when a reader picks systems and a kind.
+const COMPARE = {
+  capture: `${CAPTURES}/live/`,
+  brand: colors,
+  systems: Object.fromEntries(
+    systems
+      .filter((s) => s.stories)
+      .map((s) => [
+        s.name,
+        {
+          built: s.built!.slice(0, 10),
+          colours: s.colours ?? {},
+          components: components(s).map((c) => ({
+            k: c.kind,
+            g: c.group,
+            n: c.name,
+            s: c.stories.map((x) => [x.story, x.file]),
+          })),
+        },
+      ]),
+  ),
+};
+const kindNames = [...KINDS.map(([k]) => k), "Other"];
+for (const k of kindNames)
+  index.push({ t: k, k: "compare", h: `compare/website+trainer-hub/${slug(k)}` });
+index.push({ t: "Colour tokens", k: "compare", h: "compare/website+os+trainer-hub/colour-tokens" });
+const compareHtml = systems.length
+  ? `<p class="lead">Compare: pick two or more systems and one kind of component or token, and each system's own version appears side by side, rendered from its last build with its own CSS.</p>
+<form id="cmp-form" class="controls"><fieldset><legend class="label">Systems</legend>${systems
+      .filter((s) => s.stories)
       .map(
-        ([k, l]) =>
-          `<h3 id="cmp-${slug(k)}">${esc(k)} <span class="label">${[...new Set(l.map(([s]) => s))].join(" · ")}</span></h3><div class="shots cmp">${l.map(([s, i]) => shotCard(s, i)).join("")}</div>`,
+        (s) =>
+          `<label><input type="checkbox" name="sys" value="${esc(s.name)}"> ${esc(s.name)}</label>`,
       )
-      .join("")
-  : "<p>No captures yet: run <code>bun run capture</code>.</p>";
+      .join("")}</fieldset><label><span class="label">Kind</span><select name="kind">${[
+      "colour-tokens",
+      ...kindNames.map(slug),
+    ]
+      .map((v, i) => `<option value="${v}">${esc(i ? kindNames[i - 1] : "Colour tokens")}</option>`)
+      .join(
+        "",
+      )}</select></label><label><span class="label">Name contains</span><input type="search" name="q" placeholder="e.g. button"></label></form>
+<div id="cmp-grid"></div>`
+  : "<p>No live pages yet: build the repos, then run <code>bun run live</code>.</p>";
 
-const applicationsHtml = captures
-  ? captures.applications
-      .map((a) => {
-        for (const i of a.items)
-          index.push({
-            t: i.name,
-            k: "application",
-            h: `applications/c-${slug(`os-${i.file}`)}`,
-            x: a.title,
-          });
-        return `<h3 id="app-${slug(a.title)}">${esc(a.title)}</h3><p class="meta">os/${esc(a.dir)}</p><div class="grid apps">${a.items.map((i) => shotCard("os", i, i.file)).join("")}</div>`;
-      })
-      .join("")
-  : "<p>No captures yet: run <code>bun run capture</code>.</p>";
+// Applications: every family of brand files in use, with its state and the os decision row.
+const OS_DG = "../os/src/content/documents/company/design-guide";
+type Family = {
+  id: string;
+  title: string;
+  status: "decided" | "in use" | "open";
+  note: string;
+  row?: string;
+  dir?: string;
+  match?: RegExp;
+  link?: [string, string];
+};
+const FAMILIES: Family[] = [
+  {
+    id: "backgrounds",
+    title: "Backgrounds for devices and calls",
+    status: "decided",
+    note: "The dark (night) family, decided on 29.10.: the wizard over the wordmark on MacBook and lock screens, the lockup across the home screens, a small lockup above the head in calls. Set on the devices by hand.",
+    row: "device-backgrounds-light (asked light or dark; dark won)",
+    dir: `${OS_DG}/backgrounds`,
+    match: /\.png$/,
+  },
+  {
+    id: "merch",
+    title: "Merch",
+    status: "open",
+    note: "Nothing ordered. Proposed on logo D after five review rounds: shirt T12, hoodie H6, mug M6, notebook N6, stickers P10, L13 and B16, cleaning cloth K12 and K10. No design is current yet. Logo W1, now the textile logo, is not in these mockups.",
+    row: "merch-redesign, merch-cloth-prodono",
+    dir: "../os/docs/tracking/2026-10-29-merch/mockups",
+    match: /^(?!.*-crop\.).*\.jpg$/,
+  },
+  {
+    id: "booth",
+    title: "Booth banners",
+    status: "decided",
+    note: "Light grey #E6EAED in the light frame for code.talks, decided on 30.10.; the dark pair stays as a second version for light walls. The print order is still to send.",
+    dir: `${OS_DG}/booth-export`,
+    match: /\.pdf$/,
+  },
+  {
+    id: "channel-banners",
+    title: "Channel banners",
+    status: "decided",
+    note: "The airy version in light teal with two profile slides, decided on 30.10. Uploads per platform are still to do. Open: the profile slides carry no proven project result.",
+    row: "banner-proof-gaps",
+    dir: `${OS_DG}/channel-banners`,
+    match: /\.png$/,
+  },
+  {
+    id: "avatars",
+    title: "Avatars and workspace icons",
+    status: "decided",
+    note: "The favicon tile on every platform, decided on 30.10. Uploads are still to do.",
+    dir: `${OS_DG}/avatars`,
+    match: /\.(png|svg)$/,
+  },
+  {
+    id: "linkedin",
+    title: "LinkedIn visuals",
+    status: "in use",
+    note: "The LinkedIn image set and company banner in use today.",
+    dir: `${OS_DG}/linkedin`,
+    match: /\.png$/,
+  },
+  {
+    id: "gradients",
+    title: "Gradients",
+    status: "in use",
+    note: "Linear, mesh and radial brand gradients; the Illustrator source sits beside them.",
+    dir: `${OS_DG}/gradients`,
+    match: /\.png$/,
+  },
+  {
+    id: "overlays",
+    title: "Overlays",
+    status: "in use",
+    note: "Brand overlays for images.",
+    dir: `${OS_DG}/overlays`,
+    match: /\.png$/,
+  },
+  {
+    id: "visuals",
+    title: "Visuals",
+    status: "in use",
+    note: "The party visual, with and without background.",
+    dir: `${OS_DG}/visuals`,
+    match: /\.png$/,
+  },
+  {
+    id: "slides",
+    title: "Slides",
+    status: "in use",
+    note: "There is no slide template file: decks are built in the talks slide engine. Open on the engine: slides-open-checks, print-logo-placement, slide-body-short-position.",
+    link: ["#sys-talks", "the talks slide engine, live"],
+  },
+  {
+    id: "documents",
+    title: "Documents",
+    status: "in use",
+    note: "Proposals, rate cards, certificates and handouts come from the document components in this package (document/components), rendered by Company OS and the trainer hub.",
+    link: ["#sys-os", "the document components in os, live"],
+  },
+];
+const assetFiles = (dir: string, match: RegExp) => {
+  const abs = join(ROOT, dir);
+  return existsSync(abs)
+    ? readdirSync(abs)
+        .filter((f) => match.test(f))
+        .sort()
+    : [];
+};
+const assetCard = (dir: string, f: string, fam: Family) => {
+  index.push({
+    t: f,
+    k: "application",
+    h: `applications/a-${slug(`${fam.id}-${f}`)}`,
+    x: `${fam.title} ${fam.note}`,
+  });
+  const href = `${dir}/${esc(f)}`;
+  return `<figure class="asset" id="a-${slug(`${fam.id}-${f}`)}"><a href="${href}" target="_blank">${
+    f.endsWith(".pdf")
+      ? `<span class="pdf">PDF</span>`
+      : `<img src="${href}" alt="${esc(f)}" loading="lazy">`
+  }</a><figcaption>${code(f)} <a href="${href}" download>download</a></figcaption></figure>`;
+};
+const applicationsHtml = `<p>Every family of brand files in use, with its state: decided, in use, or open with the Company OS decision row that holds the question. The files open from the os checkout next to this repo.</p>
+${table(
+  ["Family", "State", "Decision row", "Files"],
+  FAMILIES.map((f) => [
+    `<a href="#applications/app-${f.id}">${esc(f.title)}</a>`,
+    `<span class="status ${slug(f.status)}">${esc(f.status)}</span>`,
+    f.row ? code(f.row) : "",
+    f.dir ? String(assetFiles(f.dir, f.match!).length) : "",
+  ]),
+)}
+${FAMILIES.map((f) => {
+  const files = f.dir ? assetFiles(f.dir, f.match!) : [];
+  return `<h3 id="app-${f.id}">${esc(f.title)} <span class="status ${slug(f.status)}">${esc(f.status)}</span></h3><p>${esc(f.note)}${f.row ? ` Row: ${code(f.row)}.` : ""}${f.link ? ` See <a href="${f.link[0]}">${esc(f.link[1])}</a>.` : ""}</p>${
+    f.dir
+      ? `<p class="meta">${esc(f.dir.replace("../", ""))}</p><div class="assets">${files.map((x) => assetCard(f.dir!, x, f)).join("")}</div>`
+      : ""
+  }`;
+}).join("")}`;
 
 // Health: drift, scan, duplicates, provenance.
 const driftBad = Object.entries(drift.repos).filter(([, r]) =>
@@ -335,9 +532,9 @@ const overview = `<p class="lead">Everything the hackers&amp;wizards brand is ma
 ${tile("colours", "Colours", `${Object.keys(colors).length} tokens in four families, click to copy`)}
 ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
 ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
-${tile("compare", "Compare", `${shared.length} components side by side across systems`)}
-${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.items ? `${s.items.length} components · build ${day(s.built!)}` : "not captured")).join("")}
-${tile("applications", "Applications", "Design-guide assets, merch, backgrounds")}
+${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
+${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live · build ${day(s.built!)}` : "not rendered")).join("")}
+${tile("applications", "Applications", `${FAMILIES.length} families, each decided, in use or open: backgrounds, merch, booth, banners, avatars, slides, documents`)}
 ${tile("health", "Health", `${driftLine} · off-token hex: ${offHex} · ${scan.aboveAllowlist.length} file(s) above the allowlist`)}
 </div>
 <h3>Freshness</h3>
@@ -346,9 +543,9 @@ ${table(
   [
     ["Tokens, logos", `v${esc(pkg.version)}`, code("bun run tokens")],
     [
-      "Component captures",
-      captures ? stamp(captures.date) : "none",
-      `${code("bun run capture")}, after building each repo`,
+      "Live component pages",
+      live ? stamp(live.date) : "none",
+      `${code("bun run live")}, after building each repo`,
     ],
     ["Drift", esc(drift.date), code("bun run report")],
     ["Scan", esc(scan.date), code("bun run report")],
@@ -358,6 +555,7 @@ ${table(
 <ul>
 <li>Logo for a slide or a document: <a href="logos/lockup.svg" download>lockup.svg</a>, on dark <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, square <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>.</li>
 <li>Slides: there is no slide template file. Decks are built in the talks slide engine (<code>styles/slides.css</code>); its title, content and closing slides are under <a href="#sys-talks">talks</a>.</li>
+<li>Workshop kit for trainers: the lockup above, the night call background <a href="${OS_DG}/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the talks slide engine.</li>
 <li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
 </ul>`;
 
@@ -371,13 +569,9 @@ const pages: [string, string, string][] = [
     "Logos",
     `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black, black textile and Stargazer take the night cut, without an outline; on Purple Love the outline cut, a white outline round the letters. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
   ],
-  [
-    "compare",
-    "Compare across systems",
-    `<p>Components with the same name in more than one system, and every button and action, side by side.</p>${compareHtml}`,
-  ],
+  ["compare", "Compare", compareHtml],
   ...systems.map((s): [string, string, string] => [`sys-${s.name}`, s.name, systemPage(s)]),
-  ["applications", "Brand applications in Company OS", applicationsHtml],
+  ["applications", "Applications: the brand in use", applicationsHtml],
   ["health", "Health: drift and scan", health],
 ];
 const nav = (id: string, title: string, extra = "") =>
@@ -407,7 +601,7 @@ const html = `<!doctype html>
   section.on { display: block; }
   h1, h2, h3 { font-family: var(--font-mono); letter-spacing: -0.02em; }
   h2 { font-size: var(--text-h2); margin: 0 0 1rem; }
-  h3 { font-size: var(--text-h4); margin: 2rem 0 0.75rem; }
+  h3 { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: 1rem; }
   .label, th { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 400; }
   .lead { font-size: var(--text-lead); max-width: 40em; }
   .meta { color: var(--color-muted); }
@@ -463,6 +657,28 @@ const html = `<!doctype html>
   dialog figure { margin: 0; }
   dialog img { width: 100%; border: 1px solid var(--color-border); }
   .shot img { cursor: zoom-in; }
+  .lives { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr)); align-items: start; }
+  .live { margin: 0 0 1rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: 12px 3px; padding: 0.5rem; min-width: 0; }
+  .live figcaption { display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; padding: 0 0.25rem 0.4rem; }
+  .live .open { margin-left: auto; font-size: 0.75rem; }
+  .live iframe { display: block; width: 100%; height: 20rem; border: 0; border-top: 1px solid var(--color-border); }
+  .states { margin: 0 0 0.4rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .states button { font: 0.7rem var(--font-code); padding: 0.1rem 0.45rem; border: 1px solid var(--color-border-strong); border-radius: 999px; background: none; cursor: pointer; }
+  .states button.on { background: var(--color-teal); color: var(--color-white); border-color: var(--color-teal); }
+  .controls { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: end; padding: 1rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); margin-bottom: 1rem; }
+  .controls fieldset { border: 0; padding: 0; margin: 0; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .controls label { display: grid; gap: 0.2rem; }
+  .controls fieldset label { display: flex; gap: 0.3rem; align-items: center; }
+  .controls select, .controls input[type=search] { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: 6px; }
+  .cols { display: grid; gap: 1rem; align-items: start; }
+  .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
+  .status { font: 0.7rem var(--font-code); padding: 0.1rem 0.5rem; border-radius: 999px; vertical-align: middle; background: var(--color-tint); }
+  .status.open { background: var(--color-amber); color: var(--color-ink); }
+  .status.decided { background: var(--color-teal); color: var(--color-white); }
+  .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+  .asset { margin: 0; }
+  .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: 12px 3px; box-sizing: border-box; }
+  .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
 </style>
 </head>
 <body>
@@ -475,14 +691,13 @@ ${nav("overview", "Overview")}
 <p class="label">Foundations</p>
 ${nav("colours", "Colours")}${nav("type", "Type")}${nav("tokens", "Spacing and more")}${nav("logos", "Logos")}
 <p class="label">Components</p>
-${nav("compare", "Compare", `<small>${shared.length}</small>`)}
-${systems.map((s) => nav(`sys-${s.name}`, s.name, `<small>${s.items?.length ?? "–"}</small>`)).join("")}
+${nav("compare", "Compare")}
+${systems.map((s) => nav(`sys-${s.name}`, s.name, `<small>${s.stories ? components(s).length : "–"}</small>`)).join("")}
 <p class="label">Brand in use</p>
 ${nav("applications", "Applications")}${nav("health", "Health", `<small>${driftBad.length + scan.aboveAllowlist.length || "ok"}</small>`)}
 </nav>
 </aside>
 <main>
-<dialog id="zoom"><p class="meta">Full size, uncropped. Esc or click to close.</p><div></div></dialog>
 <section id="results"><h2>Search</h2><div></div></section>
 ${pages.map(([id, title, body]) => `<section id="${id}" data-page><h2>${esc(title)}</h2>${body}</section>`).join("\n")}
 </main>
@@ -494,8 +709,8 @@ const show = () => {
   const target = document.getElementById(page)?.matches("[data-page]") ? page : "overview";
   for (const s of document.querySelectorAll("section[data-page]")) s.classList.toggle("on", s.id === target && !q.value);
   for (const a of document.querySelectorAll("aside nav a")) a.classList.toggle("on", a.dataset.page === target);
-  const el = anchor && document.getElementById(anchor);
-  if (el) { el.scrollIntoView({ block: "center" }); el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); }
+  const el = page !== "compare" && anchor && document.getElementById(anchor);
+  if (el) { el.scrollIntoView({ block: "start" }); el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); }
   else scrollTo(0, 0);
 };
 const search = () => {
@@ -509,20 +724,62 @@ q.addEventListener("input", search);
 results.addEventListener("click", () => { q.value = ""; results.classList.remove("on"); });
 addEventListener("hashchange", show);
 addEventListener("keydown", (e) => { if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); } });
-const zoom = document.getElementById("zoom");
-zoom.addEventListener("click", () => zoom.close());
+// A live frame reports its content height; states switch the frame's page.
+addEventListener("message", (e) => {
+  if (!e.data || !e.data.liveHeight) return;
+  for (const f of document.querySelectorAll("iframe")) if (f.contentWindow === e.source) f.style.height = Math.min(e.data.liveHeight, 1400) + "px";
+});
 document.addEventListener("click", (e) => {
-  const shot = e.target.closest(".shot a");
-  if (shot) {
-    e.preventDefault();
-    const group = shot.closest(".cmp") ? [...shot.closest(".cmp").querySelectorAll(".shot")] : [shot.closest(".shot")];
-    zoom.querySelector("div").innerHTML = group.map((f) => "<figure><img src='" + f.querySelector("img").src + "'>" + f.querySelector("figcaption").outerHTML + "</figure>").join("");
-    zoom.showModal();
+  const st = e.target.closest(".states button");
+  if (st) {
+    st.parentNode.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === st));
+    const fig = st.closest("figure");
+    fig.querySelector("iframe").src = st.dataset.src;
+    fig.querySelector(".open").href = st.dataset.src;
     return;
   }
   const b = e.target.closest("[data-copy]");
   if (b) navigator.clipboard?.writeText(b.dataset.copy).then(() => { b.classList.add("copied"); setTimeout(() => b.classList.remove("copied"), 1200); });
 });
+// Compare: #compare/<system>+<system>/<kind>, rendered from COMPARE.
+const COMPARE = ${JSON.stringify(COMPARE).replace(/</g, "\\u003c")};
+const form = document.getElementById("cmp-form"), grid = document.getElementById("cmp-grid");
+const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const kslug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const compare = (sys, kind, q) => {
+  if (!form) return;
+  form.querySelectorAll("[name=sys]").forEach((c) => (c.checked = sys.includes(c.value)));
+  form.kind.value = kind;
+  form.q.value = q;
+  if (sys.length < 2) { grid.innerHTML = "<p>Pick at least two systems.</p>"; return; }
+  if (kind === "colour-tokens") {
+    const own = Object.keys(COMPARE.brand).filter((n) => n.includes(q));
+    const extra = [...new Set(sys.flatMap((s) => Object.keys(COMPARE.systems[s].colours)))].filter((n) => !COMPARE.brand[n] && n.includes(q)).sort();
+    const cell = (v, ref) => v ? '<span class="sw" style="background:' + h(v) + '"></span>' + h(v) + (ref && v.toLowerCase() !== ref.toLowerCase() ? ' <strong class="stale">differs</strong>' : "") : '<span class="meta">not declared</span>';
+    const rows = (names) => "<table><thead><tr><th>Token</th><th>brand</th>" + sys.map((s) => "<th>" + h(s) + "</th>").join("") + "</tr></thead><tbody>" + names.map((n) => "<tr><td><code>" + h(n) + "</code></td><td>" + cell(COMPARE.brand[n]) + "</td>" + sys.map((s) => "<td>" + cell(COMPARE.systems[s].colours[n], COMPARE.brand[n]) + "</td>").join("") + "</tr>").join("") + "</tbody></table>";
+    grid.innerHTML = "<p class=meta>The brand's colour tokens against each system's built CSS, first declaration wins; a value written as var() or in another notation shows as it stands.</p>" + rows(own) + (extra.length ? "<details><summary>" + extra.length + " colour tokens only a system declares</summary>" + rows(extra) + "</details>" : "");
+    return;
+  }
+  grid.innerHTML = '<div class="cols" style="grid-template-columns:repeat(' + sys.length + ',minmax(18rem,1fr))">' + sys.map((s) => {
+    const list = COMPARE.systems[s].components.filter((c) => kslug(c.k) === kind && (c.n + " " + c.g).toLowerCase().includes(q.toLowerCase()));
+    const kinds = Object.entries(COMPARE.systems[s].components.reduce((m, c) => ((m[c.k] = (m[c.k] || 0) + 1), m), {})).map(([k, n]) => h(k) + " " + n).join(", ");
+    return '<div><h3>' + h(s) + ' <span class="label">' + list.length + " · build " + h(COMPARE.systems[s].built) + "</span></h3>" + (list.map((c) => {
+      const f = COMPARE.capture + c.s[0][1];
+      return '<figure class="live"><figcaption><strong>' + h(c.n) + '</strong> <span class="label">' + h(c.g) + '</span> <a class="open" href="' + h(f) + '" target="_blank">open alone</a></figcaption>' + (c.s.length > 1 ? '<p class="states">' + c.s.map((x, i) => '<button data-src="' + h(COMPARE.capture + x[1]) + '"' + (i ? "" : ' class="on"') + ">" + h(x[0]) + "</button>").join("") + "</p>" : "") + '<iframe loading="lazy" src="' + h(f) + '"></iframe></figure>';
+    }).join("") || "<p class=warn><strong>" + h(s) + "'s catalogue holds no component of this kind.</strong> That is the catalogue's own content, not a gap in the mapping. What it holds: " + kinds + ".</p>") + "</div>";
+  }).join("") + "</div>";
+};
+const fromHash = () => {
+  const [page, sys, kind, q] = decodeURIComponent(location.hash.slice(1)).split("/");
+  if (page === "compare") compare(sys ? sys.split("+").filter((s) => COMPARE.systems[s]) : ["website", "trainer-hub"], kind || "buttons-and-links", q || "");
+};
+form?.addEventListener("input", () => {
+  const sys = [...form.querySelectorAll("[name=sys]:checked")].map((c) => c.value);
+  history.replaceState(null, "", "#compare/" + sys.join("+") + "/" + form.kind.value + (form.q.value ? "/" + form.q.value : ""));
+  compare(sys, form.kind.value, form.q.value);
+});
+addEventListener("hashchange", fromHash);
+fromHash();
 show();
 </script>
 </body>
