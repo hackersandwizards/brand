@@ -105,15 +105,20 @@ const tokensHtml = tokenKinds
   })
   .join("");
 
-// Logos: one card per logo with its light, night and print files as downloads.
+// Logos: one card per logo with its light, night, outline and print files as downloads.
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));
 const bases = [
-  ...new Set(logoFiles.map((p) => p.replace(/^logos\//, "").replace(/(-night|-cmyk)?\.\w+$/, ""))),
+  ...new Set(
+    logoFiles.map((p) => p.replace(/^logos\//, "").replace(/(-night|-outline|-cmyk)?\.\w+$/, "")),
+  ),
 ];
 const LOGO_NOTES: Record<string, string> = {
-  lockup: "The logo: wizard beside the pixel wordmark. First choice on every surface.",
-  "lockup-compact": "Stacked, for square and narrow spaces.",
-  wordmark: "The wordmark alone, where the wizard already appears nearby.",
+  lockup:
+    "The standard logo: wizard beside the pixel wordmark. Every surface without its own row: screens, slides, documents, website, banners, notebook, cloth.",
+  "lockup-compact":
+    "Stacked, for small and square spots: mug, lock screens. The iPhone lock screen keeps it at its smaller size.",
+  wordmark:
+    "The wordmark alone, for textiles: shirts, hoodie and stickers. Also where the wizard already appears nearby.",
   "emoji-logo-long": "The conceptual origin 👨🏼‍💻 🧙🏼‍♂️, not the logo.",
   "emoji-logo-short": "The conceptual origin, short. Not the logo.",
   "emoji-logo-short-quote": "The conceptual origin as a quote mark. Not the logo.",
@@ -122,10 +127,11 @@ const LOGO_NOTES: Record<string, string> = {
 };
 const logoCard = (base: string) => {
   const files = logoFiles.filter((p) =>
-    new RegExp(`^logos/${base}(-night|-cmyk)?\\.\\w+$`).test(p),
+    new RegExp(`^logos/${base}(-night|-outline|-cmyk)?\\.\\w+$`).test(p),
   );
   const show = files.find((p) => p.endsWith(`${base}.svg`)) ?? files.find((p) => /png$/.test(p));
   const night = files.find((p) => p.endsWith(`${base}-night.svg`)) ?? show;
+  const outline = files.find((p) => p.endsWith(`${base}-outline.svg`));
   const former = base.startsWith("type-logo") || base.startsWith("emoji");
   index.push({
     t: base,
@@ -135,7 +141,7 @@ const logoCard = (base: string) => {
   });
   return `<article class="logo${former ? " former" : ""}" id="logo-${base}"><div class="pair">${
     show ? `<img class="on-light" src="${show}" alt="${esc(base)} on light">` : ""
-  }${night ? `<img class="on-dark" src="${night}" alt="${esc(base)} on dark">` : ""}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
+  }${night ? `<img class="on-dark" src="${night}" alt="${esc(base)} on dark">` : ""}${outline ? `<img class="on-gradient" src="${outline}" alt="${esc(base)} outlined on the gradient">` : ""}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
     .map(
       (p) =>
         `<a href="${p}" download>${esc(
@@ -328,7 +334,7 @@ const overview = `<p class="lead">Everything the hackers&amp;wizards brand is ma
 <div class="tiles">
 ${tile("colours", "Colours", `${Object.keys(colors).length} tokens in four families, click to copy`)}
 ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
-${tile("logos", "Logos", "Lockup, compact, wordmark, light and night, SVG and PNG downloads")}
+${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
 ${tile("compare", "Compare", `${shared.length} components side by side across systems`)}
 ${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.items ? `${s.items.length} components · build ${day(s.built!)}` : "not captured")).join("")}
 ${tile("applications", "Applications", "Design-guide assets, merch, backgrounds")}
@@ -363,7 +369,7 @@ const pages: [string, string, string][] = [
   [
     "logos",
     "Logos",
-    `<p>The wizard beside the pixel wordmark is the logo on every surface, the night cut on dark grounds. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
+    `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black, black textile and Stargazer take the night cut, without an outline; on Purple Love and the gradient the outline cut, a white outline round the letters. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
   ],
   [
     "compare",
@@ -425,10 +431,11 @@ const html = `<!doctype html>
   .logo.former h3, .logo.former p { color: var(--color-muted); }
   .logo h3 { margin: 0.75rem 0 0.25rem; }
   .logo p { margin: 0.25rem 0; }
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .pair { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.5rem; }
   .pair img { width: 100%; height: 6rem; object-fit: contain; padding: 0.75rem; box-sizing: border-box; border-radius: 12px 3px; }
   .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
   .on-dark { background: var(--color-night); }
+  .on-gradient { background: var(--gradient-magic); }
   .dl a, .chips a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: 999px; color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
   .dl a::before { content: "↓ "; }
   .dl a:hover, .chips a:hover { background: var(--color-tint); }

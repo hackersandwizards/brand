@@ -38,9 +38,13 @@ Then import what you need:
 | `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components          |
 | `@hackersandwizards/brand/logos/<file>`                     | logos                        |
 
-The logo is the wizard beside the pixel wordmark, with no line under it: `logos/lockup.svg`, the
-wordmark alone `logos/wordmark.svg`, the stacked `logos/lockup-compact.svg`, each with a `-night`
-cut for dark grounds and a PNG beside it. The wordmark's box is 952 units tall for 851 units of
+The logo is one line, with no line under it: the wizard beside the pixel wordmark,
+`logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
+(shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug
+and lock screens. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
+cut for night, black, black textile and Stargazer, and an `-outline` cut, a white outline round the
+letters, for Purple Love and the gradient. `bun scripts/outline.ts` writes the outline cuts from
+the day files. The wordmark's box is 952 units tall for 851 units of
 letters, centred on the line midway between the box middle and the x-height middle of the letters
 (blind-tested, 2026-10-29). A text set beside it centres on its box (`align-items: center`, the
 text at `line-height: 1`) and sits centred on the letters. The wizard, taller than the letters,

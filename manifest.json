@@ -327,6 +327,14 @@
       "sha256": "16a8efad2187bc2d87cae685695260b139626f09a8c4cd28d31dfe070830f5ee"
     },
     {
+      "path": "logos/wordmark-outline.svg",
+      "sha256": "73b4f5695037469e95dac8becc15cd732579bc53fe966d61076fd7aa9902fde5"
+    },
+    {
+      "path": "logos/wordmark-outline.png",
+      "sha256": "e56b34aaf391aec22894d1e66096e57072f8d42711941e9b84831e98fcb228a0"
+    },
+    {
       "path": "logos/lockup.svg",
       "sha256": "e67b16861baaaf01bcaff188d50c4ba8900c6f58d0506a2541a682142e03ef52"
     },
@@ -343,6 +351,14 @@
       "sha256": "7b5bf2dc0406dda114d80a44a6c521f8f4451a6a7e7ba2f36b3f3b472fff0b71"
     },
     {
+      "path": "logos/lockup-outline.svg",
+      "sha256": "02bc52d4db545e97a8f0f04d6c3079e0e23dd6733ec18cae7c322e5a8cb44e89"
+    },
+    {
+      "path": "logos/lockup-outline.png",
+      "sha256": "8c7448f02a8706b86f4863490fa1c0d1c9a1d7cbfe4a25f26545ef6e3d1a61b5"
+    },
+    {
       "path": "logos/lockup-compact.svg",
       "sha256": "78a2ca5e09e010c27abdc06b24b42342bae27c9a1fdb22d6b62738ea4db9720d"
     },
@@ -357,6 +373,14 @@
     {
       "path": "logos/lockup-compact-night.png",
       "sha256": "c20d6ddb5083585c792a946a8e824841f9380370f37c70b32a749d2a0ab8a8a6"
+    },
+    {
+      "path": "logos/lockup-compact-outline.svg",
+      "sha256": "cdf5739fd358e81c921914f0555c703c2da8e1b12aec12819d4bc41c70b653ce"
+    },
+    {
+      "path": "logos/lockup-compact-outline.png",
+      "sha256": "3aa6995db5924d2423b3911b6edd4f940a0eeac340b397ce18da4fcd4c5407b1"
     },
     {
       "path": "expert/expert.css",
