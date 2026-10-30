@@ -409,7 +409,7 @@ ${FAMILIES.map((f) => {
   }`;
 }).join("")}`;
 
-// Health: drift, scan, duplicates, provenance.
+// Health: drift, scan, duplicates.
 const driftBad = Object.entries(drift.repos).filter(([, r]) =>
   r.rows.some((x) => x.status !== "identical"),
 );
@@ -443,13 +443,6 @@ const dupRows = Object.entries(scan.duplicates).map(([k, l]) => [
   l[0].identical ? "yes" : "no",
   esc(allow.duplicates[k] ?? "not allowlisted"),
 ]);
-const origins = Object.entries(
-  manifest.files.reduce<Record<string, number>>((m, f) => {
-    const k = f.origin ? `${f.origin.repo} ${f.origin.commit.slice(0, 9)}` : "brand";
-    m[k] = (m[k] ?? 0) + 1;
-    return m;
-  }, {}),
-).map(([k, n]) => [code(k), n]);
 for (const b of scan.aboveAllowlist) index.push({ t: b, k: "scan", h: "health/scan" });
 const withCopies = Object.entries(drift.repos).filter(([, r]) => r.rows.length);
 const above = (name: string) => scan.aboveAllowlist.filter((b) => b.startsWith(`${name}:`)).length;
@@ -482,10 +475,7 @@ ${table(["Repo", "Status", "Commit", "Not identical"], driftRows)}
 ${scan.aboveAllowlist.length ? `<p class="warn"><strong>Above the allowlist:</strong> ${scan.aboveAllowlist.map(code).join(", ")}</p>` : "<p>Every count is within the allowlist.</p>"}
 ${table(["Repo", "Commit", "Files", "Off-token hex", "Token value as hex", "Off-brand fonts", "Palette classes", "Most frequent off-token hex"], scanRows)}
 <h3 id="duplicates">Components in more than one repo</h3>
-${table(["Name", "Where", "Identical", "Allowlist reason"], dupRows)}
-<h3 id="provenance">Provenance</h3>
-<p>Where each file came from, by repo and commit; file by file in <code>manifest.json</code>.</p>
-${table(["Origin", "Files"], origins)}`;
+${table(["Name", "Where", "Identical", "Allowlist reason"], dupRows)}`;
 
 // Overview: what is here, how fresh, what needs attention.
 const tile = (href: string, title: string, body: string) =>

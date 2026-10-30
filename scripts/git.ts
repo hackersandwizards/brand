@@ -1,8 +1,8 @@
 // Read-only access to the committed state of a sibling checkout. Nothing here writes to a repo.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 
 export const ROOT = resolve(import.meta.dir, "..");
 
@@ -32,17 +32,8 @@ export const contentHash = (repo: string, path: string) => {
   return b && (lfsOid(b) ?? sha256(b));
 };
 
-/** The real bytes behind an LFS pointer, from the repo's local object store. */
-export const lfsObject = (repo: string, oid: string) => {
-  const dir = git(repo, ["rev-parse", "--git-common-dir"])!.toString().trim();
-  const file = join(resolve(repo, dir), "lfs/objects", oid.slice(0, 2), oid.slice(2, 4), oid);
-  const b = readFileSync(file);
-  if (sha256(b) !== oid) throw new Error(`LFS object ${oid} in ${repo} fails its hash`);
-  return b;
-};
-
 /** Every file path at HEAD under a directory, relative to the directory. Throws where `repo` is no
- *  checkout, so a missing owner never reads as an empty folder. */
+ *  checkout, so a missing copy never reads as an empty folder. */
 export const listDir = (repo: string, dir: string) => {
   const out = git(repo, ["ls-tree", "-r", "-z", "--name-only", "HEAD", "--", `${dir}/`]);
   if (!out) throw new Error(`${repo} is not a git checkout`);

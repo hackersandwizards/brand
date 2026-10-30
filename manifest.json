@@ -2,313 +2,127 @@
   "files": [
     {
       "path": "tokens/fonts/OFL-Inter.txt",
-      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/OFL-Inter.txt",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
     },
     {
       "path": "tokens/fonts/OFL-JetBrainsMono.txt",
-      "sha256": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/OFL-JetBrainsMono.txt",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d"
     },
     {
       "path": "tokens/fonts/inter-arrows-400-normal.woff2",
-      "sha256": "eb83d7eef643d1a6c9a944417428c74dc6654e820175022a9693e4ae8e4c4de8",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-arrows-400-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "eb83d7eef643d1a6c9a944417428c74dc6654e820175022a9693e4ae8e4c4de8"
     },
     {
       "path": "tokens/fonts/inter-arrows-500-normal.woff2",
-      "sha256": "547e39316413914dead7a05b4bdbc8366276a6a8fb239e6cd67c5294c2ed3b92",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-arrows-500-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "547e39316413914dead7a05b4bdbc8366276a6a8fb239e6cd67c5294c2ed3b92"
     },
     {
       "path": "tokens/fonts/inter-arrows-600-normal.woff2",
-      "sha256": "915f27296e425c841ad6077fa3ef7e09cb56fc5394ee4959615c5d93b5d779de",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-arrows-600-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "915f27296e425c841ad6077fa3ef7e09cb56fc5394ee4959615c5d93b5d779de"
     },
     {
       "path": "tokens/fonts/inter-arrows-700-normal.woff2",
-      "sha256": "e9dab5a4d1b25a1c145c04cc008dd9f62d095507e3a2772a0fd58a125c412233",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-arrows-700-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "e9dab5a4d1b25a1c145c04cc008dd9f62d095507e3a2772a0fd58a125c412233"
     },
     {
       "path": "tokens/fonts/inter-latin-400-normal.woff2",
-      "sha256": "007f9d9a95bb681b1b19d6c792fe764007a2ad30ad9366f4d5be42bd8fd4f14b",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-latin-400-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "007f9d9a95bb681b1b19d6c792fe764007a2ad30ad9366f4d5be42bd8fd4f14b"
     },
     {
       "path": "tokens/fonts/inter-latin-500-normal.woff2",
-      "sha256": "451ac36c789489e664e1ff1db3dce3f1cfcc9481d9f4b1b0bd139e89490bf0f6",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-latin-500-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "451ac36c789489e664e1ff1db3dce3f1cfcc9481d9f4b1b0bd139e89490bf0f6"
     },
     {
       "path": "tokens/fonts/inter-latin-600-normal.woff2",
-      "sha256": "87f44afc02ecf850307f2bebfa99ae6142a2770710e75cf843eb384ae7e5ae83",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-latin-600-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "87f44afc02ecf850307f2bebfa99ae6142a2770710e75cf843eb384ae7e5ae83"
     },
     {
       "path": "tokens/fonts/inter-latin-700-normal.woff2",
-      "sha256": "ed77ee7664b5d33849bd38540244dccd0286decc2d3411b0d512a3831ee71acb",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-latin-700-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "ed77ee7664b5d33849bd38540244dccd0286decc2d3411b0d512a3831ee71acb"
     },
     {
       "path": "tokens/fonts/inter-latin-ext-400-normal.woff2",
-      "sha256": "770af9f9a1fb19da256f84a00ffdd934d68f6e9580aed5fb5d9817bde228a58e",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-latin-ext-400-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "770af9f9a1fb19da256f84a00ffdd934d68f6e9580aed5fb5d9817bde228a58e"
     },
     {
       "path": "tokens/fonts/inter-latin-ext-600-normal.woff2",
-      "sha256": "9ae73a71ac1b21aff65083291ca912021c8a750de8c94bb9196787f9801797d5",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/inter-latin-ext-600-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "9ae73a71ac1b21aff65083291ca912021c8a750de8c94bb9196787f9801797d5"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-latin-400-normal.woff2",
-      "sha256": "c2e4de9ce43a1aa83c7aa1fe3f3a4d9079d017135a710b5157fb43b9473a3d5e",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-latin-400-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "c2e4de9ce43a1aa83c7aa1fe3f3a4d9079d017135a710b5157fb43b9473a3d5e"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-latin-500-normal.woff2",
-      "sha256": "56bf47eaa9e52b35aa2aaaddd28375e2fd507c4f89807e0559134c5e2689f017",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-latin-500-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "56bf47eaa9e52b35aa2aaaddd28375e2fd507c4f89807e0559134c5e2689f017"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-latin-600-normal.woff2",
-      "sha256": "91ce26f083b66bf12ad9ae3c6c1594e295c9915f3cdee5ee371f41cdba7ad0a3",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-latin-600-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "91ce26f083b66bf12ad9ae3c6c1594e295c9915f3cdee5ee371f41cdba7ad0a3"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-latin-700-normal.woff2",
-      "sha256": "b85c33ea37af7477fb68938187e1081eb7c3345655fb55707e1b4e3dfab50fc9",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-latin-700-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "b85c33ea37af7477fb68938187e1081eb7c3345655fb55707e1b4e3dfab50fc9"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-symbols-400-normal.woff2",
-      "sha256": "94d4642d303cb59fe33f499f4f53760bf1ec26c9b24d30e1a3f0ae43b390cbe8",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-symbols-400-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "94d4642d303cb59fe33f499f4f53760bf1ec26c9b24d30e1a3f0ae43b390cbe8"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-symbols-500-normal.woff2",
-      "sha256": "1134ccfed33b5bd8913f63b8c12e50599fff74ad0e52ecc297a26d442578b71a",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-symbols-500-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "1134ccfed33b5bd8913f63b8c12e50599fff74ad0e52ecc297a26d442578b71a"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-symbols-600-normal.woff2",
-      "sha256": "7e04593f6c4b579220fb68d816f8963a1e6023b8579947a064962f0ac4d2d7e6",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-symbols-600-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "7e04593f6c4b579220fb68d816f8963a1e6023b8579947a064962f0ac4d2d7e6"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-symbols-700-normal.woff2",
-      "sha256": "b9eec493809a24e0bd87f9f933216906872e92d6e3ad1800ffb4a454a63243a6",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/fonts/jetbrains-mono-symbols-700-normal.woff2",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "b9eec493809a24e0bd87f9f933216906872e92d6e3ad1800ffb4a454a63243a6"
     },
     {
       "path": "tokens/print.css",
-      "sha256": "f8125d4b2e324c0be169b1a4555d0593d5d6934d63922e561ae0261cbafec906",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/print.css",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "f8125d4b2e324c0be169b1a4555d0593d5d6934d63922e561ae0261cbafec906"
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "785a1d84b43855761008bb692526c137ee05cb75248e0b5fb143c796a377c702",
-      "origin": {
-        "repo": "website",
-        "path": "src/styles/brand/tokens.css",
-        "commit": "9d7b82386f2bcd21fd40b4691d1c7b0ff296d189",
-        "lfs": false
-      }
+      "sha256": "3883788770ad277a2bcad0112dae62551fb880a9bc192e764e3d71400c5caaa7"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
-      "sha256": "9824ed2f3e2daa0a7e3a64b9ddda6c491d6c455b1ee4cd23db0c4b392226e0a8",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-long-cmyk.tif",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": true
-      }
+      "sha256": "9824ed2f3e2daa0a7e3a64b9ddda6c491d6c455b1ee4cd23db0c4b392226e0a8"
     },
     {
       "path": "logos/emoji-logo-long.png",
-      "sha256": "47358449e1e89e609101a276e253a05f38a1068e20294017bda7d6c90a30bba4",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-long.png",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": true
-      }
+      "sha256": "47358449e1e89e609101a276e253a05f38a1068e20294017bda7d6c90a30bba4"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",
-      "sha256": "0d2629445877009ac7c947fcbd6e40dcac652d3fabe2bd9b7f4616ad1b56b850",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short-cmyk.tif",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": true
-      }
+      "sha256": "0d2629445877009ac7c947fcbd6e40dcac652d3fabe2bd9b7f4616ad1b56b850"
     },
     {
       "path": "logos/emoji-logo-short-quote.png",
-      "sha256": "e817a96b7d9bb4fe4f01bc4302ae09de56bcb6e067a8540009f7aa8e7f2b5d9c",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short-quote.png",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": true
-      }
+      "sha256": "e817a96b7d9bb4fe4f01bc4302ae09de56bcb6e067a8540009f7aa8e7f2b5d9c"
     },
     {
       "path": "logos/emoji-logo-short.png",
-      "sha256": "d4302a294ded586d81019000e468447d75274a4d9b9e7ef04f0e917fd7a1b547",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/emoji-logo-short.png",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": true
-      }
+      "sha256": "d4302a294ded586d81019000e468447d75274a4d9b9e7ef04f0e917fd7a1b547"
     },
     {
       "path": "logos/type-logo-long.png",
-      "sha256": "b33f8a9ebaae5efd84254a2950b6b6251ddb336e52b7924934667c9d89706434",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-long.png",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": true
-      }
+      "sha256": "b33f8a9ebaae5efd84254a2950b6b6251ddb336e52b7924934667c9d89706434"
     },
     {
       "path": "logos/type-logo-long.svg",
-      "sha256": "31f281a5919db5fdbf09865992e0f2a77c2c9f8e776b12ad52f3a8766e315a89",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-long.svg",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": false
-      }
+      "sha256": "31f281a5919db5fdbf09865992e0f2a77c2c9f8e776b12ad52f3a8766e315a89"
     },
     {
       "path": "logos/type-logo-short.png",
-      "sha256": "226391accc1b216635cf0a7f69442906880b2c5d084e932f9fd5291304d33ff5",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-short.png",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": true
-      }
+      "sha256": "226391accc1b216635cf0a7f69442906880b2c5d084e932f9fd5291304d33ff5"
     },
     {
       "path": "logos/type-logo-short.svg",
-      "sha256": "c694b79b843184a299a62ccaaa7bc57599a654f1c95913dcf21300ddcee2bb25",
-      "origin": {
-        "repo": "os",
-        "path": "src/content/documents/company/design-guide/logos/type-logo-short.svg",
-        "commit": "51ae04473d5f2e2d5e2c0f27826e34ed82bb55f2",
-        "lfs": false
-      }
+      "sha256": "c694b79b843184a299a62ccaaa7bc57599a654f1c95913dcf21300ddcee2bb25"
     },
     {
       "path": "logos/wordmark.svg",
