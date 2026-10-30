@@ -302,14 +302,12 @@ const compareHtml = systems.length
 <div id="cmp-grid"></div>`
   : "<p>No live pages yet: build the repos, then run <code>bun run live</code>.</p>";
 
-// Applications: every family of brand files in use, with its state and the os decision row.
+// Applications: every family of brand files in use.
 const OS_DG = "../os/src/content/documents/company/design-guide";
 type Family = {
   id: string;
   title: string;
-  status: "decided" | "in use" | "open";
   note: string;
-  row?: string;
   dir?: string;
   match?: RegExp;
   link?: [string, string];
@@ -318,50 +316,41 @@ const FAMILIES: Family[] = [
   {
     id: "backgrounds",
     title: "Backgrounds for devices and calls",
-    status: "decided",
-    note: "The dark (night) family, decided on 29.10.: the wizard over the wordmark on MacBook and lock screens, the lockup across the home screens, a small lockup above the head in calls. Set on the devices by hand.",
-    row: "device-backgrounds-light (asked light or dark; dark won)",
+    note: "The dark (night) family: the wizard over the wordmark on MacBook and lock screens, the lockup across the home screens, a small lockup above the head in calls. Set on the devices by hand.",
     dir: `${OS_DG}/backgrounds`,
     match: /\.png$/,
   },
   {
     id: "merch",
     title: "Merch",
-    status: "open",
-    note: "Nothing ordered. Proposed on logo D after five review rounds: shirt T12, hoodie H6, mug M6, notebook N6, stickers P10, L13 and B16, cleaning cloth K12 and K10. No design is current yet. Logo W1, now the textile logo, is not in these mockups.",
-    row: "merch-redesign, merch-cloth-prodono",
+    note: "Shirt, hoodie, mug, notebook, stickers and cleaning cloth. Textiles and stickers carry the wordmark alone (see Logos).",
     dir: "../os/docs/tracking/2026-10-29-merch/mockups",
     match: /^(?!.*-crop\.).*\.jpg$/,
   },
   {
     id: "booth",
     title: "Booth banners",
-    status: "decided",
-    note: "Light grey #E6EAED in the light frame for code.talks, decided on 30.10.; the dark pair stays as a second version for light walls. The print order is still to send.",
+    note: "Light grey #E6EAED in the light frame; the dark pair is the second version for light walls.",
     dir: `${OS_DG}/booth-export`,
     match: /\.pdf$/,
   },
   {
     id: "channel-banners",
     title: "Channel banners",
-    status: "decided",
-    note: "The airy version in light teal with two profile slides, decided on 30.10. Uploads per platform are still to do. Open: the profile slides carry no proven project result.",
-    row: "banner-proof-gaps",
+    note: "The airy version in light teal with two profile slides, one file per platform.",
     dir: `${OS_DG}/channel-banners`,
     match: /\.png$/,
   },
   {
     id: "avatars",
     title: "Avatars and workspace icons",
-    status: "decided",
-    note: "The favicon tile on every platform, decided on 30.10. Uploads are still to do.",
+    note: "The favicon tile, one file per platform.",
     dir: `${OS_DG}/avatars`,
     match: /\.(png|svg)$/,
   },
   {
     id: "linkedin",
     title: "LinkedIn visuals",
-    status: "in use",
     note: "The LinkedIn image set and company banner in use today.",
     dir: `${OS_DG}/linkedin`,
     match: /\.png$/,
@@ -369,7 +358,6 @@ const FAMILIES: Family[] = [
   {
     id: "gradients",
     title: "Gradients",
-    status: "in use",
     note: "Linear, mesh and radial brand gradients; the Illustrator source sits beside them.",
     dir: `${OS_DG}/gradients`,
     match: /\.png$/,
@@ -377,7 +365,6 @@ const FAMILIES: Family[] = [
   {
     id: "overlays",
     title: "Overlays",
-    status: "in use",
     note: "Brand overlays for images.",
     dir: `${OS_DG}/overlays`,
     match: /\.png$/,
@@ -385,7 +372,6 @@ const FAMILIES: Family[] = [
   {
     id: "visuals",
     title: "Visuals",
-    status: "in use",
     note: "The party visual, with and without background.",
     dir: `${OS_DG}/visuals`,
     match: /\.png$/,
@@ -393,14 +379,12 @@ const FAMILIES: Family[] = [
   {
     id: "slides",
     title: "Slides",
-    status: "in use",
-    note: "There is no slide template file: decks are built in the talks slide engine. Open on the engine: slides-open-checks, print-logo-placement, slide-body-short-position.",
+    note: "There is no slide template file: decks are built in the talks slide engine.",
     link: ["#sys-talks", "the talks slide engine, live"],
   },
   {
     id: "documents",
     title: "Documents",
-    status: "in use",
     note: "Proposals, rate cards, certificates and handouts come from the document components in this package (document/components), rendered by Company OS and the trainer hub.",
     link: ["#sys-os", "the document components in os, live"],
   },
@@ -427,19 +411,17 @@ const assetCard = (dir: string, f: string, fam: Family) => {
       : `<img src="${href}" alt="${esc(f)}" loading="lazy">`
   }</a><figcaption>${code(f)} <a href="${href}" download>download</a></figcaption></figure>`;
 };
-const applicationsHtml = `<p>Every family of brand files in use, with its state: decided, in use, or open with the Company OS decision row that holds the question. The files open from the os checkout next to this repo.</p>
+const applicationsHtml = `<p>Every family of brand files in use. The files open from the os checkout next to this repo.</p>
 ${table(
-  ["Family", "State", "Decision row", "Files"],
+  ["Family", "Files"],
   FAMILIES.map((f) => [
     `<a href="#applications/app-${f.id}">${esc(f.title)}</a>`,
-    `<span class="status ${slug(f.status)}">${esc(f.status)}</span>`,
-    f.row ? code(f.row) : "",
     f.dir ? String(assetFiles(f.dir, f.match!).length) : "",
   ]),
 )}
 ${FAMILIES.map((f) => {
   const files = f.dir ? assetFiles(f.dir, f.match!) : [];
-  return `<h3 id="app-${f.id}">${esc(f.title)} <span class="status ${slug(f.status)}">${esc(f.status)}</span></h3><p>${esc(f.note)}${f.row ? ` Row: ${code(f.row)}.` : ""}${f.link ? ` See <a href="${f.link[0]}">${esc(f.link[1])}</a>.` : ""}</p>${
+  return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}${f.link ? ` See <a href="${f.link[0]}">${esc(f.link[1])}</a>.` : ""}</p>${
     f.dir
       ? `<p class="meta">${esc(f.dir.replace("../", ""))}</p><div class="assets">${files.map((x) => assetCard(f.dir!, x, f)).join("")}</div>`
       : ""
@@ -534,7 +516,7 @@ ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
 ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
 ${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
 ${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live · build ${day(s.built!)}` : "not rendered")).join("")}
-${tile("applications", "Applications", `${FAMILIES.length} families, each decided, in use or open: backgrounds, merch, booth, banners, avatars, slides, documents`)}
+${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, merch, booth, banners, avatars, slides, documents`)}
 ${tile("health", "Health", `${driftLine} · off-token hex: ${offHex} · ${scan.aboveAllowlist.length} file(s) above the allowlist`)}
 </div>
 <h3>Freshness</h3>
@@ -672,9 +654,6 @@ const html = `<!doctype html>
   .controls select, .controls input[type=search] { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: 6px; }
   .cols { display: grid; gap: 1rem; align-items: start; }
   .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
-  .status { font: 0.7rem var(--font-code); padding: 0.1rem 0.5rem; border-radius: 999px; vertical-align: middle; background: var(--color-tint); }
-  .status.open { background: var(--color-amber); color: var(--color-ink); }
-  .status.decided { background: var(--color-teal); color: var(--color-white); }
   .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
   .asset { margin: 0; }
   .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: 12px 3px; box-sizing: border-box; }
