@@ -1,19 +1,20 @@
-/* The h&w brand tokens: colour, both font families, the type scale and its
-   roles, spacing, the brand corner and the gradient. The one source for every
+/* The h&w brand tokens: colour with its roles and chart order, both font families, the type
+   scale and its roles, spacing, three radii, two shadows and the gradient. The one source for every
    h&w repository: the brand repository ships it, with the values it generates
    from it, in the package the other repositories install, so edit it here,
    never in a copy. A plain-CSS consumer rewrites @theme to
    :root. Print values live beside it in print.css. */
 @theme {
-  /* The brand corner: large top-left and bottom-right, small elsewhere.
-     Also the rounded-brand utility. */
+  /* Three radii. sm: inputs, buttons, code, small boxes. brand, the brand corner: large top-left
+     and bottom-right, small elsewhere, on cards, fields and frames. pill: chips, badges, toggles. */
+  --radius-sm: 5px;
   --radius-brand: 20px 5px;
+  --radius-pill: 9999px;
 
   --color-bg: #f7f9fa;
   --color-white: #ffffff;
   --color-ink: #19283a;
   --color-muted: #545861;
-  --color-subtle: color-mix(in srgb, var(--color-ink) 70%, white);
   --color-border: #d0d2d8;
   --color-border-strong: color-mix(in srgb, var(--color-ink) 50%, white);
   /* The ground of a social image (LinkedIn post frame, certificate share image): bg blends into
@@ -41,16 +42,33 @@
   --color-factory-light: #f29a80;
   /* Error, warning and anti-pattern marks in documents, the expert systems and slides. */
   --color-red: #dc2626;
+  --color-red-night: #f26969;
 
   --color-night: #0b1118;
   --color-night-2: #111a24;
   --color-night-ink: color-mix(in srgb, white 92%, var(--color-night));
   --color-night-muted: color-mix(in srgb, white 80%, var(--color-night));
   --color-night-subtle: color-mix(in srgb, white 60%, var(--color-night));
-  /* Teal and purple on night in brand assets: the pixel wordmark's -night cut, its "&" in
-     ampersand-light, and the accents of covers, banners and backgrounds (Benedikt, 2026-10-29). */
-  --color-teal-night: #6aa4b0;
+  /* Teal and purple on night, everywhere: the pixel wordmark's -night cut, its "&" in
+     ampersand-light, covers, banners, backgrounds and the expert systems' dark theme. */
+  --color-teal-night: #47aec6;
   --color-purple-night: #b97af1;
+
+  /* Roles, one row per hue: base | text on light | night. Text on light clears 4.5:1 on bg and
+     white; night clears 4.5:1 on night and night-2. Each hue tints at 7 % (a wash, a card
+     fill) and 40 % (a chip, a highlight) on white, color-mix(in srgb, <base> 7%, white); teal
+     and purple carry the 40 % tint as -light. Text on a hue's own wash takes its text colour
+     mixed 70 % with ink wherever that colour alone falls under 4.5:1 there.
+     teal      | teal-dark  | teal-night
+     purple    | purple     | purple-night
+     amber     | amber-dark | amber
+     green     | green-dark | green
+     factory   | factory    | factory-light
+     red       | red        | red-night
+     ampersand | muted      | ampersand-light */
+
+  /* Former names, resolving to their successors. */
+  --color-subtle: var(--color-muted);
 
   /* Headings, labels and stats. Code has its own family, so swapping this
      one leaves code as it is. */
@@ -205,12 +223,23 @@
 
   /* The wizard beside the pixel wordmark: centred on the wordmark's box, then raised by 7.8% of
      its own height (`translate: 0 var(--logo-wizard-lift)`), so its mass, not its box, sits on the
-     letters (blind rounds, LGD-2). Where the wizard is no taller than the letters, no lift.
+     letters. Where the wizard is no taller than the letters, no lift.
      logos/lockup*.svg carry it built in. */
   --logo-wizard-lift: -7.8%;
 
-  /* A white card lifted off its ground. */
+  /* Two shadows. card: a white card lifted off its ground. overlay: a menu, popover or dialog
+     above the page. */
   --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-overlay: 0 18px 46px rgb(25 40 58 / 0.1);
+
+  /* Chart series in this order, each clearing 3:1 on white. On night a series takes its hue's
+     night column from the roles above. */
+  --chart-1: var(--color-teal);
+  --chart-2: var(--color-purple);
+  --chart-3: var(--color-amber-dark);
+  --chart-4: var(--color-green-dark);
+  --chart-5: var(--color-factory);
+  --chart-6: var(--color-ampersand);
 
   --gradient-magic: linear-gradient(
     135deg,

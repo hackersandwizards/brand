@@ -86,7 +86,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "3883788770ad277a2bcad0112dae62551fb880a9bc192e764e3d71400c5caaa7"
+      "sha256": "d59059285ad6c3ba0ceaf8f3076f854d5fe53934b7e4dd0dc6de2677befa454e"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -134,11 +134,11 @@
     },
     {
       "path": "logos/wordmark-night.svg",
-      "sha256": "074572f5a35665c02bfa45cf50b98e8d1ef59fe69441ddd8d6d0ea27f179d6c5"
+      "sha256": "e963e2257c78a17954769c68e72fcd7f088e9a22b0fa796479c8ab7c267fc2ba"
     },
     {
       "path": "logos/wordmark-night.png",
-      "sha256": "16a8efad2187bc2d87cae685695260b139626f09a8c4cd28d31dfe070830f5ee"
+      "sha256": "220db63da52c3d5c7825312e958676de307389143c760b675889f7c80166d8ae"
     },
     {
       "path": "logos/wordmark-outline.svg",
@@ -158,11 +158,11 @@
     },
     {
       "path": "logos/lockup-night.svg",
-      "sha256": "30272a0df6dbfb3cceda3d894a4e1d75704971f52071cc8ac544199a936d5bd3"
+      "sha256": "92a5aeb8087295c2ebcaf27bc57dc1e41ffacb72ae0dffb513e3b58e17d311d1"
     },
     {
       "path": "logos/lockup-night.png",
-      "sha256": "7b5bf2dc0406dda114d80a44a6c521f8f4451a6a7e7ba2f36b3f3b472fff0b71"
+      "sha256": "7b7893c8370af4345375a419c562af596aa402a42616eb826dfe712e2ab555b3"
     },
     {
       "path": "logos/lockup-outline.svg",
@@ -182,11 +182,11 @@
     },
     {
       "path": "logos/lockup-compact-night.svg",
-      "sha256": "ae889ff2edf2c929028a93a9eb84535500d4395f89eb969852a053e8001588a0"
+      "sha256": "19ba48b2da69a7f3d52b68276eeae20701a9f9cc334fde3305d4136a15253516"
     },
     {
       "path": "logos/lockup-compact-night.png",
-      "sha256": "c20d6ddb5083585c792a946a8e824841f9380370f37c70b32a749d2a0ab8a8a6"
+      "sha256": "feed5d9bce0b92c9a03cfd8dcc69b618fdd5bb4e130e937967e22a3f0a9b21a9"
     },
     {
       "path": "logos/lockup-compact-outline.svg",
@@ -198,11 +198,11 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "4b1e99d6be304f1b269d23774d643685237fc08a1fd4b1eab24b078b23e272fc"
+      "sha256": "1cd2f545c65bb9880be8397edf3a134f81df4d91bdb6f40743508d10b55a63f9"
     },
     {
       "path": "document/document.css",
-      "sha256": "7df3504095481edb12a2d1ba9d9dcc05e380aaf61ccf3079929286bc801f4a33"
+      "sha256": "2b2f03fbb2dfe03153a0dccfb0dd532ea43f596e643582604896dd6f2ac15b79"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -234,7 +234,7 @@
     },
     {
       "path": "document/components/DocHeader.astro",
-      "sha256": "93e3c2bbddb4f53256ec0fdcdf97cb2bea7f35cc4daab238327e30a861a5ca47"
+      "sha256": "eefaf0efbe2c32742a465afd51b3f77a5b4c9f8c860c2fd699b5dabacdf28d6e"
     },
     {
       "path": "document/components/DocLead.astro",
@@ -258,7 +258,7 @@
     },
     {
       "path": "document/components/DocProse.astro",
-      "sha256": "2848b838fc1a0ee551ae4edaddd1fc6c65c1f87c364b6610e021376bc29f7586"
+      "sha256": "f0af4f52ad427342146f44d47e20a2c6b992b356b32f9371776a7ec26371ffca"
     },
     {
       "path": "document/components/DocRateCard.astro",
@@ -282,7 +282,7 @@
     },
     {
       "path": "document/components/DocTotalRow.astro",
-      "sha256": "53f973b8ee1721295c2aa120436112556ab0f34f85d30c3e104755f3a10d4eca"
+      "sha256": "6a4da5809fa04c9f67efe9318c0430c8de3d9d639304987ba458376d197cc17c"
     },
     {
       "path": "expert/components/FilterChip.astro",
@@ -290,7 +290,7 @@
     },
     {
       "path": "expert/components/FilterChipBar.astro",
-      "sha256": "cec449a5ec511c96b8a7a2fa56e5bd161b0de3c75f4cd364c4f57b2c37244b8a"
+      "sha256": "cbad9a3edbcddfcaf13832ee7d1520aa794e74493f1b943079f269d49d12f671"
     },
     {
       "path": "expert/components/PageHeader.astro",
@@ -298,11 +298,11 @@
     },
     {
       "path": "expert/components/Pill.astro",
-      "sha256": "32161de52abf402f1b74c0e08c8f569deb8a0b0962b0d1629b5e7542e58ef3be"
+      "sha256": "d1a2097ae1512951ac3da39ed1af2344cb4be1bbdbc687d629bac26b8e086a26"
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "679ccfe7ab1b5725b6f7358cba0222d606ff8ba25e38a7be5b2340597b647333"
+      "sha256": "d885d958c2d857d1079b6ef3f83fc11b54d3a0767c27d7aaedd6434865988ee6"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
@@ -310,7 +310,7 @@
     },
     {
       "path": "expert/components/ThemeToggle.astro",
-      "sha256": "af7cb9f3dec72db6e7407c0107c38cb78f5137e5e81925e4f036b237890fb0b1"
+      "sha256": "f19ef64d053b2126d80ebf8a5de0262d010a0420d2461a2e71db0ae2d3f9927d"
     },
     {
       "path": "expert/components/space-nav.ts",

@@ -17,7 +17,8 @@ GitHub read access to this repo; the check is in your repo's README, the reason 
 "@hackersandwizards/brand": "git+ssh://git@github.com/hackersandwizards/brand.git#v<version>"
 ```
 
-Then import what you need:
+Then import what you need. The colours, each hue's roles (base, text on light, night, tints) and
+the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 
 ```css
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
@@ -46,18 +47,18 @@ and lock screens. The mail signature keeps its typed wordmark. Each has a PNG be
 cut for night, black, black textile and Stargazer, and an `-outline` cut, a white outline round the
 letters, for Purple Love and the gradient. `bun scripts/outline.ts` writes the outline cuts from
 the day files. The wordmark's box is 952 units tall for 851 units of
-letters, centred on the line midway between the box middle and the x-height middle of the letters
-(blind-tested, 2026-10-29). A text set beside it centres on its box (`align-items: center`, the
+letters, centred on the line midway between the box middle and the x-height middle of the letters.
+A text set beside it centres on its box (`align-items: center`, the
 text at `line-height: 1`) and sits centred on the letters. The wizard, taller than the letters,
 centres on that box too and then rises by 7.8% of its own height, `translate: 0
-var(--logo-wizard-lift)`, so its mass sits on the letters rather than its box (blind-tested, LGD-2).
+var(--logo-wizard-lift)`, so its mass sits on the letters rather than its box.
 Where an icon is no taller than the letters, it takes no lift. `logos/lockup.svg` carries the lift
 built in, so its box is the wizard's and the wordmark's centre line lies 7.8% of the lockup's height
 below the box centre: a text after the lockup centres on that line once the lockup takes the same
 `translate: 0 var(--logo-wizard-lift)`.
 
-The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides
-(Benedikt, 2026-10-29). `bun scripts/ampersand.ts` writes that offset into every one-line logo,
+The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides.
+`bun scripts/ampersand.ts` writes that offset into every one-line logo,
 renders its PNG and rehashes both in `manifest.json`.
 
 ## Work on the package

@@ -1,11 +1,12 @@
 # Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file.
 TOKENS = {
+    "--radius-sm": "5px",
     "--radius-brand": "20px 5px",
+    "--radius-pill": "9999px",
     "--color-bg": "#f7f9fa",
     "--color-white": "#ffffff",
     "--color-ink": "#19283a",
     "--color-muted": "#545861",
-    "--color-subtle": "color-mix(in srgb, var(--color-ink) 70%, white)",
     "--color-border": "#d0d2d8",
     "--color-border-strong": "color-mix(in srgb, var(--color-ink) 50%, white)",
     "--color-tint": "#eef1f4",
@@ -23,13 +24,15 @@ TOKENS = {
     "--color-factory": "#a3402a",
     "--color-factory-light": "#f29a80",
     "--color-red": "#dc2626",
+    "--color-red-night": "#f26969",
     "--color-night": "#0b1118",
     "--color-night-2": "#111a24",
     "--color-night-ink": "color-mix(in srgb, white 92%, var(--color-night))",
     "--color-night-muted": "color-mix(in srgb, white 80%, var(--color-night))",
     "--color-night-subtle": "color-mix(in srgb, white 60%, var(--color-night))",
-    "--color-teal-night": "#6aa4b0",
+    "--color-teal-night": "#47aec6",
     "--color-purple-night": "#b97af1",
+    "--color-subtle": "var(--color-muted)",
     "--font-mono": "\"JetBrains Mono Variable\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
     "--font-code": "\"JetBrains Mono Variable\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
     "--font-sans": "\"Inter Variable\", \"Inter\", system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
@@ -137,6 +140,13 @@ TOKENS = {
     "--breakpoint-header-cta": "30rem",
     "--logo-wizard-lift": "-7.8%",
     "--shadow-card": "0 2px 4px rgba(0, 0, 0, 0.05)",
+    "--shadow-overlay": "0 18px 46px rgb(25 40 58 / 0.1)",
+    "--chart-1": "var(--color-teal)",
+    "--chart-2": "var(--color-purple)",
+    "--chart-3": "var(--color-amber-dark)",
+    "--chart-4": "var(--color-green-dark)",
+    "--chart-5": "var(--color-factory)",
+    "--chart-6": "var(--color-ampersand)",
     "--gradient-magic": "linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%)"
 }
 
@@ -145,7 +155,6 @@ COLORS = {
     "--color-white": "#ffffff",
     "--color-ink": "#19283a",
     "--color-muted": "#545861",
-    "--color-subtle": "#5e6975",
     "--color-border": "#d0d2d8",
     "--color-border-strong": "#8c949d",
     "--color-tint": "#eef1f4",
@@ -163,11 +172,13 @@ COLORS = {
     "--color-factory": "#a3402a",
     "--color-factory-light": "#f29a80",
     "--color-red": "#dc2626",
+    "--color-red-night": "#f26969",
     "--color-night": "#0b1118",
     "--color-night-2": "#111a24",
     "--color-night-ink": "#ebeced",
     "--color-night-muted": "#cecfd1",
     "--color-night-subtle": "#9da0a3",
-    "--color-teal-night": "#6aa4b0",
-    "--color-purple-night": "#b97af1"
+    "--color-teal-night": "#47aec6",
+    "--color-purple-night": "#b97af1",
+    "--color-subtle": "#545861"
 }

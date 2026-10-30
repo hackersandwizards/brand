@@ -29,7 +29,7 @@ const C = {
   teal: "#1A7285",
   purple: "#9333EA",
   bg: "#F7F9FA",
-  tealNight: "#6AA4B0",
+  tealNight: "#47AEC6",
   purpleNight: "#B97AF1",
 };
 const GRADIENT = `linear-gradient(180deg, ${C.purple}, ${C.teal})`;
