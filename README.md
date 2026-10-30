@@ -64,9 +64,9 @@ bun run report   # scan the sibling repos, compare their copies, rebuild catalog
 bun run capture  # photograph every system's catalogue into captures/, rebuild catalogue.html
 ```
 
-Open `catalogue.html` from disk to see the whole brand on one page: the tokens, the logos on light
-and on dark, every component of every system's catalogue, the brand applications from Company OS,
-the scan of every repo and whether each repo's copies still match this one. `bun run capture`
+Open `catalogue.html` from disk for the brand portal: a left nav over overview, colours (click to
+copy), type, tokens, logos with downloads, one page per system, components compared across systems,
+the Company OS applications and health (drift and scan), and a search over all of it (`/`). `bun run capture`
 photographs each repo's catalogue from its last build and the Company OS assets into `captures/`,
 which stays on this machine because the os and trainer hub stories carry fixtures trainers may not
 see. The scan reads the sibling repos from their checkouts next
