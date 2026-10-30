@@ -362,6 +362,13 @@ const FAMILIES: Family[] = [
     match: /\.svg$/,
   },
   {
+    id: "mail-signature",
+    title: "Mail signatures",
+    note: "One signature for every mail, new mails and replies alike: the typed wordmark in colour, name, role, contact line and the three lines § 35a GmbHG requires. One HTML file per person to open in a browser and copy into the mail client, and a plain-text file for the iPhone. Links in teal #1A7285 (5.54:1 on white).",
+    dir: "applications/mail-signature",
+    match: /\.(html|txt)$/,
+  },
+  {
     id: "slides",
     title: "Slides",
     note: "There is no slide template file: decks are built in the talks slide engine.",
@@ -393,7 +400,9 @@ const assetCard = (dir: string, f: string, fam: Family) => {
   return `<figure class="asset" id="a-${slug(`${fam.id}-${f}`)}"><a href="${href}" target="_blank">${
     f.endsWith(".pdf")
       ? `<span class="pdf">PDF</span>`
-      : `<img src="${href}" alt="${esc(f)}" loading="lazy">`
+      : /\.(html|txt)$/.test(f)
+        ? `<iframe src="${href}" title="${esc(f)}" loading="lazy"></iframe>`
+        : `<img src="${href}" alt="${esc(f)}" loading="lazy">`
   }</a><figcaption>${code(f)} <a href="${href}" download>download</a></figcaption></figure>`;
 };
 const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
@@ -491,7 +500,7 @@ ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
 ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
 ${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
 ${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live · build ${day(s.built!)}` : "not rendered")).join("")}
-${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, booth, banners, avatars, gradients, slides, documents`)}
+${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, booth, banners, avatars, gradients, mail signatures, slides, documents`)}
 ${tile("health", "Health", `${driftLine} · off-token hex: ${offHex} · ${scan.aboveAllowlist.length} file(s) above the allowlist`)}
 </div>
 <h3>Freshness</h3>
@@ -682,6 +691,8 @@ const html = `<!doctype html>
   .asset { margin: 0; }
   .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: 12px 3px; box-sizing: border-box; }
   .asset img[src$=".png"] { object-fit: scale-down; }
+  .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
+  .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: 12px 3px; box-sizing: border-box; }
   .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
 </style>
 </head>
