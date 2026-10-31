@@ -279,7 +279,8 @@ const FAMILIES: Family[] = [
   {
     id: "slides",
     title: "Slides",
-    note: "Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its specimen shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide.",
+    note: 'Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its specimen shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide. A concept slide that claims a mechanism in a few short cards may carry a generated marker sketch beside them: brand-slide-sketch-prompt prints the prompt and the worked example, the sketch-example card here; the slides README, "Deck structure", says which slides get one.',
+    dir: "applications/slide-visuals",
     links: [
       [
         "Slide specimen",

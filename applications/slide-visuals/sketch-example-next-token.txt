@@ -1,0 +1,6 @@
+For the concept slide "LLMs complete text", three cards beside it.
+
+Primary request: a language model continues a line of text with the most likely next word
+Elements: a handwritten line of text "the build is" followed by a gap; from the gap three arrows fan out to three candidate words stacked on the right: "done" with the thickest arrow and a rough circle around it, "broken" with a thinner arrow, "slow" with the thinnest arrow; under the stack the label "next token"
+Text (verbatim): "the build is", "done", "broken", "slow", "next token"
+Color palette: ink-navy plus two brand accents on key elements, each accent drawing its element and that element's label: teal #1A7285 for the word "done", its circle and its arrow; purple #9333EA for the label "next token"; everything else ink-navy

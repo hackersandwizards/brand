@@ -50,6 +50,7 @@ with `Script not found`.
 | `brand-linkedin-frame <in.png> <out.png> --headline "<text>"` | frames an image as a 1080 x 1350 LinkedIn post image                  |
 | `brand-linkedin-terminal <spec.json> <out.png>`               | renders a terminal snippet for the frame; no arguments print the spec |
 | `brand-linkedin-sketch-prompt`                                | prints the prompt for a generated sketch and its worked examples      |
+| `brand-slide-sketch-prompt`                                   | prints the prompt for a slide sketch and its worked example           |
 | `brand-mail-signature --name <n> --role <r> --out <path>`     | writes a mail signature as HTML and text; all flags in `cli.ts`       |
 | `brand-colours [--tighten]`                                   | the colour scan for your gate, below                                  |
 | `brand-scan [--tighten]`                                      | flags a fork of an expert component, below                            |

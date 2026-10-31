@@ -37,7 +37,9 @@ data or secret.
   three commands: `brand-linkedin-frame` (`frame.ts`) and `brand-linkedin-terminal` (`terminal.ts`)
   write a post's image to the path the caller names, `brand-linkedin-sketch-prompt` prints
   `sketch-prompt.txt`, the generated sketch's prompt, and each `sketch-example-<name>.txt`, a filled
-  prompt beside the post image it produced. `mail-signature/` holds one template with placeholders
+  prompt beside the post image it produced. `slide-visuals/` ships `brand-slide-sketch-prompt`
+  (`sketch-prompt.ts`), which prints `sketch-prompt.txt`, the prompt for a sketch beside a concept
+  slide's cards, and its worked example. `mail-signature/` holds one template with placeholders
   (`template.html`, `template.txt`), filled by `fill.ts` and shipped as the `brand-mail-signature`
   command; no person's signature lives here, since each carries personal data: os renders those from
   its people records. Every
@@ -72,7 +74,7 @@ data or secret.
 - The package holds the core only: tokens, generated formats, print and expert layers, fonts with
   their OFL texts, small logos,
   the client marks, the press photos, `manifest.json`, the LinkedIn post renderers and prompts
-  `applications/linkedin-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
+  `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an
   `exports` target names, imported or, from Python, HTML or a skill, read at its path in
