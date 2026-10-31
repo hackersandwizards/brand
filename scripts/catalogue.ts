@@ -12,7 +12,7 @@ import pkg from "../package.json";
 import press from "../press/press.json";
 import { ROOT } from "./git";
 import { stickerUsage } from "../applications/device-stickers/devices";
-import { EXAMPLE, fillSignature, TRAINER_ROLE } from "../applications/mail-signature/fill";
+import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
 import { parseTokens, resolveColors, SOURCE } from "./tokens";
 
@@ -270,8 +270,8 @@ const FAMILIES: Family[] = [
   },
   {
     id: "mail-signature",
-    title: "Mail signatures",
-    note: 'One signature for every mail, new mails and replies alike, from one template with placeholders. From an h&w account: the typed wordmark in colour, name, role, contact line and the three lines § 35a GmbHG requires. From a trainer\'s own address: name, the role line "Freier Trainer für hackers&wizards" and the website, without wordmark and GmbH lines, which would present the trainer as part of the GmbH. `bun run brand-mail-signature` writes an HTML file to open in a browser and copy into the mail client, and a plain-text file for the iPhone. Links in teal #1A7285 (5.54:1 on white). Shown with a fictitious person.',
+    title: "Mail signature",
+    note: "One signature for every mail from an h&w account, new mails and replies alike, from one template with placeholders: the typed wordmark in colour, name, role, contact line and the three lines § 35a GmbHG requires. `bun run brand-mail-signature` writes an HTML file to open in a browser and copy into the mail client, and a plain-text file for the iPhone. Links in teal #1A7285 (5.54:1 on white). Shown with a fictitious person.",
     dir: "applications/mail-signature",
     render: () => signatureHtml,
   },
@@ -433,31 +433,16 @@ const merchHtml = `<div class="products">${PRODUCTS.map((p) => {
   });
   return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c]) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${svg}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
 }).join("")}</div>`;
-// Mail signature: the template filled for a fictitious person, once per variant.
+// Mail signature: the template filled for a fictitious person.
 const SIGNATURE = "applications/mail-signature";
 const signatureTemplate = readFileSync(join(ROOT, SIGNATURE, "template.html"), "utf8");
-const signatureHtml = `<div class="assets">${(
-  [
-    ["from an h&w account", "hw-account", EXAMPLE],
-    [
-      "from a trainer's own address",
-      "own-address",
-      { name: EXAMPLE.name, role: TRAINER_ROLE, mail: "kim@example.com" },
-    ],
-  ] as const
-)
-  .map(([label, stem, fields]) => {
-    index.push({
-      t: `mail signature ${stem}`,
-      k: "application",
-      h: `applications/a-mail-signature-${stem}`,
-      x: `mail signature ${label}`,
-    });
-    return `<figure class="asset" id="a-mail-signature-${stem}"><div class="views"><iframe srcdoc="${esc(fillSignature(signatureTemplate, fields, "html"))}" title="mail signature ${esc(label)}" loading="lazy"></iframe></div><figcaption>${esc(label)}</figcaption></figure>`;
-  })
-  .join(
-    "",
-  )}</div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
+index.push({
+  t: "mail signature hw-account",
+  k: "application",
+  h: "applications/a-mail-signature-hw-account",
+  x: "mail signature from an h&w account",
+});
+const signatureHtml = `<div class="assets"><figure class="asset" id="a-mail-signature-hw-account"><div class="views"><iframe srcdoc="${esc(fillSignature(signatureTemplate, EXAMPLE, "html"))}" title="mail signature from an h&amp;w account" loading="lazy"></iframe></div><figcaption>from an h&amp;w account</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
 const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],
