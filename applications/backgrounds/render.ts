@@ -6,9 +6,9 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import sharp from "sharp";
+import { findChrome, NO_KEYCHAIN } from "../linkedin-visuals/render";
 
 const BRAND = resolve(import.meta.dir, "../..");
-const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
 function lfs(file: string): string {
   const path = join(BRAND, "logos", file);
@@ -46,8 +46,9 @@ type Pending = {
 
 export async function browser() {
   const profile = mkdtempSync(join(tmpdir(), "hw-render-"));
-  const proc = spawn(CHROME, [
+  const proc = spawn(findChrome(), [
     "--headless=new",
+    ...NO_KEYCHAIN,
     "--remote-debugging-port=0",
     `--user-data-dir=${profile}`,
     "--allow-file-access-from-files",

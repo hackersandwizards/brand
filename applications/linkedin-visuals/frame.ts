@@ -8,7 +8,7 @@
  *
  *   bun run brand-linkedin-frame <in.png> <out.png> --headline "<text>"
  *
- * Needs sharp installed beside it and Chrome or Chromium (CHROME_BINARY overrides the search).
+ * Needs sharp installed beside it and Chrome for Testing (CHROME_BINARY overrides the search).
  */
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
