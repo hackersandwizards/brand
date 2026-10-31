@@ -58,7 +58,7 @@ html[data-theme="light"] {
   --accent-secondary: var(--color-purple);
   /* Text on an accent fill: a filled button, an active toggle, a counter badge. */
   --on-accent: var(--color-white);
-  /* Purple in both themes, whichever hue the theme makes the primary accent. */
+  /* Purple in both themes. */
   --focus: var(--color-purple);
   /* The 7 percent ink tint on bg. */
   --muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
@@ -88,16 +88,18 @@ html[data-theme="light"] {
   --dim-floor: 67%;
 }
 
-/* Night: every hue takes its night column. Purple leads the accents in dark, teal is secondary. */
+/* Night: every hue takes its one night tone, and teal stays the primary accent. White on teal-night
+   is 2.6:1, so text on an accent fill is night (7.4:1). Teal has no second night tone, so the
+   accent's hover keeps the fill. */
 html[data-theme="dark"] {
   color-scheme: dark;
   --background: var(--color-night);
   --foreground: var(--color-night-ink);
-  --accent: var(--color-purple-night);
-  --accent-light: var(--color-purple-light);
+  --accent: var(--color-teal-night);
+  --accent-light: var(--color-teal-night);
   --on-accent: var(--color-night);
-  --accent-secondary: var(--color-teal-night);
-  --focus: var(--color-purple-light);
+  --accent-secondary: var(--color-purple-night);
+  --focus: var(--color-purple-night);
   --muted: var(--color-night-2);
   --border: color-mix(in srgb, var(--color-white) 18%, var(--color-night));
 
