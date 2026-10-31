@@ -76,58 +76,14 @@ SURFACES = {
         ],
         "lockup": {"h": 68, "anchor": 68},
     },
-    "featured": {
-        "size": (1200, 627),
-        "lines": [headline(79, 137, 59.7, -0.062, ("200+", 1), (" teams trained.", 0))],
-        "logos": logos(
-            (80, 210, 1120, 400),
-            22,
-            [("mercedes-benz", 188, 304.5, 78), ("dm", 327.5, 304.5, 72), ("tchibo", 522.5, 304.5, 57), ("vorwerk", 747, 304.5, 64), ("bonprix", 963.5, 304.5, 55)],
-        ),
-        "lockup": {"h": 94, "anchor": 529.2},
-    },
-    "omr": {
-        "size": (1920, 1080),
-        "lines": [
-            headline(150, 329, 111.6, -0.05, ("KI-Schulungen für", 0)),
-            headline(150, 450, 111.6, -0.05, ("Agentic Engineering.", 0)),
-            headline(151, 567, 47.5, 0, ("200+ Teams trainiert.", 1), (" 1.000+ Entwickler:innen trainiert.", 2), font=INTER),
-        ],
-        "lockup": {"h": 134.8, "anchor": 861.2},
-    },
-    "youtube": {
-        "size": (2560, 1440),
-        # glows on the corners of the 2560 x 423 strip every device shows, plus weaker canvas corners
-        "glows": [
-            (2560, 515, 560, 285, TEAL_GLOW, 1),
-            (2560, 0, 1000, 530, TEAL_GLOW, 0.52),
-            (0, 930, 640, 270, PURPLE_GLOW, 1),
-            (0, 1440, 1000, 450, PURPLE_GLOW, 0.63),
-        ],
-        "lines": two_lines(
-            [("Your whole company unstoppable,", 0)],
-            [("in flow with ", 0), ("agentic engineering.", 1)],
-            x=619, b1=654, b2=731, size=71.4, track=-0.057,
-        ),
-        "lockup": {"h": 81.6, "anchor": 857.9},
-    },
 }
 
-# Profile slides: one grid for both. The lockup sits at the same pixel on both, the headline's ink
-# top the same distance below the lockup's ink, the client band one unit below the headline on
-# slide 2. The unit is half the wordmark's cap height, the logo's own measure; the logo-to-text gap
-# counts in units. Both slides hang from one top that centres slide 2's group, the taller one, in
-# the canvas: the phone app and the desktop show the whole canvas and the profile photo stays left
-# of the column (blind review in os docs/tracking/2026-10-31-banner-carousel.md).
-PROFILE_LOCKUP_H, PROFILE_X = 79.8, 480
-PROFILE_CAP = 44  # wordmark cap height in px at this lockup height, measured on the render
-PROFILE_UNIT = PROFILE_CAP / 2
-PROFILE_GAP = 2  # units between the lockup and the headline
-S1_LINES = ([("Your whole company unstoppable,", 0)], [("in flow with ", 0), ("agentic engineering.", 1)])
-S1_TYPE, S1_LEAD = (480, 43.8, -0.039), 53
-S2_LINE, S2_TYPE = [("200+", 1), (" teams trained.", 0)], (479, 49.0, -0.050)
-S2_BAND_H, S2_BAND_RIGHT, S2_LOGO_CY = 110, 1330, 54.5  # logo centre line below the band top
-S2_LOGOS = [("mercedes-benz", 569, 63), ("dm", 682.5, 59), ("tchibo", 842, 47), ("vorwerk", 1025, 53), ("bonprix", 1201.5, 45)]
+# One grid for the profile slides, Featured, YouTube and OMR: the lockup on top, its left edge on
+# the headline's x, the headline's ink top two units below the lockup's ink, a client band one unit
+# below the text. The unit is half the wordmark's cap height, the logo's own measure. The group is
+# centred in the area every device shows (blind reviews in os docs/tracking/2026-10-31-banner-carousel.md
+# and 2026-10-31-channel-banners-live.md: the set reads as one when the logo sits on top everywhere).
+LOCKUP_CAP = (79.8, 44)  # lockup height, wordmark cap height in px, measured on the profile render
 
 
 def ink_rows(parts, size, font=MONO):
@@ -147,35 +103,84 @@ def lockup_rows(lh):
     return top + a, top + b
 
 
-def profile_slides():
-    lt, lb = lockup_rows(PROFILE_LOCKUP_H)
-    t1, _ = ink_rows(S1_LINES[0], S1_TYPE[1])
-    t2, d2 = ink_rows(S2_LINE, S2_TYPE[1])
-    head = lb - lt + PROFILE_GAP * PROFILE_UNIT
-    top = (396 - head - (d2 - t2 + PROFILE_UNIT + S2_BAND_H)) / 2  # the lockup's ink top
-    lockup = {"h": PROFILE_LOCKUP_H, "anchor": top - lt, "left": PROFILE_X}
-    cap = top + head  # the headline's ink top
-    b1, b2 = cap - t1, cap - t2
-    band = b2 + d2 + PROFILE_UNIT
-    x1, size1, track1 = S1_TYPE
-    x2, size2, track2 = S2_TYPE
-    return {
-        "profile-1": {
-            "size": (1584, 396),
-            "lines": two_lines(*S1_LINES, x=x1, b1=b1, b2=b1 + S1_LEAD, size=size1, track=track1),
-            "lockup": lockup,
-        },
-        "profile-2": {
-            "size": (1584, 396),
-            "lines": [headline(x2, b2, size2, track2, *S2_LINE)],
-            "logos": logos(
-                (PROFILE_X, band, S2_BAND_RIGHT, band + S2_BAND_H),
-                14,
-                [(f, cx, band + S2_LOGO_CY, lh) for f, cx, lh in S2_LOGOS],
-            ),
-            "lockup": lockup,
-        },
+def grid(size, lh, lines, area=None, band=None, top=None, left=None, glows=None):
+    """A surface on the grid. lines: headline dicts, baselines relative to the first line's; band:
+    (x0, x1, height, radius, [(file, cx, cy below the band top, h)]); area: the rows every device
+    shows, the whole height by default; top fixes the lockup's ink top instead of centring; left
+    fixes the lockup's left edge instead of the first line's x."""
+    unit = LOCKUP_CAP[1] * lh / LOCKUP_CAP[0] / 2
+    lt, lb = lockup_rows(lh)
+    t1, _ = ink_rows(lines[0]["parts"], lines[0]["size"], lines[0]["font"])
+    _, dn = ink_rows(lines[-1]["parts"], lines[-1]["size"], lines[-1]["font"])
+    head = lb - lt + 2 * unit
+    body = lines[-1]["baseline"] + dn - t1 + (unit + band[2] if band else 0)
+    a0, a1 = area or (0, size[1])
+    if top is None:
+        top = (a0 + a1 - head - body) / 2  # the lockup's ink top
+    b1 = top + head - t1
+    s = {
+        "size": size,
+        "lines": [{**ln, "baseline": b1 + ln["baseline"]} for ln in lines],
+        "lockup": {"h": lh, "anchor": top - lt, "left": lines[0]["x"] if left is None else left},
+        "top": top,
     }
+    if band:
+        x0, x1, bh, radius, items = band
+        y = b1 + lines[-1]["baseline"] + dn + unit
+        s["logos"] = logos((x0, y, x1, y + bh), radius, [(f, cx, y + cy, h) for f, cx, cy, h in items])
+    if glows:
+        s["glows"] = glows
+    return s
+
+
+def grid_surfaces():
+    s2 = grid(
+        (1584, 396),
+        79.8,
+        [headline(479, 0, 49.0, -0.050, ("200+", 1), (" teams trained.", 0))],
+        band=(480, 1330, 110, 14, [(f, cx, 54.5, h) for f, cx, h in PROFILE_LOGOS]),
+        left=480,
+    )
+    # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change
+    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=53), top=s2["top"], left=480)
+    return {
+        "profile-1": s1,
+        "profile-2": s2,
+        "featured": grid(
+            (1200, 627),
+            94,
+            [headline(79, 0, 59.7, -0.062, ("200+", 1), (" teams trained.", 0))],
+            band=(80, 1120, 190, 22, [(f, cx, 94.5, h) for f, cx, h in FEATURED_LOGOS]),
+        ),
+        "omr": grid(
+            (1920, 1080),
+            134.8,
+            [
+                headline(150, 0, 111.6, -0.05, ("KI-Schulungen für", 0)),
+                headline(150, 121, 111.6, -0.05, ("Agentic Engineering.", 0)),
+                headline(151, 238, 47.5, 0, ("200+ Teams trainiert.", 1), (" 1.000+ Entwickler:innen trainiert.", 2), font=INTER),
+            ],
+        ),
+        # the group centred in the 2560 x 423 strip every device shows; glows on that strip's
+        # corners, plus weaker canvas corners
+        "youtube": grid(
+            (2560, 1440),
+            81.6,
+            two_lines(*PROFILE_LINES, x=619, b1=0, b2=77, size=71.4, track=-0.057),
+            area=(508.5, 931.5),
+            glows=[
+                (2560, 515, 560, 285, TEAL_GLOW, 1),
+                (2560, 0, 1000, 530, TEAL_GLOW, 0.52),
+                (0, 930, 640, 270, PURPLE_GLOW, 1),
+                (0, 1440, 1000, 450, PURPLE_GLOW, 0.63),
+            ],
+        ),
+    }
+
+
+PROFILE_LINES = ([("Your whole company unstoppable,", 0)], [("in flow with ", 0), ("agentic engineering.", 1)])
+PROFILE_LOGOS = [("mercedes-benz", 569, 63), ("dm", 682.5, 59), ("tchibo", 842, 47), ("vorwerk", 1025, 53), ("bonprix", 1201.5, 45)]
+FEATURED_LOGOS = [("mercedes-benz", 188, 78), ("dm", 327.5, 72), ("tchibo", 522.5, 57), ("vorwerk", 747, 64), ("bonprix", 963.5, 55)]
 
 
 # file name -> (surface, scale, canvas width or None, margin)
@@ -284,7 +289,7 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
     return img
 
 
-SURFACES.update(profile_slides())
+SURFACES.update(grid_surfaces())
 
 
 def build(out, accent):
