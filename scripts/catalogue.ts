@@ -139,7 +139,9 @@ const tokensHtml = tokenKinds
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));
 const bases = [
   ...new Set(
-    logoFiles.map((p) => p.replace(/^logos\//, "").replace(/(-night|-outline|-cmyk)?\.\w+$/, "")),
+    logoFiles.map((p) =>
+      p.replace(/^logos\//, "").replace(/(-night|-outline|-white|-black|-cmyk)?\.\w+$/, ""),
+    ),
   ),
 ];
 const LOGO_NOTES: Record<string, string> = {
@@ -148,11 +150,11 @@ const LOGO_NOTES: Record<string, string> = {
   "lockup-compact":
     "Stacked, for small and square spots: mug, lock screens. The iPhone lock screen keeps it at its smaller size.",
   wordmark:
-    "The wordmark alone, for textiles: shirts, hoodie and stickers. Also where the wizard already appears nearby.",
+    "The wordmark alone, for textiles: shirts, hoodie and stickers. Also where the wizard already appears nearby, and in its white or black cut where a surface allows one colour only.",
 };
 const logoCard = (base: string) => {
   const files = logoFiles.filter((p) =>
-    new RegExp(`^logos/${base}(-night|-outline|-cmyk)?\\.\\w+$`).test(p),
+    new RegExp(`^logos/${base}(-night|-outline|-white|-black|-cmyk)?\\.\\w+$`).test(p),
   );
   const show = files.find((p) => p.endsWith(`${base}.svg`)) ?? files.find((p) => /png$/.test(p));
   const night = files.find((p) => p.endsWith(`${base}-night.svg`)) ?? show;

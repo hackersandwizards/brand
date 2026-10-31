@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 // Sets the gap between the wizard and the wordmark in the day logos, then writes the -night and
-// -outline cuts of each logo from its day file.
+// -outline cuts of each logo from its day file, and the single-colour -white and -black cuts of the
+// wordmark, every letter in that one colour, for a surface that allows one colour only.
 // The gap is a property of the logo, the same share of the letters' 840-unit cap height on every
 // ground: 1.25 times the gap the day files were drawn with (GAP), measured between the wizard's
 // and the letters' contours at alpha 50%. The wizard moves for it, left in the lockup and up in
@@ -242,7 +243,9 @@ function grow(base: string, box: number[], ink: number[]) {
   return [x0, y0, x1 - x0, y1 - y0].map((n) => +n.toFixed(3));
 }
 
-async function writeCut(base: string, kind: "night" | "outline") {
+const MONO = { white: "#FFFFFF", black: "#000000" };
+
+async function writeCut(base: string, kind: "night" | "outline" | keyof typeof MONO) {
   const src = readFileSync(join(ROOT, "logos", `${base}.svg`), "utf8");
   const box = /viewBox="([^"]+)"/.exec(src)![1].split(" ").map(Number);
   const letters = WORDMARK.exec(src)?.[0];
@@ -253,7 +256,9 @@ async function writeCut(base: string, kind: "night" | "outline") {
     [ink[0], ink[1]] = [Math.min(ink[0], b[0]), Math.min(ink[1], b[1])];
     [ink[2], ink[3]] = [Math.max(ink[2], b[2]), Math.max(ink[3], b[3])];
   };
-  if (kind === "night") {
+  if (kind === "white" || kind === "black") {
+    svg = svg.replace(/fill="#[0-9A-F]{6}"/g, `fill="${MONO[kind]}"`);
+  } else if (kind === "night") {
     for (const [day, night] of NIGHT) svg = svg.replaceAll(`fill="${day}"`, `fill="${night}"`);
   } else {
     const white = letters.replace(/fill="#[0-9A-F]{6}"/g, 'fill="#FFFFFF"');
@@ -307,4 +312,5 @@ async function writeCut(base: string, kind: "night" | "outline") {
 for (const base of Object.keys(GAP)) await writeDay(base);
 for (const base of Object.keys(LIFT))
   for (const kind of ["night", "outline"] as const) await writeCut(base, kind);
+for (const kind of ["white", "black"] as const) await writeCut("wordmark", kind);
 writeFileSync(join(ROOT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");

@@ -46,12 +46,14 @@ The logo is one line, with no line under it: the wizard beside the pixel wordmar
 and lock screens. Slides carry the lockup on the title and the closing slide and the wordmark alone on
 every other slide. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
 cut for night, black and black textile, and an `-outline` cut, a white outline round the letters,
-for Purple Love, Stargazer and the gradient. In both, the wizard of the lockup and the compact lockup
+for Purple Love, Stargazer and the gradient. The wordmark alone also has a `-white` and a `-black`
+cut, every letter in that one colour, for a surface that allows one colour only, such as a partner
+wall that shows every logo in white. In the night and outline cuts, the wizard of the lockup and the compact lockup
 carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night
 cut, white in the outline cut. The gap between wizard and letters is part of the logo and the same
 on every ground: 0.321 of the cap height in the lockup and 0.381 in the compact lockup, measured
 between the contours, and from the edge's outer contour 0.351 and 0.411 in the cuts.
-`bun scripts/outline.ts` sets the gap in the day files and writes both cuts from them. The wordmark's box is 952 units tall for 851 units of
+`bun scripts/outline.ts` sets the gap in the day files and writes every cut from them. The wordmark's box is 952 units tall for 851 units of
 letters, centred on the line midway between the box middle and the x-height middle of the letters.
 A text set beside it centres on its box (`align-items: center`, the
 text at `line-height: 1`) and sits centred on the letters. The wizard, taller than the letters,
