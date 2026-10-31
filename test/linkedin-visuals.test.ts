@@ -1,11 +1,12 @@
 import { afterAll, describe, expect, it } from "bun:test";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import sharp from "sharp";
 
 const FRAME = resolve(import.meta.dir, "../applications/linkedin-visuals/frame.ts");
+const TERMINAL = resolve(import.meta.dir, "../applications/linkedin-visuals/terminal.ts");
 const SCRATCH = mkdtempSync(join(tmpdir(), "li-frame-"));
 afterAll(() => rmSync(SCRATCH, { recursive: true, force: true }));
 
@@ -99,5 +100,32 @@ describe("applications/linkedin-visuals/frame.ts", () => {
     expect(() => execFileSync("bun", [FRAME, "a.png", "b.png"], { stdio: "pipe" })).toThrow(
       /usage/,
     );
+  });
+});
+
+describe("applications/linkedin-visuals/terminal.ts", () => {
+  it("trims to a square-cornered window, so the frame's radius alone rounds the card", async () => {
+    const spec = join(SCRATCH, "spec.json");
+    const output = join(SCRATCH, "terminal.png");
+    writeFileSync(
+      spec,
+      JSON.stringify({ title: "gh pr list", lines: ["a", "b", "c", "d"], highlight: 1, note: "n" }),
+    );
+    execFileSync("bun", [TERMINAL, spec, output]);
+
+    const { data, info } = await sharp(output).raw().toBuffer({ resolveWithObject: true });
+    const px = (x: number, y: number) => {
+      const i = (y * info.width + x) * info.channels;
+      return [...data.subarray(i, i + 3)];
+    };
+    // A rounded window left the paper, #F7F9FA, in each corner; the frame's 5 px corners showed it.
+    const [w, h] = [info.width - 1, info.height - 1];
+    for (const [x, y] of [
+      [0, 0],
+      [w, 0],
+      [0, h],
+      [w, h],
+    ])
+      expect(px(x, y).every((c) => c < 40)).toBe(true);
   });
 });

@@ -2,7 +2,9 @@
 /**
  * Renders a LinkedIn terminal snippet as a PNG for frame.ts: a dark window with a title, four to six
  * lines of code at 21 px, one line highlighted and a purple note under it, trimmed to the window, so
- * the frame shows it at full width. A line holds at most 36 characters: the window clips the rest.
+ * the frame shows it at full width. The window has square corners: the frame rounds the card, and a
+ * rounded window would leave paper in each corner where the frame's radius is the smaller one. A
+ * line holds at most 36 characters: the window clips the rest.
  *
  *   bun run brand-linkedin-terminal <spec.json> <out.png>
  *
@@ -47,7 +49,7 @@ function terminalHtml({ title, lines, highlight, note }: Spec): string {
   return `<!doctype html><html><head><meta charset="utf-8"><style>${linkedinCss()}
 html, body { margin: 0; width: ${SIZE}px; height: ${SIZE}px; overflow: hidden; }
 body { box-sizing: border-box; background: var(--color-bg); padding: 30px 22px; display: flex; align-items: center; }
-.win { width: 100%; background: var(--color-night); border-radius: 12px; overflow: hidden; }
+.win { width: 100%; background: var(--color-night); overflow: hidden; }
 .bar { height: 34px; background: var(--color-night-2); display: flex; align-items: center; gap: 7px; padding-left: 14px;
   font: 500 15px var(--font-code); color: var(--color-night-subtle); }
 .bar i { width: 10px; height: 10px; border-radius: 50%; background: color-mix(in srgb, white 18%, var(--color-night)); }
