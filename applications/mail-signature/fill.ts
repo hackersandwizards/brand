@@ -41,7 +41,7 @@ export function fillSignature(
     name: fields.name.trim(),
     role: fields.role.trim(),
     phone: fields.phone?.trim() ?? "",
-    tel: fields.phone?.replace(/[^\d+]/g, "") ?? "",
+    tel: fields.phone?.replace(/\(0\)|[^\d+]/g, "") ?? "",
     mail: fields.mail?.trim() ?? "",
     linkedin: fields.linkedin?.trim() ?? "",
     linkedinShort: fields.linkedin?.trim().replace(/^https?:\/\/(www\.)?/, "") ?? "",

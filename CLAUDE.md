@@ -58,7 +58,7 @@ data or secret.
 ## Commands
 
 - `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
-  the three consumer checks) and the freshness of `generated/` and
+  the two consumer checks) and the freshness of `generated/` and
   `catalogue.html`. No hook runs it:
   `.githooks/pre-commit` runs `bun run check:staged`: `gitleaks` over the staged changes,
   `prettier --check` and `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.

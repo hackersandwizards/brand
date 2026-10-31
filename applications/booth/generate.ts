@@ -11,7 +11,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
-import { brand, browser, toJpeg } from "../backgrounds/render.ts";
+import { brand, browser, toJpeg } from "../backgrounds/render";
 
 const BOOTH = import.meta.dir;
 const boothCss = (f: string) => `<link rel="stylesheet" href="file://${join(BOOTH, f)}">`;

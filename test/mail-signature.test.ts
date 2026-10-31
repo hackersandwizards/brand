@@ -38,3 +38,12 @@ test("a value is escaped and an unknown field fails", () => {
   );
   expect(() => fillSignature("{{nmae}}", EXAMPLE, "html")).toThrow("unknown field");
 });
+
+test("the tel link drops a trunk zero written as (0)", () => {
+  const html = fillSignature(
+    template("html"),
+    { ...EXAMPLE, phone: "+49 (0)40 1234 5678" },
+    "html",
+  );
+  expect(html).toContain('href="tel:+494012345678"');
+});

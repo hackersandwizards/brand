@@ -4,8 +4,9 @@
 // applications, press kit). It reads this repo's files only, so `--check` can hold the committed
 // page to the generator: it exits 1 where catalogue.html differs from a fresh build.
 // Usage: bun scripts/catalogue.ts [--check]
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
 import press from "../press/press.json";
@@ -211,8 +212,6 @@ type Family = {
   title: string;
   note: string;
   dir?: string;
-  // The grounds a card previews its file on, where the file is made for one: [background, label].
-  grounds?: (stem: string) => [string, string][];
   // A family that draws its own section instead of one card per file.
   render?: () => string;
   // Pages elsewhere that show the family, as [label, href]: an engine's specimen page and its
@@ -303,12 +302,18 @@ const FAMILIES: Family[] = [
   },
 ];
 // Not shown: the scripts that build a family and their inputs.
-const SKIP = /\.(ts|py|css)$|^qr-|^__pycache__$/;
+const SKIP = /\.(ts|py|css)$|^qr-/;
 const PREVIEW = ["png", "svg", "html", "txt"];
+// Tracked files only, so a scratch render or a .DS_Store in the folder never reaches the page.
 const assetStems = (dir: string) => {
-  const abs = join(ROOT, dir);
+  const ls = spawnSync("git", ["ls-files", "-z", "--", dir], { cwd: ROOT, encoding: "utf8" });
+  if (ls.status !== 0) throw new Error(`catalogue: git ls-files ${dir}: ${ls.stderr}`);
   const stems = new Map<string, string[]>();
-  for (const f of existsSync(abs) ? readdirSync(abs).sort() : []) {
+  for (const f of ls.stdout
+    .split("\0")
+    .filter(Boolean)
+    .map((p) => basename(p))
+    .sort()) {
     if (SKIP.test(f)) continue;
     const stem = f.replace(/\.\w+$/, "");
     stems.set(stem, [...(stems.get(stem) ?? []), f]);
@@ -326,22 +331,12 @@ const assetCard = (dir: string, stem: string, files: string[], fam: Family) => {
   const ext = (f: string) => f.split(".").pop()!;
   const shown = PREVIEW.map((e) => files.find((f) => ext(f) === e)).find(Boolean);
   const href = (f: string) => `${dir}/${esc(f)}`;
-  const grounds = fam.grounds?.(stem) ?? [];
-  const view = (bg?: string, label?: string) =>
-    !shown
-      ? `<span class="pdf">${esc(ext(files[0]).toUpperCase())}</span>`
-      : /^(html|txt)$/.test(ext(shown))
-        ? `<iframe src="${href(shown)}" title="${esc(stem)}" loading="lazy"></iframe>`
-        : `<img src="${href(shown)}" alt="${esc(stem)}${label ? ` ${esc(label)}` : ""}" loading="lazy"${bg ? ` style="background:${bg}"` : ""}>`;
-  const views = grounds.length
-    ? grounds
-        .map(
-          ([bg, label]) =>
-            `<a href="${href(shown ?? files[0])}" target="_blank" title="${esc(label)}">${view(bg, label)}</a>`,
-        )
-        .join("")
-    : `<a href="${href(shown ?? files[0])}" target="_blank">${view()}</a>`;
-  return `<figure class="asset" id="${id}"><div class="views">${views}</div><figcaption>${code(stem)}${grounds.length ? ` <span class="meta">${grounds.map(([, l]) => esc(l)).join(", ")}</span>` : ""}<span class="dl">${files.map((f) => `<a href="${href(f)}" download>${esc(ext(f))}</a>`).join("")}</span></figcaption></figure>`;
+  const view = !shown
+    ? `<span class="pdf">${esc(ext(files[0]).toUpperCase())}</span>`
+    : /^(html|txt)$/.test(ext(shown))
+      ? `<iframe src="${href(shown)}" title="${esc(stem)}" loading="lazy"></iframe>`
+      : `<img src="${href(shown)}" alt="${esc(stem)}" loading="lazy">`;
+  return `<figure class="asset" id="${id}"><div class="views"><a href="${href(shown ?? files[0])}" target="_blank">${view}</a></div><figcaption>${code(stem)}<span class="dl">${files.map((f) => `<a href="${href(f)}" download>${esc(ext(f))}</a>`).join("")}</span></figcaption></figure>`;
 };
 const familyStems = new Map(
   FAMILIES.map((f) => [f.id, f.dir ? assetStems(f.dir) : new Map<string, string[]>()]),
@@ -580,8 +575,6 @@ const html = `<!doctype html>
   aside.side nav a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   aside.side nav a:hover { background: var(--color-tint); }
   aside.side nav a.on { background: var(--color-teal-dark); color: var(--color-white); }
-  aside.side nav small { color: var(--color-muted); font: 0.7rem var(--font-code); align-self: center; }
-  aside.side nav a.on small { color: inherit; opacity: 0.8; }
   aside.side .label { margin: 1.25rem 0.5rem 0.25rem; }
   .label, th { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
   .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
@@ -626,7 +619,6 @@ const html = `<!doctype html>
   .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
   .on-dark { background: var(--color-night); }
   .on-gradient { background: var(--gradient-magic); }
-  .on-purple-love { background: #6c5a9e; } /* Purple Love, the Stanley/Stella textile C115, no brand token */
   .dl a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill); color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
   .dl a::before { content: "↓ "; }
   .dl a:hover { background: var(--color-tint); }
@@ -662,8 +654,6 @@ const html = `<!doctype html>
   .mock figcaption { margin-top: 0.4rem; font: 0.75rem var(--font-code); color: var(--color-muted); }
   .asset { margin: 0; }
   .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
-  .asset:has(.views > a + a) { grid-column: span 2; }
-  .asset img[style] { padding: 0.75rem; }
   .asset .dl { display: block; }
   .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset img[src$=".png"] { object-fit: scale-down; }
@@ -733,7 +723,8 @@ const search = () => {
   show();
 };
 q.addEventListener("input", search);
-results.addEventListener("click", () => { q.value = ""; results.classList.remove("on"); });
+// A hit on the page already open fires no hashchange, so the click shows it.
+results.addEventListener("click", (e) => { const same = e.target.closest("a")?.getAttribute("href") === location.hash; q.value = ""; results.classList.remove("on"); if (same) show(); });
 addEventListener("hashchange", show);
 // The phone's top bar: one of Search or Menu is open at a time; a link, Escape or a tap outside
 // the drawer closes the menu.

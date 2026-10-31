@@ -10,5 +10,12 @@
     "erasableSyntaxOnly": true,
     "types": ["bun"]
   },
-  "include": ["scripts/**/*.ts", "scan/**/*.ts", "test/**/*.ts", "generated/tokens.ts"]
+  "include": [
+    "scripts/**/*.ts",
+    "scan/**/*.ts",
+    "test/**/*.ts",
+    "applications/**/*.ts",
+    "expert/**/*.ts",
+    "generated/tokens.ts"
+  ]
 }
