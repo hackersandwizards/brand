@@ -31,7 +31,7 @@ export function face(p: Print, radius: number) {
   const w = p.W - 6;
   const h = p.H - 6;
   const id = `f${Math.round(w)}x${Math.round(h)}r${radius}`;
-  return `<svg viewBox="-6 -6 ${w + 12} ${h + 12}" width="100%" height="100%"><defs><clipPath id="${id}"><rect x="0.2" y="0.2" width="${w - 0.4}" height="${h - 0.4}" rx="${radius}"/></clipPath></defs><rect x="0.8" y="1.6" width="${w}" height="${h}" rx="${radius}" fill="rgba(0,0,0,.18)"/><image href="${p.href}" x="-3" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#${id})"/></svg>`;
+  return `<svg viewBox="-6 -6 ${w + 12} ${h + 12}" width="100%" height="100%"><defs><clipPath id="${id}"><rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="${radius}"/></clipPath></defs><rect x="0.8" y="1.6" width="${w}" height="${h}" rx="${radius}" fill="rgba(0,0,0,.18)"/><image href="${p.href}" x="-3" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#${id})"/></svg>`;
 }
 
 // The mug M6 from one side: the half of the 200 mm wrap that faces the viewer, with the handle.
@@ -42,7 +42,7 @@ export function mug(p: Print, half: 0 | 1) {
   const handle = half
     ? `<path d="M0,18 C-30,18 -30,${h - 12} 0,${h - 12}" fill="none" stroke="#e4e6ea" stroke-width="9"/>`
     : `<path d="M${hw},18 C${hw + 30},18 ${hw + 30},${h - 12} ${hw},${h - 12}" fill="none" stroke="#e4e6ea" stroke-width="9"/>`;
-  return `<svg viewBox="-32 -10 ${hw + 64} ${h + 22}" width="100%" height="100%"><defs><clipPath id="${id}"><rect x="0" y="0.2" width="${hw}" height="${h - 0.4}"/></clipPath><linearGradient id="${id}s"><stop offset="0" stop-color="#000" stop-opacity=".14"/><stop offset=".25" stop-color="#000" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>${handle}<rect x="0" y="-6" width="${hw}" height="${h + 12}" rx="5" fill="#fff" stroke="#d0d2d8"/><image href="${p.href}" x="${-3 - half * hw}" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#${id})"/><rect x="0" y="-6" width="${hw}" height="${h + 12}" rx="5" fill="url(#${id}s)"/></svg>`;
+  return `<svg viewBox="-32 -10 ${hw + 64} ${h + 22}" width="100%" height="100%"><defs><clipPath id="${id}"><rect x="0" y="0.5" width="${hw}" height="${h - 1}"/></clipPath><linearGradient id="${id}s"><stop offset="0" stop-color="#000" stop-opacity=".14"/><stop offset=".25" stop-color="#000" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>${handle}<rect x="0" y="-6" width="${hw}" height="${h + 12}" rx="5" fill="#fff" stroke="#d0d2d8"/><image href="${p.href}" x="${-3 - half * hw}" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#${id})"/><rect x="0" y="-6" width="${hw}" height="${h + 12}" rx="5" fill="url(#${id}s)"/></svg>`;
 }
 
 // Kiss-cut stickers on a 300 x 200 mm laptop lid (--color-ampersand-light to --color-ampersand), each
@@ -53,7 +53,7 @@ export function lid(stickers: Print[]) {
     .map((p, i) => {
       const w = p.W - 6;
       const h = p.H - 6;
-      const at = `<svg x="${150 - w / 2}" y="${y}" width="${p.W}" height="${p.H}" viewBox="-3 -3 ${p.W} ${p.H}" overflow="visible"><defs><clipPath id="st${i}"><rect x="0.2" y="0.2" width="${w - 0.4}" height="${h - 0.4}" rx="3"/></clipPath></defs><rect x="0.4" y="1" width="${w}" height="${h}" rx="3" fill="rgba(0,0,0,.25)"/><image href="${p.href}" x="-3" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#st${i})"/></svg>`;
+      const at = `<svg x="${150 - w / 2}" y="${y}" width="${p.W}" height="${p.H}" viewBox="-3 -3 ${p.W} ${p.H}" overflow="visible"><defs><clipPath id="st${i}"><rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="3"/></clipPath></defs><rect x="0.4" y="1" width="${w}" height="${h}" rx="3" fill="rgba(0,0,0,.25)"/><image href="${p.href}" x="-3" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#st${i})"/></svg>`;
       y += h + 22;
       return at;
     })
