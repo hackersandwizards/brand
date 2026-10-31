@@ -30,7 +30,7 @@ discount, margin, offer, invoice, client term, personal data or secret.
   mark's source where known. Outside `manifest.json`.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
   device and call backgrounds, channel banners, avatars, booth banners, gradients, overlays,
-  visuals, merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
+  merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`,
   `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). The banners
   with client logos never enter this repo: `render.py` writes them only to `--clients-out`. A

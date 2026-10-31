@@ -7,6 +7,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { browser } from "../backgrounds/render.ts";
+import { TEXTILE, wear as wearPrint } from "./mockup.ts";
 
 const DIR = import.meta.dir;
 const LOGOS = join(DIR, "../../logos");
@@ -15,8 +16,6 @@ const MOCKUPS = join(DIR, "../../captures/merch");
 mkdirSync(MOCKUPS, { recursive: true });
 const NIGHT = "#0B1118";
 const CUT = "#EC008C";
-// Stanley/Stella textile colours, as in the merch rounds
-const TEXTILE = { black: "#2A2B2D", stargazer: "#39505C", "purple-love": "#6C5A9E" };
 // lockup and compact lockup widths in the D files, in brand units (wordmark: 6571)
 const LOCKUP_UNITS = 7988.814;
 
@@ -107,22 +106,9 @@ try {
       .jpeg({ quality: 90 })
       .toFile(join(MOCKUPS, `${name}.jpg`));
 
-  // A garment in mm: body 520 wide, sleeves to 760, 740 long; hood and long sleeves for the hoodie.
-  const garment = (col: string, hood: boolean, back: boolean) => {
-    const neck = back ? "Q380,26 460,0" : "Q380,90 460,0";
-    const sleeves = hood
-      ? "L690,40 L770,580 L690,595 L645,250 L640,740 L120,740 L115,250 L70,595 L-10,580 L70,40"
-      : "L760,140 L690,260 L640,220 L640,740 L120,740 L120,220 L70,260 L0,140";
-    const hoodShape = hood
-      ? back
-        ? `<path d="M240,40 Q240,-125 380,-125 Q520,-125 520,40 Z" fill="${col}" stroke="rgba(0,0,0,.25)" stroke-width="3"/>`
-        : `<path d="M240,40 Q240,-125 380,-125 Q520,-125 520,40 Z" fill="${col}" stroke="rgba(0,0,0,.25)" stroke-width="3"/><path d="M285,30 Q290,-80 380,-85 Q470,-80 475,30 Z" fill="rgba(0,0,0,.35)"/>`
-      : "";
-    return `${hoodShape}<path d="M180,0 L300,0 ${neck} L580,0 ${sleeves} Z" fill="${col}" stroke="rgba(0,0,0,.18)" stroke-width="3"/>`;
-  };
   const wear = (col: string, art: string, ax: number, ay: number, hood: boolean, back: boolean) => {
     const f = files[art as keyof typeof files];
-    return `<svg viewBox="-20 -130 800 890" width="100%" height="100%">${garment(col, hood, back)}<image href="${uri(f.svg)}" x="${ax - f.W / 2}" y="${ay}" width="${f.W}" height="${f.H}"/></svg>`;
+    return wearPrint(col, { href: uri(f.svg), W: f.W, H: f.H }, ax, ay, hood, back);
   };
   const zoom = (col: string, art: string, px: number) => {
     const f = files[art as keyof typeof files];
