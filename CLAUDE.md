@@ -32,7 +32,7 @@ data or secret.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
   device and call backgrounds, channel banners, LinkedIn post images, avatars, booth banners,
   gradients, merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
-  there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`,
+  there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`, `avatars/generate.ts`,
   `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/` ships as
   three commands: `brand-linkedin-frame` (`frame.ts`) and `brand-linkedin-terminal` (`terminal.ts`)
   write a post's image to the path the caller names, `brand-linkedin-sketch-prompt` prints
