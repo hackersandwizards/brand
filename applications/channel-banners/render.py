@@ -84,6 +84,7 @@ SURFACES = {
 # centred in the area every device shows (blind reviews in os docs/tracking/2026-10-31-banner-carousel.md
 # and 2026-10-31-channel-banners-live.md: the set reads as one when the logo sits on top everywhere).
 LOCKUP_CAP = (79.8, 44)  # lockup height, wordmark cap height in px, measured on the profile render
+INK_ALPHA = 5  # lockup pixels up to this alpha are resampling haze above the wizard, not ink
 
 
 def ink_rows(parts, size, font=MONO):
@@ -98,7 +99,7 @@ def lockup_rows(lh):
     """Top and bottom of the lockup's ink relative to its anchor, as render() places it."""
     u = lh / LAYOUT_BOX[3]
     lock = Image.open(LOCKUP).convert("RGBA").resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
-    _, a, _, b = lock.getchannel("A").getbbox()
+    _, a, _, b = lock.getchannel("A").point(lambda v: 255 if v > INK_ALPHA else 0).getbbox()
     top = -lh / 2 - LIFT * lh - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
     return top + a, top + b
 
