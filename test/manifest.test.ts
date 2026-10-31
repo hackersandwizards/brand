@@ -17,7 +17,7 @@ test("every file matches its manifest hash", () => {
 
 test("every file in a copied folder has a manifest entry", () => {
   const listed = new Set(manifest.files.map((f) => f.path));
-  const onDisk = ["tokens", "logos", "expert", "document"].flatMap((dir) =>
+  const onDisk = ["tokens", "logos", "expert", "document", "press"].flatMap((dir) =>
     readdirSync(join(ROOT, dir), { recursive: true, withFileTypes: true })
       .filter((e) => e.isFile() && e.name !== ".DS_Store")
       .map((e) => relative(ROOT, join(e.parentPath, e.name))),

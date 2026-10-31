@@ -12,6 +12,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
+import press from "../press/press.json";
 import type { drift as driftReport } from "./drift";
 import { ROOT } from "./git";
 import type { Counts, scan as scanReport } from "./scan";
@@ -478,6 +479,14 @@ const scanRows = Object.entries(scan.repos).map(([name, r]) => [
     )
     .join(", ") || "none",
 ]);
+// Press kit: the photos in press/, each with what it shows, its size and the credit.
+const pressHtml = `<p>The photos of the press kit, which the website's press page offers with the logos as one ZIP. Credit: "Photo: ${esc(press.credit)}". Each photo is listed with what it shows in <code>press/press.json</code>.</p>
+<div class="assets">${press.photos
+  .map((p) => {
+    index.push({ t: p.file, k: "press", h: "press", x: p.shows });
+    return `<figure class="asset"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a></figcaption></figure>`;
+  })
+  .join("")}</div>`;
 const dupRows = Object.entries(scan.duplicates).map(([k, l]) => [
   code(k),
   l.map((x) => `${esc(x.repo)}: ${code(x.path)}`).join("<br>"),
@@ -529,6 +538,7 @@ ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, S
 ${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
 ${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live` : "not rendered")).join("")}
 ${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, booth, banners, avatars, gradients, mail signatures, slides, documents`)}
+${tile("press", "Pressekit", "The founders' photos for the press kit, with credit and downloads")}
 ${tile("health", "Health", `${driftLine} · off-token hex: ${offHex} · ${scan.aboveAllowlist.length} file(s) above the allowlist`)}
 </div>
 <h3>Refresh</h3>
@@ -560,6 +570,7 @@ const pages: [string, string, string][] = [
   ],
   ["compare", "Compare", compareHtml],
   ["applications", "Applications: the brand in use", applicationsHtml],
+  ["press", "Pressekit", pressHtml],
   ["health", "Health: drift and scan", health],
 ];
 const nav = (id: string, title: string, extra = "") =>
@@ -735,7 +746,7 @@ ${nav("colours", "Colours")}${nav("type", "Type")}${nav("tokens", "Spacing and m
 ${nav("compare", "Compare")}
 ${navTree}
 <p class="label">Brand in use</p>
-${nav("applications", "Applications")}${nav("health", "Health", `<small>${driftBad.length + scan.aboveAllowlist.length || "ok"}</small>`)}
+${nav("applications", "Applications")}${nav("press", "Pressekit")}${nav("health", "Health", `<small>${driftBad.length + scan.aboveAllowlist.length || "ok"}</small>`)}
 </nav>
 </aside>
 <main>

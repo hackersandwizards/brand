@@ -331,6 +331,22 @@
     {
       "path": "expert/components/space-nav.ts",
       "sha256": "e22d12074bf000a97b7510a929c792b8bf45b63f92b3b8f85f43d7d873db576e"
+    },
+    {
+      "path": "press/benedikt-stemmildt.jpg",
+      "sha256": "0b87b59c84aa65a32d79c9af135fc54446603535cbfb70057805330540a632b6"
+    },
+    {
+      "path": "press/founders.jpg",
+      "sha256": "bd14c77ce8e22f6d3ad963cf31c411e5c8a5b0eb2f45f849aedb4f94201f182d"
+    },
+    {
+      "path": "press/press.json",
+      "sha256": "ccf0450da73db81d9aeb5688b054121d1b3ab5d44c0d423ee605651479fc83ac"
+    },
+    {
+      "path": "press/stefan-munz.jpg",
+      "sha256": "96c17e460341279dacd5c929fb03f5ba1ed2aa7800ca22d8df2d95c9d0059c1b"
     }
   ]
 }
