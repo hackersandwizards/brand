@@ -28,7 +28,7 @@ type Variant = {
   accent: string; // second sentence of the headline
   layout?: "emoji" | "wall" | "gradient";
   panel?: "night" | "light"; // gradient layout: the panel holding the body text; none: only large type
-  plainMascot?: boolean; // gradient layout: the 1 x 1 m wizard without the outline cut's white edge
+  edgedMascot?: boolean; // gradient layout: the 1 x 1 m wizard with the outline cut's white edge
   giant?: boolean; // the 1 x 1 m carries the wizard large
   frame?: number; // a brand gradient frame around both pieces, mm from the sheet edge (bleed included)
   rail?: number; // the top and bottom gradient rails, mm visible
@@ -67,13 +67,13 @@ export const VARIANTS: Record<string, Variant> = {
     accent: "#fff",
     layout: "gradient",
   },
-  "gradient-plain": {
+  "gradient-edge": {
     ground: MAGIC,
     vars: "",
     wordmark: brand.wordmarkOutline,
     accent: "#fff",
     layout: "gradient",
-    plainMascot: true,
+    edgedMascot: true,
   },
   // White ground, the wizard large on both pieces.
   emoji: {
@@ -225,11 +225,14 @@ function gradientTall(v: Variant) {
   return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000, v)}<style>.final>*{flex-shrink:0}</style><div class="sheet" style="${VARS_200}"><div class="final">${body}</div></div></body></html>`;
 }
 
+// The wordmark near full width, the offer line on two lines, the wizard without its edge standing on
+// the bottom edge, moved 40 mm left so the figure, not the staff, sits under the text's axis.
 function gradientSquare(v: Variant) {
-  const mascot = v.plainMascot
-    ? `<img class="mascot" style="margin-bottom:calc(-90 * var(--mm))" src="${brand.emoji}" alt="">`
-    : edgedWizard(640, "margin-bottom:calc(-90 * var(--mm))");
-  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000, v)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:80;--pad-y:90;--mascot:640;--h2:58;--wm:100"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"><div style="height:calc(24 * var(--mm))"></div><p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;
+  const at = "margin-bottom:calc(-90 * var(--mm));translate:calc(-40 * var(--mm)) 0";
+  const mascot = v.edgedMascot
+    ? edgedWizard(600, at)
+    : `<img src="${brand.emoji}" alt="" style="display:block;width:calc(600 * var(--mm));${at}">`;
+  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000, v)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:60;--pad-y:90;--h2:62;--wm:110"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"><div style="height:calc(32 * var(--mm))"></div><p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;
 }
 
 function tall(v: Variant) {
