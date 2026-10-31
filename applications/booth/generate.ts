@@ -1,9 +1,8 @@
-// Light and mid-tone variants of the booth banners (Pixlip GO 1 x 2 m and 1 x 1 m) in logo system D,
-// built on the proposal's tokens.css and banner.css, plus booth views from 6 m and 2 m.
-// The gradient variants carry the brand gradient as on the title slide over the whole sheet, the logo
-// in its outline cut and only large white type on it; body text sits on a night or light panel or
-// goes. The print files: offwhite-rails, dark-rails and gradient-bare, renamed booth-banner,
-// booth-banner-dark and booth-banner-gradient; the gradient 100x100 comes from gradient-edge.
+// The booth banners (Pixlip GO 1 x 2 m and 1 x 1 m), the gradient pair: the brand gradient as on the
+// title slide over the whole sheet, the logo in its outline cut and only large white type on it, built
+// on tokens.css and banner.css, plus booth views from 6 m and 2 m. The print files: gradient-bare for
+// the 1 x 2 m and gradient-edge (the 1 x 1 m wizard with the outline cut's white edge) for the
+// 1 x 1 m, renamed booth-banner-gradient-100x200 and -100x100.
 // bun applications/booth/generate.ts <out dir> [variant ...] [--pdf] [--wall=dark,mid,white] [--lit]
 // Writes <out>/<variant>-100x200.png and -100x100.png (screen scale, 0.8 px per mm), the booth
 // views <out>/views/<variant>-6m.jpg and -2m.jpg (with --wall <variant>-<wall>-6m.jpg, with --lit
@@ -12,148 +11,26 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
-import { brand, browser, tint, toJpeg } from "../backgrounds/render.ts";
+import { brand, browser, toJpeg } from "../backgrounds/render.ts";
 
 const BOOTH = import.meta.dir;
 const boothCss = (f: string) => `<link rel="stylesheet" href="file://${join(BOOTH, f)}">`;
 const qr = `file://${join(BOOTH, "qr-hackersandwizards-dev.svg")}`;
-const C = { teal: "#1A7285", purple: "#9333EA", ink: "#19283A", muted: "#545861", bg: "#F7F9FA" };
-const GRADIENT = `linear-gradient(180deg, ${C.purple}, ${C.teal})`;
 const MAGIC = "linear-gradient(135deg, var(--teal), var(--purple))"; // the brand's --gradient-magic
 
 type Variant = {
   ground: string; // the sheet's background
-  vars: string; // token overrides
   wordmark: string;
-  accent: string; // second sentence of the headline
-  layout?: "emoji" | "wall" | "gradient";
-  panel?: "night" | "light"; // gradient layout: the panel holding the body text; none: only large type
-  edgedMascot?: boolean; // gradient layout: the 1 x 1 m wizard with the outline cut's white edge
-  giant?: boolean; // the 1 x 1 m carries the wizard large
-  frame?: number; // a brand gradient frame around both pieces, mm from the sheet edge (bleed included)
-  rail?: number; // the top and bottom gradient rails, mm visible
-  xl?: boolean; // larger lockup and headline on the 1 x 2 m
+  edgedMascot?: boolean; // the 1 x 1 m wizard with the outline cut's white edge
 };
-const LIGHT_VARS = `--ink-on-night:${C.ink};--muted-on-night:${C.muted};--teal-light:${C.teal};--purple-light:${C.purple}`;
 
 export const VARIANTS: Record<string, Variant> = {
-  white: { ground: "#FFFFFF", vars: LIGHT_VARS, wordmark: brand.wordmark, accent: C.purple },
-  tint: {
-    ground: `linear-gradient(160deg, ${tint(C.teal, 12)}, ${tint(C.purple, 10)})`,
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-  },
-  "gradient-night": {
-    ground: MAGIC,
-    vars: "",
-    wordmark: brand.wordmarkOutline,
-    accent: "#fff",
-    layout: "gradient",
-    panel: "night",
-  },
-  "gradient-light": {
-    ground: MAGIC,
-    vars: "",
-    wordmark: brand.wordmarkOutline,
-    accent: "#fff",
-    layout: "gradient",
-    panel: "light",
-  },
-  "gradient-bare": {
-    ground: MAGIC,
-    vars: "",
-    wordmark: brand.wordmarkOutline,
-    accent: "#fff",
-    layout: "gradient",
-  },
-  "gradient-edge": {
-    ground: MAGIC,
-    vars: "",
-    wordmark: brand.wordmarkOutline,
-    accent: "#fff",
-    layout: "gradient",
-    edgedMascot: true,
-  },
-  // White ground, the wizard large on both pieces.
-  emoji: {
-    ground: "#FFFFFF",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    layout: "emoji",
-  },
-  "white-giant": {
-    ground: "#FFFFFF",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    giant: true,
-  },
-  "white-frame": {
-    ground: "#FFFFFF",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    giant: true,
-    frame: 64,
-  },
-  "white-thin": {
-    ground: "#FFFFFF",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    giant: true,
-    frame: 44,
-  },
-  "white-rails": {
-    ground: "#FFFFFF",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    giant: true,
-    rail: 56,
-  },
-  // white-rails on a light cool grey instead of paper white: ink on the ground dims the backlit glow.
-  "offwhite-rails": {
-    ground: "#E6EAED",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    giant: true,
-    rail: 56,
-  },
-  // white-rails on Night: only the ground and the colours it requires (the booth tokens' on-night set).
-  "dark-rails": {
-    ground: "var(--night)",
-    vars: "",
-    wordmark: brand.wordmarkNight,
-    accent: "var(--purple-light)",
-    giant: true,
-    rail: 56,
-  },
-  "white-xl": {
-    ground: "#FFFFFF",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    giant: true,
-    xl: true,
-  },
-  // Bold: a brand block on top, the wizard looking over the white wall that carries the message.
-  wall: {
-    ground: "#FFFFFF",
-    vars: LIGHT_VARS,
-    wordmark: brand.wordmark,
-    accent: C.purple,
-    layout: "wall",
-  },
+  "gradient-bare": { ground: MAGIC, wordmark: brand.wordmarkOutline },
+  "gradient-edge": { ground: MAGIC, wordmark: brand.wordmarkOutline, edgedMascot: true },
 };
 
-function docHead(title: string, w: number, h: number, v: Variant | null) {
-  const over = v
-    ? `<style>:root{${v.vars}}body{background:#fff}.sheet{background:${v.ground}}.headline{color:var(--ink-on-night)}.url-line{color:var(--ink-on-night)}.contact img{box-shadow:0 0 0 calc(3*var(--mm)) rgba(25,40,58,.12)}${v.rail ? `:root{--rail:calc(${v.rail} * var(--mm))}` : ""}${v.frame ? `.sheet::after{content:'';position:absolute;inset:0;border:calc(${v.frame} * var(--mm)) solid;border-image:linear-gradient(135deg,var(--teal),var(--purple)) 1}` : ""}</style>`
-    : "";
+function docHead(title: string, w: number, h: number, v: Variant) {
+  const over = `<style>body{background:#fff}.sheet{background:${v.ground}}.contact img{box-shadow:0 0 0 calc(3*var(--mm)) rgba(25,40,58,.12)}</style>`;
   return `<!doctype html><html lang="en"><head><title>${title}</title><meta charset="utf-8">${boothCss("tokens.css")}${boothCss("banner.css")}<style>@page{size:${w + 40}mm ${h + 40}mm;margin:0}</style>${over}</head><body>`;
 }
 
@@ -177,14 +54,6 @@ function wizardEdge(cut: string) {
     shift: pct(+wx - dayX),
   };
 }
-const boothLockup = (v: Variant, wiz = 150) => {
-  const cut = v.wordmark === brand.wordmark ? null : "lockup-night";
-  const e = cut && wizardEdge(cut);
-  const wizard = e
-    ? `<div style="position:relative;width:calc(${wiz} * var(--mm));translate:${e.shift} var(--logo-wizard-lift)"><img src="${e.href}" alt="" style="position:absolute;left:${e.left};top:${e.top};width:${e.width};translate:none"><img src="${brand.emoji}" alt="" style="position:relative;display:block;width:100%"></div>`
-    : `<img src="${brand.emoji}" alt="" style="width:calc(${wiz} * var(--mm));translate:${wizardEdge("lockup").shift} var(--logo-wizard-lift)">`;
-  return `<div class="lockup">${wizard}<img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"></div>`;
-};
 // The outline lockup as the package draws it, inline so its wizard can take the 4096 px master
 // (the file embeds 512 px); geometry, gap and edge stay the file's.
 const outlineLockup = (widthMm: number) =>
@@ -203,25 +72,14 @@ function edgedWizard(widthMm: number, style: string) {
   return `<div style="position:relative;width:calc(${widthMm} * var(--mm));${style}"><img src="${e.href}" alt="" style="position:absolute;left:${e.left};top:${e.top};width:${e.width}"><img src="${brand.emoji}" alt="" style="position:relative;display:block;width:100%"></div>`;
 }
 const space = (mm: number) => `<div style="height:calc(${mm} * var(--mm))"></div>`;
-const headline = (accent: string) =>
-  `<h1 class="headline">Everyone has coding agents. <span style="color:${accent}">Releases come no faster.</span></h1>`;
-const offer = `<p class="offer">Training and mentoring in agentic engineering.</p>`;
-const audience = `<p class="audience">For engineering and product teams and their leaders.</p>`;
-const proof = (n = 2) =>
-  `<ul class="proof"><li>Our founder Benedikt Stemmildt chairs code.talks.</li>${n > 1 ? "<li>He was engineer, architect and CIO at OTTO, Breuninger and BLUME2000.</li>" : ""}</ul>`;
 const contact = `<div class="contact"><img src="${qr}" alt=""><div class="label">Talk to us.</div></div><div class="url-line">hackersandwizards.dev</div>`;
 const VARS_200 =
-  "--w:1000;--h:2000;--pad-x:90;--pad-y:110;--wiz:150;--wm:78;--h1:96;--h2:54;--h3:40;--proof:52;--proof-gap:20;--qr:200;--url:62;--label:56";
+  "--w:1000;--h:2000;--pad-x:90;--pad-y:110;--wm:78;--h1:96;--h2:54;--qr:200;--url:62;--label:56";
 
-// Gradient sheet: lockup and headline in white on the gradient, the rest on a panel or left out.
+// Gradient sheet: lockup, headline, offer line and contact in white on the gradient.
 function gradientTall(v: Variant) {
   const white = "color:#fff";
-  const panelVars =
-    v.panel === "light" ? `background:#fff;${LIGHT_VARS}` : "background:var(--night)";
-  const rest = v.panel
-    ? `<div style="${panelVars};--h2:50;--h3:38;--proof:44;--proof-gap:16;--qr:170;--url:54;--label:48;border-radius:calc(40 * var(--mm)) calc(10 * var(--mm));padding:calc(56 * var(--mm)) calc(56 * var(--mm)) calc(48 * var(--mm))">${offer}${space(24)}${audience}${space(48)}${proof()}${space(56)}${contact.replace('class="url-line"', 'class="url-line" style="color:var(--ink-on-night)"')}</div>`
-    : `${space(56)}<p class="offer" style="${white};font-size:calc(64 * var(--mm))">Training and mentoring in agentic engineering.</p><div style="flex:1"></div>${contact.replace('class="label"', `class="label" style="${white}"`).replace('class="url-line"', `class="url-line" style="${white}"`)}`;
-  const body = `${outlineLockup(800)}${space(v.panel ? 90 : 120)}<h1 class="headline" style="${white};font-size:calc(${v.panel ? 96 : 108} * var(--mm))">Everyone has coding agents. Releases come no faster.</h1>${v.panel ? '<div style="flex:1"></div>' : ""}${rest}`;
+  const body = `${outlineLockup(800)}${space(120)}<h1 class="headline" style="${white};font-size:calc(108 * var(--mm))">Everyone has coding agents. Releases come no faster.</h1>${space(56)}<p class="offer" style="${white};font-size:calc(64 * var(--mm))">Training and mentoring in agentic engineering.</p><div style="flex:1"></div>${contact.replace('class="label"', `class="label" style="${white}"`).replace('class="url-line"', `class="url-line" style="${white}"`)}`;
   return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000, v)}<style>.final>*{flex-shrink:0}</style><div class="sheet" style="${VARS_200}"><div class="final">${body}</div></div></body></html>`;
 }
 
@@ -233,40 +91,6 @@ function gradientSquare(v: Variant) {
     ? edgedWizard(600, at)
     : `<img src="${brand.emoji}" alt="" style="display:block;width:calc(600 * var(--mm));${at}">`;
   return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000, v)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:60;--pad-y:90;--h2:62;--wm:110"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"><div style="height:calc(32 * var(--mm))"></div><p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;
-}
-
-function tall(v: Variant) {
-  if (v.layout === "gradient") return gradientTall(v);
-  const rails = '<div class="rail top"></div>';
-  const bottom = '<div class="rail bottom"></div>';
-  let body: string;
-  if (v.layout === "emoji") {
-    // Wall: the wizard's cut edge sits on the line where the brand block meets the white wall.
-    // Emoji: the wizard stands on a brand rail between offer and proof, so its cut edge never floats.
-    body = `${boothLockup(v)}${space(70)}${headline(v.accent)}${space(40)}${offer}<div style="flex:1"></div><div style="display:flex;flex-direction:column;align-items:center"><img src="${brand.emoji}" alt="" style="width:calc(470 * var(--mm));display:block"><div style="align-self:stretch;height:calc(14 * var(--mm));background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:calc(7*var(--mm))"></div></div>${space(50)}${proof(1)}<div style="flex:0.6"></div>${contact}`;
-  } else if (v.layout === "wall") {
-    // The block above holds the lockup; the message sits on the white wall below it.
-    body = `<div style="position:absolute;left:0;right:0;top:calc(-20 * var(--mm));height:calc(670 * var(--mm));background:${GRADIENT}"></div><div style="position:relative;height:calc(560 * var(--mm));display:flex;flex-direction:column;align-items:center"><img class="wordmark" src="${brand.wordmarkNight}" alt="hackers&amp;wizards"><div style="flex:1"></div><img src="${brand.emoji}" alt="" style="width:calc(400 * var(--mm));display:block"></div><div style="position:relative;display:flex;flex-direction:column;flex:1">${space(80)}${headline(v.accent)}${space(40)}${offer}<div style="flex:0.5"></div>${proof()}<div style="flex:0.9"></div>${contact}</div>`;
-    return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000, v)}<div class="sheet" style="${VARS_200}">${rails}<div class="final">${body}</div>${bottom}</div></body></html>`;
-  } else {
-    if (v.xl)
-      return tall({ ...v, xl: false }).replace(
-        VARS_200,
-        VARS_200.replace("--wiz:150;--wm:78;--h1:96", "--wiz:160;--wm:78;--h1:108"),
-      );
-    body = `${boothLockup(v)}${space(80)}${headline(v.accent)}${space(50)}${offer}${space(24)}${audience}<div style="flex:0.5"></div>${proof()}<div style="flex:0.9"></div>${contact}`;
-  }
-  return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000, v)}<div class="sheet" style="${VARS_200}">${rails}<div class="final">${body}</div>${bottom}</div></body></html>`;
-}
-
-function square(v: Variant) {
-  if (v.layout === "gradient") return gradientSquare(v);
-  const mascot = v.layout === "emoji" ? 760 : v.giant ? 640 : v.layout === "wall" ? 460 : 520;
-  const inner =
-    v.layout === "wall"
-      ? `<div style="position:absolute;left:0;right:0;top:calc(-20 * var(--mm));height:calc(870 * var(--mm));background:${GRADIENT}"></div><div style="position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;height:calc(760 * var(--mm))"><img class="wordmark" src="${brand.wordmarkNight}" alt="hackers&amp;wizards"><div style="height:calc(30 * var(--mm))"></div><p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div><img class="mascot" src="${brand.emoji}" alt=""></div><div class="url-line" style="position:relative;text-align:center;margin-top:calc(40 * var(--mm))">hackersandwizards.dev</div>`
-      : `<div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"><div style="height:calc(${v.layout === "emoji" || v.giant ? 24 : 40} * var(--mm))"></div><p class="offer">Agentic engineering training and mentoring.</p><div class="grow"></div><img class="mascot" style="margin-bottom:calc(-90 * var(--mm))" src="${brand.emoji}" alt=""></div>`;
-  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000, v)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:80;--pad-y:90;--mascot:${mascot};--h2:58;--wm:100;--url:56"><div class="rail top"></div><div class="final">${inner}</div><div class="rail bottom"></div></div></body></html>`;
 }
 
 // The stand wall behind the banners: --wall=dark,mid,white renders one view set per wall.
@@ -345,8 +169,8 @@ async function generateBooth() {
       const v = VARIANTS[name];
       if (!v) throw new Error(`unknown variant ${name}`);
       // 1040 x 2040 mm sheet at 0.8 px per mm (the tokens' screen scale), twice for detail.
-      const t = tall(v);
-      const s = square(v);
+      const t = gradientTall(v);
+      const s = gradientSquare(v);
       const tallFile = join(out, `${name}-100x200.png`);
       const squareFile = join(out, `${name}-100x100.png`);
       // Crop the bleed: the views show the final format.
