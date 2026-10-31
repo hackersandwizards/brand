@@ -211,8 +211,8 @@ const logoCard = (base: string) => {
 };
 const order = (b: string) =>
   ["lockup", "lockup-compact", "wordmark"].indexOf(b) + 1 || 10 + bases.indexOf(b);
-// The package still ships the former type-logo and the emoji files for the code that reads them;
-// the page shows only the logos in use.
+// The package still ships the former type-logo for the code that reads it; the emoji masters stay
+// in the repo for the booth and background applications. The page shows only the logos in use.
 const isLogo = (b: string) => b.startsWith("lockup") || b.startsWith("wordmark");
 const logosHtml = `<div class="logos">${bases
   .filter(isLogo)
