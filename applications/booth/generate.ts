@@ -3,7 +3,7 @@
 // The gradient variants carry the brand gradient as on the title slide over the whole sheet, the logo
 // in its outline cut and only large white type on it; body text sits on a night or light panel or
 // goes. The print files: offwhite-rails, dark-rails and gradient-bare, renamed booth-banner,
-// booth-banner-dark and booth-banner-gradient.
+// booth-banner-dark and booth-banner-gradient; the gradient 100x100 comes from gradient-edge.
 // bun applications/booth/generate.ts <out dir> [variant ...] [--pdf] [--wall=dark,mid,white] [--lit]
 // Writes <out>/<variant>-100x200.png and -100x100.png (screen scale, 0.8 px per mm), the booth
 // views <out>/views/<variant>-6m.jpg and -2m.jpg (with --wall <variant>-<wall>-6m.jpg, with --lit
@@ -225,7 +225,7 @@ function gradientTall(v: Variant) {
   return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000, v)}<style>.final>*{flex-shrink:0}</style><div class="sheet" style="${VARS_200}"><div class="final">${body}</div></div></body></html>`;
 }
 
-// The wordmark near full width, the offer line on two lines, the wizard without its edge standing on
+// The wordmark near full width, the offer line on two lines, the wizard (edged in gradient-edge) standing on
 // the bottom edge, moved 40 mm left so the figure, not the staff, sits under the text's axis.
 function gradientSquare(v: Variant) {
   const at = "margin-bottom:calc(-90 * var(--mm));translate:calc(-40 * var(--mm)) 0";
