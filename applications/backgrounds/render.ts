@@ -23,10 +23,12 @@ export const brand = {
   emoji: fileUrl(lfs("emoji-logo-short.png")),
   lockup: fileUrl(join(BRAND, "logos/lockup.svg")),
   lockupNight: fileUrl(join(BRAND, "logos/lockup-night.svg")),
+  lockupOutline: fileUrl(join(BRAND, "logos/lockup-outline.svg")),
   compact: fileUrl(join(BRAND, "logos/lockup-compact.svg")),
   compactNight: fileUrl(join(BRAND, "logos/lockup-compact-night.svg")),
   wordmark: fileUrl(join(BRAND, "logos/wordmark.svg")),
   wordmarkNight: fileUrl(join(BRAND, "logos/wordmark-night.svg")),
+  wordmarkOutline: fileUrl(join(BRAND, "logos/wordmark-outline.svg")),
   fonts: fileUrl(join(BRAND, "tokens/fonts")),
 };
 

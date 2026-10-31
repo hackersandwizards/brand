@@ -1,5 +1,9 @@
 // Light and mid-tone variants of the booth banners (Pixlip GO 1 x 2 m and 1 x 1 m) in logo system D,
 // built on the proposal's tokens.css and banner.css, plus booth views from 6 m and 2 m.
+// The gradient variants carry the brand gradient as on the title slide over the whole sheet, the logo
+// in its outline cut and only large white type on it; body text sits on a night or light panel or
+// goes. The print files: offwhite-rails, dark-rails and gradient-bare, renamed booth-banner,
+// booth-banner-dark and booth-banner-gradient.
 // bun applications/booth/generate.ts <out dir> [variant ...] [--pdf] [--wall=dark,mid,white] [--lit]
 // Writes <out>/<variant>-100x200.png and -100x100.png (screen scale, 0.8 px per mm), the booth
 // views <out>/views/<variant>-6m.jpg and -2m.jpg (with --wall <variant>-<wall>-6m.jpg, with --lit
@@ -15,13 +19,16 @@ const boothCss = (f: string) => `<link rel="stylesheet" href="file://${join(BOOT
 const qr = `file://${join(BOOTH, "qr-hackersandwizards-dev.svg")}`;
 const C = { teal: "#1A7285", purple: "#9333EA", ink: "#19283A", muted: "#545861", bg: "#F7F9FA" };
 const GRADIENT = `linear-gradient(180deg, ${C.purple}, ${C.teal})`;
+const MAGIC = "linear-gradient(135deg, var(--teal), var(--purple))"; // the brand's --gradient-magic
 
 type Variant = {
   ground: string; // the sheet's background
   vars: string; // token overrides
   wordmark: string;
   accent: string; // second sentence of the headline
-  layout?: "emoji" | "wall";
+  layout?: "emoji" | "wall" | "gradient";
+  panel?: "night" | "light"; // gradient layout: the panel holding the body text; none: only large type
+  plainMascot?: boolean; // gradient layout: the 1 x 1 m wizard without the outline cut's white edge
   giant?: boolean; // the 1 x 1 m carries the wizard large
   frame?: number; // a brand gradient frame around both pieces, mm from the sheet edge (bleed included)
   rail?: number; // the top and bottom gradient rails, mm visible
@@ -37,12 +44,36 @@ export const VARIANTS: Record<string, Variant> = {
     wordmark: brand.wordmark,
     accent: C.purple,
   },
-  // The March ground, purple to teal, with the proposal's content and logo system D.
-  gradient: {
-    ground: GRADIENT,
-    vars: "--ink-on-night:#fff;--muted-on-night:#F1F2F4;--teal-light:#CFE3E7",
-    wordmark: brand.wordmarkNight,
-    accent: "#E9D5FB",
+  "gradient-night": {
+    ground: MAGIC,
+    vars: "",
+    wordmark: brand.wordmarkOutline,
+    accent: "#fff",
+    layout: "gradient",
+    panel: "night",
+  },
+  "gradient-light": {
+    ground: MAGIC,
+    vars: "",
+    wordmark: brand.wordmarkOutline,
+    accent: "#fff",
+    layout: "gradient",
+    panel: "light",
+  },
+  "gradient-bare": {
+    ground: MAGIC,
+    vars: "",
+    wordmark: brand.wordmarkOutline,
+    accent: "#fff",
+    layout: "gradient",
+  },
+  "gradient-plain": {
+    ground: MAGIC,
+    vars: "",
+    wordmark: brand.wordmarkOutline,
+    accent: "#fff",
+    layout: "gradient",
+    plainMascot: true,
   },
   // White ground, the wizard large on both pieces.
   emoji: {
@@ -147,18 +178,30 @@ function wizardEdge(cut: string) {
   };
 }
 const boothLockup = (v: Variant, wiz = 150) => {
-  const cut =
-    v.wordmark === brand.wordmark
-      ? null
-      : v.ground === GRADIENT
-        ? "lockup-outline"
-        : "lockup-night";
+  const cut = v.wordmark === brand.wordmark ? null : "lockup-night";
   const e = cut && wizardEdge(cut);
   const wizard = e
     ? `<div style="position:relative;width:calc(${wiz} * var(--mm));translate:${e.shift} var(--logo-wizard-lift)"><img src="${e.href}" alt="" style="position:absolute;left:${e.left};top:${e.top};width:${e.width};translate:none"><img src="${brand.emoji}" alt="" style="position:relative;display:block;width:100%"></div>`
     : `<img src="${brand.emoji}" alt="" style="width:calc(${wiz} * var(--mm));translate:${wizardEdge("lockup").shift} var(--logo-wizard-lift)">`;
   return `<div class="lockup">${wizard}<img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"></div>`;
 };
+// The outline lockup as the package draws it, inline so its wizard can take the 4096 px master
+// (the file embeds 512 px); geometry, gap and edge stay the file's.
+const outlineLockup = (widthMm: number) =>
+  readFileSync(new URL(brand.lockupOutline), "utf8")
+    .replace(
+      /<image x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)" href="[^"]+"/,
+      `<image x="$1" y="$2" width="$3" height="$4" href="${brand.emoji}"`,
+    )
+    .replace(
+      / width="\d+" height="\d+"/,
+      ` style="display:block;flex:none;width:calc(${widthMm} * var(--mm));height:auto"`,
+    );
+// The large wizard on the gradient with the outline cut's white edge, scaled from the package's edge.
+function edgedWizard(widthMm: number, style: string) {
+  const e = wizardEdge("lockup-outline");
+  return `<div style="position:relative;width:calc(${widthMm} * var(--mm));${style}"><img src="${e.href}" alt="" style="position:absolute;left:${e.left};top:${e.top};width:${e.width}"><img src="${brand.emoji}" alt="" style="position:relative;display:block;width:100%"></div>`;
+}
 const space = (mm: number) => `<div style="height:calc(${mm} * var(--mm))"></div>`;
 const headline = (accent: string) =>
   `<h1 class="headline">Everyone has coding agents. <span style="color:${accent}">Releases come no faster.</span></h1>`;
@@ -170,7 +213,27 @@ const contact = `<div class="contact"><img src="${qr}" alt=""><div class="label"
 const VARS_200 =
   "--w:1000;--h:2000;--pad-x:90;--pad-y:110;--wiz:150;--wm:78;--h1:96;--h2:54;--h3:40;--proof:52;--proof-gap:20;--qr:200;--url:62;--label:56";
 
+// Gradient sheet: lockup and headline in white on the gradient, the rest on a panel or left out.
+function gradientTall(v: Variant) {
+  const white = "color:#fff";
+  const panelVars =
+    v.panel === "light" ? `background:#fff;${LIGHT_VARS}` : "background:var(--night)";
+  const rest = v.panel
+    ? `<div style="${panelVars};--h2:50;--h3:38;--proof:44;--proof-gap:16;--qr:170;--url:54;--label:48;border-radius:calc(40 * var(--mm)) calc(10 * var(--mm));padding:calc(56 * var(--mm)) calc(56 * var(--mm)) calc(48 * var(--mm))">${offer}${space(24)}${audience}${space(48)}${proof()}${space(56)}${contact.replace('class="url-line"', 'class="url-line" style="color:var(--ink-on-night)"')}</div>`
+    : `${space(56)}<p class="offer" style="${white};font-size:calc(64 * var(--mm))">Training and mentoring in agentic engineering.</p><div style="flex:1"></div>${contact.replace('class="label"', `class="label" style="${white}"`).replace('class="url-line"', `class="url-line" style="${white}"`)}`;
+  const body = `${outlineLockup(800)}${space(v.panel ? 90 : 120)}<h1 class="headline" style="${white};font-size:calc(${v.panel ? 96 : 108} * var(--mm))">Everyone has coding agents. Releases come no faster.</h1>${v.panel ? '<div style="flex:1"></div>' : ""}${rest}`;
+  return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000, v)}<style>.final>*{flex-shrink:0}</style><div class="sheet" style="${VARS_200}"><div class="final">${body}</div></div></body></html>`;
+}
+
+function gradientSquare(v: Variant) {
+  const mascot = v.plainMascot
+    ? `<img class="mascot" style="margin-bottom:calc(-90 * var(--mm))" src="${brand.emoji}" alt="">`
+    : edgedWizard(640, "margin-bottom:calc(-90 * var(--mm))");
+  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000, v)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:80;--pad-y:90;--mascot:640;--h2:58;--wm:100"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${v.wordmark}" alt="hackers&amp;wizards"><div style="height:calc(24 * var(--mm))"></div><p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;
+}
+
 function tall(v: Variant) {
+  if (v.layout === "gradient") return gradientTall(v);
   const rails = '<div class="rail top"></div>';
   const bottom = '<div class="rail bottom"></div>';
   let body: string;
@@ -194,6 +257,7 @@ function tall(v: Variant) {
 }
 
 function square(v: Variant) {
+  if (v.layout === "gradient") return gradientSquare(v);
   const mascot = v.layout === "emoji" ? 760 : v.giant ? 640 : v.layout === "wall" ? 460 : 520;
   const inner =
     v.layout === "wall"

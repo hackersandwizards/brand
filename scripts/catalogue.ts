@@ -341,9 +341,9 @@ const FAMILIES: Family[] = [
   {
     id: "booth",
     title: "Booth banners",
-    note: "Pixlip frames, 1 x 1 m and 1 x 2 m: the light grey (#E6EAED) pair for dark stand walls, the dark pair for light walls.",
+    note: "Pixlip frames, 1 x 1 m and 1 x 2 m: the light grey (#E6EAED) pair for dark stand walls, the dark pair for light walls, and the gradient pair: the brand gradient over the whole banner with the logo in its outline cut and only large white type, a PNG preview beside each of its PDFs.",
     dir: "applications/booth",
-    match: /^booth-banner.*\.pdf$/,
+    match: /^booth-banner.*\.(pdf|png)$/,
   },
   {
     id: "channel-banners",
