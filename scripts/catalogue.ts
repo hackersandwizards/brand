@@ -135,6 +135,15 @@ const tokensHtml = tokenKinds
   })
   .join("");
 
+// The two rules on corners and icons the design guide states, each with its example.
+const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
+const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
+<div class="rules">
+<div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}, goes on every surface large enough to show it at its full value.</p></div>
+<div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Smaller marks, a colour swatch or a list marker, are square, never a scaled corner.</p></div>
+<div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
+</div>`;
+
 // Logos: one card per logo with its light, night, outline and print files as downloads.
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));
 const bases = [
@@ -145,13 +154,28 @@ const bases = [
   ),
 ];
 const LOGO_NOTES: Record<string, string> = {
-  lockup:
-    "The standard logo: wizard beside the pixel wordmark. Every surface without its own row: screens, slides, documents, website, banners, notebook, cloth.",
-  "lockup-compact":
-    "Stacked, for small and square spots: mug, lock screens. The iPhone lock screen keeps it at its smaller size.",
-  wordmark:
-    "The wordmark alone, for textiles: shirts, hoodie and stickers. Also where the wizard already appears nearby, and in its white or black cut where a surface allows one colour only.",
+  lockup: "The standard logo: the wizard beside the pixel wordmark.",
+  "lockup-compact": "The wizard over the wordmark, for small spots.",
+  wordmark: "The wordmark alone. Its white and black cuts carry every letter in that one colour.",
 };
+// Which logo goes where, as the design guide's logo table states it.
+const LOGO_USE = [
+  [
+    "Every surface without its own row: screens, documents, website, banners, notebook, cloths",
+    "lockup",
+  ],
+  [
+    "Slides",
+    "lockup on the title and the closing slide, wordmark on every other slide; a delivered deck keeps the lockup on every slide",
+  ],
+  ["Shirts, hoodie, stickers", "wordmark"],
+  ["Small spots: mug, lock screens", "lockup-compact"],
+  [
+    "A surface that allows one colour only, such as a partner wall in white",
+    "wordmark-white or wordmark-black",
+  ],
+  ["Mail signature", "its typed wordmark, under Applications"],
+];
 const logoCard = (base: string) => {
   const files = logoFiles.filter((p) =>
     new RegExp(`^logos/${base}(-night|-outline|-white|-black|-cmyk)?\\.\\w+$`).test(p),
@@ -159,15 +183,19 @@ const logoCard = (base: string) => {
   const show = files.find((p) => p.endsWith(`${base}.svg`)) ?? files.find((p) => /png$/.test(p));
   const night = files.find((p) => p.endsWith(`${base}-night.svg`)) ?? show;
   const outline = files.find((p) => p.endsWith(`${base}-outline.svg`));
+  const white = files.find((p) => p.endsWith(`${base}-white.svg`));
+  const black = files.find((p) => p.endsWith(`${base}-black.svg`));
+  const tile = (src: string | undefined, cls: string, label: string) =>
+    src
+      ? `<figure class="${cls}"><img src="${src}" alt="${esc(base)}, ${esc(label)}"><figcaption>${esc(label)}</figcaption></figure>`
+      : "";
   index.push({
     t: base,
     k: "logo",
     h: `logos/logo-${base}`,
     x: `${files.join(" ")} download logo`,
   });
-  return `<article class="logo" id="logo-${base}"><div class="pair">${
-    show ? `<img class="on-light" src="${show}" alt="${esc(base)} on light">` : ""
-  }${night ? `<img class="on-dark" src="${night}" alt="${esc(base)} on dark">` : ""}${outline ? `<img class="on-purple-love" src="${outline}" alt="${esc(base)} outlined on Purple Love"><img class="on-gradient" src="${outline}" alt="${esc(base)} outlined on the gradient">` : ""}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
+  return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day, on light")}${tile(night, "on-dark", "night cut, on night")}${tile(outline, "on-purple-love", "outline cut, on Purple Love")}${tile(outline, "on-gradient", "outline cut, on the gradient")}${tile(white, "on-dark", "white cut")}${tile(black, "on-light", "black cut")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
     .map(
       (p) =>
         `<a href="${p}" download>${esc(
@@ -323,84 +351,87 @@ const navTree = tree
   .join("");
 
 // Applications: every family of brand files in use, from applications/. A retired file is deleted;
-// git history keeps it.
+// git history keeps it. One card per file name, its formats as downloads beside it.
 type Family = {
   id: string;
   title: string;
   note: string;
   dir?: string;
-  match?: RegExp;
   link?: [string, string];
+  // The grounds a card previews its file on, where the file is made for one: [background, label].
+  grounds?: (stem: string) => [string, string][];
 };
+const TEXTILE = { "Purple Love": "#6c5a9e", Stargazer: "#39505c", black: "#2a2b2d" }; // Stanley/Stella textile colours, no brand token
 const FAMILIES: Family[] = [
   {
     id: "backgrounds",
     title: "Backgrounds for devices and calls",
-    note: "The dark (night) family: the wizard over the wordmark on MacBook and lock screens, the lockup across the home screens, a small lockup above the head in calls. Set on the devices by hand.",
-    dir: `applications/backgrounds`,
-    match: /\.png$/,
+    note: "The dark (night) family: the compact lockup on MacBook, Studio Display and lock screens, the lockup across the home screens, a small lockup above the head in calls. Set on the devices by hand.",
+    dir: "applications/backgrounds",
   },
   {
     id: "booth",
     title: "Booth banners",
-    note: "Pixlip frames, 1 x 1 m and 1 x 2 m: the light grey (#E6EAED) pair for dark stand walls, the dark pair for light walls, and the gradient pair: the brand gradient over the whole banner with the logo in its outline cut and only large white type, a PNG preview beside each of its PDFs.",
+    note: "Pixlip frames, 1 x 1 m and 1 x 2 m, each PDF the print file (final format plus 20 mm bleed) with a PNG preview beside it: the light grey (#E6EAED) pair for dark stand walls, the dark pair for light walls, and the gradient pair, the brand gradient over the whole banner with the logo in its outline cut and only large white type.",
     dir: "applications/booth",
-    match: /^booth-banner.*\.(pdf|png)$/,
   },
   {
     id: "channel-banners",
     title: "Channel banners",
-    note: "The airy version in light teal with two profile slides, one file per platform.",
-    dir: `applications/channel-banners`,
-    match: /\.png$/,
+    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, the first LinkedIn profile slide, YouTube and OMR Reviews. The banners with client logos never enter this repo.",
+    dir: "applications/channel-banners",
   },
   {
     id: "avatars",
     title: "Avatars and workspace icons",
-    note: "The favicon tile, one file per platform.",
-    dir: `applications/avatars`,
-    match: /\.(png|svg)$/,
+    note: "The favicon tile, one file per platform; Google Workspace takes the lockup at 320 x 132.",
+    dir: "applications/avatars",
   },
   {
     id: "gradients",
     title: "Gradients",
-    note: "Linear, mesh and radial brand gradients; the Illustrator source sits beside them.",
-    dir: `applications/gradients`,
-    match: /\.png$/,
+    note: "Linear, mesh and radial brand gradients, with the Illustrator source.",
+    dir: "applications/gradients",
   },
   {
     id: "overlays",
     title: "Overlays",
-    note: "Brand overlays for images.",
-    dir: `applications/overlays`,
-    match: /\.png$/,
+    note: "White texture overlays for images, shown here on night.",
+    dir: "applications/overlays",
+    grounds: () => [["var(--color-night)", "on night"]],
   },
   {
     id: "visuals",
     title: "Visuals",
     note: "The party visual, with and without background.",
-    dir: `applications/visuals`,
-    match: /\.png$/,
+    dir: "applications/visuals",
   },
   {
     id: "merch",
     title: "Merch print files",
-    note: "Shirt, hoodie, stickers, cleaning cloths, mug and notebook, each as SVG in millimetres with a PDF beside it; the embroidery source emoji-logo-7color.ai sits with them.",
+    note: "Each file as SVG in millimetres with a PDF beside it. Shirt, hoodie and stickers carry the wordmark alone: the outline cut on the T12 shirt front and back, in Purple Love and Stargazer, the night cut on the black hoodie and the night stickers. Cloths and notebook carry the lockup, the mug the compact lockup.",
     dir: "applications/merch",
-    match: /\.svg$/,
+    grounds: (stem) =>
+      stem.startsWith("shirt")
+        ? [
+            [TEXTILE["Purple Love"], "on Purple Love"],
+            [TEXTILE.Stargazer, "on Stargazer"],
+          ]
+        : stem.startsWith("hoodie")
+          ? [[TEXTILE.black, "on black"]]
+          : [],
   },
   {
     id: "mail-signature",
     title: "Mail signatures",
     note: "One signature for every mail, new mails and replies alike: the typed wordmark in colour, name, role, contact line and the three lines § 35a GmbHG requires. One HTML file per person to open in a browser and copy into the mail client, and a plain-text file for the iPhone. Links in teal #1A7285 (5.54:1 on white).",
     dir: "applications/mail-signature",
-    match: /\.(html|txt)$/,
   },
   {
     id: "slides",
     title: "Slides",
-    note: "There is no slide template file: decks are built in the talks slide engine.",
-    link: ["#sys-talks", "the talks slide engine, live"],
+    note: "Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide.",
+    link: ["#sys-talks", "the slides, live"],
   },
   {
     id: "documents",
@@ -409,43 +440,65 @@ const FAMILIES: Family[] = [
     link: ["#sys-os", "the document components in os, live"],
   },
 ];
-const assetFiles = (dir: string, match: RegExp) => {
+// Not shown: the scripts that build a family and their inputs, and the embroidery wizard, which the
+// design guide's logo table does not put on textiles.
+const SKIP = /\.(ts|py|css)$|^qr-|^emoji-logo-7color\.ai$/;
+const PREVIEW = ["png", "svg", "html", "txt"];
+const assetStems = (dir: string) => {
   const abs = join(ROOT, dir);
-  return existsSync(abs)
-    ? readdirSync(abs)
-        .filter((f) => match.test(f))
-        .sort()
-    : [];
+  const stems = new Map<string, string[]>();
+  for (const f of existsSync(abs) ? readdirSync(abs).sort() : []) {
+    if (SKIP.test(f)) continue;
+    const stem = f.replace(/\.\w+$/, "");
+    stems.set(stem, [...(stems.get(stem) ?? []), f]);
+  }
+  return stems;
 };
-const assetCard = (dir: string, f: string, fam: Family) => {
+const assetCard = (dir: string, stem: string, files: string[], fam: Family) => {
+  const id = `a-${slug(`${fam.id}-${stem}`)}`;
   index.push({
-    t: f,
+    t: stem,
     k: "application",
-    h: `applications/a-${slug(`${fam.id}-${f}`)}`,
-    x: `${fam.title} ${fam.note}`,
+    h: `applications/${id}`,
+    x: `${files.join(" ")} ${fam.title}`,
   });
-  const href = `${dir}/${esc(f)}`;
-  return `<figure class="asset" id="a-${slug(`${fam.id}-${f}`)}"><a href="${href}" target="_blank">${
-    f.endsWith(".pdf")
-      ? `<span class="pdf">PDF</span>`
-      : /\.(html|txt)$/.test(f)
-        ? `<iframe src="${href}" title="${esc(f)}" loading="lazy"></iframe>`
-        : `<img src="${href}" alt="${esc(f)}" loading="lazy">`
-  }</a><figcaption>${code(f)} <a href="${href}" download>download</a></figcaption></figure>`;
+  const ext = (f: string) => f.split(".").pop()!;
+  const shown = PREVIEW.map((e) => files.find((f) => ext(f) === e)).find(Boolean);
+  const href = (f: string) => `${dir}/${esc(f)}`;
+  const grounds = fam.grounds?.(stem) ?? [];
+  const view = (bg?: string, label?: string) =>
+    !shown
+      ? `<span class="pdf">${esc(ext(files[0]).toUpperCase())}</span>`
+      : /^(html|txt)$/.test(ext(shown))
+        ? `<iframe src="${href(shown)}" title="${esc(stem)}" loading="lazy"></iframe>`
+        : `<img src="${href(shown)}" alt="${esc(stem)}${label ? ` ${esc(label)}` : ""}" loading="lazy"${bg ? ` style="background:${bg}"` : ""}>`;
+  const views = grounds.length
+    ? grounds
+        .map(
+          ([bg, label]) =>
+            `<a href="${href(shown ?? files[0])}" target="_blank" title="${esc(label)}">${view(bg, label)}</a>`,
+        )
+        .join("")
+    : `<a href="${href(shown ?? files[0])}" target="_blank">${view()}</a>`;
+  return `<figure class="asset" id="${id}"><div class="views">${views}</div><figcaption>${code(stem)}${grounds.length ? ` <span class="meta">${grounds.map(([, l]) => esc(l)).join(", ")}</span>` : ""}<span class="dl">${files.map((f) => `<a href="${href(f)}" download>${esc(ext(f))}</a>`).join("")}</span></figcaption></figure>`;
 };
+const familyStems = new Map(
+  FAMILIES.map((f) => [f.id, f.dir ? assetStems(f.dir) : new Map<string, string[]>()]),
+);
+const fileCount = (id: string) => [...familyStems.get(id)!.values()].flat().length;
 const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],
   FAMILIES.map((f) => [
     `<a href="#applications/app-${f.id}">${esc(f.title)}</a>`,
-    f.dir ? String(assetFiles(f.dir, f.match!).length) : "",
+    f.dir ? String(fileCount(f.id)) : "",
   ]),
 )}
 ${FAMILIES.map((f) => {
-  const files = f.dir ? assetFiles(f.dir, f.match!) : [];
+  const stems = familyStems.get(f.id)!;
   return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}${f.link ? ` See <a href="${f.link[0]}">${esc(f.link[1])}</a>.` : ""}</p>${
     f.dir
-      ? `<p class="meta">${esc(f.dir.replace("../", ""))}</p><div class="assets">${files.map((x) => assetCard(f.dir!, x, f)).join("")}</div>`
+      ? `<p class="meta">${esc(f.dir)}</p><div class="assets">${[...stems].map(([stem, files]) => assetCard(f.dir!, stem, files, f)).join("")}</div>`
       : ""
   }`;
 }).join("")}`;
@@ -528,23 +581,25 @@ ${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
 ${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
 ${tile("compare", "Compare", "Pick systems and a kind of component or token, see them live side by side")}
 ${systems.map((s) => tile(`sys-${s.name}`, esc(s.name), s.stories ? `${components(s).length} components live` : "not rendered")).join("")}
-${tile("applications", "Applications", `${FAMILIES.length} families: backgrounds, booth, banners, avatars, gradients, mail signatures, slides, documents`)}
+${tile("applications", "Applications", `${FAMILIES.length} families: ${FAMILIES.map((f) => f.id.replace("-", " ")).join(", ")}`)}
 ${tile("health", "Health", `${driftLine} · off-token hex: ${offHex} · ${scan.aboveAllowlist.length} file(s) above the allowlist`)}
 </div>
 <h3>Refresh</h3>
 ${table(
   ["Source", "Refresh"],
   [
-    ["Tokens, logos", code("bun run tokens")],
+    ["Tokens", code("bun run tokens")],
+    ["Logo cuts", code("bun scripts/outline.ts")],
     ["Live component pages", `${code("bun run live")}, after building each repo`],
     ["Drift, scan", code("bun run report")],
   ],
 )}
 <h3>Quick start</h3>
 <ul>
-<li>Logo for a slide or a document: <a href="logos/lockup.svg" download>lockup.svg</a>, on dark <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, square <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>.</li>
-<li>Slides: there is no slide template file. Decks are built in the talks slide engine (<code>styles/slides.css</code>); its title, content and closing slides are under <a href="#sys-talks">talks</a>.</li>
-<li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the talks slide engine.</li>
+<li>Logo for a document or a screen: <a href="logos/lockup.svg" download>lockup.svg</a>, on night <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, on Purple Love, Stargazer or the gradient <a href="logos/lockup-outline.svg" download>lockup-outline.svg</a>; for small spots <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>. Which logo where: <a href="#logos">Logos</a>.</li>
+<li>Print: textiles and stickers take the wordmark alone, the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
+<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its title, content and closing slides are under <a href="#sys-talks">talks</a>.</li>
+<li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the slide engine.</li>
 <li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
 </ul>`;
 
@@ -552,11 +607,16 @@ const pages: [string, string, string][] = [
   ["overview", "Overview", overview],
   ["colours", "Colours", colourGroups.join("") + rolesHtml],
   ["type", "Type", roles],
-  ["tokens", "Spacing, radius, shadow, layout", tokensHtml],
+  ["tokens", "Spacing, radius, shadow, layout", cornersHtml + tokensHtml],
   [
     "logos",
     "Logos",
-    `<p>Three logos, each one line: the lockup is the standard, the wordmark alone goes on textiles and stickers, the compact lockup on small spots. The mail signature keeps the typed wordmark. On night, black and black textile take the night cut, with a grey edge round the wizard; on Purple Love, Stargazer and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Alignment rules: <code>README.md</code>, "Use it in another repo".</p>${logosHtml}`,
+    `<p>Three logos, each one line. The ground picks the cut: on light the day file; on night, black and black textile the night cut, with a grey edge round the wizard; on Purple Love, Stargazer and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Gap, lift and alignment: <code>README.md</code>, "Use it in another repo".</p>
+${table(
+  ["Surface", "Logo"],
+  LOGO_USE.map(([where, logo]) => [esc(where), esc(logo)]),
+)}
+${logosHtml}`,
   ],
   ["compare", "Compare", compareHtml],
   ["applications", "Applications: the brand in use", applicationsHtml],
@@ -655,12 +715,15 @@ const html = `<!doctype html>
   .tile:hover { border-color: var(--color-teal); }
   .tile strong { font-family: var(--font-mono); font-size: var(--text-h4); }
   .tile span { color: var(--color-muted); }
-  .logos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
+  .logos { display: grid; gap: 1rem; margin-top: 1.5rem; }
   .logo { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
   .logo h3 { margin: 0.75rem 0 0.25rem; }
   .logo p { margin: 0.25rem 0; }
-  .pair { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.5rem; }
-  .pair img { width: 100%; height: 6rem; object-fit: contain; padding: 0.75rem; box-sizing: border-box; border-radius: 12px 3px; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.5rem; }
+  .pair figure { margin: 0; border-radius: 12px 3px; }
+  .pair img { display: block; width: 100%; height: 7.5rem; object-fit: contain; padding: 1rem 1.25rem 0.5rem; box-sizing: border-box; }
+  .pair figcaption { padding: 0 0.75rem 0.5rem; font: 0.7rem var(--font-code); color: var(--color-muted); }
+  .pair .on-dark figcaption, .pair .on-gradient figcaption, .pair .on-purple-love figcaption { color: rgb(255 255 255 / 0.8); }
   .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
   .on-dark { background: var(--color-night); }
   .on-gradient { background: var(--gradient-magic); }
@@ -670,6 +733,13 @@ const html = `<!doctype html>
   .dl a:hover { background: var(--color-tint); }
   .pv { width: 4rem; height: 2rem; background: var(--color-white); border: 1px solid var(--color-border); }
   .pv.bar { height: 0.5rem; max-width: 100%; background: var(--color-teal); border: 0; }
+  .rules { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-bottom: 1rem; }
+  .rules > div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
+  .rules p { margin: 0.5rem 0 0; }
+  .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
+  .square-demo, .icon-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
+  .square-demo .sw { width: 1.25rem; height: 1.25rem; border-radius: 0; background: var(--color-teal); }
+  .icon-demo { color: var(--color-teal-dark); font-weight: 500; }
   .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
   .role p { margin: 0.25rem 0 0; }
   .warn { border-left: 3px solid var(--color-amber); padding-left: 0.75rem; }
@@ -715,6 +785,10 @@ const html = `<!doctype html>
   .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
   .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
   .asset { margin: 0; }
+  .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
+  .asset:has(.views > a + a) { grid-column: span 2; }
+  .asset img[style] { padding: 0.75rem; }
+  .asset .dl { display: block; }
   .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: 12px 3px; box-sizing: border-box; }
   .asset img[src$=".png"] { object-fit: scale-down; }
   .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
