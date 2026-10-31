@@ -385,6 +385,12 @@ const FAMILIES: Family[] = [
     dir: "applications/channel-banners",
   },
   {
+    id: "linkedin-visuals",
+    title: "LinkedIn post images",
+    note: "Every post image, 1080 x 1350: the headline in white on the gradient band, the image as a card below it, the lockup on the tint. frame.ts frames a photo, a sketch or a terminal; terminal.ts renders the dark terminal window from a spec; sketch-prompt.txt is the prompt for a generated marker sketch. Company OS runs both scripts from the package.",
+    dir: "applications/linkedin-visuals",
+  },
+  {
     id: "avatars",
     title: "Avatars and workspace icons",
     note: "The favicon tile, one file per platform; Google Workspace takes the lockup at 320 x 132.",
