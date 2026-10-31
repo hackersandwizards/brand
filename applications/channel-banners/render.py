@@ -64,23 +64,26 @@ def logos(band, radius, items):
 
 
 # "align": the lockup's left or right edge on the same edge of the content block
-PROFILE_LOCKUP = {"h": 79.8}
-S2_HEAD = (479, 110, 49.0, -0.050)
+# Profile slides: the lockup on top at the same position on both slides, content below
+PROFILE_LOCKUP = {"h": 79.8, "anchor": 84, "align": "left"}
+S2_HEAD = (479, 176, 49.0, -0.050)
 SURFACES = {
     "profile-1": {
         "size": (1584, 396),
-        "lines": two_lines([("Your whole company unstoppable,", 0)], [("in flow with ", 0), ("agentic engineering.", 1)]),
-        "lockup": {**PROFILE_LOCKUP, "anchor": 306.9, "align": "left"},
+        "lines": two_lines(
+            [("Your whole company unstoppable,", 0)], [("in flow with ", 0), ("agentic engineering.", 1)], b1=178, b2=231
+        ),
+        "lockup": PROFILE_LOCKUP,
     },
     "profile-2": {
         "size": (1584, 396),
         "lines": [headline(*S2_HEAD, ("200+", 1), (" teams trained.", 0))],
         "logos": logos(
-            (480, 150, 1330, 260),
+            (480, 196, 1330, 306),
             14,
-            [("mercedes-benz", 569, 204.5, 63), ("dm", 682.5, 204.5, 59), ("tchibo", 842, 204.5, 47), ("vorwerk", 1025, 204.5, 53), ("bonprix", 1201.5, 204.5, 45)],
+            [("mercedes-benz", 569, 250.5, 63), ("dm", 682.5, 250.5, 59), ("tchibo", 842, 250.5, 47), ("vorwerk", 1025, 250.5, 53), ("bonprix", 1201.5, 250.5, 45)],
         ),
-        "lockup": {**PROFILE_LOCKUP, "anchor": 328.9, "align": "right"},
+        "lockup": PROFILE_LOCKUP,
     },
     "company-cover": {
         "size": (1512, 256),
