@@ -47,7 +47,8 @@ The logo is one line, with no line under it: the wizard beside the pixel wordmar
 and lock screens. Slides carry the lockup on the title and the closing slide and the wordmark alone on
 every other slide. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
 cut for night, black and black textile, and an `-outline` cut, a white outline round the letters,
-for Purple Love, Stargazer and the gradient. The wordmark alone also has a `-white` and a `-black`
+for Purple Love, Stargazer and the gradient. The package ships the SVGs and, for a tool that cannot
+draw SVG such as a PPTX export, the PNG of the lockup and of the wordmark. The wordmark alone also has a `-white` and a `-black`
 cut, every letter in that one colour, for a surface that allows one colour only, such as a partner
 wall that shows every logo in white. In the night and outline cuts, the wizard of the lockup and the compact lockup
 carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night
