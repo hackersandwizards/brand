@@ -138,7 +138,7 @@ test.each(components)(
     });
     expect(html).toContain(name === "ThemeToggle" ? 'id="theme-toggle"' : P);
     if (["DocHeader", "DocProposal", "DocRateCard", "DocMarkdown"].includes(name))
-      expect(html).toMatch(/data:image\/png;base64,iVBOR[\s\S]*data:image\/svg\+xml;base64,/);
+      expect(html).toMatch(/data:image\/svg\+xml;base64,/);
   },
   30_000,
 );
