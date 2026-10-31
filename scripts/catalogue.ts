@@ -450,7 +450,7 @@ const deviceHtml = `<div class="devices">${stickerCaptions()
       (_, w, h) =>
         `width="${(+w * 1.35).toFixed(1)}" height="${(+h * 1.35).toFixed(1)}" role="img" aria-label="${esc(title)}"`,
     );
-    return `<figure id="${id}">${svg}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<a href="${DEVICES}/${file}.svg" download>${file}.svg</a></figcaption></figure>`;
+    return `<figure id="${id}">${svg}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<span class="dl"><a href="${DEVICES}/${file}.svg" download>svg</a></span></figcaption></figure>`;
   })
   .join("")}</div>`;
 // Mail signature: the template filled for a fictitious person.
