@@ -12,8 +12,5 @@ node_modules/
 
 .eslintcache
 
-# Captures of the sibling catalogues: os and trainer-hub stories carry fixtures trainers may not see
-captures/
-
 # Python bytecode from uv run applications/channel-banners/render.py
 __pycache__/

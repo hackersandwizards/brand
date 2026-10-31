@@ -1,8 +1,8 @@
 # CLAUDE.md
 
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
-static fonts, logos, the expert UI layer and the document components, plus a read-only scan and
-drift report over the sibling repos. The reasoning is in os
+static fonts, logos, the expert UI layer and the document components, the colour scan each
+consumer runs in its own gate, plus a read-only drift and duplicate report over the sibling repos. The reasoning is in os
 `docs/tracking/2026-10-29-brand-distribution.md`.
 
 This repo stays private on GitHub
@@ -37,34 +37,39 @@ discount, margin, offer, invoice, client term, personal data or secret.
   retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
-- `repos.json`: each sibling repo, its path from here, its own catalogue and where it still holds
-  copies of brand files instead of installing the package.
-- `scan-allowlist.json`: the scan's ratchet. It may only shrink; a test fails where it grows
-  against `HEAD`.
-- `reports/`, `catalogue.html`: the last scan and drift run and the page that shows them.
+- `scan/colours.ts`: the colour scan, shipped as the `brand-colours` command. Each consumer runs it
+  in its own `bun run check` and keeps its exceptions, with their reasons, in its own
+  `brand-colours.json`.
+- `repos.json`: each sibling repo, its path from here, its own design-system page and where it
+  still holds copies of brand files instead of installing the package.
+- `scan-allowlist.json`: the component names allowed in more than one repo, each with its reason.
+  It may only shrink; a test fails where it grows against `HEAD`.
+- `catalogue.html`: the brand portal, generated from this repo's files only by
+  `scripts/catalogue.ts`. Never edit it; run `bun run catalogue`.
 
 ## Commands
 
 - `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
-  scanner, allowlist ratchet, drift control) and the freshness of `generated/`. No hook runs it:
+  scanners, allowlist ratchet, drift control) and the freshness of `generated/` and
+  `catalogue.html`. No hook runs it:
   `.githooks/pre-commit` scans the staged changes with `gitleaks` and runs `prettier --check` and
   `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
-- `bun run report`: scan, drift and `catalogue.html`. The scan exits 1 where a sibling's count rises
-  above the allowlist; the drift report never fails.
-- `bun run live`: turns each repo's catalogue, from its last build, into pages that open from disk
-  with that repo's own CSS, in `captures/live/` (gitignored: the os and trainer-hub stories carry
-  Company OS fixtures), and rebuilds `catalogue.html`, which embeds them as frames.
-- `bun run scan -- --tighten`: lower the allowlist to today's counts. Never raise an entry by hand.
+- `bun run catalogue`: rebuild `catalogue.html`.
+- `bun run drift`: the siblings' copies of brand files against `manifest.json`; it never fails.
+- `bun run scan`: component names in more than one sibling, against `scan-allowlist.json`; exits 1
+  on an unlisted one. `-- --tighten` drops entries no longer found. Never add an entry by hand.
 
 ## Rules
 
 - A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
   Other repos take it from the package; a copy one still holds shows as drift until it goes.
-- The scan and drift read each sibling's last commit through git and never its working tree.
+- The drift and duplicate reports read each sibling's last commit through git and never its working
+  tree. Nothing about another repo goes on `catalogue.html`: each system shows its components on
+  its own design-system page, which the catalogue links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, the document components, fonts with their OFL texts, small logos,
-  the client marks, the press photos and `LICENSE`. `test/package.test.ts` fails on anything else.
+  the client marks, the press photos, the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
 - The slide engine is its own package, `@hackersandwizards/slides`, and never enters this package,
   not even a primitive.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub

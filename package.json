@@ -2,7 +2,7 @@
   "name": "@hackersandwizards/brand",
   "version": "0.9.9",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components and the press photos.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components, the press photos and the colour scan a consumer runs in its gate.",
   "keywords": [
     "astro-component"
   ],
@@ -28,6 +28,9 @@
     "./clients/*": "./clients/*",
     "./press/*": "./press/*"
   },
+  "bin": {
+    "brand-colours": "scan/colours.ts"
+  },
   "files": [
     "tokens",
     "generated",
@@ -38,11 +41,12 @@
     "logos/type-logo-long.png",
     "logos/type-logo-short.png",
     "clients",
-    "press"
+    "press",
+    "scan/colours.ts"
   ],
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$PWD\" ] && git config core.hooksPath .githooks || true",
-    "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check && bun scripts/catalogue.ts --check",
     "lint": "eslint --cache --concurrency=auto .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
@@ -51,9 +55,7 @@
     "tokens": "bun scripts/tokens.ts",
     "scan": "bun scripts/scan.ts",
     "drift": "bun scripts/drift.ts",
-    "catalogue": "bun scripts/catalogue.ts",
-    "live": "bun scripts/live.ts && bun scripts/catalogue.ts",
-    "report": "bun scripts/scan.ts; s=$?; bun scripts/drift.ts && bun scripts/catalogue.ts && exit $s"
+    "catalogue": "bun scripts/catalogue.ts"
   },
   "overrides": {
     "minimatch": "11.0.3"
