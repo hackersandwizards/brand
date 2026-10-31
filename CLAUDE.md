@@ -5,17 +5,17 @@ static fonts, logos, the expert UI layer, the colour scan each
 consumer runs in its own gate, plus a read-only drift and duplicate report over the sibling repos. The reasoning is in os
 `docs/tracking/2026-10-29-brand-distribution.md`.
 
-This repo stays private on GitHub
-(`github.com/hackersandwizards/brand`, team `trainers` read), consumers install it as a Git
-dependency pinned to a tag, `git+ssh://git@github.com/hackersandwizards/brand.git#v<version>`. Only
-this address form installs; why, and the access it needs: `README.md`, "Why the `git+ssh://` form". No registry. The rollout is staged: this core first, component packages from
-talks and os later, moving into the core only once two surfaces share them. `"private": true`
-stays: nothing is ever published. A release is a tag `v<version>` matching `package.json`. Nothing
-here writes into another repo: no sync, no copy script.
+This repo is public on GitHub (`github.com/hackersandwizards/brand`), its history included.
+Consumers install it as a Git dependency pinned to a tag,
+`git+https://github.com/hackersandwizards/brand.git#v<version>`, which needs no GitHub access. No
+registry. The rollout is staged: this core first, component packages from talks and os later,
+moving into the core only once two surfaces share them. `"private": true` stays: nothing is ever
+published to a registry. A release is a tag `v<version>` matching `package.json`. Nothing here
+writes into another repo: no sync, no copy script.
 
-**External trainers can read this whole repo, its history included**, because the trainer hub
-installs it as a Git dependency. Nothing goes in that a trainer may not see: no price, rate,
-discount, margin, offer, invoice, client term, personal data or secret.
+**Anyone can read this whole repo, its history included.** Nothing goes in that may not be
+public: no price, rate, discount, margin, offer, invoice, client term, client document, personal
+data or secret.
 
 ## Layout
 

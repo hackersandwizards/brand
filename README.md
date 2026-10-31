@@ -1,21 +1,21 @@
 # @hackersandwizards/brand
 
-The hackers&wizards brand as one private package: design tokens, the print layer with its static
+The hackers&wizards brand as one package: design tokens, the print layer with its static
 fonts, the logos and the expert UI layer with the components Company OS and the trainer hub share.
 The document components the PDFs are built from are the document engine,
 `@hackersandwizards/documents`.
 
-Maintainer: Benedikt Stemmildt. Trainers can read the whole repo, its history
-included, so nothing goes in that a trainer may not see.
+Maintainer: Benedikt Stemmildt. The repo is public, its history included, so nothing goes in
+that may not be public.
 
 ## Use it in another repo
 
 Add the dependency in exactly this form, pinned to the newest tag
-(`git ls-remote --tags https://github.com/hackersandwizards/brand.git` lists them). Your machine needs
-GitHub read access to this repo; the check is in your repo's README, the reason below.
+(`git ls-remote --tags https://github.com/hackersandwizards/brand.git` lists them). The install
+needs no GitHub access.
 
 ```json
-"@hackersandwizards/brand": "git+ssh://git@github.com/hackersandwizards/brand.git#v<version>"
+"@hackersandwizards/brand": "git+https://github.com/hackersandwizards/brand.git#v<version>"
 ```
 
 Then import what you need. The colours, each hue's roles (base, text on light, night, tints) and
@@ -127,17 +127,10 @@ A release is a tag `v<version>` that matches `version` in `package.json`; consum
 tag in their dependency line. Every brand file changes here; the rest of the rules:
 [CLAUDE.md](CLAUDE.md).
 
-## Why the `git+ssh://` form
+## Why the `git+https://` form
 
-The package is never published to a registry. Bun rewrites `git+https://github.com/...` and
-`github:` to GitHub's tarball API, which answers 404 for a private repo, `GITHUB_TOKEN` set or not.
-With the `git+ssh://` form Bun clones through git: first over HTTPS with the machine's credential
-helper, then over SSH. An install therefore needs GitHub read access to `hackersandwizards/brand`,
-through `gh auth login` plus `gh auth setup-git`, or an SSH key. With neither, Bun stops at
-`error: InstallFailed cloning repository for @hackersandwizards/brand`, which names no cause, and no
-`preinstall` script runs that could explain it.
-
-A machine without access cannot open this README, so each consumer's README carries the two access
-checks and both fixes in its setup section.
+The package is never published to a registry. Bun rewrites `git+https://github.com/...` to
+GitHub's tarball API, which serves this public repo without a login, a key or any git
+configuration. Git LFS files arrive as pointers; the package ships none.
 
 Licence: PolyForm Strict 1.0.0, see [LICENSE](LICENSE).
