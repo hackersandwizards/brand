@@ -32,8 +32,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
   device and call backgrounds, channel banners, avatars, booth banners, gradients,
   merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`,
-  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). The banners
-  with client logos never enter this repo: `render.py` writes them only to `--clients-out`. A
+  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). Every channel
+  banner lives in `applications/channel-banners/`, the ones with client logos included. A
   retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.

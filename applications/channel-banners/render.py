@@ -6,11 +6,10 @@
 
 Run from the brand repo root:
 
-    uv run applications/channel-banners/render.py [--clients-out DIR]
+    uv run applications/channel-banners/render.py
 
-The banners with client logos (profile slide 2, the Featured link) never enter this repo, since
-trainers read it: they render only with --clients-out, into the folder it names, from the marks
-in clients/. Layout values are measured from the airy set as shipped.
+The banners with client logos (profile slide 2, the Featured link) take their marks from clients/.
+Layout values are measured from the airy set as shipped.
 """
 
 import argparse
@@ -237,14 +236,10 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
     return img
 
 
-def build(out, accent, clients_out=None):
+def build(out, accent):
     out.mkdir(parents=True, exist_ok=True)
-    if clients_out:
-        clients_out.mkdir(parents=True, exist_ok=True)
     for file, (name, k) in REPO_FILES.items():
-        dest = clients_out if "logos" in SURFACES[name] else out
-        if dest:
-            render(name, accent, k).save(dest / file, optimize=True)
+        render(name, accent, k).save(out / file, optimize=True)
     # Canva page 4200 x 700: the cover layout on a 1536 x 256 canvas, 12 px each side, scaled
     cv = {"canvas": (1536, 256), "margin": 12, "k": 4200 / 1536}
     render("company-cover", accent, **cv).save(out / "linkedin-company-cover-canva-4200x700.png", optimize=True)
@@ -257,6 +252,5 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--accent", choices=ACCENTS, default="teal")
     p.add_argument("--out", type=Path, default=DOCS, help="candidates go elsewhere; the default writes the shipped set")
-    p.add_argument("--clients-out", type=Path, help="where the banners with client logos go; without it they are skipped")
     a = p.parse_args()
-    build(a.out, a.accent, clients_out=a.clients_out)
+    build(a.out, a.accent)
