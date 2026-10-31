@@ -30,12 +30,14 @@ discount, margin, offer, invoice, client term, personal data or secret.
   mark's source where known. `"onepager": false` keeps a mark off the os onepagers' client row,
   which shows every other entry. Outside `manifest.json`.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
-  device and call backgrounds, channel banners, avatars, booth banners, gradients,
-  merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
+  device and call backgrounds, channel banners, LinkedIn post images, avatars, booth banners,
+  gradients, merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`,
-  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). Every channel
-  banner lives in `applications/channel-banners/`, the ones with client logos included. A
-  retired file is deleted; git history keeps it.
+  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/frame.ts` and
+  `terminal.ts` write a post's image to the path the caller names, and Company OS runs them from the
+  package; `sketch-prompt.txt` is the generated sketch's prompt. Every
+  channel banner lives in `applications/channel-banners/`, the ones with client logos included.
+  A retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
 - `repos.json`: each sibling repo, its path from here, its own catalogue and where it still holds
@@ -65,7 +67,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - The scan and drift read each sibling's last commit through git and never its working tree.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, the document components, fonts with their OFL texts, small logos,
-  the client marks, the press photos and `LICENSE`. `test/package.test.ts` fails on anything else.
+  the client marks, the press photos, the LinkedIn post renderers `applications/linkedin-visuals/*.ts`
+  and `LICENSE`. `test/package.test.ts` fails on anything else.
 - The slide engine is its own package, `@hackersandwizards/slides`, and never enters this package,
   not even a primitive.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
