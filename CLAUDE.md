@@ -27,7 +27,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
   `src/data/profiles.ts` and os `documents/people/`, the company description in the website's copy.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
   name and mark file in display order, keeping neighbours from different industries, with the
-  mark's source where known. Outside `manifest.json`.
+  mark's source where known. `"onepager": false` keeps a mark off the os onepagers' client row,
+  which shows every other entry. Outside `manifest.json`.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
   device and call backgrounds, channel banners, avatars, booth banners, gradients,
   merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
