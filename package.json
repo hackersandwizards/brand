@@ -57,12 +57,12 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/bun": "1.4.4",
-    "astro": "7.4.2",
-    "eslint": "10.13.0",
+    "astro": "7.4.4",
+    "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "prettier": "3.9.10",
     "sharp": "0.35.5",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.72.0"
+    "typescript-eslint": "8.72.1"
   }
 }
