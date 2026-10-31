@@ -250,7 +250,7 @@
     },
     {
       "path": "document/components/DocHeader.astro",
-      "sha256": "eefaf0efbe2c32742a465afd51b3f77a5b4c9f8c860c2fd699b5dabacdf28d6e"
+      "sha256": "58885ce5fcecf6991e64c1bf61462f5b0ffc2206aed5ca3ba37d21b4af1ff2c3"
     },
     {
       "path": "document/components/DocLead.astro",
