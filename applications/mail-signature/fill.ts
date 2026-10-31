@@ -10,7 +10,6 @@ export type SignatureFields = {
   name: string;
   role: string;
   phone?: string;
-  mail?: string;
   linkedin?: string;
 };
 
@@ -19,7 +18,7 @@ export const EXAMPLE: SignatureFields = {
   name: "Kim Beispiel",
   role: "Freie Trainerin",
   phone: "+49 40 1234 5678",
-  mail: "kim@hackersandwizards.dev",
+  linkedin: "https://www.linkedin.com/in/kim-beispiel",
 };
 
 // ASCII out, every other character as a numeric reference: a signature file opened from disk
@@ -37,7 +36,6 @@ export function fillSignature(
     role: fields.role.trim(),
     phone: fields.phone?.trim() ?? "",
     tel: fields.phone?.replace(/\(0\)|[^\d+]/g, "") ?? "",
-    mail: fields.mail?.trim() ?? "",
     linkedin: fields.linkedin?.trim() ?? "",
     linkedinShort: fields.linkedin?.trim().replace(/^https?:\/\/(www\.)?/, "") ?? "",
   };
