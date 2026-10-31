@@ -52,6 +52,8 @@ with `Script not found`.
 | `brand-linkedin-sketch-prompt`                                | prints the prompt for a generated sketch and its worked examples      |
 | `brand-mail-signature --name <n> --role <r> --out <path>`     | writes a mail signature as HTML and text; all flags in `cli.ts`       |
 | `brand-colours [--tighten]`                                   | the colour scan for your gate, below                                  |
+| `brand-drift`                                                 | checks the brand files you serve as copies, below                     |
+| `brand-scan [--tighten]`                                      | flags a fork of an expert component, below                            |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -65,7 +67,7 @@ and lock screens. Slides carry the lockup on the title and the closing slide and
 every other slide. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
 cut for night, black and black textile, and an `-outline` cut, a white outline round the letters,
 for Purple Love, Stargazer and the gradient. The package ships the SVGs and, for a tool that cannot
-draw SVG such as a PPTX export, the PNG of the lockup, its outline cut and the wordmark. The wordmark alone also has a `-white` and a `-black`
+draw SVG such as a PPTX export, a PNG of every logo except the 4096 px emoji print masters. The wordmark alone also has a `-white` and a `-black`
 cut, every letter in that one colour, for a surface that allows one colour only, such as a partner
 wall that shows every logo in white. In the night and outline cuts, the wizard of the lockup and the compact lockup
 carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night
@@ -102,6 +104,19 @@ An exception goes in `brand-colours.json` beside your `package.json`, one entry 
 counts and the reason, and the list may only shrink: the scan fails where an entry grows against
 `HEAD` or names no reason. `brand-colours --tighten` lowers every entry to today's counts.
 
+### Check your copies and components in your gate
+
+Serve a brand file as a copy only where your build cannot read it from the package. List the copies
+in a `brand-copies.json` in the folder that holds them, with the reason you copy:
+`{ "reason": "...", "copies": { "<file beside>": "<brand path>" } }`. `brand-drift` compares every
+listed copy with the installed package and fails on one that differs or is missing, and where no
+list exists at all: add it to `check` only where you hold copies.
+
+Where you render the expert components, `brand-scan` fails on a component of yours named like one
+of them (`Pill`, `PageHeader`, ...): import it from the package. An exception goes in
+`brand-scan.json` beside your `package.json`, `{ "<lowercase name>": "<reason>" }`, and the list may
+only shrink against `HEAD`.
+
 ## Press kit
 
 `press/` holds the photos of the press kit: `founders.jpg` (Stefan Munz and Benedikt Stemmildt in a
@@ -116,8 +131,6 @@ its size and the credit. With the logos above, they make the ZIP the website's p
 bun install      # also points the git hooks at .githooks/
 bun run check      # format, lint, typecheck, tests, generated/ and catalogue.html up to date
 bun run catalogue  # rebuild catalogue.html
-bun run drift      # compare the sibling repos' copies of brand files with manifest.json
-bun run scan       # component names found in more than one sibling repo
 ```
 
 Open `catalogue.html` from disk for the brand portal: tokens, logos, every family of brand files in

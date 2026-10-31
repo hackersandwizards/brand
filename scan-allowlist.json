@@ -1,5 +1,0 @@
-{
-  "card": "Two different components with one name: the website's marketing card and the trainer hub's content card share no markup or props.",
-  "listrow": "The shared part is expert.css's .list-row class; os's row adds Company OS record actions, assignee and warnings from os code, the trainer hub's is the bare row.",
-  "sectionheader": "Two different media: the website's page section header and the slide engine's section slide."
-}

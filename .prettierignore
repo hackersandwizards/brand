@@ -4,7 +4,6 @@ expert/
 logos/
 generated/
 manifest.json
-scan-allowlist.json
 catalogue.html
 .claude/
 .githooks/

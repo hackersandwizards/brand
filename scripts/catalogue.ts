@@ -9,7 +9,6 @@ import { join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
 import press from "../press/press.json";
-import repos from "../repos.json";
 import { ROOT } from "./git";
 import { stickerUsage } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature, TRAINER_ROLE } from "../applications/mail-signature/fill";
@@ -493,12 +492,18 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
     return `<figure class="asset"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a></figcaption></figure>`;
   })
   .join("")}</div>`;
-// Each system's own design-system page, from repos.json; a system without one is not listed.
-const systemLinks = Object.entries(repos)
-  .flatMap(([name, r]) =>
-    r.catalogues.map((url) => `<li><a href="${esc(url)}">${esc(name)}</a></li>`),
-  )
-  .join("");
+// Each system's own design-system page, served by its dev server; a system without one is not
+// listed.
+const SYSTEMS = [
+  ["website", "http://website.localhost/design-system/"],
+  ["os", "http://os.localhost/design-system/"],
+  ["trainer-hub", "http://trainer-hub.localhost/design-system/"],
+  ["talks", "http://talks.localhost/design-system"],
+  ["certificate-verifier", "http://localhost:8787/design-system"],
+];
+const systemLinks = SYSTEMS.map(
+  ([name, url]) => `<li><a href="${esc(url)}">${esc(name)}</a></li>`,
+).join("");
 
 // Overview: what is here and where each system shows its own components.
 const tile = (href: string, title: string, body: string) =>

@@ -1,22 +1,23 @@
 import { expect, test } from "bun:test";
-import { pruned, unlisted } from "../scripts/scan";
+import { forks, unlisted } from "../scan/components";
 
-const report = (duplicates: string[], skipped: string[] = []) => ({
-  skipped,
-  duplicates: Object.fromEntries(duplicates.map((d) => [d, []])),
-});
-const allow = { card: "r" };
-
-test("flags an unlisted duplicate", () => {
-  expect(unlisted(report(["card"]), allow)).toEqual([]);
-  expect(unlisted(report(["card", "pill"]), allow)).toHaveLength(1);
-});
-
-test("tightening drops entries no longer found, never adds one", () => {
-  expect(pruned(report(["card", "pill"]), allow)).toEqual({ card: "r" });
-  expect(pruned(report([]), allow)).toEqual({});
+test("finds a consumer component named like an expert component, nothing else", () => {
+  expect(
+    forks([
+      "src/components/Pill.astro",
+      "src/components/pill.tsx",
+      "src/components/Card.astro",
+      "src/components/Pill.test.tsx",
+      "node_modules/x/components/Pill.astro",
+      "src/pages/Pill.astro",
+    ]),
+  ).toEqual({ pill: ["src/components/Pill.astro", "src/components/pill.tsx"] });
 });
 
-test("tightening with a repo skipped keeps every entry", () => {
-  expect(pruned(report([], ["talks"]), allow)).toEqual({ card: "r" });
+test("flags an unlisted fork, an entry without a reason and one added against HEAD", () => {
+  const found = { pill: ["src/components/Pill.astro"] };
+  expect(unlisted(found, { pill: "r" }, { pill: "r" })).toEqual([]);
+  expect(unlisted(found, {}, {})).toHaveLength(1);
+  expect(unlisted({}, { pill: " " }, { pill: "r" })).toHaveLength(1);
+  expect(unlisted({}, { pill: "r" }, {})).toHaveLength(1);
 });
