@@ -132,14 +132,11 @@ def grid_surfaces():
     # docs/tracking/2026-10-31-banner-carousel.md)
     s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
     return {
-        # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
-        # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
-        # to x 458 in a 375 pt mobile browser (os docs/tracking/2026-10-31-channel-banners-live.md)
-        "company-cover": grid(
-            (1512, 256),
-            68,
-            [headline(510.5, 0, 40.0, -0.042, ("Agentic engineering", 0)), headline(511.5, 43, 40.0, -0.05, ("training and mentoring.", 1))],
-        ),
+        # Featured's lockup and headline in its words, the group centred in the cover's area right of
+        # the page's logo tile: the tile reaches x 586 in LinkedIn's 375 pt mobile layout with the 128 pt
+        # tile, x 384 in the iPhone app; the cover shows x 9 to 1503 everywhere (blind review in os
+        # docs/tracking/2026-10-31-channel-banners-live.md)
+        "company-cover": grid((1512, 256), 94, [headline(753, 0, 59.7, -0.062, ("200+", 1), (" teams trained.", 0))]),
         "profile-1": s1,
         "profile-2": s2,
         "featured": grid(
