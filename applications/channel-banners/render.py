@@ -2,7 +2,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pillow>=11", "fonttools>=4", "brotli>=1"]
 # ///
-"""Render every channel banner into this folder, and the upload copies, from this repo's lockup and fonts.
+"""Render every channel banner into this folder from this repo's lockup and fonts.
 
 Run from the brand repo root:
 
@@ -26,7 +26,6 @@ from PIL import Image, ImageDraw, ImageFont
 HERE = Path(__file__).resolve().parent
 DOCS = HERE
 BRAND = HERE.parents[1]
-UPLOAD = Path.home() / "Downloads/stand-entscheidungen/_hochladen"
 
 # (variable font, weight): weights matched to the ink coverage of the Chrome-rendered originals
 MONO = (BRAND / "tokens/fonts/jetbrains-mono-latin-wght-normal.woff2", 800)
@@ -47,9 +46,6 @@ ACCENTS = {"teal": (163, 199, 206), "purple": (190, 133, 242)}
 TEAL_GLOW, PURPLE_GLOW = (7, 41, 46), (35, 9, 54)
 
 CLIENTS = BRAND / "clients"
-
-# Slides in upload order. The upload folder gets exactly these, numbered from 1.
-SLIDES = ["profile-1", "profile-2"]
 
 
 def corner_glows(w, h):
@@ -143,13 +139,6 @@ REPO_FILES = {
     "linkedin-featured-link-2400x1254.png": ("featured", 2),
     "omr-reviews-cover-1920x1080.png": ("omr", 1),
     "youtube-channel-banner-2560x1440.png": ("youtube", 1),
-}
-UPLOAD_FILES = {
-    "linkedin-unternehmen-titelbild-1128x191.png": ("linkedin-company-cover-1512x256.png", (1128, 191)),
-    "linkedin-unternehmen-titelbild-2256x382.png": ("linkedin-company-cover-3024x512.png", (2256, 382)),
-    "linkedin-featured-1200x627.png": ("linkedin-featured-link-1200x627.png", None),
-    "omr-titelbild-1920x1080.png": ("omr-reviews-cover-1920x1080.png", None),
-    "youtube-kanalbanner-2560x1440.png": ("youtube-channel-banner-2560x1440.png", None),
 }
 
 
@@ -248,38 +237,20 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
     return img
 
 
-def build(out, accent, upload, clients_out=None):
+def build(out, accent, clients_out=None):
     out.mkdir(parents=True, exist_ok=True)
     if clients_out:
         clients_out.mkdir(parents=True, exist_ok=True)
-    where = {}
     for file, (name, k) in REPO_FILES.items():
-        where[file] = clients_out if "logos" in SURFACES[name] else out
-        if where[file]:
-            render(name, accent, k).save(where[file] / file, optimize=True)
+        dest = clients_out if "logos" in SURFACES[name] else out
+        if dest:
+            render(name, accent, k).save(dest / file, optimize=True)
     # Canva page 4200 x 700: the cover layout on a 1536 x 256 canvas, 12 px each side, scaled
     cv = {"canvas": (1536, 256), "margin": 12, "k": 4200 / 1536}
     render("company-cover", accent, **cv).save(out / "linkedin-company-cover-canva-4200x700.png", optimize=True)
     render("company-cover", accent, content=False, **cv).save(
         out / "linkedin-company-cover-canva-background-4200x700.png", optimize=True
     )
-    if not upload:
-        return
-    if not UPLOAD.is_dir():
-        print(f"skipped the upload copies: {UPLOAD} does not exist")
-        return
-    for old in UPLOAD.glob("linkedin-profilbanner-folie-*.png"):
-        old.unlink()
-    files = {n: f for f, (n, k) in REPO_FILES.items() if k == 1}
-    for i, name in enumerate(SLIDES, 1):
-        if where[files[name]]:
-            Image.open(where[files[name]] / files[name]).save(
-                UPLOAD / f"linkedin-profilbanner-folie-{i}-1584x396.png", optimize=True
-            )
-    for dest, (src, size) in UPLOAD_FILES.items():
-        if where[src]:
-            im = Image.open(where[src] / src)
-            (im.resize(size, Image.LANCZOS) if size else im).save(UPLOAD / dest, optimize=True)
 
 
 if __name__ == "__main__":
@@ -288,4 +259,4 @@ if __name__ == "__main__":
     p.add_argument("--out", type=Path, default=DOCS, help="candidates go elsewhere; the default writes the shipped set")
     p.add_argument("--clients-out", type=Path, help="where the banners with client logos go; without it they are skipped")
     a = p.parse_args()
-    build(a.out, a.accent, upload=a.out == DOCS, clients_out=a.clients_out)
+    build(a.out, a.accent, clients_out=a.clients_out)
