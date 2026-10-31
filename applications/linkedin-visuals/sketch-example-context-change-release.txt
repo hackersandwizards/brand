@@ -5,5 +5,5 @@ Style/medium: a quick sketch drawn in under a minute with a worn chisel-tip whit
 Composition/framing: square 1:1; single concept; the elements fill the square, no empty band; every element and label inside the frame with a margin on all four sides
 Elements: a rough document on the left labeled "the shared context"; an arrow from it into a small lopsided box in the middle labeled "real problems, known answers"; a teal tick leaving the box to the right labeled "release"; a small second arrow entering the box from above labeled "new model"
 Text (verbatim): "the shared context", "real problems, known answers", "release", "new model"
-Color palette: ink-navy plus one brand accent, teal #1A7285, only on the tick
+Color palette: ink-navy plus two brand accents on key elements: teal #1A7285 for the middle box's outline, its label and the tick with its label "release"; purple #9333EA for the arrow from above and its label "new model"; everything else ink-navy
 Constraints: one insight; only listed elements; no headline or title; no mascots or robots with faces, landscape, banners, motion lines, shading, gradients, glow, objects repeated identically, photorealism, typeset labels, clean vector lines, watermark, decorative emoji, or currency and percent signs; no digits anywhere

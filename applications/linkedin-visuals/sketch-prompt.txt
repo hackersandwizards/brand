@@ -9,10 +9,11 @@ Style/medium: a quick sketch drawn in under a minute with a worn chisel-tip whit
 Composition/framing: square 1:1; [single concept | minimal curve]; the elements fill the square, no empty band; every element and label inside the frame with a margin on all four sides
 Elements: [up to five elements in reading order]
 Text (verbatim): "[every visible label exactly as written]"
-Color palette: ink-navy plus one brand accent
+Color palette: ink-navy plus two brand accents on key elements, each accent drawing its element and that element's label: [accent] for [element]; [accent] for [element]; everything else ink-navy
 Constraints: one insight; only listed elements; no headline or title; no mascots or robots with faces, landscape, banners, motion lines, shading, gradients, glow, objects repeated identically, photorealism, typeset labels, clean vector lines, watermark, decorative emoji, or currency and percent signs
 
-The accent, by what it marks:
+The accents, by what they mark; teal and purple unless the image marks success, urgency, a
+warning or a before state:
 #1A7285  primary idea, solution, after state
 #9333EA  setup, insight, change
 #4ADE80  success or growth
