@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 /**
  * Frames a LinkedIn post image in the brand: a gradient band across the top with the headline in
  * white JetBrains Mono on it, the image below, uncropped, as a card that overlaps the band's lower
@@ -5,9 +6,8 @@
  * at bottom right on the tint, as a 1080x1350 PNG, portrait 4:5, the tallest ratio LinkedIn shows
  * uncropped.
  *
- *   bun applications/linkedin-visuals/frame.ts <in.png> <out.png> --headline "<text>"
+ *   bun run brand-linkedin-frame <in.png> <out.png> --headline "<text>"
  *
- * From a consumer: bun node_modules/@hackersandwizards/brand/applications/linkedin-visuals/frame.ts.
  * Needs sharp installed beside it and Chrome or Chromium (CHROME_BINARY overrides the search).
  */
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -119,7 +119,7 @@ async function frameImage(input: string, output: string, headline: string): Prom
 if (import.meta.main) {
   const [input, output, flag, headline] = process.argv.slice(2);
   if (!input || !output || flag !== "--headline" || !headline?.trim()) {
-    console.error('usage: bun frame.ts <in.png> <out.png> --headline "<text>"');
+    console.error('usage: brand-linkedin-frame <in.png> <out.png> --headline "<text>"');
     process.exit(2);
   }
   await frameImage(input, output, headline);

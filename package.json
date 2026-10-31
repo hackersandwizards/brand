@@ -1,8 +1,8 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components, the press photos, the LinkedIn post renderers and the colour scan a consumer runs in its gate.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components, the press photos, the LinkedIn post renderers with their sketch prompt, and the colour scan a consumer runs in its gate.",
   "keywords": [
     "astro-component"
   ],
@@ -29,7 +29,10 @@
     "./press/*": "./press/*"
   },
   "bin": {
-    "brand-colours": "scan/colours.ts"
+    "brand-colours": "scan/colours.ts",
+    "brand-linkedin-frame": "applications/linkedin-visuals/frame.ts",
+    "brand-linkedin-terminal": "applications/linkedin-visuals/terminal.ts",
+    "brand-linkedin-sketch-prompt": "applications/linkedin-visuals/sketch-prompt.ts"
   },
   "files": [
     "tokens",
@@ -46,6 +49,7 @@
     "clients",
     "press",
     "applications/linkedin-visuals/*.ts",
+    "applications/linkedin-visuals/*.txt",
     "scan/colours.ts"
   ],
   "scripts": {

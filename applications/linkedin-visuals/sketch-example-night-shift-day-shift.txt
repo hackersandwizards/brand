@@ -1,0 +1,9 @@
+Use case: infographic-diagram
+Asset type: LinkedIn post image
+Primary request: agents build variants overnight, people decide in the day which variant to keep
+Style/medium: a quick sketch drawn in under a minute with a worn chisel-tip whiteboard marker in ink-navy (#19283A) on pale paper (#F7F9FA); line weight swells and thins within each stroke; strokes overshoot at corners and do not close; boxes are lopsided; a few strokes are doubled where the hand went over them twice; handwriting is fast and uneven, letters vary in size and baseline; flat 2D; nothing ruled, nothing symmetrical, nothing smooth
+Composition/framing: square 1:1; single concept; the elements fill the square, no empty band; every element and label inside the frame with a margin on all four sides
+Elements: the square split by one wobbly vertical line into a left half and a right half; left half a crescent moon and a stack of several loose rough sheets labeled "night shift: build the variants"; right half a small sun and one stick figure pointing at one sheet circled in teal, labeled "day shift: decide"; one curved arrow from the left stack to the right figure
+Text (verbatim): "night shift: build the variants", "day shift: decide"
+Color palette: ink-navy plus one brand accent, teal #1A7285, only on the circled sheet
+Constraints: one insight; only listed elements; no headline or title; no mascots or robots with faces, landscape, banners, motion lines, shading, gradients, glow, objects repeated identically, photorealism, typeset labels, clean vector lines, watermark, decorative emoji, or currency and percent signs; no digits anywhere

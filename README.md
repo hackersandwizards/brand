@@ -41,6 +41,22 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/clients/<file>`                   | client marks and `clients.json` |
 | `@hackersandwizards/brand/press/<file>`                     | press photos and `press.json`   |
 
+Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
+where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
+with `Script not found`.
+
+| Command                                                       | Does                                                                  |
+| ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"` | frames an image as a 1080 x 1350 LinkedIn post image                  |
+| `brand-linkedin-terminal <spec.json> <out.png>`               | renders a terminal snippet for the frame; no arguments print the spec |
+| `brand-linkedin-sketch-prompt`                                | prints the prompt for a generated sketch and its worked examples      |
+| `brand-colours [--tighten]`                                   | the colour scan for your gate, below                                  |
+
+These commands and the exported files above are the whole interface: any other path in the package
+may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
+on disk reads it at `node_modules/@hackersandwizards/brand/<target>`, the target the export maps it to
+(`./fonts/*` to `tokens/fonts/*`).
+
 The logo is one line, with no line under it: the wizard beside the pixel wordmark,
 `logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
 (shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug
