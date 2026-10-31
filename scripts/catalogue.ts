@@ -600,14 +600,37 @@ const html = `<!doctype html>
   .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
   .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
+  /* Below 600 px the side bar turns into a top bar: logo, Search and Menu. Search opens the field
+     under the bar, Menu opens the nav as a drawer over the page. */
+  .bar-btn { display: none; }
+  @media (max-width: 599.98px) {
+    html { scroll-padding-top: 4.5rem; }
+    body { display: block; }
+    aside.side { position: sticky; top: 0; z-index: 10; height: auto; overflow: visible; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-right: 0; border-bottom: 1px solid var(--color-border); }
+    aside.side > a { flex: 1; min-width: 0; display: flex; }
+    aside.side > a img { width: auto; height: 1.75rem; margin: 0; padding: 0; }
+    aside.side .version, aside.side #q { display: none; }
+    .bar-btn { display: inline-flex; align-items: center; min-height: 2.75rem; box-sizing: border-box; padding: 0 1rem; border: 1px solid var(--color-teal); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-teal-dark); font: 500 var(--text-small) var(--font-sans); cursor: pointer; }
+    .bar-btn:hover { border-color: var(--color-purple); color: var(--color-purple); }
+    .bar-btn[aria-expanded=true] { background: var(--color-teal-dark); border-color: var(--color-teal-dark); color: var(--color-white); }
+    aside.side.searching #q { display: block; flex-basis: 100%; width: 100%; min-height: 2.75rem; margin: 0.25rem 0; }
+    aside.side nav { display: none; }
+    aside.side.menu nav { display: grid; position: fixed; z-index: 1; top: var(--bar); bottom: 0; left: 0; width: min(20rem, 85vw); margin: 0; padding: 0.75rem; overflow: auto; overscroll-behavior: contain; box-sizing: border-box; align-content: start; background: var(--color-white); border-right: 1px solid var(--color-border); }
+    aside.side.menu::after { content: ""; position: fixed; top: var(--bar); right: 0; bottom: 0; left: 0; background: color-mix(in srgb, var(--color-night) 40%, transparent); }
+    aside.side nav a { min-height: 2.75rem; align-items: center; }
+    #results a { flex-wrap: wrap; gap: 0.25rem 0.75rem; }
+    #results .label { min-width: 0; flex-basis: 100%; }
+  }
 </style>
 </head>
 <body>
 <aside class="side">
 <a href="#overview"><img src="logos/lockup.svg" alt="hackers&amp;wizards"></a>
+<button type="button" class="bar-btn" id="search-btn" aria-controls="q" aria-expanded="false">Search</button>
+<button type="button" class="bar-btn" id="menu-btn" aria-controls="side-nav" aria-expanded="false">Menu</button>
 <p class="label version">Brand v${esc(pkg.version)}</p>
 <input type="search" id="q" class="input" placeholder="Search  /" aria-label="Search tokens and logos" autocomplete="off">
-<nav>
+<nav id="side-nav" aria-label="Catalogue">
 ${nav("overview", "Overview")}
 <p class="label">Foundations</p>
 ${nav("colours", "Colours")}${nav("type", "Type")}${nav("tokens", "Spacing and more")}${nav("logos", "Logos")}
@@ -642,6 +665,21 @@ const search = () => {
 q.addEventListener("input", search);
 results.addEventListener("click", () => { q.value = ""; results.classList.remove("on"); });
 addEventListener("hashchange", show);
+// The phone's top bar: one of Search or Menu is open at a time; a link, Escape or a tap outside
+// the drawer closes the menu.
+const side = document.querySelector("aside.side"), searchBtn = document.getElementById("search-btn"), menuBtn = document.getElementById("menu-btn");
+const bar = (open) => {
+  side.classList.toggle("searching", open === "search");
+  side.classList.toggle("menu", open === "menu");
+  searchBtn.setAttribute("aria-expanded", open === "search");
+  menuBtn.setAttribute("aria-expanded", open === "menu");
+  side.style.setProperty("--bar", side.getBoundingClientRect().bottom + "px");
+};
+searchBtn.addEventListener("click", () => { const open = !side.classList.contains("searching"); bar(open ? "search" : ""); if (open) q.focus(); });
+menuBtn.addEventListener("click", () => { const open = !side.classList.contains("menu"); bar(open ? "menu" : ""); if (open) side.querySelector("nav a")?.focus(); });
+side.addEventListener("click", (e) => { if (e.target === side && side.classList.contains("menu")) bar(""); });
+addEventListener("hashchange", () => { if (side.classList.contains("menu")) bar(""); });
+addEventListener("keydown", (e) => { if (e.key === "Escape" && side.classList.contains("menu")) { bar(""); menuBtn.focus(); } });
 // Keys as in Storybook: / or Cmd+K searches.
 addEventListener("keydown", (e) => {
   const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
