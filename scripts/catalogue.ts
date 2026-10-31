@@ -11,7 +11,7 @@ import manifest from "../manifest.json";
 import pkg from "../package.json";
 import press from "../press/press.json";
 import { ROOT } from "./git";
-import { stickerUsage } from "../applications/device-stickers/devices";
+import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
 import { parseTokens, resolveColors, SOURCE } from "./tokens";
@@ -265,8 +265,9 @@ const FAMILIES: Family[] = [
   {
     id: "device-stickers",
     title: "Device stickers",
-    note: stickerUsage(),
+    note: "One sticker combination per company device, upright like the Apple logo and centred left to right. Drawn to scale from Apple's dimensions (MacBook Pro 14-inch, iPhone 18 Pro, iPad Pro 11-inch); the dashed line is the device's centre, the measure runs from the bottom edge to the centre of the wordmark sticker. The print files are under Merch.",
     dir: "applications/device-stickers",
+    render: () => deviceHtml,
   },
   {
     id: "mail-signature",
@@ -411,14 +412,14 @@ const PRODUCTS: Product[] = [
   },
   {
     name: "Stickers P10, L13, B16, D1",
-    note: `Kiss-cut on night with 3 mm corners, the wordmark in the night cut, ${stickers.map((s) => mm(s.W - 12)).join(", ")} wide; the print file carries the cut line (CutContour). Shown on a 300 mm laptop lid.`,
-    views: [[lid(stickers), "on a laptop lid"]],
+    note: `Kiss-cut on night with 3 mm corners, ${stickers.map((s) => `${Math.round(s.W - 6)} x ${mm(s.H - 6)}`).join(", ")}, the wordmark in the night cut 3 mm inside the edge; the print file carries the cut line (CutContour). Shown together on a 300 mm laptop lid to compare their sizes; which sticker goes where: Device stickers.`,
+    views: [[lid(stickers), "the four sizes compared, not a placement"]],
     stems: stickers.map((s) => s.stem),
   },
   {
     name: "Wizard stickers Z1, Z2",
-    note: `The second sticker beside the wordmark: the wizard alone, die-cut with a 2.5 mm white border, ${wizards.map((s) => `${mm(s.W - 6)} x ${mm(s.H - 6)}`).join(" and ")}; Z2 goes on the laptop lid. The print file carries the cut line (CutContour) and 1.5 mm white bleed. Shown on a 300 mm laptop lid.`,
-    views: [[lid(wizards), "on a laptop lid"]],
+    note: `The second motif after the wordmark: the wizard alone, die-cut with a 2.5 mm white border, ${wizards.map((s) => `${mm(s.W - 6)} x ${mm(s.H - 6)}`).join(" and ")}; Z2 goes on the laptop lid. The print file carries the cut line (CutContour) and 1.5 mm white bleed. Shown together on a 300 mm laptop lid to compare their sizes; which sticker goes where: Device stickers.`,
+    views: [[lid(wizards), "the two sizes compared, not a placement"]],
     stems: wizards.map((s) => s.stem),
   },
 ];
@@ -433,6 +434,25 @@ const merchHtml = `<div class="products">${PRODUCTS.map((p) => {
   });
   return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c]) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${svg}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
 }).join("")}</div>`;
+// Device stickers: each device's SVG inline, all at one scale, with what goes where as its caption.
+const DEVICES = "applications/device-stickers";
+const deviceHtml = `<div class="devices">${stickerCaptions()
+  .map(({ file, title, lines }) => {
+    const id = `a-device-stickers-${file}`;
+    index.push({
+      t: title,
+      k: "application",
+      h: `applications/${id}`,
+      x: `device stickers ${lines.join(" ")}`,
+    });
+    const svg = readFileSync(join(ROOT, DEVICES, `${file}.svg`), "utf8").replace(
+      /width="([\d.]+)mm" height="([\d.]+)mm"/,
+      (_, w, h) =>
+        `width="${(+w * 1.35).toFixed(1)}" height="${(+h * 1.35).toFixed(1)}" role="img" aria-label="${esc(title)}"`,
+    );
+    return `<figure id="${id}">${svg}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<a href="${DEVICES}/${file}.svg" download>${file}.svg</a></figcaption></figure>`;
+  })
+  .join("")}</div>`;
 // Mail signature: the template filled for a fictitious person.
 const SIGNATURE = "applications/mail-signature";
 const signatureTemplate = readFileSync(join(ROOT, SIGNATURE, "template.html"), "utf8");
@@ -636,6 +656,11 @@ const html = `<!doctype html>
   .mock figure.wide { grid-column: span 2; }
   .mock figure { margin: 0; padding: 0.75rem 0.75rem 0.5rem; background: #e4e6ea; border-radius: var(--radius-brand); }
   .mock svg { display: block; height: 15rem; }
+  .devices { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; column-gap: 2rem; }
+  .devices figure { margin: 0; display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0.75rem; }
+  .devices svg { display: block; align-self: end; max-width: 100%; height: auto; }
+  .devices figcaption { display: grid; align-content: start; gap: 0.25rem; contain: inline-size; min-width: 13rem; }
+  .devices figcaption strong { font-family: var(--font-mono); font-size: var(--text-h4); }
   .mock figcaption { margin-top: 0.4rem; font: 0.75rem var(--font-code); color: var(--color-muted); }
   .asset { margin: 0; }
   .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
