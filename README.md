@@ -43,7 +43,8 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 The logo is one line, with no line under it: the wizard beside the pixel wordmark,
 `logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
 (shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug
-and lock screens. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
+and lock screens. Slides carry the lockup on the title and the closing slide and the wordmark alone on
+every other slide. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
 cut for night, black and black textile, and an `-outline` cut, a white outline round the letters,
 for Purple Love, Stargazer and the gradient. In both, the wizard of the lockup and the compact lockup
 carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night
