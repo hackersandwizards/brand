@@ -2,7 +2,10 @@
   "website": {
     "path": "../website",
     "catalogues": ["http://website.localhost/design-system/"],
-    "copies": [["tokens/", "src/styles/brand/"]]
+    "copies": [
+      ["tokens/", "src/styles/brand/"],
+      ["press/", "public/media/press/"]
+    ]
   },
   "os": {
     "path": "../os",
