@@ -64,27 +64,7 @@ def logos(band, radius, items):
 
 
 # "align": the lockup's left or right edge on the same edge of the content block
-# Profile slides: the lockup on top at the same position on both slides, content below
-PROFILE_LOCKUP = {"h": 79.8, "anchor": 84, "align": "left"}
-S2_HEAD = (479, 176, 49.0, -0.050)
 SURFACES = {
-    "profile-1": {
-        "size": (1584, 396),
-        "lines": two_lines(
-            [("Your whole company unstoppable,", 0)], [("in flow with ", 0), ("agentic engineering.", 1)], b1=178, b2=231
-        ),
-        "lockup": PROFILE_LOCKUP,
-    },
-    "profile-2": {
-        "size": (1584, 396),
-        "lines": [headline(*S2_HEAD, ("200+", 1), (" teams trained.", 0))],
-        "logos": logos(
-            (480, 196, 1330, 306),
-            14,
-            [("mercedes-benz", 569, 250.5, 63), ("dm", 682.5, 250.5, 59), ("tchibo", 842, 250.5, 47), ("vorwerk", 1025, 250.5, 53), ("bonprix", 1201.5, 250.5, 45)],
-        ),
-        "lockup": PROFILE_LOCKUP,
-    },
     "company-cover": {
         "size": (1512, 256),
         "lines": [
@@ -130,6 +110,71 @@ SURFACES = {
         "lockup": {"h": 81.6, "anchor": 857.9, "align": "left"},
     },
 }
+
+# Profile slides: one grid for both. The lockup sits at the same pixel on both, the headline's ink
+# top the same distance below the lockup's ink, the client band one unit below the headline on
+# slide 2. The unit is half the wordmark's cap height, the logo's own measure; the logo-to-text gap
+# counts in units. Both slides hang from one top that centres slide 2's group, the taller one, in
+# the canvas: the phone app and the desktop show the whole canvas and the profile photo stays left
+# of the column (blind review in os docs/tracking/2026-10-31-banner-carousel.md).
+PROFILE_LOCKUP_H, PROFILE_X = 79.8, 480
+PROFILE_CAP = 44  # wordmark cap height in px at this lockup height, measured on the render
+PROFILE_UNIT = PROFILE_CAP / 2
+PROFILE_GAP = 2  # units between the lockup and the headline
+S1_LINES = ([("Your whole company unstoppable,", 0)], [("in flow with ", 0), ("agentic engineering.", 1)])
+S1_TYPE, S1_LEAD = (480, 43.8, -0.039), 53
+S2_LINE, S2_TYPE = [("200+", 1), (" teams trained.", 0)], (479, 49.0, -0.050)
+S2_BAND_H, S2_BAND_RIGHT, S2_LOGO_CY = 110, 1330, 54.5  # logo centre line below the band top
+S2_LOGOS = [("mercedes-benz", 569, 63), ("dm", 682.5, 59), ("tchibo", 842, 47), ("vorwerk", 1025, 53), ("bonprix", 1201.5, 45)]
+
+
+def ink_rows(parts, size, font=MONO):
+    """Top and bottom of a line's ink relative to its baseline."""
+    f = ImageFont.truetype(BytesIO(sfnt(font[0])), size)
+    f.set_variation_by_axes([font[1]])
+    _, top, _, bottom = f.getbbox("".join(t for t, _ in parts), anchor="ls")
+    return top, bottom
+
+
+def lockup_rows(lh):
+    """Top and bottom of the lockup's ink relative to its anchor, as render() places it."""
+    u = lh / LAYOUT_BOX[3]
+    lock = Image.open(LOCKUP).convert("RGBA").resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
+    _, a, _, b = lock.getchannel("A").getbbox()
+    top = -lh / 2 - LIFT * lh - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
+    return top + a, top + b
+
+
+def profile_slides():
+    lt, lb = lockup_rows(PROFILE_LOCKUP_H)
+    t1, _ = ink_rows(S1_LINES[0], S1_TYPE[1])
+    t2, d2 = ink_rows(S2_LINE, S2_TYPE[1])
+    head = lb - lt + PROFILE_GAP * PROFILE_UNIT
+    top = (396 - head - (d2 - t2 + PROFILE_UNIT + S2_BAND_H)) / 2  # the lockup's ink top
+    lockup = {"h": PROFILE_LOCKUP_H, "anchor": top - lt, "left": PROFILE_X}
+    cap = top + head  # the headline's ink top
+    b1, b2 = cap - t1, cap - t2
+    band = b2 + d2 + PROFILE_UNIT
+    x1, size1, track1 = S1_TYPE
+    x2, size2, track2 = S2_TYPE
+    return {
+        "profile-1": {
+            "size": (1584, 396),
+            "lines": two_lines(*S1_LINES, x=x1, b1=b1, b2=b1 + S1_LEAD, size=size1, track=track1),
+            "lockup": lockup,
+        },
+        "profile-2": {
+            "size": (1584, 396),
+            "lines": [headline(x2, b2, size2, track2, *S2_LINE)],
+            "logos": logos(
+                (PROFILE_X, band, S2_BAND_RIGHT, band + S2_BAND_H),
+                14,
+                [(f, cx, band + S2_LOGO_CY, lh) for f, cx, lh in S2_LOGOS],
+            ),
+            "lockup": lockup,
+        },
+    }
+
 
 # file name -> (surface, scale, canvas width or None, margin)
 REPO_FILES = {
@@ -231,12 +276,17 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
     left, _, right, _ = ink.point(lambda v: 255 if v > 110 else 0).getbbox()
     if "right" in lk:  # beside the text, at a fixed edge
         x = (lk["right"] + margin) * k - lw
+    elif "left" in lk:  # at a fixed edge, the same on every slide of a set
+        x = (lk["left"] + margin) * k
     else:
         x = left if lk["align"] == "left" else right - lw
     top = lk["anchor"] * k - lh / 2 - LIFT * lh
     x, top = x - (LAYOUT_BOX[0] - NIGHT_BOX[0]) * u, top - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
     img.paste(lock, (round(x), round(top)), lock)
     return img
+
+
+SURFACES.update(profile_slides())
 
 
 def build(out, accent):
