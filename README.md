@@ -139,4 +139,4 @@ through `gh auth login` plus `gh auth setup-git`, or an SSH key. With neither, B
 A machine without access cannot open this README, so each consumer's README carries the two access
 checks and both fixes in its setup section.
 
-Licence: proprietary, see [LICENSE](LICENSE).
+Licence: PolyForm Strict 1.0.0, see [LICENSE](LICENSE).
