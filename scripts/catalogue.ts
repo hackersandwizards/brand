@@ -381,8 +381,12 @@ const FAMILIES: Family[] = [
   {
     id: "channel-banners",
     title: "Channel banners",
-    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, the first LinkedIn profile slide, YouTube and OMR Reviews. The banners with client logos never enter this repo.",
+    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, slide 1 of the two-slide LinkedIn profile carousel, YouTube and OMR Reviews. The banners with client logos never enter this repo.",
     dir: "applications/channel-banners",
+    link: [
+      "../os/src/content/documents/company/design-guide/channel-banners/",
+      "slide 2 of the profile carousel (profile-banner-2-clients-1584x396.png) and the LinkedIn Featured-link image (linkedin-featured-link-1200x627.png and -2400x1254.png), both with client logos, in Company OS under src/content/documents/company/design-guide/channel-banners/",
+    ],
   },
   {
     id: "avatars",
@@ -426,7 +430,7 @@ const FAMILIES: Family[] = [
   },
 ];
 // Not shown: the scripts that build a family and their inputs.
-const SKIP = /\.(ts|py|css)$|^qr-/;
+const SKIP = /\.(ts|py|css)$|^qr-|^__pycache__$/;
 const PREVIEW = ["png", "svg", "html", "txt"];
 const assetStems = (dir: string) => {
   const abs = join(ROOT, dir);
