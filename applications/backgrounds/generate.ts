@@ -491,10 +491,10 @@ type El = ["w" | "l" | "m" | "k", number, number, number];
 // y 222, widgets to y 316, lock buttons at the bottom corners; iPhone home free band y 740-800;
 // call head x 810-1110 from y 250, name label bottom left.
 const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
-  // The MacBook's lw-stack-r at the same point size, 80 pt from the right and 130 pt from the
-  // bottom edge as there.
+  // The MacBook's lw-stack-r at the same point size, 130 pt from the right and the bottom edge
+  // as there.
   "mac-studio": {
-    "lw-stack-r": [["k", 440, 2040, 1091]],
+    "lw-stack-r": [["k", 440, 1990, 1091]],
   },
   mac: {
     "lw-split": [
@@ -502,7 +502,8 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
       ["l", 60, 64, 907],
     ],
     "lw-stack-c": [["k", 520, 604, 430]],
-    "lw-stack-r": [["k", 440, 1208, 768]],
+    // 130 pt from the right and the bottom edge.
+    "lw-stack-r": [["k", 440, 1158, 768]],
     "logo-ll": [["l", 56, 64, 880]],
     "logo-c": [["l", 90, 622, 515]],
     "logo-lr": [["l", 56, 1364, 960]],
