@@ -63,16 +63,18 @@ def logos(band, radius, items):
     return {"band": band, "radius": radius, "items": items}
 
 
-# "align": the lockup's left or right edge on the same edge of the content block
+# The lockup's left edge on the content block's left edge, unless "left" fixes it
 SURFACES = {
     "company-cover": {
         "size": (1512, 256),
+        # lockup above the text, as on the profile slides: the mobile browser crops the cover to
+        # x 0 to 1294 and y 0 to 221 and cut a lockup beside the text at "hackers&" (blind review in
+        # os docs/tracking/2026-10-31-channel-banners-live.md)
         "lines": [
-            headline(359, 119, 43.8, -0.042, ("Agentic engineering", 0)),
-            headline(360, 167, 43.8, -0.05, ("training and mentoring.", 1)),
+            headline(359, 163, 40.0, -0.042, ("Agentic engineering", 0)),
+            headline(360, 206, 40.0, -0.05, ("training and mentoring.", 1)),
         ],
-        # beside the text: the wordmark's centre line on the middle of cap top to last baseline
-        "lockup": {"h": 78.5, "right": 1439, "anchor": 127.0},
+        "lockup": {"h": 68, "anchor": 68},
     },
     "featured": {
         "size": (1200, 627),
@@ -82,7 +84,7 @@ SURFACES = {
             22,
             [("mercedes-benz", 188, 304.5, 78), ("dm", 327.5, 304.5, 72), ("tchibo", 522.5, 304.5, 57), ("vorwerk", 747, 304.5, 64), ("bonprix", 963.5, 304.5, 55)],
         ),
-        "lockup": {"h": 94, "anchor": 529.2, "align": "right"},
+        "lockup": {"h": 94, "anchor": 529.2},
     },
     "omr": {
         "size": (1920, 1080),
@@ -91,7 +93,7 @@ SURFACES = {
             headline(150, 450, 111.6, -0.05, ("Agentic Engineering.", 0)),
             headline(151, 567, 47.5, 0, ("200+ Teams trainiert.", 1), (" 1.000+ Entwickler:innen trainiert.", 2), font=INTER),
         ],
-        "lockup": {"h": 134.8, "anchor": 861.2, "align": "left"},
+        "lockup": {"h": 134.8, "anchor": 861.2},
     },
     "youtube": {
         "size": (2560, 1440),
@@ -107,7 +109,7 @@ SURFACES = {
             [("in flow with ", 0), ("agentic engineering.", 1)],
             x=619, b1=654, b2=731, size=71.4, track=-0.057,
         ),
-        "lockup": {"h": 81.6, "anchor": 857.9, "align": "left"},
+        "lockup": {"h": 81.6, "anchor": 857.9},
     },
 }
 
@@ -270,16 +272,12 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
     lk = s["lockup"]
     lh = lk["h"] * k
     u = lh / LAYOUT_BOX[3]  # px per SVG unit
-    lw = LAYOUT_BOX[2] * u
     lock = Image.open(LOCKUP).convert("RGBA")
     lock = lock.resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
-    left, _, right, _ = ink.point(lambda v: 255 if v > 110 else 0).getbbox()
-    if "right" in lk:  # beside the text, at a fixed edge
-        x = (lk["right"] + margin) * k - lw
-    elif "left" in lk:  # at a fixed edge, the same on every slide of a set
+    if "left" in lk:  # at a fixed edge, the same on every slide of a set
         x = (lk["left"] + margin) * k
     else:
-        x = left if lk["align"] == "left" else right - lw
+        x = ink.point(lambda v: 255 if v > 110 else 0).getbbox()[0]
     top = lk["anchor"] * k - lh / 2 - LIFT * lh
     x, top = x - (LAYOUT_BOX[0] - NIGHT_BOX[0]) * u, top - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
     img.paste(lock, (round(x), round(top)), lock)
