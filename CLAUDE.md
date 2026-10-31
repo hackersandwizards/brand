@@ -1,8 +1,8 @@
 # CLAUDE.md
 
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
-static fonts, logos, the expert UI layer, the colour scan each
-consumer runs in its own gate, plus a read-only drift and duplicate report over the sibling repos. The reasoning is in os
+static fonts, logos, the expert UI layer, and the colour, copy and component checks each consumer
+runs in its own gate. The reasoning is in os
 `docs/tracking/2026-10-29-brand-distribution.md`.
 
 This repo is public on GitHub (`github.com/hackersandwizards/brand`), its history included.
@@ -45,42 +45,37 @@ data or secret.
   A retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
-- `scan/colours.ts`: the colour scan, shipped as the `brand-colours` command. Each consumer runs it
-  in its own `bun run check` and keeps its exceptions, with their reasons, in its own
-  `brand-colours.json`.
-- `repos.json`: each sibling repo, its path from here, its own design-system page and the brand
-  files it holds as copies. Only a delivery copy, a file the repo serves, belongs there: the
-  website's, until its CI can install the package, and the certificate verifier's served fonts. A
-  skill, script or document generator takes the file from the package.
-- `scan-allowlist.json`: the component names allowed in more than one repo, each with its reason.
-  It may only shrink; a test fails where it grows against `HEAD`.
+- `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;
+  nothing here reads a consumer. `colours.ts` (`brand-colours`), exceptions in the consumer's
+  `brand-colours.json`. `drift.ts` (`brand-drift`) compares the copies a consumer lists in a
+  `brand-copies.json` beside them with `manifest.json`, run only where a consumer serves copies, today
+  the certificate verifier's two fonts. `components.ts` (`brand-scan`) fails on a consumer component
+  named like an expert component, exceptions in the consumer's `brand-scan.json`, run by os and the
+  trainer hub. A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
   `scripts/catalogue.ts`. Never edit it; run `bun run catalogue`.
 
 ## Commands
 
 - `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
-  scanners, allowlist ratchet, drift control) and the freshness of `generated/` and
+  the three consumer checks) and the freshness of `generated/` and
   `catalogue.html`. No hook runs it:
   `.githooks/pre-commit` runs `bun run check:staged`: `gitleaks` over the staged changes,
   `prettier --check` and `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run catalogue`: rebuild `catalogue.html`.
-- `bun run drift`: the siblings' copies of brand files against `manifest.json`; it never fails.
-- `bun run scan`: component names in more than one sibling, against `scan-allowlist.json`; exits 1
-  on an unlisted one. `-- --tighten` drops entries no longer found. Never add an entry by hand.
 
 ## Rules
 
 - A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
-  Other repos take it from the package; a copy one still holds shows as drift until it goes.
-- The drift and duplicate reports read each sibling's last commit through git and never its working
-  tree. Nothing about another repo goes on `catalogue.html`: each system shows its components on
-  its own design-system page, which the catalogue links.
+  Other repos take it from the package; a copy a consumer serves fails its `brand-drift` until it
+  follows.
+- Nothing about another repo goes on `catalogue.html`: each system shows its components on its own
+  design-system page, whose URL `scripts/catalogue.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, fonts with
   their OFL texts, small logos,
-  the client marks, the press photos, the LinkedIn post renderers and prompts
-  `applications/linkedin-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
+  the client marks, the press photos, `manifest.json`, the LinkedIn post renderers and prompts
+  `applications/linkedin-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an
   `exports` target names, imported or, from Python, HTML or a skill, read at its path in

@@ -1,23 +1,23 @@
 import { expect, test } from "bun:test";
-import { join } from "node:path";
 import manifest from "../manifest.json";
-import repos from "../repos.json";
-import { drift } from "../scripts/drift";
-import { isRepo, listDir, ROOT } from "../scripts/git";
+import { findings } from "../scan/drift";
 
-test.skipIf(!isRepo(join(ROOT, repos.website.path)))("a changed hash shows as drift", () => {
-  const entry = manifest.files.find((f) => f.path === "tokens/tokens.css")!;
-  const real = entry.sha256;
-  entry.sha256 = "0".repeat(64);
-  try {
-    const rows = drift().website.rows.filter((r) => r.brand === "tokens/tokens.css");
-    expect(rows.map((r) => r.status)).toEqual(["differs"]);
-  } finally {
-    entry.sha256 = real;
-  }
+const brand = "tokens/tokens.css";
+const real = Bun.file(new URL(`../${brand}`, import.meta.url));
+const bytes = Buffer.from(await real.arrayBuffer());
+const list = { reason: "served", copies: { "tokens.css": brand } };
+
+test("a copy identical to its brand file passes", () => {
+  expect(manifest.files.some((f) => f.path === brand)).toBe(true);
+  expect(findings("public/brand-copies.json", list, () => bytes)).toEqual([]);
 });
 
-// drift lists each copied folder: a missing checkout must fail, not read as an empty copy.
-test("listing a folder of a missing checkout throws", () => {
-  expect(() => listDir(join(ROOT, "no-such-repo"), "src")).toThrow("not a git checkout");
+test("a changed, missing or unknown copy and a list without a reason fail", () => {
+  expect(findings("public/brand-copies.json", list, () => Buffer.from("x"))).toEqual([
+    `public/tokens.css: differs from brand ${brand}`,
+  ]);
+  expect(findings("brand-copies.json", list, () => undefined)).toEqual(["tokens.css: missing"]);
+  expect(
+    findings("brand-copies.json", { reason: " ", copies: { "a.css": "no/such" } }, () => bytes),
+  ).toHaveLength(2);
 });

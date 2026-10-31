@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour scan a consumer runs in its gate.",
   "keywords": [
@@ -29,6 +29,8 @@
   },
   "bin": {
     "brand-colours": "scan/colours.ts",
+    "brand-drift": "scan/drift.ts",
+    "brand-scan": "scan/components.ts",
     "brand-linkedin-frame": "applications/linkedin-visuals/frame.ts",
     "brand-linkedin-terminal": "applications/linkedin-visuals/terminal.ts",
     "brand-linkedin-sketch-prompt": "applications/linkedin-visuals/sketch-prompt.ts",
@@ -39,17 +41,16 @@
     "generated",
     "expert",
     "logos/*.svg",
-    "logos/lockup.png",
-    "logos/lockup-outline.png",
-    "logos/wordmark.png",
-    "logos/type-logo-long.png",
-    "logos/type-logo-short.png",
+    "logos/lockup*.png",
+    "logos/wordmark*.png",
+    "logos/type-logo-*.png",
     "clients",
     "press",
     "applications/linkedin-visuals/*.ts",
     "applications/linkedin-visuals/*.txt",
     "applications/mail-signature",
-    "scan/colours.ts"
+    "scan/*.ts",
+    "manifest.json"
   ],
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && git config core.hooksPath .githooks || true",
@@ -60,8 +61,6 @@
     "format:check": "prettier --check .",
     "fix": "eslint --cache --concurrency=auto . --fix && prettier --write .",
     "tokens": "bun scripts/tokens.ts",
-    "scan": "bun scripts/scan.ts",
-    "drift": "bun scripts/drift.ts",
     "catalogue": "bun scripts/catalogue.ts",
     "check:staged": "bun .claude/skills/engineering/check-staged.ts",
     "lfs:pre-push": "git lfs pre-push"
