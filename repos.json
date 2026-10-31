@@ -4,7 +4,23 @@
     "catalogues": ["http://website.localhost/design-system/"],
     "copies": [
       ["tokens/", "src/styles/brand/"],
-      ["press/", "public/media/press/"]
+      ["press/", "public/media/press/"],
+      ["logos/lockup.svg", "public/logos/hw-lockup.svg"],
+      ["logos/lockup.png", "public/logos/hw-lockup.png"],
+      ["logos/lockup-night.svg", "public/logos/hw-lockup-night.svg"],
+      ["logos/lockup-night.png", "public/logos/hw-lockup-night.png"],
+      ["logos/lockup-compact.svg", "public/logos/hw-lockup-compact.svg"],
+      ["logos/lockup-compact.png", "public/logos/hw-lockup-compact.png"],
+      ["logos/lockup-compact-night.svg", "public/logos/hw-lockup-compact-night.svg"],
+      ["logos/lockup-compact-night.png", "public/logos/hw-lockup-compact-night.png"],
+      ["logos/wordmark.svg", "public/logos/hw-wordmark.svg"],
+      ["logos/wordmark.png", "public/logos/hw-wordmark.png"],
+      ["logos/wordmark-night.svg", "public/logos/hw-wordmark-night.svg"],
+      ["logos/wordmark-night.png", "public/logos/hw-wordmark-night.png"],
+      ["logos/wordmark-white.svg", "public/logos/hw-wordmark-white.svg"],
+      ["logos/wordmark-white.png", "public/logos/hw-wordmark-white.png"],
+      ["logos/wordmark-black.svg", "public/logos/hw-wordmark-black.svg"],
+      ["logos/wordmark-black.png", "public/logos/hw-wordmark-black.png"]
     ]
   },
   "os": {
@@ -30,7 +46,13 @@
   "certificate-verifier": {
     "path": "../../tools/certificate-verifier",
     "catalogues": ["http://localhost:8787/design-system"],
-    "copies": []
+    "copies": [
+      ["tokens/fonts/inter-latin-wght-normal.woff2", "public/fonts/inter-latin-wght-normal.woff2"],
+      [
+        "tokens/fonts/jetbrains-mono-latin-wght-normal.woff2",
+        "public/fonts/jetbrains-mono-latin-wght-normal.woff2"
+      ]
+    ]
   },
   "slides": {
     "path": "../slides",

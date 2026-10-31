@@ -1,12 +1,12 @@
+#!/usr/bin/env bun
 /**
  * Renders a LinkedIn terminal snippet as a PNG for frame.ts: a dark window with a title, four to six
  * lines of code at 21 px, one line highlighted and a purple note under it, trimmed to the window, so
  * the frame shows it at full width. A line holds at most 36 characters: the window clips the rest.
  *
- *   bun applications/linkedin-visuals/terminal.ts <spec.json> <out.png>
+ *   bun run brand-linkedin-terminal <spec.json> <out.png>
  *
- * spec.json: { "title": "gh pr list", "lines": ["..."], "highlight": 1, "note": "..." }. A line
- * marks a span with <t>teal</t>, <p>purple</p>, <r>red</r> or <c>grey</c>.
+ * Without arguments it prints the spec format.
  */
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -66,7 +66,9 @@ body { box-sizing: border-box; background: var(--color-bg); padding: 30px 22px; 
 if (import.meta.main) {
   const [specPath, output] = process.argv.slice(2);
   if (!specPath || !output) {
-    console.error("usage: bun terminal.ts <spec.json> <out.png>");
+    console.error(
+      'usage: brand-linkedin-terminal <spec.json> <out.png>\nspec.json: { "title": "gh pr list", "lines": ["..."], "highlight": 1, "note": "..." }, four to six lines of at most 36 characters, highlight the 0-based index of the line the note explains; a line marks a span with <t>teal</t>, <p>purple</p>, <r>red</r> or <c>grey</c>.',
+    );
     process.exit(2);
   }
   const dir = mkdtempSync(join(tmpdir(), "linkedin-terminal-"));

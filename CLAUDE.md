@@ -33,9 +33,11 @@ discount, margin, offer, invoice, client term, personal data or secret.
   device and call backgrounds, channel banners, LinkedIn post images, avatars, booth banners,
   gradients, merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`,
-  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/frame.ts` and
-  `terminal.ts` write a post's image to the path the caller names, and Company OS runs them from the
-  package; `sketch-prompt.txt` is the generated sketch's prompt. Every
+  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/` ships as
+  three commands: `brand-linkedin-frame` (`frame.ts`) and `brand-linkedin-terminal` (`terminal.ts`)
+  write a post's image to the path the caller names, `brand-linkedin-sketch-prompt` prints
+  `sketch-prompt.txt`, the generated sketch's prompt, and each `sketch-example-<name>.txt`, a filled
+  prompt beside the post image it produced. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
@@ -43,8 +45,10 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - `scan/colours.ts`: the colour scan, shipped as the `brand-colours` command. Each consumer runs it
   in its own `bun run check` and keeps its exceptions, with their reasons, in its own
   `brand-colours.json`.
-- `repos.json`: each sibling repo, its path from here, its own design-system page and where it
-  still holds copies of brand files instead of installing the package.
+- `repos.json`: each sibling repo, its path from here, its own design-system page and the brand
+  files it holds as copies. Only a delivery copy, a file the repo serves, belongs there: the
+  website's, until its CI can install the package, and the certificate verifier's served fonts. A
+  skill, script or document generator takes the file from the package.
 - `scan-allowlist.json`: the component names allowed in more than one repo, each with its reason.
   It may only shrink; a test fails where it grows against `HEAD`.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
@@ -72,8 +76,14 @@ discount, margin, offer, invoice, client term, personal data or secret.
   its own design-system page, which the catalogue links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, the document components, fonts with their OFL texts, small logos,
-  the client marks, the press photos, the LinkedIn post renderers `applications/linkedin-visuals/*.ts`,
-  the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
+  the client marks, the press photos, the LinkedIn post renderers and prompts
+  `applications/linkedin-visuals/*.ts` and `*.txt`, the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
+- A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
+  (never `bunx`, which downloads a same-named npm package where none is installed), and a file an
+  `exports` target names, imported or, from Python, HTML or a skill, read at its path in
+  `node_modules/@hackersandwizards/brand/`. Every other path is internal and may move. Renaming a
+  command, changing its arguments or moving an exported file breaks consumers: the release commit
+  names it and every consumer follows in the same pass.
 - The slide engine is its own package, `@hackersandwizards/slides`, and never enters this package,
   not even a primitive.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub

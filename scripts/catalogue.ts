@@ -235,7 +235,7 @@ const FAMILIES: Family[] = [
   {
     id: "linkedin-visuals",
     title: "LinkedIn post images",
-    note: "Every post image, 1080 x 1350: the headline in white on the gradient band, the image as a card below it, the lockup on the tint. frame.ts frames a photo, a sketch or a terminal; terminal.ts renders the dark terminal window from a spec; sketch-prompt.txt is the prompt for a generated marker sketch. Company OS runs both scripts from the package.",
+    note: "Every post image, 1080 x 1350: the headline in white on the gradient band, the image as a card below it, the lockup on the tint. The package ships three commands: brand-linkedin-frame frames a photo, a sketch or a terminal; brand-linkedin-terminal renders the dark terminal window from a spec; brand-linkedin-sketch-prompt prints the prompt for a generated marker sketch and the worked examples, each sketch-example card here with the filled prompt that drew it.",
     dir: "applications/linkedin-visuals",
   },
   {

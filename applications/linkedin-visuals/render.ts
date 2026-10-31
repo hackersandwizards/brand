@@ -1,6 +1,6 @@
 // What frame.ts and terminal.ts share: the brand CSS with its faces inlined, HTML escaping, and one
-// headless Chrome screenshot. Both run from this repo and from a consumer's
-// node_modules/@hackersandwizards/brand, so every brand file is read relative to this folder.
+// headless Chrome screenshot. Both run from this repo and, as the package's bins, from a consumer's
+// install, so every brand file is read relative to this folder.
 import { execFile, execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
