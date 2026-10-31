@@ -1,8 +1,8 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base and the document components.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components and the press photos.",
   "keywords": [
     "astro-component"
   ],
@@ -25,7 +25,8 @@
     "./document.css": "./document/document.css",
     "./document/components/*": "./document/components/*",
     "./logos/*": "./logos/*",
-    "./clients/*": "./clients/*"
+    "./clients/*": "./clients/*",
+    "./press/*": "./press/*"
   },
   "files": [
     "tokens",
@@ -37,7 +38,8 @@
     "logos/type-logo-long.png",
     "logos/type-logo-short.png",
     "logos/emoji-logo-short-quote.png",
-    "clients"
+    "clients",
+    "press"
   ],
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$PWD\" ] && git config core.hooksPath .githooks || true",

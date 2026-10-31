@@ -1,0 +1,23 @@
+{
+  "credit": "Francesca Amann",
+  "photos": [
+    {
+      "file": "founders.jpg",
+      "shows": "Stefan Munz (left) and Benedikt Stemmildt standing in a skatepark bowl",
+      "width": 2785,
+      "height": 2785
+    },
+    {
+      "file": "benedikt-stemmildt.jpg",
+      "shows": "Benedikt Stemmildt, portrait",
+      "width": 2010,
+      "height": 2010
+    },
+    {
+      "file": "stefan-munz.jpg",
+      "shows": "Stefan Munz, portrait",
+      "width": 2290,
+      "height": 2290
+    }
+  ]
+}

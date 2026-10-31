@@ -39,6 +39,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components             |
 | `@hackersandwizards/brand/logos/<file>`                     | logos                           |
 | `@hackersandwizards/brand/clients/<file>`                   | client marks and `clients.json` |
+| `@hackersandwizards/brand/press/<file>`                     | press photos and `press.json`   |
 
 The logo is one line, with no line under it: the wizard beside the pixel wordmark,
 `logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
@@ -68,6 +69,14 @@ below the box centre; the night and outline cuts grow their box round the wizard
 The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides.
 `bun scripts/ampersand.ts` writes that offset into every one-line logo,
 renders its PNG and rehashes both in `manifest.json`.
+
+## Press kit
+
+`press/` holds the photos of the press kit: `founders.jpg` (Stefan Munz and Benedikt Stemmildt in a
+skatepark bowl, 2785 px), `benedikt-stemmildt.jpg` (2010 px) and `stefan-munz.jpg` (2290 px), each
+square JPEG. Credit them "Photo: Francesca Amann"; `press.json` lists each file with what it shows,
+its size and the credit. With the logos above, they make the ZIP the website's press page offers
+(`/press/`, `/de/presse/`).
 
 ## Work on the package
 
