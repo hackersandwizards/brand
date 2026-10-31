@@ -27,14 +27,17 @@ discount, margin, offer, invoice, client term, personal data or secret.
   `src/data/profiles.ts` and os `documents/people/`, the company description in the website's copy.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
   name and mark file in display order, keeping neighbours from different industries, with the
-  mark's source where known. Outside `manifest.json`.
+  mark's source where known. `"onepager": false` keeps a mark off the os onepagers' client row,
+  which shows every other entry. Outside `manifest.json`.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
-  device and call backgrounds, channel banners, avatars, booth banners, gradients,
-  merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
+  device and call backgrounds, channel banners, LinkedIn post images, avatars, booth banners,
+  gradients, merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`,
-  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). Every channel
-  banner lives in `applications/channel-banners/`, the ones with client logos included. A
-  retired file is deleted; git history keeps it.
+  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/frame.ts` and
+  `terminal.ts` write a post's image to the path the caller names, and Company OS runs them from the
+  package; `sketch-prompt.txt` is the generated sketch's prompt. Every
+  channel banner lives in `applications/channel-banners/`, the ones with client logos included.
+  A retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
 - `scan/colours.ts`: the colour scan, shipped as the `brand-colours` command. Each consumer runs it
@@ -69,7 +72,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
   its own design-system page, which the catalogue links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, the document components, fonts with their OFL texts, small logos,
-  the client marks, the press photos, the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
+  the client marks, the press photos, the LinkedIn post renderers `applications/linkedin-visuals/*.ts`,
+  the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
 - The slide engine is its own package, `@hackersandwizards/slides`, and never enters this package,
   not even a primitive.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub

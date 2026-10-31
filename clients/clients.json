@@ -118,5 +118,23 @@
     "name": "neue fische",
     "file": "neue-fische.webp",
     "source": "public/media/ecosystem/neue-fische.webp, the former partner-wall mark"
+  },
+  {
+    "name": "Tegtmeier Internet Solutions",
+    "file": "tegtmeier.svg",
+    "source": "website assets/source-media/client-logos/tegtmeier.svg, the case logo; draws in currentColor",
+    "onepager": false
+  },
+  {
+    "name": "StashAway",
+    "file": "stashaway.svg",
+    "source": "website public/logos/client/stashaway.svg, the testimonial logo",
+    "onepager": false
+  },
+  {
+    "name": "saas.group",
+    "file": "saas-group.svg",
+    "source": "website public/logos/client/saas-group.svg, the testimonial logo",
+    "onepager": false
   }
 ]
