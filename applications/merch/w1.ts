@@ -129,7 +129,7 @@ try {
     return `<div style="background:${col};padding:${12 * px}px ${10 * px}px;display:inline-block"><img src="${uri(f.svg)}" style="display:block;width:${f.W * px}px;height:${f.H * px}px"></div>`;
   };
   const cap = (t: string) =>
-    `<div style="font:15px system-ui;color:#454B55;margin-top:6px">${t}</div>`;
+    `<div style="font:15px system-ui;color:#545861;margin-top:6px">${t}</div>`; // --color-muted
 
   // shirt T12 in both colours: front and back, then each print at about arm's length
   const shirtColours = [
@@ -169,15 +169,15 @@ try {
     "hoodie-H6-crop",
   );
 
-  // stickers: on a 300 mm laptop lid at 2.6 px/mm and flat on white
+  // stickers: on a 300 mm laptop lid (--color-ampersand-light to --color-ampersand) at 2.6 px/mm and flat on white
   for (const name of ["stickerP-P10", "stickerL-L13", "stickerB-B16"] as const) {
     const f = files[name];
     const st = (s: number) =>
       `<div style="position:relative;width:${f.w * s}px;height:${f.h * s}px;border-radius:${3 * s}px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.35)"><img src="${uri(f.face)}" style="position:absolute;left:${-3 * s}px;top:${-3 * s}px;width:${f.W * s}px;height:${f.H * s}px"></div>`;
     const flat = Math.min(8, 620 / f.w);
     const sheet = mockupPage(
-      `<div style="position:absolute;left:30px;top:30px;width:780px;height:520px;border-radius:30px;background:linear-gradient(135deg,#a9aeb6,#7d838d)"><div style="position:absolute;right:120px;bottom:110px">${st(2.6)}</div></div><div style="position:absolute;left:850px;top:30px;width:720px;height:520px;background:#f2f2f2;display:flex;align-items:center;justify-content:center">${st(flat)}</div>`,
-      "#E0DDD8",
+      `<div style="position:absolute;left:30px;top:30px;width:780px;height:520px;border-radius:30px;background:linear-gradient(135deg,#b0b5c4,#7c849c)"><div style="position:absolute;right:120px;bottom:110px">${st(2.6)}</div></div><div style="position:absolute;left:850px;top:30px;width:720px;height:520px;background:#f2f2f2;display:flex;align-items:center;justify-content:center">${st(flat)}</div>`,
+      "#d0d2d8", // --color-border
     );
     const png = await b.shot(sheet, 1600, 580, 1);
     await jpg(png, name);
