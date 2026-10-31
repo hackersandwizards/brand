@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { EXAMPLE, fillSignature, TRAINER_ROLE } from "../applications/mail-signature/fill";
+import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { ROOT } from "../scripts/git";
 
 const template = (ext: string) =>
@@ -16,19 +16,6 @@ test("an h&w account carries wordmark, contact line and the GmbH lines", () => {
   expect(html).not.toContain("{{");
   expect(fillSignature(template("txt"), EXAMPLE, "text")).toBe(
     "Kim Beispiel\nFreie Trainerin, hackers&wizards\n+49 40 1234 5678 | kim@hackersandwizards.dev | hackersandwizards.dev\n\nhackers&wizards GmbH, Sitz Hamburg, Osterstraße 95, 20259 Hamburg\nAmtsgericht Hamburg, HRB 198840\nGeschäftsführer: Benedikt Stemmildt, Stefan Munz\n",
-  );
-});
-
-// A trainer's own address must not present them as part of the GmbH.
-test("a trainer's own address leaves out the wordmark and the GmbH lines", () => {
-  const fields = { name: "Kim Beispiel", role: TRAINER_ROLE };
-  const html = fillSignature(template("html"), fields, "html");
-  expect(html).not.toContain(">hackers</span>");
-  expect(html).not.toContain(GMBH);
-  expect(html).not.toContain("tel:");
-  expect(html).toContain("Freier Trainer f&#252;r hackers&#38;wizards");
-  expect(fillSignature(template("txt"), fields, "text")).toBe(
-    `Kim Beispiel\n${TRAINER_ROLE}\nhackersandwizards.dev\n`,
   );
 });
 

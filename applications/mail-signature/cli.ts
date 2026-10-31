@@ -5,10 +5,9 @@
  *
  *   bun run brand-mail-signature --name "Kim Beispiel" --role "Freie Trainerin" \
  *     [--phone "+49 40 1234 5678"] [--mail kim@hackersandwizards.dev] [--linkedin <url>] \
- *     [--own-address] --out <path without extension>
+ *     --out <path without extension>
  *
- * Without --own-address the signature is for an h&w account: wordmark and the GmbH lines.
- * Without --out it prints the plain text.
+ * The signature is for an h&w account: wordmark and the GmbH lines. Without --out it prints the plain text.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -22,7 +21,6 @@ const { values: a } = parseArgs({
     phone: { type: "string" },
     mail: { type: "string" },
     linkedin: { type: "string" },
-    "own-address": { type: "boolean" },
     out: { type: "string" },
   },
 });
@@ -30,7 +28,7 @@ if (!a.name || !a.role) {
   console.error("brand-mail-signature: --name and --role are required");
   process.exit(1);
 }
-const fields = { ...a, name: a.name, role: a.role, hw: !a["own-address"] };
+const fields = { ...a, name: a.name, role: a.role };
 const template = (ext: string) => readFileSync(join(import.meta.dir, `template.${ext}`), "utf-8");
 const text = fillSignature(template("txt"), fields, "text");
 if (!a.out) console.log(text);
