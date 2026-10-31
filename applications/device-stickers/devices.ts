@@ -1,6 +1,8 @@
-// The company stickers on the back of each company device, drawn to scale in millimetres: the device
-// from Apple's published dimensions, the sticker from its print file in applications/merch/, cut
-// line removed and clipped to the cut. Writes one self-contained SVG per device beside this file.
+// The one sticker combination on the back of each company device, drawn to scale in millimetres:
+// the device in silver from Apple's published dimensions, the sticker from its print file in
+// applications/merch/, cut line removed and clipped to the cut, with the device's centre line and
+// the measure from the bottom edge to the wordmark sticker's centre. Writes one self-contained SVG
+// per device beside this file.
 // Run: bun applications/device-stickers/devices.ts
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -27,10 +29,11 @@ export const PLACEMENT = {
   ipad: { stem: "stickerB-B16", above: 50 },
 } as const;
 
-type Finish = { body: [string, string]; logo: string; edge: string };
-const SILVER: Finish = { body: ["#dfe1e4", "#c3c6cb"], logo: "#a7abb2", edge: "#9da1a8" };
-const SPACE_BLACK: Finish = { body: ["#3a3c40", "#2a2b2e"], logo: "#53565b", edge: "#1c1d1f" };
-const CASE = "#25282d";
+// Silver only: the placement is the same on every finish, and the night sticker reads on silver.
+const F = { body: ["#dfe1e4", "#c3c6cb"], logo: "#a7abb2", edge: "#9da1a8" };
+// The measure's ink, the brand's teal-dark and ink.
+const LINE = "#155b6a";
+const INK = "#19283a";
 
 // A sticker's print file and its cut: the cut's box is the file less 3 mm bleed on each side, its
 // shape the element in `CutContour`, a rounded rectangle or the die-cut path.
@@ -43,15 +46,31 @@ function stickerFile(stem: string) {
   return { svg, W, H, w: W - 6, h: H - 6, cut };
 }
 
-// The usage text: which sticker goes where, from PLACEMENT and the print files.
-export function stickerUsage() {
-  const at = (k: keyof typeof PLACEMENT, edge: string) => {
-    const { stem, above } = PLACEMENT[k];
+// Each device's caption: its name and, per sticker, the print file, its size and where it goes.
+export function stickerCaptions() {
+  const code = (stem: string) => stem.split("-")[1];
+  const size = (stem: string) => {
     const { w, h } = stickerFile(stem);
-    return `${stem} (${Math.round(w)} x ${Math.round(h)} mm), its centre ${above} mm above the ${edge}`;
+    return `${Math.round(w)} x ${Math.round(h)} mm`;
   };
-  const z = stickerFile(LID_WIZARD);
-  return `The wordmark sticker on the back of every company device, centred left to right, below the Apple logo and upright like it. MacBook, every size: ${at("macbook", "hinge edge")}, and above it the wizard sticker ${LID_WIZARD} (${Math.round(z.w)} x ${Math.round(z.h)} mm), centred on the Apple logo. iPhone: ${at("iphone", "bottom edge")}, below the MagSafe ring; on the case where the phone has one. iPad, in portrait: ${at("ipad", "bottom edge")}. The print files are under Merch. Drawn to scale from Apple's dimensions: MacBook Pro 14-inch, iPad Pro 11-inch, each in silver and space black, and iPhone 18 Pro bare and in a case.`;
+  const centred = (k: keyof typeof PLACEMENT, edge: string) =>
+    `${code(PLACEMENT[k].stem)}, the wordmark, ${size(PLACEMENT[k].stem)}: its centre ${PLACEMENT[k].above} mm above the ${edge}`;
+  return [
+    {
+      file: "macbook",
+      title: "MacBook, every size",
+      lines: [
+        `${code(LID_WIZARD)}, the wizard, ${size(LID_WIZARD)}: centred on the Apple logo`,
+        centred("macbook", "hinge edge"),
+      ],
+    },
+    {
+      file: "iphone",
+      title: "iPhone",
+      lines: [`${centred("iphone", "bottom edge")}, on the case if there is one`],
+    },
+    { file: "ipad", title: "iPad, in portrait", lines: [centred("ipad", "bottom edge")] },
+  ];
 }
 
 // The sticker as printed: the print file without its cut line, clipped to the cut, with a shadow of
@@ -65,63 +84,69 @@ function stickerAt(stem: string, cx: number, cy: number, id: string) {
 }
 
 // The Apple logo's outline in a 100 x 122 box, scaled to its measured box.
-function appleMark(cx: number, cy: number, w: number, h: number, fill: string) {
-  return `<g transform="translate(${cx - w / 2} ${cy - h / 2}) scale(${w / 100} ${h / 122})" fill="${fill}"><path d="M50 36C42 36 34 31 24 31 10 31 0 43 0 62c0 26 16 60 32 60 8 0 11-4 18-4s10 4 18 4c14 0 26-24 30-36-12-5-19-15-19-27 0-10 6-17 13-21-7-5-15-7-20-7-10 0-14 5-22 5Z"/><path d="M50 28C50 14 60 4 74 2 74 16 64 27 50 28Z"/></g>`;
+function appleMark(cx: number, cy: number, w: number, h: number) {
+  return `<g transform="translate(${cx - w / 2} ${cy - h / 2}) scale(${w / 100} ${h / 122})" fill="${F.logo}"><path d="M50 36C42 36 34 31 24 31 10 31 0 43 0 62c0 26 16 60 32 60 8 0 11-4 18-4s10 4 18 4c14 0 26-24 30-36-12-5-19-15-19-27 0-10 6-17 13-21-7-5-15-7-20-7-10 0-14 5-22 5Z"/><path d="M50 28C50 14 60 4 74 2 74 16 64 27 50 28Z"/></g>`;
 }
 
-function shade(id: string, f: Finish) {
-  return `<linearGradient id="${id}" x2="1" y2="1"><stop offset="0" stop-color="${f.body[0]}"/><stop offset="1" stop-color="${f.body[1]}"/></linearGradient>`;
+const SHADE = `<linearGradient id="shade" x2="1" y2="1"><stop offset="0" stop-color="${F.body[0]}"/><stop offset="1" stop-color="${F.body[1]}"/></linearGradient>`;
+
+// The device's centre line, dashed, from 3 mm above to 3 mm below it.
+const axis = (w: number, h: number) =>
+  `<path d="M${w / 2} -3V${h + 3}" stroke="${LINE}" stroke-width="0.4" stroke-dasharray="2 1.5" opacity=".7"/>`;
+
+// The measure right of the device, from its bottom edge up to the wordmark sticker's centre.
+function measure(w: number, h: number, above: number) {
+  const x = w + 8;
+  const y = h - above;
+  const tip = (yy: number, dir: number) =>
+    `<path d="M${x} ${yy}l-1.4 ${dir * 3}h2.8Z" fill="${LINE}"/>`;
+  return `<g stroke="${LINE}" stroke-width="0.5"><path d="M${w + 1} ${h}H${x + 3}M${w + 1} ${y}H${x + 3}" stroke-dasharray="1.2 1"/><path d="M${x} ${y + 3}V${h - 3}"/></g>${tip(y, 1)}${tip(h, -1)}<text x="${x + 3}" y="${y + above / 2 + 3.5}" font-family="JetBrains Mono, monospace" font-weight="700" font-size="10" fill="${INK}">${above} mm</text>`;
+}
+
+// One device on a sheet with 6 mm round it and room for the measure on the right, in millimetres.
+function sheet(w: number, h: number, above: number, body: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w + 52}mm" height="${h + 12}mm" viewBox="-6 -6 ${w + 52} ${h + 12}"><defs>${SHADE}</defs>${body}${measure(w, h, above)}</svg>\n`;
 }
 
 // The back of an open MacBook Pro 14-inch lid as people facing it see it, the hinge at the bottom.
-function drawLid(f: Finish, x: number, id: string) {
+function drawLid() {
   const { w, d, logo } = LID;
   const p = PLACEMENT.macbook;
-  return `<g transform="translate(${x} 0)"><defs>${shade(id, f)}</defs><rect width="${w}" height="${d}" rx="9" fill="url(#${id})" stroke="${f.edge}" stroke-width="0.6"/><rect x="${w * 0.2}" y="${d - 3}" width="${w * 0.6}" height="3" fill="${f.edge}" opacity=".55"/>${appleMark(w / 2, d / 2 + logo.dy, logo.w, logo.h, f.logo)}${stickerAt(LID_WIZARD, w / 2, d / 2 + logo.dy, `${id}z`)}${stickerAt(p.stem, w / 2, d - p.above, `${id}s`)}</g>`;
+  return sheet(
+    w,
+    d,
+    p.above,
+    `<rect width="${w}" height="${d}" rx="9" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.6"/><rect x="${w * 0.2}" y="${d - 3}" width="${w * 0.6}" height="3" fill="${F.edge}" opacity=".55"/>${appleMark(w / 2, d / 2 + logo.dy, logo.w, logo.h)}${axis(w, d)}${stickerAt(LID_WIZARD, w / 2, d / 2 + logo.dy, "mz")}${stickerAt(p.stem, w / 2, d - p.above, "ms")}`,
+  );
 }
 
-// The back of an iPhone 18 Pro, bare or in a case 1.6 mm thick; on a case the sticker goes on the case.
-function drawIphone(f: Finish, x: number, id: string, inCase: boolean) {
+// The back of an iPhone 18 Pro.
+function drawIphone() {
   const { w, h, logo } = PHONE;
-  const t = inCase ? 1.6 : 0;
   const p = PLACEMENT.iphone;
   const lens = (cx: number, cy: number) =>
     `<circle cx="${cx}" cy="${cy}" r="8.2" fill="#8b8f96"/><circle cx="${cx}" cy="${cy}" r="7" fill="#1b1d22"/>`;
-  const body = inCase
-    ? `<rect x="${-t}" y="${-t}" width="${w + 2 * t}" height="${h + 2 * t}" rx="${11.81 + t}" fill="${CASE}"/><rect x="3.5" y="3.5" width="${w - 7}" height="41" rx="8" fill="#0f1012"/>`
-    : `<rect width="${w}" height="${h}" rx="11.81" fill="url(#${id})" stroke="${f.edge}" stroke-width="0.4"/>${appleMark(logo.cx, logo.cy, logo.w, logo.h, f.logo)}`;
-  return `<g transform="translate(${x + t} ${t})"><defs>${shade(id, f)}</defs>${body}<rect x="5.2" y="4.9" width="61.9" height="37.8" rx="7" fill="${inCase ? "#202226" : f.body[0]}" stroke="${f.edge}" stroke-width="0.4"/>${lens(14.4, 14.7)}${lens(32.6, 24)}${lens(14.4, 33.2)}<circle cx="57.6" cy="13.9" r="3.5" fill="#f2efe4"/><circle cx="57.6" cy="34.5" r="3.5" fill="#1b1d22"/>${stickerAt(p.stem, w / 2, h + t - p.above, `${id}s`)}</g>`;
+  return sheet(
+    w,
+    h,
+    p.above,
+    `<rect width="${w}" height="${h}" rx="11.81" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.4"/>${appleMark(logo.cx, logo.cy, logo.w, logo.h)}<rect x="5.2" y="4.9" width="61.9" height="37.8" rx="7" fill="${F.body[0]}" stroke="${F.edge}" stroke-width="0.4"/>${lens(14.4, 14.7)}${lens(32.6, 24)}${lens(14.4, 33.2)}<circle cx="57.6" cy="13.9" r="3.5" fill="#f2efe4"/><circle cx="57.6" cy="34.5" r="3.5" fill="#1b1d22"/>${axis(w, h)}${stickerAt(p.stem, w / 2, h - p.above, "ps")}`,
+  );
 }
 
 // The back of an iPad Pro 11-inch in portrait.
-function drawIpad(f: Finish, x: number, id: string) {
+function drawIpad() {
   const { w, h, logo } = TABLET;
   const p = PLACEMENT.ipad;
-  return `<g transform="translate(${x} 0)"><defs>${shade(id, f)}</defs><rect width="${w}" height="${h}" rx="12" fill="url(#${id})" stroke="${f.edge}" stroke-width="0.5"/><rect x="5" y="5" width="33" height="33" rx="8" fill="${f.body[1]}" stroke="${f.edge}" stroke-width="0.4"/><circle cx="14.5" cy="14.5" r="4.4" fill="#1b1d22"/><circle cx="14.5" cy="29" r="4.4" fill="#1b1d22"/><circle cx="29" cy="21.7" r="3.6" fill="#1b1d22"/>${[-5.27, 0, 5.27].map((dx) => `<circle cx="${w / 2 + dx}" cy="${h - 12}" r="2.13" fill="${f.edge}"/>`).join("")}${appleMark(w / 2, h / 2, logo.w, logo.h, f.logo)}${stickerAt(p.stem, w / 2, h - p.above, `${id}s`)}</g>`;
-}
-
-// Two views side by side with 10 mm between them and 6 mm round them, in millimetres.
-function sheet(views: string, w: number, h: number) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w + 12}mm" height="${h + 12}mm" viewBox="-6 -6 ${w + 12} ${h + 12}">${views}</svg>\n`;
+  return sheet(
+    w,
+    h,
+    p.above,
+    `<rect width="${w}" height="${h}" rx="12" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.5"/><rect x="5" y="5" width="33" height="33" rx="8" fill="${F.body[1]}" stroke="${F.edge}" stroke-width="0.4"/><circle cx="14.5" cy="14.5" r="4.4" fill="#1b1d22"/><circle cx="14.5" cy="29" r="4.4" fill="#1b1d22"/><circle cx="29" cy="21.7" r="3.6" fill="#1b1d22"/>${[-5.27, 0, 5.27].map((dx) => `<circle cx="${w / 2 + dx}" cy="${h - 12}" r="2.13" fill="${F.edge}"/>`).join("")}${appleMark(w / 2, h / 2, logo.w, logo.h)}${axis(w, h)}${stickerAt(p.stem, w / 2, h - p.above, "is")}`,
+  );
 }
 
 if (import.meta.main) {
-  const files = {
-    macbook: sheet(
-      drawLid(SILVER, 0, "ms") + drawLid(SPACE_BLACK, LID.w + 10, "mb"),
-      LID.w * 2 + 10,
-      LID.d,
-    ),
-    iphone: sheet(
-      drawIphone(SILVER, 0, "ps", false) + drawIphone(SILVER, PHONE.w + 10, "pc", true),
-      PHONE.w * 2 + 13.2,
-      PHONE.h + 3.2,
-    ),
-    ipad: sheet(
-      drawIpad(SILVER, 0, "is") + drawIpad(SPACE_BLACK, TABLET.w + 10, "ib"),
-      TABLET.w * 2 + 10,
-      TABLET.h,
-    ),
-  };
+  const files = { macbook: drawLid(), iphone: drawIphone(), ipad: drawIpad() };
   for (const [name, svg] of Object.entries(files)) writeFileSync(join(DIR, `${name}.svg`), svg);
 }
