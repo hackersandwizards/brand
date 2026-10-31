@@ -63,6 +63,9 @@ html[data-theme="light"] {
   /* The 7 percent ink tint on bg. */
   --muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
   --border: #d0d2d8; /* --color-border */
+  /* A field's boundary (WCAG 1.4.11, 3:1): the hairline --border is 1.4:1, so a field takes the
+     70 percent foreground step, 5.5:1 on the page, 5.8:1 on a card, 4.8:1 on the muted fill. */
+  --input: color-mix(in srgb, var(--foreground) 70%, var(--background));
 
   /* Status roles: what a state means. Each is a text colour that clears 4.5:1 on the page, on a
      card and on its own 15 percent wash over either, so `bg-error/15 text-error` reads in both
@@ -102,6 +105,8 @@ html[data-theme="dark"] {
   --focus: var(--color-purple-night);
   --muted: var(--color-night-2);
   --border: color-mix(in srgb, var(--color-white) 18%, var(--color-night));
+  /* The 40 percent step: 3.4:1 on night, 3.2:1 on night-2. */
+  --input: color-mix(in srgb, var(--foreground) 40%, var(--background));
 
   --error: var(--color-red-night);
   --warning: var(--color-amber);
@@ -128,6 +133,7 @@ html[data-theme="dark"] {
   --color-focus: var(--focus);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-input: var(--input);
   --color-error: var(--error);
   --color-warning: var(--warning);
   --color-success: var(--success);
@@ -257,7 +263,7 @@ html[data-theme="dark"] {
 /* Shape only; width is the caller's. The 40px min-height matches a native
  * `<select>`, which reserves room for its arrow: unpinned a row renders 38/40/40. */
 .form-input {
-  @apply rounded-sm border bg-background px-3 py-2 text-ui text-foreground focus:ring-2 focus:ring-focus/40 focus:outline-none;
+  @apply rounded-sm border border-input bg-background px-3 py-2 text-ui text-foreground focus:ring-2 focus:ring-focus/40 focus:outline-none;
   min-height: 2.5rem;
 }
 
