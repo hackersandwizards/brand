@@ -214,6 +214,9 @@ type Family = {
   grounds?: (stem: string) => [string, string][];
   // A family that draws its own section instead of one card per file.
   render?: () => string;
+  // Pages elsewhere that show the family, as [label, href]: an engine's specimen page, opened from
+  // its checkout beside this one, and its repository.
+  links?: [string, string][];
 };
 const FAMILIES: Family[] = [
   {
@@ -275,12 +278,23 @@ const FAMILIES: Family[] = [
   {
     id: "slides",
     title: "Slides",
-    note: "Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide.",
+    note: "Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its specimen shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide.",
+    links: [
+      ["Slide specimen (slides checkout beside this one)", "../slides/specimen/index.html"],
+      ["slides on GitHub", "https://github.com/hackersandwizards/slides"],
+    ],
   },
   {
     id: "documents",
     title: "Documents",
-    note: "Proposals, rate cards, certificates and handouts come from the document components in this package (document/components), rendered by Company OS and the trainer hub.",
+    note: "Proposals, rate cards, Leistungsnachweise, certificates and handouts come from the document engine, the package @hackersandwizards/documents, rendered by Company OS and the trainer hub. Its specimen shows every document type with invented data.",
+    links: [
+      [
+        "Document specimen (documents checkout beside this one)",
+        "../documents/specimen/index.html",
+      ],
+      ["documents on GitHub", "https://github.com/hackersandwizards/documents"],
+    ],
   },
 ];
 // Not shown: the scripts that build a family and their inputs.
@@ -446,7 +460,10 @@ ${table(
 )}
 ${FAMILIES.map((f) => {
   const stems = familyStems.get(f.id)!;
-  return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}</p>${
+  const links = f.links
+    ? `<p class="dl">${f.links.map(([label, href]) => `<a href="${esc(href)}">${esc(label)}</a>`).join("")}</p>`
+    : "";
+  return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}</p>${links}${
     f.render
       ? `<p class="meta">${esc(f.dir)}</p>${f.render()}`
       : f.dir
@@ -497,7 +514,7 @@ ${table(
 <ul>
 <li>Logo for a document or a screen: <a href="logos/lockup.svg" download>lockup.svg</a>, on night <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, on Purple Love, Stargazer or the gradient <a href="logos/lockup-outline.svg" download>lockup-outline.svg</a>; for small spots <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>. Which logo where: <a href="#logos">Logos</a>.</li>
 <li>Print: textiles and stickers take the wordmark alone, the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
-<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are on the design-system pages of the trainer hub and talks, under <a href="#overview">Systems</a>.</li>
+<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are on its specimen page, under <a href="#applications/app-slides">Slides</a>. Documents come from the document engine, <code>@hackersandwizards/documents</code>, under <a href="#applications/app-documents">Documents</a>.</li>
 <li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the slide engine.</li>
 <li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
 </ul>`;

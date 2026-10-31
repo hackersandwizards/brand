@@ -58,5 +58,10 @@
     "path": "../slides",
     "catalogues": [],
     "copies": []
+  },
+  "documents": {
+    "path": "../documents",
+    "catalogues": [],
+    "copies": []
   }
 }

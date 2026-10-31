@@ -1,7 +1,6 @@
 # Byte-exact copies (manifest.json) and generated files: never reformat.
 tokens/
 expert/
-document/
 logos/
 generated/
 manifest.json

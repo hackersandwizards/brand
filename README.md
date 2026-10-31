@@ -1,8 +1,9 @@
 # @hackersandwizards/brand
 
 The hackers&wizards brand as one private package: design tokens, the print layer with its static
-fonts, the logos, the expert UI layer with the components Company OS and the trainer hub share, and the document
-components the PDFs are built from.
+fonts, the logos and the expert UI layer with the components Company OS and the trainer hub share.
+The document components the PDFs are built from are the document engine,
+`@hackersandwizards/documents`.
 
 Maintainer: Benedikt Stemmildt. Trainers can read the whole repo, its history
 included, so nothing goes in that a trainer may not see.
@@ -24,23 +25,21 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
 ```
 
-| Import                                                      | File                             |
-| ----------------------------------------------------------- | -------------------------------- |
-| `@hackersandwizards/brand/tokens.css`                       | Tailwind 4 `@theme` tokens       |
-| `@hackersandwizards/brand/tokens.root.css`                  | the same tokens on `:root`       |
-| `@hackersandwizards/brand/tokens.json`                      | tokens and resolved colours      |
-| `@hackersandwizards/brand/tokens`                           | the same as TypeScript           |
-| `@hackersandwizards/brand/tokens.py`                        | the same as a Python module      |
-| `@hackersandwizards/brand/print.css`                        | print scale and static fonts     |
-| `@hackersandwizards/brand/fonts/<file>`                     | font files                       |
-| `@hackersandwizards/brand/expert.css`                       | expert UI layer                  |
-| `@hackersandwizards/brand/expert/components/<name>.astro`   | expert UI components             |
-| `@hackersandwizards/brand/document.css`                     | print document base              |
-| `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components              |
-| `@hackersandwizards/brand/logos/<file>`                     | logos                            |
-| `@hackersandwizards/brand/clients/<file>`                   | client marks and `clients.json`  |
-| `@hackersandwizards/brand/press/<file>`                     | press photos and `press.json`    |
-| `@hackersandwizards/brand/mail-signature/<file>`            | signature template and `fill.ts` |
+| Import                                                    | File                             |
+| --------------------------------------------------------- | -------------------------------- |
+| `@hackersandwizards/brand/tokens.css`                     | Tailwind 4 `@theme` tokens       |
+| `@hackersandwizards/brand/tokens.root.css`                | the same tokens on `:root`       |
+| `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours      |
+| `@hackersandwizards/brand/tokens`                         | the same as TypeScript           |
+| `@hackersandwizards/brand/tokens.py`                      | the same as a Python module      |
+| `@hackersandwizards/brand/print.css`                      | print scale and static fonts     |
+| `@hackersandwizards/brand/fonts/<file>`                   | font files                       |
+| `@hackersandwizards/brand/expert.css`                     | expert UI layer                  |
+| `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components             |
+| `@hackersandwizards/brand/logos/<file>`                   | logos                            |
+| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`  |
+| `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`    |
+| `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts` |
 
 Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
