@@ -1,14 +1,15 @@
 // The avatar files: the white hw of logos/type-logo-short.svg on the brand gradient, full-bleed
 // square, one file per platform; the platform rounds or crops it itself. The hw spans MARK of the
-// tile's width, centred, so it clears the circle crops (Slack's iPhone header, YouTube, Google).
-// os docs/tracking/2026-10-31-avatar-mark-size.md has the blind review behind 0.63.
+// tile's width, centred: the largest size whose corners stay inside the circle of 40 % radius that
+// a maskable app icon keeps, so the website's icons share it. os
+// docs/tracking/2026-10-31-avatar-mark-size.md and 2026-10-31-icon-sizes.md have the blind reviews.
 // bun applications/avatars/generate.ts
 // The Google Workspace logo (the lockup at 320 x 132) is not built here.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 
-const MARK = 0.63;
+const MARK = 0.625;
 const BRAND = join(import.meta.dir, "../..");
 const tokens = readFileSync(join(BRAND, "tokens/tokens.css"), "utf8");
 const token = (name: string) => tokens.match(new RegExp(`--${name}:\\s*(#[0-9a-f]+);`))![1];
