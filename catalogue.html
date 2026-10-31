@@ -20,8 +20,6 @@
   aside.side nav a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   aside.side nav a:hover { background: var(--color-tint); }
   aside.side nav a.on { background: var(--color-teal-dark); color: var(--color-white); }
-  aside.side nav small { color: var(--color-muted); font: 0.7rem var(--font-code); align-self: center; }
-  aside.side nav a.on small { color: inherit; opacity: 0.8; }
   aside.side .label { margin: 1.25rem 0.5rem 0.25rem; }
   .label, th { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
   .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
@@ -66,7 +64,6 @@
   .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
   .on-dark { background: var(--color-night); }
   .on-gradient { background: var(--gradient-magic); }
-  .on-purple-love { background: #6c5a9e; } /* Purple Love, the Stanley/Stella textile C115, no brand token */
   .dl a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill); color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
   .dl a::before { content: "↓ "; }
   .dl a:hover { background: var(--color-tint); }
@@ -102,8 +99,6 @@
   .mock figcaption { margin-top: 0.4rem; font: 0.75rem var(--font-code); color: var(--color-muted); }
   .asset { margin: 0; }
   .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
-  .asset:has(.views > a + a) { grid-column: span 2; }
-  .asset img[style] { padding: 0.75rem; }
   .asset .dl { display: block; }
   .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset img[src$=".png"] { object-fit: scale-down; }
@@ -138,7 +133,7 @@
 <a href="#overview"><img src="logos/lockup.svg" alt="hackers&amp;wizards"></a>
 <button type="button" class="bar-btn" id="search-btn" aria-controls="q" aria-expanded="false">Search</button>
 <button type="button" class="bar-btn" id="menu-btn" aria-controls="side-nav" aria-expanded="false">Menu</button>
-<p class="label version">Brand v0.13.0</p>
+<p class="label version">Brand v0.13.1</p>
 <input type="search" id="q" class="input" placeholder="Search  /" aria-label="Search tokens and logos" autocomplete="off">
 <nav id="side-nav" aria-label="Catalogue">
 <a href="#overview"><span>Overview</span></a>
@@ -342,7 +337,8 @@ const search = () => {
   show();
 };
 q.addEventListener("input", search);
-results.addEventListener("click", () => { q.value = ""; results.classList.remove("on"); });
+// A hit on the page already open fires no hashchange, so the click shows it.
+results.addEventListener("click", (e) => { const same = e.target.closest("a")?.getAttribute("href") === location.hash; q.value = ""; results.classList.remove("on"); if (same) show(); });
 addEventListener("hashchange", show);
 // The phone's top bar: one of Search or Menu is open at a time; a link, Escape or a tap outside
 // the drawer closes the menu.

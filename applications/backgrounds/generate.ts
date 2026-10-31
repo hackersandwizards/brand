@@ -10,7 +10,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { crc32 } from "node:zlib";
 import sharp from "sharp";
-import { brand, browser, fontFaces, tint, toJpeg } from "./render.ts";
+import { brand, browser, fontFaces, tint, toJpeg } from "./render";
 
 const DARK = import.meta.dir;
 

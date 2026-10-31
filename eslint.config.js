@@ -9,7 +9,6 @@ export default tseslint.config(
       ".claude/**",
       ".githooks/**",
       "tokens/**",
-      "expert/**",
       "logos/**",
       "generated/**",
     ],

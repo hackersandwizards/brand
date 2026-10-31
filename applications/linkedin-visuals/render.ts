@@ -20,11 +20,10 @@ function inlineCss(path: string): string {
     );
 }
 
-// The faces and the print sizes of the type roles, then the screen tokens again, which restore the
+// The faces and the print sizes of the type roles, then the screen tokens, which restore the
 // screen sizes.
 export const linkedinCss = () =>
-  ["tokens/tokens.css", "tokens/print.css"].map((f) => inlineCss(brandPath(f))).join("\n") +
-  readFileSync(brandPath("tokens/tokens.css"), "utf-8").replace(/@theme\s*\{/, ":root {");
+  ["tokens/print.css", "tokens/tokens.css"].map((f) => inlineCss(brandPath(f))).join("\n");
 
 export const escHtml = (s: string) =>
   s

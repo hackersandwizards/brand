@@ -8,8 +8,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
-import { browser } from "../backgrounds/render.ts";
-import { TEXTILE, wear as wearPrint } from "./mockup.ts";
+import { browser } from "../backgrounds/render";
+import { TEXTILE, wear as wearPrint } from "./mockup";
 
 const DIR = import.meta.dir;
 const LOGOS = join(DIR, "../../logos");
