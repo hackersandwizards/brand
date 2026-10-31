@@ -11,6 +11,7 @@ import pkg from "../package.json";
 import press from "../press/press.json";
 import repos from "../repos.json";
 import { ROOT } from "./git";
+import { stickerUsage } from "../applications/device-stickers/devices";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
 import { parseTokens, resolveColors, SOURCE } from "./tokens";
 
@@ -258,6 +259,12 @@ const FAMILIES: Family[] = [
     render: () => merchHtml,
   },
   {
+    id: "device-stickers",
+    title: "Device stickers",
+    note: stickerUsage(),
+    dir: "applications/device-stickers",
+  },
+  {
     id: "mail-signature",
     title: "Mail signatures",
     note: "One signature for every mail, new mails and replies alike: the typed wordmark in colour, name, role, contact line and the three lines § 35a GmbHG requires. One HTML file per person to open in a browser and copy into the mail client, and a plain-text file for the iPhone. Links in teal #1A7285 (5.54:1 on white).",
@@ -334,7 +341,7 @@ const front = print("shirt-T12-front");
 const back = print("shirt-T12-back");
 const hoodie = print("hoodie-H12-front");
 const mugPrint = print("mug-M6");
-const stickers = ["stickerP-P10", "stickerL-L13", "stickerB-B16"].map(print);
+const stickers = ["stickerP-P10", "stickerL-L13", "stickerB-B16", "stickerD-D1"].map(print);
 const cloths = ["cloth-K9", "cloth-K10", "cloth-K12"].map(print);
 const notebook = print("notebook-N6");
 const PRODUCTS: Product[] = [
@@ -385,7 +392,7 @@ const PRODUCTS: Product[] = [
     stems: cloths.map((c) => c.stem),
   },
   {
-    name: "Stickers P10, L13, B16",
+    name: "Stickers P10, L13, B16, D1",
     note: `Kiss-cut on night with 3 mm corners, the wordmark in the night cut, ${stickers.map((s) => mm(s.W - 12)).join(", ")} wide; the print file carries the cut line (CutContour). Shown on a 300 mm laptop lid.`,
     views: [[lid(stickers), "on a laptop lid"]],
     stems: stickers.map((s) => s.stem),

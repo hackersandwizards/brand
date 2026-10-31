@@ -1,5 +1,5 @@
 // Print files and mockups for the surfaces that carry the wordmark alone (design guide, logo table):
-// shirt T12, hoodie H12, stickers P10, L13, B16. The outline cut goes on the Purple Love and Stargazer
+// shirt T12, hoodie H12, stickers P10, L13, B16 and the laptop lid sticker D1. The outline cut goes on the Purple Love and Stargazer
 // shirts and hoodies, the night cut on the Night stickers. The chest prints are sized by width; the
 // back neck and the stickers keep the letter height the lockup files had, so the finest slit stays
 // where the print check measured it. Logos come from this repo's logos/.
@@ -80,7 +80,8 @@ const mockupPage = (body: string, bg: string) =>
   `<!doctype html><html><head><style>html,body{margin:0}body{background:${bg};position:relative;font:16px system-ui}</style></head><body>${body}</body></html>`;
 
 // T12 front chest: the outline cut FRONT_MM wide; T12 back neck: lockup 150 mm; H12 chest above the
-// pocket: the outline cut 280 mm wide, inside DTF class A4; stickers: compact lockup 56/72/90 mm
+// pocket: the outline cut 280 mm wide, inside DTF class A4; stickers: the wordmark 56/72/90 mm, on the
+// laptop lid 134 mm
 const FRONT_MM = 320;
 const t12Front = (FRONT_MM * 6571) / outline.vbW;
 const t12 = (150 * 6571) / LOCKUP_UNITS;
@@ -92,6 +93,8 @@ const files = {
   "stickerP-P10": stickerPrint(56),
   "stickerL-L13": stickerPrint(72),
   "stickerB-B16": stickerPrint(90),
+  // the laptop lid (applications/device-stickers/): the wordmark 134 mm, cut 140 mm wide
+  "stickerD-D1": stickerPrint(134),
 };
 
 const b = await browser();
@@ -163,7 +166,7 @@ try {
     );
 
   // stickers: on a 300 mm laptop lid (--color-ampersand-light to --color-ampersand) at 2.6 px/mm and flat on white
-  for (const name of ["stickerP-P10", "stickerL-L13", "stickerB-B16"] as const) {
+  for (const name of ["stickerP-P10", "stickerL-L13", "stickerB-B16", "stickerD-D1"] as const) {
     const f = files[name];
     const st = (s: number) =>
       `<div style="position:relative;width:${f.w * s}px;height:${f.h * s}px;border-radius:${3 * s}px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.35)"><img src="${uri(f.face)}" style="position:absolute;left:${-3 * s}px;top:${-3 * s}px;width:${f.W * s}px;height:${f.H * s}px"></div>`;
