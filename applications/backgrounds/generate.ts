@@ -2,7 +2,7 @@
 // bun applications/backgrounds/generate.ts <out dir> [variant ...] [--mocks]
 // Writes <out>/<variant>/<device>[-home].png and, with --mocks, <out>/mocks/<variant>-<panel>.jpg;
 // the mocks include the current dark files beside this script as "dark".
-// the dark reference mocks come from the PNGs in <dark dir> (the files in hochladen/).
+// the dark reference mocks come from the PNGs in <dark dir>.
 // Layout round: bun generate.ts <out dir> --layouts [--base dark|light] [--only <file>:<layout>,...]
 // writes <out>/<base>/<file>/<layout>.png and per screen <out>/mocks/<base>~<layout>~<screen>.jpg
 // (1000 px long edge) plus -detail.jpg (the system text at real size, where the mock is larger).
