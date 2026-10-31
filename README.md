@@ -87,7 +87,7 @@ bun run report   # scan the sibling repos, compare their copies, rebuild catalog
 bun run live     # every system's catalogue from its last build into captures/, rebuild catalogue.html
 ```
 
-Open `catalogue.html` from disk for the brand portal: tokens, logos, every system's components live with its own CSS, a Compare of any systems you pick, the applications with their state, and health.
+Open `catalogue.html` from disk for the brand portal: tokens, logos, every system's components live with its own CSS, a Compare of any systems you pick, every family of brand files in use under `applications/`, and health.
 Rebuild the systems, then `bun run live`; `captures/` stays on this machine because the os and trainer hub stories carry fixtures trainers may not see.
 
 A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
