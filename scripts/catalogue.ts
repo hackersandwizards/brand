@@ -214,8 +214,8 @@ type Family = {
   grounds?: (stem: string) => [string, string][];
   // A family that draws its own section instead of one card per file.
   render?: () => string;
-  // Pages elsewhere that show the family, as [label, href]: an engine's specimen page, opened from
-  // its checkout beside this one, and its repository.
+  // Pages elsewhere that show the family, as [label, href]: an engine's specimen page and its
+  // repository, at the URLs the engine's owner publishes on GitHub.
   links?: [string, string][];
 };
 const FAMILIES: Family[] = [
@@ -280,7 +280,10 @@ const FAMILIES: Family[] = [
     title: "Slides",
     note: "Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its specimen shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide.",
     links: [
-      ["Slide specimen (slides checkout beside this one)", "../slides/specimen/index.html"],
+      [
+        "Slide specimen",
+        "https://github.com/hackersandwizards/slides/blob/main/specimen/index.html",
+      ],
       ["slides on GitHub", "https://github.com/hackersandwizards/slides"],
     ],
   },
@@ -290,8 +293,8 @@ const FAMILIES: Family[] = [
     note: "Proposals, rate cards, Leistungsnachweise, certificates and handouts come from the document engine, the package @hackersandwizards/documents, rendered by Company OS and the trainer hub. Its specimen shows every document type with invented data.",
     links: [
       [
-        "Document specimen (documents checkout beside this one)",
-        "../documents/specimen/index.html",
+        "Document specimen",
+        "https://github.com/hackersandwizards/documents/blob/main/specimen/index.html",
       ],
       ["documents on GitHub", "https://github.com/hackersandwizards/documents"],
     ],
