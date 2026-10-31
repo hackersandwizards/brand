@@ -47,10 +47,7 @@ data or secret.
   edit them; run `bun run tokens`.
 - `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;
   nothing here reads a consumer. `colours.ts` (`brand-colours`), exceptions in the consumer's
-  `brand-colours.json`. `drift.ts` (`brand-drift`) compares the copies a consumer lists in a
-  `brand-copies.json` beside them with `manifest.json`, run only where a consumer commits copies it
-  serves; today none does (the certificate verifier copies its fonts and lockup at install, so they
-  follow its pin). `components.ts` (`brand-scan`) fails on a consumer component named like an
+  `brand-colours.json`. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
@@ -69,8 +66,7 @@ data or secret.
 ## Rules
 
 - A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
-  Other repos take it from the package; a copy a consumer serves fails its `brand-drift` until it
-  follows.
+  Other repos take it from the package and never commit a copy of a brand file.
 - Nothing about another repo goes on `catalogue.html`: each system shows its components on its own
   design-system page, whose URL `scripts/catalogue.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, fonts with

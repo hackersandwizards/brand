@@ -52,7 +52,6 @@ with `Script not found`.
 | `brand-linkedin-sketch-prompt`                                | prints the prompt for a generated sketch and its worked examples      |
 | `brand-mail-signature --name <n> --role <r> --out <path>`     | writes a mail signature as HTML and text; all flags in `cli.ts`       |
 | `brand-colours [--tighten]`                                   | the colour scan for your gate, below                                  |
-| `brand-drift`                                                 | checks the brand files you serve as copies, below                     |
 | `brand-scan [--tighten]`                                      | flags a fork of an expert component, below                            |
 
 These commands and the exported files above are the whole interface: any other path in the package
@@ -104,13 +103,9 @@ An exception goes in `brand-colours.json` beside your `package.json`, one entry 
 counts and the reason, and the list may only shrink: the scan fails where an entry grows against
 `HEAD` or names no reason. `brand-colours --tighten` lowers every entry to today's counts.
 
-### Check your copies and components in your gate
+### Check your components in your gate
 
-Serve a brand file as a copy only where your build cannot read it from the package. List the copies
-in a `brand-copies.json` in the folder that holds them, with the reason you copy:
-`{ "reason": "...", "copies": { "<file beside>": "<brand path>" } }`. `brand-drift` compares every
-listed copy with the installed package and fails on one that differs or is missing, and where no
-list exists at all: add it to `check` only where you hold copies.
+Never commit a copy of a brand file: read it from the installed package.
 
 Where you render the expert components, `brand-scan` fails on a component of yours named like one
 of them (`Pill`, `PageHeader`, ...): import it from the package. An exception goes in
