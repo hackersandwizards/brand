@@ -483,7 +483,7 @@ const mm = (v: number) => `${Math.round(v)} mm`;
 type Product = { name: string; note: string; views: [string, string][]; stems: string[] };
 const front = print("shirt-T12-front");
 const back = print("shirt-T12-back");
-const hoodie = print("hoodie-H6-front");
+const hoodie = print("hoodie-H12-front");
 const mugPrint = print("mug-M6");
 const stickers = ["stickerP-P10", "stickerL-L13", "stickerB-B16"].map(print);
 const cloths = ["cloth-K9", "cloth-K10", "cloth-K12"].map(print);
@@ -504,10 +504,15 @@ const PRODUCTS: Product[] = [
     stems: ["shirt-T12-front", "shirt-T12-back"],
   },
   {
-    name: "Hoodie H6",
-    note: `Black. Left chest: the wordmark in the night cut, ${mm(hoodie.W - 1)} wide.`,
-    views: [[wear(TEXTILE.black, hoodie, 500, 170, true, false), "front, black"]],
-    stems: ["hoodie-H6-front"],
+    name: "Hoodie H12",
+    note: `Purple Love and Stargazer. Chest, above the pocket: the wordmark in the outline cut, ${mm(hoodie.W - 1)} wide.`,
+    views: (
+      [
+        ["Purple Love", TEXTILE["purple-love"]],
+        ["Stargazer", TEXTILE.stargazer],
+      ] as const
+    ).map(([n, col]) => [wear(col, hoodie, 380, 215, true, false), `front, ${n}`]),
+    stems: ["hoodie-H12-front"],
   },
   {
     name: "Mug M6",

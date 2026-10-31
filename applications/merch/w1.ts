@@ -1,7 +1,8 @@
 // Print files and mockups for the surfaces that carry the wordmark alone (design guide, logo table):
-// shirt T12, hoodie H6, stickers P10, L13, B16. The outline cut goes on the Purple Love and Stargazer
-// shirts, the night cut on the black hoodie and the Night stickers. Each wordmark keeps the letter height the lockup files had, so
-// the finest slit stays where the print check measured it. Logos come from this repo's logos/.
+// shirt T12, hoodie H12, stickers P10, L13, B16. The outline cut goes on the Purple Love and Stargazer
+// shirts and hoodies, the night cut on the Night stickers. The chest prints are sized by width; the
+// back neck and the stickers keep the letter height the lockup files had, so the finest slit stays
+// where the print check measured it. Logos come from this repo's logos/.
 // Run: bun applications/merch/w1.ts
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -78,16 +79,16 @@ const uri = (svg: string) => `data:image/svg+xml;base64,${Buffer.from(svg).toStr
 const mockupPage = (body: string, bg: string) =>
   `<!doctype html><html><head><style>html,body{margin:0}body{background:${bg};position:relative;font:16px system-ui}</style></head><body>${body}</body></html>`;
 
-// T12 front chest: the outline cut FRONT_MM wide; T12 back neck: lockup 150 mm; H6 left chest:
-// lockup 130 mm; stickers: compact lockup 56/72/90 mm
+// T12 front chest: the outline cut FRONT_MM wide; T12 back neck: lockup 150 mm; H12 chest above the
+// pocket: the outline cut 280 mm wide, inside DTF class A4; stickers: compact lockup 56/72/90 mm
 const FRONT_MM = 320;
 const t12Front = (FRONT_MM * 6571) / outline.vbW;
 const t12 = (150 * 6571) / LOCKUP_UNITS;
-const h6 = (130 * 6571) / LOCKUP_UNITS;
+const h12 = (280 * 6571) / outline.vbW;
 const files = {
   "shirt-T12-front": textilePrint(outline, t12Front),
   "shirt-T12-back": textilePrint(outline, t12),
-  "hoodie-H6-front": textilePrint(night, h6),
+  "hoodie-H12-front": textilePrint(outline, h12),
   "stickerP-P10": stickerPrint(56),
   "stickerL-L13": stickerPrint(72),
   "stickerB-B16": stickerPrint(90),
@@ -144,16 +145,22 @@ try {
     );
   }
 
-  // hoodie H6: front, left chest (the wearer's left)
+  // hoodie H12 in both colours: chest, above the kangaroo pocket and below the drawcords
   const hoodieSheet = mockupPage(
-    `<div style="display:flex;gap:60px;padding:40px;align-items:center"><div style="width:620px;height:690px">${wear(TEXTILE.black, "hoodie-H6-front", 500, 170, true, false)}</div><div>${zoom(TEXTILE.black, "hoodie-H6-front", 6)}${cap("Brust links, etwa aus 1 m")}</div></div>`,
+    `<div style="display:flex;gap:30px;padding:30px 30px 0">${shirtColours
+      .map(
+        ([n, col]) =>
+          `<div style="width:620px;height:690px">${wear(col, "hoodie-H12-front", 380, 215, true, false)}${cap(`Brust, ${n}`)}</div>`,
+      )
+      .join("")}</div>`,
     "#E4E6EA",
   );
-  await jpg(await b.shot(hoodieSheet, 1600, 800, 1), "hoodie-H6");
-  await jpg(
-    await b.shot(mockupPage(zoom(TEXTILE.black, "hoodie-H6-front", 9), "#E4E6EA"), 1200, 320, 1),
-    "hoodie-H6-crop",
-  );
+  await jpg(await b.shot(hoodieSheet, 1340, 780, 1), "hoodie-H12");
+  for (const [n, col] of shirtColours)
+    await jpg(
+      await b.shot(mockupPage(zoom(col, "hoodie-H12-front", 3), "#E4E6EA"), 1040, 240, 1),
+      `hoodie-H12-front-${n}-crop`,
+    );
 
   // stickers: on a 300 mm laptop lid (--color-ampersand-light to --color-ampersand) at 2.6 px/mm and flat on white
   for (const name of ["stickerP-P10", "stickerL-L13", "stickerB-B16"] as const) {
