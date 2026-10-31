@@ -5,77 +5,14 @@
       "tokenHex": 0,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "website:scripts/og/template.html": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "website:src/components/blocks/LogoStrip.astro": {
-      "hex": 0,
-      "tokenHex": 5,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "website:src/components/islands/hero-feed.ts": {
-      "hex": 1,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "website:src/components/sections/Factory.astro": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "website:src/components/sections/StandardSections.astro": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 1,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "website:src/components/templates/SelfCheckPage.astro": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "website:src/layouts/Layout.astro": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
+      "reason": "Code syntax colours: Shiki's github-dark comment colour, lifted to the theme's own lighter grey for 5.34:1 on its background."
     },
     "os:.claude/skills/email/test_draft_optimize.py": {
       "hex": 0,
       "tokenHex": 1,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:scripts/attendee-survey/report.ts": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:scripts/delivery/survey-qr.py": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
+      "reason": "Test fixture: a mail's HTML part marks a status in green-dark, and the test asserts the plain part still carries it."
     },
     "os:scripts/gmail/draft.py": {
       "hex": 0,
@@ -84,61 +21,12 @@
       "palette": 0,
       "reason": "System font stack for mail on purpose (os git history: docs/tracking/2026-10-29-brand-system-repo.md, section 6)."
     },
-    "os:src/components/DeliverableListRow.astro": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 2,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:src/components/PipelineBoard.astro": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:src/config.ts": {
-      "hex": 14,
-      "tokenHex": 7,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:src/pages/companies/[slug].astro": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 6,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:src/pages/surveys.astro": {
-      "hex": 0,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 6,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:src/pages/workflow.astro": {
-      "hex": 28,
-      "tokenHex": 0,
-      "font": 2,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "os:src/stories/demos/DocumentHoverPreviewDemo.astro": {
-      "hex": 8,
-      "tokenHex": 0,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
     "os:src/styles/global.css": {
-      "hex": 32,
-      "tokenHex": 16,
-      "font": 1,
+      "hex": 9,
+      "tokenHex": 0,
+      "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
+      "reason": "Finance palette: the forecast and margin charts' data colours (--fin-*), each measured for contrast on the page and kept apart from the status greens, as the comments beside them state."
     },
     "trainer-hub:.claude/skills/print-pdf/hw-pdf-style.css": {
       "hex": 0,
@@ -147,23 +35,9 @@
       "palette": 0,
       "reason": "Present at the first scan, not yet reviewed."
     },
-    "trainer-hub:src/slides/lib/decks.ts": {
-      "hex": 0,
-      "tokenHex": 4,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "trainer-hub:src/stories/Home.astro": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
     "trainer-hub:src/stories/SlideFrame.astro": {
       "hex": 0,
-      "tokenHex": 2,
+      "tokenHex": 1,
       "font": 0,
       "palette": 0,
       "reason": "Present at the first scan, not yet reviewed."
@@ -183,7 +57,7 @@
       "reason": "Present at the first scan, not yet reviewed."
     },
     "talks:app/page.tsx": {
-      "hex": 3,
+      "hex": 0,
       "tokenHex": 2,
       "font": 0,
       "palette": 0,
@@ -198,8 +72,8 @@
     }
   },
   "duplicates": {
-    "card": "Present at the first scan, not yet reviewed.",
-    "listrow": "Present at the first scan, not yet reviewed.",
-    "sectionheader": "Present at the first scan, not yet reviewed."
+    "card": "Two different components with one name: the website's marketing card and the trainer hub's content card share no markup or props.",
+    "listrow": "The shared part is expert.css's .list-row class; os's row adds Company OS record actions, assignee and warnings from os code, the trainer hub's is the bare row.",
+    "sectionheader": "Two different media: the website's page section header and the slide engine's section slide."
   }
 }
