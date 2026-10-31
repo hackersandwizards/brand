@@ -11,6 +11,7 @@ import manifest from "../manifest.json";
 import pkg from "../package.json";
 import press from "../press/press.json";
 import { ROOT } from "./git";
+import { MARK } from "../applications/avatars/generate";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
@@ -246,7 +247,7 @@ const FAMILIES: Family[] = [
   {
     id: "avatars",
     title: "Avatars and workspace icons",
-    note: "The white hw on the brand gradient, one file per platform, the hw at 62.5% of the tile width, the largest that stays inside a maskable icon's safe circle; generate.ts builds them. Google Workspace takes the lockup at 320 x 132.",
+    note: `The white hw on the brand gradient, one file per platform, the hw at ${MARK * 100}% of the tile width, the largest that stays inside a maskable icon's safe circle; generate.ts builds them. Google Workspace takes the lockup at 320 x 132.`,
     dir: "applications/avatars",
   },
   {

@@ -37,7 +37,8 @@ export const escHtml = (s: string) =>
 /**
  * Chrome for Testing, the build puppeteer and playwright install, never the user's own Chrome: a
  * headless instance from `/Applications/Google Chrome.app` made macOS activate it instead of opening
- * the user's window (shown 2026-10-31). The newest build in puppeteer's cache, else installed there.
+ * the user's window (shown 2026-10-31). The newest build for this platform in puppeteer's cache,
+ * else installed there.
  */
 export function findChrome(): string {
   if (process.env.CHROME_BINARY) return process.env.CHROME_BINARY;
@@ -47,7 +48,11 @@ export function findChrome(): string {
     process.platform === "darwin"
       ? "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
       : "chrome";
+  // puppeteer's folder names: <platform>-<build id>, beside its .metadata file
+  const platform =
+    process.platform === "darwin" ? (process.arch === "arm64" ? "mac_arm" : "mac") : "linux";
   const found = (existsSync(builds) ? readdirSync(builds) : [])
+    .filter((build) => build.startsWith(`${platform}-`))
     .sort((x, y) => y.localeCompare(x, "en", { numeric: true }))
     .flatMap((build) =>
       readdirSync(join(builds, build))
@@ -56,7 +61,7 @@ export function findChrome(): string {
     )
     .find((path) => existsSync(path));
   if (found) return found;
-  const args = ["@puppeteer/browsers", "install", "chrome@stable", "--path", cache];
+  const args = ["@puppeteer/browsers@3.2.6", "install", "chrome@stable", "--path", cache];
   return execFileSync("bunx", [...args, "--format", "{{path}}"], { encoding: "utf-8" }).trim();
 }
 

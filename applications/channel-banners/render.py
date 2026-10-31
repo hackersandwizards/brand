@@ -55,7 +55,7 @@ def headline(x, baseline, size, track, *parts, font=MONO):
     return {"x": x, "baseline": baseline, "size": size, "track": track, "parts": parts, "font": font}
 
 
-def two_lines(first, second, x=480, b1=138, b2=191, size=43.8, track=-0.039):
+def two_lines(first, second, b1, b2, size, track, x=480):
     return [headline(x, b1, size, track, *first), headline(x, b2, size, track, *second)]
 
 
@@ -179,7 +179,7 @@ PROFILE_LOGOS = [("mercedes-benz", 569, 63), ("dm", 682.5, 59), ("tchibo", 842, 
 FEATURED_LOGOS = [("mercedes-benz", 188, 78), ("dm", 327.5, 72), ("tchibo", 522.5, 57), ("vorwerk", 747, 64), ("bonprix", 963.5, 55)]
 
 
-# file name -> (surface, scale, canvas width or None, margin)
+# file name -> (surface, scale)
 REPO_FILES = {
     "profile-banner-1-claim-1584x396.png": ("profile-1", 1),
     "profile-banner-2-clients-1584x396.png": ("profile-2", 1),
