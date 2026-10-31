@@ -5,7 +5,7 @@ import { ROOT } from "../scripts/git";
 
 // The package holds only the core. A new folder, a slide engine file or a print master fails here.
 const SHIPPED =
-  /^(package\.json|README\.md|LICENSE|(tokens|generated|expert|logos|clients|press)\/.+|document\/document\.css|document\/components\/Doc\w+\.astro|applications\/linkedin-visuals\/[\w-]+\.(ts|txt)|scan\/colours\.ts)$/;
+  /^(package\.json|README\.md|LICENSE|(tokens|generated|expert|logos|clients|press)\/.+|document\/document\.css|document\/components\/Doc\w+\.astro|applications\/linkedin-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/colours\.ts)$/;
 const PRINT_MASTERS = /\.tif$|emoji-logo-(long|short)\.png$/;
 
 const packed = Bun.spawnSync(["bun", "pm", "pack", "--dry-run"], { cwd: ROOT })

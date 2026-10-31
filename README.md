@@ -24,22 +24,23 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
 ```
 
-| Import                                                      | File                            |
-| ----------------------------------------------------------- | ------------------------------- |
-| `@hackersandwizards/brand/tokens.css`                       | Tailwind 4 `@theme` tokens      |
-| `@hackersandwizards/brand/tokens.root.css`                  | the same tokens on `:root`      |
-| `@hackersandwizards/brand/tokens.json`                      | tokens and resolved colours     |
-| `@hackersandwizards/brand/tokens`                           | the same as TypeScript          |
-| `@hackersandwizards/brand/tokens.py`                        | the same as a Python module     |
-| `@hackersandwizards/brand/print.css`                        | print scale and static fonts    |
-| `@hackersandwizards/brand/fonts/<file>`                     | font files                      |
-| `@hackersandwizards/brand/expert.css`                       | expert UI layer                 |
-| `@hackersandwizards/brand/expert/components/<name>.astro`   | expert UI components            |
-| `@hackersandwizards/brand/document.css`                     | print document base             |
-| `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components             |
-| `@hackersandwizards/brand/logos/<file>`                     | logos                           |
-| `@hackersandwizards/brand/clients/<file>`                   | client marks and `clients.json` |
-| `@hackersandwizards/brand/press/<file>`                     | press photos and `press.json`   |
+| Import                                                      | File                             |
+| ----------------------------------------------------------- | -------------------------------- |
+| `@hackersandwizards/brand/tokens.css`                       | Tailwind 4 `@theme` tokens       |
+| `@hackersandwizards/brand/tokens.root.css`                  | the same tokens on `:root`       |
+| `@hackersandwizards/brand/tokens.json`                      | tokens and resolved colours      |
+| `@hackersandwizards/brand/tokens`                           | the same as TypeScript           |
+| `@hackersandwizards/brand/tokens.py`                        | the same as a Python module      |
+| `@hackersandwizards/brand/print.css`                        | print scale and static fonts     |
+| `@hackersandwizards/brand/fonts/<file>`                     | font files                       |
+| `@hackersandwizards/brand/expert.css`                       | expert UI layer                  |
+| `@hackersandwizards/brand/expert/components/<name>.astro`   | expert UI components             |
+| `@hackersandwizards/brand/document.css`                     | print document base              |
+| `@hackersandwizards/brand/document/components/<Doc*.astro>` | document components              |
+| `@hackersandwizards/brand/logos/<file>`                     | logos                            |
+| `@hackersandwizards/brand/clients/<file>`                   | client marks and `clients.json`  |
+| `@hackersandwizards/brand/press/<file>`                     | press photos and `press.json`    |
+| `@hackersandwizards/brand/mail-signature/<file>`            | signature template and `fill.ts` |
 
 Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
@@ -50,6 +51,7 @@ with `Script not found`.
 | `brand-linkedin-frame <in.png> <out.png> --headline "<text>"` | frames an image as a 1080 x 1350 LinkedIn post image                  |
 | `brand-linkedin-terminal <spec.json> <out.png>`               | renders a terminal snippet for the frame; no arguments print the spec |
 | `brand-linkedin-sketch-prompt`                                | prints the prompt for a generated sketch and its worked examples      |
+| `brand-mail-signature --name <n> --role <r> --out <path>`     | writes a mail signature as HTML and text; all flags in `cli.ts`       |
 | `brand-colours [--tighten]`                                   | the colour scan for your gate, below                                  |
 
 These commands and the exported files above are the whole interface: any other path in the package

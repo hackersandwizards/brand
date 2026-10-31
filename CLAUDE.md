@@ -37,7 +37,10 @@ discount, margin, offer, invoice, client term, personal data or secret.
   three commands: `brand-linkedin-frame` (`frame.ts`) and `brand-linkedin-terminal` (`terminal.ts`)
   write a post's image to the path the caller names, `brand-linkedin-sketch-prompt` prints
   `sketch-prompt.txt`, the generated sketch's prompt, and each `sketch-example-<name>.txt`, a filled
-  prompt beside the post image it produced. Every
+  prompt beside the post image it produced. `mail-signature/` holds one template with placeholders
+  (`template.html`, `template.txt`), filled by `fill.ts` and shipped as the `brand-mail-signature`
+  command; no person's signature lives here, since each carries personal data: os renders those from
+  its people records. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
@@ -77,7 +80,7 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - The package holds the core only: tokens, generated formats, print and expert layers, the document
   base `document/document.css`, the document components, fonts with their OFL texts, small logos,
   the client marks, the press photos, the LinkedIn post renderers and prompts
-  `applications/linkedin-visuals/*.ts` and `*.txt`, the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
+  `applications/linkedin-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an
   `exports` target names, imported or, from Python, HTML or a skill, read at its path in
