@@ -103,7 +103,6 @@ body {
   width: 0.5em;
   height: 0.5em;
   background: var(--teal-light);
-  border-radius: 0.16em 0;
 }
 .contact {
   display: flex;
