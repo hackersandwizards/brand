@@ -514,9 +514,9 @@ const html = `<!doctype html>
   aside.side nav a.on small { color: inherit; opacity: 0.8; }
   aside.side .label { margin: 1.25rem 0.5rem 0.25rem; }
   .label, th { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
-  .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
+  .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
   .input::placeholder { color: var(--color-muted); }
-  .input:hover { border-color: var(--color-border-strong); }
+  .input:hover { border-color: var(--color-muted); }
   .input:focus-visible { border-color: var(--color-teal); }
   input[type=search]::-webkit-search-cancel-button { cursor: pointer; }
   #q { margin: 0 0.25rem; width: calc(100% - 0.5rem); }
