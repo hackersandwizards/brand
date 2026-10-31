@@ -53,7 +53,7 @@
     "scan/colours.ts"
   ],
   "scripts": {
-    "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$PWD\" ] && git config core.hooksPath .githooks || true",
+    "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && git config core.hooksPath .githooks || true",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check && bun scripts/catalogue.ts --check",
     "lint": "eslint --cache --concurrency=auto .",
     "typecheck": "tsc --noEmit",
@@ -63,7 +63,9 @@
     "tokens": "bun scripts/tokens.ts",
     "scan": "bun scripts/scan.ts",
     "drift": "bun scripts/drift.ts",
-    "catalogue": "bun scripts/catalogue.ts"
+    "catalogue": "bun scripts/catalogue.ts",
+    "check:staged": "bun .claude/skills/engineering/check-staged.ts",
+    "lfs:pre-push": "git lfs pre-push"
   },
   "overrides": {
     "minimatch": "11.0.3"

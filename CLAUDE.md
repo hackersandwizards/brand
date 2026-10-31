@@ -59,8 +59,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
   scanners, allowlist ratchet, drift control) and the freshness of `generated/` and
   `catalogue.html`. No hook runs it:
-  `.githooks/pre-commit` scans the staged changes with `gitleaks` and runs `prettier --check` and
-  `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
+  `.githooks/pre-commit` runs `bun run check:staged`: `gitleaks` over the staged changes,
+  `prettier --check` and `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run catalogue`: rebuild `catalogue.html`.
 - `bun run drift`: the siblings' copies of brand files against `manifest.json`; it never fails.
