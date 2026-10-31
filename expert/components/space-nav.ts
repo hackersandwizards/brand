@@ -11,13 +11,11 @@ export function containsPath(node: SpaceNode, path: string): boolean {
   return path === node.href || path.startsWith(`${node.href}/`);
 }
 
-/** text-foreground/65 sits under each app's --dim-floor: an app with a higher floor (the trainer
- *  hub's 70%) lifts it there. */
 export function navLinkClass(href: string, currentPath: string): string[] {
   return [
-    "block truncate rounded px-2 py-1 text-ui transition-colors",
+    "block truncate rounded-sm px-2 py-1 text-ui transition-colors",
     href === currentPath
-      ? "bg-accent/8 font-medium text-accent"
-      : "text-foreground/65 hover:bg-muted/50 hover:text-foreground",
+      ? "bg-accent/7 font-medium text-accent"
+      : "text-foreground/70 hover:bg-muted/40 hover:text-foreground",
   ];
 }

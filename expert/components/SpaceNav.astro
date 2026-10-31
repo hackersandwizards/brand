@@ -24,10 +24,10 @@ const { label, base, nodes, currentPath, pageCount, extra = [] } = Astro.props;
     type="button"
     aria-expanded="false"
     aria-controls="space-nav-tree"
-    class="mt-4 flex w-full items-center justify-between rounded-sm border border-foreground/10 px-3 py-2 text-ui lg:hidden"
+    class="mt-4 flex w-full items-center justify-between rounded-sm border border-foreground/15 px-3 py-2 text-ui lg:hidden"
   >
     <span class="font-medium">Browse {label}</span>
-    <span class="text-foreground/65">{pageCount} pages <span aria-hidden="true">▾</span></span>
+    <span class="text-foreground/70">{pageCount} pages <span aria-hidden="true">▾</span></span>
   </button>
 
   <div id="space-nav-tree" class="hidden pt-2 lg:block lg:pt-0">
@@ -40,7 +40,7 @@ const { label, base, nodes, currentPath, pageCount, extra = [] } = Astro.props;
     </a>
     <SpaceNavTree nodes={nodes} currentPath={currentPath} />
     {extra.length > 0 && (
-      <div class="mt-2 border-t border-foreground/10 pt-2">
+      <div class="mt-2 border-t border-foreground/15 pt-2">
         {extra.map((item) => (
           <a
             href={item.href}
