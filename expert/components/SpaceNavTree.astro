@@ -12,7 +12,7 @@ const { nodes, currentPath, depth = 0 } = Astro.props;
 const linkClass = (href: string) => navLinkClass(href, currentPath);
 ---
 
-<ul class:list={["space-y-px", depth > 0 && "ml-2 border-l border-foreground/10 pl-2"]}>
+<ul class:list={["space-y-px", depth > 0 && "ml-2 border-l border-foreground/15 pl-2"]}>
   {nodes.map((node) =>
     node.children.length === 0 ? (
       <li>
@@ -27,9 +27,9 @@ const linkClass = (href: string) => navLinkClass(href, currentPath);
     ) : (
       <li>
         <details class="space-branch" open={containsPath(node, currentPath)}>
-          <summary class="flex cursor-pointer items-center gap-1 rounded px-1 py-1 text-ui font-medium text-foreground/80 hover:bg-muted/50">
+          <summary class="flex cursor-pointer items-center gap-1 rounded-sm px-1 py-1 text-ui font-medium text-foreground/70 hover:bg-muted/40">
             <svg
-              class="branch-chevron h-3 w-3 shrink-0 text-foreground/65 transition-transform"
+              class="branch-chevron h-3 w-3 shrink-0 text-foreground/70 transition-transform"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -45,7 +45,7 @@ const linkClass = (href: string) => navLinkClass(href, currentPath);
             <span class="truncate">{node.label}</span>
           </summary>
           {node.hasPage && (
-            <div class="ml-2 border-l border-foreground/10 pl-2">
+            <div class="ml-2 border-l border-foreground/15 pl-2">
               <a
                 href={node.href}
                 aria-current={node.href === currentPath ? "page" : undefined}

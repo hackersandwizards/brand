@@ -225,7 +225,7 @@ html[data-theme="dark"] {
 }
 .page-subtitle {
   font-size: var(--text-ui);
-  color: color-mix(in srgb, var(--foreground) 65%, transparent);
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
   font-variant-numeric: tabular-nums;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -248,16 +248,16 @@ html[data-theme="dark"] {
 }
 
 .chip-link {
-  @apply inline-flex items-center gap-1 rounded-full bg-muted/50 px-2.5 py-0.5 text-ui text-foreground/70 transition-colors hover:bg-accent/10 hover:text-accent;
+  @apply inline-flex items-center gap-1 rounded-full bg-muted/40 px-2.5 py-0.5 text-ui text-foreground/70 transition-colors hover:bg-accent/15 hover:text-accent;
 }
 .chip-link-muted {
-  @apply inline-flex items-center gap-1 rounded-full bg-muted/50 px-2.5 py-0.5 text-ui text-foreground/65;
+  @apply inline-flex items-center gap-1 rounded-full bg-muted/40 px-2.5 py-0.5 text-ui text-foreground/70;
 }
 
 /* Shape only; width is the caller's. The 40px min-height matches a native
  * `<select>`, which reserves room for its arrow: unpinned a row renders 38/40/40. */
 .form-input {
-  @apply rounded-sm border bg-background px-3 py-2 text-ui text-foreground focus:ring-2 focus:ring-focus/50 focus:outline-none;
+  @apply rounded-sm border bg-background px-3 py-2 text-ui text-foreground focus:ring-2 focus:ring-focus/40 focus:outline-none;
   min-height: 2.5rem;
 }
 
@@ -294,9 +294,11 @@ html.theme-switching *::after {
   padding: 0.125rem 0.5rem;
   border-radius: var(--radius-pill);
   font-size: var(--text-ui);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
   color: var(--accent);
 }
+/* The clear button keeps the chip's full accent, which clears 4.5:1 on the 15 percent wash; the
+   hover adds the 25 percent wash. */
 .filter-chip .chip-remove {
   width: 0.875rem;
   height: 0.875rem;
@@ -304,11 +306,9 @@ html.theme-switching *::after {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-pill);
-  opacity: 0.6;
-  transition: opacity 0.1s;
+  transition: background-color 0.1s;
   cursor: pointer;
 }
 .filter-chip .chip-remove:hover {
-  opacity: 1;
-  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
 }

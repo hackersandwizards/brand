@@ -214,7 +214,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "53e76f1c4c35d810c6faff96983d3e385865482f307d470f94d17abc37e49aa9"
+      "sha256": "78483fd3c6a1aa1740edcfbd2a069018fb867bc74e2b087dd0cd3233a53a0ed7"
     },
     {
       "path": "document/document.css",
@@ -250,7 +250,7 @@
     },
     {
       "path": "document/components/DocHeader.astro",
-      "sha256": "58885ce5fcecf6991e64c1bf61462f5b0ffc2206aed5ca3ba37d21b4af1ff2c3"
+      "sha256": "03005734b6eb65e71c755ca8533090df35a8eed8662678c475557d65f1172799"
     },
     {
       "path": "document/components/DocLead.astro",
@@ -306,7 +306,7 @@
     },
     {
       "path": "expert/components/FilterChipBar.astro",
-      "sha256": "cbad9a3edbcddfcaf13832ee7d1520aa794e74493f1b943079f269d49d12f671"
+      "sha256": "c18428e508e284c2aedaa020949787bc71d8177674828b42f8e067ec7fc69858"
     },
     {
       "path": "expert/components/PageHeader.astro",
@@ -314,15 +314,15 @@
     },
     {
       "path": "expert/components/Pill.astro",
-      "sha256": "d1a2097ae1512951ac3da39ed1af2344cb4be1bbdbc687d629bac26b8e086a26"
+      "sha256": "a08dd99e48eb9d6d0bd6ac0bc218634f795a452b753dbbb237f637728ae0e944"
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "d885d958c2d857d1079b6ef3f83fc11b54d3a0767c27d7aaedd6434865988ee6"
+      "sha256": "5372710dcac2841961c2522847f9bfcf73967a039139193d54adece969148cf2"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
-      "sha256": "eb8f17ed394d03d09f9f6bf09e9e01faf34a497eb73d24320123def5a595c1e7"
+      "sha256": "69a726d5b1491827c3b8af7a0afe8c0df6e975b4e4885495c08e21c702667238"
     },
     {
       "path": "expert/components/ThemeToggle.astro",
@@ -330,7 +330,7 @@
     },
     {
       "path": "expert/components/space-nav.ts",
-      "sha256": "e22d12074bf000a97b7510a929c792b8bf45b63f92b3b8f85f43d7d873db576e"
+      "sha256": "d022cd6a26046761ad2bd28c4b6f2485c0fe2be3f65f642c9f9996982be3fe4b"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",

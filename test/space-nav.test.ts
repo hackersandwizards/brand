@@ -6,14 +6,14 @@ describe("navLinkClass", () => {
     const current = navLinkClass("/handbook/sales", "/handbook/sales").join(" ");
     const other = navLinkClass("/handbook/sales", "/handbook/legal").join(" ");
     expect(current).toContain("text-accent");
-    expect(current).not.toContain("text-foreground/65");
-    expect(other).toContain("text-foreground/65");
+    expect(current).not.toContain("text-foreground/70");
+    expect(other).toContain("text-foreground/70");
     expect(other).not.toContain("text-accent");
   });
 
   test("does not highlight a parent when a child page is open", () => {
     expect(navLinkClass("/handbook/sales", "/handbook/sales/pricing").join(" ")).toContain(
-      "text-foreground/65",
+      "text-foreground/70",
     );
   });
 });
