@@ -15,7 +15,6 @@ test("every allowlist entry carries a reason", () => {
 });
 
 test.skipIf(committed.status !== 0)("the allowlist only shrinks against HEAD", () => {
-  const before = JSON.parse(committed.stdout);
-  const keys = before.duplicates ? Object.keys(before.duplicates) : Object.keys(before);
-  expect(Object.keys(now).filter((d) => !keys.includes(d))).toEqual([]);
+  const before: Allowlist = JSON.parse(committed.stdout);
+  expect(Object.keys(now).filter((d) => !(d in before))).toEqual([]);
 });
