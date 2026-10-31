@@ -142,8 +142,10 @@ def grid_surfaces():
         band=(480, 1330, 110, 14, [(f, cx, 54.5, h) for f, cx, h in PROFILE_LOGOS]),
         left=480,
     )
-    # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change
-    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=53), top=s2["top"], left=480)
+    # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
+    # its claim in slide 2's headline size, which fills the slide more (blind review in os
+    # docs/tracking/2026-10-31-banner-carousel.md)
+    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
     return {
         "profile-1": s1,
         "profile-2": s2,
