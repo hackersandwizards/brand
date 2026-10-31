@@ -63,22 +63,7 @@ def logos(band, radius, items):
     return {"band": band, "radius": radius, "items": items}
 
 
-# The lockup's left edge on the content block's left edge, unless "left" fixes it
-SURFACES = {
-    "company-cover": {
-        "size": (1512, 256),
-        # lockup above the text, as on the profile slides: the mobile browser crops the cover to
-        # x 0 to 1294 and y 0 to 221 and cut a lockup beside the text at "hackers&" (blind review in
-        # os docs/tracking/2026-10-31-channel-banners-live.md)
-        "lines": [
-            headline(359, 163, 40.0, -0.042, ("Agentic engineering", 0)),
-            headline(360, 206, 40.0, -0.05, ("training and mentoring.", 1)),
-        ],
-        "lockup": {"h": 68, "anchor": 68},
-    },
-}
-
-# One grid for the profile slides, Featured, YouTube and OMR: the lockup on top, its left edge on
+# One grid for every banner: the lockup on top, its left edge on
 # the headline's x, the headline's ink top two units below the lockup's ink, a client band one unit
 # below the text. The unit is half the wordmark's cap height, the logo's own measure. The group is
 # centred in the area every device shows (blind reviews in os docs/tracking/2026-10-31-banner-carousel.md
@@ -147,6 +132,14 @@ def grid_surfaces():
     # docs/tracking/2026-10-31-banner-carousel.md)
     s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
     return {
+        # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
+        # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
+        # to x 458 in a 375 pt mobile browser (os docs/tracking/2026-10-31-channel-banners-live.md)
+        "company-cover": grid(
+            (1512, 256),
+            68,
+            [headline(510.5, 0, 40.0, -0.042, ("Agentic engineering", 0)), headline(511.5, 43, 40.0, -0.05, ("training and mentoring.", 1))],
+        ),
         "profile-1": s1,
         "profile-2": s2,
         "featured": grid(
@@ -229,22 +222,20 @@ def sfnt(path):
     return buf.getvalue()
 
 
-def draw_line(img, ink, line, colors, k, dx):
+def draw_line(img, line, colors, k, dx):
     path, weight = line["font"]
     font = ImageFont.truetype(BytesIO(sfnt(path)), line["size"] * k)
     font.set_variation_by_axes([weight])
-    draw, mark = ImageDraw.Draw(img), ImageDraw.Draw(ink)
+    draw = ImageDraw.Draw(img)
     x, y = (line["x"] + dx) * k, line["baseline"] * k
     track = line["track"] * line["size"] * k
     for text, role in line["parts"]:
         if track == 0:  # proportional face: keep its kerning
             draw.text((x, y), text, font=font, fill=colors[role], anchor="ls")
-            mark.text((x, y), text, font=font, fill=255, anchor="ls")
             x += font.getlength(text)
             continue
         for ch in text:
             draw.text((x, y), ch, font=font, fill=colors[role], anchor="ls")
-            mark.text((x, y), ch, font=font, fill=255, anchor="ls")
             x += font.getlength(ch) + track
 
 
@@ -261,10 +252,9 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
     img = background(w, h, s.get("glows") or corner_glows(w0, h0), k)
     if not content:
         return img
-    ink = Image.new("L", (w, h), 0)  # every element except the lockup, to find the content block
     colors = {0: WHITE, 1: ACCENTS[accent], 2: SUBLINE}
     for line in s["lines"]:
-        draw_line(img, ink, line, colors, k, margin)
+        draw_line(img, line, colors, k, margin)
     if "logos" in s:
         x0, y0, x1, y1 = (round(v * k) for v in s["logos"]["band"])
         x0, x1 = x0 + round(margin * k), x1 + round(margin * k)
@@ -276,23 +266,19 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
             band.paste(src, (round((cx + margin - lw / 2) * k) - x0, round((cy - lh / 2) * k) - y0))
         mask = rounded(band, s["logos"]["radius"] * k)
         img.paste(band, (x0, y0), mask)
-        ink.paste(255, (x0, y0), mask)
     lk = s["lockup"]
     lh = lk["h"] * k
     u = lh / LAYOUT_BOX[3]  # px per SVG unit
     lock = Image.open(LOCKUP).convert("RGBA")
     lock = lock.resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
-    if "left" in lk:  # at a fixed edge, the same on every slide of a set
-        x = (lk["left"] + margin) * k
-    else:
-        x = ink.point(lambda v: 255 if v > 110 else 0).getbbox()[0]
+    x = (lk["left"] + margin) * k
     top = lk["anchor"] * k - lh / 2 - LIFT * lh
     x, top = x - (LAYOUT_BOX[0] - NIGHT_BOX[0]) * u, top - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
     img.paste(lock, (round(x), round(top)), lock)
     return img
 
 
-SURFACES.update(grid_surfaces())
+SURFACES = grid_surfaces()
 
 
 def build(out, accent):
