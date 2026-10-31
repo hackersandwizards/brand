@@ -5,10 +5,9 @@ import { getViteConfig } from "astro/config";
 import { createServer, type ViteDevServer } from "vite";
 import { ROOT } from "../scripts/git";
 
-// Every document and expert component renders standalone, through Astro's compiler, from this
-// repository alone: an import of an app's internals fails here. Placeholder props, no figure or
-// term of ours.
-const components = ["document/components", "expert/components"].flatMap((dir) =>
+// Every expert component renders standalone, through Astro's compiler, from this repository alone:
+// an import of an app's internals fails here. Placeholder props, no figure or term of ours.
+const components = ["expert/components"].flatMap((dir) =>
   readdirSync(join(ROOT, dir))
     .filter((f) => f.endsWith(".astro"))
     .map((f) => `${dir}/${f.replace(/\.astro$/, "")}`),
@@ -16,85 +15,8 @@ const components = ["document/components", "expert/components"].flatMap((dir) =>
 const nameOf = (path: string) => path.slice(path.lastIndexOf("/") + 1);
 
 const P = "[PLACEHOLDER]";
-const row = { date: "01.01.", day: "Mo", time: "09:00 – 10:00", hours: "1,00", activity: P };
-const proposal = {
-  lang: "de",
-  title: P,
-  number: P,
-  date: P,
-  validUntil: P,
-  clientShort: P,
-  eyebrow: P,
-  heading: P,
-  subtitle: P,
-  salutation: P,
-  greeting: [P],
-  client: { company: P, lines: [P] },
-  contact: P,
-  price: { rows: [{ item: P, basis: P, rate: P, amount: P }], subtotal: P, vat: P, gross: P },
-  scopeHeadline: P,
-  services: [{ name: P, items: [P] }],
-  community: { price: P },
-  sequence: { headline: P, steps: [{ when: P, name: P }] },
-  outcome: { result: P, measures: P },
-  terms: [{ title: P, paragraphs: [P] }],
-  signOff: P,
-  personName: P,
-};
 const node = { href: "/space/page", label: P, order: 0, hasPage: true, children: [] };
 const props: Record<string, Record<string, unknown>> = {
-  DocCallout: { title: P },
-  DocCard: { title: P },
-  DocCertificate: {
-    lang: "en",
-    title: P,
-    attendeeName: P,
-    trainingTitle: P,
-    date: P,
-    topics: [P],
-    signers: [{ name: P, title: P, image: "" }],
-  },
-  DocClosing: { text: P, signOff: P, name: P },
-  DocConfirmation: { label: P, text: P, line: P },
-  DocHeader: { kind: P, legal: true },
-  DocLead: {},
-  DocLeistungsnachweis: {
-    periodLabel: P,
-    clientShort: P,
-    created: P,
-    client: P,
-    employee: P,
-    period: P,
-    rows: [row],
-    total: P,
-  },
-  DocMarkdown: { kind: P, html: `<p>${P}</p>` },
-  DocPriceTable: {
-    columns: [{ label: P }, { label: P, num: true }],
-    rows: [{ item: P, cells: [P] }],
-  },
-  DocProposal: proposal,
-  DocProse: { html: `<p>${P}</p>` },
-  DocRateCard: {
-    personName: P,
-    date: P,
-    validUntil: P,
-    year: P,
-    opener: P,
-    recipientFirstName: P,
-    greeting: P,
-    client: { company: P, shortName: P, recipientName: P, street: P, zip: P, city: P },
-    rates: [{ item: P, detail: P, unit: P, rate: P }],
-    terms: [P],
-    scope: [P],
-    closing: P,
-    signOff: P,
-  },
-  DocRecipient: { label: P, company: P, lines: [P] },
-  DocSectionHead: { title: P },
-  DocSteps: { steps: [{ when: P, name: P }] },
-  DocTitle: { title: P },
-  DocTotalRow: { label: P, span: 1, figures: [P] },
   FilterChip: { label: P, removeHref: "/" },
   FilterChipBar: { show: true, clearHref: "/" },
   PageHeader: { title: P },
@@ -137,24 +59,6 @@ test.each(components)(
       slots: { default: `<p>${P}</p>`, aside: `<p>${P}</p>` },
     });
     expect(html).toContain(name === "ThemeToggle" ? 'id="theme-toggle"' : P);
-    if (["DocHeader", "DocProposal", "DocRateCard", "DocMarkdown"].includes(name))
-      expect(html).toMatch(/data:image\/svg\+xml;base64,/);
   },
   30_000,
-);
-
-// validUntil and subtotal are optional: the trainer variant and a price-free proposal leave them out.
-test.each(["de", "en"])(
-  "DocProposal %s without validUntil or subtotal prints no undefined",
-  async (lang) => {
-    const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-    const component = (await server.ssrLoadModule("/document/components/DocProposal.astro"))
-      .default;
-    const container = await experimental_AstroContainer.create();
-    const html: string = await container.renderToString(component, {
-      props: { ...proposal, validUntil: undefined, lang, price: { rows: [{ item: P, basis: P }] } },
-    });
-    expect(html).toContain(P);
-    expect(html).not.toContain("undefined");
-  },
 );

@@ -1,8 +1,8 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.9.19",
+  "version": "0.10.0",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour scan a consumer runs in its gate.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour scan a consumer runs in its gate.",
   "keywords": [
     "astro-component"
   ],
@@ -22,8 +22,6 @@
     "./fonts/*": "./tokens/fonts/*",
     "./expert.css": "./expert/expert.css",
     "./expert/components/*": "./expert/components/*",
-    "./document.css": "./document/document.css",
-    "./document/components/*": "./document/components/*",
     "./logos/*": "./logos/*",
     "./clients/*": "./clients/*",
     "./press/*": "./press/*",
@@ -40,8 +38,6 @@
     "tokens",
     "generated",
     "expert",
-    "document/document.css",
-    "document/components",
     "logos/*.svg",
     "logos/lockup.png",
     "logos/lockup-outline.png",

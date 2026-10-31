@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
-static fonts, logos, the expert UI layer and the document components, the colour scan each
+static fonts, logos, the expert UI layer, the colour scan each
 consumer runs in its own gate, plus a read-only drift and duplicate report over the sibling repos. The reasoning is in os
 `docs/tracking/2026-10-29-brand-distribution.md`.
 
@@ -19,7 +19,7 @@ discount, margin, offer, invoice, client term, personal data or secret.
 
 ## Layout
 
-- `tokens/`, `logos/`, `expert/`, `document/`: the brand files, each listed in `manifest.json`
+- `tokens/`, `logos/`, `expert/`: the brand files, each listed in `manifest.json`
   with its sha256. This repo owns every one of them: no other repo is a source.
 - `press/`: the press kit's photos, the founders' portraits and their photo together, as the
   website's press page publishes them, with `press.json` naming what each shows and the credit.
@@ -77,8 +77,8 @@ discount, margin, offer, invoice, client term, personal data or secret.
 - The drift and duplicate reports read each sibling's last commit through git and never its working
   tree. Nothing about another repo goes on `catalogue.html`: each system shows its components on
   its own design-system page, which the catalogue links.
-- The package holds the core only: tokens, generated formats, print and expert layers, the document
-  base `document/document.css`, the document components, fonts with their OFL texts, small logos,
+- The package holds the core only: tokens, generated formats, print and expert layers, fonts with
+  their OFL texts, small logos,
   the client marks, the press photos, the LinkedIn post renderers and prompts
   `applications/linkedin-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the colour scan `scan/colours.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
@@ -87,18 +87,16 @@ discount, margin, offer, invoice, client term, personal data or secret.
   `node_modules/@hackersandwizards/brand/`. Every other path is internal and may move. Renaming a
   command, changing its arguments or moving an exported file breaks consumers: the release commit
   names it and every consumer follows in the same pass.
-- The slide engine is its own package, `@hackersandwizards/slides`, and never enters this package,
-  not even a primitive.
+- The two engines are their own packages and never enter this one, not even a primitive: slides in
+  `@hackersandwizards/slides`, the document base, the document components and the PDF renderer in
+  `@hackersandwizards/documents`. Each shows itself on its own specimen page, which the catalogue
+  links; nothing here reads an engine.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
   both render, this repo's own: a component one app alone uses stays in that app. Where the apps
   differ on purpose, the difference is a prop or a token the app sets, never a fork: the hub's
   `--dim-floor` of 70% lifts every `text-foreground/65` to its projector rule, and a hub pill on a
   card passes its own `color`. Their CSS lives in `expert/expert.css`; a consumer adds
   `@source` on `expert/components` so Tailwind sees their classes.
-- The document components (`document/components/Doc*.astro`) ship in the package and are this
-  repo's own: os and the trainer hub both consume them from here. A component imports only this repo's files (logos inline,
-  no app paths), and every rate or term is a prop. `test/components.test.ts` renders each one
-  standalone; a new component needs placeholder props there.
 - Only the print masters (the two CMYK TIFFs and the two 4096 px emoji PNGs) and the PNG, PDF and
   AI files under `applications/` live in Git LFS (`.gitattributes`). `.lfsconfig` keeps clones,
   a consumer's `bun install` included, from fetching them, so the install stays small; fetch them here with `git -c lfs.fetchexclude= lfs pull`. Every file the package ships is
