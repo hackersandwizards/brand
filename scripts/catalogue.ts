@@ -397,13 +397,6 @@ const FAMILIES: Family[] = [
     dir: "applications/gradients",
   },
   {
-    id: "overlays",
-    title: "Overlays",
-    note: "White texture overlays for images, shown here on night.",
-    dir: "applications/overlays",
-    grounds: () => [["var(--color-night)", "on night"]],
-  },
-  {
     id: "merch",
     title: "Merch",
     note: "Each product as it is printed, drawn from its print file; each file as SVG in millimetres with a PDF beside it.",
