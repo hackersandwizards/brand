@@ -381,12 +381,8 @@ const FAMILIES: Family[] = [
   {
     id: "channel-banners",
     title: "Channel banners",
-    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, slide 1 of the two-slide LinkedIn profile carousel, YouTube and OMR Reviews. The banners with client logos never enter this repo.",
+    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, both slides of the LinkedIn profile carousel, the LinkedIn Featured-link image, YouTube and OMR Reviews.",
     dir: "applications/channel-banners",
-    link: [
-      "../os/src/content/documents/company/design-guide/channel-banners/",
-      "slide 2 of the profile carousel (profile-banner-2-clients-1584x396.png) and the LinkedIn Featured-link image (linkedin-featured-link-1200x627.png and -2400x1254.png), both with client logos, in Company OS under src/content/documents/company/design-guide/channel-banners/",
-    ],
   },
   {
     id: "avatars",
