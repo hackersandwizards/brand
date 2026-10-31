@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components and the press photos.",
   "keywords": [
@@ -38,7 +38,8 @@
     "logos/type-logo-long.png",
     "logos/type-logo-short.png",
     "clients",
-    "press"
+    "press",
+    "applications/linkedin-visuals/*.ts"
   ],
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$PWD\" ] && git config core.hooksPath .githooks || true",
