@@ -1,10 +1,9 @@
 #!/usr/bin/env bun
 // Read-only comparison of the brand files a repo still holds as copies (repos.json) against
 // manifest.json, at each repo's last commit, LFS pointers compared by their object id. A directory
-// copy covers the files the repo holds there; one brand lacks is "extra". Writes reports/drift.json
-// and prints a summary. Reports only: it exits 0 on drift, and it never writes into another repo.
+// copy covers the files the repo holds there; one brand lacks is "extra". Prints a summary. Reports
+// only: it exits 0 on drift, and it never writes into another repo.
 // Usage: bun scripts/drift.ts
-import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import manifest from "../manifest.json";
 import repos from "../repos.json";
@@ -50,12 +49,7 @@ export const drift = () => {
 };
 
 if (import.meta.main) {
-  const result = drift();
-  writeFileSync(
-    join(ROOT, "reports/drift.json"),
-    JSON.stringify({ date: new Date().toISOString().slice(0, 10), repos: result }, null, 2) + "\n",
-  );
-  for (const [name, r] of Object.entries(result)) {
+  for (const [name, r] of Object.entries(drift())) {
     console.log(`${name}: ${r.status}`);
     for (const row of r.rows.filter((x) => x.status !== "identical"))
       console.log(`  ${row.status}: ${row.copy}${row.brand ? ` (brand ${row.brand})` : ""}`);

@@ -70,6 +70,20 @@ The & sits optically centred between the s and the w, its mean row-wise gap equa
 `bun scripts/ampersand.ts` writes that offset into every one-line logo,
 renders its PNG and rehashes both in `manifest.json`.
 
+### Check your colours in your gate
+
+The package ships `brand-colours`, which scans your working tree from the current directory down
+for hex values off the tokens, hex values repeating a token, font stacks without a brand family and
+Tailwind default palette classes. Add it to your `bun run check`:
+
+```json
+"check": "... && brand-colours"
+```
+
+An exception goes in `brand-colours.json` beside your `package.json`, one entry per file with its
+counts and the reason, and the list may only shrink: the scan fails where an entry grows against
+`HEAD` or names no reason. `brand-colours --tighten` lowers every entry to today's counts.
+
 ## Press kit
 
 `press/` holds the photos of the press kit: `founders.jpg` (Stefan Munz and Benedikt Stemmildt in a
@@ -82,13 +96,14 @@ its size and the credit. With the logos above, they make the ZIP the website's p
 
 ```sh
 bun install      # also points the git hooks at .githooks/
-bun run check    # format, lint, typecheck, tests, generated/ up to date
-bun run report   # scan the sibling repos, compare their copies, rebuild catalogue.html
-bun run live     # every system's catalogue from its last build into captures/, rebuild catalogue.html
+bun run check      # format, lint, typecheck, tests, generated/ and catalogue.html up to date
+bun run catalogue  # rebuild catalogue.html
+bun run drift      # compare the sibling repos' copies of brand files with manifest.json
+bun run scan       # component names found in more than one sibling repo
 ```
 
-Open `catalogue.html` from disk for the brand portal: tokens, logos, every system's components live with its own CSS, a Compare of any systems you pick, every family of brand files in use under `applications/`, and health.
-Rebuild the systems, then `bun run live`; `captures/` stays on this machine because the os and trainer hub stories carry fixtures trainers may not see.
+Open `catalogue.html` from disk for the brand portal: tokens, logos, every family of brand files in
+use under `applications/`, the press kit, and a link to each system's own design-system page.
 
 A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
 tag in their dependency line. Every brand file changes here; the rest of the rules:

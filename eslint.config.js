@@ -13,7 +13,6 @@ export default tseslint.config(
       "document/**",
       "logos/**",
       "generated/**",
-      "reports/**",
     ],
   },
   js.configs.recommended,

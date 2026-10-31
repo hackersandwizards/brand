@@ -29,7 +29,7 @@
   },
   "certificate-verifier": {
     "path": "../../tools/certificate-verifier",
-    "catalogues": ["https://certificates.hackersandwizards.dev/design-system"],
+    "catalogues": ["http://localhost:8787/design-system"],
     "copies": []
   },
   "slides": {
