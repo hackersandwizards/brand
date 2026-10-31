@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the document base, the document components, the press photos, the LinkedIn post renderers and the colour scan a consumer runs in its gate.",
   "keywords": [
@@ -38,6 +38,8 @@
     "document/document.css",
     "document/components",
     "logos/*.svg",
+    "logos/lockup.png",
+    "logos/wordmark.png",
     "logos/type-logo-long.png",
     "logos/type-logo-short.png",
     "clients",
