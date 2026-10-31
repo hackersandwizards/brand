@@ -149,6 +149,22 @@
       "sha256": "e56b34aaf391aec22894d1e66096e57072f8d42711941e9b84831e98fcb228a0"
     },
     {
+      "path": "logos/wordmark-white.svg",
+      "sha256": "1192a63d4d48f76c7be1587999c3a46198cd5c730985efa6fe35f94bc39ff202"
+    },
+    {
+      "path": "logos/wordmark-white.png",
+      "sha256": "87346fb98a00155fe963d14db875762b189c771480ad5b2fcd23f3a710c2f9d5"
+    },
+    {
+      "path": "logos/wordmark-black.svg",
+      "sha256": "b7133514cfd31c60ee170f3ec15225906deae1bfe41b1449c2d3187167e4395f"
+    },
+    {
+      "path": "logos/wordmark-black.png",
+      "sha256": "32c221700a85ec5247d9404b77cea4064cc1f2adc407923b5e925b5b96185e43"
+    },
+    {
       "path": "logos/lockup.svg",
       "sha256": "d7f394d1d3700c948770dd939b7b55bada7769563df21975d971f8a24260774b"
     },
