@@ -48,10 +48,11 @@ data or secret.
 - `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;
   nothing here reads a consumer. `colours.ts` (`brand-colours`), exceptions in the consumer's
   `brand-colours.json`. `drift.ts` (`brand-drift`) compares the copies a consumer lists in a
-  `brand-copies.json` beside them with `manifest.json`, run only where a consumer serves copies, today
-  the certificate verifier's two fonts. `components.ts` (`brand-scan`) fails on a consumer component
-  named like an expert component, exceptions in the consumer's `brand-scan.json`, run by os and the
-  trainer hub. A skill, script or document generator takes the file from the package, never a copy.
+  `brand-copies.json` beside them with `manifest.json`, run only where a consumer commits copies it
+  serves; today none does (the certificate verifier copies its fonts and lockup at install, so they
+  follow its pin). `components.ts` (`brand-scan`) fails on a consumer component named like an
+  expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
+  A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
   `scripts/catalogue.ts`. Never edit it; run `bun run catalogue`.
 
