@@ -27,14 +27,8 @@
   --muted-on-night: #c9cdd3;
   --teal: #1a7285;
   --purple: #9333ea;
-  --amp: #7c849c;
   --teal-light: #a3c7ce;
-  --purple-light: #d4adf7;
-  /* The wizard beside the wordmark rises by 7.8% of its height (@hackersandwizards/brand --logo-wizard-lift). */
-  --logo-wizard-lift: -7.8%;
   --bleed: calc(20 * var(--mm));
-  --safe: calc(20 * var(--mm));
-  --rail: calc(16 * var(--mm));
 }
 @media print {
   :root {

@@ -373,7 +373,7 @@ const FAMILIES: Family[] = [
   {
     id: "booth",
     title: "Booth banners",
-    note: "Pixlip frames, 1 x 1 m and 1 x 2 m, each PDF the print file (final format plus 20 mm bleed) with a PNG preview beside it: the light grey (#E6EAED) pair for dark stand walls, the dark pair for light walls, and the gradient pair, the brand gradient over the whole banner with the logo in its outline cut and only large white type.",
+    note: "Pixlip frames, 1 x 2 m and 1 x 1 m: the brand gradient over the whole banner, the logo in its outline cut and only large white type. Each PDF is the print file (final format plus 20 mm bleed), with a PNG preview beside it.",
     dir: "applications/booth",
   },
   {
