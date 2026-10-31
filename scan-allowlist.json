@@ -33,42 +33,14 @@
       "tokenHex": 7,
       "font": 0,
       "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "trainer-hub:src/stories/SlideFrame.astro": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "trainer-hub:src/stories/Slides/Slide parts/Particles.stories.ts": {
-      "hex": 0,
-      "tokenHex": 1,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "trainer-hub:src/styles/tokens.css": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
-    },
-    "talks:app/page.tsx": {
-      "hex": 0,
-      "tokenHex": 2,
-      "font": 0,
-      "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
+      "reason": "The print-pdf skill's standalone stylesheet for pandoc and headless Chrome, outside any app and synced from the agent hub, so it cannot import the package; its custom properties repeat the brand tokens by name."
     },
     "certificate-verifier:src/worker.ts": {
       "hex": 0,
       "tokenHex": 0,
       "font": 2,
       "palette": 0,
-      "reason": "Present at the first scan, not yet reviewed."
+      "reason": "Not an off-brand stack: one hit is the design-system page's type sample, which sets each brand family by its token value, the other the @font-face rule naming the brand family it loads."
     }
   },
   "duplicates": {
