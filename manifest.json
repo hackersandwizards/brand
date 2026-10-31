@@ -202,7 +202,7 @@
     },
     {
       "path": "document/document.css",
-      "sha256": "2b2f03fbb2dfe03153a0dccfb0dd532ea43f596e643582604896dd6f2ac15b79"
+      "sha256": "0575a1da44424616fdbbe6bf448372a45e748e019813c121cbe04f3cfbd4cf21"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -270,7 +270,7 @@
     },
     {
       "path": "document/components/DocSectionHead.astro",
-      "sha256": "1711afd55c8c0455758f67034ade919328523db4313ede08cce7d3e506143474"
+      "sha256": "a7a542062623034d897e4aa10785947a24d6e2dd16e821bafebc2838b1c31a93"
     },
     {
       "path": "document/components/DocSteps.astro",
