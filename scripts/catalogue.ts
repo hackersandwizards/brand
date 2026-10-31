@@ -16,6 +16,7 @@ import press from "../press/press.json";
 import type { drift as driftReport } from "./drift";
 import { ROOT } from "./git";
 import type { Counts, scan as scanReport } from "./scan";
+import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
 import { parseTokens, resolveColors, SOURCE } from "./tokens";
 
 const read = (p: string) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
@@ -196,7 +197,7 @@ const logoCard = (base: string) => {
     h: `logos/logo-${base}`,
     x: `${files.join(" ")} download logo`,
   });
-  return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day, on light")}${tile(night, "on-dark", "night cut, on night")}${tile(outline, "on-purple-love", "outline cut, on Purple Love")}${tile(outline, "on-gradient", "outline cut, on the gradient")}${tile(white, "on-dark", "white cut")}${tile(black, "on-light", "black cut")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
+  return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day · on light")}${tile(night, "on-dark", "night cut · on night, also black and black textile")}${tile(outline, "on-gradient", "outline cut · on the gradient, also Purple Love and Stargazer")}${tile(white, "on-dark", "white cut · a surface in one colour, such as a white partner wall")}${tile(black, "on-light", "black cut · a surface in one colour, such as single-colour print")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
     .map(
       (p) =>
         `<a href="${p}" download>${esc(
@@ -361,8 +362,9 @@ type Family = {
   link?: [string, string];
   // The grounds a card previews its file on, where the file is made for one: [background, label].
   grounds?: (stem: string) => [string, string][];
+  // A family that draws its own section instead of one card per file.
+  render?: () => string;
 };
-const TEXTILE = { "Purple Love": "#6c5a9e", Stargazer: "#39505c", black: "#2a2b2d" }; // Stanley/Stella textile colours, no brand token
 const FAMILIES: Family[] = [
   {
     id: "backgrounds",
@@ -402,25 +404,11 @@ const FAMILIES: Family[] = [
     grounds: () => [["var(--color-night)", "on night"]],
   },
   {
-    id: "visuals",
-    title: "Visuals",
-    note: "The party visual, with and without background.",
-    dir: "applications/visuals",
-  },
-  {
     id: "merch",
-    title: "Merch print files",
-    note: "Each file as SVG in millimetres with a PDF beside it. Shirt, hoodie and stickers carry the wordmark alone: the outline cut on the T12 shirt front and back, in Purple Love and Stargazer, the night cut on the black hoodie and the night stickers. Cloths and notebook carry the lockup, the mug the compact lockup.",
+    title: "Merch",
+    note: "Each product as it is printed, drawn from its print file; each file as SVG in millimetres with a PDF beside it.",
     dir: "applications/merch",
-    grounds: (stem) =>
-      stem.startsWith("shirt")
-        ? [
-            [TEXTILE["Purple Love"], "on Purple Love"],
-            [TEXTILE.Stargazer, "on Stargazer"],
-          ]
-        : stem.startsWith("hoodie")
-          ? [[TEXTILE.black, "on black"]]
-          : [],
+    render: () => merchHtml,
   },
   {
     id: "mail-signature",
@@ -432,13 +420,16 @@ const FAMILIES: Family[] = [
     id: "slides",
     title: "Slides",
     note: "Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide.",
-    link: ["#sys-talks", "the slides, live"],
+    link: [
+      "#sys-trainer-hub/slides-slide-types",
+      "the slide types, live in the trainer hub (title, content and closing slides; slide parts and deck chrome in the groups beside it)",
+    ],
   },
   {
     id: "documents",
     title: "Documents",
     note: "Proposals, rate cards, certificates and handouts come from the document components in this package (document/components), rendered by Company OS and the trainer hub.",
-    link: ["#sys-os", "the document components in os, live"],
+    link: ["#sys-os/print", "the document components, live in the os group Print"],
   },
 ];
 // Not shown: the scripts that build a family and their inputs, and the embroidery wizard, which the
@@ -487,6 +478,84 @@ const familyStems = new Map(
   FAMILIES.map((f) => [f.id, f.dir ? assetStems(f.dir) : new Map<string, string[]>()]),
 );
 const fileCount = (id: string) => [...familyStems.get(id)!.values()].flat().length;
+// Merch: each product drawn from its print files (applications/merch/mockup.ts), so the section
+// shows the final layout and changes with the files.
+const MERCH = "applications/merch";
+const print = (stem: string): Print & { stem: string } => {
+  const svg = readFileSync(join(ROOT, MERCH, `${stem}.svg`), "utf8").slice(0, 400);
+  const [, W, H] = svg.match(/width="([\d.]+)mm" height="([\d.]+)mm"/)!;
+  return { stem, href: `${MERCH}/${stem}.svg`, W: +W, H: +H };
+};
+// A textile print carries 0.5 mm air on every side; a sheet print 3 mm bleed.
+const mm = (v: number) => `${Math.round(v)} mm`;
+type Product = { name: string; note: string; views: [string, string][]; stems: string[] };
+const front = print("shirt-T12-front");
+const back = print("shirt-T12-back");
+const hoodie = print("hoodie-H6-front");
+const mugPrint = print("mug-M6");
+const stickers = ["stickerP-P10", "stickerL-L13", "stickerB-B16"].map(print);
+const cloths = ["cloth-K9", "cloth-K10", "cloth-K12"].map(print);
+const notebook = print("notebook-N6");
+const PRODUCTS: Product[] = [
+  {
+    name: "Shirt T12",
+    note: `Purple Love and Stargazer. Front chest: the wordmark in the outline cut, ${mm(front.W - 1)} wide. Back neck: the same cut, ${mm(back.W - 1)} wide.`,
+    views: (
+      [
+        ["Purple Love", TEXTILE["purple-love"]],
+        ["Stargazer", TEXTILE.stargazer],
+      ] as const
+    ).flatMap(([n, col]) => [
+      [wear(col, front, 380, 120, false, false), `front, ${n}`],
+      [wear(col, back, 380, 60, false, true), `back, ${n}`],
+    ]),
+    stems: ["shirt-T12-front", "shirt-T12-back"],
+  },
+  {
+    name: "Hoodie H6",
+    note: `Black. Left chest: the wordmark in the night cut, ${mm(hoodie.W - 1)} wide.`,
+    views: [[wear(TEXTILE.black, hoodie, 500, 170, true, false), "front, black"]],
+    stems: ["hoodie-H6-front"],
+  },
+  {
+    name: "Mug M6",
+    note: `The compact lockup on each side, the wrap ${mm(mugPrint.W - 6)} by ${mm(mugPrint.H - 6)}.`,
+    views: [
+      [mug(mugPrint, 0), "left side"],
+      [mug(mugPrint, 1), "right side"],
+    ],
+    stems: ["mug-M6"],
+  },
+  {
+    name: "Notebook N6",
+    note: `The cover, ${mm(notebook.W - 6)} by ${mm(notebook.H - 6)}, with the lockup.`,
+    views: [[face(notebook, 3), "cover"]],
+    stems: ["notebook-N6"],
+  },
+  {
+    name: "Cleaning cloths K9, K10, K12",
+    note: "Printed edge to edge, each with the lockup.",
+    views: cloths.map((c) => [face(c, 2), `${c.stem.slice(6)}, ${mm(c.W - 6)} by ${mm(c.H - 6)}`]),
+    stems: cloths.map((c) => c.stem),
+  },
+  {
+    name: "Stickers P10, L13, B16",
+    note: `Kiss-cut on night with 3 mm corners, the wordmark in the night cut, ${stickers.map((s) => mm(s.W - 12)).join(", ")} wide; the print file carries the cut line (CutContour). Shown on a 300 mm laptop lid.`,
+    views: [[lid(stickers), "on a laptop lid"]],
+    stems: stickers.map((s) => s.stem),
+  },
+];
+const merchFiles = familyStems.get("merch") ?? new Map<string, string[]>();
+const merchHtml = `<div class="products">${PRODUCTS.map((p) => {
+  const id = `a-merch-${slug(p.name)}`;
+  index.push({
+    t: p.name,
+    k: "application",
+    h: `applications/${id}`,
+    x: `merch ${p.stems.join(" ")}`,
+  });
+  return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c]) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${svg}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
+}).join("")}</div>`;
 const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],
@@ -498,9 +567,11 @@ ${table(
 ${FAMILIES.map((f) => {
   const stems = familyStems.get(f.id)!;
   return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}${f.link ? ` See <a href="${f.link[0]}">${esc(f.link[1])}</a>.` : ""}</p>${
-    f.dir
-      ? `<p class="meta">${esc(f.dir)}</p><div class="assets">${[...stems].map(([stem, files]) => assetCard(f.dir!, stem, files, f)).join("")}</div>`
-      : ""
+    f.render
+      ? `<p class="meta">${esc(f.dir)}</p>${f.render()}`
+      : f.dir
+        ? `<p class="meta">${esc(f.dir)}</p><div class="assets">${[...stems].map(([stem, files]) => assetCard(f.dir!, stem, files, f)).join("")}</div>`
+        : ""
   }`;
 }).join("")}`;
 
@@ -608,7 +679,7 @@ ${table(
 <ul>
 <li>Logo for a document or a screen: <a href="logos/lockup.svg" download>lockup.svg</a>, on night <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, on Purple Love, Stargazer or the gradient <a href="logos/lockup-outline.svg" download>lockup-outline.svg</a>; for small spots <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>. Which logo where: <a href="#logos">Logos</a>.</li>
 <li>Print: textiles and stickers take the wordmark alone, the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
-<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its title, content and closing slides are under <a href="#sys-talks">talks</a>.</li>
+<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are live under <a href="#sys-trainer-hub/slides-slide-types">trainer-hub, Slides/Slide types</a>.</li>
 <li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the slide engine.</li>
 <li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
 </ul>`;
@@ -734,7 +805,7 @@ const html = `<!doctype html>
   .pair figure { margin: 0; border-radius: var(--radius-brand); }
   .pair img { display: block; width: 100%; height: 7.5rem; object-fit: contain; padding: 1rem 1.25rem 0.5rem; box-sizing: border-box; }
   .pair figcaption { padding: 0 0.75rem 0.5rem; font: 0.7rem var(--font-code); color: var(--color-muted); }
-  .pair .on-dark figcaption, .pair .on-gradient figcaption, .pair .on-purple-love figcaption { color: rgb(255 255 255 / 0.8); }
+  .pair .on-dark figcaption, .pair .on-gradient figcaption { color: rgb(255 255 255 / 0.8); }
   .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
   .on-dark { background: var(--color-night); }
   .on-gradient { background: var(--gradient-magic); }
@@ -795,6 +866,15 @@ const html = `<!doctype html>
   .chart { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding-left: 1.25rem; }
   .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 0; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
   .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+  .products { display: grid; gap: 1rem; }
+  .product { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; scroll-margin-top: 1rem; }
+  .product h4 { font-family: var(--font-mono); font-size: var(--text-h4); margin: 0.75rem 0 0.25rem; }
+  .product p { margin: 0.25rem 0; }
+  .mock { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, 15.5rem); }
+  .mock figure.wide { grid-column: span 2; }
+  .mock figure { margin: 0; padding: 0.75rem 0.75rem 0.5rem; background: #e4e6ea; border-radius: var(--radius-brand); }
+  .mock svg { display: block; height: 15rem; }
+  .mock figcaption { margin-top: 0.4rem; font: 0.75rem var(--font-code); color: var(--color-muted); }
   .asset { margin: 0; }
   .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
   .asset:has(.views > a + a) { grid-column: span 2; }
