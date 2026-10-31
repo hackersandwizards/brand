@@ -44,8 +44,8 @@ The logo is one line, with no line under it: the wizard beside the pixel wordmar
 `logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
 (shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug
 and lock screens. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
-cut for night, black, black textile and Stargazer, and an `-outline` cut, a white outline round the
-letters, for Purple Love and the gradient. In both, the wizard of the lockup and the compact lockup
+cut for night, black and black textile, and an `-outline` cut, a white outline round the letters,
+for Purple Love, Stargazer and the gradient. In both, the wizard of the lockup and the compact lockup
 carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night
 cut, white in the outline cut. The gap between wizard and letters is part of the logo and the same
 on every ground: 0.321 of the cap height in the lockup and 0.381 in the compact lockup, measured

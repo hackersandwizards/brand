@@ -1,6 +1,6 @@
 // Print files and mockups for the surfaces that carry the wordmark alone (design guide, logo table):
-// shirt T12, hoodie H6, stickers P10, L13, B16. The night cut goes on black, Stargazer and Night,
-// the outline cut on Purple Love. Each wordmark keeps the letter height the lockup files had, so
+// shirt T12, hoodie H6, stickers P10, L13, B16. The outline cut goes on the Purple Love and Stargazer
+// shirts, the night cut on the black hoodie and the Night stickers. Each wordmark keeps the letter height the lockup files had, so
 // the finest slit stays where the print check measured it. Logos come from this repo's logos/.
 // Run: bun applications/merch/w1.ts
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -79,12 +79,15 @@ const uri = (svg: string) => `data:image/svg+xml;base64,${Buffer.from(svg).toStr
 const mockupPage = (body: string, bg: string) =>
   `<!doctype html><html><head><style>html,body{margin:0}body{background:${bg};position:relative;font:16px system-ui}</style></head><body>${body}</body></html>`;
 
-// T12 back neck: lockup 150 mm, H6 left chest: lockup 130 mm; stickers: compact lockup 56/72/90 mm
+// T12 front chest: the outline cut FRONT_MM wide; T12 back neck: lockup 150 mm; H6 left chest:
+// lockup 130 mm; stickers: compact lockup 56/72/90 mm
+const FRONT_MM = 320;
+const t12Front = (FRONT_MM * 6571) / outline.vbW;
 const t12 = (150 * 6571) / LOCKUP_UNITS;
 const h6 = (130 * 6571) / LOCKUP_UNITS;
 const files = {
-  "shirt-T12-back": textilePrint(night, t12),
-  "shirt-T12-back-purple-love": textilePrint(outline, t12),
+  "shirt-T12-front": textilePrint(outline, t12Front),
+  "shirt-T12-back": textilePrint(outline, t12),
   "hoodie-H6-front": textilePrint(night, h6),
   "stickerP-P10": stickerPrint(56),
   "stickerL-L13": stickerPrint(72),
@@ -128,36 +131,32 @@ try {
   const cap = (t: string) =>
     `<div style="font:15px system-ui;color:#454B55;margin-top:6px">${t}</div>`;
 
-  // shirt T12: back views in the three colours, then each print at about arm's length
-  const shirts = Object.entries(TEXTILE).map(
-    ([n, col]) =>
-      [n, col, n === "purple-love" ? "shirt-T12-back-purple-love" : "shirt-T12-back"] as const,
-  );
+  // shirt T12 in both colours: front and back, then each print at about arm's length
+  const shirtColours = [
+    ["stargazer", TEXTILE.stargazer],
+    ["purple-love", TEXTILE["purple-love"]],
+  ] as const;
+  const views = shirtColours.flatMap(([n, col]) => [
+    [`Brust, ${n}`, wear(col, "shirt-T12-front", 380, 120, false, false)],
+    [`Rücken, ${n}`, wear(col, "shirt-T12-back", 380, 60, false, true)],
+  ]);
   const shirtSheet = mockupPage(
-    `<div style="display:flex;gap:40px;padding:30px 40px 0">${shirts
-      .map(
-        ([n, col, art]) =>
-          `<div style="width:480px;height:540px">${wear(col, art, 380, 60, false, true)}${cap(`Rücken, ${n}`)}</div>`,
-      )
-      .join("")}</div><div style="display:flex;gap:30px;padding:40px">${shirts
-      .map(([, col, art]) => `<div>${zoom(col, art, 3.4)}</div>`)
+    `<div style="display:flex;gap:30px;padding:30px 30px 0">${views
+      .map(([c, svg]) => `<div style="width:370px;height:420px">${svg}${cap(c)}</div>`)
       .join("")}</div>`,
     "#E4E6EA",
   );
-  await jpg(await b.shot(shirtSheet, 1600, 800, 1), "shirt-T12");
-  await jpg(
-    await b.shot(mockupPage(zoom(TEXTILE.black, "shirt-T12-back", 8), "#E4E6EA"), 1200, 360, 1),
-    "shirt-T12-crop",
-  );
-  await jpg(
-    await b.shot(
-      mockupPage(zoom(TEXTILE["purple-love"], "shirt-T12-back-purple-love", 8), "#E4E6EA"),
-      1200,
-      360,
-      1,
-    ),
-    "shirt-T12-purple-love-crop",
-  );
+  await jpg(await b.shot(shirtSheet, 1600, 520, 1), "shirt-T12");
+  for (const [n, col] of shirtColours) {
+    await jpg(
+      await b.shot(mockupPage(zoom(col, "shirt-T12-front", 3), "#E4E6EA"), 1040, 240, 1),
+      `shirt-T12-front-${n}-crop`,
+    );
+    await jpg(
+      await b.shot(mockupPage(zoom(col, "shirt-T12-back", 8), "#E4E6EA"), 1200, 360, 1),
+      `shirt-T12-back-${n}-crop`,
+    );
+  }
 
   // hoodie H6: front, left chest (the wearer's left)
   const hoodieSheet = mockupPage(
