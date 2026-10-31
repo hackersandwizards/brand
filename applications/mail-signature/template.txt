@@ -1,0 +1,8 @@
+{{name}}
+{{role}}{{#hw}}, hackers&wizards{{/hw}}
+{{#phone}}{{phone}} | {{/phone}}{{#mail}}{{mail}} | {{/mail}}hackersandwizards.dev{{#linkedin}} | {{linkedinShort}}{{/linkedin}}
+{{#hw}}
+hackers&wizards GmbH, Sitz Hamburg, Osterstraße 95, 20259 Hamburg
+Amtsgericht Hamburg, HRB 198840
+Geschäftsführer: Benedikt Stemmildt, Stefan Munz
+{{/hw}}
