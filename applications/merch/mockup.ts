@@ -27,7 +27,8 @@ export function garment(col: string, hood: boolean, back: boolean) {
 // The hoodie's drawcords, about 190 mm long with metal ends, drawn over the print.
 const CORDS = `<path d="M352,38 Q350,120 347,190" stroke="rgba(0,0,0,.32)" stroke-width="6" fill="none"/><path d="M408,38 Q410,120 413,190" stroke="rgba(0,0,0,.32)" stroke-width="6" fill="none"/><rect x="343" y="188" width="8" height="16" rx="2" fill="#b0b5c4"/><rect x="409" y="188" width="8" height="16" rx="2" fill="#b0b5c4"/>`;
 
-export type Print = { href: string; W: number; H: number };
+// cut: the die-cut path of a sticker whose cut is not a rounded rectangle, in the file's units
+export type Print = { href: string; W: number; H: number; cut?: string };
 
 // The garment with the print centred on ax, its top at ay.
 export const wear = (col: string, p: Print, ax: number, ay: number, hood: boolean, back: boolean) =>
@@ -53,15 +54,24 @@ export function mug(p: Print, half: 0 | 1) {
   return `<svg viewBox="-32 -10 ${hw + 64} ${h + 22}" width="100%" height="100%"><defs><clipPath id="${id}"><rect x="0" y="0.5" width="${hw}" height="${h - 1}"/></clipPath><linearGradient id="${id}s"><stop offset="0" stop-color="#000" stop-opacity=".14"/><stop offset=".25" stop-color="#000" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>${handle}<rect x="0" y="-6" width="${hw}" height="${h + 12}" rx="5" fill="#fff" stroke="#d0d2d8"/><image href="${p.href}" x="${-3 - half * hw}" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#${id})"/><rect x="0" y="-6" width="${hw}" height="${h + 12}" rx="5" fill="url(#${id}s)"/></svg>`;
 }
 
-// Kiss-cut stickers on a 300 x 200 mm laptop lid (--color-ampersand-light to --color-ampersand), each
-// clipped to its cut line, so the magenta contour of the print file stays off the mockup.
+// Stickers on a 300 x 200 mm laptop lid (--color-ampersand-light to --color-ampersand), each clipped
+// to its cut line, so the magenta contour of the print file stays off the mockup.
 export function lid(stickers: Print[]) {
   let y = 40;
   const placed = stickers
-    .map((p, i) => {
+    .map((p) => {
       const w = p.W - 6;
       const h = p.H - 6;
-      const at = `<svg x="${150 - w / 2}" y="${y}" width="${p.W}" height="${p.H}" viewBox="-3 -3 ${p.W} ${p.H}" overflow="visible"><defs><clipPath id="st${i}"><rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="3"/></clipPath></defs><rect x="0.4" y="1" width="${w}" height="${h}" rx="3" fill="rgba(0,0,0,.25)"/><image href="${p.href}" x="-3" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#st${i})"/></svg>`;
+      // one page shows several lids: the clip's id comes from the file
+      const id = `st-${p.href.replace(/\W/g, "-")}`;
+      const shape = p.cut
+        ? `<path d="${p.cut}"/>`
+        : `<rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="3"/>`;
+      // a die cut has no inset to hide the cut line behind, so white covers it
+      const edge = p.cut
+        ? `<path d="${p.cut}" fill="none" stroke="#FFFFFF" stroke-width="0.4"/>`
+        : "";
+      const at = `<svg x="${150 - w / 2}" y="${y}" width="${p.W}" height="${p.H}" viewBox="-3 -3 ${p.W} ${p.H}" overflow="visible"><defs><clipPath id="${id}">${shape}</clipPath></defs><g transform="translate(0.4 0.5)" fill="rgba(0,0,0,.25)">${shape}</g><image href="${p.href}" x="-3" y="-3" width="${p.W}" height="${p.H}" clip-path="url(#${id})"/>${edge}</svg>`;
       y += h + 22;
       return at;
     })

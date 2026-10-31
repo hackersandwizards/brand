@@ -154,6 +154,8 @@ const LOGO_USE = [
     "lockup on the title and the closing slide, wordmark on every other slide; a delivered deck keeps the lockup on every slide",
   ],
   ["Shirts, hoodie, stickers", "wordmark"],
+  ["The second sticker, beside the wordmark sticker", "the wizard alone, die-cut, under Merch"],
+  ["A product app's sign-in screens", "wordmark, the heading may be in the sans face"],
   ["Small spots: mug, lock screens", "lockup-compact"],
   [
     "A surface that allows one colour only, such as a partner wall in white",
@@ -349,9 +351,10 @@ const fileCount = (id: string) => [...familyStems.get(id)!.values()].flat().leng
 // shows the final layout and changes with the files.
 const MERCH = "applications/merch";
 const print = (stem: string): Print & { stem: string } => {
-  const svg = readFileSync(join(ROOT, MERCH, `${stem}.svg`), "utf8").slice(0, 400);
+  const svg = readFileSync(join(ROOT, MERCH, `${stem}.svg`), "utf8");
   const [, W, H] = svg.match(/width="([\d.]+)mm" height="([\d.]+)mm"/)!;
-  return { stem, href: `${MERCH}/${stem}.svg`, W: +W, H: +H };
+  const cut = svg.match(/<g id="CutContour"><path d="([^"]+)"/)?.[1];
+  return { stem, href: `${MERCH}/${stem}.svg`, W: +W, H: +H, cut };
 };
 // A textile print carries 0.5 mm air on every side; a sheet print 3 mm bleed.
 const mm = (v: number) => `${Math.round(v)} mm`;
@@ -361,6 +364,7 @@ const back = print("shirt-T12-back");
 const hoodie = print("hoodie-H12-front");
 const mugPrint = print("mug-M6");
 const stickers = ["stickerP-P10", "stickerL-L13", "stickerB-B16", "stickerD-D1"].map(print);
+const wizards = ["stickerZ-Z1", "stickerZ-Z2"].map(print);
 const cloths = ["cloth-K9", "cloth-K10", "cloth-K12"].map(print);
 const notebook = print("notebook-N6");
 const PRODUCTS: Product[] = [
@@ -415,6 +419,12 @@ const PRODUCTS: Product[] = [
     note: `Kiss-cut on night with 3 mm corners, the wordmark in the night cut, ${stickers.map((s) => mm(s.W - 12)).join(", ")} wide; the print file carries the cut line (CutContour). Shown on a 300 mm laptop lid.`,
     views: [[lid(stickers), "on a laptop lid"]],
     stems: stickers.map((s) => s.stem),
+  },
+  {
+    name: "Wizard stickers Z1, Z2",
+    note: `The second sticker beside the wordmark: the wizard alone, die-cut with a 2.5 mm white border, ${wizards.map((s) => `${mm(s.W - 6)} x ${mm(s.H - 6)}`).join(" and ")}; Z2 goes on the laptop lid. The print file carries the cut line (CutContour) and 1.5 mm white bleed. Shown on a 300 mm laptop lid.`,
+    views: [[lid(wizards), "on a laptop lid"]],
+    stems: wizards.map((s) => s.stem),
   },
 ];
 const merchFiles = familyStems.get("merch") ?? new Map<string, string[]>();
@@ -516,7 +526,7 @@ ${table(
 <h3>Quick start</h3>
 <ul>
 <li>Logo for a document or a screen: <a href="logos/lockup.svg" download>lockup.svg</a>, on night <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, on Purple Love, Stargazer or the gradient <a href="logos/lockup-outline.svg" download>lockup-outline.svg</a>; for small spots <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>. Which logo where: <a href="#logos">Logos</a>.</li>
-<li>Print: textiles and stickers take the wordmark alone, the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
+<li>Print: textiles and stickers take the wordmark alone, the second sticker the wizard alone; the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
 <li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are on its specimen page, under <a href="#applications/app-slides">Slides</a>. Documents come from the document engine, <code>@hackersandwizards/documents</code>, under <a href="#applications/app-documents">Documents</a>.</li>
 <li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the slide engine.</li>
 <li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>

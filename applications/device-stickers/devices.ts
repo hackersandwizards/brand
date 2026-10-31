@@ -1,4 +1,4 @@
-// The company sticker on the back of each company device, drawn to scale in millimetres: the device
+// The company stickers on the back of each company device, drawn to scale in millimetres: the device
 // from Apple's published dimensions, the sticker from its print file in applications/merch/, cut
 // line removed and clipped to the cut. Writes one self-contained SVG per device beside this file.
 // Run: bun applications/device-stickers/devices.ts
@@ -17,8 +17,10 @@ const LID = { w: 312.6, d: 221.2, logo: { w: 37.2, h: 45.3, dy: -3.9 } };
 const PHONE = { w: 71.9, h: 150, logo: { cx: 35.96, cy: 91.2, w: 16.32, h: 20.04 } };
 const TABLET = { w: 177.5, h: 249.7, logo: { w: 29, h: 35.5 } };
 
-// Where each sticker goes: its print file and its centre, in mm above the device's bottom edge (the
-// hinge edge on the lid), centred left to right.
+// Where each wordmark sticker goes: its print file and its centre, in mm above the device's bottom
+// edge (the hinge edge on the lid), centred left to right. The lid also carries the wizard sticker,
+// centred on the Apple logo.
+export const LID_WIZARD = "stickerZ-Z2";
 export const PLACEMENT = {
   macbook: { stem: "stickerD-D1", above: 45 },
   iphone: { stem: "stickerP-P10", above: 22 },
@@ -30,11 +32,15 @@ const SILVER: Finish = { body: ["#dfe1e4", "#c3c6cb"], logo: "#a7abb2", edge: "#
 const SPACE_BLACK: Finish = { body: ["#3a3c40", "#2a2b2e"], logo: "#53565b", edge: "#1c1d1f" };
 const CASE = "#25282d";
 
-// A sticker's print file and its cut, the file less 3 mm bleed on each side.
+// A sticker's print file and its cut: the cut's box is the file less 3 mm bleed on each side, its
+// shape the element in `CutContour`, a rounded rectangle or the die-cut path.
 function stickerFile(stem: string) {
   const svg = readFileSync(join(MERCH, `${stem}.svg`), "utf8");
   const [, W, H] = svg.match(/width="([\d.]+)mm" height="([\d.]+)mm"/)!.map(Number);
-  return { svg, W, H, w: W - 6, h: H - 6 };
+  const cut = svg
+    .match(/<g id="CutContour"[^>]*>(.*?)<\/g>/s)![1]
+    .replace(/\s(fill|stroke|stroke-width)="[^"]*"/g, "");
+  return { svg, W, H, w: W - 6, h: H - 6, cut };
 }
 
 // The usage text: which sticker goes where, from PLACEMENT and the print files.
@@ -44,19 +50,18 @@ export function stickerUsage() {
     const { w, h } = stickerFile(stem);
     return `${stem} (${Math.round(w)} x ${Math.round(h)} mm), its centre ${above} mm above the ${edge}`;
   };
-  return `The wordmark sticker on the back of every company device, centred left to right, below the Apple logo and upright like it, never over the logo. MacBook, every size: ${at("macbook", "hinge edge")}. iPhone: ${at("iphone", "bottom edge")}, below the MagSafe ring; on the case where the phone has one. iPad, in portrait: ${at("ipad", "bottom edge")}. The print files are under Merch. Drawn to scale from Apple's dimensions: MacBook Pro 14-inch, iPad Pro 11-inch, each in silver and space black, and iPhone 18 Pro bare and in a case.`;
+  const z = stickerFile(LID_WIZARD);
+  return `The wordmark sticker on the back of every company device, centred left to right, below the Apple logo and upright like it. MacBook, every size: ${at("macbook", "hinge edge")}, and above it the wizard sticker ${LID_WIZARD} (${Math.round(z.w)} x ${Math.round(z.h)} mm), centred on the Apple logo. iPhone: ${at("iphone", "bottom edge")}, below the MagSafe ring; on the case where the phone has one. iPad, in portrait: ${at("ipad", "bottom edge")}. The print files are under Merch. Drawn to scale from Apple's dimensions: MacBook Pro 14-inch, iPad Pro 11-inch, each in silver and space black, and iPhone 18 Pro bare and in a case.`;
 }
 
-// The sticker as printed: the print file without its cut line, clipped to the cut (3 mm corners),
-// centred on cx, cy.
+// The sticker as printed: the print file without its cut line, clipped to the cut, with a shadow of
+// the cut's shape, centred on cx, cy.
 function stickerAt(stem: string, cx: number, cy: number, id: string) {
-  const { W, H, w, h, svg: file } = stickerFile(stem);
-  const svg = file.replace(/<g id="CutContour">.*?<\/g>/s, "");
-  const body = svg.replace(
-    /^<svg[^>]*>/,
-    `<svg x="${-W / 2}" y="${-H / 2}" width="${W}" height="${H}" viewBox="-3 -3 ${W} ${H}" overflow="visible">`,
-  );
-  return `<g transform="translate(${cx} ${cy})"><clipPath id="${id}"><rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="3"/></clipPath><rect x="${-w / 2 + 0.2}" y="${-h / 2 + 0.5}" width="${w}" height="${h}" rx="3" fill="rgba(0,0,0,.3)"/><g clip-path="url(#${id})">${body}</g></g>`;
+  const { w, h, cut, svg: file } = stickerFile(stem);
+  const inner = file
+    .replace(/<g id="CutContour">.*?<\/g>/s, "")
+    .replace(/^<svg[^>]*>|<\/svg>\s*$/g, "");
+  return `<g transform="translate(${cx - w / 2} ${cy - h / 2})"><clipPath id="${id}">${cut}</clipPath><g transform="translate(0.2 0.5)" fill="rgba(0,0,0,.3)">${cut}</g><g clip-path="url(#${id})">${inner}</g></g>`;
 }
 
 // The Apple logo's outline in a 100 x 122 box, scaled to its measured box.
@@ -72,7 +77,7 @@ function shade(id: string, f: Finish) {
 function drawLid(f: Finish, x: number, id: string) {
   const { w, d, logo } = LID;
   const p = PLACEMENT.macbook;
-  return `<g transform="translate(${x} 0)"><defs>${shade(id, f)}</defs><rect width="${w}" height="${d}" rx="9" fill="url(#${id})" stroke="${f.edge}" stroke-width="0.6"/><rect x="${w * 0.2}" y="${d - 3}" width="${w * 0.6}" height="3" fill="${f.edge}" opacity=".55"/>${appleMark(w / 2, d / 2 + logo.dy, logo.w, logo.h, f.logo)}${stickerAt(p.stem, w / 2, d - p.above, `${id}s`)}</g>`;
+  return `<g transform="translate(${x} 0)"><defs>${shade(id, f)}</defs><rect width="${w}" height="${d}" rx="9" fill="url(#${id})" stroke="${f.edge}" stroke-width="0.6"/><rect x="${w * 0.2}" y="${d - 3}" width="${w * 0.6}" height="3" fill="${f.edge}" opacity=".55"/>${appleMark(w / 2, d / 2 + logo.dy, logo.w, logo.h, f.logo)}${stickerAt(LID_WIZARD, w / 2, d / 2 + logo.dy, `${id}z`)}${stickerAt(p.stem, w / 2, d - p.above, `${id}s`)}</g>`;
 }
 
 // The back of an iPhone 18 Pro, bare or in a case 1.6 mm thick; on a case the sticker goes on the case.
