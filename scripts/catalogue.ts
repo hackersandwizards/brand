@@ -432,9 +432,8 @@ const FAMILIES: Family[] = [
     link: ["#sys-os/print", "the document components, live in the os group Print"],
   },
 ];
-// Not shown: the scripts that build a family and their inputs, and the embroidery wizard, which the
-// design guide's logo table does not put on textiles.
-const SKIP = /\.(ts|py|css)$|^qr-|^emoji-logo-7color\.ai$/;
+// Not shown: the scripts that build a family and their inputs.
+const SKIP = /\.(ts|py|css)$|^qr-/;
 const PREVIEW = ["png", "svg", "html", "txt"];
 const assetStems = (dir: string) => {
   const abs = join(ROOT, dir);
