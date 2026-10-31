@@ -1,6 +1,6 @@
 {{name}}
 {{role}}, hackers&wizards
-{{#phone}}{{phone}} | {{/phone}}{{#mail}}{{mail}} | {{/mail}}hackersandwizards.dev{{#linkedin}} | {{linkedinShort}}{{/linkedin}}
+{{#phone}}{{phone}} | {{/phone}}hackersandwizards.dev{{#linkedin}} | {{linkedinShort}}{{/linkedin}}
 
 hackers&wizards GmbH, Sitz Hamburg, Osterstraße 95, 20259 Hamburg
 Amtsgericht Hamburg, HRB 198840

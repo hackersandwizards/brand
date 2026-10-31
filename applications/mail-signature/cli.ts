@@ -4,7 +4,7 @@
  * copy into the mail client, <out>.txt for a client that takes plain text only.
  *
  *   bun run brand-mail-signature --name "Kim Beispiel" --role "Freie Trainerin" \
- *     [--phone "+49 40 1234 5678"] [--mail kim@hackersandwizards.dev] [--linkedin <url>] \
+ *     [--phone "+49 40 1234 5678"] [--linkedin <url>] \
  *     --out <path without extension>
  *
  * The signature is for an h&w account: wordmark and the GmbH lines. Without --out it prints the plain text.
@@ -19,7 +19,6 @@ const { values: a } = parseArgs({
     name: { type: "string" },
     role: { type: "string" },
     phone: { type: "string" },
-    mail: { type: "string" },
     linkedin: { type: "string" },
     out: { type: "string" },
   },
