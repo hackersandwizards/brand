@@ -178,11 +178,13 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       [left, right] = [m.left - 1, m.right + 1];
     } else if (kind === "native" || kind === "glyph")
       left = Math.max(start - 2 * em, host.getBoundingClientRect().left - 1.5 * em);
-    // A loose item's paragraph starts where its text starts: the marker sits in the item's padding.
+    // The marker hangs left of the item's text, into the item's padding or past it into the list's
+    // (a loose item's paragraph starts at the text, Tailwind prose pads an item less than the
+    // marker's indent), so the box reaches to the list's edge.
     else
       left = Math.max(
         start - 2 * em,
-        (host.closest("li") ?? host).getBoundingClientRect().left - 1,
+        (host.closest("ul") ?? host).getBoundingClientRect().left - 1,
       );
     const li = kind !== "element" && host.closest("li");
     return {
