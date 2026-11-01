@@ -34,6 +34,25 @@ const outlineLockup = (widthMm: number) =>
       / width="\d+" height="\d+"/,
       ` style="display:block;flex:none;width:calc(${widthMm} * var(--mm));height:auto"`,
     );
+// The wizard's white edge as the outline lockup draws it: the edge raster's href, and its offset and
+// side as shares of the wizard's width (the edge is centred on the wizard).
+function wizardEdge() {
+  const svg = readFileSync(new URL(brand.lockupOutline), "utf8");
+  const [, ex, side, href] =
+    /<image class="wizard-edge" x="([-\d.]+)" y="[-\d.]+" width="([\d.]+)" height="[\d.]+" href="([^"]+)"/.exec(
+      svg,
+    )!;
+  const [, wx, ww] = /<image x="([-\d.]+)" y="[-\d.]+" width="([\d.]+)"/.exec(svg)!;
+  return { href, offset: (+wx - +ex) / +ww, side: +side / +ww };
+}
+// The 1 x 1 m wizard's width in mm, edge excluded.
+const WIZARD_1X1 = 440;
+// The large wizard with the white edge; the box includes the edge, so the edge never leaves it.
+function edgedWizard(widthMm: number, style: string) {
+  const e = wizardEdge();
+  const o = widthMm * e.offset;
+  return `<div style="position:relative;flex:none;padding:calc(${o} * var(--mm));${style}"><img src="${e.href}" alt="" style="position:absolute;left:0;top:0;width:calc(${widthMm * e.side} * var(--mm))"><img src="${brand.emoji}" alt="" style="position:relative;display:block;width:calc(${widthMm} * var(--mm))"></div>`;
+}
 const space = (mm: number) => `<div style="height:calc(${mm} * var(--mm))"></div>`;
 const contact = `<div class="contact"><img src="${qr}" alt=""><div class="label">Talk to us.</div></div><div class="url-line">hackersandwizards.dev</div>`;
 const VARS_200 =
@@ -46,10 +65,12 @@ function gradientTall() {
   return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000)}<style>.final>*{flex-shrink:0}</style><div class="sheet" style="${VARS_200}"><div class="final">${body}</div></div></body></html>`;
 }
 
-// The one-line lockup near full width, its wizard with the outline cut's white edge, over the offer
-// line on two lines, the pair centred on the sheet.
+// The wordmark near full width, the offer line on two lines, the large wizard with the outline cut's
+// white edge below, moved 30 mm left (the 40 mm of the 600 mm wizard before v0.21.4, scaled). The
+// wizard and its edge stay whole inside the padding, one line pitch of the offer clear below it.
 function gradientSquare() {
-  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:60;--pad-y:90;--h2:62"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%">${outlineLockup(880)}${space(64)}<p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p></div></div></div></body></html>`;
+  const mascot = edgedWizard(WIZARD_1X1, "translate:calc(-30 * var(--mm)) 0");
+  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:60;--pad-y:90;--h2:62;--wm:110"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${brand.wordmarkOutline}" alt="hackers&amp;wizards">${space(32)}<p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;
 }
 
 // The stand wall behind the banners: --wall=dark,mid,white renders one view set per wall.

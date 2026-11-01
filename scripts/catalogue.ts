@@ -158,6 +158,10 @@ const LOGO_USE = [
   ],
   ["Slides", "lockup on the title and the closing slide, wordmark on every other slide"],
   ["A screen header up to 40 px tall, such as the website's", "lockup-screen"],
+  [
+    "The 1 x 1 m booth banner",
+    "wordmark, the large wizard below it, under Booth banners (an exception of 01.11.)",
+  ],
   ["Shirts, hoodie, stickers", "wordmark"],
   ["The second sticker, beside the wordmark sticker", "the wizard alone, die-cut, under Merch"],
   ["A product app's sign-in screens", "wordmark, the heading may be in the sans face"],
@@ -231,7 +235,7 @@ const FAMILIES: Family[] = [
   {
     id: "booth",
     title: "Booth banners",
-    note: "Pixlip frames, 1 x 2 m and 1 x 1 m: the brand gradient over the whole banner, the logo in its outline cut and only large white type. Each PDF is the print file (final format plus 20 mm bleed), with a PNG preview beside it.",
+    note: "Pixlip frames, 1 x 2 m and 1 x 1 m: the brand gradient over the whole banner, the logo in its outline cut and only large white type. The 1 x 2 m takes the lockup, the 1 x 1 m the wordmark with the large wizard below it, whole inside the margins. Each PDF is the print file (final format plus 20 mm bleed), with a PNG preview beside it.",
     dir: "applications/booth",
   },
   {
