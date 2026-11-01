@@ -166,7 +166,7 @@ lowers every entry to today's counts.
 #### Raise your pin
 
 A newer scan can find more in files you have not touched. In the commit that changes the
-`#v<version>` your `package.json` pins at `HEAD`, the three lists may also take what the installed
+`#v<version>` your `package.json` pins at `HEAD` to the installed version, the three lists may also take what the installed
 scan finds in your files as committed at `HEAD`: a `brand-colours.json` entry may grow to the count
 of the file at `HEAD`, a `brand-copies.json` or `brand-scan.json` entry may name a file committed
 at `HEAD` and unchanged since. Whatever your own new or changed code adds still fails, and every
