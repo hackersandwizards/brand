@@ -1,0 +1,26 @@
+---
+// The internal header's frame (expert/header.css): strip, bar, lockup and product name. The nav and
+// controls are the product's own, in the default slot, laid out at the bar's right.
+import lockup from "../../logos/lockup-screen.svg?url";
+import lockupNight from "../../logos/lockup-screen-night.svg?url";
+
+interface Props {
+  product: string;
+  href?: string;
+}
+
+const { product, href = "/" } = Astro.props;
+---
+
+<header class="hw-header">
+  <div class="hw-header-strip"></div>
+  <div class="hw-header-row hw-container">
+    <a class="hw-header-brand" href={href} aria-label={`hackers&wizards ${product}`}>
+      <img class="hw-header-logo" src={lockup} alt="" width="8042" height="1489" />
+      <img class="hw-header-logo-night" src={lockupNight} alt="" width="8196" height="1641" />
+      <span class="hw-header-product">{product}</span>
+    </a>
+    <slot />
+  </div>
+  <slot name="below" />
+</header>

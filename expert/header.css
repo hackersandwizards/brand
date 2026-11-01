@@ -1,0 +1,191 @@
+/* The internal header: one frame for every internal system and page (Company OS, the trainer hub,
+   talks, the brand catalogue, the slide and document specimens, the decision page). Each keeps its
+   own nav items; this file owns the frame: strip, bar, lockup, product name, width.
+
+   Plain CSS, no Tailwind, so a static page links it and a generated page inlines it. It needs the
+   package's tokens (tokens.css in a Tailwind app, tokens.root.css on a plain page) and reads the
+   expert theme roles (--background, --foreground, --border, --accent) where expert.css sets them,
+   else the light tokens. A page that themes without expert.css sets those four itself; one that
+   follows the system theme sets data-theme="auto" on html. Without data-theme the page is light.
+
+   The markup, which components/AppHeader.astro renders:
+
+   <header class="hw-header">
+     <div class="hw-header-strip"></div>
+     <div class="hw-header-row hw-container">
+       <a class="hw-header-brand" href="/" aria-label="hackers&wizards <Product>">
+         <img class="hw-header-logo" src=".../logos/lockup-screen.svg" alt="" width="8042" height="1489">
+         <img class="hw-header-logo-night" src=".../logos/lockup-screen-night.svg" alt="" width="8196" height="1641">
+         <span class="hw-header-product"><Product></span>
+       </a>
+       <nav class="hw-header-nav" aria-label="Main">
+         <a class="hw-header-link" href="..." aria-current="page">...</a>
+         <span class="hw-header-sep"></span>
+       </nav>
+     </div>
+   </header>
+
+   Page content takes the same width with class hw-container. */
+
+.hw-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 96rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* Strip 3px, bar 3.5rem, hairline 1px: 60px plus the safe area. */
+.hw-header {
+  --hw-bg: var(--background, var(--color-bg));
+  --hw-fg: var(--foreground, var(--color-ink));
+  --hw-accent: var(--accent, var(--color-teal-dark));
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding-top: env(safe-area-inset-top);
+  border-bottom: 1px solid var(--border, var(--color-border));
+  background: color-mix(in srgb, var(--hw-bg) 70%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--hw-fg);
+  font-family: var(--font-sans);
+}
+
+/* Teal to purple in both themes. */
+.hw-header-strip {
+  height: 3px;
+  background: linear-gradient(to right, var(--color-teal), var(--color-purple));
+}
+
+.hw-header-row {
+  display: flex;
+  height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+/* The product name centres on the lockup's letters: the lockup rises by the wizard's lift, and
+   the name sits at line-height 1 on the box centre. */
+.hw-header-brand {
+  display: flex;
+  min-height: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.41rem;
+  margin-right: 0.75rem;
+  color: var(--hw-fg);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.hw-header-logo,
+.hw-header-logo-night {
+  display: block;
+  width: auto;
+  height: 2rem;
+  flex-shrink: 0;
+  translate: 0 var(--logo-wizard-lift);
+}
+
+/* The night cut's box holds the wizard's grey edge: taller by 1640.612 / 1489 at the same letter
+   size. */
+.hw-header-logo-night {
+  display: none;
+  height: calc(2rem * 1640.612 / 1489);
+}
+
+html[data-theme="dark"] .hw-header-logo {
+  display: none;
+}
+
+html[data-theme="dark"] .hw-header-logo-night {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="auto"] .hw-header-logo {
+    display: none;
+  }
+
+  html[data-theme="auto"] .hw-header-logo-night {
+    display: block;
+  }
+}
+
+/* Read by screen readers at every width, shown from 64rem, where the nav leaves room. */
+.hw-header-product {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+@media (min-width: 48rem) {
+  .hw-header-brand {
+    margin-right: 1.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .hw-header-product {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+}
+
+/* A nav wider than the bar scrolls sideways rather than pushing the bar past the screen. */
+.hw-header-nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.hw-header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: color-mix(in srgb, var(--hw-fg) 70%, transparent);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.hw-header-link:hover {
+  background: color-mix(in srgb, var(--muted, var(--color-tint)) 40%, transparent);
+  color: var(--hw-fg);
+}
+
+.hw-header-link[aria-current="page"],
+.hw-header-link[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--hw-accent) 7%, transparent);
+  color: var(--hw-accent);
+  font-weight: 500;
+}
+
+.hw-header-sep {
+  width: 1px;
+  height: 1rem;
+  flex-shrink: 0;
+  margin-inline: 0.25rem;
+  background: color-mix(in srgb, var(--hw-fg) 7%, transparent);
+}

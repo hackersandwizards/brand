@@ -35,6 +35,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                    |
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |
+| `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                  |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
 | `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square, the favicon set |
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                 |
@@ -110,6 +111,15 @@ serves at build or install time, then link them:
 
 A page opened from disk links `node_modules/@hackersandwizards/brand/logos/favicon.svg` by its
 relative path. `applications/avatars/generate.ts` builds the set beside the avatars.
+
+### The internal header
+
+Every internal system and page wears one header: the 3 px strip, a 3.5rem bar under a hairline,
+the lockup at 2rem with the product name beside it, and a 96rem content width with 1rem sides.
+`header.css` holds it as plain CSS with its markup in the opening comment, so a static or generated
+page links or inlines it; an Astro app renders `expert/components/AppHeader.astro` with its nav in
+the slot; a React app writes the same markup. Each product keeps its own nav items; page content
+takes the same width with the class `hw-container`.
 
 ### Check your colours in your gate
 
