@@ -8,18 +8,17 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
+import { colors } from "../../generated/tokens";
 
-const MARK = 0.625;
+export const MARK = 0.625;
 const BRAND = join(import.meta.dir, "../..");
-const tokens = readFileSync(join(BRAND, "tokens/tokens.css"), "utf8");
-const token = (name: string) => tokens.match(new RegExp(`--${name}:\\s*(#[0-9a-f]+);`))![1];
 const logo = readFileSync(join(BRAND, "logos/type-logo-short.svg"), "utf8");
 const [, ...glyphs] = [...logo.matchAll(/ d="([^"]+)"/g)].map((m) => m[1]); // the first path is the outline cut
 const [x0, y0, x1, y1] = [48, 48, 1104, 888]; // the glyphs' bounding box in that file
 const size = (x1 - x0) / MARK;
 const [x, y] = [(x0 + x1 - size) / 2, (y0 + y1 - size) / 2];
 
-export const tile = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${size} ${size}"><linearGradient id="g" x2="1" y2="1"><stop stop-color="${token("color-teal")}"/><stop offset="1" stop-color="${token("color-purple")}"/></linearGradient><rect x="${x}" y="${y}" width="${size}" height="${size}" fill="url(#g)"/><path fill="${token("color-white")}" d="${glyphs.join("")}"/></svg>\n`;
+export const tile = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${size} ${size}"><linearGradient id="g" x2="1" y2="1"><stop stop-color="${colors["--color-teal"]}"/><stop offset="1" stop-color="${colors["--color-purple"]}"/></linearGradient><rect x="${x}" y="${y}" width="${size}" height="${size}" fill="url(#g)"/><path fill="${colors["--color-white"]}" d="${glyphs.join("")}"/></svg>\n`;
 
 // [file, px, palette]: palette PNGs where the platform caps the file size or the file stays small
 const FILES: [string, number, boolean][] = [

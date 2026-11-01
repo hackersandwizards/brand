@@ -6,6 +6,7 @@
 // Run: bun applications/device-stickers/devices.ts
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { colors } from "../../generated/tokens";
 
 const DIR = import.meta.dir;
 const MERCH = join(DIR, "../merch");
@@ -32,8 +33,8 @@ export const PLACEMENT = {
 // Silver only: the placement is the same on every finish, and the night sticker reads on silver.
 const F = { body: ["#dfe1e4", "#c3c6cb"], logo: "#a7abb2", edge: "#9da1a8" };
 // The measure's ink, the brand's teal-dark and ink.
-const LINE = "#155b6a";
-const INK = "#19283a";
+const LINE = colors["--color-teal-dark"];
+const INK = colors["--color-ink"];
 
 // A sticker's print file and its cut: the cut's box is the file less 3 mm bleed on each side, its
 // shape the element in `CutContour`, a rounded rectangle or the die-cut path.
