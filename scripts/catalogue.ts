@@ -111,7 +111,7 @@ const preview = (k: string) =>
         : k.startsWith("--gradient-")
           ? `<div class="pv" style="background:var(${k})"></div>`
           : k.startsWith("--code-")
-            ? `<div class="pv" style="background:var(--code-bg);color:var(${k});font:var(--type-code-weight) var(--type-code-size)/1.6 var(--type-code-family);padding:0.25rem 0.5rem">${k === "--code-bg" ? "&nbsp;" : "const x = 1;"}</div>`
+            ? `<div class="pv" style="background:var(--code-bg);color:var(${k});font:var(--type-code-weight) var(--type-code-size)/1.6 var(--type-code-family);padding:0.25rem 0.5rem;width:max-content;height:auto;white-space:nowrap">${k === "--code-bg" ? "&nbsp;" : "const x = 1;"}</div>`
             : "";
 const otherTokens = Object.entries(tokens).filter(([k]) => !/^--(color|type|text|chart)-/.test(k));
 const tokenKinds = [...new Set(otherTokens.map(([k]) => k.split("-")[2]))];
