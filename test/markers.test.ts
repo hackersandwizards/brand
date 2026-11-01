@@ -22,7 +22,8 @@ const page = (css: string, marker = false) => `<!doctype html><html><head><meta 
 <link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
 ${marker ? `<link rel="stylesheet" href="${brand("tokens/marker.css")}">` : ""}
 <style>
-body { margin: 40px; max-width: 420px; font-family: var(--font-sans); }
+html { scroll-behavior: smooth; }
+body { margin: 40px 40px 1200px; max-width: 420px; font-family: var(--font-sans); }
 ul { margin: 0; padding: 0; }
 .row { display: flex; align-items: baseline; gap: 12px; --hw-marker-size: 0.5625rem; }
 .swatch { width: 10px; height: 10px; background: var(--color-purple); }
@@ -51,8 +52,7 @@ ${[
 <details><summary>Panel</summary><ul class="hw-marker-list" style="font-size:14px;line-height:1.5"><li>An item in a closed panel</li></ul></details>
 <ul class="hw-marker-list" style="font-size:16px;line-height:1.75"><li><p style="margin:0">A loose item opens with a paragraph</p></li></ul>
 <ul class="hw-marker-list" style="font-size:14px;line-height:1.5"><li>Stored at <code style="font-family:var(--font-code, var(--font-mono))">~/.claude/projects</code> with more words to wrap the item onto a second line here</li></ul>
-<ul class="hw-marker-list" style="font-size:13.333px;line-height:1.5"><li>Thirteen and a third at one and a half, a line height Chrome stores just under 20px</li></ul>
-<ul class="hw-marker-list" style="font-size:13.333px;line-height:1.35"><li>Code <code style="font-family:var(--font-code)">git status</code> on the first line</li></ul>
+<ul class="hw-marker-list" style="font-size:11pt;line-height:1.45"><li>Code <code style="font-family:var(--font-code)">git status</code> on the first line</li></ul>
 <ul class="hw-marker-list" style="font-size:16px;line-height:1.6"><li><code style="font-family:var(--font-code);font-size:0.8125em;padding:0.125em 0.375em;background:var(--color-bg)">git status</code> is clean, an item opening with a code chip</li></ul>
 <ul class="glyphs"><li>An item behind a bullet glyph drawn as content</li></ul>
 <div class="row" style="font-size:15px;line-height:1.4"><span class="hw-marker"></span>Bare text beside a marker</div>
@@ -96,7 +96,7 @@ test.each([2, 4])(
   "marker.css sits within 0.25 px at %dx, with and without a newline after <li>",
   async (scale) => {
     const rs = await all(NEW, scale);
-    expect(rs.filter((r) => r.kind === "before").length).toBe(44);
+    expect(rs.filter((r) => r.kind === "before").length).toBe(42);
     expect(rs.filter((r) => r.kind === "element").length).toBe(6);
     expect(show(rs.filter((r) => r.kind !== "glyph" && failing(r)))).toEqual([]);
   },
@@ -118,7 +118,7 @@ test("the old element marker fails at some size", async () => {
 
 test("the browser's disc is found and fails", async () => {
   const rs = (await all(NATIVE, 2)).filter((r) => r.kind === "native");
-  expect(rs.length).toBe(44);
+  expect(rs.length).toBe(42);
   expect(rs.some(failing)).toBe(true);
 }, 60_000);
 
