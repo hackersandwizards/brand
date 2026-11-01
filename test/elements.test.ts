@@ -90,12 +90,12 @@ test("an element inside an exception's instance is not measured", async () => {
   expect(r.exceptions).toEqual(["total-band"]);
 }, 60_000);
 
-test("a setting the medium sets is no drift", async () => {
+test("a setting the medium sets, or a property the element leaves to it, is no drift", async () => {
   const r = await measurePage(
     browser,
     file(
       "setting.html",
-      page(".hw-card { --hw-card-pad: 3rem } .hw-label { --hw-label-size: 9.5pt }"),
+      page(".hw-card { --hw-card-pad: 3rem; font-size: 9pt } .hw-label { --hw-label-size: 9.5pt }"),
     ),
   );
   expect(r.findings).toEqual([]);
