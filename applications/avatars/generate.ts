@@ -2,7 +2,7 @@
 // square, one file per platform; the platform rounds or crops it itself. The hw spans MARK of the
 // tile's width, centred: the largest size whose corners stay inside the circle of 40 % radius that
 // a maskable app icon keeps, so the website's icons share it. os
-// docs/tracking/2026-10-31-avatar-mark-size.md and 2026-10-31-icon-sizes.md have the blind reviews.
+// docs/tracking/2026-10-31-icon-sizes.md has the blind reviews.
 // bun applications/avatars/generate.ts
 // The Google Workspace logo (the lockup at 320 x 132) is not built here. The package ships one size,
 // logos/avatar-512.png, for a consumer that uploads a square logo (os: Tally forms); the rest stay in LFS.
