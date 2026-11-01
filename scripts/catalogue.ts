@@ -458,12 +458,12 @@ const deviceHtml = `<div class="devices">${stickerCaptions()
 const SIGNATURE = "applications/mail-signature";
 const signatureTemplate = readFileSync(join(ROOT, SIGNATURE, "template.html"), "utf8");
 index.push({
-  t: "mail signature hw-account",
+  t: "mail signature",
   k: "application",
-  h: "applications/a-mail-signature-hw-account",
-  x: "mail signature from an h&w account",
+  h: "applications/a-mail-signature",
+  x: "mail signature template",
 });
-const signatureHtml = `<div class="assets"><figure class="asset" id="a-mail-signature-hw-account"><div class="views"><iframe srcdoc="${esc(fillSignature(signatureTemplate, EXAMPLE, "html"))}" title="mail signature from an h&amp;w account" loading="lazy"></iframe></div><figcaption>from an h&amp;w account</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
+const signatureHtml = `<div class="assets"><figure class="asset" id="a-mail-signature"><div class="views"><iframe srcdoc="${esc(fillSignature(signatureTemplate, EXAMPLE, "html"))}" title="mail signature" loading="lazy"></iframe></div><figcaption>the filled template</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
 const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],

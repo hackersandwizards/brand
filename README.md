@@ -86,6 +86,8 @@ below the box centre; the night and outline cuts grow their box round the wizard
 7.8%: a text after the lockup centres on that line once the lockup takes the same
 `translate: 0 var(--logo-wizard-lift)`.
 
+Till drew the wizard, and hackers&wizards GmbH holds the rights to it.
+
 The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides.
 `bun scripts/ampersand.ts` writes that offset into every one-line logo,
 renders its PNG and rehashes both in `manifest.json`.
