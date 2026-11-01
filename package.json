@@ -71,6 +71,7 @@
     "fix": "bun --bun eslint --cache --concurrency=auto . --fix && bun --bun prettier --write .",
     "tokens": "bun scripts/tokens.ts",
     "catalogue": "bun scripts/catalogue.ts",
+    "dev": "bun scripts/serve.ts",
     "check:staged": "bun .claude/skills/engineering/check-staged.ts",
     "lfs:pre-push": "git lfs pre-push"
   },

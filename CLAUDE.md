@@ -64,6 +64,9 @@ data or secret.
   `prettier --check` and `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run catalogue`: rebuild `catalogue.html`.
+- `bun run dev`: serve the checkout on port 4326 for `http://brand.localhost` (Caddy, as for
+  `os.localhost`). The header links the slide and document specimens at `slides.localhost` and
+  `documents.localhost`, each served the same way from its own checkout.
 
 ## Rules
 
