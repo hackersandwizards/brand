@@ -4,7 +4,10 @@
 // a maskable app icon keeps, so the website's icons share it. os
 // docs/tracking/2026-10-31-icon-sizes.md has the blind reviews.
 // bun applications/avatars/generate.ts
-// The Google Workspace logo (the lockup at 320 x 132) is not built here. The package ships one size,
+// The Google Workspace logo is logos/lockup.svg centred on white, 304 px wide in exactly 320 x 132,
+// the one size Google's help names ("displayed at exactly 320 x 132 pixels"). The Admin console's
+// home header squashes it into 320 x 48, measured on a screenshot of 2026-11-01; no 320 x 132 file
+// escapes that. The package ships one size,
 // logos/avatar-512.png, for a consumer that uploads a square logo (os: Tally forms); the rest stay in LFS.
 // It also ships the favicon set every site and page serves, in logos/: browser tabs and Windows
 // show favicon.svg, favicon.ico and icon-192/512 unmasked, so those carry the rounded corners
@@ -75,4 +78,12 @@ if (import.meta.main) {
   head.writeUInt32LE(ico32.length, 14);
   head.writeUInt32LE(22, 18); // image offset
   await Bun.write(logos("favicon.ico"), Buffer.concat([head, ico32]));
+
+  const lockup = await sharp(logos("lockup.svg")).resize(304).toBuffer();
+  await sharp({
+    create: { width: 320, height: 132, channels: 3, background: colors["--color-white"] },
+  })
+    .composite([{ input: lockup }])
+    .png()
+    .toFile(join(import.meta.dir, "google-workspace-logo-320x132.png"));
 }
