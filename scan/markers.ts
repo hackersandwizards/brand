@@ -41,7 +41,9 @@ export type Reading = {
 /** Runs in the page: rewrites the line beside each marker and returns the boxes to read. */
 function collect([newline, maxSide]: [boolean, number]): Probe[] {
   // A closed panel's lists are markers too, painted once it opens.
-  for (const d of document.querySelectorAll("details")) d.open = true;
+  // Not a header's or nav's disclosure: a site's menu script may hold the page while one is open.
+  for (const d of document.querySelectorAll("details:not(header details, nav details)"))
+    (d as HTMLDetailsElement).open = true;
   if (newline)
     for (const li of document.querySelectorAll("li"))
       li.insertBefore(document.createTextNode("\n      "), li.firstChild);
@@ -248,15 +250,23 @@ export async function measureMarkers(
     // and a layout sized by the viewport's height then moves under the measured boxes.
     const read = async (clip: Box) => {
       // Instant, whatever the page's scroll-behavior, and a frame for the paint to follow.
-      await page.evaluate(
-        (y) =>
-          new Promise((done) => {
+      const inView = await page.evaluate(
+        (y, h) =>
+          new Promise<boolean>((done) => {
             scrollTo({ top: Math.max(0, y - 200), behavior: "instant" });
-            requestAnimationFrame(() => requestAnimationFrame(done));
+            requestAnimationFrame(() =>
+              requestAnimationFrame(() => done(y >= scrollY && y + h <= scrollY + innerHeight)),
+            );
           }),
         clip.y,
+        clip.height,
       );
-      const png = await page.screenshot({ clip, encoding: "base64", captureBeyondViewport: false });
+      // A page that will not scroll there (a script holding it) is shot beyond the viewport.
+      const png = await page.screenshot({
+        clip,
+        encoding: "base64",
+        captureBeyondViewport: !inView,
+      });
       return clip.y + (await page.evaluate(inkMiddle, png, scale));
     };
     const out: Reading[] = [];
