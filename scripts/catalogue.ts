@@ -30,6 +30,9 @@ const table = (head: string[], rows: unknown[][]) =>
     .join("")}</tbody></table>`;
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+// An SVG inlined more than once keeps its internal ids unique on the page: each one takes a prefix.
+const scopeIds = (svg: string, prefix: string) =>
+  svg.replace(/(id="|url\(#|href="#)([^")]+)/g, `$1${prefix}-$2`);
 
 // The search index: what a reader types, where it leads.
 const index: { t: string; k: string; h: string; x?: string }[] = [];
@@ -323,7 +326,7 @@ const assetStems = (dir: string) => {
   return stems;
 };
 const assetCard = (dir: string, stem: string, files: string[], fam: Family) => {
-  const id = `a-${slug(`${fam.id}-${stem}`)}`;
+  const id = slug(`${fam.id}-${stem}`);
   index.push({
     t: stem,
     k: "application",
@@ -426,20 +429,20 @@ const PRODUCTS: Product[] = [
 ];
 const merchFiles = familyStems.get("merch") ?? new Map<string, string[]>();
 const merchHtml = `<div class="products">${PRODUCTS.map((p) => {
-  const id = `a-merch-${slug(p.name)}`;
+  const id = `merch-${slug(p.name)}`;
   index.push({
     t: p.name,
     k: "application",
     h: `applications/${id}`,
     x: `merch ${p.stems.join(" ")}`,
   });
-  return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c]) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${svg}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
+  return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c], i) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${scopeIds(svg, `${id}-${i}`)}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
 }).join("")}</div>`;
 // Device stickers: each device's SVG inline, all at one scale, with what goes where as its caption.
 const DEVICES = "applications/device-stickers";
 const deviceHtml = `<div class="devices">${stickerCaptions()
   .map(({ file, title, lines }) => {
-    const id = `a-device-stickers-${file}`;
+    const id = `device-stickers-${file}`;
     index.push({
       t: title,
       k: "application",
@@ -451,7 +454,7 @@ const deviceHtml = `<div class="devices">${stickerCaptions()
       (_, w, h) =>
         `width="${(+w * 1.35).toFixed(1)}" height="${(+h * 1.35).toFixed(1)}" role="img" aria-label="${esc(title)}"`,
     );
-    return `<figure id="${id}">${svg}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<span class="dl"><a href="${DEVICES}/${file}.svg" download>svg</a></span></figcaption></figure>`;
+    return `<figure id="${id}">${scopeIds(svg, id)}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<span class="dl"><a href="${DEVICES}/${file}.svg" download>svg</a></span></figcaption></figure>`;
   })
   .join("")}</div>`;
 // Mail signature: the template filled for a fictitious person.
@@ -460,10 +463,10 @@ const signatureTemplate = readFileSync(join(ROOT, SIGNATURE, "template.html"), "
 index.push({
   t: "mail signature",
   k: "application",
-  h: "applications/a-mail-signature",
+  h: "applications/mail-signature",
   x: "mail signature template",
 });
-const signatureHtml = `<div class="assets"><figure class="asset" id="a-mail-signature"><div class="views"><iframe srcdoc="${esc(fillSignature(signatureTemplate, EXAMPLE, "html"))}" title="mail signature" loading="lazy"></iframe></div><figcaption>the filled template</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
+const signatureHtml = `<div class="assets"><figure class="asset" id="mail-signature"><div class="views"><iframe srcdoc="${esc(fillSignature(signatureTemplate, EXAMPLE, "html"))}" title="mail signature" loading="lazy"></iframe></div><figcaption>the filled template</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
 const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],
