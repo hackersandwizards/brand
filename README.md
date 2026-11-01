@@ -68,8 +68,8 @@ on disk reads it at `node_modules/@hackersandwizards/brand/<target>`, the target
 
 The logo is one line, with no line under it: the wizard beside the pixel wordmark,
 `logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
-(shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug
-and lock screens. A screen header up to 40 px tall takes `logos/lockup-screen.svg`, on night
+(shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug.
+A screen header up to 40 px tall takes `logos/lockup-screen.svg`, on night
 `logos/lockup-screen-night.svg`: the same lockup with the wizard at 128 px, sharp to 3x, 15 KB
 where the lockup weighs 50 KB. Larger, and in print, the lockup itself. Slides carry the lockup on the title and the closing slide and the wordmark alone on
 every other slide. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`

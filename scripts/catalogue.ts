@@ -165,7 +165,7 @@ const LOGO_USE = [
   ["Shirts, hoodie, stickers", "wordmark"],
   ["The second sticker, beside the wordmark sticker", "the wizard alone, die-cut, under Merch"],
   ["A product app's sign-in screens", "wordmark, the heading may be in the sans face"],
-  ["Small spots: mug, lock screens", "lockup-compact"],
+  ["Small spots: mug", "lockup-compact"],
   [
     "A surface that allows one colour only, such as a partner wall in white",
     "wordmark-white or wordmark-black",
@@ -229,7 +229,7 @@ const FAMILIES: Family[] = [
   {
     id: "backgrounds",
     title: "Backgrounds for devices and calls",
-    note: "The dark (night) family: the lockup on MacBook and Studio Display and across the home screens, the compact lockup on the iPad and iPhone lock screens, a small lockup above the head in calls. Set on the devices by hand.",
+    note: "The dark (night) family: the lockup on every file, low on the device screens (bottom right on the landscape ones, centred on the others), small above the head in calls. Set on the devices by hand.",
     dir: "applications/backgrounds",
   },
   {

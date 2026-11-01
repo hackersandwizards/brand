@@ -533,6 +533,10 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // set, so the stack sits on the file's centre axis and inside the band both crops keep clear
     // (y 337-800).
     "lw-stack-centre": [["k", 360, 508, 440]],
+    // Decision backgrounds-family b (01.11.): the one-line lockup low, bottom centre. Both measured
+    // landscape crops show rows down to 897 and 1053 and their notifications start at 800 and 945, so
+    // the ink ends at 790; the portrait crop's bottom rows never show in his landscape lock screen.
+    "logo-band-low": [["l", 56, 537.8, 734]],
     "logo-c": [["l", 80, 473, 800]],
     "logo-low": [["l", 56, 538, 1200]],
     "logo-ll": [["l", 56, 228, 1200]],
@@ -548,6 +552,9 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // screen: the lowest app labels end at y 789.5, the Dock starts at 925.8. The lockup's ink
     // (841.5-875) centred between them, 52 and 51 points from each.
     "logo-gap": [["l", 36, 586.4, 838.7]],
+    // Decision backgrounds-family b (01.11.): the same lockup bottom right beside the Dock, its ink
+    // (878-912) 14 points above the Dock and 80 from the right edge.
+    "logo-br": [["l", 36, 1092.8, 875.5]],
   },
   "ipad-home": {
     "logo-band": [["l", 62, 521, 960]],
@@ -592,6 +599,10 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     "logo-c": [["l", 44, 102, 520]],
     "logo-up": [["l", 40, 113, 360]],
     "logo-low": [["l", 40, 113, 816]],
+    // Decision backgrounds-family b (01.11.): the iPhone home's lockup (40.5 pt) bottom centre. The
+    // 1.1525 enlargement around the centre puts its ink at screen y 783-830, 18 pt above the
+    // flashlight and camera row (848) and 56 pt below two notifications (to 727).
+    "logo-bottom": [["l", 40.5, 111, 742.9]],
     "wm-c": [["m", 34, 103, 520]],
     "wiz-low": [["w", 230, 105, 726]],
     "wiz-c": [["w", 260, 90, 420]],
