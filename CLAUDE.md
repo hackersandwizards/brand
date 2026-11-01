@@ -54,6 +54,8 @@ data or secret.
   `EXCEPTIONS` in `colours.ts`, each printed when applied and listed in the README; a new one
   needs a reason the README states. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
+  `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
+  rule being `tokens/marker.css`.
   A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
   `scripts/catalogue.ts`. Never edit it; run `bun run catalogue`.
@@ -80,7 +82,7 @@ data or secret.
 - The package holds the core only: tokens, generated formats, print and expert layers, fonts with
   their OFL texts, small logos,
   the client marks, the press photos, `manifest.json`, the LinkedIn post renderers and prompts
-  `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` and `LICENSE`. `test/package.test.ts` fails on anything else.
+  `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core`, and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an
   `exports` target names, imported or, from Python, HTML or a skill, read at its path in

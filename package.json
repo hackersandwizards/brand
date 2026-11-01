@@ -1,8 +1,8 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy and component scans a consumer runs in its gate.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component and list-marker checks a consumer runs in its gate, and the list marker rule.",
   "keywords": [
     "astro-component"
   ],
@@ -21,6 +21,7 @@
     "./tokens.py": "./generated/tokens.py",
     "./code-theme.json": "./generated/code-theme.json",
     "./print.css": "./tokens/print.css",
+    "./marker.css": "./tokens/marker.css",
     "./fonts/*": "./tokens/fonts/*",
     "./expert.css": "./expert/expert.css",
     "./header.css": "./expert/header.css",
@@ -35,6 +36,7 @@
     "brand-colours": "scan/colours.ts",
     "brand-copies": "scan/copies.ts",
     "brand-scan": "scan/components.ts",
+    "brand-markers": "scan/markers.ts",
     "brand-linkedin-frame": "applications/linkedin-visuals/frame.ts",
     "brand-linkedin-terminal": "applications/linkedin-visuals/terminal.ts",
     "brand-linkedin-sketch-prompt": "applications/linkedin-visuals/sketch-prompt.ts",
@@ -90,5 +92,8 @@
     "sharp": "0.35.5",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1"
+  },
+  "dependencies": {
+    "puppeteer-core": "25.16.0"
   }
 }
