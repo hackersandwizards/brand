@@ -436,8 +436,8 @@ async function generateBackgrounds() {
 // ---------- layout round: arrangement x position on one colour base ----------
 
 // The Night ground of the dark files in the design guide, rebuilt without the lockup: #111A24 to
-// #0B1118, a purple glow top right, a teal glow bottom left.
-const NIGHT = `radial-gradient(ellipse 60% 50% at 100% 0%, rgba(147,51,234,.24), transparent 70%), radial-gradient(ellipse 45% 45% at 0% 100%, rgba(26,114,133,.32), transparent 70%), linear-gradient(180deg, #111A24, #0B1118)`;
+// #0B1118, a teal glow top left and a purple glow bottom right, the direction of --gradient-magic.
+const NIGHT = `radial-gradient(ellipse 60% 50% at 100% 100%, rgba(147,51,234,.24), transparent 70%), radial-gradient(ellipse 45% 45% at 0% 0%, rgba(26,114,133,.32), transparent 70%), linear-gradient(180deg, #111A24, #0B1118)`;
 const PASTEL_HOME = `linear-gradient(135deg, ${tint(C.teal, 88)}, ${tint(C.purple, 84)})`;
 type Base = "dark" | "light";
 type WallFile =
