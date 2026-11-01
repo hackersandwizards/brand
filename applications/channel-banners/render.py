@@ -20,7 +20,7 @@ from pathlib import Path
 
 from fontTools.ttLib import TTFont
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 HERE = Path(__file__).resolve().parent
 DOCS = HERE
@@ -28,7 +28,7 @@ BRAND = HERE.parents[1]
 
 # (variable font, weight): weights matched to the ink coverage of the Chrome-rendered originals
 MONO = (BRAND / "tokens/fonts/jetbrains-mono-latin-wght-normal.woff2", 800)
-INTER = (BRAND / "tokens/fonts/inter-latin-wght-normal.woff2", 450)
+MONO_SUB = (MONO[0], 500)  # a subline in Mono, at the label role's weight (tokens.css)
 LOCKUP = BRAND / "logos/lockup-night.png"
 LIFT = 0.078  # the wordmark's centre line lies this share of the lockup height below its box centre
 
@@ -160,7 +160,7 @@ def grid_surfaces():
             [
                 headline(150, 0, 111.6, -0.05, ("KI-Schulungen für", 0)),
                 headline(150, 121, 111.6, -0.05, ("Agentic Engineering.", 0)),
-                headline(151, 238, 47.5, 0, ("200+ Teams trainiert.", 1), (" 1.000+ Entwickler:innen trainiert.", 2), font=INTER),
+                headline(151, 238, 47.5, 0, ("200+ Teams", 1), (" und 1.000+ Entwickler:innen trainiert.", 2), font=MONO_SUB),
             ],
         ),
         # the group centred in the 2560 x 423 strip every device shows; glows on that strip's
@@ -237,7 +237,7 @@ def draw_line(img, line, colors, k, dx):
     x, y = (line["x"] + dx) * k, line["baseline"] * k
     track = line["track"] * line["size"] * k
     for text, role in line["parts"]:
-        if track == 0:  # proportional face: keep its kerning
+        if track == 0:  # untracked: draw the run whole, keeping its kerning
             draw.text((x, y), text, font=font, fill=colors[role], anchor="ls")
             x += font.getlength(text)
             continue
@@ -246,10 +246,13 @@ def draw_line(img, line, colors, k, dx):
             x += font.getlength(ch) + track
 
 
-def rounded(im, radius):
-    mask = Image.new("L", im.size, 0)
-    ImageDraw.Draw(mask).rounded_rectangle((0, 0, im.width - 1, im.height - 1), radius, fill=255)
-    return mask
+def brand_corner(im, radius):
+    """The brand corner (--radius-brand, 20px 5px): radius top left and bottom right, a quarter of it elsewhere."""
+    box = (0, 0, im.width - 1, im.height - 1)
+    big, small = Image.new("L", im.size, 0), Image.new("L", im.size, 0)
+    ImageDraw.Draw(big).rounded_rectangle(box, radius, fill=255, corners=(True, False, True, False))
+    ImageDraw.Draw(small).rounded_rectangle(box, radius / 4, fill=255, corners=(False, True, False, True))
+    return ImageChops.multiply(big, small)
 
 
 def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
@@ -271,7 +274,7 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
             lw = lh * src.width / src.height
             src = src.resize((round(lw * k), round(lh * k)), Image.LANCZOS)
             band.paste(src, (round((cx + margin - lw / 2) * k) - x0, round((cy - lh / 2) * k) - y0))
-        mask = rounded(band, s["logos"]["radius"] * k)
+        mask = brand_corner(band, s["logos"]["radius"] * k)
         img.paste(band, (x0, y0), mask)
     lk = s["lockup"]
     lh = lk["h"] * k
