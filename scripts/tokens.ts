@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
-// generated/tokens.root.css (the @theme block as :root), tokens.json, tokens.ts and tokens.py.
+// generated/tokens.root.css (the @theme block as :root), tokens.json, tokens.ts and tokens.py, and
+// code-theme.json, the Shiki theme of the --code-* tokens.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
@@ -49,6 +50,112 @@ export const resolveColors = (tokens: Record<string, string>) => {
   );
 };
 
+/** github-dark's scopes, in its order, each under the --code-* role that colours it: the theme's
+ *  structure stays, the colours are the brand's. Its function and variable colours take fg, its
+ *  constants keyword. A role suffixed with /<style> sets that font style. */
+const CODE_SCOPES: [string, string[]][] = [
+  ["comment", ["comment", "punctuation.definition.comment", "string.comment"]],
+  [
+    "keyword",
+    [
+      "constant",
+      "entity.name.constant",
+      "variable.other.constant",
+      "variable.other.enummember",
+      "variable.language",
+      "support",
+      "meta.property-name",
+      "string variable",
+      "support.constant",
+      "support.variable",
+      "meta.module-reference",
+      "markup.inline.raw",
+      "meta.diff.header",
+      "meta.output",
+    ],
+  ],
+  ["fg", ["entity", "entity.name"]],
+  [
+    "fg",
+    [
+      "variable.parameter.function",
+      "storage.modifier.package",
+      "storage.modifier.import",
+      "storage.type.java",
+      "variable",
+      "variable.other",
+      "punctuation.definition.list.begin.markdown",
+      "markup.changed",
+      "punctuation.definition.changed",
+      "brackethighlighter.tag",
+      "brackethighlighter.curly",
+      "brackethighlighter.round",
+      "brackethighlighter.square",
+      "brackethighlighter.angle",
+      "brackethighlighter.quote",
+    ],
+  ],
+  [
+    "inserted",
+    [
+      "entity.name.tag",
+      "markup.quote",
+      "markup.inserted",
+      "meta.diff.header.to-file",
+      "punctuation.definition.inserted",
+    ],
+  ],
+  ["keyword", ["keyword", "storage", "storage.type"]],
+  [
+    "string",
+    [
+      "string",
+      "punctuation.definition.string",
+      "string punctuation.section.embedded source",
+      "source.regexp",
+      "string.regexp",
+      "string.regexp.character-class",
+      "string.regexp constant.character.escape",
+      "string.regexp source.ruby.embedded",
+      "string.regexp string.regexp.arbitrary-repitition",
+    ],
+  ],
+  [
+    "deleted/italic",
+    ["invalid.broken", "invalid.deprecated", "invalid.illegal", "invalid.unimplemented"],
+  ],
+  [
+    "deleted",
+    [
+      "message.error",
+      "markup.deleted",
+      "meta.diff.header.from-file",
+      "punctuation.definition.deleted",
+      "brackethighlighter.unmatched",
+    ],
+  ],
+  ["inserted/bold", ["string.regexp constant.character.escape"]],
+  ["keyword/bold", ["markup.heading", "markup.heading entity.name", "meta.separator"]],
+  ["fg/italic", ["markup.italic"]],
+  ["fg/bold", ["markup.bold"]],
+  ["fg/bold", ["meta.diff.range"]],
+  ["string/underline", ["constant.other.reference.link", "string.other.link"]],
+];
+
+/** The Shiki theme of the --code-* tokens, named hw-code. */
+export const codeTheme = (tokens: Record<string, string>, colors: Record<string, string>) => {
+  const code = (role: string) => colors[tokens[`--code-${role}`].slice(4, -1)];
+  return {
+    name: "hw-code",
+    type: "dark",
+    colors: { "editor.background": code("bg"), "editor.foreground": code("fg") },
+    tokenColors: CODE_SCOPES.map(([role, scope]) => {
+      const [name, fontStyle] = role.split("/");
+      return { scope, settings: { foreground: code(name), ...(fontStyle && { fontStyle }) } };
+    }),
+  };
+};
+
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
   const tokens = parseTokens(css);
@@ -63,6 +170,7 @@ const generate = () => {
     "tokens.json": json + "\n",
     "tokens.ts": `// ${head}\nexport const tokens = ${JSON.stringify(tokens, null, 2)} as const;\n\nexport const colors = ${JSON.stringify(colors, null, 2)} as const;\n`,
     "tokens.py": `# ${head}\nTOKENS = ${JSON.stringify(tokens, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
+    "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
   };
 };
 
