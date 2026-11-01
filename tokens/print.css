@@ -182,6 +182,11 @@
   /* The side margin sits on body, not on @page: Chrome clips content to the
      page box, and the brand strip has to reach the paper edge. */
   --print-side: 16mm;
+
+  /* The page box below, for layout maths such as a content box's height. An @page rule cannot
+     read a custom property, so the rule repeats the values. */
+  --print-page-height: 297mm;
+  --print-margin-bottom: 16mm;
 }
 
 @page {
