@@ -62,7 +62,9 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       acceptNode: (n) =>
         (!list || n.parentElement!.closest("ul, ol") === list) &&
         n.textContent!.trim() &&
-        visible(n.parentElement!)
+        visible(n.parentElement!) &&
+        // Code (a mono chip, often smaller) has its own x-height; the line's is the text's.
+        !n.parentElement!.closest("code, kbd, samp")
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_SKIP,
     });
@@ -75,6 +77,19 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
     return (
       el.getBoundingClientRect().left + parseFloat(s.borderLeftWidth) + parseFloat(s.paddingLeft)
     );
+  };
+  // Where the item's first line starts: its first content, text or an element such as a code chip.
+  const lineStart = (host: Element) => {
+    for (const n of host.childNodes) {
+      if (n instanceof Text && !n.textContent!.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      if (n instanceof Text)
+        range.setStart(n, n.textContent!.length - n.textContent!.trimStart().length);
+      const r = n instanceof Element ? n.getClientRects()[0] : range.getClientRects()[0];
+      if (r) return r.left;
+    }
+    return contentLeft(host);
   };
   const found: { host: Element; text: Text; kind: Kind; mark?: Element }[] = [];
   const seen = new Set<Text>();
@@ -170,7 +185,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       kind,
       marker: box(left, right, t.top - 3, t.bottom + 3),
       text: box(t.left, t.right, t.top, t.bottom),
-      indent: li && host === li && kind === "before" ? t.left - contentLeft(host) : null,
+      indent: li && host === li && kind === "before" ? lineStart(host) - contentLeft(host) : null,
     };
   });
 }
