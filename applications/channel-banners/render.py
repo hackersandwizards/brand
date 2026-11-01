@@ -48,7 +48,8 @@ CLIENTS = BRAND / "clients"
 
 
 def corner_glows(w, h):
-    return [(w, 0, 0.21 * w, 0.63 * h, TEAL_GLOW, 1), (0, h, 0.25 * w, 0.63 * h, PURPLE_GLOW, 1)]
+    """Teal top left, purple bottom right: the direction of --gradient-magic, as on slides and devices."""
+    return [(0, 0, 0.21 * w, 0.63 * h, TEAL_GLOW, 1), (w, h, 0.25 * w, 0.63 * h, PURPLE_GLOW, 1)]
 
 
 def headline(x, baseline, size, track, *parts, font=MONO):
@@ -165,10 +166,10 @@ def grid_surfaces():
             two_lines(*PROFILE_LINES, x=619, b1=0, b2=77, size=71.4, track=-0.057),
             area=(508.5, 931.5),
             glows=[
-                (2560, 515, 560, 285, TEAL_GLOW, 1),
-                (2560, 0, 1000, 530, TEAL_GLOW, 0.52),
-                (0, 930, 640, 270, PURPLE_GLOW, 1),
-                (0, 1440, 1000, 450, PURPLE_GLOW, 0.63),
+                (0, 515, 560, 285, TEAL_GLOW, 1),
+                (0, 0, 1000, 530, TEAL_GLOW, 0.52),
+                (2560, 930, 640, 270, PURPLE_GLOW, 1),
+                (2560, 1440, 1000, 450, PURPLE_GLOW, 0.63),
             ],
         ),
     }
