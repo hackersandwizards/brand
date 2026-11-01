@@ -313,4 +313,29 @@ for (const base of Object.keys(GAP)) await writeDay(base);
 for (const base of Object.keys(LIFT))
   for (const kind of ["night", "outline"] as const) await writeCut(base, kind);
 for (const kind of ["white", "black"] as const) await writeCut("wordmark", kind);
+
+// The screen cuts of the lockup, for a header up to 40 px tall: lockup-screen and
+// lockup-screen-night carry every embedded raster at a quarter of its pixels, the wizard at 128 px,
+// sharp to 3x at 40 px. Same geometry and colours, so a page needs no rebuild of its own.
+const SCREEN = 4;
+for (const [from, to] of [
+  ["lockup", "lockup-screen"],
+  ["lockup-night", "lockup-screen-night"],
+]) {
+  let svg = readFileSync(join(ROOT, "logos", `${from}.svg`), "utf8");
+  for (const [, b64] of svg.matchAll(/href="data:image\/png;base64,([^"]+)"/g)) {
+    const png = Buffer.from(b64, "base64");
+    const { width } = await sharp(png).metadata();
+    const small = await sharp(png)
+      .resize(Math.round(width / SCREEN), null, { kernel: "lanczos3" })
+      .png({ palette: true, compressionLevel: 9 })
+      .toBuffer();
+    svg = svg.replace(b64, small.toString("base64"));
+  }
+  const path = `logos/${to}.svg`;
+  writeFileSync(join(ROOT, path), svg);
+  const entry = manifest.files.find((f) => f.path === path);
+  if (!entry) throw new Error(`${path} is missing from manifest.json`);
+  entry.sha256 = sha256(readFileSync(join(ROOT, path)));
+}
 writeFileSync(join(ROOT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
