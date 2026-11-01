@@ -10,7 +10,8 @@
 // newline as a space. The words starting each marked line become "xxxx", so their ink is the
 // x-height band itself. Markers found: a square ::before (side up to 16px) on a list item or its
 // opening paragraph, an empty square element (up to 16px) followed by text in its row that is the
-// brand's .hw-marker or sits in a list item, and the browser's own marker in a ul. Not measured: a
+// brand's .hw-marker or sits in a list item, a bullet glyph as a ul item's ::before content, and
+// the browser's own marker in a ul. Not measured: a
 // heading's or link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--json] <url or html file>...
@@ -26,7 +27,7 @@ const MAX_SIDE = 16; // CSS px; a larger square is an icon or a swatch, not a ma
 
 type Box = { x: number; y: number; width: number; height: number };
 type Probe = { label: string; kind: Kind; marker: Box; text: Box; indent: number | null };
-export type Kind = "before" | "element" | "native";
+export type Kind = "before" | "element" | "native" | "glyph";
 export type Reading = {
   page: string;
   label: string;
@@ -39,14 +40,23 @@ export type Reading = {
 
 /** Runs in the page: rewrites the line beside each marker and returns the boxes to read. */
 function collect([newline, maxSide]: [boolean, number]): Probe[] {
+  // A closed panel's lists are markers too, painted once it opens.
+  for (const d of document.querySelectorAll("details")) d.open = true;
   if (newline)
     for (const li of document.querySelectorAll("li"))
       li.insertBefore(document.createTextNode("\n      "), li.firstChild);
   const visible = (el: Element) => {
     const r = el.getBoundingClientRect();
-    return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden";
+    // Hidden by opacity too: a progressive reveal's items wait at opacity 0.
+    return (
+      r.width > 0 &&
+      r.height > 0 &&
+      el.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+    );
   };
   const firstText = (el: Node) => {
+    // A marker's neighbour may be bare text, which a walker rooted at it never returns.
+    if (el instanceof Text) return el.textContent!.trim() && visible(el.parentElement!) ? el : null;
     const list = el instanceof Element ? el.closest("ul, ol") : null;
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
       acceptNode: (n) =>
@@ -95,6 +105,14 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       getComputedStyle(host).listStyleType !== "none"
     )
       add(host, firstText(host), "native");
+    else if (
+      host.tagName === "LI" &&
+      host.parentElement?.tagName === "UL" &&
+      before.display !== "none" &&
+      /^"[•·▪■◦‣–—-]"$/.test(before.content)
+    )
+      // A bullet glyph drawn as content, rather than the brand's square.
+      add(host, firstText(host), "glyph");
     const r = host.getBoundingClientRect();
     if (
       !host.childNodes.length &&
@@ -108,7 +126,15 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       if (next) add(host.parentElement!, firstText(next), "element", host);
     }
   }
-  for (const f of found) f.text.data = "xxxx " + f.text.data.trimStart();
+  for (const f of found) {
+    f.text.data = "xxxx " + f.text.data.trimStart();
+    // An underline or a shadow (a link item) would add ink below the x-height band. A decoration
+    // reaches every descendant, so it goes on each element from the text up to the item.
+    for (let el = f.text.parentElement; el && el !== f.host.parentElement; el = el.parentElement) {
+      (el as HTMLElement).style.textDecorationLine = "none";
+      (el as HTMLElement).style.textShadow = "none";
+    }
+  }
   const rectOf = (node: Text) => {
     const range = document.createRange();
     range.setStart(node, 0);
@@ -129,7 +155,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
     if (mark) {
       const m = mark.getBoundingClientRect();
       [left, right] = [m.left - 1, m.right + 1];
-    } else if (kind === "native")
+    } else if (kind === "native" || kind === "glyph")
       left = Math.max(t.left - 2 * em, host.getBoundingClientRect().left - 1.5 * em);
     else left = Math.max(t.left - 2 * em, host.getBoundingClientRect().left - 1);
     const li = kind !== "element" && host.closest("li");
@@ -189,6 +215,8 @@ export async function measureMarkers(
   const page = await browser.newPage();
   try {
     await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
+    // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
+    await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     await page.goto(url, { waitUntil: "networkidle0" });
     if (css) await page.addStyleTag({ content: css });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
