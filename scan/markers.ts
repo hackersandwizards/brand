@@ -10,7 +10,7 @@
 // newline as a space. The words starting each marked line become "xxxx", so their ink is the
 // x-height band itself. Markers found: a square ::before (side up to 16px) on a list item or its
 // opening paragraph, an empty square element (up to 16px) followed by text in its row that is the
-// brand's .hw-marker or sits in a list item, a bullet glyph as a ul item's ::before content, and
+// brand's .hw-marker or an item's first element, a bullet glyph as a ul item's ::before content, and
 // the browser's own marker in a ul. Not measured: a
 // heading's or link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
@@ -116,7 +116,8 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
     const r = host.getBoundingClientRect();
     if (
       !host.childNodes.length &&
-      (host.classList.contains("hw-marker") || host.closest("li")) &&
+      (host.classList.contains("hw-marker") ||
+        (host.parentElement?.tagName === "LI" && host.parentElement.firstElementChild === host)) &&
       Math.abs(r.width - r.height) < 0.01 &&
       r.width <= maxSide &&
       getComputedStyle(host).backgroundColor !== "rgba(0, 0, 0, 0)"
@@ -225,13 +226,13 @@ export async function measureMarkers(
     await page.goto(url, { waitUntil: "networkidle0" });
     if (css) await page.addStyleTag({ content: css });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
-    const read = async (clip: Box) =>
-      clip.y +
-      (await page.evaluate(
-        inkMiddle,
-        await page.screenshot({ clip, encoding: "base64", captureBeyondViewport: true }),
-        scale,
-      ));
+    // Each box is shot inside the viewport, scrolled to it: capturing beyond the viewport resizes it,
+    // and a layout sized by the viewport's height then moves under the measured boxes.
+    const read = async (clip: Box) => {
+      await page.evaluate((y) => scrollTo(0, Math.max(0, y - 200)), clip.y);
+      const png = await page.screenshot({ clip, encoding: "base64", captureBeyondViewport: false });
+      return clip.y + (await page.evaluate(inkMiddle, png, scale));
+    };
     const out: Reading[] = [];
     for (const p of await page.evaluate(collect, [newline, MAX_SIDE] as [boolean, number])) {
       // A square ::before that is not beside its first line (an absolute dot above the item) leaves
