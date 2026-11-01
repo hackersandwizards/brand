@@ -67,7 +67,9 @@
 }
 
 /* The product name centres on the lockup's letters: the lockup rises by the wizard's lift, and
-   the name sits at line-height 1 on the box centre. */
+   the name sits at line-height 1 on the box centre. The whole lockup is one link: the pointer is
+   stated, since WebKit's own stylesheet leaves a link at cursor auto, and nothing in it selects
+   as text. */
 .hw-header-brand {
   display: flex;
   min-height: 2rem;
@@ -78,6 +80,9 @@
   color: var(--hw-fg);
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .hw-header-logo,
