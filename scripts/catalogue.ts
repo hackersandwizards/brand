@@ -145,6 +145,7 @@ const bases = [
 const LOGO_NOTES: Record<string, string> = {
   lockup: "The standard logo: the wizard beside the pixel wordmark.",
   "lockup-compact": "The wizard over the wordmark, for small spots.",
+  "lockup-screen": "The lockup with a lighter wizard, for a screen header up to 40 px tall.",
   wordmark: "The wordmark alone. Its white and black cuts carry every letter in that one colour.",
 };
 // Which logo goes where, as the design guide's logo table states it.
@@ -157,6 +158,7 @@ const LOGO_USE = [
     "Slides",
     "lockup on the title and the closing slide, wordmark on every other slide; a delivered deck keeps the lockup on every slide",
   ],
+  ["A screen header up to 40 px tall, such as the website's", "lockup-screen"],
   ["Shirts, hoodie, stickers", "wordmark"],
   ["The second sticker, beside the wordmark sticker", "the wizard alone, die-cut, under Merch"],
   ["A product app's sign-in screens", "wordmark, the heading may be in the sans face"],
