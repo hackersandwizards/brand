@@ -157,10 +157,16 @@ export const exception = (p: string) => EXCEPTIONS.find((e) => e.test(p))?.name;
 /** Whether a path is brand surface the scan reads. */
 export const scanned = (p: string) => EXT.has(extname(p)) && !exception(p);
 
+// A style element the documents engine (@hackersandwizards/documents) wrote into a document it
+// composed: the engine's own stylesheets, inlined so the document stands alone, which the engine's
+// gate scans in its source. Whatever else the document carries is the consumer's and is read.
+export const ENGINE_STYLE =
+  /<style\s+data-hw-(?:document|components|page|onepager|readout|certificate)\b[^>]*>[\s\S]*?<\/style>/g;
 const strip = (s: string, ext: string) =>
   ext === ".py"
     ? s
     : s
+        .replace(ENGINE_STYLE, "")
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .replace(/(^|[^:"'`])\/\/.*$/gm, "$1")
         .replace(/<!--[\s\S]*?-->/g, "");

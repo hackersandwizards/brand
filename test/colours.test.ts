@@ -133,3 +133,18 @@ test("an SVG may write a token hex and the tint ladder, never an off-ladder colo
   ).toEqual({ ...zero, hex: 1 });
   expect(scanSource('<rect fill="#FEF8EE"/>', ".html").counts).toEqual({ ...zero, hex: 1 });
 });
+
+test("skips the documents engine's style elements in a composed document, reads the rest", () => {
+  const css = ":root { --color-teal: #1a7285; --radius: 5px 20px; } .x { color: #123456; }";
+  const engine = `<style data-hw-document>${css}</style><style data-hw-onepager>${css}</style>`;
+  expect(scanSource(`<html><head>${engine}</head><body></body></html>`, ".html").counts).toEqual(
+    zero,
+  );
+  // The same rules in a style element the engine did not write, and beside the engine's, count.
+  const hand = scanSource(`<html><head><style>${css}</style></head></html>`, ".html").counts;
+  expect(hand).toEqual({ ...zero, hex: 1, tokenHex: 1, radius: 1 });
+  expect(scanSource(`${engine}<p style="color: #123456">x</p>`, ".html").counts).toEqual({
+    ...zero,
+    hex: 1,
+  });
+});

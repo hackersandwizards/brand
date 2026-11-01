@@ -42,6 +42,18 @@ test("finds an identical copy, a renamed or recoloured logo, and nothing else", 
   expect(hits["src/components/Card.astro"]).toBeUndefined();
 });
 
+test("a document the documents engine composed may inline the logo, a hand-written one may not", () => {
+  const body = `<header><svg>${wordmark}</svg></header>`;
+  const doc = (head: string) =>
+    copyOf(
+      "src/content/documents/quote.html",
+      () => `<html><head>${head}</head><body>${body}</body></html>`,
+      () => undefined,
+    );
+  expect(doc("<style data-hw-document>.page{}</style>")).toBeUndefined();
+  expect(doc("<style>.page{}</style>")).toContain("drawing");
+});
+
 test("flags an unlisted copy, an entry without a reason and one added against HEAD", () => {
   const found = { "public/favicon.svg": "identical to brand logos/favicon.svg" };
   const allow = { "public/favicon.svg": "r" };
