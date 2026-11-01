@@ -49,3 +49,9 @@ test("tightening lowers and drops entries, never raises or adds", () => {
     "b.css": { ...zero, hex: 1, reason: "" },
   });
 });
+
+test("a four-digit hex of letters alone counts where its colour part is a grey", () => {
+  expect(
+    scanSource(".a { color: #ffff; background: #ccca; border: #eee; }", ".css").counts,
+  ).toEqual({ hex: 2, tokenHex: 1, font: 0, palette: 0 });
+});

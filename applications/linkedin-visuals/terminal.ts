@@ -8,7 +8,8 @@
  *
  *   bun run brand-linkedin-terminal <spec.json> <out.png>
  *
- * Without arguments it prints the spec format.
+ * Without arguments it prints the spec format. Needs sharp installed beside it and Chrome for Testing
+ * (CHROME_BINARY overrides the search).
  */
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

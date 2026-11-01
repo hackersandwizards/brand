@@ -24,7 +24,7 @@ export const EXAMPLE: SignatureFields = {
 // ASCII out, every other character as a numeric reference: a signature file opened from disk
 // without a charset still shows ß and ü.
 const escapeHtml = (s: string) =>
-  s.replace(/[&<>"]|[^\x20-\x7e]/g, (c) => `&#${c.codePointAt(0)};`);
+  s.replace(/[&<>"]|[^\x20-\x7e]/gu, (c) => `&#${c.codePointAt(0)};`);
 
 export function fillSignature(
   template: string,

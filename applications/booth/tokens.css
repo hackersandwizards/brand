@@ -1,5 +1,6 @@
 /* Booth tokens: brand values from @hackersandwizards/brand's tokens, on the booth scale.
    --mm is one millimetre of the printed banner: 1mm for print, 0.8px for screen previews. */
+@import "../../generated/tokens.root.css";
 @font-face {
   font-family: "JetBrains Mono";
   src: url(../../tokens/fonts/jetbrains-mono-latin-700-normal.woff2);
@@ -22,12 +23,12 @@
 }
 :root {
   --mm: 0.8px;
-  --night: #0b1118;
-  --ink-on-night: #edeef0;
-  --muted-on-night: #c9cdd3;
-  --teal: #1a7285;
-  --purple: #9333ea;
-  --teal-light: #a3c7ce;
+  --night: var(--color-night);
+  --ink-on-night: var(--color-night-ink);
+  --muted-on-night: var(--color-night-muted);
+  --teal: var(--color-teal);
+  --purple: var(--color-purple);
+  --teal-light: var(--color-teal-light);
   --bleed: calc(20 * var(--mm));
 }
 @media print {

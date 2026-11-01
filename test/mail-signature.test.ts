@@ -41,3 +41,7 @@ test("the tel link drops a trunk zero written as (0)", () => {
   );
   expect(html).toContain('href="tel:+494012345678"');
 });
+
+test("a character outside the BMP is one numeric reference, not two surrogate halves", () => {
+  expect(fillSignature("{{role}}", { name: "x", role: "a😀" }, "html")).toBe("a&#128512;");
+});
