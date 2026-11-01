@@ -30,7 +30,7 @@ const page = (css = "") => `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
 <link rel="stylesheet" href="${brand("tokens/print.css")}">
 <link rel="stylesheet" href="${brand("elements/elements.css")}">
-<style>body { font-family: var(--font-sans); } ${css}</style></head>
+<style>body { font-family: var(--font-sans); } [data-hw-exception] td { padding-left: 9px } ${css}</style></head>
 <body class="hw-focus-ring">
 ${["screen", "dense", "print", "stage"]
   .flatMap((scale) =>
@@ -40,7 +40,7 @@ ${["screen", "dense", "print", "stage"]
     ),
   )
   .join("\n")}
-<div data-hw-exception="total-band">Sum</div>
+<div data-hw-exception="total-band"><table class="hw-table"><tr><td>Sum</td></tr></table></div>
 </body></html>`;
 
 const dir = mkdtempSync(join(tmpdir(), "brand-elements-"));
@@ -83,6 +83,12 @@ test.each(Object.entries(DRIFT))(
   },
   60_000,
 );
+
+test("an element inside an exception's instance is not measured", async () => {
+  const r = await measurePage(browser, file("exception.html", page()));
+  expect(r.findings).toEqual([]);
+  expect(r.exceptions).toEqual(["total-band"]);
+}, 60_000);
 
 test("a setting the medium sets is no drift", async () => {
   const r = await measurePage(
@@ -136,7 +142,11 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
     "src/components/Chip.astro": `<span/>`,
     "test/x.css": ".chip { border: 0 }",
   };
-  const out = sourceFindings(Object.keys(files), (p) => files[p]!, { "doc-tag": "the type tag" });
+  files["deck/readout.css"] = ".quote { font-size: 2rem }";
+  const out = sourceFindings(Object.keys(files), (p) => files[p]!, {
+    "doc-tag": "the type tag",
+    readout: { reason: "the deck's own medium", files: ["deck/readout.css"] },
+  });
   expect(out).toEqual([
     'src/a.css: .callout styles an element named like a shared one; use the hw-* element or list "callout" as an exception',
     'src/a.css: .eyebrow styles an element named like a shared one; use the hw-* element or list "eyebrow" as an exception',
