@@ -25,6 +25,8 @@ ${marker ? `<link rel="stylesheet" href="${brand("tokens/marker.css")}">` : ""}
 body { margin: 40px; max-width: 420px; font-family: var(--font-sans); }
 ul { margin: 0; padding: 0; }
 .row { display: flex; align-items: baseline; gap: 12px; --hw-marker-size: 0.5625rem; }
+.dots { list-style: none; } .dots > li { position: relative; margin-top: 40px; }
+.dots > li::before { content: ""; position: absolute; top: -32px; left: 0; width: 10px; height: 10px; background: var(--color-teal); }
 ${css}
 </style></head><body>
 ${[
@@ -39,6 +41,7 @@ ${[
       `<ul class="hw-marker-list" style="font-size:${size}px;line-height:${lh}">${[0, 1, 2].map((i) => `<li>${item(i)}</li>`).join("")}</ul>`,
   )
   .join("\n")}
+<ul class="dots"><li>An item whose square sits above it, not beside its first line</li></ul>
 <div class="row" style="font-size:20px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div>
 <div class="row" style="font-size:15px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div>
 </body></html>`;

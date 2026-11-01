@@ -169,7 +169,8 @@ async function inkMiddle(png: string, scale: number): Promise<number> {
       total += ink;
       sum += ink * (y + 0.5);
     }
-  if (!total) throw new Error("no ink in the probed box");
+  // No ink where the marker should be: a marker drawn elsewhere, which fails as infinitely off.
+  if (!total) return Infinity;
   return sum / total / scale;
 }
 
@@ -198,7 +199,9 @@ export async function measureMarkers(
       ));
     const out: Reading[] = [];
     for (const p of await page.evaluate(collect, [newline, MAX_SIDE] as [boolean, number])) {
-      if (p.marker.width <= 0 || p.text.width <= 0) continue;
+      // A square ::before that is not beside its first line (an absolute dot above the item) leaves
+      // no room left of the text: it is decoration, not this line's marker.
+      if (p.marker.width < 1 || p.text.width <= 0) continue;
       out.push({
         page: url,
         label: p.label,
