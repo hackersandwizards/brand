@@ -6,6 +6,8 @@
 
 /* The dropdown chevron for select.form-input, shared with surfaces outside the expert set. */
 @import "./select.css";
+/* The disclosure chevron for details.hw-disclosure, shared the same way. */
+@import "./disclosure.css";
 
 /* The UI scale: an expert system is read at desk distance all day, so it takes the brand's
    families, colours, roles and corner, and sets its own sizes here, in one place, instead of the
