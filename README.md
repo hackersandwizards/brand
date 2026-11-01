@@ -36,7 +36,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                       |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                  |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components             |
-| `@hackersandwizards/brand/logos/<file>`                   | logos                            |
+| `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square   |
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`  |
 | `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`    |
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts` |
