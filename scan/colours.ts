@@ -117,8 +117,9 @@ export const EXCEPTIONS = [
   {
     name: "hub",
     reason:
-      "agent tooling the ~/.claude hub syncs into every repo, non-h&w ones included, so it cannot take its files from this package",
-    test: (p: string) => p.startsWith(".claude/skills/parallel-session/"),
+      "agent tooling the ~/.claude hub syncs into every repo, non-h&w ones included, so it cannot take its files from this package, and the decision rows its decisions.html reads as prose, which take no styling from the row and quote class names and radii",
+    test: (p: string) =>
+      p.startsWith(".claude/skills/parallel-session/") || p === "docs/tracking/decisions/items.js",
   },
 ] as const;
 

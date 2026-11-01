@@ -5,10 +5,12 @@
    never in a copy. A plain-CSS consumer rewrites @theme to
    :root. Print values live beside it in print.css. */
 @theme {
-  /* Three radii. sm: inputs, buttons, code, small boxes. brand, the brand corner: large top-left
-     and bottom-right, small elsewhere, on cards, fields and frames. pill: chips, badges, toggles,
-     and every control that holds only an icon (play, pause, previous, next, theme), on every
-     surface; one over a picture is solid teal with a white icon. */
+  /* Three radii. sm: code, small boxes. brand, the brand corner: large top-left and bottom-right,
+     small elsewhere, on cards and frames. pill: chips, badges, toggles, and every control that
+     holds only an icon (play, pause, previous, next, theme), on every surface; one over a picture
+     is solid teal with a white icon. Buttons and fields by audience: the brand corner on client
+     surfaces (website, certificate verifier, documents), sm in the apps (expert.css), decision
+     shared-elements r1, 2026-11-01. */
   --radius-sm: 5px;
   --radius-brand: 20px 5px;
   --radius-pill: 9999px;

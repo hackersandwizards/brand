@@ -1,0 +1,42 @@
+/* The ruled table: hairlines under every row, no fill, no frame; column heads in the label role in
+   the muted grey; cells in the small role, top-aligned, the last column flush right. On night the
+   line is white at 15 %. Scrolling, stacking on a phone and column widths stay the surface's.
+
+   Settings:
+     --hw-table-size  the cells' size, the small role
+     --hw-label-size  the heads' size, the label role
+     --hw-cell-pad    a cell's padding
+     --hw-hairline    the rule's width
+     --hw-line        the rule's colour */
+
+@layer components {
+  .hw-table {
+    border-collapse: collapse;
+    font-size: var(--hw-table-size, var(--type-small-size));
+    line-height: var(--type-small-line-height);
+  }
+  .hw-table :is(th, td) {
+    border-bottom: var(--hw-hairline, 1px) solid var(--hw-line, var(--color-border));
+    padding: var(--hw-cell-pad, 0.5rem 0.75rem 0.5rem 0);
+    text-align: left;
+    vertical-align: top;
+  }
+  .hw-table :is(th, td):last-child {
+    padding-right: 0;
+  }
+  .hw-table th {
+    font-family: var(--type-label-family);
+    font-size: var(--hw-label-size, var(--type-label-size));
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+    letter-spacing: var(--type-label-tracking);
+    text-transform: var(--type-label-case);
+    color: var(--color-muted);
+  }
+  :where([data-theme="dark"]) .hw-table :is(th, td) {
+    border-bottom-color: color-mix(in srgb, white 15%, transparent);
+  }
+  :where([data-theme="dark"]) .hw-table th {
+    color: var(--color-night-muted);
+  }
+}

@@ -1,0 +1,48 @@
+/* The round icon control: a button that holds only an icon (play, pause, previous, next, theme), on
+   every surface a circle. Ink at 7 %, 15 % on hover, the icon in ink; on night white at 15 % and
+   25 % with a white icon. data-on="picture" is the control over a picture: solid teal, white icon.
+   The icon is its svg child, sized here; the target keeps its size when text is enlarged, since the
+   settings are px on screen.
+
+   Settings:
+     --hw-control-size  the circle's diameter
+     --hw-control-icon  the icon's side */
+
+@layer components {
+  .hw-icon-button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--hw-control-size, 44px);
+    height: var(--hw-control-size, 44px);
+    border: 0;
+    border-radius: var(--radius-pill);
+    padding: 0;
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+    cursor: pointer;
+  }
+  .hw-icon-button > svg {
+    width: var(--hw-control-icon, 20px);
+    height: var(--hw-control-icon, 20px);
+  }
+  .hw-icon-button:hover {
+    background: color-mix(in srgb, var(--color-ink) 15%, transparent);
+  }
+  .hw-icon-button[data-on="picture"] {
+    color: var(--color-white);
+    background: var(--color-teal);
+  }
+  .hw-icon-button[data-on="picture"]:hover {
+    background: var(--color-teal-dark);
+  }
+  :where([data-theme="dark"]) .hw-icon-button:not([data-on="picture"]) {
+    color: var(--color-white);
+    background: color-mix(in srgb, white 15%, transparent);
+  }
+  :where([data-theme="dark"]) .hw-icon-button:not([data-on="picture"]):hover {
+    background: color-mix(in srgb, white 25%, transparent);
+  }
+}

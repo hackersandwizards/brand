@@ -1,0 +1,120 @@
+/* The pill: a label holding a value, a fact, a role or a tag. The pill corner; the hue at 15 % on
+   white, its text the hue mixed 40 % into ink, weight 500 (the website's training list chip): a
+   value from a scale, the hue its place on the scale. On night the hue's night tone at 20 % on
+   night under night ink.
+
+   Variants, each one meaning:
+     data-tone="neutral"    a value without a scale (a fact, a free tag, an amount): ink at 7 %,
+                            its text ink at 70 %
+     data-variant="outline" no value set, or a plain tag: a hairline on no fill, in ink
+     data-variant="add"     adds a value: the hairline dashed, on no fill, muted
+     data-caps              the words in the label role (mono capitals), as a document's type tag
+     data-editable          a value changed here (a menu opens on it): takes --hw-pill-edit-corner
+   Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
+   changes the value) and hw-pill-remove (a button: removes the value). A leading icon is an svg
+   child. With any of them the pill lays its children out in a row, 0.25em apart.
+
+   Settings:
+     --hw-pill-hue         the hue (a brand hue token; teal unless the surface groups by hue)
+     --hw-pill-hue-night   that hue's night tone
+     --hw-pill-size        the small role's size
+     --hw-pill-pad         block and inline padding
+     --hw-pill-edit-corner the corner of an editable pill: the pill corner, or the apps' small
+                           corner where the shape marks what can be changed
+     --hw-hairline         the outline's width
+     --hw-label-size       the size of a capitals pill */
+
+@layer components {
+  .hw-pill {
+    display: inline-block;
+    box-sizing: border-box;
+    border: var(--hw-hairline, 1px) solid transparent;
+    border-radius: var(--radius-pill);
+    padding: var(--hw-pill-pad, 0.125rem 0.625rem);
+    font-family: var(--type-small-family);
+    font-size: var(--hw-pill-size, var(--type-small-size));
+    font-weight: 500;
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--hw-pill-hue, var(--color-teal)) 40%, var(--color-ink));
+    background: color-mix(in srgb, var(--hw-pill-hue, var(--color-teal)) 15%, white);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .hw-pill:has(> svg, > .hw-pill-chevron, > .hw-pill-remove) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+  }
+  .hw-pill > svg {
+    flex: none;
+    width: 1em;
+    height: 1em;
+  }
+  .hw-pill[data-caps] {
+    font-family: var(--type-label-family);
+    font-size: var(--hw-label-size, var(--type-label-size));
+    font-weight: var(--type-label-weight);
+    letter-spacing: var(--type-label-tracking);
+    text-transform: var(--type-label-case);
+  }
+  .hw-pill[data-tone="neutral"] {
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+  }
+  .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
+    border-color: var(--color-border);
+    color: var(--color-ink);
+    background: transparent;
+  }
+  .hw-pill[data-variant="add"] {
+    border-style: dashed;
+    border-color: var(--color-border-strong);
+    color: var(--color-muted);
+  }
+  .hw-pill[data-editable] {
+    border-radius: var(--hw-pill-edit-corner, var(--radius-pill));
+  }
+  .hw-pill-chevron,
+  .hw-pill-remove {
+    flex: none;
+    width: 1em;
+    height: 1em;
+    border: 0;
+    padding: 0;
+    background-color: currentColor;
+    opacity: 0.7;
+    -webkit-mask: var(--_hw-pill-icon) center / contain no-repeat;
+    mask: var(--_hw-pill-icon) center / contain no-repeat;
+  }
+  .hw-pill-chevron {
+    --_hw-pill-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+  .hw-pill-remove {
+    --_hw-pill-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
+    cursor: pointer;
+  }
+  .hw-pill-remove:hover {
+    opacity: 1;
+  }
+  :where([data-theme="dark"]) .hw-pill {
+    color: var(--color-night-ink);
+    background: color-mix(
+      in srgb,
+      var(--hw-pill-hue-night, var(--color-teal-night)) 20%,
+      var(--color-night)
+    );
+  }
+  :where([data-theme="dark"]) .hw-pill[data-tone="neutral"] {
+    color: color-mix(in srgb, var(--color-night-ink) 75%, transparent);
+    background: color-mix(in srgb, white 10%, transparent);
+  }
+  :where([data-theme="dark"]) .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
+    border-color: color-mix(in srgb, white 25%, transparent);
+    color: var(--color-night-ink);
+    background: transparent;
+  }
+  :where([data-theme="dark"]) .hw-pill[data-variant="add"] {
+    border-color: color-mix(in srgb, white 40%, transparent);
+    color: var(--color-night-muted);
+  }
+}

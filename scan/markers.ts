@@ -295,7 +295,8 @@ export async function measureMarkers(
 export const failing = (r: Reading) =>
   Math.abs(r.offset) > TOLERANCE || (r.indent !== null && Math.abs(r.indent) > TOLERANCE);
 
-const toUrl = (arg: string) => (/^[a-z]+:\/\//.test(arg) ? arg : pathToFileURL(resolve(arg)).href);
+export const toUrl = (arg: string) =>
+  /^[a-z]+:\/\//.test(arg) ? arg : pathToFileURL(resolve(arg)).href;
 
 if (import.meta.main) {
   const args = process.argv.slice(2);

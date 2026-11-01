@@ -1,0 +1,18 @@
+/* Every shared element of the brand, plain CSS, one file each, with the four scales. A surface
+   imports this file or the elements it uses (@hackersandwizards/brand/elements/<name>.css, plus
+   scales.css), after tokens.css (and print.css on paper). Each element is an hw-* class, its
+   variants data-* attributes, night any [data-theme="dark"] ancestor. The rules sit in
+   @layer components, so a surface's utilities win; brand-elements measures that they still match.
+   The list marker is tokens/marker.css (export ./marker.css). */
+@import "./scales.css";
+@import "./label.css";
+@import "./pill.css";
+@import "./card.css";
+@import "./callout.css";
+@import "./quote.css";
+@import "./table.css";
+@import "./link.css";
+@import "./focus.css";
+@import "./icon-button.css";
+@import "./strip.css";
+@import "./code.css";

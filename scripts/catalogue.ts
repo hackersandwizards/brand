@@ -11,6 +11,7 @@ import manifest from "../manifest.json";
 import pkg from "../package.json";
 import press from "../press/press.json";
 import { ROOT } from "./git";
+import { DEMOS } from "./element-demos";
 import { MARK } from "../applications/avatars/generate";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
@@ -516,7 +517,74 @@ index.push({
   h: "elements/disclosure",
   x: "details summary chevron hw-disclosure collapse expand",
 });
-const elementsHtml = `<h3 id="dropdown">Dropdown</h3>
+// The shared elements: each file's own words (its first paragraph and its settings), then its
+// sample live in a matrix of the four scales by light and night. Every cell loads the same file;
+// only the data-hw-scale on the cell changes.
+const ELEMENT_ORDER: [string, string, string][] = [
+  ["label", "Label", "label"],
+  ["pill", "Pill", "pill"],
+  ["card", "Card", "card"],
+  ["callout", "Callout", "callout"],
+  ["quote", "Quote", "quote"],
+  ["table", "Ruled table", "table"],
+  ["link", "Link in text", "link"],
+  ["focus-ring", "Focus ring", "focus"],
+  ["icon-button", "Round icon control", "icon-button"],
+  ["strip", "Gradient strip", "strip"],
+  ["code", "Code block", "code"],
+];
+const SCALES: [string, string][] = [
+  ["screen", "website, verifier: px"],
+  ["dense", "os, trainer hub, talks"],
+  ["print", "documents: pt"],
+  ["stage", "slides: the 1440 stage, at half size"],
+];
+const elementDoc = (file: string) => {
+  const head = readFileSync(join(ROOT, "elements", `${file}.css`), "utf8").match(
+    /^\/\*([\s\S]*?)\*\//,
+  )![1]!;
+  const [rule, settings = ""] = head.split(/\n\s*Settings[^\n]*\n/);
+  return {
+    words: rule!.replace(/\s+/g, " ").trim(),
+    names: [...settings.matchAll(/(--hw-[a-z-]+)/g)].map((m) => m[1]!),
+  };
+};
+const CLASS: Record<string, string> = { "focus-ring": ".hw-focus-ring", link: ".hw-link" };
+const sharedHtml = ELEMENT_ORDER.map(([name, title, file]) => {
+  const { words, names } = elementDoc(file);
+  index.push({
+    t: title.toLowerCase(),
+    k: "element",
+    h: `elements/hw-${name}`,
+    x: `hw-${name} ${file}.css`,
+  });
+  const cell = (scale: string, night: boolean) =>
+    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]}</div></div>`;
+  const row = (night: boolean) =>
+    `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
+  return `<h3 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h3>
+<p class="meta">${code(`elements/${file}.css`)} · brand v${pkg.version}</p>
+<p>${esc(words)}</p>
+<div class="el-matrix"><span></span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>`).join("")}${row(false)}${row(true)}</div>
+<p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
+}).join("\n");
+const EXPERT_COMPONENTS = [
+  "AppHeader",
+  "PageHeader",
+  "Pill",
+  "FilterChip",
+  "FilterChipBar",
+  "SpaceNav",
+  "SpaceNavTree",
+  "ThemeToggle",
+];
+const sharedIntro = `<p>Every element two or more systems show lives here once: one CSS file, shown live in light and night at each of the four scales. A system sets the scale, never a colour or a shape, and shows its exceptions in full on its own design-system page, beside a tile per hub element it uses. ${code('@import "@hackersandwizards/brand/elements.css";')} takes them all, ${code("elements/<name>.css")} with ${code("elements/scales.css")} one each; the scale is ${code('data-hw-scale="screen | dense | print | stage"')} on any container. ${code("brand-elements")} measures each element on the system's own page against this rule, in that system's gate.</p>
+<p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, tooltip, KPI tile, chart bars, slide table, header bars, ghost button.</p>`;
+const elementsHtml = `${sharedIntro}
+${sharedHtml}
+<h3 id="expert-group">Expert: the apps</h3>
+<p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), shown on each app's design-system page, and the plain-CSS parts below, which any surface may take.</p>
+<h3 id="dropdown">Dropdown</h3>
 <p>A native ${code("<select>")} with the brand chevron in place of the system's arrow: border-strong on light, night-muted on night. ${code('@import "@hackersandwizards/brand/select.css";')} and the class ${code("hw-select")}, or ${code("form-input")} under the expert layer. The file draws the arrow and its room only; corner, border, height and focus stay the surface's, here the website's field.</p>
 <div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDropdown)}" title="dropdown on night" loading="lazy"></iframe></figure></div>
 <h3 id="disclosure">Disclosure</h3>
@@ -606,11 +674,11 @@ const html = `<!doctype html>
 <link rel="stylesheet" href="tokens/print.css">
 <link rel="stylesheet" href="tokens/marker.css">
 <link rel="stylesheet" href="expert/header.css">
+<link rel="stylesheet" href="elements/elements.css">
 <style>
   /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
   html { accent-color: var(--color-teal); caret-color: var(--color-purple); }
-  :focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
   body { margin: 0; display: grid; grid-template-columns: 17rem 1fr; grid-template-rows: auto 1fr; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
   /* The internal header (header.css) spans the top; the side bar sits under it. */
   body > .hw-header { grid-column: 1 / -1; }
@@ -623,7 +691,7 @@ const html = `<!doctype html>
   aside.side nav a:hover { background: var(--color-tint); }
   aside.side nav a.on { background: var(--color-teal-dark); color: var(--color-white); }
   aside.side .label { margin: 1.25rem 0.5rem 0.25rem; }
-  .label, th { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
+  .label, th:not(.el-cell *) { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
   .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
   .input::placeholder { color: var(--color-muted); }
   .input:hover { border-color: var(--color-muted); }
@@ -639,10 +707,10 @@ const html = `<!doctype html>
   h3 { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
   .lead { font-size: var(--text-lead); max-width: 40em; }
   .meta { color: var(--color-muted); }
-  code { font-family: var(--font-code); font-size: 0.9em; }
-  a { color: var(--color-teal-dark); }
-  table { border-collapse: collapse; width: 100%; background: var(--color-white); }
-  th, td { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
+  code:not(.el-cell *) { font-family: var(--font-code); font-size: 0.9em; }
+  a:not(.el-cell *) { color: var(--color-teal-dark); }
+  table:not(.el-cell *) { border-collapse: collapse; width: 100%; background: var(--color-white); }
+  :is(th, td):not(.el-cell *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
   .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
   .swatch { all: unset; cursor: copy; display: grid; gap: 0.15rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 0.5rem; }
   .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
@@ -719,6 +787,16 @@ const html = `<!doctype html>
   .disclosure-demo { width: 16rem; }
   .disclosure-demo summary { padding: 0.25rem 0; }
   .disclosure-demo p { margin: 0.25rem 0 0.5rem 1.5rem; }
+  .el-matrix { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
+  .el-head { align-self: end; }
+  .el-row { align-self: center; }
+  .el-cell { min-height: 7rem; overflow: hidden; padding: 1rem; border: 1px solid var(--color-border); background: var(--color-white); color: var(--color-ink); font-size: var(--text-body); line-height: var(--text-body--line-height); }
+  .el-cell[data-theme="dark"] { border-color: var(--color-night); background: var(--color-night); color: var(--color-night-ink); }
+  .el-cell[data-hw-scale="dense"] { font-size: 0.875rem; line-height: 1.5; }
+  .el-cell[data-hw-scale="print"] { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
+  .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
+  .el-inner > * + * { margin-top: 0.5em; }
+  .el-inner :is(p, blockquote, pre) { margin-block: 0; }
   .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
   /* Below 600 px the side bar leaves the page: Search and Menu sit in the header. Search opens the
@@ -743,7 +821,7 @@ const html = `<!doctype html>
 <link rel="stylesheet" href="expert/select.css">
 <link rel="stylesheet" href="expert/disclosure.css">
 </head>
-<body>
+<body class="hw-focus-ring">
 <header class="hw-header">
 <div class="hw-header-strip"></div>
 <div class="hw-header-row hw-container">

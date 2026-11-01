@@ -1,0 +1,24 @@
+/* The link in running text: teal-dark, underlined 0.2em below the baseline, ink on hover; on night
+   teal-night, white on hover. hw-link on the link, or hw-links on a prose column to mark every link
+   in it. A link that is a row, a button or a person's name is not this element.
+
+   Settings:
+     --hw-underline  the underline's thickness */
+
+@layer components {
+  :is(.hw-link, .hw-links a) {
+    color: var(--color-teal-dark);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--hw-underline, 1px);
+    text-underline-offset: 0.2em;
+  }
+  :is(.hw-link, .hw-links a):hover {
+    color: var(--color-ink);
+  }
+  :where([data-theme="dark"]) :is(.hw-link, .hw-links a) {
+    color: var(--color-teal-night);
+  }
+  :where([data-theme="dark"]) :is(.hw-link, .hw-links a):hover {
+    color: var(--color-white);
+  }
+}

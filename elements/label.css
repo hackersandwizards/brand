@@ -1,0 +1,34 @@
+/* The label: an eyebrow, kicker, fact name or table head. The label role (mono, capitals, its
+   tracking) in teal-dark, teal-night on night. data-tone="muted" sets it in the muted grey (a
+   callout's label), data-tone="ink" in the text colour (a field's or group's name).
+
+   Settings (scales.css sets them per medium):
+     --hw-label-size    the label role's size
+     --hw-label-family  the label role's family; the apps set Inter (audience, design guide) */
+
+@layer components {
+  .hw-label {
+    font-family: var(--hw-label-family, var(--type-label-family));
+    font-size: var(--hw-label-size, var(--type-label-size));
+    font-weight: var(--type-label-weight);
+    line-height: var(--type-label-line-height);
+    letter-spacing: var(--type-label-tracking);
+    text-transform: var(--type-label-case);
+    color: var(--color-teal-dark);
+  }
+  .hw-label[data-tone="muted"] {
+    color: var(--color-muted);
+  }
+  .hw-label[data-tone="ink"] {
+    color: var(--color-ink);
+  }
+  :where([data-theme="dark"]) .hw-label {
+    color: var(--color-teal-night);
+  }
+  :where([data-theme="dark"]) .hw-label[data-tone="muted"] {
+    color: var(--color-night-muted);
+  }
+  :where([data-theme="dark"]) .hw-label[data-tone="ink"] {
+    color: var(--color-night-ink);
+  }
+}
