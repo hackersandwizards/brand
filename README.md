@@ -34,6 +34,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                     |
 | `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)   |
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                    |
+| `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below               |
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                  |
@@ -58,6 +59,7 @@ with `Script not found`.
 | `brand-colours [--tighten]`                                   | the colour, radius and shadow scan for your gate, below               |
 | `brand-copies [--tighten]`                                    | flags a copy of a brand file in your tree, below                      |
 | `brand-scan [--tighten]`                                      | flags a fork of an expert component, below                            |
+| `brand-markers [--scale 2,4] <url or file>...`                | measures every list marker on your pages, below                       |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -195,6 +197,21 @@ Where you render the expert components, `brand-scan` fails on a component of you
 of them (`Pill`, `PageHeader`, ...): import it from the package. An exception goes in
 `brand-scan.json` beside your `package.json`, `{ "<lowercase name>": "<reason>" }`, and the list may
 only shrink against `HEAD`.
+
+### List markers
+
+Every list marker is `marker.css`: a small square on the middle of the first line's x-height. Set
+`--hw-markers: on` on any element to mark every `ul > li` inside it (a prose container, a document
+body), or put `.hw-marker-list` on one list; draw a marker beside text in a baseline-aligned row
+with an empty `.hw-marker` box. Size, gap, indent, colour and the middle (`0.5cap` beside capitals)
+are custom properties, listed at the top of the file. Never write your own marker: a lift rounded
+to whole pixels sits up to 0.56 px off, and an inline-block marker shifts the first line once a
+newline follows `<li>`.
+
+`brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
+every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting
+where the wrapped lines start, and on a page with no marker. Run it in your gate on the pages or
+specimen that show your lists.
 
 ## Press kit
 

@@ -85,6 +85,10 @@
       "sha256": "71c399a0941abfcb528b0c93e5bf07e7f7e4ddecf87741a374eeb836a60c1773"
     },
     {
+      "path": "tokens/marker.css",
+      "sha256": "3b4a8d98eb987563ef8109d103251881f500618c12bec0a7f9b70e88c313d0ce"
+    },
+    {
       "path": "tokens/tokens.css",
       "sha256": "cdc092361165f3b2591d2165e8c965440d0b1a50a211c760d81c3a57ff5c66c6"
     },
