@@ -54,3 +54,12 @@ test("every chart series clears 3:1 on white", () => {
     expect(contrast(colors[ref], "#ffffff")).toBeGreaterThan(3);
   }
 });
+
+test("print.css's page-box variables match its @page rule, which cannot read them", () => {
+  const print = readFileSync(SOURCE.replace("tokens.css", "print.css"), "utf8");
+  const v = (name: string) => print.match(new RegExp(`${name}: ([^;]+);`))![1];
+  expect(print).toContain(
+    `@page {\n  size: A4;\n  margin: 14mm 0 ${v("--print-margin-bottom")};\n}`,
+  );
+  expect(v("--print-page-height")).toBe("297mm"); // A4
+});
