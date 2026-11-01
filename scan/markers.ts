@@ -9,9 +9,9 @@
 // prettier-plugin-astro and hand-written HTML leave it, where an inline-block marker kept the
 // newline as a space. The words starting each marked line become "xxxx", so their ink is the
 // x-height band itself. Markers found: a square ::before (side up to 16px) on a list item or its
-// opening paragraph, an empty square element (up to 16px) followed by text in its row, and the
-// browser's own list marker. A heading's swatch or another square ::before outside a list is not a
-// list marker and is not measured.
+// opening paragraph, an empty square element (up to 16px) followed by text in its row that is the
+// brand's .hw-marker or sits in a list item, and the browser's own marker in a ul. Not measured: a
+// heading's or link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--json] <url or html file>...
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, or a page
@@ -90,6 +90,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       add(host, firstText(host), "before");
     else if (
       host.tagName === "LI" &&
+      host.parentElement?.tagName === "UL" &&
       getComputedStyle(host).display === "list-item" &&
       getComputedStyle(host).listStyleType !== "none"
     )
@@ -97,6 +98,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
     const r = host.getBoundingClientRect();
     if (
       !host.childNodes.length &&
+      (host.classList.contains("hw-marker") || host.closest("li")) &&
       Math.abs(r.width - r.height) < 0.01 &&
       r.width <= maxSide &&
       getComputedStyle(host).backgroundColor !== "rgba(0, 0, 0, 0)"
