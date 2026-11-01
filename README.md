@@ -36,6 +36,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                  |
+| `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                 |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
 | `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square, the favicon set |
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                 |
@@ -120,6 +121,13 @@ the lockup at 2rem with the product name beside it, and a 96rem content width wi
 page links or inlines it; an Astro app renders `expert/components/AppHeader.astro` with its nav in
 the slot; a React app writes the same markup. Each product keeps its own nav items; page content
 takes the same width with the class `hw-container`.
+
+### The dropdown
+
+A native `<select>` wears the brand chevron in place of the system's arrow: import `select.css`
+and give the select the class `hw-select`, or `form-input` under the expert layer, which imports
+it. The file draws only the arrow and the room for it; corner, border, height and focus stay the
+surface's. The night chevron follows `data-theme="dark"` on `html`.
 
 ### Check your colours in your gate
 
