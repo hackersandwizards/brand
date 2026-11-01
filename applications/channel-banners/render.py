@@ -150,6 +150,20 @@ def grid_surfaces():
         # covers the lower left, centre x 210 to 234, y 500, radius 170 to 174 at 1440, 390 and 440 px
         # (measured 1.11. on x.com logged out)
         "x-profile": grid((1500, 500), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(60, 440), left=480),
+        # Benedikt's XING cover: XING crops it centred (object-fit cover) to 944 x 208 at 1024 px, 944 x 268
+        # at 1440 and 375 x 188 at 375, so rows 175 to 464 show everywhere; the photo covers x < 303 below
+        # row 371 on desktop and x 126 to 542 below row 431 on mobile (measured 1.11. on xing.com). The
+        # group sits right of the desktop photo and above the mobile one (blind review 1.11.: the claim at
+        # slide 1's size beat a smaller one right of the mobile photo, 7.75 to 6.75 over four reviewers)
+        "xing-profile": grid((1312, 639), 79.8, two_lines(*PROFILE_LINES, x=355, b1=0, b2=59.3, size=49.0, track=-0.050), area=(175, 431), left=355),
+        # Benedikt's Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
+        # 832 px, 288 below 992, 400 above, centred (object-fit cover), so a 375 px phone shows x 581 to 1419
+        # and a 2560 px screen rows 94 to 406; the round photo overlaps the bottom 32 px (measured 1.11. on
+        # sessionize.com). The group centred in that box, with margins on the phone (blind review 1.11.: 8.0
+        # to 7.5 against the claim at 43 px filling the phone's width)
+        "sessionize-profile": grid(
+            (2000, 500), 61.9, two_lines(*PROFILE_LINES, x=651, b1=0, b2=46.0, size=38.0, track=-0.050), area=(94, 406), left=651
+        ),
         "featured": grid(
             (1200, 627),
             94,
@@ -198,6 +212,8 @@ REPO_FILES = {
     "omr-reviews-cover-1920x1080.png": ("omr", 1),
     "youtube-channel-banner-2560x1440.png": ("youtube", 1),
     "x-profile-header-1500x500.png": ("x-profile", 1),
+    "xing-profile-cover-1312x639.png": ("xing-profile", 1),
+    "sessionize-profile-cover-2000x500.png": ("sessionize-profile", 1),
 }
 
 
