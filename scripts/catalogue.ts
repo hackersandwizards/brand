@@ -235,7 +235,7 @@ const FAMILIES: Family[] = [
   {
     id: "channel-banners",
     title: "Channel banners",
-    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, both slides of the LinkedIn profile carousel, the LinkedIn Featured-link image, YouTube and OMR Reviews.",
+    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, both slides of the LinkedIn profile carousel, the LinkedIn Featured-link image, the X profile header, YouTube and OMR Reviews.",
     dir: "applications/channel-banners",
   },
   {
