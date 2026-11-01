@@ -39,6 +39,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                  |
 | `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                 |
+| `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS               |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
 | `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square, the favicon set |
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                 |
@@ -132,6 +133,17 @@ A native `<select>` wears the brand chevron in place of the system's arrow: impo
 and give the select the class `hw-select`, or `form-input` under the expert layer, which imports
 it. The file draws only the arrow and the room for it; corner, border, height and focus stay the
 surface's. The night chevron follows `data-theme="dark"` on `html`.
+
+### The disclosure
+
+A native `<details>` wears the brand chevron in place of the browser's triangle: import
+`disclosure.css`, or the expert layer, which imports it, and give the details the class
+`hw-disclosure`. The chevron is Lucide's chevron-right in the summary's text colour, 1em square,
+0.5rem before the label, and turns down while open (150 ms, at once under reduced motion). Where
+the chevron belongs elsewhere in the summary, inside its heading for one, put
+`<span class="hw-disclosure-chevron" aria-hidden="true"></span>` there. `hw-disclosure-count` is
+the neutral count pill. The rules sit in `@layer components`, so the surface's own type, colour,
+padding and Tailwind utilities win.
 
 ### Check your colours in your gate
 

@@ -507,9 +507,21 @@ index.push({
   h: "elements/dropdown",
   x: "select chevron hw-select form-input",
 });
+// The disclosure as disclosure.css draws it, one open and one closed, on light and on night.
+const disclosureDemo = `<details class="hw-disclosure" open><summary>Meetings <span class="hw-disclosure-count">3</span></summary><p>Kick-off, 12 Oct</p></details><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary><p>Hidden while closed</p></details>`;
+const nightDisclosure = `<!doctype html><html data-theme="dark"><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{--foreground:var(--color-night-ink);margin:0;padding:1rem;background:var(--color-night);color:var(--color-night-ink);font:400 0.875rem/1.5 var(--type-body-family)}summary{padding:0.25rem 0}p{margin:0.25rem 0 0.5rem 1.5rem}</style></head><body>${disclosureDemo}</body></html>`;
+index.push({
+  t: "disclosure",
+  k: "element",
+  h: "elements/disclosure",
+  x: "details summary chevron hw-disclosure collapse expand",
+});
 const elementsHtml = `<h3 id="dropdown">Dropdown</h3>
 <p>A native ${code("<select>")} with the brand chevron in place of the system's arrow: border-strong on light, night-muted on night. ${code('@import "@hackersandwizards/brand/select.css";')} and the class ${code("hw-select")}, or ${code("form-input")} under the expert layer. The file draws the arrow and its room only; corner, border, height and focus stay the surface's, here the website's field.</p>
-<div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDropdown)}" title="dropdown on night" loading="lazy"></iframe></figure></div>`;
+<div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDropdown)}" title="dropdown on night" loading="lazy"></iframe></figure></div>
+<h3 id="disclosure">Disclosure</h3>
+<p>A native ${code("<details>")} with the brand chevron in place of the browser's triangle: Lucide's chevron-right in the summary's text colour, turned down while open. ${code('@import "@hackersandwizards/brand/disclosure.css";')} and the class ${code("hw-disclosure")}, or the expert layer, which imports it. ${code("hw-disclosure-chevron")} places the chevron inside the summary instead, ${code("hw-disclosure-count")} is the count pill. Type, colour and padding stay the surface's.</p>
+<div class="dropdowns disclosures"><figure><span class="label">Light</span><div class="disclosure-demo">${disclosureDemo}</div></figure><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDisclosure)}" title="disclosure on night" loading="lazy"></iframe></figure></div>`;
 
 // Each system's own design-system page, served by its dev server, and the public address its owner
 // publishes, which the Pages copy links instead; a system without a page is not listed.
@@ -703,6 +715,10 @@ const html = `<!doctype html>
   .dropdowns label, .dropdowns figure { display: grid; gap: 0.5rem; margin: 0; }
   .dropdowns .input { width: 16rem; }
   .dropdowns iframe { width: 18rem; height: 4.5rem; border: 0; border-radius: var(--radius-brand); }
+  .disclosures iframe { height: 7rem; }
+  .disclosure-demo { width: 16rem; }
+  .disclosure-demo summary { padding: 0.25rem 0; }
+  .disclosure-demo p { margin: 0.25rem 0 0.5rem 1.5rem; }
   .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
   /* Below 600 px the side bar leaves the page: Search and Menu sit in the header. Search opens the
@@ -725,6 +741,7 @@ const html = `<!doctype html>
   }
 </style>
 <link rel="stylesheet" href="expert/select.css">
+<link rel="stylesheet" href="expert/disclosure.css">
 </head>
 <body>
 <header class="hw-header">

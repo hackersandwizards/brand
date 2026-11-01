@@ -28,22 +28,8 @@ const linkClass = (href: string) => navLinkClass(href, currentPath);
       </li>
     ) : (
       <li>
-        <details class="space-branch" open={containsPath(node, currentPath)}>
+        <details class="hw-disclosure" open={containsPath(node, currentPath)}>
           <summary class="flex cursor-pointer items-center gap-1 rounded-sm px-1 py-1 text-ui font-medium text-foreground/70 hover:bg-muted/40">
-            <svg
-              class="branch-chevron h-3 w-3 shrink-0 text-foreground/70 transition-transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
             <span class="truncate">{node.label}</span>
           </summary>
           {node.hasPage && (
@@ -69,14 +55,3 @@ const linkClass = (href: string) => navLinkClass(href, currentPath);
   )}
 </ul>
 
-<style>
-  .space-branch > summary {
-    list-style: none;
-  }
-  .space-branch > summary::-webkit-details-marker {
-    display: none;
-  }
-  .space-branch[open] > summary .branch-chevron {
-    transform: rotate(90deg);
-  }
-</style>

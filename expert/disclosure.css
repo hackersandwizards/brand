@@ -1,0 +1,72 @@
+/* The disclosure: a native <details> whose <summary> wears the brand chevron in place of the
+   browser's triangle. Plain CSS, no Tailwind, so every surface takes it: a page puts class
+   hw-disclosure on its details, and expert.css imports this file.
+
+   The chevron is Lucide's chevron-right in the summary's text colour, 1em square, 0.5rem before
+   the label, and turns down (90 degrees, 150 ms) while the details is open; without motion it
+   turns at once. A summary that needs the chevron elsewhere, inside its heading for one, holds a
+   <span class="hw-disclosure-chevron" aria-hidden="true"></span> there and the summary draws none
+   of its own. hw-disclosure-count is the neutral count pill beside the label.
+
+   Everything sits in @layer components, so a surface's own classes and Tailwind's utilities win:
+   the file draws the chevron, its turn and the marker's removal, and the summary's type, colour,
+   padding and hover stay the surface's. The focus ring takes --focus where the surface sets it,
+   else the brand purple. */
+
+@layer components {
+  .hw-disclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  /* Safari draws its triangle from this pseudo-element, not from list-style. */
+  .hw-disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+  .hw-disclosure > summary:focus-visible {
+    outline: 2px solid var(--focus, var(--color-purple));
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  .hw-disclosure > summary::before,
+  .hw-disclosure-chevron {
+    content: "";
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hw-disclosure > summary:has(.hw-disclosure-chevron)::before {
+    content: none;
+  }
+  .hw-disclosure[open] > summary::before,
+  .hw-disclosure[open] > summary .hw-disclosure-chevron {
+    transform: rotate(90deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-disclosure > summary::before,
+    .hw-disclosure-chevron {
+      transition: none;
+    }
+  }
+
+  .hw-disclosure-count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: calc(16 / 12);
+    padding: 0.0625rem 0.375rem;
+    border-radius: var(--radius-pill);
+    color: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
+    background: color-mix(in srgb, var(--foreground, var(--color-ink)) 7%, transparent);
+  }
+}
