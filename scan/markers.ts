@@ -157,7 +157,12 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       [left, right] = [m.left - 1, m.right + 1];
     } else if (kind === "native" || kind === "glyph")
       left = Math.max(t.left - 2 * em, host.getBoundingClientRect().left - 1.5 * em);
-    else left = Math.max(t.left - 2 * em, host.getBoundingClientRect().left - 1);
+    // A loose item's paragraph starts where its text starts: the marker sits in the item's padding.
+    else
+      left = Math.max(
+        t.left - 2 * em,
+        (host.closest("li") ?? host).getBoundingClientRect().left - 1,
+      );
     const li = kind !== "element" && host.closest("li");
     return {
       label: label(host),
