@@ -147,7 +147,8 @@ const bases = [
 const LOGO_NOTES: Record<string, string> = {
   lockup: "The standard logo: the wizard beside the pixel wordmark.",
   "lockup-compact": "The wizard over the wordmark, for small spots.",
-  "lockup-screen": "The lockup with a lighter wizard, for a screen header up to 40 px tall.",
+  "lockup-screen":
+    "The lockup as a smaller file (the wizard embedded at 128 px, 15 KB instead of 50 KB), identical on screen, for a header up to 40 px tall.",
   wordmark: "The wordmark alone. Its white and black cuts carry every letter in that one colour.",
 };
 // Which logo goes where, as the design guide's logo table states it.
