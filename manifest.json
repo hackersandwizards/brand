@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "cdc092361165f3b2591d2165e8c965440d0b1a50a211c760d81c3a57ff5c66c6"
+      "sha256": "30fb77fa2508ae8dd410b39e5499d0ed48b150a0be79b41166c8c1a43bdfd0d4"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -298,7 +298,7 @@
     },
     {
       "path": "expert/components/ThemeToggle.astro",
-      "sha256": "f19ef64d053b2126d80ebf8a5de0262d010a0420d2461a2e71db0ae2d3f9927d"
+      "sha256": "e31da1fa065fb202f2116713a285239e0e0f287cd9c836a864d4c265d4018e58"
     },
     {
       "path": "expert/components/space-nav.ts",

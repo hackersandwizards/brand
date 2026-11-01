@@ -6,7 +6,9 @@
    :root. Print values live beside it in print.css. */
 @theme {
   /* Three radii. sm: inputs, buttons, code, small boxes. brand, the brand corner: large top-left
-     and bottom-right, small elsewhere, on cards, fields and frames. pill: chips, badges, toggles. */
+     and bottom-right, small elsewhere, on cards, fields and frames. pill: chips, badges, toggles,
+     and every control that holds only an icon (play, pause, previous, next, theme), on every
+     surface; one over a picture is solid teal with a white icon. */
   --radius-sm: 5px;
   --radius-brand: 20px 5px;
   --radius-pill: 9999px;
