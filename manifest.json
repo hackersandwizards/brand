@@ -246,11 +246,15 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "aec3a9f30024498ef2edf1e8e715af6ec9cf231642f4950dfed3196e74770b3d"
+      "sha256": "4c4870b399845f186774623b9667a7e50d80ac09df684e7a68ad935abee948fb"
     },
     {
       "path": "expert/header.css",
       "sha256": "2584220f30f4c1653244cee9e07d89ed6051b88f9617de6e34a50a5f2e92e239"
+    },
+    {
+      "path": "expert/select.css",
+      "sha256": "0a711f98f89c7932fe4fbda968dd6ffb2d006576373a706d3d78ab060188f751"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",

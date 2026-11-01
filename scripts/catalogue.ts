@@ -499,6 +499,22 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
     return `<figure class="asset"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a></figcaption></figure>`;
   })
   .join("")}</div>`;
+// Elements: the dropdown as select.css draws it, a live select on light and one on night; the
+// night frame sets data-theme="dark" on its html, as a night page does.
+const dropdownOptions = ["All (116)", "Context engineering (12)", "Testing (9)"]
+  .map((o) => `<option>${esc(o)}</option>`)
+  .join("");
+const nightDropdown = `<!doctype html><html data-theme="dark"><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="expert/select.css"><style>body{margin:0;padding:1rem;background:var(--color-night);font:400 0.875rem/1.5 var(--type-body-family)}select{box-sizing:border-box;min-height:2.5rem;width:16rem;padding-left:0.875rem;border:1px solid var(--color-night-muted);border-radius:var(--radius-brand);background-color:var(--color-night-2);color:var(--color-white);font:inherit}</style></head><body><select class="hw-select" aria-label="Topic">${dropdownOptions}</select></body></html>`;
+index.push({
+  t: "dropdown",
+  k: "element",
+  h: "elements/dropdown",
+  x: "select chevron hw-select form-input",
+});
+const elementsHtml = `<h3 id="dropdown">Dropdown</h3>
+<p>A native ${code("<select>")} with the brand chevron in place of the system's arrow: border-strong on light, night-muted on night. ${code('@import "@hackersandwizards/brand/select.css";')} and the class ${code("hw-select")}, or ${code("form-input")} under the expert layer. The file draws the arrow and its room only; corner, border, height and focus stay the surface's, here the website's field.</p>
+<div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDropdown)}" title="dropdown on night" loading="lazy"></iframe></figure></div>`;
+
 // Each system's own design-system page, served by its dev server; a system without one is not
 // listed.
 const SYSTEMS = [
@@ -549,6 +565,7 @@ const pages: [string, string, string][] = [
   ["colours", "Colours", colourGroups.join("") + rolesHtml],
   ["type", "Type", roles],
   ["tokens", "Spacing, radius, shadow, layout", cornersHtml + tokensHtml],
+  ["elements", "Elements", elementsHtml],
   [
     "logos",
     "Logos",
@@ -679,6 +696,10 @@ const html = `<!doctype html>
   .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset img[src$=".png"] { object-fit: scale-down; }
   .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
+  .dropdowns { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: start; }
+  .dropdowns label, .dropdowns figure { display: grid; gap: 0.5rem; margin: 0; }
+  .dropdowns .input { width: 16rem; }
+  .dropdowns iframe { width: 18rem; height: 4.5rem; border: 0; border-radius: var(--radius-brand); }
   .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
   /* Below 600 px the side bar leaves the page: Search and Menu sit in the header. Search opens the
@@ -700,6 +721,7 @@ const html = `<!doctype html>
     #results .label { min-width: 0; flex-basis: 100%; }
   }
 </style>
+<link rel="stylesheet" href="expert/select.css">
 </head>
 <body>
 <header class="hw-header">
@@ -718,7 +740,7 @@ const html = `<!doctype html>
 <nav id="side-nav" aria-label="Catalogue">
 ${nav("overview", "Overview")}
 <p class="label">Foundations</p>
-${nav("colours", "Colours")}${nav("type", "Type")}${nav("tokens", "Spacing and more")}${nav("logos", "Logos")}
+${nav("colours", "Colours")}${nav("type", "Type")}${nav("tokens", "Spacing and more")}${nav("logos", "Logos")}${nav("elements", "Elements")}
 <p class="label">Brand in use</p>
 ${nav("applications", "Applications")}${nav("press", "Pressekit")}
 </nav>

@@ -4,6 +4,9 @@
    top of the brand: the dense type steps, the theme neutrals and accents, the status and hue
    roles, and the app primitives. Anything one app alone needs stays in that app's global.css. */
 
+/* The dropdown chevron for select.form-input, shared with surfaces outside the expert set. */
+@import "./select.css";
+
 /* The UI scale: an expert system is read at desk distance all day, so it takes the brand's
    families, colours, roles and corner, and sets its own sizes here, in one place, instead of the
    website's marketing steps. Each step takes a web role's size at its widest: page h3, heading
@@ -265,22 +268,6 @@ html[data-theme="dark"] {
 .form-input {
   @apply rounded-sm border border-input bg-background px-3 py-2 text-ui text-foreground focus:ring-2 focus:ring-focus/40 focus:outline-none;
   min-height: 2.5rem;
-}
-
-/* The chevrons: border-strong on light, night-muted on night, as hex since a data URI cannot read
-   a variable. */
-select.form-input {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%238c949d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.625rem center;
-  background-size: 0.75rem 0.5rem;
-  padding-right: 2rem;
-}
-html[data-theme="dark"] select.form-input {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
 }
 
 /* The components in expert/components need these two rules. */

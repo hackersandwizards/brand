@@ -1,0 +1,23 @@
+/* The dropdown: a native <select> wearing the brand chevron in place of the system's arrow. Plain
+   CSS, no Tailwind, so every surface takes it: the website puts class hw-select on its own select,
+   and expert.css imports this file for select.form-input. It draws the arrow and the room for it
+   only; corner, border, height, fill and focus ring stay the surface's.
+
+   The chevron is border-strong on light and night-muted on night, as hex since a data URI cannot
+   read a variable (test/expert.test.ts holds both equal to tokens.css). Night follows
+   data-theme="dark" on html; without it the chevron is the light one. */
+
+.hw-select,
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%238c949d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.625rem center;
+  background-size: 0.75rem 0.5rem;
+  padding-right: 2rem;
+}
+html[data-theme="dark"] :is(.hw-select, select.form-input) {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+}

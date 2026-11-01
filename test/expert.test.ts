@@ -43,3 +43,12 @@ test("every light and dark role resolves to a colour", () => {
       if (!/^\d/.test(v)) expect(value(k)).toMatch(/^#[0-9a-f]{6}$/);
   }
 });
+
+test("the select chevron is border-strong on light and night-muted on night", () => {
+  const select = readFileSync(join(ROOT, "expert/select.css"), "utf8").replace(
+    /\/\*[\s\S]*?\*\//g,
+    "",
+  );
+  const strokes = [...select.matchAll(/stroke='%23([0-9a-f]{6})'/g)].map(([, hex]) => `#${hex}`);
+  expect(strokes).toEqual([token["--color-border-strong"], token["--color-night-muted"]]);
+});
