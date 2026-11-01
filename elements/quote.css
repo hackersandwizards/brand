@@ -1,0 +1,26 @@
+/* The quote: the words upright behind a purple rule, in ink. data-tone="muted" sets an excerpt of a
+   source in the muted grey. On night purple-night and night ink. Who said it, and any portrait,
+   stay the surface's.
+
+   Settings:
+     --hw-quote-rule  the rule's width
+     --hw-quote-gap   the space from the rule to the words */
+
+@layer components {
+  .hw-quote {
+    margin-inline: 0;
+    border-left: var(--hw-quote-rule, 2px) solid var(--color-purple);
+    padding-left: var(--hw-quote-gap, 1.25rem);
+    color: var(--color-ink);
+  }
+  .hw-quote[data-tone="muted"] {
+    color: var(--color-muted);
+  }
+  :where([data-theme="dark"]) .hw-quote {
+    border-left-color: var(--color-purple-night);
+    color: var(--color-night-ink);
+  }
+  :where([data-theme="dark"]) .hw-quote[data-tone="muted"] {
+    color: var(--color-night-muted);
+  }
+}

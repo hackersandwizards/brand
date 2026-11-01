@@ -19,8 +19,9 @@ data or secret.
 
 ## Layout
 
-- `tokens/`, `logos/`, `expert/`: the brand files, each listed in `manifest.json`
-  with its sha256. This repo owns every one of them: no other repo is a source.
+- `tokens/`, `logos/`, `expert/`, `elements/`: the brand files, each listed in `manifest.json`
+  with its sha256. `elements/` holds the shared elements every system renders, one plain-CSS
+  file each with the four scales in `scales.css` (decision shared-elements, 2026-11-01). This repo owns every one of them: no other repo is a source.
 - `press/`: the press kit's photos, the founders' portraits and their photo together, as the
   website's press page publishes them, with `press.json` naming what each shows and the credit.
   In `manifest.json`. The press kit's texts stay with their owners: the bios in the website's
@@ -55,7 +56,9 @@ data or secret.
   needs a reason the README states. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
-  rule being `tokens/marker.css`.
+  rule being `tokens/marker.css`. `elements.ts` (`brand-elements`) measures the shared elements on
+  the design-system page a consumer names in `brand-elements.json`, its element-named source and
+  that page's coverage.
   A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
   `scripts/catalogue.ts`. Never edit it; run `bun run catalogue`.
@@ -79,7 +82,7 @@ data or secret.
   Other repos take it from the package and never commit a copy of a brand file.
 - Nothing about another repo goes on `catalogue.html`: each system shows its components on its own
   design-system page, whose URL `scripts/catalogue.ts` links.
-- The package holds the core only: tokens, generated formats, print and expert layers, fonts with
+- The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
   their OFL texts, small logos,
   the client marks, the press photos, `manifest.json`, the LinkedIn post renderers and prompts
   `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core`, and `LICENSE`. `test/package.test.ts` fails on anything else.

@@ -32,6 +32,8 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
       "scripts/x.py",
       "public/a.svg",
       "docs/tracking/r.html",
+      "docs/tracking/x.js",
+      "docs/decisions/items.js",
       "src/content/documents/x.html",
       "src/styles/brand/tokens.css",
       "public/site.webmanifest",
@@ -43,6 +45,7 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
       "dist/a.css",
       "node_modules/x/a.css",
       ".claude/skills/parallel-session/page.html",
+      "docs/tracking/decisions/items.js",
       "README.md",
       "public/a.png",
       "brand-colours.json",
@@ -147,4 +150,13 @@ test("skips the documents engine's style elements in a composed document, reads 
     ...zero,
     hex: 1,
   });
+});
+
+// The decision rows quote radii as prose: skipped there, the same radius in another tracking file
+// still counts.
+test("a radius in the decision rows is skipped, the same radius beside them is read", () => {
+  const row = 'context: "border-radius: 4px on the pill, rounded-md"';
+  expect(scanned("docs/tracking/decisions/items.js")).toBe(false);
+  expect(scanned("docs/tracking/x.js")).toBe(true);
+  expect(scanSource(row, ".js").counts.radius).toBeGreaterThan(0);
 });

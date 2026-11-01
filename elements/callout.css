@@ -1,0 +1,31 @@
+/* The callout: a box that sums up or flags, before or beside the body ("In short"). A teal rule on
+   the left, teal at 7 %, the brand corner with the rule bending into it, text in weight 500; its
+   label is an hw-label with data-tone="muted". data-hue="purple" marks a result. On night the
+   night tones of the hue.
+
+   Settings:
+     --hw-callout-pad   the padding
+     --hw-card-corner   the corner
+     --hw-rule-accent   the rule's width */
+
+@layer components {
+  .hw-callout {
+    --_hue: var(--color-teal);
+    box-sizing: border-box;
+    border-left: var(--hw-rule-accent, 4px) solid var(--_hue);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
+    padding: var(--hw-callout-pad, 1.25rem);
+    font-weight: 500;
+    background: color-mix(in srgb, var(--_hue) 7%, white);
+  }
+  .hw-callout[data-hue="purple"] {
+    --_hue: var(--color-purple);
+  }
+  :where([data-theme="dark"]) .hw-callout {
+    --_hue: var(--color-teal-night);
+    background: color-mix(in srgb, var(--_hue) 7%, transparent);
+  }
+  :where([data-theme="dark"]) .hw-callout[data-hue="purple"] {
+    --_hue: var(--color-purple-night);
+  }
+}

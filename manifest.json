@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "30fb77fa2508ae8dd410b39e5499d0ed48b150a0be79b41166c8c1a43bdfd0d4"
+      "sha256": "47d44aa075611731fa2fa675ef320cf5823632f1dc6c4c0eabf13602b4fee9e1"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -307,6 +307,58 @@
     {
       "path": "expert/components/space-nav.ts",
       "sha256": "d022cd6a26046761ad2bd28c4b6f2485c0fe2be3f65f642c9f9996982be3fe4b"
+    },
+    {
+      "path": "elements/callout.css",
+      "sha256": "9144a2b21f28844213860b55e61cad0360876095c29170d830c5962ad6a9996b"
+    },
+    {
+      "path": "elements/card.css",
+      "sha256": "c90f7a1ee4b33501f7f1c14376275fe3e7634f6ffc15a381e6d0c65b0b641a17"
+    },
+    {
+      "path": "elements/code.css",
+      "sha256": "a640fc9e55d4c50d63d0ae129de8f52ffe63d7e548a14a1f1eed4345daf871cd"
+    },
+    {
+      "path": "elements/elements.css",
+      "sha256": "8b42469b74b757f2d3ef2d047840da934d8d3112d7ac11f7b366024be8a1aa9d"
+    },
+    {
+      "path": "elements/focus.css",
+      "sha256": "aa735e291ed9464911392a39a20ea9cdd628ff0100127829fac27758e3e84da4"
+    },
+    {
+      "path": "elements/icon-button.css",
+      "sha256": "42c93abdecdf3a8b66b17ee0d89e8d7d6dd410043c472b6a03c2bf3f4086b3c5"
+    },
+    {
+      "path": "elements/label.css",
+      "sha256": "3d823bdc6a1775ce16b03132921ce4c815ddd0b656af413db25243cf05e1d976"
+    },
+    {
+      "path": "elements/link.css",
+      "sha256": "fc69b97b641186f67cf7ddf8825bcf5afa1202ac26f4ad53b7869a2e80b92681"
+    },
+    {
+      "path": "elements/pill.css",
+      "sha256": "08aa5dce330abc5e26e4dfba8133610b79e6c32d91c07546ff009ee03b31ac57"
+    },
+    {
+      "path": "elements/quote.css",
+      "sha256": "721ebe15b07216a386693ad48022c57422705064caf160fca44c211f1a5c9d8d"
+    },
+    {
+      "path": "elements/scales.css",
+      "sha256": "46f981b0dfbc5a513bcb3a8a1a8ff2bada70027968aaa044bb020a6d6d35a6bf"
+    },
+    {
+      "path": "elements/strip.css",
+      "sha256": "05be6814e61128a4d4869426a0c98f7bb0f6a1325338bbdd6a1044ed032980e1"
+    },
+    {
+      "path": "elements/table.css",
+      "sha256": "643a1ed125499d6f296b98909fa040004a231703bb92d1b394be4c9893bf0b09"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",

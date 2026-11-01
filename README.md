@@ -40,6 +40,8 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                  |
 | `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                 |
 | `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS               |
+| `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below      |
+| `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`             |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
 | `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square, the favicon set |
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                 |
@@ -61,6 +63,7 @@ with `Script not found`.
 | `brand-copies [--tighten]`                                    | flags a copy of a brand file in your tree, below                      |
 | `brand-scan [--tighten]`                                      | flags a fork of an expert component, below                            |
 | `brand-markers [--scale 2,4] <url or file>...`                | measures every list marker on your pages, below                       |
+| `brand-elements [--json]`                                     | measures the shared elements on your design-system page, below        |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -145,6 +148,43 @@ the chevron belongs elsewhere in the summary, inside its heading for one, put
 the neutral count pill. The rules sit in `@layer components`, so the surface's own type, colour,
 padding and Tailwind utilities win.
 
+### The shared elements
+
+Every element two or more systems show lives in `elements/`, one plain-CSS file each: label,
+pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
+strip, code block. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
+attributes, night any `[data-theme="dark"]` ancestor; each file's opening comment states the rule
+and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
+`elements/scales.css`, after `tokens.css` (and `print.css` on paper). The rules sit in
+`@layer components`, so your utilities win, which is what `brand-elements` then measures.
+
+A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
+website's px), `"dense"` (the apps and the talks site), `"print"` (documents, pt, the type sizes
+from `print.css`) or `"stage"` (slides on the 1440 stage) on any container. A surface may also set
+an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed in its file.
+
+Your design-system page shows each hub element you use as a tile,
+`<div data-hw-tile="card" data-hw-version="<brand version>">` holding the element in your medium,
+marked "aus brand v<version>" with a link to the catalogue, and each element you keep as your own
+in full with its reason, `<section data-hw-exception="<name>">`. List both in
+`brand-elements.json` at your repo's root:
+
+```json
+{
+  "pages": ["specimen/index.html"],
+  "uses": ["label", "pill", "card"],
+  "exceptions": { "total-band": "money on paper; no other system shows sums" }
+}
+```
+
+and run `brand-elements` in your `bun run check`. It fails on an element on the pages whose
+computed corner, fill, line, text colour, type, padding or size differs from the brand rule at the
+same scale and theme (a reference beside it styled only by this package), on a CSS rule or a
+component named like an element (card, chip, pill, tag, badge, eyebrow, kicker, label, callout,
+note, quote) that styles a corner, fill, line or type without the `hw-*` class and without an
+exception of that name, on a used element without a tile or with a stale version, on an exception
+without a reason or a tile, and on a page showing no element.
+
 ### Check your colours in your gate
 
 The package ships `brand-colours`, which scans your working tree from the current directory down
@@ -200,14 +240,14 @@ count. Nothing else is skipped: `public/`, `docs/`, `src/content/` and SVGs are 
 yours that should not count, such as a sent document or a third-party mark, goes in the
 allowlist by name with its reason.
 
-| Exception     | Skips                                                                                                                                                                                  | Why                                                                                                                                 |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `generated`   | `node_modules/`, `dist/`, `.astro/`, `.next/`, `out/`, `coverage/`, `test-results/`, `playwright-report/`, `.vercel/`, `.wrangler/`, `__pycache__/`, `.turbo/`, `build/`, `worktrees/` | build, cache and dependency output, rebuilt from the source the scans read; a nested worktree is another checkout with its own gate |
-| `tests`       | `*.test.*`, `*.spec.*`, `__tests__/`, `test/`, `tests/`                                                                                                                                | a test states the values it asserts, off-token ones included, and ships no surface                                                  |
-| `allowlists`  | `brand-colours.json`, `brand-copies.json`, `brand-scan.json`                                                                                                                           | the scans' own exception lists, whose reasons name the values they allow                                                            |
-| `hub`         | `.claude/skills/parallel-session/`                                                                                                                                                     | agent tooling the `~/.claude` hub syncs into every repo, non-h&w ones included                                                      |
-| `not styling` | `brand-colours` only: every extension but `.css .scss .astro .tsx .ts .mts .cts .jsx .js .mjs .cjs .vue .svelte .html .svg .py .json .webmanifest`                                     | prose, images, fonts, PDFs and other binaries carry no styling a renderer reads                                                     |
-| `brand copy`  | `brand-colours` only: a file byte-identical to a package file                                                                                                                          | `brand-copies` reports it, and its allowlist governs it                                                                             |
+| Exception     | Skips                                                                                                                                                                                  | Why                                                                                                                                                                        |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `generated`   | `node_modules/`, `dist/`, `.astro/`, `.next/`, `out/`, `coverage/`, `test-results/`, `playwright-report/`, `.vercel/`, `.wrangler/`, `__pycache__/`, `.turbo/`, `build/`, `worktrees/` | build, cache and dependency output, rebuilt from the source the scans read; a nested worktree is another checkout with its own gate                                        |
+| `tests`       | `*.test.*`, `*.spec.*`, `__tests__/`, `test/`, `tests/`                                                                                                                                | a test states the values it asserts, off-token ones included, and ships no surface                                                                                         |
+| `allowlists`  | `brand-colours.json`, `brand-copies.json`, `brand-scan.json`                                                                                                                           | the scans' own exception lists, whose reasons name the values they allow                                                                                                   |
+| `hub`         | `.claude/skills/parallel-session/`, `docs/tracking/decisions/items.js`                                                                                                                 | agent tooling the `~/.claude` hub syncs into every repo, non-h&w ones included; the decision rows the hub's `decisions.html` reads as prose, quoting class names and radii |
+| `not styling` | `brand-colours` only: every extension but `.css .scss .astro .tsx .ts .mts .cts .jsx .js .mjs .cjs .vue .svelte .html .svg .py .json .webmanifest`                                     | prose, images, fonts, PDFs and other binaries carry no styling a renderer reads                                                                                            |
+| `brand copy`  | `brand-colours` only: a file byte-identical to a package file                                                                                                                          | `brand-copies` reports it, and its allowlist governs it                                                                                                                    |
 
 Inside a file, one thing is skipped: a document the documents engine (`@hackersandwizards/documents`)
 composed. `brand-colours` skips its style elements marked `data-hw-document`, `data-hw-components`,

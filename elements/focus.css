@@ -1,0 +1,22 @@
+/* The focus ring, on every screen: solid purple (5.4:1 on white), purple-night on night (6.4:1),
+   outside the element. The ring follows the element's own corners; a link set in text rounds its
+   ring with the small corner. hw-focus-ring on the page's root (or any container) turns it on for
+   everything inside.
+
+   Settings:
+     --hw-focus-width   the ring's width
+     --hw-focus-offset  the gap between element and ring */
+
+@layer components {
+  :is(.hw-focus-ring :focus-visible, .hw-focus-ring:focus-visible) {
+    outline: var(--hw-focus-width, 3px) solid var(--color-purple);
+    outline-offset: var(--hw-focus-offset, 2px);
+  }
+  .hw-focus-ring :is(p, li, dt, dd, td, th, blockquote, figcaption) > a:focus-visible {
+    border-radius: var(--radius-sm);
+  }
+  :where([data-theme="dark"]) :is(.hw-focus-ring :focus-visible, .hw-focus-ring:focus-visible),
+  :is(.hw-focus-ring[data-theme="dark"] :focus-visible) {
+    outline-color: var(--color-purple-night);
+  }
+}

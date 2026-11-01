@@ -1,0 +1,12 @@
+/* The gradient strip: the brand gradient from teal to purple, left to right, along the top edge of a
+   page, a header or a document. The same on night.
+
+   Settings:
+     --hw-strip  the strip's height */
+
+@layer components {
+  .hw-strip {
+    height: var(--hw-strip, 3px);
+    background: linear-gradient(to right, var(--color-teal), var(--color-purple));
+  }
+}

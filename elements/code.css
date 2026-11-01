@@ -1,0 +1,32 @@
+/* The code block: the code palette's ground (night, night-2 on a night page) and text, the small
+   corner, the code role, no ligatures (JetBrains Mono would join -> and == into glyphs a reader
+   cannot type), scrolling sideways on screen. Syntax colours come from the code palette
+   (code-theme.json for Shiki, --code-* for hand-set spans).
+
+   Settings:
+     --hw-code-size    the code role's size
+     --hw-code-pad     the padding
+     --hw-code-corner  the corner, the small corner at the medium's size */
+
+@layer components {
+  .hw-code {
+    box-sizing: border-box;
+    overflow-x: auto;
+    border-radius: var(--hw-code-corner, var(--radius-sm));
+    padding: var(--hw-code-pad, 1rem);
+    font-family: var(--type-code-family);
+    font-size: var(--hw-code-size, var(--type-code-size));
+    font-weight: var(--type-code-weight);
+    line-height: var(--type-code-line-height);
+    font-variant-ligatures: none;
+    color: var(--code-fg);
+    background: var(--code-bg);
+  }
+  .hw-code code {
+    font: inherit;
+    color: inherit;
+  }
+  :where([data-theme="dark"]) .hw-code {
+    background: var(--color-night-2);
+  }
+}

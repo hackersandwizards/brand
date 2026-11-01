@@ -1,0 +1,32 @@
+/* The card: the brand corner, a hairline, white, the card padding. data-variant="tint" is the
+   emphasised card: teal at 7 % with a 40 % teal line. On night the card is glass, white at 7 % with
+   a 15 % white line; the tinted one takes teal-night. Layout, shadow and hover stay the surface's.
+
+   Settings:
+     --hw-card-pad     the padding
+     --hw-card-corner  the corner, the brand corner at the medium's size
+     --hw-hairline     the line's width
+     --hw-line         the line's colour: border, or border-strong on paper, where a pale 1 pt line
+                       vanishes at 70 % zoom */
+
+@layer components {
+  .hw-card {
+    box-sizing: border-box;
+    border: var(--hw-hairline, 1px) solid var(--hw-line, var(--color-border));
+    border-radius: var(--hw-card-corner, var(--radius-brand));
+    padding: var(--hw-card-pad, var(--spacing-card));
+    background: var(--color-white);
+  }
+  .hw-card[data-variant="tint"] {
+    border-color: color-mix(in srgb, var(--color-teal) 40%, white);
+    background: color-mix(in srgb, var(--color-teal) 7%, white);
+  }
+  :where([data-theme="dark"]) .hw-card {
+    border-color: color-mix(in srgb, white 15%, transparent);
+    background: color-mix(in srgb, white 7%, transparent);
+  }
+  :where([data-theme="dark"]) .hw-card[data-variant="tint"] {
+    border-color: color-mix(in srgb, var(--color-teal-night) 40%, transparent);
+    background: color-mix(in srgb, var(--color-teal-night) 7%, transparent);
+  }
+}
