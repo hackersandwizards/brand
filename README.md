@@ -209,6 +209,13 @@ allowlist by name with its reason.
 | `not styling` | `brand-colours` only: every extension but `.css .scss .astro .tsx .ts .mts .cts .jsx .js .mjs .cjs .vue .svelte .html .svg .py .json .webmanifest`                                     | prose, images, fonts, PDFs and other binaries carry no styling a renderer reads                                                     |
 | `brand copy`  | `brand-colours` only: a file byte-identical to a package file                                                                                                                          | `brand-copies` reports it, and its allowlist governs it                                                                             |
 
+Inside a file, one thing is skipped: a document the documents engine (`@hackersandwizards/documents`)
+composed. `brand-colours` skips its style elements marked `data-hw-document`, `data-hw-components`,
+`data-hw-page`, `data-hw-onepager`, `data-hw-readout` or `data-hw-certificate`, the engine's own
+stylesheets inlined so the document stands alone, which the engine's gate scans in its source;
+everything else in the file is read. `brand-copies` lets such a document carry the logo's drawing,
+which the engine renders from this package.
+
 ### Check for copies in your gate
 
 Never commit a copy of a brand file: read it from the installed package. `brand-copies` fails on a

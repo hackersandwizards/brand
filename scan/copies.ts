@@ -18,6 +18,7 @@ import {
   brandFiles,
   brandSizes,
   committedAsIs,
+  ENGINE_STYLE,
   exception,
   exceptionReport,
   isBrandCopy,
@@ -56,6 +57,9 @@ export const copyOf = (
   if (logoNames.has(basename(path))) return `named like brand logos/${basename(path)}`;
   if (TEXT.test(extname(path))) {
     const text = read(path);
+    // A document the documents engine composed renders the logo from this package
+    // (logos/lockup.svg) and must inline it to stand alone.
+    if (new RegExp(ENGINE_STYLE.source).test(text)) return;
     for (const s of signatures)
       if (text.includes(s))
         return "carries a brand logo's drawing; render the logo from the package";
