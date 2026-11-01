@@ -50,6 +50,9 @@ ${[
 <ul class="hw-marker-list" style="font-size:16px;line-height:1.6"><li><a href="#" style="text-decoration:underline;text-underline-offset:0.2em">A linked item</a> with more words</li></ul>
 <details><summary>Panel</summary><ul class="hw-marker-list" style="font-size:14px;line-height:1.5"><li>An item in a closed panel</li></ul></details>
 <ul class="hw-marker-list" style="font-size:16px;line-height:1.75"><li><p style="margin:0">A loose item opens with a paragraph</p></li></ul>
+<ul class="hw-marker-list" style="font-size:14px;line-height:1.5"><li>Stored at <code style="font-family:var(--font-code, var(--font-mono))">~/.claude/projects</code> with more words to wrap the item onto a second line here</li></ul>
+<ul class="hw-marker-list" style="font-size:13.333px;line-height:1.5"><li>Thirteen and a third at one and a half, a line height Chrome stores just under 20px</li></ul>
+<ul class="hw-marker-list" style="font-size:13.333px;line-height:1.35"><li>Code <code style="font-family:var(--font-code)">git status</code> on the first line</li></ul>
 <ul class="glyphs"><li>An item behind a bullet glyph drawn as content</li></ul>
 <div class="row" style="font-size:15px;line-height:1.4"><span class="hw-marker"></span>Bare text beside a marker</div>
 <div class="row" style="font-size:20px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div>
@@ -92,7 +95,7 @@ test.each([2, 4])(
   "marker.css sits within 0.25 px at %dx, with and without a newline after <li>",
   async (scale) => {
     const rs = await all(NEW, scale);
-    expect(rs.filter((r) => r.kind === "before").length).toBe(36);
+    expect(rs.filter((r) => r.kind === "before").length).toBe(42);
     expect(rs.filter((r) => r.kind === "element").length).toBe(6);
     expect(show(rs.filter((r) => r.kind !== "glyph" && failing(r)))).toEqual([]);
   },
@@ -114,7 +117,7 @@ test("the old element marker fails at some size", async () => {
 
 test("the browser's disc is found and fails", async () => {
   const rs = (await all(NATIVE, 2)).filter((r) => r.kind === "native");
-  expect(rs.length).toBe(36);
+  expect(rs.length).toBe(42);
   expect(rs.some(failing)).toBe(true);
 }, 60_000);
 
