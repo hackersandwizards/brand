@@ -166,17 +166,20 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
   return found.map(({ host, text, kind, mark }) => {
     const t = rectOf(text);
     const em = parseFloat(getComputedStyle(text.parentElement!).fontSize);
+    // The marker stands left of where the line starts, which is the text or an element before it,
+    // such as a code chip; only its height comes from the text.
+    const start = mark ? t.left : lineStart(host);
     let left: number;
-    let right = t.left - 0.5;
+    let right = start - 0.5;
     if (mark) {
       const m = mark.getBoundingClientRect();
       [left, right] = [m.left - 1, m.right + 1];
     } else if (kind === "native" || kind === "glyph")
-      left = Math.max(t.left - 2 * em, host.getBoundingClientRect().left - 1.5 * em);
+      left = Math.max(start - 2 * em, host.getBoundingClientRect().left - 1.5 * em);
     // A loose item's paragraph starts where its text starts: the marker sits in the item's padding.
     else
       left = Math.max(
-        t.left - 2 * em,
+        start - 2 * em,
         (host.closest("li") ?? host).getBoundingClientRect().left - 1,
       );
     const li = kind !== "element" && host.closest("li");
@@ -185,7 +188,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       kind,
       marker: box(left, right, t.top - 3, t.bottom + 3),
       text: box(t.left, t.right, t.top, t.bottom),
-      indent: li && host === li && kind === "before" ? lineStart(host) - contentLeft(host) : null,
+      indent: li && host === li && kind === "before" ? start - contentLeft(host) : null,
     };
   });
 }
@@ -244,7 +247,15 @@ export async function measureMarkers(
     // Each box is shot inside the viewport, scrolled to it: capturing beyond the viewport resizes it,
     // and a layout sized by the viewport's height then moves under the measured boxes.
     const read = async (clip: Box) => {
-      await page.evaluate((y) => scrollTo(0, Math.max(0, y - 200)), clip.y);
+      // Instant, whatever the page's scroll-behavior, and a frame for the paint to follow.
+      await page.evaluate(
+        (y) =>
+          new Promise((done) => {
+            scrollTo({ top: Math.max(0, y - 200), behavior: "instant" });
+            requestAnimationFrame(() => requestAnimationFrame(done));
+          }),
+        clip.y,
+      );
       const png = await page.screenshot({ clip, encoding: "base64", captureBeyondViewport: false });
       return clip.y + (await page.evaluate(inkMiddle, png, scale));
     };
