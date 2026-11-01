@@ -209,6 +209,10 @@
       "sha256": "18a1d8858611ab2b9bdbb272734b993f2dc9fa140135c62ff0611c7d27f378cd"
     },
     {
+      "path": "logos/avatar-512.png",
+      "sha256": "317654274ae1898b7df1724bfdaffa6db1c325e8407b1993c002acf88fd2e65f"
+    },
+    {
       "path": "expert/expert.css",
       "sha256": "aec3a9f30024498ef2edf1e8e715af6ec9cf231642f4950dfed3196e74770b3d"
     },

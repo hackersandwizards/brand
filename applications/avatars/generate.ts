@@ -4,7 +4,8 @@
 // a maskable app icon keeps, so the website's icons share it. os
 // docs/tracking/2026-10-31-avatar-mark-size.md and 2026-10-31-icon-sizes.md have the blind reviews.
 // bun applications/avatars/generate.ts
-// The Google Workspace logo (the lockup at 320 x 132) is not built here.
+// The Google Workspace logo (the lockup at 320 x 132) is not built here. The package ships one size,
+// logos/avatar-512.png, for a consumer that uploads a square logo (os: Tally forms); the rest stay in LFS.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
@@ -32,6 +33,7 @@ const FILES: [string, number, boolean][] = [
   ["circle-community-icon-32.png", 32, true],
   ["notion-workspace-icon-512.png", 512, true],
   ["fathom-brandfetch-logo-1024.png", 1024, false],
+  ["../../logos/avatar-512.png", 512, true],
 ];
 
 if (import.meta.main) {
