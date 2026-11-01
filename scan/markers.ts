@@ -8,8 +8,10 @@
 // Each page runs twice, as served and with a newline and an indent opening every list item, as
 // prettier-plugin-astro and hand-written HTML leave it, where an inline-block marker kept the
 // newline as a space. The words starting each marked line become "xxxx", so their ink is the
-// x-height band itself. Markers found: a square ::before (side up to 16px) on any element, an empty
-// square element (up to 16px) followed by text in its row, and the browser's own list marker.
+// x-height band itself. Markers found: a square ::before (side up to 16px) on a list item or its
+// opening paragraph, an empty square element (up to 16px) followed by text in its row, and the
+// browser's own list marker. A heading's swatch or another square ::before outside a list is not a
+// list marker and is not measured.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--json] <url or html file>...
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, or a page
@@ -75,7 +77,10 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
     if (!visible(host)) continue;
     const before = getComputedStyle(host, "::before");
     const side = parseFloat(before.width);
+    const item =
+      host.tagName === "LI" || (host.tagName === "P" && host.parentElement?.tagName === "LI");
     if (
+      item &&
       before.content === '""' &&
       before.display !== "none" &&
       before.width === before.height &&
