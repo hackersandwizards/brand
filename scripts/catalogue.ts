@@ -154,10 +154,7 @@ const LOGO_USE = [
     "Every surface without its own row: screens, documents, website, banners, notebook, cloths",
     "lockup",
   ],
-  [
-    "Slides",
-    "lockup on the title and the closing slide, wordmark on every other slide; a delivered deck keeps the lockup on every slide",
-  ],
+  ["Slides", "lockup on the title and the closing slide, wordmark on every other slide"],
   ["A screen header up to 40 px tall, such as the website's", "lockup-screen"],
   ["Shirts, hoodie, stickers", "wordmark"],
   ["The second sticker, beside the wordmark sticker", "the wizard alone, die-cut, under Merch"],
@@ -205,11 +202,9 @@ const order = (b: string) =>
 // The package still ships the former type-logo for the code that reads it; the emoji masters stay
 // in the repo for the booth and background applications. The page shows only the logos in use.
 const isLogo = (b: string) => b.startsWith("lockup") || b.startsWith("wordmark");
-const logosHtml = `<div class="logos">${bases
-  .filter(isLogo)
-  .sort((a, b) => order(a) - order(b))
-  .map(logoCard)
-  .join("")}</div>`;
+const shownLogos = bases.filter(isLogo).sort((a, b) => order(a) - order(b));
+const logosHtml = `<div class="logos">${shownLogos.map(logoCard).join("")}</div>`;
+const logoCount = ["One", "Two", "Three", "Four", "Five", "Six"][shownLogos.length - 1];
 
 // Applications: every family of brand files in use, from applications/. A retired file is deleted;
 // git history keeps it. One card per file name, its formats as downloads beside it.
@@ -569,7 +564,7 @@ const pages: [string, string, string][] = [
   [
     "logos",
     "Logos",
-    `<p>Three logos, each one line. The ground picks the cut: on light the day file; on night, black and black textile the night cut, with a grey edge round the wizard; on Purple Love, Stargazer and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Gap, lift and alignment: <code>README.md</code>, "Use it in another repo".</p>
+    `<p>${logoCount} logos, each one line. The ground picks the cut: on light the day file; on night, black and black textile the night cut, with a grey edge round the wizard; on Purple Love, Stargazer and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Gap, lift and alignment: <code>README.md</code>, "Use it in another repo".</p>
 ${table(
   ["Surface", "Logo"],
   LOGO_USE.map(([where, logo]) => [esc(where), esc(logo)]),
@@ -631,7 +626,7 @@ const html = `<!doctype html>
   .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
   .swatch { all: unset; cursor: copy; display: grid; gap: 0.15rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 0.5rem; }
   .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
-  .swatch span { height: 3.5rem; border-radius: var(--radius-brand); border: 1px solid var(--color-border); margin-bottom: 0.3rem; }
+  .swatch span { height: 3.5rem; border-radius: 0; border: 1px solid var(--color-border); margin-bottom: 0.3rem; }
   .swatch strong { font-family: var(--font-code); }
   .swatch small { color: var(--color-muted); font-size: 0.7rem; }
   .swatch.copied strong::after { content: " copied"; color: var(--color-teal); font-weight: 400; }
