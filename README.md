@@ -25,21 +25,21 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
 ```
 
-| Import                                                    | File                             |
-| --------------------------------------------------------- | -------------------------------- |
-| `@hackersandwizards/brand/tokens.css`                     | Tailwind 4 `@theme` tokens       |
-| `@hackersandwizards/brand/tokens.root.css`                | the same tokens on `:root`       |
-| `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours      |
-| `@hackersandwizards/brand/tokens`                         | the same as TypeScript           |
-| `@hackersandwizards/brand/tokens.py`                      | the same as a Python module      |
-| `@hackersandwizards/brand/print.css`                      | print scale and static fonts     |
-| `@hackersandwizards/brand/fonts/<file>`                   | font files                       |
-| `@hackersandwizards/brand/expert.css`                     | expert UI layer                  |
-| `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components             |
-| `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square   |
-| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`  |
-| `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`    |
-| `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts` |
+| Import                                                    | File                                            |
+| --------------------------------------------------------- | ----------------------------------------------- |
+| `@hackersandwizards/brand/tokens.css`                     | Tailwind 4 `@theme` tokens                      |
+| `@hackersandwizards/brand/tokens.root.css`                | the same tokens on `:root`                      |
+| `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours                     |
+| `@hackersandwizards/brand/tokens`                         | the same as TypeScript                          |
+| `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                     |
+| `@hackersandwizards/brand/print.css`                      | print scale and static fonts                    |
+| `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
+| `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |
+| `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
+| `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square, the favicon set |
+| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                 |
+| `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                   |
+| `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                |
 
 Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
@@ -91,6 +91,23 @@ Till drew the wizard, and hackers&wizards GmbH holds the rights to it.
 The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides.
 `bun scripts/ampersand.ts` writes that offset into every one-line logo,
 renders its PNG and rehashes both in `manifest.json`.
+
+### Serve the favicon
+
+Every page serves the brand's favicon set from `logos/`, never a file of its own: `favicon.svg` and
+`favicon.ico` (the hw at 73 % on a rounded tile, for a tab), `apple-touch-icon.png` (180 px),
+`icon-192.png` and `icon-512.png` for a web app manifest, and `icon-maskable-512.png`
+(`"purpose": "maskable"`). Copy them from the installed package into the folder your server
+serves at build or install time, then link them:
+
+```html
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+```
+
+A page opened from disk links `node_modules/@hackersandwizards/brand/logos/favicon.svg` by its
+relative path. `applications/avatars/generate.ts` builds the set beside the avatars.
 
 ### Check your colours in your gate
 

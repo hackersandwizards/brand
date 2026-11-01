@@ -568,6 +568,8 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hackers&amp;wizards brand</title>
+<link rel="icon" href="logos/favicon.ico" sizes="32x32">
+<link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="generated/tokens.root.css">
 <link rel="stylesheet" href="tokens/print.css">
 <style>
