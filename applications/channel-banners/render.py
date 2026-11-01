@@ -17,6 +17,7 @@ import re
 from functools import cache
 from io import BytesIO
 from pathlib import Path
+from runpy import run_path
 
 from fontTools.ttLib import TTFont
 
@@ -41,7 +42,8 @@ NIGHT_BOX = [float(v) for v in re.search(r'viewBox="([^"]+)"', (BRAND / "logos/l
 BASE = (11, 17, 24)
 WHITE = (234, 235, 236)
 SUBLINE = (223, 224, 226)
-ACCENTS = {"teal": (163, 199, 206), "purple": (190, 133, 242)}
+# on night the accent takes its night tone, as the website and the apps do
+ACCENTS = {"teal": run_path(str(BRAND / "generated/tokens.py"))["COLORS"]["--color-teal-night"], "purple": (190, 133, 242)}
 TEAL_GLOW, PURPLE_GLOW = (7, 41, 46), (35, 9, 54)
 
 CLIENTS = BRAND / "clients"
