@@ -574,14 +574,17 @@ const html = `<!doctype html>
 <link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="generated/tokens.root.css">
 <link rel="stylesheet" href="tokens/print.css">
+<link rel="stylesheet" href="expert/header.css">
 <style>
   /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
   html { accent-color: var(--color-teal); caret-color: var(--color-purple); }
   :focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
-  body { margin: 0; display: grid; grid-template-columns: 17rem 1fr; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
-  aside.side { position: sticky; top: 0; height: 100vh; overflow: auto; box-sizing: border-box; padding: 1.25rem 0.75rem 2rem; border-right: 1px solid var(--color-border); background: var(--color-white); border-top: 3px solid; border-image: var(--gradient-magic) 1; }
-  aside.side > a img { width: 100%; margin-bottom: 0.25rem; padding: 0 0.25rem; box-sizing: border-box; }
+  body { margin: 0; display: grid; grid-template-columns: 17rem 1fr; grid-template-rows: auto 1fr; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
+  /* The internal header (header.css) spans the top; the side bar sits under it. */
+  body > .hw-header { grid-column: 1 / -1; }
+  aside.side { position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); overflow: auto; box-sizing: border-box; padding: 1.25rem 0.75rem 2rem; border-right: 1px solid var(--color-border); background: var(--color-white); }
+  :root { --header-h: calc(3.5rem + 4px + env(safe-area-inset-top)); }
   aside.side .version { margin: 0 0.5rem 0.75rem; }
   aside.side nav { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; margin-top: 0.5rem; }
   aside.side nav a { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.3rem 0.5rem; border-radius: var(--radius-sm); color: var(--color-ink); text-decoration: none; }
@@ -601,7 +604,7 @@ const html = `<!doctype html>
   section.on { display: block; }
   h1, h2, h3 { font-family: var(--font-mono); letter-spacing: -0.02em; }
   h2 { font-size: var(--text-h2); margin: 0 0 1rem; }
-  h3 { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: 1rem; }
+  h3 { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
   .lead { font-size: var(--text-lead); max-width: 40em; }
   .meta { color: var(--color-muted); }
   code { font-family: var(--font-code); font-size: 0.9em; }
@@ -678,20 +681,17 @@ const html = `<!doctype html>
   .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
   .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
   .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
-  /* Below 600 px the side bar turns into a top bar: logo, Search and Menu. Search opens the field
-     under the bar, Menu opens the nav as a drawer over the page. */
+  /* Below 600 px the side bar leaves the page: Search and Menu sit in the header. Search opens the
+     field under the header, Menu opens the nav as a drawer over the page. */
   .bar-btn { display: none; }
   @media (max-width: 599.98px) {
-    html { scroll-padding-top: 4.5rem; }
+    html { scroll-padding-top: calc(var(--header-h) + 1rem); }
     body { display: block; }
-    aside.side { position: sticky; top: 0; z-index: 10; height: auto; overflow: visible; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-right: 0; border-bottom: 1px solid var(--color-border); }
-    aside.side > a { flex: 1; min-width: 0; display: flex; }
-    aside.side > a img { width: auto; height: 1.75rem; margin: 0; padding: 0; }
+    aside.side { position: sticky; top: var(--header-h); z-index: 10; height: auto; overflow: visible; padding: 0; border: 0; }
     aside.side .version, aside.side #q { display: none; }
-    .bar-btn { display: inline-flex; align-items: center; min-height: 2.75rem; box-sizing: border-box; padding: 0 1rem; border: 1px solid var(--color-teal); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-teal-dark); font: 500 var(--text-small) var(--font-sans); cursor: pointer; }
-    .bar-btn:hover { border-color: var(--color-purple); color: var(--color-purple); }
-    .bar-btn[aria-expanded=true] { background: var(--color-teal-dark); border-color: var(--color-teal-dark); color: var(--color-white); }
-    aside.side.searching #q { display: block; flex-basis: 100%; width: 100%; min-height: 2.75rem; margin: 0.25rem 0; }
+    .bar-btn { display: inline-flex; }
+    aside.side.searching { padding: 0.5rem 1rem; border-bottom: 1px solid var(--color-border); }
+    aside.side.searching #q { display: block; width: 100%; min-height: 2.75rem; margin: 0; }
     aside.side nav { display: none; }
     aside.side.menu nav { display: grid; position: fixed; z-index: 1; top: var(--bar); bottom: 0; left: 0; width: min(20rem, 85vw); margin: 0; padding: 0.75rem; overflow: auto; overscroll-behavior: contain; box-sizing: border-box; align-content: start; background: var(--color-white); border-right: 1px solid var(--color-border); }
     aside.side.menu::after { content: ""; position: fixed; top: var(--bar); right: 0; bottom: 0; left: 0; background: color-mix(in srgb, var(--color-night) 40%, transparent); }
@@ -702,10 +702,17 @@ const html = `<!doctype html>
 </style>
 </head>
 <body>
+<header class="hw-header">
+<div class="hw-header-strip"></div>
+<div class="hw-header-row hw-container">
+<a class="hw-header-brand" href="#overview" aria-label="hackers&amp;wizards Brand"><img class="hw-header-logo" src="logos/lockup-screen.svg" alt="" width="8042" height="1489"><img class="hw-header-logo-night" src="logos/lockup-screen-night.svg" alt="" width="8196" height="1641"><span class="hw-header-product">Brand</span></a>
+<nav class="hw-header-nav" aria-label="Catalogue">
+<button type="button" class="hw-header-link bar-btn" id="search-btn" aria-controls="q" aria-expanded="false">Search</button>
+<button type="button" class="hw-header-link bar-btn" id="menu-btn" aria-controls="side-nav" aria-expanded="false">Menu</button>
+</nav>
+</div>
+</header>
 <aside class="side">
-<a href="#overview"><img src="logos/lockup.svg" alt="hackers&amp;wizards"></a>
-<button type="button" class="bar-btn" id="search-btn" aria-controls="q" aria-expanded="false">Search</button>
-<button type="button" class="bar-btn" id="menu-btn" aria-controls="side-nav" aria-expanded="false">Menu</button>
 <p class="label version">Brand v${esc(pkg.version)}</p>
 <input type="search" id="q" class="input" placeholder="Search  /" aria-label="Search tokens and logos" autocomplete="off">
 <nav id="side-nav" aria-label="Catalogue">

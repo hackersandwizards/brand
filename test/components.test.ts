@@ -17,6 +17,7 @@ const nameOf = (path: string) => path.slice(path.lastIndexOf("/") + 1);
 const P = "[PLACEHOLDER]";
 const node = { href: "/space/page", label: P, order: 0, hasPage: true, children: [] };
 const props: Record<string, Record<string, unknown>> = {
+  AppHeader: { product: P },
   FilterChip: { label: P, removeHref: "/" },
   FilterChipBar: { show: true, clearHref: "/" },
   PageHeader: { title: P },

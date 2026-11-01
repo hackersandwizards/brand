@@ -90,7 +90,9 @@ data or secret.
   differ on purpose, the difference is a prop or a token the app sets, never a fork: the hub's
   `--dim-floor` of 70% lifts every `text-foreground/65` to its projector rule, and a hub pill on a
   card passes its own `color`. Their CSS lives in `expert/expert.css`; a consumer adds
-  `@source` on `expert/components` so Tailwind sees their classes.
+  `@source` on `expert/components` so Tailwind sees their classes. The internal header, the one
+  frame every internal system and page wears (`AppHeader.astro`), is plain CSS in
+  `expert/header.css`, so a static or generated page links or inlines it.
 - Only the print masters (the two CMYK TIFFs and the two 4096 px emoji PNGs) and the PNG, PDF and
   AI files under `applications/` live in Git LFS (`.gitattributes`). `.lfsconfig` keeps clones,
   a consumer's `bun install` included, from fetching them, so the install stays small; fetch them here with `git -c lfs.fetchexclude= lfs pull`. Every file the package ships is
