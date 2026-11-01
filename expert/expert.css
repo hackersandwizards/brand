@@ -34,14 +34,6 @@
   /* Mono caps sit in wide cells already; the web's 0.1em reads spaced out at UI sizes. */
   --tracking-label: 0.06em;
 
-  /* The header: the website's structure (strip, row, hairline) at the UI's density. */
-  --spacing-strip: 3px;
-  --spacing-header-row: 3.5rem;
-  --spacing-logo: 2rem;
-  --spacing-app-header: calc(
-    var(--spacing-strip) + var(--spacing-header-row) + 1px + env(safe-area-inset-top)
-  );
-
   --font-heading: var(--font-mono);
 }
 

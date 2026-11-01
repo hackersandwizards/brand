@@ -35,7 +35,7 @@
   padding-inline: 1rem;
 }
 
-/* Strip 3px, bar 3.5rem, hairline 1px: 60px plus the safe area. */
+/* Strip, bar and hairline: --spacing-app-header tall. The lengths are tokens.css's. */
 .hw-header {
   --hw-bg: var(--background, var(--color-bg));
   --hw-fg: var(--foreground, var(--color-ink));
@@ -54,13 +54,13 @@
 
 /* Teal to purple in both themes. */
 .hw-header-strip {
-  height: 3px;
+  height: var(--spacing-strip);
   background: linear-gradient(to right, var(--color-teal), var(--color-purple));
 }
 
 .hw-header-row {
   display: flex;
-  height: 3.5rem;
+  height: var(--spacing-header-row);
   align-items: center;
   justify-content: space-between;
   gap: 0.25rem;
@@ -72,7 +72,7 @@
    as text. */
 .hw-header-brand {
   display: flex;
-  min-height: 2rem;
+  min-height: var(--spacing-logo);
   flex-shrink: 0;
   align-items: center;
   gap: 0.41rem;
@@ -89,7 +89,7 @@
 .hw-header-logo-night {
   display: block;
   width: auto;
-  height: 2rem;
+  height: var(--spacing-logo);
   flex-shrink: 0;
   translate: 0 var(--logo-wizard-lift);
 }
@@ -98,7 +98,7 @@
    size. */
 .hw-header-logo-night {
   display: none;
-  height: calc(2rem * 1640.612 / 1489);
+  height: calc(var(--spacing-logo) * 1640.612 / 1489);
 }
 
 html[data-theme="dark"] .hw-header-logo {
