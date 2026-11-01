@@ -143,6 +143,11 @@ def grid_surfaces():
         ),
         "profile-1": s1,
         "profile-2": s2,
+        # Benedikt's X header: profile slide 1 at its own size, centred in rows 60 to 440, which X Help
+        # says every screen shows (60 px may be cropped top and bottom); the profile photo's circle
+        # covers the lower left, centre x 210 to 234, y 500, radius 170 to 174 at 1440, 390 and 440 px
+        # (measured 1.11. on x.com logged out)
+        "x-profile": grid((1500, 500), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(60, 440), left=480),
         "featured": grid(
             (1200, 627),
             94,
@@ -190,6 +195,7 @@ REPO_FILES = {
     "linkedin-featured-link-2400x1254.png": ("featured", 2),
     "omr-reviews-cover-1920x1080.png": ("omr", 1),
     "youtube-channel-banner-2560x1440.png": ("youtube", 1),
+    "x-profile-header-1500x500.png": ("x-profile", 1),
 }
 
 
