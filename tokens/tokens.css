@@ -199,6 +199,15 @@
   /* The sticky header: its 3px brand strip, its h-19 row, its bottom border
   and the safe area. Anything stuck under it starts here. */
   --spacing-header: calc(3px + 4.75rem + 1px + env(safe-area-inset-top));
+  /* The internal header (expert/header.css), the website's structure at the UI's density: its
+  strip, its row, the lockup's height, and the whole header with its bottom border and the safe
+  area. Here rather than in expert.css, so a page that cannot load the expert set reads them. */
+  --spacing-strip: 3px;
+  --spacing-header-row: 3.5rem;
+  --spacing-logo: 2rem;
+  --spacing-app-header: calc(
+    var(--spacing-strip) + var(--spacing-header-row) + 1px + env(safe-area-inset-top)
+  );
   /* Interior heroes without a visual: about 440 px tall at 1440. */
   --spacing-hero: clamp(2.5rem, 2.1087rem + 1.7391vw, 3.5rem);
   --spacing-section-head: clamp(2rem, 1.6087rem + 1.7391vw, 3rem);
