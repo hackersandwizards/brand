@@ -215,8 +215,8 @@ type Family = {
   dir?: string;
   // A family that draws its own section instead of one card per file.
   render?: () => string;
-  // Pages elsewhere that show the family, as [label, href]: an engine's specimen page and its
-  // repository, at the URLs the engine's owner publishes on GitHub.
+  // Pages elsewhere that show the family, as [label, href]: an engine's specimen page at its local
+  // address (`bun run dev` in its checkout) and its repository on GitHub.
   links?: [string, string][];
 };
 const FAMILIES: Family[] = [
@@ -283,10 +283,7 @@ const FAMILIES: Family[] = [
     note: 'Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its specimen shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide. A concept slide that claims a mechanism in a few short cards may carry a generated marker sketch beside them: brand-slide-sketch-prompt prints the prompt and the worked example, the sketch-example card here; the slides README, "Deck structure", says which slides get one.',
     dir: "applications/slide-visuals",
     links: [
-      [
-        "Slide specimen",
-        "https://github.com/hackersandwizards/slides/blob/main/specimen/index.html",
-      ],
+      ["Slide specimen", "http://slides.localhost/"],
       ["slides on GitHub", "https://github.com/hackersandwizards/slides"],
     ],
   },
@@ -295,10 +292,7 @@ const FAMILIES: Family[] = [
     title: "Documents",
     note: "Proposals, rate cards, Leistungsnachweise, certificates and handouts come from the document engine, the package @hackersandwizards/documents, rendered by Company OS and the trainer hub. Its specimen shows every document type with invented data.",
     links: [
-      [
-        "Document specimen",
-        "https://github.com/hackersandwizards/documents/blob/main/specimen/index.html",
-      ],
+      ["Document specimen", "http://documents.localhost/"],
       ["documents on GitHub", "https://github.com/hackersandwizards/documents"],
     ],
   },
@@ -724,6 +718,9 @@ const html = `<!doctype html>
 <div class="hw-header-row hw-container">
 <a class="hw-header-brand" href="#overview" aria-label="hackers&amp;wizards Brand"><img class="hw-header-logo" src="logos/lockup-screen.svg" alt="" width="8042" height="1489"><img class="hw-header-logo-night" src="logos/lockup-screen-night.svg" alt="" width="8196" height="1641"><span class="hw-header-product">Brand</span></a>
 <div class="hw-header-nav">
+<a class="hw-header-link" href="#overview" aria-current="page">Brand</a>
+<a class="hw-header-link" href="http://slides.localhost/">Slides</a>
+<a class="hw-header-link" href="http://documents.localhost/">Dokumente</a>
 <button type="button" class="hw-header-link bar-btn" id="search-btn" aria-controls="q" aria-expanded="false">Search</button>
 <button type="button" class="hw-header-link bar-btn" id="menu-btn" aria-controls="side-nav" aria-expanded="false">Menu</button>
 </div>
