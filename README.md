@@ -173,9 +173,16 @@ in full with its reason, `<section data-hw-exception="<name>">`. List both in
 {
   "pages": ["specimen/index.html"],
   "uses": ["label", "pill", "card"],
-  "exceptions": { "total-band": "money on paper; no other system shows sums" }
+  "exceptions": {
+    "total-band": "money on paper; no other system shows sums",
+    "survey-readout": { "reason": "a slide deck on its own stylesheet", "files": ["readout.css"] }
+  }
 }
 ```
+
+An exception's instance on a real page carries `data-hw-exception="<name>"` too: a hub element
+inside it is that exception, not measured. `files` exempts a stylesheet of the system's own medium
+from the source check.
 
 and run `brand-elements` in your `bun run check`. It fails on an element on the pages whose
 computed corner, fill, line, text colour, type, padding or size differs from the brand rule at the

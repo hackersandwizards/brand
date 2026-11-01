@@ -5,17 +5,20 @@
 //
 //   { "pages": ["<url or html file>", ...],
 //     "uses": ["card", "pill", ...],                  every hub element the system uses
-//     "exceptions": { "<name>": "<reason>", ... } }    every element the system keeps as its own
+//     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
+//                     | { "reason": "...", "files": ["<path>", ...] }, ... } }
 //
 // 1. Rendered. Every hub element on the pages (an hw-* class; for the focus ring, the first
-//    focusable inside [data-hw-tile="focus-ring"], focused) is compared with a reference: the same
+//    focusable inside [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception],
+//    which is that exception's instance) is compared with a reference: the same
 //    markup in a shadow root beside it, styled only by this package's element files and inheriting
 //    the page's tokens, theme and scale. Any difference in the computed corner, fill, line, text
 //    colour, type, padding or size fails, by more than 0.02px for a length.
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card, chip, pill, tag, badge, eyebrow, kicker, label, callout, note, quote)
 //    and sets a corner, fill, line or type fails, and so does a component file of such a name,
-//    unless it carries the hw-* class or its name is an exception.
+//    unless it carries the hw-* class, its name is an exception, or its file is one an exception
+//    lists in "files" (a stylesheet of the system's own medium, such as a slide deck's).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it, its
 //    data-hw-version this package's version), each exception a tile ([data-hw-exception="<name>"])
 //    and a reason, and every hub element a page shows is listed as used.
@@ -30,7 +33,9 @@ import { listTree, scanned } from "./colours";
 import { launch, toUrl } from "./markers";
 
 export const LIST = "brand-elements.json";
-export type Config = { pages: string[]; uses: string[]; exceptions?: Record<string, string> };
+export type Exception = string | { reason: string; files?: string[] };
+export type Config = { pages: string[]; uses: string[]; exceptions?: Record<string, Exception> };
+const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
 
 const DIR = join(import.meta.dir, "../elements");
@@ -140,7 +145,7 @@ function compare([css, elements, parts, props, settings, tolerance, sized]: Args
   };
   for (const [element, selector] of Object.entries(elements))
     for (const el of document.querySelectorAll(selector)) {
-      if (el.closest("[data-hw-reference]")) continue;
+      if (el.closest("[data-hw-reference], [data-hw-exception]")) continue;
       seen.push(element);
       const clone = el.cloneNode(true) as HTMLElement;
       clone.removeAttribute("id");
@@ -317,11 +322,14 @@ const subject = (selector: string) =>
 export const sourceFindings = (
   paths: string[],
   read: (p: string) => string,
-  allow: Record<string, string>,
+  allow: Record<string, Exception>,
 ) => {
   const out: string[] = [];
+  const own = new Set(
+    Object.values(allow).flatMap((e) => (typeof e === "string" ? [] : (e.files ?? []))),
+  );
   for (const p of paths) {
-    if (!scanned(p)) continue;
+    if (!scanned(p) || own.has(p)) continue;
     const ext = extname(p);
     const raw = read(p);
     if (COMPONENT.has(ext) && /(^|\/)components\//.test(p)) {
@@ -370,8 +378,8 @@ export const coverage = (
   for (const name of shown)
     if (!config.uses.includes(name))
       out.push(`${name}: a page shows it, but ${LIST} does not list it in "uses"`);
-  for (const [name, reason] of Object.entries(config.exceptions ?? {})) {
-    if (!reason?.trim()) out.push(`${LIST}: exception "${name}" names no reason`);
+  for (const [name, exception] of Object.entries(config.exceptions ?? {})) {
+    if (!reasonOf(exception)?.trim()) out.push(`${LIST}: exception "${name}" names no reason`);
     if (!exceptionTiles.has(name))
       out.push(`${name}: an exception without a [data-hw-exception="${name}"] on a page`);
   }
