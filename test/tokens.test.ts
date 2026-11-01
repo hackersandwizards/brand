@@ -20,7 +20,7 @@ const contrast = (a: string, b: string) => {
 };
 
 test("reads every declaration of tokens.css", () => {
-  expect(Object.keys(tokens)).toHaveLength(152);
+  expect(Object.keys(tokens)).toHaveLength(159);
   expect(tokens["--color-teal"]).toBe("#1a7285");
 });
 
@@ -46,6 +46,16 @@ test("every role clears WCAG AA: text on light 4.5:1 on bg and white, night on n
         4.5,
       );
   }
+});
+
+test("every code colour clears 4.5:1 on night and night-2", () => {
+  const roles = Object.keys(tokens).filter((k) => k.startsWith("--code-") && k !== "--code-bg");
+  expect(roles).toHaveLength(6);
+  for (const k of roles)
+    for (const ground of ["night", "night-2"])
+      expect(contrast(colors[tokens[k].slice(4, -1)], colors[`--color-${ground}`])).toBeGreaterThan(
+        4.5,
+      );
 });
 
 test("every chart series clears 3:1 on white", () => {

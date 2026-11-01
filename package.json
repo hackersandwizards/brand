@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy and component scans a consumer runs in its gate.",
   "keywords": [
@@ -19,6 +19,7 @@
     "./tokens.json": "./generated/tokens.json",
     "./tokens": "./generated/tokens.ts",
     "./tokens.py": "./generated/tokens.py",
+    "./code-theme.json": "./generated/code-theme.json",
     "./print.css": "./tokens/print.css",
     "./fonts/*": "./tokens/fonts/*",
     "./expert.css": "./expert/expert.css",

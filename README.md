@@ -32,6 +32,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours                     |
 | `@hackersandwizards/brand/tokens`                         | the same as TypeScript                          |
 | `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                     |
+| `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)   |
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                    |
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |

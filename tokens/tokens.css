@@ -250,6 +250,20 @@
   --chart-5: var(--color-factory);
   --chart-6: var(--color-ampersand);
 
+  /* One code palette for every code block and terminal: website, slides, trainer hub, os and the
+     LinkedIn terminal image. Shiki reads it as generated/code-theme.json (export
+     ./code-theme.json), github-dark's scopes in these colours; keyword also takes constants and
+     property names, string also regexes, inserted also tags and the shell prompt. Every text
+     colour clears 4.5:1 on night and night-2. Chosen in a blind panel on 2026-11-01 (os decision
+     code-palette). */
+  --code-bg: var(--color-night);
+  --code-fg: var(--color-night-ink);
+  --code-comment: var(--color-night-subtle);
+  --code-keyword: var(--color-purple-night);
+  --code-string: var(--color-teal-night);
+  --code-inserted: var(--color-green);
+  --code-deleted: var(--color-red-night);
+
   --gradient-magic: linear-gradient(
     135deg,
     var(--color-teal) 0%,

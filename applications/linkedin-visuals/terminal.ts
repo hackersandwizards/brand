@@ -26,11 +26,12 @@ interface Spec {
 }
 
 const [SIZE, SCALE] = [540, 2];
+// The code palette's roles, as every code block takes them.
 const COLOR: Record<string, string> = {
-  t: "var(--color-teal-night)",
-  p: "var(--color-purple-night)",
-  r: "var(--color-red-night)",
-  c: "var(--color-night-subtle)",
+  t: "var(--code-string)",
+  p: "var(--code-keyword)",
+  r: "var(--code-deleted)",
+  c: "var(--code-comment)",
 };
 
 const codeLine = (s: string) =>
@@ -50,12 +51,12 @@ function terminalHtml({ title, lines, highlight, note }: Spec): string {
   return `<!doctype html><html><head><meta charset="utf-8"><style>${linkedinCss()}
 html, body { margin: 0; width: ${SIZE}px; height: ${SIZE}px; overflow: hidden; }
 body { box-sizing: border-box; background: var(--color-bg); padding: 30px 22px; display: flex; align-items: center; }
-.win { width: 100%; background: var(--color-night); overflow: hidden; }
+.win { width: 100%; background: var(--code-bg); overflow: hidden; }
 .bar { height: 34px; background: var(--color-night-2); display: flex; align-items: center; gap: 7px; padding-left: 14px;
   font: 500 15px var(--font-code); color: var(--color-night-subtle); }
 .bar i { width: 10px; height: 10px; border-radius: 50%; background: color-mix(in srgb, white 18%, var(--color-night)); }
 .bar span { margin-left: 10px; }
-.code { padding: 16px 0 20px; font: 500 21px/1.6 var(--font-code); color: var(--color-night-ink); }
+.code { padding: 16px 0 20px; font: 500 21px/1.6 var(--font-code); color: var(--code-fg); }
 .row { white-space: pre; padding: 2px 14px; }
 .hi { background: color-mix(in srgb, var(--color-purple) 28%, transparent); box-shadow: inset 4px 0 0 var(--color-purple-night); }
 .note { padding: 6px 14px 10px; }
