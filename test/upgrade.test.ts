@@ -86,6 +86,10 @@ test("brand-colours: without a pin change the allowlist still may only shrink", 
   const dir = consumer({ "a.css": CSS, "brand-colours.json": entry(0) }, own.version);
   write(dir, { "brand-colours.json": entry(1) });
   expect(run(dir, "colours.ts")).toBe(1);
+  // A newer package installed while package.json keeps the old pin is no pin change.
+  const stale = consumer({ "a.css": CSS, "brand-colours.json": entry(0) });
+  write(stale, { "brand-colours.json": entry(1) });
+  expect(run(stale, "colours.ts")).toBe(1);
 });
 
 test("brand-colours --tighten during a pin raise lists the committed file's new findings", () => {

@@ -342,12 +342,15 @@ export const pinnedVersion = (packageJson: string) => {
   }
 };
 
-/** The brand version package.json pinned at HEAD where this scanner is another one, the working
- *  tree changing the pin; undefined otherwise. */
+/** The brand version package.json pinned at HEAD where the working tree pins this scanner's
+ *  version instead; undefined otherwise, a stale install included. */
 export const pinChange = (cmd: string) => {
   const head = runGit(["show", "HEAD:./package.json"]);
   const from = head.status === 0 ? pinnedVersion(head.stdout) : undefined;
-  if (!from || from === own.version) return;
+  const to = existsSync("package.json")
+    ? pinnedVersion(readFileSync("package.json", "utf8"))
+    : undefined;
+  if (!from || from === own.version || to !== own.version) return;
   console.log(
     `${cmd}: pin change v${from} to v${own.version}: the list may take what this scanner finds in the files as committed at HEAD`,
   );
