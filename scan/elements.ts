@@ -12,8 +12,9 @@
 //    focusable inside [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception],
 //    which is that exception's instance) is compared with a reference: the same
 //    markup in a shadow root beside it, styled only by this package's element files and inheriting
-//    the page's tokens, theme and scale. Any difference in the computed corner, fill, line, text
-//    colour, type, padding or size fails, by more than 0.02px for a length.
+//    the page's tokens, theme and scale. Any difference in a computed property the element sets
+//    (OWNS: its corner, fill, line, text colour, type, padding or size) fails, by more than 0.02px
+//    for a length.
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card, chip, pill, tag, badge, eyebrow, kicker, label, callout, note, quote)
 //    and sets a corner, fill, line or type fails, and so does a component file of such a name,
@@ -53,48 +54,45 @@ export const ELEMENTS: Record<string, string> = {
   strip: ".hw-strip",
   code: ".hw-code",
 };
-const PARTS: Record<string, string[]> = {
-  table: ["th", "td"],
-  "icon-button": ["svg"],
-  pill: [".hw-pill-chevron", ".hw-pill-remove"],
-};
-const PROPS = [
+// What each element (and each part, "<element> <part>") sets, and so what is compared: a property
+// the element leaves to its surroundings, such as a card's text size, stays the surface's.
+const CORNER = [
   "border-top-left-radius",
   "border-top-right-radius",
   "border-bottom-right-radius",
   "border-bottom-left-radius",
-  "background-color",
-  "background-image",
-  "border-top-width",
-  "border-right-width",
-  "border-bottom-width",
-  "border-left-width",
-  "border-top-color",
-  "border-right-color",
-  "border-bottom-color",
-  "border-left-color",
-  "border-top-style",
-  "border-left-style",
-  "color",
+];
+const FILL = ["background-color", "background-image"];
+const SIDES = ["top", "right", "bottom", "left"];
+const borders = (sides = SIDES) =>
+  sides.flatMap((x) => [`border-${x}-width`, `border-${x}-style`, `border-${x}-color`]);
+const PAD = SIDES.map((x) => `padding-${x}`);
+const TYPE = [
   "font-family",
   "font-size",
   "font-weight",
   "line-height",
   "letter-spacing",
   "text-transform",
-  "text-decoration-line",
-  "text-decoration-thickness",
-  "text-underline-offset",
-  "padding-top",
-  "padding-right",
-  "padding-bottom",
-  "padding-left",
-  "outline-style",
-  "outline-width",
-  "outline-color",
-  "outline-offset",
 ];
-const SIZED: Record<string, string[]> = { strip: ["height"], "icon-button": ["width", "height"] };
+const OWNS: Record<string, string[]> = {
+  label: [...TYPE, "color"],
+  pill: [...CORNER, ...FILL, ...borders(), ...PAD, ...TYPE, "color"],
+  "pill .hw-pill-chevron": ["width", "height", "opacity"],
+  "pill .hw-pill-remove": ["width", "height", "opacity"],
+  card: [...CORNER, ...FILL, ...borders(), ...PAD],
+  callout: [...CORNER, ...FILL, ...borders(["left"]), ...PAD, "font-weight"],
+  quote: [...borders(["left"]), "padding-left", "color"],
+  table: ["font-size", "line-height"],
+  "table th": [...borders(["bottom"]), ...PAD, ...TYPE, "color", "text-align", "vertical-align"],
+  "table td": [...borders(["bottom"]), ...PAD, "text-align", "vertical-align"],
+  link: ["color", "text-decoration-line", "text-decoration-thickness", "text-underline-offset"],
+  "focus-ring": ["outline-style", "outline-width", "outline-color", "outline-offset"],
+  "icon-button": ["width", "height", ...CORNER, ...FILL, ...PAD, "color"],
+  "icon-button svg": ["width", "height"],
+  strip: ["height", ...FILL],
+  code: [...CORNER, ...FILL, ...PAD, ...TYPE, "color"],
+};
 
 /** The element files' rules, every @import dropped: the reference's only styles. */
 export const elementCss = () =>
@@ -114,18 +112,10 @@ export type Finding = {
   want: string;
 };
 
-type Args = [
-  string,
-  Record<string, string>,
-  Record<string, string[]>,
-  string[],
-  string[],
-  number,
-  Record<string, string[]>,
-];
+type Args = [string, Record<string, string>, Record<string, string[]>, string[], number];
 
 /** Runs in the page: each hub element against its reference, as findings plus the tiles found. */
-function compare([css, elements, parts, props, settings, tolerance, sized]: Args) {
+function compare([css, elements, owns, settings, tolerance]: Args) {
   const findings: { element: string; label: string; prop: string; got: string; want: string }[] =
     [];
   const seen: string[] = [];
@@ -180,10 +170,7 @@ function compare([css, elements, parts, props, settings, tolerance, sized]: Args
       style.textContent = css;
       root.append(style, frame);
       try {
-        const list =
-          element === "focus-ring"
-            ? props.filter((p) => p.startsWith("outline"))
-            : [...props, ...(sized[element] ?? [])];
+        const list = owns[element]!;
         if (element === "focus-ring") {
           // Each read while it holds focus: a computed style reads the live state.
           const read = (x: Element) => {
@@ -209,18 +196,11 @@ function compare([css, elements, parts, props, settings, tolerance, sized]: Args
           continue;
         }
         diff(element, label(el), el, clone, list);
-        for (const part of parts[element] ?? []) {
+        for (const [key, props] of Object.entries(owns)) {
+          const [owner, part] = key.split(" ");
+          if (owner !== element || !part) continue;
           const [a, b] = [el.querySelector(part), clone.querySelector(part)];
-          if (a && b)
-            diff(
-              element,
-              `${label(el)} ${part}`,
-              a,
-              b,
-              part === "svg" || part.startsWith(".hw-pill-")
-                ? ["width", "height", "opacity"]
-                : props,
-            );
+          if (a && b) diff(element, `${label(el)} ${part}`, a, b, props);
         }
       } finally {
         host.remove();
@@ -253,11 +233,9 @@ export async function measurePage(browser: Browser, url: string, css = "") {
     const out = await page.evaluate(compare, [
       elementCss(),
       ELEMENTS,
-      PARTS,
-      PROPS,
+      OWNS,
       SETTINGS,
       TOLERANCE,
-      SIZED,
     ] as Args);
     return { ...out, findings: out.findings.map((f) => ({ page: url, ...f })) };
   } finally {
