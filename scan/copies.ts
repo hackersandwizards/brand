@@ -5,19 +5,24 @@
 // exits 1 on a file byte-identical to a file this package ships (through a Git LFS pointer too),
 // on a modified copy of a brand logo (a file named like one of logos/, or a text file carrying a
 // logo's path data), unless brand-copies.json lists it ({ "<path>": "<reason>" }), on an entry
-// without a reason, and on an entry added against HEAD: the list may only shrink.
+// without a reason, and on an entry added against HEAD: the list may only shrink. Where the working
+// tree changes the brand pin package.json holds at HEAD, an entry may also name a file committed
+// at HEAD and unchanged since, which a newer scanner finds.
 // Usage: brand-copies [--tighten]
-//   --tighten  drops every entry no longer found; never adds one.
+//   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
+//              pin change, for such a file.
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
   brandFiles,
   brandSizes,
+  committedAsIs,
   exception,
   exceptionReport,
   isBrandCopy,
   listTree,
+  pinChange,
 } from "./colours";
 
 export const LIST = "brand-copies.json";
@@ -61,14 +66,17 @@ export const unlistedCopies = (
   found: Record<string, string>,
   allow: Allowlist,
   committed: Allowlist | undefined,
+  mayAdd: (p: string) => boolean = () => false,
 ) => [
   ...Object.entries(found)
     .filter(([p]) => !(p in allow))
     .map(([p, why]) => `${p}: ${why}; import it from the package`),
   ...Object.entries(allow).flatMap(([p, r]) => [
     ...(r?.trim() ? [] : [`${LIST}: ${p} names no reason`]),
-    ...(committed && !(p in committed)
-      ? [`${LIST}: ${p} added against HEAD; the list may only shrink`]
+    ...(committed && !(p in committed) && !mayAdd(p)
+      ? [
+          `${LIST}: ${p} added against HEAD; the list may only shrink, or during a pin change name a file committed as is`,
+        ]
       : []),
   ]),
 ];
@@ -96,12 +104,18 @@ if (import.meta.main) {
   const allow = existsSync(LIST) ? (JSON.parse(readFileSync(LIST, "utf8")) as Allowlist) : {};
   const head = spawnSync("git", ["show", `HEAD:./${LIST}`], { encoding: "utf8" });
   const committed = head.status === 0 ? (JSON.parse(head.stdout) as Allowlist) : undefined;
+  const upgrade = committed !== undefined && pinChange("brand-copies") !== undefined;
+  const mayAdd = (p: string) => upgrade && p in found && committedAsIs(p);
   if (process.argv.includes("--tighten")) {
-    const next = Object.fromEntries(Object.entries(allow).filter(([p]) => p in found));
+    const next = Object.fromEntries(
+      Object.keys(found)
+        .filter((p) => p in allow || mayAdd(p))
+        .map((p) => [p, allow[p] ?? ""]),
+    );
     writeFileSync(LIST, JSON.stringify(next, null, 2) + "\n");
     console.log(`brand-copies: ${LIST} tightened`);
   } else {
-    const bad = unlistedCopies(found, allow, committed);
+    const bad = unlistedCopies(found, allow, committed, mayAdd);
     if (bad.length) {
       console.error(
         `${bad.join("\n")}\nbrand-copies: ${bad.length} findings. Read the file from node_modules/@hackersandwizards/brand, or name the exception with its reason in ${LIST}.`,

@@ -163,6 +163,23 @@ counts and the reason, and the list may only shrink: the scan fails where an ent
 `HEAD` or names no reason. A metric an entry leaves out allows none. `brand-colours --tighten`
 lowers every entry to today's counts.
 
+#### Raise your pin
+
+A newer scan can find more in files you have not touched. In the commit that changes the
+`#v<version>` your `package.json` pins at `HEAD`, the three lists may also take what the installed
+scan finds in your files as committed at `HEAD`: a `brand-colours.json` entry may grow to the count
+of the file at `HEAD`, a `brand-copies.json` or `brand-scan.json` entry may name a file committed
+at `HEAD` and unchanged since. Whatever your own new or changed code adds still fails, and every
+entry still needs its reason. The scan prints the pin change it saw.
+
+1. Raise the pin and run `bun install`.
+2. Fix what you can. A `brand-colours.json` entry takes what remains of a partly fixed file. A
+   copy or fork you change in this commit can no longer be listed: fix it whole or leave it as is.
+3. Run `brand-colours --tighten`, `brand-copies --tighten` and `brand-scan --tighten`: during a
+   pin change they add the new findings with an empty reason. Give each its reason.
+4. Commit the pin, the lockfile and the lists together. From the next commit on, the lists may
+   only shrink again.
+
 ### What the scans skip
 
 `brand-colours`, `brand-copies` and `brand-scan` read every file `git ls-files` lists (tracked and
