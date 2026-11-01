@@ -223,7 +223,7 @@ const FAMILIES: Family[] = [
   {
     id: "backgrounds",
     title: "Backgrounds for devices and calls",
-    note: "The dark (night) family: the compact lockup on MacBook, Studio Display and lock screens, the lockup across the home screens, a small lockup above the head in calls. Set on the devices by hand.",
+    note: "The dark (night) family: the lockup on MacBook and Studio Display and across the home screens, the compact lockup on the iPad and iPhone lock screens, a small lockup above the head in calls. Set on the devices by hand.",
     dir: "applications/backgrounds",
   },
   {
@@ -235,7 +235,7 @@ const FAMILIES: Family[] = [
   {
     id: "channel-banners",
     title: "Channel banners",
-    note: "The airy set in light teal, one file per platform: the LinkedIn company cover with its Canva copies, both slides of the LinkedIn profile carousel, the LinkedIn Featured-link image, the X profile header, YouTube and OMR Reviews.",
+    note: "The airy set, one file per platform: the LinkedIn company cover with its Canva copies, both slides of the LinkedIn profile carousel, the LinkedIn Featured-link image, the X profile header, YouTube and OMR Reviews.",
     dir: "applications/channel-banners",
   },
   {

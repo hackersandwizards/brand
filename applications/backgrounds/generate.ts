@@ -491,10 +491,9 @@ type El = ["w" | "l" | "m" | "k", number, number, number];
 // y 222, widgets to y 316, lock buttons at the bottom corners; iPhone home free band y 740-800;
 // call head x 810-1110 from y 250, name label bottom left.
 const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
-  // The MacBook's lw-stack-r at the same point size, 130 pt from the right and the bottom edge
-  // as there.
+  // The MacBook's logo-r at the same point size, 130 pt from the right and the bottom edge as there.
   "mac-studio": {
-    "lw-stack-r": [["k", 440, 1990, 1091]],
+    "logo-r": [["l", 99.7, 1895.1, 1206.3]],
   },
   mac: {
     "lw-split": [
@@ -502,8 +501,9 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
       ["l", 60, 64, 907],
     ],
     "lw-stack-c": [["k", 520, 604, 430]],
-    // 130 pt from the right and the bottom edge.
-    "lw-stack-r": [["k", 440, 1158, 768]],
+    // The one-line lockup, its wordmark as large as in the 440 pt compact lockup it replaced
+    // (99.7 = 440 x 1489 / 6571), its ink 130 pt from the right and the bottom edge.
+    "logo-r": [["l", 99.7, 1063.1, 883.3]],
     "logo-ll": [["l", 56, 64, 880]],
     "logo-c": [["l", 90, 622, 515]],
     "logo-lr": [["l", 56, 1364, 960]],
