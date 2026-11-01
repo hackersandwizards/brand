@@ -35,11 +35,11 @@ jobs:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
       - run: bun run catalogue
-      # Every tracked file outside the dot folders, as `bun run dev` serves the checkout, and the
-      # root forwarding to the catalogue as the local server does.
+      # Every tracked file outside the dot folders but the unlinked print masters, as `bun run dev`
+      # serves the checkout, and the root forwarding to the catalogue as the local server does.
       - run: |
           mkdir _site
-          git ls-files -z -- ':!:.*' | xargs -0 cp --parents -t _site
+          git ls-files -z -- ':!:.*' ':!:logos/*.tif' | xargs -0 cp --parents -t _site
           echo '<!doctype html><link rel="icon" href="logos/favicon.svg"><meta http-equiv="refresh" content="0; url=catalogue.html">' > _site/index.html
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

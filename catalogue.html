@@ -177,7 +177,7 @@
 </div>
 <h3>Systems</h3>
 <p>Each system shows its components on its own design-system page, served by its dev server.</p>
-<ul><li><a href="http://website.localhost/design-system/">website</a></li><li><a href="http://os.localhost/design-system/">os</a></li><li><a href="http://trainer-hub.localhost/design-system/">trainer-hub</a></li><li><a href="http://talks.localhost/design-system">talks</a></li><li><a href="http://localhost:8787/design-system">certificate-verifier</a></li></ul>
+<ul><li><a href="http://website.localhost/design-system/">website</a></li><li><a href="http://os.localhost/design-system/">os</a></li><li><a href="http://trainer-hub.localhost/design-system/">trainer-hub</a></li><li><a href="http://talks.localhost/design-system">talks</a></li><li><a href="http://localhost:8787/design-system" data-public="https://certificates.hackersandwizards.dev/design-system">certificate-verifier</a></li></ul>
 <h3>Refresh</h3>
 <table><thead><tr><th>Source</th><th>Refresh</th></tr></thead><tbody><tr><td>Tokens</td><td><code>bun run tokens</code></td></tr><tr><td>Logo cuts</td><td><code>bun scripts/outline.ts</code></td></tr><tr><td>This page</td><td><code>bun run catalogue</code></td></tr></tbody></table>
 <h3>Quick start</h3>
@@ -346,8 +346,9 @@ document.addEventListener("click", (e) => {
 show();
 </script>
 <script>
-// On GitHub Pages, links to the other two catalogues leave their local addresses for their public pages.
-if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { const name = a.hostname.slice(0, -".localhost".length); if (a.hostname.endsWith(".localhost") && ["brand", "slides", "documents"].includes(name)) a.href = "https://hackersandwizards.github.io/" + name + a.pathname + a.hash; }
+// On GitHub Pages, links to the other two catalogues and to a system page with a public address
+// leave their local addresses for the public ones; a system page without one stays as its name, marked local only.
+if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; const name = a.hostname.slice(0, -".localhost".length); if (["brand", "slides", "documents"].includes(name)) a.href = "https://hackersandwizards.github.io/" + name + a.pathname + a.hash; else if (a.dataset.public) a.href = a.dataset.public; else a.replaceWith(a.textContent + " (local only)"); }
 </script>
 </body>
 </html>

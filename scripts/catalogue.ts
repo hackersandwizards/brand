@@ -504,17 +504,22 @@ const elementsHtml = `<h3 id="dropdown">Dropdown</h3>
 <p>A native ${code("<select>")} with the brand chevron in place of the system's arrow: border-strong on light, night-muted on night. ${code('@import "@hackersandwizards/brand/select.css";')} and the class ${code("hw-select")}, or ${code("form-input")} under the expert layer. The file draws the arrow and its room only; corner, border, height and focus stay the surface's, here the website's field.</p>
 <div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDropdown)}" title="dropdown on night" loading="lazy"></iframe></figure></div>`;
 
-// Each system's own design-system page, served by its dev server; a system without one is not
-// listed.
+// Each system's own design-system page, served by its dev server, and the public address its owner
+// publishes, which the Pages copy links instead; a system without a page is not listed.
 const SYSTEMS = [
   ["website", "http://website.localhost/design-system/"],
   ["os", "http://os.localhost/design-system/"],
   ["trainer-hub", "http://trainer-hub.localhost/design-system/"],
   ["talks", "http://talks.localhost/design-system"],
-  ["certificate-verifier", "http://localhost:8787/design-system"],
+  [
+    "certificate-verifier",
+    "http://localhost:8787/design-system",
+    "https://certificates.hackersandwizards.dev/design-system",
+  ],
 ];
 const systemLinks = SYSTEMS.map(
-  ([name, url]) => `<li><a href="${esc(url)}">${esc(name)}</a></li>`,
+  ([name, url, pub]) =>
+    `<li><a href="${esc(url)}"${pub ? ` data-public="${esc(pub)}"` : ""}>${esc(name)}</a></li>`,
 ).join("");
 
 // Overview: what is here and where each system shows its own components.
@@ -792,8 +797,9 @@ document.addEventListener("click", (e) => {
 show();
 </script>
 <script>
-// On GitHub Pages, links to the other two catalogues leave their local addresses for their public pages.
-if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { const name = a.hostname.slice(0, -".localhost".length); if (a.hostname.endsWith(".localhost") && ["brand", "slides", "documents"].includes(name)) a.href = "https://hackersandwizards.github.io/" + name + a.pathname + a.hash; }
+// On GitHub Pages, links to the other two catalogues and to a system page with a public address
+// leave their local addresses for the public ones; a system page without one stays as its name, marked local only.
+if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; const name = a.hostname.slice(0, -".localhost".length); if (["brand", "slides", "documents"].includes(name)) a.href = "https://hackersandwizards.github.io/" + name + a.pathname + a.hash; else if (a.dataset.public) a.href = a.dataset.public; else a.replaceWith(a.textContent + " (local only)"); }
 </script>
 </body>
 </html>
