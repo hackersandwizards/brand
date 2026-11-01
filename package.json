@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.21.6",
+  "version": "0.21.7",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour scan a consumer runs in its gate.",
   "keywords": [
@@ -62,7 +62,6 @@
     "manifest.json"
   ],
   "scripts": {
-    "preinstall": "test ! -f .claude/skills/engineering/only-bun.cjs || node .claude/skills/engineering/only-bun.cjs",
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && git config core.hooksPath .githooks || true",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check && bun scripts/catalogue.ts --check",
     "lint": "bun --bun eslint --cache --concurrency=auto .",
