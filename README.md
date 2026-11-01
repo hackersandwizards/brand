@@ -54,7 +54,8 @@ with `Script not found`.
 | `brand-linkedin-sketch-prompt`                                | prints the prompt for a generated sketch and its worked examples      |
 | `brand-slide-sketch-prompt`                                   | prints the prompt for a slide sketch and its worked example           |
 | `brand-mail-signature --name <n> --role <r> --out <path>`     | writes a mail signature as HTML and text; all flags in `cli.ts`       |
-| `brand-colours [--tighten]`                                   | the colour scan for your gate, below                                  |
+| `brand-colours [--tighten]`                                   | the colour, radius and shadow scan for your gate, below               |
+| `brand-copies [--tighten]`                                    | flags a copy of a brand file in your tree, below                      |
 | `brand-scan [--tighten]`                                      | flags a fork of an expert component, below                            |
 
 These commands and the exported files above are the whole interface: any other path in the package
@@ -132,20 +133,62 @@ surface's. The night chevron follows `data-theme="dark"` on `html`.
 ### Check your colours in your gate
 
 The package ships `brand-colours`, which scans your working tree from the current directory down
-for hex values off the tokens, hex values repeating a token, font stacks without a brand family and
-Tailwind default palette classes. Add it to your `bun run check`:
+and counts, per file:
+
+- `hex`, `rgb`: colour literals off the tokens, as hex or as `rgb()`, `rgba()`, `hsl()`, `hsla()`
+- `tokenHex`: a literal repeating a token's colour, in either notation, instead of naming the token
+- `font`: font stacks without a brand family
+- `palette`: Tailwind default palette classes
+- `radius`, `shadow`: a `border-radius` or `box-shadow` (CSS, a custom property named for either,
+  a style object, a Tailwind arbitrary value) that is no brand token, and Tailwind's default
+  radius and shadow classes (`rounded-lg`, `shadow-md`). A token value, `0`, `none`, a CSS-wide
+  keyword or a lone `var()` passes; a value the scan cannot read, an interpolation or a variable,
+  counts nothing.
+
+A standalone SVG cannot name a token, so there a token hex counts nothing, and neither does a mix
+the package derives from the tokens: a token colour on white at 7 % or at any 5 % step, and a hue
+row's text colour at 70 % with ink, within 1 per channel. A shadow's colour counts in `shadow` only.
+
+Add it to your `bun run check`:
 
 ```json
-"check": "... && brand-colours"
+"check": "... && brand-colours && brand-copies"
 ```
 
 An exception goes in `brand-colours.json` beside your `package.json`, one entry per file with its
 counts and the reason, and the list may only shrink: the scan fails where an entry grows against
-`HEAD` or names no reason. `brand-colours --tighten` lowers every entry to today's counts.
+`HEAD` or names no reason. A metric an entry leaves out allows none. `brand-colours --tighten`
+lowers every entry to today's counts.
+
+### What the scans skip
+
+`brand-colours`, `brand-copies` and `brand-scan` read every file `git ls-files` lists (tracked and
+untracked, `.gitignore` honoured) except these, and print each one they applied with its file
+count. Nothing else is skipped: `public/`, `docs/`, `src/content/` and SVGs are read. A file of
+yours that should not count, such as a sent document or a third-party mark, goes in the
+allowlist by name with its reason.
+
+| Exception     | Skips                                                                                                                                                                                  | Why                                                                                                                                 |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `generated`   | `node_modules/`, `dist/`, `.astro/`, `.next/`, `out/`, `coverage/`, `test-results/`, `playwright-report/`, `.vercel/`, `.wrangler/`, `__pycache__/`, `.turbo/`, `build/`, `worktrees/` | build, cache and dependency output, rebuilt from the source the scans read; a nested worktree is another checkout with its own gate |
+| `tests`       | `*.test.*`, `*.spec.*`, `__tests__/`, `test/`, `tests/`                                                                                                                                | a test states the values it asserts, off-token ones included, and ships no surface                                                  |
+| `allowlists`  | `brand-colours.json`, `brand-copies.json`, `brand-scan.json`                                                                                                                           | the scans' own exception lists, whose reasons name the values they allow                                                            |
+| `hub`         | `.claude/skills/parallel-session/`                                                                                                                                                     | agent tooling the `~/.claude` hub syncs into every repo, non-h&w ones included                                                      |
+| `not styling` | `brand-colours` only: every extension but `.css .scss .astro .tsx .ts .mts .cts .jsx .js .mjs .cjs .vue .svelte .html .svg .py .json .webmanifest`                                     | prose, images, fonts, PDFs and other binaries carry no styling a renderer reads                                                     |
+| `brand copy`  | `brand-colours` only: a file byte-identical to a package file                                                                                                                          | `brand-copies` reports it, and its allowlist governs it                                                                             |
+
+### Check for copies in your gate
+
+Never commit a copy of a brand file: read it from the installed package. `brand-copies` fails on a
+file in your tree that is byte-identical to a file the package ships (the logos, tokens, fonts,
+expert components, press photos, client marks, generated token formats and the signature
+template, through a Git LFS pointer too), on a file named like one of `logos/` that differs from
+it, and on a text file carrying a logo's path data or embedded wizard, such as a recoloured
+wordmark or an inlined SVG. An exception goes in `brand-copies.json` beside your `package.json`,
+`{ "<path>": "<reason>" }`, and the list may only shrink against `HEAD`; `brand-copies --tighten`
+drops the entries no longer found.
 
 ### Check your components in your gate
-
-Never commit a copy of a brand file: read it from the installed package.
 
 Where you render the expert components, `brand-scan` fails on a component of yours named like one
 of them (`Pill`, `PageHeader`, ...): import it from the package. An exception goes in

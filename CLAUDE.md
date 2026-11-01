@@ -48,8 +48,11 @@ data or secret.
 - `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python). Never
   edit them; run `bun run tokens`.
 - `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;
-  nothing here reads a consumer. `colours.ts` (`brand-colours`), exceptions in the consumer's
-  `brand-colours.json`. `components.ts` (`brand-scan`) fails on a consumer component named like an
+  nothing here reads a consumer. `colours.ts` (`brand-colours`: colours, radii, shadows, fonts),
+  exceptions in the consumer's `brand-colours.json`. `copies.ts` (`brand-copies`) fails on a copy of
+  a brand file, exceptions in the consumer's `brand-copies.json`. The paths every scan skips are
+  `EXCEPTIONS` in `colours.ts`, each printed when applied and listed in the README; a new one
+  needs a reason the README states. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
