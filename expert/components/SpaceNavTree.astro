@@ -5,9 +5,11 @@ interface Props {
   nodes: SpaceNode[];
   currentPath: string;
   depth?: number;
+  /** The link to a branch's own page. */
+  overview?: string;
 }
 
-const { nodes, currentPath, depth = 0 } = Astro.props;
+const { nodes, currentPath, depth = 0, overview = "Overview" } = Astro.props;
 
 const linkClass = (href: string) => navLinkClass(href, currentPath);
 ---
@@ -51,11 +53,16 @@ const linkClass = (href: string) => navLinkClass(href, currentPath);
                 aria-current={node.href === currentPath ? "page" : undefined}
                 class:list={linkClass(node.href)}
               >
-                Overview
+                {overview}
               </a>
             </div>
           )}
-          <Astro.self nodes={node.children} currentPath={currentPath} depth={depth + 1} />
+          <Astro.self
+            nodes={node.children}
+            currentPath={currentPath}
+            depth={depth + 1}
+            overview={overview}
+          />
         </details>
       </li>
     ),

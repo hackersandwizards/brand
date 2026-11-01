@@ -62,3 +62,34 @@ test.each(components)(
   },
   30_000,
 );
+
+test("SpaceNav takes its words from labels, English by default", async () => {
+  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+  const component = (await server.ssrLoadModule("/expert/components/SpaceNav.astro")).default;
+  const container = await experimental_AstroContainer.create();
+  const branch = { ...node, href: "/space/branch", children: [node] };
+  const render = (labels?: Record<string, unknown>) =>
+    container.renderToString(component, {
+      props: { ...props.SpaceNav, nodes: [branch], pageCount: 2, labels },
+    });
+  const english: string = await render();
+  for (const text of ["Browse " + P, "2 pages", P + " home", "Overview", P + " sections"])
+    expect(english).toContain(text);
+  const german: string = await render({
+    sections: "Bereiche",
+    browse: "Durchblättern",
+    pages: (n: number) => `${n} Seiten`,
+    home: "Startseite",
+    overview: "Übersicht",
+  });
+  for (const text of [
+    "Durchblättern",
+    "2 Seiten",
+    "Startseite",
+    "Übersicht",
+    'aria-label="Bereiche"',
+  ])
+    expect(german).toContain(text);
+  for (const text of ["Browse", "pages", "home", "Overview", "sections"])
+    expect(german).not.toContain(text);
+}, 30_000);

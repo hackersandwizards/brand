@@ -274,11 +274,11 @@
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "5372710dcac2841961c2522847f9bfcf73967a039139193d54adece969148cf2"
+      "sha256": "5c858e89299a20f931620745d18ec15362ad268400ec59121e51848d46cc9e7a"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
-      "sha256": "69a726d5b1491827c3b8af7a0afe8c0df6e975b4e4885495c08e21c702667238"
+      "sha256": "7f75a6ed3cf20657d9413b4610fa274e68a915a3d92c0a4fbb8bb9a9021556a1"
     },
     {
       "path": "expert/components/ThemeToggle.astro",
