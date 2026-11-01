@@ -38,6 +38,11 @@ Warum der Rest nicht in brand liegt:
 - **Die Regeln stehen als Worte in den Tokens.** `tokens.css` schreibt Radius-Rollen, Label-Rolle,
   Code-Palette und Chart-Reihenfolge als Kommentar. Kein Gate prüft, ob ein Element sie einhält.
 
+Für das ganze System schlage ich vor: brand zeigt jedes geteilte Element live in vier Maßen, hell und
+Nacht. Jeder Spoke zeigt die Hub-Elemente nur als Kachel in seinem Medium, mit Herkunft und Link,
+und seine Ausnahmen voll mit Grund. Ein Gate `brand-elements` misst genau diese Kacheln gegen die
+brand-Regel. Details unter «Hub und Spokes».
+
 ## Inventar
 
 System-Kürzel: W Website, V Verifier, O os, H trainer-hub, T talks (nur Startseite), D documents, S
@@ -99,14 +104,28 @@ Legitime Unterschiede sind zwei:
 - **Medium**: Druck braucht `border-strong` statt `border` für die Kartenlinie, weil 1 pt sonst bei
   70 % Zoom verschwindet (documents, 28.10.). Folien ziehen alles mit Faktor 2 auf.
 
-Ein Widerspruch braucht deine Entscheidung vor dem Heben: `tokens.css` gibt Buttons und Feldern
-`--radius-sm`, Website, Verifier und Dokumente nutzen dort die Markenecke.
+## Ecke von Button und Feld
+
+`tokens.css` gibt Buttons und Feldern `--radius-sm` (5 px). Gebaut ist es nach Publikum getrennt:
+Website, Verifier und Dokumente tragen die Markenecke (20 px 5 px), os und trainer-hub über
+`expert.css` die 5 px. Ein ausgeliefertes Versehen ist laut Design-Guide keine Markenentscheidung,
+deshalb steht das als eigene Frage in der Zeile:
+
+| Option                | Was sich ändert                                                                               | Kosten                                        |
+| --------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| r1 nach Publikum      | Nur der Kommentar in `tokens.css`: Kunde Markenecke, Apps 5 px. Keine Oberfläche ändert sich. | ein Kommentar, ein brand-Release              |
+| r2 Markenecke überall | Expert-Button und Expert-Feld bekommen die Markenecke; os und trainer-hub ändern sich.        | `expert.css`, zwei Pin-Sprünge, Dichte prüfen |
+| r3 5 px überall       | Website, Verifier und Dokumente verlieren die Markenecke an Buttons und Feldern.              | drei Repos, sichtbar auf jeder Kundenseite    |
+
+Empfehlung r1: Jede Kundenoberfläche stimmt schon überein, jede App auch. Die Trennung ist die eine,
+die du selbst nennst.
 
 ## Vorschlag
 
 **Elf Elemente kommen nach brand** als framework-freies CSS je Datei, im Muster von `marker.css`:
 Label, Pill, Karte, Callout, Zitat, Tabelle mit Linien, Fließtext-Link, Fokusring, rundes
-Icon-Bedienelement, Verlaufsstreifen, Codeblock. Dazu bleiben Listenmarker und Dropdown-Pfeil.
+Icon-Bedienelement, Verlaufsstreifen, Codeblock. Dazu bleiben Listenmarker und Dropdown-Pfeil, und
+die Expert-Komponenten der Apps samt Disclosure.
 
 | Frage                | Antwort                                                                                                                                                                                                                                  |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -114,14 +133,84 @@ Icon-Bedienelement, Verlaufsstreifen, Codeblock. Dazu bleiben Listenmarker und D
 | Maß je Medium        | Jedes Element liest `--hw-*` (Größe, Polsterung, Ecke, Linienstärke, Linienfarbe). Website-px sind der Default; `print.css` setzt pt, `slides.css` die Bühnen-rem, `expert.css` die dichte Stufe. Das Medium setzt nur Maße, nie Farben. |
 | Publikum             | Die Apps setzen `--hw-label-family` auf Inter und behalten Expert-Button und Expert-Feld. Sonst nichts.                                                                                                                                  |
 | Wrapper              | Erst keine: eine Klasse reicht in Astro, React und HTML. Ein dünner Astro- oder TSX-Wrapper erst, wenn ein Element Markup braucht (Icon-Bedienelement).                                                                                  |
-| Übernahme            | Jeder Nutzer pinnt brand, ersetzt seine Regel durch die Klasse und löscht seine Kopie. Ein Gate `brand-elements` misst wie `brand-markers` die gerenderten Elemente der Seiten, die der Nutzer nennt: Ecke, Farben, Linie, Polsterung.   |
-| Reihenfolge          | Label, Pill, Karte, Callout zuerst. slides plant gerade eigene Bausteine `Kicker`, `Chip`, `SlideCard`, `Quote` (os `docs/tracking/2026-11-01-slide-system.md`); bauen die auf den brand-Elementen auf, entsteht keine dritte Kopie.     |
-| Elements-Seite       | Jedes geteilte Element live, hell und Nacht, in den vier Maßen Website, dicht, Druck, Bühne nebeneinander, mit «genutzt von». Dazu die neun Expert-Komponenten und die Disclosure.                                                       |
 | Was je System bleibt | Summenband (nur Dokumente), Section-Band und Kopfleisten (Layout je Medium), Stage/Status (verschiedene Aufgaben), Tooltip, KPI-Kachel, Chart-Balken, Folientabelle, Ghost-Button.                                                       |
 
 Zur brand-Regel «The two engines … never enter this one, not even a primitive»: Sie verbietet, dass
 Engine-Code nach brand wandert. Die Richtung hier ist umgekehrt, brand liefert, die Engines nehmen,
 wie bei `marker.css`.
+
+## Hub und Spokes
+
+Benedikt am 01.11. (von Ada weitergegeben): «im hub (brand) soll ja der großteil liegen und in den
+spokes nur die ausnahmen für die jeweiligen spokes. das müssen wir ganzheitlich noch mal sauber
+aufziehen so das wir ein gutes dezentrales hub-spoke design system über alle repos haben»
+
+Heute zeigt jeder Spoke alles selbst: Website, trainer-hub und os in Astrobook (Website und
+trainer-hub mit einem Test, der jede Komponente ohne Story rot macht), talks die Folienbausteine auf
+`/design-system`, der Verifier jede Klasse auf `/design-system` (Test rot bei einer Klasse ohne
+Eintrag), documents und slides je eine Specimen-Seite. Keine Seite sagt, was aus brand kommt.
+
+### Was der Hub zeigt
+
+Die Elements-Seite in `catalogue.html` wird die Komponentenbibliothek. Mock:
+`brand-catalogue-mock.jpg` auf der Hub-Seite.
+
+- Jedes Hub-Element mit Regel in einem Satz, Datei, Version und den Einstellungen (`--hw-*`).
+- Live in einer Matrix: vier Maße (Bildschirm, dicht, Druck, Bühne) mal hell und Nacht. Jede Zelle
+  lädt dieselbe CSS-Datei mit dem Maß-Preset des Mediums.
+- Links auf die Kachel jedes Spokes nach einer festen Adresse (`<system>/design-system#hw-card`).
+  brand liest dafür keinen Spoke: `CLAUDE.md` erlaubt nur Links auf die Seiten der Systeme.
+- Daneben die Expert-Gruppe: die neun Komponenten und die Disclosure, im dichten Maß hell und Nacht.
+
+### Was ein Spoke zeigt
+
+| Option                                      | Für den Menschen                                                                                                                                                     | Für Drift                                                                                                                       |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| s1 nur Ausnahmen, Link je Hub-Element       | Kurze Seite. Wer wissen will, wie die Karte auf Papier aussieht, muss in den Katalog und sich das Druckmaß selbst vorstellen.                                        | Die Seite zeigt keine Hub-Elemente, also auch keine Abweichung. Das Gate muss echte Seiten finden, die jedes Element enthalten. |
+| s2 Hub-Elemente als Kacheln, Ausnahmen voll | Die ganze Oberfläche im eigenen Medium auf einer Seite. Ein Herkunftszeichen trennt «aus brand vX» von eigenen Elementen. Regel und Varianten stehen nur im Katalog. | Die Kacheln sind die Messfläche des Gates. Eine Abweichung wird rot, bevor eine echte Seite sie zeigt.                          |
+| s3 alles voll, Herkunft markiert            | Wie heute plus Zeichen; jede Regel steht zweimal.                                                                                                                    | Wie s2, aber Text und Varianten doppelt, die nächste Abschrift ist vorbereitet.                                                 |
+
+Empfehlung s2. Die Kachel zeigt nur das Rendering, kein Wort der Regel; die Regel hat einen
+Eigentümer. Mock: `documents-spoke-mock.jpg`, die documents-Specimen-Seite mit acht Kacheln aus brand
+und drei Ausnahmen (Summenband, Dokumentkopf, Unterschriftenzeile), jede mit Grund.
+
+### Das Gate
+
+`brand-elements`, ein Befehl im `bin` von brand, den jeder Spoke in seinem `bun run check` startet,
+wie `brand-markers`:
+
+1. **Gerendert.** Der Spoke nennt in `brand-elements.json` seine Design-System-Seite. Das Gate lädt
+   sie, setzt neben jede `hw-*`-Kachel ein Referenzelement aus der brand-Datei mit demselben
+   Maß-Preset und vergleicht die berechneten Werte: Ecke, Fläche, Linienfarbe und -stärke, Textfarbe,
+   Schrift, Versalien, Polsterung. Jede Differenz ist rot.
+2. **Quelltext.** Ein Selektor oder eine Komponente, die wie ein Hub-Element heißt (card, chip, pill,
+   tag, badge, eyebrow, kicker, label, callout, note, quote) und Ecke, Fläche, Linie oder Schrift
+   setzt, ist rot, außer sie trägt die `hw-*`-Klasse oder steht in `brand-elements.json` mit Grund.
+   Wie `brand-scan` heute bei den Expert-Komponenten.
+3. **Abdeckung.** Jede Ausnahme aus `brand-elements.json` und jedes genutzte Hub-Element hat eine
+   Kachel auf der Seite. Website und trainer-hub erweitern dafür ihren bestehenden Story-Test.
+
+Die Ausnahmenliste ist damit eine Datei: das Gate liest sie, die Seite zeigt sie.
+
+### Reihenfolge und Kosten
+
+Methode: Zahl der Kopien aus dem Inventar, gegengeprüft am Rollout von `marker.css` am 01.11.
+(brand-Release, dann 5 Commits in documents, 6 in slides, 4 im Verifier am selben Tag). Die Zeiten
+sind meine Schätzung, nicht gemessen.
+
+| #   | Repo        | Was                                                                                                                                                                  | Kopien | Schätzung   |
+| --- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -----: | ----------- |
+| 1   | brand       | Elf Elementdateien, Presets, Elements-Seite, Gate mit Tests; Ecke nach r1                                                                                            |      – | 1 Tag       |
+| 2   | documents   | Reines CSS, ersetzt Label, Pill, Karte, Callout, Zitat, Tabelle, Link, Code, Streifen; Specimen bekommt Kacheln und Ausnahmen                                        |    ~37 | ½ Tag       |
+| 3   | slides      | Im laufenden Bausteinplan (`Kicker`, `Chip`, `SlideCard`, `Quote`) auf brand-Elementen; 47 handgebaute Karten; Abstimmung mit der slides-Sitzung                     |    ~75 | 1 Tag       |
+| 4   | website     | Pin v0.21.7 auf aktuell (bringt auch `marker.css`); Card, Chip, InShort, Quote, Label, Fokus, Tabelle, Link; Astrobook markiert Herkunft. Die Werte stammen von hier |    ~20 | ½ bis 1 Tag |
+| 5   | verifier    | Karte ohne Schatten und Streifen, Callout auf 7 %, Fokusring, Feld                                                                                                   |     ~6 | 2 Stunden   |
+| 6   | trainer-hub | Pin aktuell; Karte, Label, Marker, Fokus, Code, Tabelle, eckige Badges                                                                                               |    ~15 | ½ Tag       |
+| 7   | os          | Pin-Sprung v0.21.6 auf aktuell, zusammen mit dem Pin der Disclosure; Karte, eigene Pills, Label (29 Inline-Stellen), Marker, Fokus, Code, Tabelle, Callout           |    ~50 | 1 Tag       |
+| 8   | talks       | Startseite: Theme-Toggle rund, Kategorie-Pill, Deck-Kachel, Fokusring; Folien kommen mit slides                                                                      |     ~4 | 2 Stunden   |
+
+documents zuerst: reines CSS, eine Specimen-Seite, am wenigsten Risiko, und der Beweis im Druck.
+slides direkt danach, solange der Bausteinplan noch nichts gebaut hat.
 
 ## Prototyp
 
@@ -185,7 +274,8 @@ den Beamer.
 
 - Übersprungen: os und der Verifier als Prototyp-Nutzer, die Nachtansicht, die Apps in der
   Bewertung. Die interne Persona hat Kunden-Oberflächen bewertet, nicht os.
-- Nicht gemessen: die Elemente 4 bis 11 im Prototyp, das Gate `brand-elements`.
+- Nicht gemessen: die Elemente 4 bis 11 im Prototyp, das Gate `brand-elements`, die Zeiten der
+  Reihenfolge. Die beiden Mocks sind statische Seiten, kein Katalog-Code.
 - Ungeklärt, ohne Ursache: warum slides seine Tabelle rahmt und zebrastreift. Das kann Medium sein
   oder Drift.
 - Ein Fund nebenbei, nur im Quelltext gelesen, nicht gerendert: slides `ActivitySlide.tsx:58` und

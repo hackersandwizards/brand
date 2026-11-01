@@ -38,31 +38,52 @@ window.DECISION_REPOS["brand"] = [
   {
     id: "shared-elements",
     title:
-      "Lift the elements every surface shares into brand as CSS, or only show what brand already shares?",
+      "Hub-spoke design system: lift the shared elements into brand, and what do the spoke pages show? Plus: button and field corner",
     area: "brand",
     priority: 2,
     order: 2,
     status: "open",
     context:
-      "Benedikt, 01.11.: „warum gibt es im brand kit nur ein einziges element. müssten da nicht viel mehr elemente sein? theoretisch müssten wir doch viel viel mehr gleiche elemente zwischen den einzelnen systemen haben und nur sehr einzelne ausnahmen. als abgesehen von kunde vs internes system“. Inventory of 23 element types over website, verifier, os, trainer-hub, talks, documents and slides (origin/main): 14 are the same rule at their medium's scale in two or more systems, 8 of them identical today, 6 with measured drift (focus ring 3/2/0 px and four slide forms, round icon control, code block, gradient strip, client button and field W vs V). 9 only look alike and stay per system (total band, section band, stage/status, tooltip, KPI tile, chart bars, slide table, header bars, ghost button). Shared as code today: list marker, dropdown chevron, the expert set and, from today, the os disclosure (precedent). The Elements page shows only the dropdown. documents and slides copy website elements by comment („Card.astro“, „TrainingList.astro .tl-chip“) and drift: chip tint 40 % in documents vs 15 % on website and slides. Prototype (scratch): label, pill and card as one marker.css-style file with px default and print/stage presets, applied to documents and slides: slides unchanged, documents move to the website's pill and card tint. Medium blind review (brand designer, client, internal user; Claude and Codex): today 7.86, prototype 8.26, consistency 7.94 vs 8.50, noise 0.2 to 0.5, 5 votes prototype, 3 tie, 0 today. Needs a ruling first: tokens.css gives buttons and fields radius-sm, website, verifier and documents use the brand corner. Report docs/tracking/2026-11-01-shared-elements.md, crops ~/Downloads/stand-entscheidungen/shared-elements/index.html.",
+      "Benedikt, 01.11.: „warum gibt es im brand kit nur ein einziges element. müssten da nicht viel mehr elemente sein? […] als abgesehen von kunde vs internes system“ and (relayed by Ada) „im hub (brand) soll ja der großteil liegen und in den spokes nur die ausnahmen für die jeweiligen spokes. das müssen wir ganzheitlich noch mal sauber aufziehen so das wir ein gutes dezentrales hub-spoke design system über alle repos haben“. Inventory of 23 element types over website, verifier, os, trainer-hub, talks, documents and slides (origin/main): 14 are the same rule at their medium's scale in two or more systems (8 identical today, 6 with measured drift); 9 only look alike and stay per system. Shared as code today: list marker, dropdown chevron, the expert set and, from today, the os disclosure (precedent). documents and slides copy website elements by comment and drift (chip tint 40 % vs 15 %). Prototype (scratch): label, pill and card as one marker.css-style file with screen, dense, print and stage presets; slides unchanged, documents move to the website's pill and card. Medium blind review (brand designer, client, internal user; Claude and Codex, 8 per version): today 7.86, prototype 8.26, consistency 7.94 vs 8.50, noise 0.2 to 0.5, votes 5 prototype, 3 tie, 0 today. Hub: the Elements page shows every hub element live, light and night, at four scales. Spoke page options: s1 exceptions only plus a link per hub element; s2 hub elements as tiles with origin and link, exceptions in full (the tiles are where the brand-elements gate measures); s3 everything in full with origin. Gate brand-elements: rendered comparison against a brand reference element at the same scale, a source check on element-named selectors, coverage of brand-elements.json. Order: brand, documents, slides, website, verifier, trainer-hub, os, talks (about 4 to 5 agent days, estimate). Answer one of a/a-s1/b/c plus one of r1/r2/r3. Report docs/tracking/2026-11-01-shared-elements.md, mocks and crops ~/Downloads/stand-entscheidungen/shared-elements/index.html.",
     options: [
       {
         key: "a",
-        label: "Lift 11 elements into brand, exceptions listed",
+        label: "Lift 11 elements; spokes show hub tiles plus their exceptions (s2)",
         detail:
-          "Label, pill, card, callout, quote, ruled table, prose link, focus ring, round icon control, gradient strip, code block as elements/<name>.css with --hw-* scale settings (website px default, print pt, slide stage, expert dense); apps keep Inter labels and the expert button and field. A brand-elements gate measures each consumer's rendered elements, the Elements page shows every one live in light and night at all four scales. First label, pill, card, callout, so slides builds its planned Kicker, Chip, SlideCard and Quote on them. Stays per system: total band, section band, stage/status, tooltip, KPI tile, chart bars, slide table, header bars, ghost button.",
+          "Label, pill, card, callout, quote, ruled table, prose link, focus ring, round icon control, gradient strip, code block as elements/<name>.css with --hw-* scales. brand's Elements page is the component library (four scales, light and night, plus the expert group). Each spoke page renders the hub elements it uses as tiles marked 'aus brand vX' with a catalogue link, and its exceptions in full with a reason; brand-elements measures the tiles. Stays per system: total band, section band, stage/status, tooltip, KPI tile, chart bars, slide table, header bars, ghost button.",
+      },
+      {
+        key: "a-s1",
+        label: "Lift 11 elements; spokes show only exceptions plus links (s1)",
+        detail:
+          "As a, but spoke pages drop the hub tiles: shorter pages, no view of a hub element in the spoke's medium, and the gate has to find real pages containing each element.",
       },
       {
         key: "b",
         label: "Only show what brand already shares",
         detail:
-          "The Elements page adds the list marker, the internal header, the nine expert components and the disclosure. No new element; documents, slides and the website keep their copies and their drift.",
+          "The Elements page adds the list marker, the internal header, the nine expert components and the disclosure. No new element; copies and drift stay.",
       },
       {
         key: "c",
         label: "Keep everything per system",
+        detail: "Nothing changes.",
+      },
+      {
+        key: "r1",
+        label: "Corner: by audience (brand corner on client buttons and fields, 5 px in the apps)",
         detail:
-          "Nothing changes; each system shows its components on its own design-system page, as today.",
+          "Only the tokens.css comment changes; every client surface and every app already agrees. Recommended.",
+      },
+      {
+        key: "r2",
+        label: "Corner: brand corner everywhere",
+        detail: "expert.css changes; os and trainer-hub buttons and fields change, two pin raises.",
+      },
+      {
+        key: "r3",
+        label: "Corner: 5 px everywhere",
+        detail: "website, verifier and documents lose the brand corner on buttons and fields.",
       },
     ],
     recommended: "a",
