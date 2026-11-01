@@ -43,7 +43,8 @@ BASE = (11, 17, 24)
 WHITE = (234, 235, 236)
 SUBLINE = (223, 224, 226)
 # on night the accent takes its night tone, as the website and the apps do
-ACCENTS = {"teal": run_path(str(BRAND / "generated/tokens.py"))["COLORS"]["--color-teal-night"], "purple": (190, 133, 242)}
+COLORS = run_path(str(BRAND / "generated/tokens.py"))["COLORS"]
+ACCENTS = {"teal": COLORS["--color-teal-night"], "purple": COLORS["--color-purple-night"]}
 TEAL_GLOW, PURPLE_GLOW = (7, 41, 46), (35, 9, 54)
 
 CLIENTS = BRAND / "clients"

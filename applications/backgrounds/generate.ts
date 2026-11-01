@@ -10,7 +10,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { crc32 } from "node:zlib";
 import sharp from "sharp";
-import { brand, browser, fontFaces, tint, toJpeg } from "./render";
+import { brand, browser, fileUrl, fontFaces, tint, toJpeg } from "./render";
 
 const DARK = import.meta.dir;
 
@@ -389,7 +389,7 @@ async function generateBackgrounds() {
       for (const [name, f] of Object.entries(files)) {
         const dark = name === "dark";
         const tone = dark ? "dark" : VARIANTS[name].tone;
-        const u = (k: string) => `file://${f[k] ?? f[k.replace("-home", "")]}`;
+        const u = (k: string) => fileUrl(f[k] ?? f[k.replace("-home", "")]);
         const ink = tone === "light" ? "#1d2733" : "#fff";
         const save = async (panel: string, html: string, w: number, h: number) =>
           writeFileSync(
@@ -636,11 +636,11 @@ const LAYOUT_BOX: Record<string, number[]> = {
 // position name the layout box.
 function inlineLockup(url: string, width: number, height: number, x: number, y: number) {
   const box = (file: string) =>
-    readFileSync(file.replace("file://", ""), "utf8")
+    readFileSync(new URL(file), "utf8")
       .match(/viewBox="([^"]+)"/)![1]
       .split(" ")
       .map(Number);
-  const svg = readFileSync(url.replace("file://", ""), "utf8");
+  const svg = readFileSync(new URL(url), "utf8");
   const [vx, vy, vw, vh] = box(url);
   const [dx, dy, dw, dh] = LAYOUT_BOX[/(lockup(-compact)?)(-night)?\.svg$/.exec(url)![1]];
   const k = width ? width / dw : height / dh;
@@ -683,7 +683,7 @@ const phoneFrame = (html: string) =>
 
 // The mock of one screen: html, size, and the regions holding system text, cut out at real size.
 function screenMock(screen: Screen, wall: string, tone: "light" | "mid" | "dark") {
-  const u = `file://${wall}`;
+  const u = fileUrl(wall);
   const ink = tone === "light" ? "#1d2733" : "#fff";
   const m: Record<Screen, () => [string, number, number, number[][]]> = {
     "mac-desktop": () => [

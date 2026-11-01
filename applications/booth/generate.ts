@@ -10,11 +10,11 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
-import { brand, browser, toJpeg } from "../backgrounds/render";
+import { brand, browser, fileUrl, toJpeg } from "../backgrounds/render";
 
 const BOOTH = import.meta.dir;
-const boothCss = (f: string) => `<link rel="stylesheet" href="file://${join(BOOTH, f)}">`;
-const qr = `file://${join(BOOTH, "qr-hackersandwizards-dev.svg")}`;
+const boothCss = (f: string) => `<link rel="stylesheet" href="${fileUrl(join(BOOTH, f))}">`;
+const qr = fileUrl(join(BOOTH, "qr-hackersandwizards-dev.svg"));
 const MAGIC = "linear-gradient(135deg, var(--teal), var(--purple))"; // the brand's --gradient-magic
 
 function docHead(title: string, w: number, h: number) {
@@ -145,8 +145,8 @@ async function generateBooth() {
     for (const wall of lit ? ["lit"] : (walls ?? [""]))
       for (const far of [true, false]) {
         const view = boothView(
-          `file://${tallFile}`,
-          `file://${squareFile}`,
+          fileUrl(tallFile),
+          fileUrl(squareFile),
           far,
           WALLS[lit ? "dark" : wall || "mid"],
           glow,

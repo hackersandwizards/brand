@@ -48,7 +48,7 @@ const strip = (s: string, ext: string) =>
         .replace(/<!--[\s\S]*?-->/g, "");
 // 8 and 4 digits carry an alpha channel; the colour part decides token or off-token.
 const HEX = /(?<![&\w])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g;
-const isColour3 = (h: string) => /\d/.test(h) || /^(.)\1\1$/.test(h);
+const isColour3 = (h: string) => /\d/.test(h) || /^(.)\1\1/.test(h);
 const FONT = /font-family\s*:\s*([^;}"'`\n]+|["'][^;}\n]+)|fontFamily\s*[:=]\s*["'`]([^"'`]+)/g;
 const BRAND_FONT =
   /^\s*(["']?(Inter|JetBrains Mono)( Variable)?["']?|var\(--|inherit|initial|unset|theme\()/i;

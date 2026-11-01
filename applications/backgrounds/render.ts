@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import sharp from "sharp";
 import { findChrome, NO_KEYCHAIN } from "../linkedin-visuals/render";
 
@@ -17,7 +18,7 @@ function lfs(file: string): string {
   return path;
 }
 
-const fileUrl = (path: string) => `file://${path}`;
+export const fileUrl = (path: string) => pathToFileURL(path).href;
 export const brand = {
   version: JSON.parse(readFileSync(join(BRAND, "package.json"), "utf8")).version as string,
   emoji: fileUrl(lfs("emoji-logo-short.png")),
@@ -92,23 +93,10 @@ export async function browser() {
   await send("Page.enable", {}, sessionId);
   const scratch = mkdtempSync(join(tmpdir(), "hw-html-"));
 
-  // Render an HTML string at width x height CSS px and the given scale; returns PNG bytes.
-  // html may be an http(s) URL to capture instead. ready: an expression whose promise the capture
-  // waits for.
-  async function shot(
-    html: string,
-    width: number,
-    height: number,
-    scale = 1,
-    ready = "document.fonts.ready",
-  ) {
+  // Opens an HTML string, or an http(s) URL, and waits for its load event and then for `ready`.
+  async function load(html: string, ready = "document.fonts.ready") {
     const file = join(scratch, `${id}.html`);
-    writeFileSync(file, html);
-    await send(
-      "Emulation.setDeviceMetricsOverride",
-      { width, height, deviceScaleFactor: scale, mobile: false },
-      sessionId,
-    );
+    if (!/^https?:/.test(html)) writeFileSync(file, html);
     const loaded = new Promise<void>((ok) => {
       const f = (m: { method: string; sessionId?: string }) => {
         if (m.method === "Page.loadEventFired" && m.sessionId === sessionId) {
@@ -121,6 +109,24 @@ export async function browser() {
     await send("Page.navigate", { url: /^https?:/.test(html) ? html : fileUrl(file) }, sessionId);
     await loaded;
     await send("Runtime.evaluate", { expression: ready, awaitPromise: true }, sessionId);
+  }
+
+  // Render an HTML string at width x height CSS px and the given scale; returns PNG bytes.
+  // html may be an http(s) URL to capture instead. ready: an expression whose promise the capture
+  // waits for.
+  async function shot(
+    html: string,
+    width: number,
+    height: number,
+    scale = 1,
+    ready = "document.fonts.ready",
+  ) {
+    await send(
+      "Emulation.setDeviceMetricsOverride",
+      { width, height, deviceScaleFactor: scale, mobile: false },
+      sessionId,
+    );
+    await load(html, ready);
     const { data } = (await send(
       "Page.captureScreenshot",
       { format: "png", clip: { x: 0, y: 0, width, height, scale: 1 } },
@@ -130,24 +136,7 @@ export async function browser() {
   }
 
   async function pdf(html: string, widthMm: number, heightMm: number) {
-    const file = join(scratch, `${id}.html`);
-    writeFileSync(file, html);
-    const loaded = new Promise<void>((ok) => {
-      const f = (m: { method: string; sessionId?: string }) => {
-        if (m.method === "Page.loadEventFired" && m.sessionId === sessionId) {
-          events.splice(events.indexOf(f), 1);
-          ok();
-        }
-      };
-      events.push(f);
-    });
-    await send("Page.navigate", { url: fileUrl(file) }, sessionId);
-    await loaded;
-    await send(
-      "Runtime.evaluate",
-      { expression: "document.fonts.ready", awaitPromise: true },
-      sessionId,
-    );
+    await load(html);
     const { data } = (await send(
       "Page.printToPDF",
       {
