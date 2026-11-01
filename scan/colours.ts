@@ -7,16 +7,21 @@
 // box shadows (`shadow`) whose value is no brand token, Tailwind's default radius and shadow
 // classes included. Compares the counts with the consumer's brand-colours.json and exits 1 on any
 // count above its entry, any unlisted file with a count, an entry without a reason, or an entry
-// that grew against HEAD: the allowlist may only shrink. Prints every built-in exception it applied
+// that grew against HEAD: the allowlist may only shrink. Where the working tree changes the brand
+// pin package.json holds at HEAD, an entry may also grow to what this scanner finds in the file as
+// committed at HEAD, so a pin raise lists a newer scanner's findings in the same commit while
+// anything the consumer's own new code adds still fails. Prints every built-in exception it applied
 // with the number of files it skipped.
 // Usage: brand-colours [--tighten]
 //   --tighten  lowers every entry to today's count and drops entries at zero; creates the
-//              allowlist from today's counts where none exists. Never raises an entry.
+//              allowlist from today's counts where none exists. Raises an entry, or adds one with
+//              an empty reason, only during a pin change, to what HEAD's file holds.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import manifest from "../manifest.json";
+import own from "../package.json";
 import { colors, tokens } from "../generated/tokens";
 
 export type Counts = {
@@ -277,11 +282,13 @@ export const scanSource = (raw: string, ext: string) => {
 };
 
 /** Every way the counts exceed the allowlist, and every entry without a reason or grown against
- *  the committed allowlist. */
+ *  the committed allowlist beyond `ceiling`, this scanner's counts of the files as committed, which
+ *  a pin change passes. */
 export const violations = (
   files: Record<string, Counts>,
   allow: Allowlist,
   committed: Allowlist | undefined,
+  ceiling: Record<string, Counts> = {},
 ) => {
   const out: string[] = [];
   for (const [file, counts] of Object.entries(files))
@@ -293,20 +300,25 @@ export const violations = (
     if (!e.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
     if (committed)
       for (const k of METRICS)
-        if ((e[k] ?? 0) > (committed[file]?.[k] ?? 0))
-          out.push(`${ALLOWLIST}: ${file} ${k} grew against HEAD; the allowlist may only shrink`);
+        if ((e[k] ?? 0) > Math.max(committed[file]?.[k] ?? 0, ceiling[file]?.[k] ?? 0))
+          out.push(
+            `${ALLOWLIST}: ${file} ${k} grew against HEAD; the allowlist may only shrink, or during a pin change grow to the count of the file as committed`,
+          );
   }
   return out;
 };
 
-export const tighten = (files: Record<string, Counts>, allow: Allowlist | undefined) => {
+export const tighten = (
+  files: Record<string, Counts>,
+  allow: Allowlist | undefined,
+  ceiling: Record<string, Counts> = {},
+) => {
   const next: Allowlist = {};
   for (const [file, counts] of Object.entries(files)) {
     const prior = allow?.[file];
-    if (allow && !prior) continue;
-    const c = Object.fromEntries(
-      METRICS.map((k) => [k, prior ? Math.min(prior[k] ?? 0, counts[k]) : counts[k]]),
-    ) as Counts;
+    const limit = (k: (typeof METRICS)[number]) =>
+      allow ? Math.max(prior?.[k] ?? 0, ceiling[file]?.[k] ?? 0) : Infinity;
+    const c = Object.fromEntries(METRICS.map((k) => [k, Math.min(limit(k), counts[k])])) as Counts;
     if (METRICS.some((k) => c[k])) next[file] = { ...c, reason: prior?.reason ?? "" };
   }
   return next;
@@ -319,6 +331,38 @@ export const listTree = (cmd: string) => {
   const ls = runGit(["ls-files", "-z", "--cached", "--others", "--exclude-standard"]);
   if (ls.status !== 0) throw new Error(`${cmd}: not a git checkout: ${ls.stderr}`);
   return [...new Set(ls.stdout.split("\0"))].filter((p) => p && existsSync(p));
+};
+
+/** The brand version a package.json pins as a Git tag (`#v<version>`), if any. */
+export const pinnedVersion = (packageJson: string) => {
+  const pkg = JSON.parse(packageJson);
+  for (const field of ["dependencies", "devDependencies", "optionalDependencies"]) {
+    const m = /#v([^#\s]+)$/.exec(pkg[field]?.["@hackersandwizards/brand"] ?? "");
+    if (m) return m[1];
+  }
+};
+
+/** The brand version package.json pinned at HEAD where this scanner is another one, the working
+ *  tree changing the pin; undefined otherwise. */
+export const pinChange = (cmd: string) => {
+  const head = runGit(["show", "HEAD:./package.json"]);
+  const from = head.status === 0 ? pinnedVersion(head.stdout) : undefined;
+  if (!from || from === own.version) return;
+  console.log(
+    `${cmd}: pin change v${from} to v${own.version}: the list may take what this scanner finds in the files as committed at HEAD`,
+  );
+  return from;
+};
+
+/** Whether a path is committed at HEAD and unchanged in the working tree. */
+export const committedAsIs = (p: string) =>
+  runGit(["cat-file", "-e", `HEAD:./${p}`]).status === 0 &&
+  runGit(["diff", "--quiet", "HEAD", "--", p]).status === 0;
+
+/** This scanner's counts of a file as committed at HEAD, none where HEAD has no such file. */
+const committedCounts = (p: string) => {
+  const head = runGit(["show", `HEAD:./${p}`]);
+  return head.status === 0 ? scanSource(head.stdout, extname(p)).counts : undefined;
 };
 
 const LFS = /^version https:\/\/git-lfs\.github\.com\/spec\/v1\noid sha256:([0-9a-f]{64})\n/;
@@ -403,11 +447,19 @@ if (import.meta.main) {
   const { files, skipped } = scanTree();
   const report = exceptionReport("brand-colours", skipped);
   if (report) console.log(report);
+  // Only a file holding more than the committed list allows is read at HEAD.
+  const ceiling: Record<string, Counts> = {};
+  if (committed && pinChange("brand-colours"))
+    for (const [file, counts] of Object.entries(files)) {
+      const c =
+        METRICS.some((k) => counts[k] > (committed[file]?.[k] ?? 0)) && committedCounts(file);
+      if (c) ceiling[file] = c;
+    }
   if (process.argv.includes("--tighten")) {
-    writeFileSync(ALLOWLIST, JSON.stringify(tighten(files, allow), null, 2) + "\n");
+    writeFileSync(ALLOWLIST, JSON.stringify(tighten(files, allow, ceiling), null, 2) + "\n");
     console.log(`brand-colours: ${ALLOWLIST} tightened; give every new entry its reason`);
   } else {
-    const bad = violations(files, allow ?? {}, committed);
+    const bad = violations(files, allow ?? {}, committed, ceiling);
     if (bad.length) {
       console.error(
         `${bad.join("\n")}\nbrand-colours: ${bad.length} findings. Use the brand token, or name the exception with its reason in ${ALLOWLIST}.`,
