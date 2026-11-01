@@ -592,6 +592,7 @@ const html = `<!doctype html>
 <link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="generated/tokens.root.css">
 <link rel="stylesheet" href="tokens/print.css">
+<link rel="stylesheet" href="tokens/marker.css">
 <link rel="stylesheet" href="expert/header.css">
 <style>
   /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
@@ -617,7 +618,8 @@ const html = `<!doctype html>
   .input:focus-visible { border-color: var(--color-teal); }
   input[type=search]::-webkit-search-cancel-button { cursor: pointer; }
   #q { margin: 0 0.25rem; width: calc(100% - 0.5rem); }
-  main { padding: 1.5rem clamp(1rem, 3vw, 3rem) 4rem; min-width: 0; }
+  /* Every list on the page takes the brand's marker (tokens/marker.css). */
+  main { padding: 1.5rem clamp(1rem, 3vw, 3rem) 4rem; min-width: 0; --hw-markers: on; }
   section { display: none; max-width: var(--container-wide); }
   section.on { display: block; }
   h1, h2, h3 { font-family: var(--font-mono); letter-spacing: -0.02em; }

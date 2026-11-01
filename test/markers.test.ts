@@ -128,3 +128,10 @@ test("a bullet glyph drawn as ::before content is found", async () => {
   expect(rs.length).toBe(2);
   expect(rs.every((r) => Number.isFinite(r.offset))).toBe(true);
 }, 60_000);
+
+// The catalogue's own lists take the rule; with the browser's disc they read 0.56 to 0.61 px off.
+test("the catalogue's lists sit within 0.25 px", async () => {
+  const rs = await all(brand("catalogue.html"), 2);
+  expect(rs.length).toBeGreaterThan(0);
+  expect(show(rs.filter(failing))).toEqual([]);
+}, 60_000);
