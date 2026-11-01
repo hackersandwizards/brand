@@ -4,10 +4,12 @@
 // a maskable app icon keeps, so the website's icons share it. os
 // docs/tracking/2026-10-31-icon-sizes.md has the blind reviews.
 // bun applications/avatars/generate.ts
-// The Google Workspace logo is logos/lockup.svg centred on white, 304 px wide in exactly 320 x 132,
-// the one size Google's help names ("displayed at exactly 320 x 132 pixels"). The Admin console's
-// home header squashes it into 320 x 48, measured on a screenshot of 2026-11-01; no 320 x 132 file
-// escapes that. The package ships one size,
+// The Google Workspace logo is the wide avatar: the hw centred on the same gradient, full-bleed, in
+// exactly 320 x 132, the one size Google's help names ("displayed at exactly 320 x 132 pixels"),
+// the hw 60 % of its height. Gmail shows it at 78 x 32 pt, where the lockup's letters shrank to
+// about 6 pt; os docs/tracking/2026-11-01-workspace-logo.md has the blind review. The Admin
+// console's home header squashes it into 320 x 48, measured on a screenshot of 2026-11-01; no
+// 320 x 132 file escapes that. The package ships one size,
 // logos/avatar-512.png, for a consumer that uploads a square logo (os: Tally forms); the rest stay in LFS.
 // It also ships the favicon set every site and page serves, in logos/: browser tabs and Windows
 // show favicon.svg, favicon.ico and icon-192/512 unmasked, so those carry the rounded corners
@@ -26,11 +28,13 @@ const [, ...glyphs] = [...logo.matchAll(/ d="([^"]+)"/g)].map((m) => m[1]); // t
 const [x0, y0, x1, y1] = [48, 48, 1104, 888]; // the glyphs' bounding box in that file
 const size = (x1 - x0) / MARK;
 
-// The hw spans `mark` of the tile; `rounded` gives the tile the corner a tab shows unmasked.
-const svg = (mark: number, rounded: boolean) => {
+// The hw spans `mark` of the tile's width; `rounded` gives the tile the corner a tab shows
+// unmasked; `ratio` is the tile's width over its height.
+const svg = (mark: number, rounded: boolean, ratio = 1) => {
   const size = (x1 - x0) / mark;
-  const [x, y] = [(x0 + x1 - size) / 2, (y0 + y1 - size) / 2];
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${size} ${size}"><linearGradient id="g" x2="1" y2="1"><stop stop-color="${colors["--color-teal"]}"/><stop offset="1" stop-color="${colors["--color-purple"]}"/></linearGradient><rect x="${x}" y="${y}" width="${size}" height="${size}"${rounded ? ` rx="${size / 5}"` : ""} fill="url(#g)"/><path fill="${colors["--color-white"]}" d="${glyphs.join("")}"/></svg>\n`;
+  const height = size / ratio;
+  const [x, y] = [(x0 + x1 - size) / 2, (y0 + y1 - height) / 2];
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${size} ${height}"><linearGradient id="g" x2="1" y2="1"><stop stop-color="${colors["--color-teal"]}"/><stop offset="1" stop-color="${colors["--color-purple"]}"/></linearGradient><rect x="${x}" y="${y}" width="${size}" height="${height}"${rounded ? ` rx="${size / 5}"` : ""} fill="url(#g)"/><path fill="${colors["--color-white"]}" d="${glyphs.join("")}"/></svg>\n`;
 };
 export const tile = svg(MARK, false);
 export const favicon = svg(1056 / 1440, true);
@@ -79,11 +83,9 @@ if (import.meta.main) {
   head.writeUInt32LE(22, 18); // image offset
   await Bun.write(logos("favicon.ico"), Buffer.concat([head, ico32]));
 
-  const lockup = await sharp(logos("lockup.svg")).resize(304).toBuffer();
-  await sharp({
-    create: { width: 320, height: 132, channels: 3, background: colors["--color-white"] },
-  })
-    .composite([{ input: lockup }])
+  const wide = (0.6 * (x1 - x0) * 132) / ((y1 - y0) * 320); // the hw at 60 % of the height
+  await sharp(Buffer.from(svg(wide, false, 320 / 132)), { density: (72 * 320 * wide) / (x1 - x0) })
+    .resize(320, 132)
     .png()
     .toFile(join(import.meta.dir, "google-workspace-logo-320x132.png"));
 }

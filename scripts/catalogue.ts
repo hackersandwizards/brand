@@ -253,7 +253,7 @@ const FAMILIES: Family[] = [
   {
     id: "avatars",
     title: "Avatars and workspace icons",
-    note: `The white hw on the brand gradient, one file per platform, the hw at ${MARK * 100}% of the tile width, the largest that stays inside a maskable icon's safe circle; generate.ts builds them. Google Workspace takes the lockup at 320 x 132.`,
+    note: `The white hw on the brand gradient, one file per platform, the hw at ${MARK * 100}% of the tile width, the largest that stays inside a maskable icon's safe circle; generate.ts builds them. The Google Workspace logo is the wide avatar, the hw centred on the gradient at 320 x 132.`,
     dir: "applications/avatars",
   },
   {
