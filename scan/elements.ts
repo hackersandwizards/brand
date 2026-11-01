@@ -16,8 +16,8 @@
 //    (OWNS: its corner, fill, line, text colour, type, padding or size) fails, by more than 0.02px
 //    for a length.
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
-//    like an element (card, chip, pill, tag, badge, eyebrow, kicker, label, callout, note, quote)
-//    and sets a corner, fill, line or type fails, and so does a component file of such a name,
+//    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote)
+//    and sets a property that element owns (a shorthand counts for its longhands) fails, and so does a component file of such a name,
 //    unless it carries the hw-* class, its name is an exception, or its file is one an exception
 //    lists in "files" (a stylesheet of the system's own medium, such as a slide deck's).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it, its
@@ -245,8 +245,30 @@ export async function measurePage(browser: Browser, url: string, css = "") {
 
 // ── Source ──
 const NAMED = /(^|-)(card|chip|pill|tag|badge|eyebrow|kicker|label|callout|note|quote)s?($|-)/;
-const STYLING =
-  /^(border(-[a-z]+)*|background(-color|-image)?|font(-[a-z]+)?|letter-spacing|text-transform)$/;
+const WORD: Record<string, string> = {
+  card: "card",
+  chip: "pill",
+  pill: "pill",
+  tag: "pill",
+  badge: "pill",
+  eyebrow: "label",
+  kicker: "label",
+  label: "label",
+  callout: "callout",
+  note: "callout",
+  quote: "quote",
+};
+/** The element a class is named like. */
+const namedAs = (cls: string) => WORD[NAMED.exec(cls)?.[2] ?? ""];
+/** Whether a declared property, a shorthand included, sets one the element owns. */
+export const setsOwned = (element: string, prop: string) =>
+  OWNS[element]!.some(
+    (q) =>
+      q === prop ||
+      q.startsWith(`${prop}-`) ||
+      (prop === "border-radius" && q.endsWith("-radius")) ||
+      (/^border-(width|style|color)$/.test(prop) && q.endsWith(prop.slice(6))),
+  );
 const STYLED = new Set([".css", ".scss", ".astro", ".vue", ".svelte"]);
 const COMPONENT = new Set([".astro", ".tsx", ".jsx", ".vue", ".svelte"]);
 
@@ -319,10 +341,10 @@ export const sourceFindings = (
     }
     if (!STYLED.has(ext)) continue;
     for (const r of rules(styles(raw, ext))) {
-      if (!r.props.some((x) => STYLING.test(x))) continue;
       for (const sel of r.selectors) {
         const cls = subject(sel);
-        if (cls && !cls.startsWith("hw-") && NAMED.test(cls) && !(cls in allow))
+        const element = cls && !cls.startsWith("hw-") ? namedAs(cls) : undefined;
+        if (element && !(cls! in allow) && r.props.some((x) => setsOwned(element, x)))
           out.push(
             `${p}: ${sel} styles an element named like a shared one; use the hw-* element or list "${cls}" as an exception`,
           );

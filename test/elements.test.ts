@@ -134,7 +134,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
 
 test("source: a rule styling an element-named class is red unless hw-* or an exception", () => {
   const files: Record<string, string> = {
-    "src/a.css": `.doc-tag { border-radius: 9999px } .card .meta { color: red } .card { display: grid }
+    "src/a.css": `.doc-tag { border-radius: 9999px } .card .meta { color: red } .card { display: grid } .note { font-size: 9pt; color: grey } .total-note { font: 9pt sans-serif }
 @media print { .callout { background: white } } .hw-card { border: 0 } .total-band { background: teal }
 .eyebrow, .title { font-size: 9pt }`,
     "src/components/Card.astro": `<div class="card"/><style>.wrap { padding: 0 }</style>`,
@@ -148,6 +148,7 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
     readout: { reason: "the deck's own medium", files: ["deck/readout.css"] },
   });
   expect(out).toEqual([
+    'src/a.css: .total-note styles an element named like a shared one; use the hw-* element or list "total-note" as an exception',
     'src/a.css: .callout styles an element named like a shared one; use the hw-* element or list "callout" as an exception',
     'src/a.css: .eyebrow styles an element named like a shared one; use the hw-* element or list "eyebrow" as an exception',
     'src/components/Card.astro: a component named like a shared element; render the hw-* element or list "card" as an exception',
