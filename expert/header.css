@@ -175,6 +175,11 @@ html[data-theme="dark"] .hw-header-logo-night {
   transition: color 0.15s, background-color 0.15s;
 }
 
+/* The nav clips on every side (overflow-x makes overflow-y auto too), so the ring goes inside. */
+.hw-header-link:focus-visible {
+  outline-offset: -2px;
+}
+
 .hw-header-link:hover {
   background: color-mix(in srgb, var(--muted, var(--color-tint)) 40%, transparent);
   color: var(--hw-fg);

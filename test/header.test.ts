@@ -62,3 +62,45 @@ describe("expert/header.css", () => {
       expect(misses(css, width)).toEqual([]);
     });
 });
+
+// The nav scrolls sideways, so it clips on every side and is exactly as tall as its links: a focus
+// ring drawn outside a link lost its top and bottom edges. No consumer sets a ring, so the page gives
+// the link one as wide as Chrome's own. A scripted focus does not reliably take in headless Chrome,
+// so header.css's :focus-visible rules apply to a class here, and a missing ring reads NaN.
+const ringOutside = (css: string): number => {
+  const file = join(SCRATCH, "focus.html");
+  writeFileSync(
+    file,
+    `<!doctype html><html><head><style>${readFileSync(join(ROOT, "generated/tokens.root.css"), "utf8")}a.ring{outline:2px solid}${css.replaceAll(":focus-visible", ".ring")}</style></head><body>
+<header class="hw-header"><div class="hw-header-row hw-container"><nav class="hw-header-nav"><a class="hw-header-link" href="/a">Deals</a></nav></div></header>
+<pre id="out"></pre><script>
+const link = document.querySelector(".hw-header-link");
+link.classList.add("ring");
+const s = getComputedStyle(link);
+const grow = s.outlineStyle === "solid" ? parseFloat(s.outlineOffset) + parseFloat(s.outlineWidth) : NaN;
+const [l, n] = [link.getBoundingClientRect(), link.parentElement.getBoundingClientRect()];
+document.getElementById("out").textContent = String(Math.max(n.top - (l.top - grow), l.bottom + grow - n.bottom));
+</script></body></html>`,
+  );
+  const dom = execFileSync(
+    findChrome(),
+    [
+      "--headless",
+      ...NO_KEYCHAIN,
+      "--allow-file-access-from-files",
+      "--virtual-time-budget=2000",
+      "--dump-dom",
+      `file://${file}`,
+    ],
+    { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+  );
+  return Number(/<pre id="out">(.*?)<\/pre>/s.exec(dom)![1]);
+};
+
+describe("expert/header.css focus", () => {
+  it("draws a nav link's focus ring inside the nav, which clips it", () => {
+    expect(ringOutside(readFileSync(join(ROOT, "expert/header.css"), "utf8"))).toBeLessThanOrEqual(
+      0,
+    );
+  });
+});
