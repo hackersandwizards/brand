@@ -609,8 +609,6 @@ const sharedHtml = ELEMENT_ORDER.map(([name, title, file]) => {
 }).join("\n");
 const EXPERT_COMPONENTS = [
   "AppHeader",
-  "AstrobookHome",
-  "Catalogue",
   "PageHeader",
   "Pill",
   "FilterChip",
@@ -648,7 +646,7 @@ const SYSTEMS = [
 // On GitHub Pages a system link leaves its local address for the public one its owner publishes.
 const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub]) => [url, pub]));
 
-// Overview: the catalogue shape (expert/catalogue.ts), one group per view with a tile per part of
+// Overview: the catalog shape (scaffolding's renderCatalog), one group per view with a tile per part of
 // it, and the systems' own design-system pages. Quick start and refresh sit above the tiles; the
 // views keep their own markup, one shown at a time in place of the overview.
 // A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
@@ -883,7 +881,7 @@ const html = `<!doctype html>
   .pv-tokens { display: flex; gap: 1.25rem; align-items: center; justify-content: center; height: 100%; }
   .pv-tokens span { width: 4.5rem; height: 4.5rem; background: var(--color-white); border: 1px solid var(--color-border); }
   .hw-catalogue-preview > svg { display: block; width: 100%; height: 100%; }
-  /* The portal's own parts, the views included; the catalogue shape and its tiles are catalogue.css's. */
+  /* The portal's own parts, the views included; the catalog shape and its tiles are catalog.css's. */
   .portal {
     --hw-markers: on;
     .quick { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem; margin-top: 2rem; }
@@ -1029,7 +1027,7 @@ const show = () => {
   if (el) { el.scrollIntoView({ block: "start" }); if (view) { el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); } }
   else scrollTo(0, 0);
 };
-// The search filters the tiles (catalogue.ts) and lists every token, colour, logo, file and photo
+// The search filters the tiles (renderCatalog) and lists every token, colour, logo, file and photo
 // it hits that no shown tile already leads to.
 const search = () => {
   const w = words();

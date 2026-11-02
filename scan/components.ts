@@ -2,7 +2,7 @@
 // The component check a consumer of the expert components runs in its own gate: a component in its
 // working tree (tracked or untracked, .gitignore honoured, the paths brand-colours reads) named
 // like one of this package's expert components is a fork of it. Exits 1 on a fork not listed in
-// the consumer's brand-scan.json ({ "<lowercase name>": "<reason>" }), on an entry without a
+// the consumer's brand-scan.json ({ "<lowercase name>": "<reason>" }, the name without - and _), on an entry without a
 // reason, and on an entry added against HEAD: the list may only shrink. Where the working tree
 // changes the brand pin package.json holds at HEAD, an entry may also name a fork whose files are
 // committed at HEAD and unchanged since, which a newer package's component makes one.
@@ -17,7 +17,8 @@ import { committedAsIs, listTree, pinChange, scanned } from "./colours";
 export const LIST = "brand-scan.json";
 export type Allowlist = Record<string, string>;
 
-const key = (path: string) => basename(path, extname(path)).toLowerCase();
+// The name without case and word separators, so app-header.tsx counts as AppHeader.
+const key = (path: string) => basename(path, extname(path)).toLowerCase().replace(/[-_]/g, "");
 const EXPERT = new Set(
   readdirSync(join(import.meta.dir, "../expert/components"))
     .filter((f) => f.endsWith(".astro"))

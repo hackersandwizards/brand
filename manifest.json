@@ -258,7 +258,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "4d32af6359d3dcedfdf377ba91e3b817b58d4148ce809d598c9a64bb6e9b559f"
+      "sha256": "4eebb1ae1a6279e9f70ecbdc58e7423a8092248237ab5e6da7503947cbc33627"
     },
     {
       "path": "expert/header.css",
@@ -267,22 +267,6 @@
     {
       "path": "expert/select.css",
       "sha256": "0a711f98f89c7932fe4fbda968dd6ffb2d006576373a706d3d78ab060188f751"
-    },
-    {
-      "path": "expert/components/AstrobookHome.astro",
-      "sha256": "21a184e8b06d08e29c2274602a7794dcbab5a3c5c0cf4a018aabbcb7c5fb2479"
-    },
-    {
-      "path": "expert/components/Catalogue.astro",
-      "sha256": "e088b0119e2b56d2f5c6be0172a8abafdaa2f63d7e9264aa5c9763e18214fada"
-    },
-    {
-      "path": "expert/catalogue.css",
-      "sha256": "e7c12ebba7abfba5dba7c49624e793d3e665462e233f747bf943843e614de60f"
-    },
-    {
-      "path": "expert/catalogue.ts",
-      "sha256": "b2d2aff7ee94e8f14d04d9e20a0fecf5e7aca769cf2659cc95b84164a77e7b47"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -358,7 +342,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "3d2fc3ac8dae5afdf6a632882a669df8e2b35d4e436f56ce482fbb51a6210b0d"
+      "sha256": "86b22b644bca5270b823171ca7206b55448b8c3b162b5d73d030920923ca093a"
     },
     {
       "path": "elements/link.css",

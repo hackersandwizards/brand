@@ -5,7 +5,7 @@
 
    Settings (scales.css sets them per medium):
      --hw-label-size    the label role's size
-     --hw-label-family  the label role's family; the apps set Inter (audience, design guide)
+     --hw-label-family  the label role's family; expert.css sets Inter for the apps (design guide)
      --hw-muted         the muted grey, where a surface's --color-muted means something else
                         (expert.css: a fill) */
 

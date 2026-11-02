@@ -25,35 +25,33 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
 ```
 
-| Import                                                    | File                                            |
-| --------------------------------------------------------- | ----------------------------------------------- |
-| `@hackersandwizards/brand/tokens.css`                     | Tailwind 4 `@theme` tokens                      |
-| `@hackersandwizards/brand/tokens.root.css`                | the same tokens on `:root`                      |
-| `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours                     |
-| `@hackersandwizards/brand/tokens`                         | the same as TypeScript                          |
-| `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                     |
-| `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)   |
-| `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes  |
-| `@hackersandwizards/brand/print.css`                      | print scale and static fonts                    |
-| `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`     |
-| `@hackersandwizards/brand/night.css`                      | night for light-token surfaces, below           |
-| `@hackersandwizards/brand/stage.css`                      | the slide engine's stage scale                  |
-| `@hackersandwizards/brand/document.css`                   | the document engine's scale                     |
-| `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below               |
-| `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
-| `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |
-| `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                  |
-| `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                 |
-| `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS               |
-| `@hackersandwizards/brand/catalogue.css`                  | the catalogue shape, plain CSS, below           |
-| `@hackersandwizards/brand/catalogue`                      | `renderCatalogue`, the catalogue shape's markup |
-| `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below      |
-| `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`             |
-| `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
-| `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, avatar, `logos.json`        |
-| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                 |
-| `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                   |
-| `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                |
+| Import                                                    | File                                           |
+| --------------------------------------------------------- | ---------------------------------------------- |
+| `@hackersandwizards/brand/tokens.css`                     | Tailwind 4 `@theme` tokens                     |
+| `@hackersandwizards/brand/tokens.root.css`                | the same tokens on `:root`                     |
+| `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours                    |
+| `@hackersandwizards/brand/tokens`                         | the same as TypeScript                         |
+| `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                    |
+| `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)  |
+| `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes |
+| `@hackersandwizards/brand/print.css`                      | print scale and static fonts                   |
+| `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`    |
+| `@hackersandwizards/brand/night.css`                      | night for light-token surfaces, below          |
+| `@hackersandwizards/brand/stage.css`                      | the slide engine's stage scale                 |
+| `@hackersandwizards/brand/document.css`                   | the document engine's scale                    |
+| `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below              |
+| `@hackersandwizards/brand/fonts/<file>`                   | font files                                     |
+| `@hackersandwizards/brand/expert.css`                     | expert UI layer                                |
+| `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                 |
+| `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                |
+| `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS              |
+| `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below     |
+| `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`            |
+| `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                           |
+| `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, avatar, `logos.json`       |
+| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                |
+| `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                  |
+| `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`               |
 
 Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
@@ -154,9 +152,7 @@ takes the same width with the class `hw-container`.
 
 Every h&w repository with a surface shows its components in a catalog at `/catalog/`, built on
 `@hackersandwizards/scaffolding/catalog` (its README says how). Give the preset's `css` the tokens
-and `elements.css`; its default header is this package's `AppHeader.astro` and `header.css`. The
-older shell here, `catalogue.css`, `catalogue` (`renderCatalogue`), `AstrobookHome.astro` and
-`Catalogue.astro`, stays until every repository has switched, then leaves in a release.
+and `elements.css`; its default header is this package's `AppHeader.astro` and `header.css`.
 
 ### The dropdown
 
@@ -326,7 +322,8 @@ drops the entries no longer found.
 Where you render the expert components, `brand-scan` fails on a component of yours named like one
 of them (`Pill`, `PageHeader`, ...): import it from the package. An exception goes in
 `brand-scan.json` beside your `package.json`, `{ "<lowercase name>": "<reason>" }`, and the list may
-only shrink against `HEAD`.
+only shrink against `HEAD`. A name matches without case and word separators: `app-header.tsx` is
+`AppHeader`, key `appheader`.
 
 ### List markers
 

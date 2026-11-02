@@ -49,6 +49,11 @@
    --color-muted to it, and --color-border to --border. A role that needs either token's own value
    therefore writes it as a hex, which test/expert.test.ts holds equal to tokens.css: a var()
    would point back at the role itself. */
+/* The apps set labels in Inter (design guide): brand's label, pill and table head read it. */
+:root {
+  --hw-label-family: var(--font-sans);
+}
+
 :root,
 html[data-theme="light"] {
   --background: var(--color-bg);

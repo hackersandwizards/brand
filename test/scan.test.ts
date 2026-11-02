@@ -6,12 +6,18 @@ test("finds a consumer component named like an expert component, nothing else", 
     forks([
       "src/components/Pill.astro",
       "src/components/pill.tsx",
+      "components/app-header.tsx",
+      "src/components/theme_toggle.astro",
       "src/components/Card.astro",
       "src/components/Pill.test.tsx",
       "node_modules/x/components/Pill.astro",
       "src/pages/Pill.astro",
     ]),
-  ).toEqual({ pill: ["src/components/Pill.astro", "src/components/pill.tsx"] });
+  ).toEqual({
+    pill: ["src/components/Pill.astro", "src/components/pill.tsx"],
+    appheader: ["components/app-header.tsx"],
+    themetoggle: ["src/components/theme_toggle.astro"],
+  });
 });
 
 test("flags an unlisted fork, an entry without a reason and one added against HEAD", () => {
