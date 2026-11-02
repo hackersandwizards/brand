@@ -5,6 +5,8 @@
    Settings:
      --hw-table-size  the cells' size, the small role
      --hw-label-size  the heads' size, the label role
+     --hw-label-family the heads' family (label.css)
+     --hw-muted       the heads' grey (label.css)
      --hw-cell-pad    a cell's padding
      --hw-hairline    the rule's width
      --hw-line        the rule's colour */
@@ -25,13 +27,13 @@
     padding-right: 0;
   }
   .hw-table th {
-    font-family: var(--type-label-family);
+    font-family: var(--hw-label-family, var(--type-label-family));
     font-size: var(--hw-label-size, var(--type-label-size));
     font-weight: var(--type-label-weight);
     line-height: var(--type-label-line-height);
     letter-spacing: var(--type-label-tracking);
     text-transform: var(--type-label-case);
-    color: var(--color-muted);
+    color: var(--hw-muted, var(--color-muted));
   }
   :where([data-theme="dark"]) .hw-table :is(th, td) {
     border-bottom-color: color-mix(in srgb, white 15%, transparent);

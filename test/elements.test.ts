@@ -204,6 +204,7 @@ test("the screen preset sets every setting an element reads", () => {
   )![1]!;
   const optional = new Set([
     "--hw-label-family",
+    "--hw-muted",
     "--hw-pill-hue",
     "--hw-pill-hue-night",
     "--hw-pill-edit-corner",

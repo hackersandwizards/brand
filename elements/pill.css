@@ -22,7 +22,9 @@
      --hw-pill-edit-corner the corner of an editable pill: the pill corner, or the apps' small
                            corner where the shape marks what can be changed
      --hw-hairline         the outline's width
-     --hw-label-size       the size of a capitals pill */
+     --hw-label-size       the size of a capitals pill
+     --hw-label-family     the family of a capitals pill (label.css)
+     --hw-muted            the muted grey (label.css) */
 
 @layer components {
   .hw-pill {
@@ -51,7 +53,7 @@
     height: 1em;
   }
   .hw-pill[data-caps] {
-    font-family: var(--type-label-family);
+    font-family: var(--hw-label-family, var(--type-label-family));
     font-size: var(--hw-label-size, var(--type-label-size));
     font-weight: var(--type-label-weight);
     letter-spacing: var(--type-label-tracking);
@@ -69,7 +71,7 @@
   .hw-pill[data-variant="add"] {
     border-style: dashed;
     border-color: var(--color-border-strong);
-    color: var(--color-muted);
+    color: var(--hw-muted, var(--color-muted));
   }
   .hw-pill[data-editable] {
     border-radius: var(--hw-pill-edit-corner, var(--radius-pill));

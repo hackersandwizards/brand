@@ -4,7 +4,8 @@
 
    Settings:
      --hw-quote-rule  the rule's width
-     --hw-quote-gap   the space from the rule to the words */
+     --hw-quote-gap   the space from the rule to the words
+     --hw-muted       the grey of a muted quote (label.css) */
 
 @layer components {
   .hw-quote {
@@ -14,7 +15,7 @@
     color: var(--color-ink);
   }
   .hw-quote[data-tone="muted"] {
-    color: var(--color-muted);
+    color: var(--hw-muted, var(--color-muted));
   }
   :where([data-theme="dark"]) .hw-quote {
     border-left-color: var(--color-purple-night);

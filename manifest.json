@@ -254,7 +254,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "987431db1c60fb853f58e9377b9eff66a422145b91bea46a8d25e3997d386fb5"
+      "sha256": "c5c5b57628ace4bf8fad7a40e57bd577f3354d4e6ad8894a62898188e8430b8a"
     },
     {
       "path": "expert/header.css",
@@ -338,7 +338,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "3d823bdc6a1775ce16b03132921ce4c815ddd0b656af413db25243cf05e1d976"
+      "sha256": "3965429a6d45df311e2dde4d1591e75b20cfa67be2ffdc6ba3a790b7b07dcc6a"
     },
     {
       "path": "elements/link.css",
@@ -346,11 +346,11 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "08aa5dce330abc5e26e4dfba8133610b79e6c32d91c07546ff009ee03b31ac57"
+      "sha256": "9645076903010ad588d3b44cc057e292632335d186b7196bf806d77de13a1781"
     },
     {
       "path": "elements/quote.css",
-      "sha256": "721ebe15b07216a386693ad48022c57422705064caf160fca44c211f1a5c9d8d"
+      "sha256": "0d0f6d226372489066b5af780afd44ef6ff726939a50117eb9829ce5970a7f9e"
     },
     {
       "path": "elements/scales.css",
@@ -362,7 +362,7 @@
     },
     {
       "path": "elements/table.css",
-      "sha256": "643a1ed125499d6f296b98909fa040004a231703bb92d1b394be4c9893bf0b09"
+      "sha256": "1723fa80bfdfa640cf7705efc16fe1c9656964686709c9b052a28ace2ee129d6"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",

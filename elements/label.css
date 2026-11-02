@@ -4,7 +4,9 @@
 
    Settings (scales.css sets them per medium):
      --hw-label-size    the label role's size
-     --hw-label-family  the label role's family; the apps set Inter (audience, design guide) */
+     --hw-label-family  the label role's family; the apps set Inter (audience, design guide)
+     --hw-muted         the muted grey, where a surface's --color-muted means something else
+                        (expert.css: a fill) */
 
 @layer components {
   .hw-label {
@@ -17,7 +19,7 @@
     color: var(--color-teal-dark);
   }
   .hw-label[data-tone="muted"] {
-    color: var(--color-muted);
+    color: var(--hw-muted, var(--color-muted));
   }
   .hw-label[data-tone="ink"] {
     color: var(--color-ink);

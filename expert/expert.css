@@ -60,6 +60,8 @@ html[data-theme="light"] {
   /* The 7 percent ink tint on bg. */
   --muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
   --border: #d0d2d8; /* --color-border */
+  /* The shared elements' muted text grey, which the @theme block below shadows with the fill. */
+  --hw-muted: #545861; /* --color-muted */
   /* A field's boundary (WCAG 1.4.11, 3:1): the hairline --border is 1.4:1, so a field takes the
      70 percent foreground step, 5.5:1 on the page, 5.8:1 on a card, 4.8:1 on the muted fill. */
   --input: color-mix(in srgb, var(--foreground) 70%, var(--background));

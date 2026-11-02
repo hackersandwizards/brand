@@ -34,6 +34,7 @@ test("light roles resolve to the token values, without a cycle", () => {
   expect(value("--color-border")).toBe("#d0d2d8");
   expect(value("--hue-slate")).toBe("#545861");
   expect(value("--hue-slate")).toBe(token["--color-muted"]);
+  expect(value("--hw-muted")).toBe(token["--color-muted"]);
 });
 
 test("every light and dark role resolves to a colour", () => {
