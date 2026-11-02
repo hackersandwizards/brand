@@ -346,8 +346,9 @@ its size and the credit. With the logos above, they make the ZIP the website's p
 
 ```sh
 bun install      # also points the git hooks at .githooks/
-bun run check      # format, lint, typecheck, tests, generated/ and catalogue.html up to date
-bun run catalogue  # rebuild catalogue.html
+bun run check      # format, lint, typecheck, tests on a fresh catalogue.html, generated/ up to date
+bun run catalogue  # write catalogue.html (not committed)
+bun run dev        # serve it on port 4326, written afresh on each request
 ```
 
 Open `catalogue.html` from disk for the brand portal: tokens, logos, every family of brand files in

@@ -78,7 +78,7 @@
   ],
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && git config core.hooksPath .githooks || true",
-    "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun test && bun scripts/tokens.ts --check && bun scripts/catalogue.ts --check && admin-check",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun scripts/catalogue.ts && bun test && bun scripts/tokens.ts --check && admin-check",
     "lint": "bun --bun eslint --cache --concurrency=auto .",
     "typecheck": "bun --bun tsc --noEmit",
     "format": "bun --bun prettier --write .",
@@ -109,11 +109,11 @@
     "puppeteer-core": "25.16.0"
   },
   "admin": {
-    "designSystem": "catalogue.html",
+    "designSystem": "https://hackersandwizards.github.io/brand/catalogue.html",
     "products": [
       {
         "label": "Assets",
-        "href": "catalogue.html#logos"
+        "href": "https://hackersandwizards.github.io/brand/catalogue.html#logos"
       }
     ]
   }

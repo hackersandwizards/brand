@@ -2,9 +2,9 @@
 // Writes catalogue.html, the brand portal: one file opened from disk in the catalogue shape every
 // design system shares (renderCatalogue, header.css, catalogue.css), whose search also lists every
 // token, colour, logo, file and photo, and one view per area below the tiles (colours, type,
-// tokens, elements, logos, applications, press kit). It reads this repo's files only, so `--check` can hold the committed
-// page to the generator: it exits 1 where catalogue.html differs from a fresh build.
-// Usage: bun scripts/catalogue.ts [--check]
+// tokens, elements, logos, applications, press kit). It reads this repo's files only. The page is
+// not committed: `bun run check`, `bun run dev` and the Pages workflow each write it afresh.
+// Usage: bun scripts/catalogue.ts
 import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
@@ -1046,11 +1046,5 @@ if (location.hostname.endsWith(".github.io")) for (const a of document.querySele
 </html>
 `;
 
-const out = join(ROOT, "catalogue.html");
-if (!process.argv.includes("--check")) {
-  writeFileSync(out, html);
-  console.log("wrote catalogue.html");
-} else if (readFileSync(out, "utf8") !== html) {
-  console.error("catalogue.html is stale: run bun run catalogue");
-  process.exit(1);
-}
+writeFileSync(join(ROOT, "catalogue.html"), html);
+console.log("wrote catalogue.html");

@@ -61,19 +61,20 @@ data or secret.
   that page's coverage.
   A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
-  `scripts/catalogue.ts`. Never edit it; run `bun run catalogue`.
+  `scripts/catalogue.ts` and never committed: `bun run check`, `bun run dev` and the Pages workflow
+  each write it afresh, and the tests and `brand-elements` read that fresh file.
 
 ## Commands
 
 - `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
-  the two consumer checks) and the freshness of `generated/` and
-  `catalogue.html`. No hook runs it:
+  the two consumer checks, run on a freshly written `catalogue.html`) and the freshness of
+  `generated/`. No hook runs it:
   `.githooks/pre-commit` runs `bun run check:staged`: `gitleaks` over the staged changes,
   `prettier --check` and `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
-- `bun run catalogue`: rebuild `catalogue.html`.
+- `bun run catalogue`: write `catalogue.html`, to open from disk.
 - `bun run dev`: serve the checkout on port 4326 for `http://brand.localhost` (Caddy, as for
-  `os.localhost`). The header links the slide and document specimens at `slides.localhost` and
+  `os.localhost`), writing the catalogue afresh on each request for it. The header links the slide and document specimens at `slides.localhost` and
   `documents.localhost`, each served the same way from its own checkout.
 
 ## Rules
