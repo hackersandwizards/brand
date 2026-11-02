@@ -102,6 +102,15 @@ export const elementCss = () =>
     .join("\n");
 /** The settings a surface may set: every --hw-* an element file reads. */
 export const SETTINGS = [...new Set(elementCss().match(/(?<=var\()--hw-[a-z-]+/g))];
+/** The brand tokens each element reads: a surface that never defines one (Tailwind emits only the
+ * @theme tokens a scanned file names) leaves page and reference equally wrong, so each is checked. */
+export const TOKENS = Object.fromEntries(
+  Object.keys(ELEMENTS).map((name) => {
+    const file = join(DIR, `${name === "focus-ring" ? "focus" : name}.css`);
+    const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    return [name, [...new Set(css.match(/(?<=var\()--(?!hw-|_)[\w-]+(?=\))/g))]];
+  }),
+);
 
 export type Finding = {
   page: string;
@@ -112,13 +121,21 @@ export type Finding = {
   want: string;
 };
 
-type Args = [string, Record<string, string>, Record<string, string[]>, string[], number];
+type Args = [
+  string,
+  Record<string, string>,
+  Record<string, string[]>,
+  string[],
+  number,
+  Record<string, string[]>,
+];
 
 /** Runs in the page: each hub element against its reference, as findings plus the tiles found. */
-function compare([css, elements, owns, settings, tolerance]: Args) {
+function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   const findings: { element: string; label: string; prop: string; got: string; want: string }[] =
     [];
   const seen: string[] = [];
+  const missing = new Set<string>();
   const label = (el: Element) =>
     `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${(el.textContent ?? "").trim().slice(0, 30)}"`;
   const num = (v: string) => (/^-?[\d.]+px$/.test(v) ? parseFloat(v) : null);
@@ -156,6 +173,11 @@ function compare([css, elements, owns, settings, tolerance]: Args) {
       clone.removeAttribute("id");
       clone.removeAttribute("style");
       const own = getComputedStyle(el);
+      for (const t of tokens[element] ?? [])
+        if (!own.getPropertyValue(t).trim() && !missing.has(element + t)) {
+          missing.add(element + t);
+          findings.push({ element, label: label(el), prop: t, got: "undefined", want: "a value" });
+        }
       for (const s of settings) {
         const v = own.getPropertyValue(s).trim();
         if (v) clone.style.setProperty(s, v);
@@ -250,6 +272,7 @@ export async function measurePage(browser: Browser, url: string, css = "") {
       OWNS,
       SETTINGS,
       TOLERANCE,
+      TOKENS,
     ] as Args);
     return { ...out, findings: out.findings.map((f) => ({ page: url, ...f })) };
   } finally {

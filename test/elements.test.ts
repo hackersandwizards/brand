@@ -125,6 +125,14 @@ test("the same colour in another notation is no drift, another colour is", async
   expect(other.findings.some((f) => f.element === "card")).toBe(true);
 }, 60_000);
 
+test("a brand token the surface never defines is red", async () => {
+  const r = await measurePage(
+    browser,
+    file("token.html", page(":root { --type-small-family: initial }")),
+  );
+  expect(r.findings.some((f) => f.prop === "--type-small-family")).toBe(true);
+}, 60_000);
+
 test("night is measured against the night rule", async () => {
   const r = await measurePage(
     browser,
