@@ -251,8 +251,8 @@ type Family = {
   dir?: string;
   // A family that draws its own section instead of one card per file.
   render?: () => string;
-  // Pages elsewhere that show the family, as [label, href]: an engine's specimen page at its local
-  // address (`bun run dev` in its checkout) and its repository on GitHub.
+  // Pages elsewhere that show the family, as [label, href]: an engine's published catalog and
+  // its repository on GitHub.
   links?: [string, string][];
 };
 const FAMILIES: Family[] = [
@@ -316,19 +316,19 @@ const FAMILIES: Family[] = [
   {
     id: "slides",
     title: "Slides",
-    note: 'Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its specimen shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide. A concept slide that claims a mechanism in a few short cards may carry a generated marker sketch beside them: brand-slide-sketch-prompt prints the prompt and the worked example, the sketch-example card here; the slides README, "Deck structure", says which slides get one.',
+    note: 'Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its catalog shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide. A concept slide that claims a mechanism in a few short cards may carry a generated marker sketch beside them: brand-slide-sketch-prompt prints the prompt and the worked example, the sketch-example card here; the slides README, "Deck structure", says which slides get one.',
     dir: "applications/slide-visuals",
     links: [
-      ["Slide specimen", "http://slides.localhost/"],
+      ["Slide catalog", "https://hackersandwizards.github.io/slides/catalog/"],
       ["slides on GitHub", "https://github.com/hackersandwizards/slides"],
     ],
   },
   {
     id: "documents",
     title: "Documents",
-    note: "Proposals, rate cards, Leistungsnachweise, certificates and handouts come from the document engine, the package @hackersandwizards/documents, rendered by Company OS and the trainer hub. Its specimen shows every document type with invented data.",
+    note: "Proposals, rate cards, Leistungsnachweise, certificates and handouts come from the document engine, the package @hackersandwizards/documents, rendered by Company OS and the trainer hub. Its catalog shows every document type with invented data.",
     links: [
-      ["Document specimen", "http://documents.localhost/"],
+      ["Document catalog", "https://hackersandwizards.github.io/documents/catalog/"],
       ["documents on GitHub", "https://github.com/hackersandwizards/documents"],
     ],
   },
@@ -807,7 +807,7 @@ const quick = `<div class="quick">
 <ul>
 <li>Logo for a document or a screen: <a href="logos/lockup.svg" download>lockup.svg</a>, on night <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, on Purple Love, Stargazer or the gradient <a href="logos/lockup-outline.svg" download>lockup-outline.svg</a>; for small spots <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>. Which logo where: <a href="#logos">Logos</a>.</li>
 <li>Print: textiles and stickers take the wordmark alone, the second sticker the wizard alone; the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
-<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are on its specimen page, under <a href="#applications/app-slides">Slides</a>. Documents come from the document engine, <code>@hackersandwizards/documents</code>, under <a href="#applications/app-documents">Documents</a>.</li>
+<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are in its catalog, under <a href="#applications/app-slides">Slides</a>. Documents come from the document engine, <code>@hackersandwizards/documents</code>, under <a href="#applications/app-documents">Documents</a>.</li>
 <li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the slide engine.</li>
 <li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
 </ul></div>
@@ -1004,8 +1004,8 @@ const html = `<!doctype html>
 <nav class="hw-header-nav" aria-label="Main">
 <a class="hw-header-link" href="#overview" aria-current="page">Brand</a>
 <a class="hw-header-link" href="catalog/">Catalog</a>
-<a class="hw-header-link" href="http://slides.localhost/">Slides</a>
-<a class="hw-header-link" href="http://documents.localhost/">Dokumente</a>
+<a class="hw-header-link" href="https://hackersandwizards.github.io/slides/catalog/">Slides</a>
+<a class="hw-header-link" href="https://hackersandwizards.github.io/documents/catalog/">Dokumente</a>
 </nav>
 </div>
 </header>
@@ -1056,10 +1056,9 @@ document.addEventListener("click", (e) => {
 show();
 </script>
 <script>
-// On GitHub Pages, links to the other two catalogues and to a system page with a public address
-// leave their local addresses for the public ones; a system page without one stays as its name, marked local only.
+// On GitHub Pages, links to a system page with a public address leave their local addresses for the public ones; a system page without one stays as its name, marked local only.
 const PUBLIC = ${JSON.stringify(PUBLIC)};
-if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; const name = a.hostname.slice(0, -".localhost".length); if (["brand", "slides", "documents"].includes(name)) a.href = "https://hackersandwizards.github.io/" + name + a.pathname + a.hash; else if (PUBLIC[a.href]) a.href = PUBLIC[a.href]; else if (a.matches(".hw-catalogue-tile")) { a.removeAttribute("href"); a.querySelector(".hw-catalogue-note").append(" (local only)"); } else a.replaceWith(a.textContent + " (local only)"); }
+if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; if (PUBLIC[a.href]) a.href = PUBLIC[a.href]; else if (a.matches(".hw-catalogue-tile")) { a.removeAttribute("href"); a.querySelector(".hw-catalogue-note").append(" (local only)"); } else a.replaceWith(a.textContent + " (local only)"); }
 </script>
 </body>
 </html>

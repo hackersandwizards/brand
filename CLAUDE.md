@@ -75,15 +75,15 @@ data or secret.
   structure, coupling, unique names, confidential, the unit tests and the catalog build side by
   side, then `check:catalog` (the built portal and stories, `brand-elements` over every story),
   `check:tokens` (the freshness of `generated/`) and `check:admin`. No hook runs it:
-  `.githooks/pre-commit` runs `bun run check:staged`: `gitleaks` over the staged changes,
-  `prettier --check` and `eslint` on the staged files; `commit-msg` runs `check-confidential` on the
-  message, `pre-push` refuses purged commits and hands the refs to `git lfs pre-push` (scaffolding's
+  `.githooks/pre-commit` runs `bun run check:staged`, scaffolding's `check-staged`: `gitleaks`,
+  coupling and confidential over the staged changes, `prettier --check` and `eslint` on the staged files; `commit-msg` runs `check-confidential` on the
+  message, `pre-push` refuses the commits `.confidential-purged.json` lists (the 248 the 02.11. rewrite replaced) and hands the refs to `git lfs pre-push` (scaffolding's
   skeleton hooks). `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server on port 4326 for
   `http://brand.localhost` (Caddy, as for `os.localhost`), under `/brand/`; the portal reads the
   working tree afresh on each request. `bun run build` writes `dist/`. The portal's header links the
-  slide and document specimens at `slides.localhost` and `documents.localhost`.
+  slide and document catalogs on their Pages sites (`https://hackersandwizards.github.io/<repo>/catalog/`).
 
 ## Rules
 
@@ -105,7 +105,7 @@ data or secret.
   `@hackersandwizards/slides`, the document base, the document components and the PDF renderer in
   `@hackersandwizards/documents`. Their values do (decision design-system-hub-spoke, 2026-11-02:
   every value comes from brand): `tokens/stage.css` holds every length and step the slide engine
-  draws, `tokens/document.css` the document engine's, and an engine keeps only `var()` roles on them. Each shows itself on its own specimen page, which the catalogue
+  draws, `tokens/document.css` the document engine's, and an engine keeps only `var()` roles on them. Each shows itself in its own catalog, which the portal
   links; nothing here reads an engine.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
   both render, this repo's own: a component one app alone uses stays in that app. Where the apps

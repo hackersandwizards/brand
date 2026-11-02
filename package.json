@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.32.0",
+  "version": "0.32.1",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component, list-marker and element checks a consumer runs in its gate, the list marker rule and the shared elements.",
   "keywords": [
@@ -92,7 +92,7 @@
     "check:catalog": "bun test ./test/catalog/",
     "check:tokens": "bun scripts/tokens.ts --check",
     "check:admin": "admin-check",
-    "check:staged": "bun .claude/skills/engineering/check-staged.ts"
+    "check:staged": "check-staged"
   },
   "overrides": {
     "minimatch": "11.0.3"
@@ -100,7 +100,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v0.4.1",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v0.3.0",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v0.3.3",
     "@types/bun": "1.4.4",
     "astro": "7.4.4",
     "astrobook": "0.13.3",

@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 jobs:
   pages:
-    uses: hackersandwizards/scaffolding/.github/workflows/pages.yml@v0.3.0
+    uses: hackersandwizards/scaffolding/.github/workflows/pages.yml@v0.3.3
     permissions:
       contents: read
       pages: write
