@@ -18,7 +18,15 @@ Bun.serve({
     }
     const file = join(root, path.endsWith("/") ? `${path}index.html` : path);
     const found = file.startsWith(root + sep) && (await Bun.file(file).exists());
-    return found ? new Response(Bun.file(file)) : new Response("Not found", { status: 404 });
+    if (!found) return new Response("Not found", { status: 404 });
+    // Revalidated on every use: the catalogue's sample frames load the same stylesheets, and an
+    // unchanged file answers 304 instead of being sent again to each frame.
+    const body = Bun.file(file);
+    const etag = `"${body.size}-${body.lastModified}"`;
+    const headers = { ETag: etag, "Cache-Control": "no-cache" };
+    if (request.headers.get("If-None-Match") === etag)
+      return new Response(null, { status: 304, headers });
+    return new Response(body, { headers });
   },
 });
 console.log("Caddy: http://brand.localhost, direct: http://localhost:4326");

@@ -62,7 +62,9 @@ data or secret.
   A skill, script or document generator takes the file from the package, never a copy.
 - `catalogue.html`: the brand portal, generated from this repo's files only by
   `scripts/catalogue.ts` and never committed: `bun run check`, `bun run dev` and the Pages workflow
-  each write it afresh, and the tests and `brand-elements` read that fresh file.
+  each write it afresh, and the tests and `brand-elements` read that fresh file. Beside it,
+  equally uncommitted, `catalogue-assets/`: the elements as one stylesheet and the PNGs the inlined
+  SVGs embed, so the page loads files instead of base64 text and 23 imports per sample frame.
 
 ## Commands
 

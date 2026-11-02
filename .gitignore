@@ -17,3 +17,4 @@ __pycache__/
 
 # Written by bun run catalogue, run by bun run check and bun run dev.
 catalogue.html
+catalogue-assets/

@@ -6,7 +6,8 @@
 // not committed: `bun run check`, `bun run dev` and the Pages workflow each write it afresh.
 // Usage: bun scripts/catalogue.ts
 import { spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
@@ -34,6 +35,32 @@ const table = (head: string[], rows: unknown[][]) =>
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 // An SVG inlined more than once keeps its internal ids unique on the page: each one takes a prefix.
+// Files the page loads beside catalogue.html, written with it (catalogue-assets/, untracked): the
+// elements as one stylesheet, so each sample frame loads one file instead of elements.css and its
+// 23 imports, and each PNG an inlined SVG embeds, so the HTML carries no image as base64 text (the
+// MacBook stickers' wizard was 0.95 MB of 1.28 MB).
+const ASSETS = "catalogue-assets";
+mkdirSync(join(ROOT, ASSETS), { recursive: true });
+const writeAsset = (name: string, content: string | Buffer) => {
+  const path = join(ROOT, ASSETS, name);
+  if (!existsSync(path) || !readFileSync(path).equals(Buffer.from(content)))
+    writeFileSync(path, content);
+};
+writeAsset(
+  "elements.css",
+  readFileSync(join(ROOT, "elements/elements.css"), "utf8").replace(
+    /@import "\.\/([\w-]+\.css)";/g,
+    (_, file: string) => readFileSync(join(ROOT, "elements", file), "utf8"),
+  ),
+);
+const pngFiles = (svg: string) =>
+  svg.replace(/href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/g, (_, data: string) => {
+    const png = Buffer.from(data, "base64");
+    const name = `${createHash("sha256").update(png).digest("hex").slice(0, 16)}.png`;
+    writeAsset(name, png);
+    return `href="${ASSETS}/${name}"`;
+  });
+
 const scopeIds = (svg: string, prefix: string) =>
   svg.replace(/(id="|url\(#|href="#)([^")]+)/g, `$1${prefix}-$2`);
 
@@ -192,7 +219,7 @@ const logoCard = (base: string) => {
   const black = files.find((p) => p.endsWith(`${base}-black.svg`));
   const tile = (src: string | undefined, cls: string, label: string) =>
     src
-      ? `<figure class="${cls}"><img src="${src}" alt="${esc(base)}, ${esc(label)}"><figcaption>${esc(label)}</figcaption></figure>`
+      ? `<figure class="${cls}"><img src="${src}" alt="${esc(base)}, ${esc(label)}" loading="lazy"><figcaption>${esc(label)}</figcaption></figure>`
       : "";
   index.push({
     t: base,
@@ -455,7 +482,7 @@ const deviceHtml = `<div class="devices">${stickerCaptions()
       h: `applications/${id}`,
       x: `device stickers ${lines.join(" ")}`,
     });
-    const svg = readFileSync(join(ROOT, DEVICES, `${file}.svg`), "utf8").replace(
+    const svg = pngFiles(readFileSync(join(ROOT, DEVICES, `${file}.svg`), "utf8")).replace(
       /width="([\d.]+)mm" height="([\d.]+)mm"/,
       (_, w, h) =>
         `width="${(+w * 1.35).toFixed(1)}" height="${(+h * 1.35).toFixed(1)}" role="img" aria-label="${esc(title)}"`,
@@ -632,7 +659,7 @@ const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub])
 // views keep their own markup, one shown at a time in place of the overview.
 // A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
 const sampleFrame = (body: string, css = "") =>
-  `<iframe srcdoc="${esc(`<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="elements/elements.css"><link rel="stylesheet" href="expert/select.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`)}" loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>`;
+  `<iframe srcdoc="${esc(`<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><link rel="stylesheet" href="expert/select.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`)}" loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>`;
 // An image under applications/ is in Git LFS and a pointer in a checkout without it: the preview
 // leaves the tile rather than show a broken image.
 const lfsImage = (src: string) =>
@@ -840,7 +867,7 @@ const html = `<!doctype html>
 <link rel="stylesheet" href="tokens/print.css">
 <link rel="stylesheet" href="tokens/marker.css">
 <link rel="stylesheet" href="expert/header.css">
-<link rel="stylesheet" href="elements/elements.css">
+<link rel="stylesheet" href="${ASSETS}/elements.css">
 <link rel="stylesheet" href="expert/catalogue.css">
 <style>
   /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
