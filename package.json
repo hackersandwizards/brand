@@ -91,7 +91,6 @@
     "test": "bun test --path-ignore-patterns='test/catalog/**' --path-ignore-patterns='dist/**'",
     "check:catalog": "bun test ./test/catalog/",
     "check:tokens": "bun scripts/tokens.ts --check",
-    "check:admin": "admin-check",
     "check:staged": "check-staged"
   },
   "overrides": {
@@ -100,7 +99,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v0.4.1",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v0.3.3",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v0.4.0",
     "@types/bun": "1.4.4",
     "astro": "7.4.4",
     "astrobook": "0.13.3",
@@ -133,8 +132,7 @@
     ],
     "check": [
       "check:catalog",
-      "check:tokens",
-      "check:admin"
+      "check:tokens"
     ]
   }
 }

@@ -1,15 +1,16 @@
-# Publishes the catalog build (dist/: the brand portal at the root, the element stories at
-# catalog/) at https://hackersandwizards.github.io/brand/ (Benedikt 01.11., os row
-# catalogue-addresses: a public repo may have a public page). The build pulls the LFS files the
-# portal shows itself (catalog/files.ts), past .lfsconfig's exclusions.
+# Owned by @hackersandwizards/scaffolding: check-structure compares this file with the skeleton of
+# the pinned version, and `check-structure --fix` writes it. It publishes the catalog build (dist/)
+# to GitHub Pages on every push to main through scaffolding's reusable workflow.
 name: Pages
 on:
   push:
     branches: [main]
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   pages:
-    uses: hackersandwizards/scaffolding/.github/workflows/pages.yml@v0.3.3
+    uses: hackersandwizards/scaffolding/.github/workflows/pages.yml@v0.4.0
     permissions:
       contents: read
       pages: write

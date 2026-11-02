@@ -72,9 +72,9 @@ data or secret.
 ## Commands
 
 - `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
-  structure, coupling, unique names, confidential, the unit tests and the catalog build side by
-  side, then `check:catalog` (the built portal and stories, `brand-elements` over every story),
-  `check:tokens` (the freshness of `generated/`) and `check:admin`. No hook runs it:
+  structure, coupling, unique names, confidential, the unit tests, the catalog build and the item
+  check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements`
+  over every story) and `check:tokens` (the freshness of `generated/`). No hook runs it:
   `.githooks/pre-commit` runs `bun run check:staged`, scaffolding's `check-staged`: `gitleaks`,
   coupling and confidential over the staged changes, `prettier --check` and `eslint` on the staged files; `commit-msg` runs `check-confidential` on the
   message, `pre-push` refuses the commits `.confidential-purged.json` lists (the 248 the 02.11. rewrite replaced) and hands the refs to `git lfs pre-push` (scaffolding's
