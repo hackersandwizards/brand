@@ -2,10 +2,14 @@
 kind: work
 status: open
 priority: 2
-owner: "a brand session, then one per spoke"
-evidence: "os `docs/tracking/2026-11-02-design-system-rollout.md`"
+owner: "a brand session, then os and trainer-hub"
+evidence: "os `docs/tracking/2026-11-02-design-system-rollout.md` (phase 2, 02.11.)"
 ---
 
-# Design-system rollout, what remains after 02.11
+# Design-system rollout, what remains after phase 2
 
-Design-system rollout, what remains after 02.11. (decided rows `density-tiers`, `design-system-tool`, `design-system-hub-spoke` strict, `catalogue-shape`): move each spoke's own tokens into brand (os 9 primitive incl. `--fin-*` and app widths, 12 component; website 4 motion primitives, 19 component; slides 16 semantic, 20 primitive, 102 component; documents 77 raw base, 182 component, and 4 print tokens repeating brand's `--hw-strip`, `--hw-hairline`, `--hw-rule-accent`, `--hw-card-pad` once trainer-hub's handout print route sets `data-hw-scale="print"`; talks 5 night roles and 9 night remaps; trainer-hub `--surface`, `--dim-floor`; verifier 3 semantic, 2 component); ship the hub candidates no spoke may copy (customer button, arrow link, field with button, facts list, motion tokens, label rule under 48rem, KPI tile, code panel, dashed frame, status callout, breadcrumb, segmented control, list row); brand's own catalogue page in the shape; Astrobook in the personal site and hycle-private (`ds-roll-personal-hycle`)
+Phase 2 shipped brand v0.29.0 to v0.29.2 and moved every spoke onto brand elements and values; every UI repo has `/design-system/` (table in the report). What remains:
+
+1. `brand-elements` measures every instance: os /documents takes 162 s of the 180 s limit, 229 s with `hw-row`, so os's list rows stay its own (pixel-identical with `hw-row`, ready once the scan measures each distinct markup once or caps instances). Also: dense sets `--hw-row-stripe`/`--hw-row-gap`, and `--hw-row-pad` splits block and inline.
+2. The brand proposals in `ds3-brand-follow-ups` and `ds2-brand-proposals`, then each spoke drops the exception a shipped proposal makes moot.
+3. Pins: os documents v0.3.0 and mail v0.1.0, trainer-hub slides v0.24.1 and documents v0.3.1; documents v0.4.0 and slides v0.26.0 need brand v0.29.1 or newer.
