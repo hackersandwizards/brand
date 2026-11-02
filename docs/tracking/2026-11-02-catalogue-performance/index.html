@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>Katalog: Pixelvergleich vorher und nachher</title>
+    <style>
+      body {
+        font:
+          15px/1.5 system-ui,
+          sans-serif;
+        margin: 2rem;
+        max-width: 60rem;
+        color: #19283a;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+      td,
+      th {
+        border: 1px solid #ccd;
+        padding: 0.3rem 0.6rem;
+        text-align: left;
+      }
+      figure {
+        display: inline-block;
+        margin: 0 1rem 1rem 0;
+      }
+      img {
+        width: 400px;
+        border: 1px solid #ccd;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Katalog: Pixelvergleich vorher und nachher</h1>
+    <p>
+      Commit e07f922. Ganze Seite, headless Chrome for Testing 156, vorher und nachher auf demselben
+      Stand der Brand-Dateien.
+    </p>
+    <table>
+      <tr>
+        <th>Ansicht</th>
+        <th>1440 px</th>
+        <th>500 px</th>
+      </tr>
+      <tr>
+        <td>Übersicht</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Colours, Type, Tokens</td>
+        <td>0</td>
+        <td>nicht gemessen</td>
+      </tr>
+      <tr>
+        <td>Logos</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Elements</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Applications</td>
+        <td>0</td>
+        <td>976 (MacBook-Wizard, 36 x 41 px)</td>
+      </tr>
+      <tr>
+        <td>Pressekit</td>
+        <td>0 oder 29.023</td>
+        <td>nicht gemessen</td>
+      </tr>
+    </table>
+    <p>
+      Pressekit: Dieselbe Seite gegen sich selbst ergibt in 2 von 4 Läufen ebenfalls 29.023. Das ist
+      das Dekodieren der Fotos, keine Änderung. Applications bei 500 px: Der Wizard auf dem MacBook
+      kommt jetzt aus einer Datei statt aus Base64 im HTML, und Chrome skaliert ihn dabei etwas
+      anders. Die Abweichung pro Farbkanal liegt bei höchstens 50 von 255.
+    </p>
+    <figure>
+      <img src="macbook-500-before.jpg" alt="vorher" />
+      <figcaption>vorher</figcaption>
+    </figure>
+    <figure>
+      <img src="macbook-500-after.jpg" alt="nachher" />
+      <figcaption>nachher</figcaption>
+    </figure>
+  </body>
+</html>
