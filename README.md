@@ -143,7 +143,9 @@ its first state. Set Astrobook's `home` to a page of the repository's own that r
 `expert/components/AstrobookHome.astro` with Astrobook's story modules and global config
 (`virtual:astrobook/story-modules.mjs`, `virtual:astrobook/global-config.mjs`) as `modules` and
 `config`, and `product`, `title`, `lead` and `source`, its
-foundations (tokens, element tiles) in the default slot, and give Astrobook's `css` the tokens and
+foundations (tokens, element tiles) in the default slot (`previewSize` draws a fixed viewport
+such as a slide's 1440 x 810 whole, `groupOrder` puts named groups first, `previews={false}` drops
+the frames where the host may not be framed), and give Astrobook's `css` the tokens and
 `elements.css`; the component brings `header.css` and `catalogue.css`. A page outside Astrobook renders
 `expert/components/Catalogue.astro` with its own groups; a generated page calls
 `renderCatalogue` from `@hackersandwizards/brand/catalogue` and links `header.css` and

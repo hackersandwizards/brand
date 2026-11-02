@@ -4,7 +4,8 @@
 // directory, linking its first state and drawing it at three quarters. Astrobook's `home` is a page
 // of the repository's own that passes Astrobook's story modules and global config
 // (virtual:astrobook/story-modules.mjs, virtual:astrobook/global-config.mjs) with the words; the
-// default slot is the repository's foundations, as on Catalogue.astro.
+// default slot is the repository's foundations, as on Catalogue.astro; the nav slot goes into the
+// header's right side, the place for a theme toggle, since the home hides Astrobook's sidebar.
 import Catalogue from "./Catalogue.astro";
 import pkg from "../../package.json";
 
@@ -19,14 +20,35 @@ interface Props {
   /** Where the system lives, named in the provenance line before the brand version. */
   source: string;
   href?: string;
-  /** Draw each tile's first state; off for a system whose states load slowly. */
+  /** Draw each tile's first state; off for a system whose states load slowly or that may not be
+   * framed. */
   previews?: boolean;
+  /** The preview's viewport in CSS px, drawn whole and scaled to the tile, such as [1440, 810]
+   * for slides; without it the first state draws at three quarters in a fixed height. */
+  previewSize?: [number, number];
+  /** Groups shown first, in this order; the rest follow alphabetically. */
+  groupOrder?: string[];
 }
 
-const { modules, config, product, title, lead, source, href, previews = true } = Astro.props;
+const {
+  modules,
+  config,
+  product,
+  title,
+  lead,
+  source,
+  href,
+  previews = true,
+  previewSize,
+  groupOrder = [],
+} = Astro.props;
+const rank = (g: string) => (groupOrder.includes(g) ? groupOrder.indexOf(g) : groupOrder.length);
 const slash = config.trailingSlash === "always" ? "/" : "";
 const url = (base: string, id: string) => `${base.replace(/\/$/, "")}/${id}${slash}`;
-const groups = new Map<string, { name: string; href: string; pill: string; frame?: string }[]>();
+const groups = new Map<
+  string,
+  { name: string; href: string; pill: string; frame?: string; frameSize?: [number, number] }[]
+>();
 let states = 0;
 for (const m of [...modules].sort((a, b) => a.name.localeCompare(b.name))) {
   const first = m.stories[0];
@@ -39,14 +61,20 @@ for (const m of [...modules].sort((a, b) => a.name.localeCompare(b.name))) {
     href: url(config.dashboardBase, first.id),
     pill: m.stories.length === 1 ? "1 state" : `${m.stories.length} states`,
     frame: previews ? url(config.storyBase, first.id) : undefined,
+    frameSize: previewSize,
   });
 }
 const data = {
   title,
   lead,
   provenance: `${source} · @hackersandwizards/brand v${pkg.version} · ${modules.length} components · ${states} states`,
-  groups: [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([name, items]) => ({ name, items })),
+  groups: [...groups]
+    .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
+    .map(([name, items]) => ({ name, items })),
 };
 ---
 
-<Catalogue product={product} href={href} {...data}><slot /></Catalogue>
+<Catalogue product={product} href={href} {...data}>
+  <slot name="nav" slot="nav" />
+  <slot />
+</Catalogue>

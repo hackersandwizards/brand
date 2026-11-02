@@ -114,8 +114,33 @@ test("AstrobookHome links each story file's first state and draws it", async () 
   const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
   const component = (await server.ssrLoadModule("/expert/components/AstrobookHome.astro")).default;
   const container = await experimental_AstroContainer.create();
-  const html: string = await container.renderToString(component, { props: props.AstrobookHome });
+  const html: string = await container.renderToString(component, {
+    props: props.AstrobookHome,
+    slots: { nav: "<b>NAV-SLOT</b>" },
+  });
+  expect(html).toMatch(/<header class="hw-header">[\s\S]*NAV-SLOT[\s\S]*<\/header>/);
   expect(html).toContain('href="/design-system/dashboard/placeholder--default"');
   expect(html).toContain('src="/design-system/stories/placeholder--default"');
   expect(html).toContain("1 components · 1 states");
+});
+
+test("AstrobookHome orders the named groups first and sizes a preview's viewport", async () => {
+  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+  const component = (await server.ssrLoadModule("/expert/components/AstrobookHome.astro")).default;
+  const container = await experimental_AstroContainer.create();
+  const story = (id: string) => [{ id }];
+  const html: string = await container.renderToString(component, {
+    props: {
+      ...props.AstrobookHome,
+      modules: [
+        { name: "A", directory: "Alpha", stories: story("a") },
+        { name: "Z", directory: "Zulu", stories: story("z") },
+      ],
+      groupOrder: ["Zulu"],
+      previewSize: [1440, 810],
+    },
+  });
+  expect(html.indexOf('id="zulu"')).toBeLessThan(html.indexOf('id="alpha"'));
+  expect(html).toContain('data-frame-width="1440" style="aspect-ratio:1440/810"');
+  expect(html).toContain('style="width:1440px;height:810px"');
 });

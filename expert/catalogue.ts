@@ -14,6 +14,9 @@ export type CatalogueItem = {
   pill?: string;
   /** A page drawn in the tile at three quarters, loaded when the tile scrolls into view. */
   frame?: string;
+  /** The frame's viewport in CSS px, such as [1440, 810] for a slide: drawn whole, scaled to the
+   * tile's width, instead of at three quarters in a fixed height. */
+  frameSize?: [number, number];
   /** An image drawn in the tile. */
   image?: string;
   /** Markup drawn in the tile, trusted. */
@@ -47,7 +50,11 @@ const anchorOf = (s: string) =>
 
 const tilePreview = (item: CatalogueItem) =>
   item.frame
-    ? `<iframe src="${escapeCatalogue(item.frame)}" loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>`
+    ? `<iframe src="${escapeCatalogue(item.frame)}" loading="lazy" tabindex="-1" aria-hidden="true" title=""${
+        item.frameSize
+          ? ` style="width:${item.frameSize[0]}px;height:${item.frameSize[1]}px"`
+          : ""
+      }></iframe>`
     : item.image
       ? `<img src="${escapeCatalogue(item.image)}" alt="" loading="lazy">`
       : (item.html ?? "");
@@ -55,15 +62,20 @@ const tilePreview = (item: CatalogueItem) =>
 const catalogueTile = (item: CatalogueItem, group: string) =>
   `<li><a class="hw-card hw-catalogue-tile" href="${escapeCatalogue(item.href)}" data-search="${escapeCatalogue(`${group} ${item.name} ${item.note ?? ""}`.toLowerCase())}">${
     item.frame || item.image || item.html
-      ? `<span class="hw-catalogue-preview">${tilePreview(item)}</span>`
+      ? `<span class="hw-catalogue-preview"${
+          item.frame && item.frameSize
+            ? ` data-frame-width="${item.frameSize[0]}" style="aspect-ratio:${item.frameSize[0]}/${item.frameSize[1]}"`
+            : ""
+        }>${tilePreview(item)}</span>`
       : ""
   }<span class="hw-catalogue-name">${escapeCatalogue(item.name)}</span>${
     item.note ? `<span class="hw-catalogue-note">${escapeCatalogue(item.note)}</span>` : ""
   }${item.pill ? `<span class="hw-pill" data-tone="neutral">${escapeCatalogue(item.pill)}</span>` : ""}</a></li>`;
 
-// Filters the tiles by every word in the search field and hides a group left empty; delegated on the document,
-// so it holds across Astro's client router swaps and runs once.
-const SCRIPT = `<script>(()=>{if(window.hwCatalogue)return;window.hwCatalogue=1;document.addEventListener("input",(e)=>{const f=e.target;if(!(f instanceof HTMLInputElement)||!f.matches(".hw-catalogue-search"))return;const q=f.value.trim().toLowerCase().split(/\\s+/);const root=f.closest(".hw-catalogue");for(const g of root.querySelectorAll(".hw-catalogue-group")){let n=0;for(const t of g.querySelectorAll(".hw-catalogue-tile")){const hit=q.every((w)=>t.dataset.search.includes(w));t.parentElement.hidden=!hit;if(hit)n++;}g.hidden=n===0;const link=root.querySelector('.hw-catalogue-rail a[href="#'+g.id+'"]');if(link)link.parentElement.hidden=n===0;}});})();</script>`;
+// Filters the tiles by every word in the search field and hides a group left empty, and scales each
+// sized frame to its tile's width; delegated on the document, so it holds across Astro's client
+// router swaps and runs once.
+const SCRIPT = `<script>(()=>{const fit=()=>{for(const p of document.querySelectorAll(".hw-catalogue-preview[data-frame-width]"))p.firstElementChild.style.transform="scale("+p.clientWidth/p.dataset.frameWidth+")";};fit();if(window.hwCatalogue)return;window.hwCatalogue=1;addEventListener("resize",fit);document.addEventListener("astro:page-load",fit);document.addEventListener("input",(e)=>{const f=e.target;if(!(f instanceof HTMLInputElement)||!f.matches(".hw-catalogue-search"))return;const q=f.value.trim().toLowerCase().split(/\\s+/);const root=f.closest(".hw-catalogue");for(const g of root.querySelectorAll(".hw-catalogue-group")){let n=0;for(const t of g.querySelectorAll(".hw-catalogue-tile")){const hit=q.every((w)=>t.dataset.search.includes(w));t.parentElement.hidden=!hit;if(hit)n++;}g.hidden=n===0;const link=root.querySelector('.hw-catalogue-rail a[href="#'+g.id+'"]');if(link)link.parentElement.hidden=n===0;}});})();</script>`;
 
 export function renderCatalogue(data: CatalogueData): string {
   const { search = "Search", groups: groupsLabel = "Groups" } = data.labels ?? {};
