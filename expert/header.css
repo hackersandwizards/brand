@@ -52,10 +52,10 @@
   font-family: var(--font-sans);
 }
 
-/* Teal to purple in both themes. */
+/* Teal to purple in both themes, mixed in oklab as the website and hw-strip draw it. */
 .hw-header-strip {
   height: var(--spacing-strip);
-  background: linear-gradient(to right, var(--color-teal), var(--color-purple));
+  background: linear-gradient(to right in oklab, var(--color-teal), var(--color-purple));
 }
 
 .hw-header-row {

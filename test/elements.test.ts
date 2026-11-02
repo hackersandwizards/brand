@@ -239,6 +239,14 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
   ]);
 });
 
+// The website's strip (Tailwind's gradient) mixes in oklab; sRGB shifted its middle on every page.
+test("the strip and the expert header strip mix teal to purple in oklab", () => {
+  for (const f of ["elements/strip.css", "expert/header.css"])
+    expect(readFileSync(join(ROOT, f), "utf8")).toContain(
+      "linear-gradient(to right in oklab, var(--color-teal), var(--color-purple))",
+    );
+});
+
 test("rules opens at-rule blocks and reads each rule's properties", () => {
   expect(rules("@layer x { @media print { .a, .b { color: red; border: 0 } } } .c{x:1}")).toEqual([
     { selectors: [".a", ".b"], props: ["color", "border"] },

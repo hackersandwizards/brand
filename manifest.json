@@ -258,7 +258,7 @@
     },
     {
       "path": "expert/header.css",
-      "sha256": "27b579644273918795f843c916dac0d9be8f744e197ae74d882c1053f58c62c6"
+      "sha256": "19333182e772173ecf7ed325a6b064efbad644c277e0c8a47ca787820ce7eabd"
     },
     {
       "path": "expert/select.css",
@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/strip.css",
-      "sha256": "05be6814e61128a4d4869426a0c98f7bb0f6a1325338bbdd6a1044ed032980e1"
+      "sha256": "51aaf9cebf861af495e7f86f74e2fd573ad527c5d468e81845ed63a6db69991d"
     },
     {
       "path": "elements/table.css",
