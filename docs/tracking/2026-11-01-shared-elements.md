@@ -7,7 +7,7 @@ internes system»
 
 Gelesen auf `origin/main` von brand, website, os, trainer-hub, talks, slides, documents und
 certificate-verifier nach `git fetch`, nichts davon geändert. Prototyp und Renderings liegen nur im
-Scratchpad; die Seite mit den Ausschnitten: `~/Downloads/stand-entscheidungen/shared-elements/`.
+Scratchpad.
 
 ## Antwort
 

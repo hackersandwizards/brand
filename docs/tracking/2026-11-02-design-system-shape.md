@@ -1,9 +1,7 @@
 # Design-System-Form: ein Werkzeug, eine Katalogseite, Hub und Spokes, zwei Dichten
 
 Stand 02.11.2026, Phase 1: Recherche, Inventar, Prototypen, blinde Bewertung. In keinem Repo ist
-etwas gebaut außer diesem Bericht, seinen Bildern und vier offenen Zeilen in
-`docs/tracking/decisions/items.js`. Die Seite mit den Bildern nebeneinander:
-`~/Downloads/stand-entscheidungen/design-system-shape/`.
+etwas gebaut außer diesem Bericht und seinen Bildern.
 
 Benedikt am 02.11. (Auszüge): «ist mir wichtig, dass wir jetzt in allen unseren Repos Design Guides
 haben, Design Systems, tokenbasiert mit schönen kleinen Atomen, Molekülen und Organismen. […] Ich
