@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 2
 order: 7
 area: brand
@@ -13,6 +13,9 @@ options:
   - key: hub-14
     label: "trainer-hub back to 14 px, os stays compact"
     detail: 'brand adds a density hook (for example data-hw-density="comfortable" restoring --text-ui 14 px and micro 12 px under dense) and trainer-hub sets it on <html>. Cost: brand patch release, trainer-hub one attribute and the pin; os unchanged.'
+decision: "Benedikt 02.11.: trainer-hub back to 14 px, os stays compact (hub-14). The ds2 delegate builds it."
+by: Benedikt
+quote: "os 13, trainer-hub 14"
 ---
 
 # Does trainer-hub keep the compact tier (UI text 13 px), or go back to 14 px while os keeps 13?
