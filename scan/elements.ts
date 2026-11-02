@@ -122,15 +122,30 @@ function compare([css, elements, owns, settings, tolerance]: Args) {
   const label = (el: Element) =>
     `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${(el.textContent ?? "").trim().slice(0, 30)}"`;
   const num = (v: string) => (/^-?[\d.]+px$/.test(v) ? parseFloat(v) : null);
+  // One colour, one text: a build that rewrites color-mix() (Lightning CSS) leaves rgba() where the
+  // reference computes color(srgb ...), so each colour reads as rgba() of whole channels.
+  const colour = (v: string) =>
+    v.replace(/rgba?\(([^)]*)\)|color\(srgb ([^)]*)\)/g, (m, rgb?: string, srgb?: string) => {
+      const n = (rgb ?? srgb)!
+        .split(/[\s,/]+/)
+        .filter(Boolean)
+        .map(parseFloat);
+      if (n.length < 3 || n.some(Number.isNaN)) return m;
+      const k = srgb ? 255 : 1;
+      const [r, g, b] = n.slice(0, 3).map((c) => Math.round(c * k));
+      return `rgba(${r}, ${g}, ${b}, ${Math.round((n[3] ?? 1) * 100) / 100})`;
+    });
+  const same = (got: string, want: string) => {
+    const [x, y] = [num(got), num(want)];
+    return x !== null && y !== null ? Math.abs(x - y) <= tolerance : colour(got) === colour(want);
+  };
   const diff = (element: string, name: string, a: Element, b: Element, list: string[]) => {
     const ga = getComputedStyle(a);
     const gb = getComputedStyle(b);
     for (const prop of list) {
       const got = ga.getPropertyValue(prop);
       const want = gb.getPropertyValue(prop);
-      const [x, y] = [num(got), num(want)];
-      if (x !== null && y !== null ? Math.abs(x - y) > tolerance : got !== want)
-        findings.push({ element, label: name, prop, got, want });
+      if (!same(got, want)) findings.push({ element, label: name, prop, got, want });
     }
   };
   for (const [element, selector] of Object.entries(elements))
@@ -189,8 +204,7 @@ function compare([css, elements, owns, settings, tolerance]: Args) {
               want: want["outline-style"]!,
             });
           for (const p of list) {
-            const [x, y] = [num(got[p]!), num(want[p]!)];
-            if (x !== null && y !== null ? Math.abs(x - y) > tolerance : got[p] !== want[p])
+            if (!same(got[p]!, want[p]!))
               findings.push({ element, label: label(el), prop: p, got: got[p]!, want: want[p]! });
           }
           continue;
@@ -308,6 +322,9 @@ export const rules = (css: string) => {
   return out;
 };
 
+/** A state or a pseudo-element the element leaves to the surface (card.css: hover). */
+const STATE = /::?(before|after|hover|focus|focus-visible|focus-within|active|visited|marker)\b/;
+
 /** The class a selector styles: the last class of its last compound. */
 const subject = (selector: string) =>
   selector
@@ -342,7 +359,7 @@ export const sourceFindings = (
     if (!STYLED.has(ext)) continue;
     for (const r of rules(styles(raw, ext))) {
       for (const sel of r.selectors) {
-        const cls = subject(sel);
+        const cls = STATE.test(sel.split(/[\s>+~]+/).pop() ?? "") ? undefined : subject(sel);
         const element = cls && !cls.startsWith("hw-") ? namedAs(cls) : undefined;
         if (element && !(cls! in allow) && r.props.some((x) => setsOwned(element, x)))
           out.push(

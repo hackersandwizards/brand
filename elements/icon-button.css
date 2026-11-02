@@ -25,6 +25,7 @@
     cursor: pointer;
   }
   .hw-icon-button > svg {
+    flex: none;
     width: var(--hw-control-icon, 20px);
     height: var(--hw-control-icon, 20px);
   }

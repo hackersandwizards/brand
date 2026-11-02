@@ -101,6 +101,30 @@ test("a setting the medium sets, or a property the element leaves to it, is no d
   expect(r.findings).toEqual([]);
 }, 60_000);
 
+// A build that rewrites color-mix() into rgba() (Lightning CSS) draws the same colour.
+test("the same colour in another notation is no drift, another colour is", async () => {
+  const same = await measurePage(
+    browser,
+    file(
+      "notation.html",
+      page(
+        '[data-theme="dark"] .hw-card:not([data-variant]) { border-color: rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.07) }',
+      ),
+    ),
+  );
+  expect(same.findings).toEqual([]);
+  const other = await measurePage(
+    browser,
+    file(
+      "notation-drift.html",
+      page(
+        '[data-theme="dark"] .hw-card:not([data-variant]) { background-color: rgba(255, 255, 255, 0.12) }',
+      ),
+    ),
+  );
+  expect(other.findings.some((f) => f.element === "card")).toBe(true);
+}, 60_000);
+
 test("night is measured against the night rule", async () => {
   const r = await measurePage(
     browser,
@@ -134,7 +158,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
 
 test("source: a rule styling an element-named class is red unless hw-* or an exception", () => {
   const files: Record<string, string> = {
-    "src/a.css": `.doc-tag { border-radius: 9999px } .card .meta { color: red } .card { display: grid } .note { font-size: 9pt; color: grey } .total-note { font: 9pt sans-serif }
+    "src/a.css": `.card:hover { border-color: teal } .card::before { background: purple } .doc-tag { border-radius: 9999px } .card .meta { color: red } .card { display: grid } .note { font-size: 9pt; color: grey } .total-note { font: 9pt sans-serif }
 @media print { .callout { background: white } } .hw-card { border: 0 } .total-band { background: teal }
 .eyebrow, .title { font-size: 9pt }`,
     "src/components/Card.astro": `<div class="card"/><style>.wrap { padding: 0 }</style>`,
