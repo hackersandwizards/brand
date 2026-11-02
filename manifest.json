@@ -318,7 +318,11 @@
     },
     {
       "path": "elements/code.css",
-      "sha256": "a640fc9e55d4c50d63d0ae129de8f52ffe63d7e548a14a1f1eed4345daf871cd"
+      "sha256": "7038784cd6f57806305e7cce535ddcec8b47e42b74b11e3efb99e6262b68bde4"
+    },
+    {
+      "path": "elements/code.ts",
+      "sha256": "d7306270b03d9c00dcdefe2784ceb51ed8015ccc2085460d6ccfc8fe42de2ce8"
     },
     {
       "path": "elements/elements.css",

@@ -14,5 +14,5 @@ export const DEMOS: Record<string, string> = {
   "focus-ring": `<button type="button" class="hw-pill" data-variant="outline">Tab hierher</button>`,
   "icon-button": `<button type="button" class="hw-icon-button" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" aria-label="Thema">${moon}</button> <button type="button" class="hw-icon-button" data-on="picture" aria-label="Abspielen">${play}</button>`,
   strip: `<div class="hw-strip"></div>`,
-  code: `<pre class="hw-code"><code>$ bun run check\n<span style="color:var(--code-comment)"># 0 findings</span></code></pre>`,
+  code: `<pre class="hw-code"><code>$ bun run check\n<span class="hw-code-comment"># 0 findings</span></code></pre>`,
 };

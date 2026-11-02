@@ -33,6 +33,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/tokens`                         | the same as TypeScript                          |
 | `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                     |
 | `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)   |
+| `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes  |
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                    |
 | `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below               |
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
