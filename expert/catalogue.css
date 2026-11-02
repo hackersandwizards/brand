@@ -7,7 +7,9 @@
 @layer components {
   .hw-catalogue {
     --hw-cat-fg: var(--foreground, var(--color-ink));
-    --hw-cat-muted: var(--muted-foreground, var(--color-muted));
+    /* Muted text is the foreground at 70 %, as the expert set dims it: under expert.css
+       --color-muted is the muted fill. */
+    --hw-cat-muted: color-mix(in srgb, var(--hw-cat-fg) 70%, transparent);
     --hw-cat-line: var(--border, var(--color-border));
     --hw-cat-accent: var(--accent, var(--color-teal-dark));
     display: grid;
