@@ -1,11 +1,12 @@
 ---
 kind: decision
-status: open
+status: assumed
 priority: 3
 order: 1
 area: brand
 owner: Benedikt
 recommended: a
+assumption: "Triage 02.11. (Ada): Clean up and split the page. Evidence: consumer count per file in docs/tracking/2026-11-01-logo-derivatives.md: seven files without a consumer, avatar-512.png identical to icon-maskable-512.png; still present on 02.11. Internal file structure; option b adds four pin bumps for 390 KB more."
 options:
   - key: a
     label: Clean up and split the page
