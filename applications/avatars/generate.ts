@@ -89,10 +89,11 @@ if (import.meta.main) {
     .png()
     .toFile(join(import.meta.dir, "google-workspace-logo-320x132.png"));
 
-  // The Qonto invoice logo: logos/lockup-compact.svg at full width, top-aligned in a transparent
-  // 1000 px square, so the mark sits level with the invoice heading. Qonto takes it as a square and
-  // prints it at 200 x 200 px; os docs/tracking/2026-11-02-invoice-logo.md has the blind review.
-  const lockup = readFileSync(logos("lockup-compact.svg"));
+  // The Qonto invoice logo: logos/wordmark.svg at full width, top-aligned in a transparent 1000 px
+  // square, so the mark sits level with the invoice heading. Qonto takes it as a square and prints
+  // it at 200 x 200 px; the wordmark alone is an exception in os's design guide, and os
+  // docs/tracking/2026-11-02-invoice-logo.md has the blind review.
+  const lockup = readFileSync(logos("wordmark.svg"));
   const lockupWidth = Number(/ width="([\d.]+)"/.exec(lockup.toString())?.[1]);
   await sharp(lockup, { density: (72 * 1000) / lockupWidth })
     .resize(1000, 1000, { fit: "contain", position: "top", background: "#0000" })
