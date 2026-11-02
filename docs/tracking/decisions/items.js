@@ -67,134 +67,114 @@ window.DECISION_REPOS["brand"] = [
       "hw-code stays the one palette and needs no new brand colour; no surface shows light code, so no light variant ships; os, website, slides and talks switch in their own sessions in that order after the trainer hub.",
   },
   {
-    id: "density-tiers",
+    id: "ds-roll-trainer-hub-compact",
     title:
-      "Density: do os and trainer-hub get a compact tier of the same brand elements (UI text 13 px, as on macOS)?",
+      "Does trainer-hub keep the compact tier (UI text 13 px), or go back to 14 px while os keeps 13?",
     area: "brand",
     priority: 2,
-    order: 3,
-    status: "decided",
-    decision:
-      "Benedikt 02.11.: compact (Recommended): the compact density token for internal expert tools (os, trainer-hub).",
+    order: 7,
+    status: "open",
     context:
-      "Benedikt, 02.11.: „Die Elemente werden im Company OS gerade relativ groß seit den letzten Änderungen. […] Am schönsten ist natürlich meiner Meinung nach, wenn wir dieselben Elemente verwenden, aber vielleicht etwas weniger Abstände und etwas kleiner, damit wir mehr auf den Screen bekommen“. Measured 1440x900, os origin/main 26.10. vs today: every 10-13 px text is now 14 px, rows and paddings unchanged; dashboard attention rows on the first screen 11 -> 7, deals 9 -> 7, hub units 12 -> 10. One third from Benedikt's 28.10. scale (os 4235c4556, „ui 14, meta 13, micro 12“), two thirds from brand v0.8.0 (92613b1), where an agent assumption merged meta 13 px into 14 px. Apple HIG: macOS 13 pt text and 28 pt controls, iOS 17 pt and 44 pt; Spectrum ships the same components at 32 px desktop, 40 px mobile. Prototype in live os, dashboard and deals, blind panel of three personas (Benedikt daily on a 14-inch MacBook, an operations lead, a UX designer for expert tools), Claude and Codex, Benedikt twice: compact 8.25, today 7.26, tight 7.40; noise up to 1.0; 7 of 8 runs pick compact. Report: docs/tracking/2026-11-02-design-system-shape.md.",
+      "density-tiers (compact) shipped in brand v0.28.0 on data-hw-scale=\"dense\", reaching os and trainer-hub on 02.11. Blind review after the switch, 1440x900, Claude and Codex, two runs each: os (dashboard, deals, deal, people) Benedikt as daily user 7.50 -> 8.38, outside noise (0 to 0.5); COO 7.88 -> 7.50, inside noise (up to 2), a tie. trainer-hub (two personas: a trainer preparing at a laptop, Benedikt reviewing content) prefers 14 px on every app page beyond noise: units 8.06 -> 7.58, unit 8.21 -> 7.75, knowledge 8.04 -> 7.52 (noise 0.12 to 0.29); legibility 8.1-8.3 -> 6.9-7.0. Reviewers name the material sidebar, filter chips, 'On this page' and meta lines; trainer-hub's own rule says trainers read it on projectors and in daylight. Report: os docs/tracking/2026-11-02-design-system-rollout.md.",
     options: [
-      {
-        key: "compact",
-        label: "Compact tier: UI text 13 px, micro 11 px (dense carries type and heights)",
-        detail:
-          "brand's dense scale also sets --text-ui 13 px at 1.45 and the heights components read (row padding, control height, tile); os and trainer-hub move list rows and filters onto them; the website stays screen, mobile first. Measured: dashboard 7 -> 8 rows, deals 7 -> 7 until the components read the tokens.",
-      },
-      {
-        key: "tight",
-        label: "Tight: compact plus body 15 px, spacing 3.5 px, rows 5 px padding",
-        detail:
-          "Dashboard 10 rows, deals 8; reviewers score legibility 6.7 against 8.1 and calm 6.2 against 7.9.",
-      },
       {
         key: "keep",
-        label: "Keep today's 14 px",
-        detail: "Most legible (8.9), fewest rows on screen (6.2 for information per screen).",
+        label: "Keep compact in both",
+        detail: "No change. trainer-hub stays at 13 px with os.",
+      },
+      {
+        key: "hub-14",
+        label: "trainer-hub back to 14 px, os stays compact",
+        detail:
+          'brand adds a density hook (for example data-hw-density="comfortable" restoring --text-ui 14 px and micro 12 px under dense) and trainer-hub sets it on <html>. Cost: brand patch release, trainer-hub one attribute and the pin; os unchanged.',
       },
     ],
-    recommended: "compact",
+    recommended: "hub-14",
   },
   {
-    id: "design-system-tool",
-    title: "One design-system tool in every repo: Astrobook, our own page or Storybook?",
+    id: "ds-roll-verifier-push",
+    title:
+      "Push the certificate verifier's design-system commit? A push to main deploys production.",
     area: "brand",
     priority: 2,
-    order: 4,
-    status: "decided",
-    decision: "Benedikt 02.11.: Astrobook (Recommended), in every repo.",
+    order: 8,
+    status: "open",
     context:
-      "Benedikt, 02.11.: „Mal nutzen wir Storybook vielleicht, mal nutzen wir Astrobook, mal haben wir uns das selber gebaut. Ich hätte gerne, dass das jetzt überall identisch ist, dass ich nicht in jedem Repo wieder neu mich in das Design System reindenken muss.“ Today: Astrobook in website, os, trainer-hub (each with its own home page), own pages in brand, slides, documents, talks, verifier and the personal site, none in hycle. Prototype: the same label, pill, card, callout (plus a React pill) from brand v0.27.9 in each candidate, same story files, screen and dense, light and night. Blind panel (Benedikt as founder reviewing ten repos, a frontend engineer, a brand designer; Claude and Codex; Benedikt twice): Astrobook 8.43, own page 8.10, Storybook 5.75; noise 0 for the first two; all Claude runs pick own, all Codex runs Astrobook, a tie. Cost: node_modules 183 / 180 / 286 MB, build 1.2 / 2.4 / 4.6 s, page transfer 0.2 / 0.2 / 5.1 MB; Storybook's Astro support is a community framework, telemetry on by default, no controls for Astro components in a static build.",
+      "certificate-verifier 09ec51c (brand v0.27.5 -> v0.28.4, Astrobook at /design-system/ with brand's AstrobookHome, a story per page and part) is committed locally, gate green, not pushed: Cloudflare Workers Builds deploys every push to main. The live pages compare pixel-identical at 1440x900 (home, verify, not found); the worker's /design-system page changes only its tile version label. Report: os docs/tracking/2026-11-02-design-system-rollout.md.",
     options: [
       {
-        key: "astrobook",
-        label: "Astrobook everywhere, with one brand shell",
-        detail:
-          "brand exports the shell (home page, CSS, scale-and-theme decorator); every repo serves /design-system with it. Already running in three repos, renders React components, stories stay valid for Storybook. slides, talks, documents and the verifier add Astro as a dev dependency (slides +41 MB measured 01.11.).",
+        key: "push",
+        label: "Push now",
+        detail: "Production redeploys with identical pages.",
       },
       {
-        key: "own",
-        label: "Our own page, generated from the same stories",
-        detail:
-          "About 40 lines per repo or one shared page from brand; best brand fit (8.9) and every scale at once, weakest findability (7.5) until variants get anchors. We maintain it.",
-      },
-      {
-        key: "storybook",
-        label: "Storybook 10 with the Astro framework",
-        detail:
-          "Largest ecosystem (a11y, visual and interaction tests); one scale and theme at a time via the toolbar (3.0 for seeing all scales), generic chrome (3.4 brand fit), 5 MB per page.",
+        key: "hold",
+        label: "Hold until the next verifier change",
+        detail: "The commit waits in the local checkout.",
       },
     ],
-    recommended: "astrobook",
-    images: {
-      astrobook: "docs/tracking/2026-11-02-design-system-shape/tool-astrobook.jpg",
-      own: "docs/tracking/2026-11-02-design-system-shape/tool-own.jpg",
-      storybook: "docs/tracking/2026-11-02-design-system-shape/tool-storybook.jpg",
-    },
+    recommended: "push",
   },
   {
-    id: "design-system-hub-spoke",
-    title: "Hub and spokes: what may a spoke still hold (tokens, atoms, molecules, organisms)?",
-    area: "brand",
-    priority: 2,
-    order: 5,
-    status: "decided",
-    decision: "Benedikt 02.11.: strict: no tokens in spokes; every value comes from brand.",
-    context:
-      "Benedikt, 02.11.: „im Brand Guide dann der ganze Core […] die meisten Tokens, Atome und vielleicht Moleküle […] in den einzelnen Spokes dürften eigentlich fast gar keine Atome sein und gar keine Tokens, wenige Moleküle, dafür aber […] mehr Organismen“. Inventory (origin/main 02.11., levels per Brad Frost, counts partly judgement): the seven h&w spokes hold 81 atoms, 130 molecules, 147 organisms and 81 primitive tokens; brand about 12 atoms and 7 molecules. 17 candidates found in two or more systems (customer button, arrow link, caps tag, segmented control, field with button, facts list, list row, prose block, code panel, KPI tile, dashed frame, status callout, breadcrumb, motion tokens, night remap, app width and screen fonts, stage values). Best practice holds his model (Brad Frost: core vs product-owned recipes that can graduate) with two corrections: Material assigns component tokens to components, so a spoke's own organisms keep theirs; Frost calls atomic design a mental model, so level names make no gate rule.",
-    options: [
-      {
-        key: "tiered",
-        label: "No primitive tokens or atoms in spokes; component tokens for own organisms",
-        detail:
-          "A spoke holds no primitive tokens, semantic ones only as theme and density hooks, component tokens only for its own organisms, atoms only as reasoned exceptions in brand-elements.json, molecules as recipes until a second system shows them. Brand takes the 17 candidates: atoms about 12 -> 20, molecules about 7 -> 25.",
-      },
-      {
-        key: "strict",
-        label: "Strict: no tokens at all in spokes",
-        detail:
-          "Every component token of a spoke organism moves to brand too; brand then holds tokens for slide types, document types and app views it does not render.",
-      },
-      {
-        key: "loose",
-        label: "Loose: only today's shared elements",
-        detail:
-          "Spokes keep their atoms and molecules; brand stays at the 11 shared elements plus the expert set.",
-      },
-    ],
-    recommended: "tiered",
-  },
-  {
-    id: "catalogue-shape",
-    title: "One page shape for the brand catalogue, the slide specimen and the document specimen?",
+    id: "ds-roll-heights-today",
+    title: "Assumed: the compact tier's height tokens carry today's values",
     area: "brand",
     priority: 3,
-    order: 6,
-    status: "decided",
-    decision: "Benedikt 02.11.: shared shape (Recommended) for every repo's catalogue.",
+    order: 9,
+    status: "assumed",
+    assumption:
+      "dense sets --hw-row-pad 0.5rem 0.75rem and --hw-control-height 2.5rem, today's measured values; os and trainer-hub list rows and filters read them unchanged. Only the type change (13 / 11 px) was blind-reviewed, so lower heights wait for their own review.",
     context:
-      "Benedikt, 02.11.: „die Brand-Katalog-Seite, die Slide-Übersichtsseite, die Docs-Übersichtsseite, das ist ja eigentlich auch im Prinzip überall dasselbe, oder?“ Prototype: one generator, header (AppHeader), left rail with search and groups with counts (like SpaceNav), title and lead (PageHeader), a provenance line, a grid of hw-card tiles with preview per group, fed with the real slide types, document types and brand sections. Blind panel (same three personas, Claude and Codex, Benedikt twice): one shape 8.31, today's three pages 4.71; noise 1.0 / 0.3; all 8 runs pick it. The decision page is a work queue, not a catalogue: it keeps its list form, built from os's list row, filter and pill. Independent of os row catalogue-sites-astro (whether the pages are built with Astro).",
-    options: [
-      {
-        key: "shared",
-        label: "One shape for all three, decision page as an os-style list",
-        detail:
-          "brand ships the shape (header, rail, tiles from its elements); brand, slides and documents render their pages in it. Open from the review: rail lists types too, larger previews.",
-      },
-      {
-        key: "keep",
-        label: "Keep three page forms, shared header only",
-        detail: "Today's state since 01.11.",
-      },
-    ],
-    recommended: "shared",
-    images: {
-      shared: "docs/tracking/2026-11-02-design-system-shape/catalogue-shape-slides.jpg",
-      keep: "docs/tracking/2026-11-02-design-system-shape/catalogue-today-slides.jpg",
-    },
+      "density-tiers named heights components read without values. Report: os docs/tracking/2026-11-02-design-system-rollout.md.",
+  },
+  {
+    id: "ds-roll-dense-talks",
+    title: "Assumed: the compact tier rides on dense, so talks gets it too",
+    area: "brand",
+    priority: 3,
+    order: 10,
+    status: "assumed",
+    assumption:
+      'The tier lives on data-hw-scale="dense", which os, trainer-hub and talks set. On talks it changed no pixel: the deck list takes the slide engine\'s sizes, not --text-ui.',
+    context:
+      "density-tiers named os and trainer-hub. Report: os docs/tracking/2026-11-02-design-system-rollout.md.",
+  },
+  {
+    id: "ds-roll-home-sidebar",
+    title:
+      "Assumed: the Astrobook home hides Astrobook's sidebar; the catalogue's rail replaces it there",
+    area: "brand",
+    priority: 3,
+    order: 11,
+    status: "assumed",
+    assumption:
+      "AstrobookHome hides Astrobook's own sidebar on the home only; each story page keeps it. The rail carries search and groups with counts; the theme toggle goes into the header's nav slot (brand v0.28.4). The website passes previews={false}: its production headers forbid framing (X-Frame-Options DENY, frame-src 'none').",
+    context:
+      "catalogue-shape decided one shape; Astrobook brings its own sidebar. Report: os docs/tracking/2026-11-02-design-system-rollout.md.",
+  },
+  {
+    id: "ds-roll-specimen-fixtures",
+    title:
+      "Assumed: slides, documents and the verifier keep their own pages as gate fixtures beside Astrobook",
+    area: "brand",
+    priority: 3,
+    order: 12,
+    status: "assumed",
+    assumption:
+      "Astrobook at /design-system/ is the catalogue in every repo that has one now. The slides and documents specimen pages and the verifier's /design-system route stay, because brand-elements, brand-markers and specimen --check read them as files without a server; documents' specimen index is also its public GitHub Pages site. talks removed its own Next route instead.",
+    context:
+      "design-system-tool: Astrobook in every repo. Report: os docs/tracking/2026-11-02-design-system-rollout.md.",
+  },
+  {
+    id: "ds-roll-personal-hycle",
+    title: "Assumed: the personal site and hycle-private get no Astrobook in this run",
+    area: "brand",
+    priority: 3,
+    order: 13,
+    status: "assumed",
+    assumption:
+      "Neither wears the h&w brand. The personal site publishes its repository root without a build; hycle-private's site is a claude-free plain-HTML submodule. Adding Astro to either changes how it publishes, which waits for a session of its own.",
+    context:
+      "design-system-tool says every repo. Report: os docs/tracking/2026-11-02-design-system-rollout.md.",
   },
 ];
