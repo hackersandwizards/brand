@@ -269,6 +269,15 @@
   --code-inserted: var(--color-green);
   --code-deleted: var(--color-red-night);
 
+  /* Motion. fast: a control's colour, border or arrow answering the pointer. draw: a line drawing
+     itself in, line: a single stroke, tune: one slow cycle of an animated diagram. ease-brand: the
+     settle every entrance and draw takes. A surface stops each under prefers-reduced-motion. */
+  --motion-fast: 150ms ease;
+  --motion-duration-draw: 1.3s;
+  --motion-duration-line: 650ms;
+  --motion-duration-tune: 7s;
+  --motion-ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+
   --gradient-magic: linear-gradient(
     135deg,
     var(--color-teal) 0%,

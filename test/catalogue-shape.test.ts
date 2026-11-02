@@ -25,6 +25,11 @@ const page = (theme: string) => `<!doctype html><html${theme}><head><meta charse
 const EXPERT_LIGHT = ` style="--color-muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg)); --background: var(--color-bg); --foreground: var(--color-ink)"`;
 const EXPERT_NIGHT = ` data-theme="dark" style="--color-muted: var(--color-night-2); --background: var(--color-night); --foreground: var(--color-night-ink)"`;
 
+// A bare number beside the title read as part of it; the provenance line names the count in words.
+test("the title carries no count", () => {
+  expect(body.match(/<h1>[^<]*<\/h1>/)?.[0]).toBe("<h1>T</h1>");
+});
+
 let browser: Browser;
 beforeAll(async () => {
   browser = await launch();

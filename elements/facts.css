@@ -1,0 +1,35 @@
+/* The facts list: a record's facts, each an hw-label (data-tone="muted") over its value, 4 px apart,
+   so "DE" reads as the language and a name as the trainer. A dl whose children are a div per fact
+   holding dt and dd. data-variant="ruled" stacks the facts between hairlines. How the facts flow
+   (a row that wraps, a grid of columns) and the value's weight stay the surface's.
+
+   Settings:
+     --hw-hairline  the rule's width
+     --hw-line      the rule's colour */
+
+@layer components {
+  .hw-facts {
+    margin: 0;
+  }
+  .hw-facts > div {
+    display: grid;
+    align-content: start;
+    gap: 0.25rem;
+  }
+  .hw-facts dd {
+    margin: 0;
+  }
+  .hw-facts[data-variant="ruled"] > div {
+    border-top: var(--hw-hairline, 1px) solid var(--hw-line, var(--color-border));
+    padding-block: 0.625rem;
+  }
+  .hw-facts[data-variant="ruled"] > div:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-facts[data-variant="ruled"] > div {
+      border-top-color: color-mix(in srgb, white 15%, transparent);
+    }
+  }
+}

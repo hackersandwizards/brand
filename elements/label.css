@@ -1,5 +1,6 @@
 /* The label: an eyebrow, kicker, fact name or table head. The label role (mono, capitals, its
-   tracking) in teal-dark, teal-night on night. data-tone="muted" sets it in the muted grey (a
+   tracking) in teal-dark, teal-night on night. Below 48rem the label role takes the small role's
+   size, so no text on a phone is under 14 px. data-tone="muted" sets it in the muted grey (a
    callout's label), data-tone="ink" in the text colour (a field's or group's name).
 
    Settings (scales.css sets them per medium):
@@ -34,5 +35,12 @@
     .hw-label[data-tone="ink"] {
       color: var(--color-night-ink);
     }
+  }
+}
+
+/* Unlayered, so it outranks the role's size wherever the tokens sit. */
+@media (max-width: 47.999rem) {
+  :root {
+    --text-label: var(--text-small);
   }
 }

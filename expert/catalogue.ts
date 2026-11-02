@@ -28,7 +28,8 @@ export type CatalogueGroup = { name: string; items: CatalogueItem[] };
 export type CatalogueData = {
   title: string;
   lead: string;
-  /** One line in mono: where the shown values come from, such as the brand version. */
+  /** One line in mono: where the shown values come from, such as the brand version, and how many
+   * entries the page holds, in words ("26 components"): the title carries no count. */
   provenance: string;
   groups: CatalogueGroup[];
   /** Markup between the provenance line and the first group, trusted: the system's foundations. */
@@ -80,7 +81,6 @@ const SCRIPT = `<script>(()=>{const fit=()=>{for(const p of document.querySelect
 export function renderCatalogue(data: CatalogueData): string {
   const { search = "Search", groups: groupsLabel = "Groups" } = data.labels ?? {};
   const groups = data.groups.filter((g) => g.items.length > 0);
-  const total = groups.reduce((n, g) => n + g.items.length, 0);
   const rail = groups
     .map(
       (g) =>
@@ -93,5 +93,5 @@ export function renderCatalogue(data: CatalogueData): string {
         `<section class="hw-catalogue-group" id="${anchorOf(g.name)}"><h2>${escapeCatalogue(g.name)} <span class="hw-catalogue-count">${g.items.length}</span></h2><ul class="hw-catalogue-grid">${g.items.map((i) => catalogueTile(i, g.name)).join("")}</ul></section>`,
     )
     .join("");
-  return `<div class="hw-catalogue hw-container"><aside class="hw-catalogue-rail"><input class="hw-catalogue-search" type="search" placeholder="${escapeCatalogue(search)}" aria-label="${escapeCatalogue(search)}"><nav aria-label="${escapeCatalogue(groupsLabel)}"><ul>${rail}</ul></nav></aside><div class="hw-catalogue-main"><h1>${escapeCatalogue(data.title)} <span class="hw-catalogue-count">${total}</span></h1><p class="hw-catalogue-lead">${escapeCatalogue(data.lead)}</p><p class="hw-catalogue-provenance">${escapeCatalogue(data.provenance)}</p>${data.intro ?? ""}${sections}</div></div>${SCRIPT}`;
+  return `<div class="hw-catalogue hw-container"><aside class="hw-catalogue-rail"><input class="hw-catalogue-search" type="search" placeholder="${escapeCatalogue(search)}" aria-label="${escapeCatalogue(search)}"><nav aria-label="${escapeCatalogue(groupsLabel)}"><ul>${rail}</ul></nav></aside><div class="hw-catalogue-main"><h1>${escapeCatalogue(data.title)}</h1><p class="hw-catalogue-lead">${escapeCatalogue(data.lead)}</p><p class="hw-catalogue-provenance">${escapeCatalogue(data.provenance)}</p>${data.intro ?? ""}${sections}</div></div>${SCRIPT}`;
 }

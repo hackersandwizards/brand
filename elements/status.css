@@ -1,0 +1,45 @@
+/* The status box: a note whose colour says what a state means, a gap to act on (warning), a fault
+   (error), something done (success) or a fact to read first (info). data-tone names it; the tone at
+   40 % as a hairline, at 7 % as the ground, the brand corner and the card padding. The tone is the
+   expert set's status role: on light red, amber-dark and green-dark mixed 70 % with ink, which
+   clear 4.5:1 on their own wash, and teal-dark; on night red-night, amber, green and teal-night.
+   The box sets no text colour: a heading in it takes the tone, the body the foreground.
+
+   Settings:
+     --hw-card-pad     the padding
+     --hw-card-corner  the corner
+     --hw-hairline     the line's width */
+
+@layer components {
+  .hw-status {
+    --_tone: color-mix(in srgb, var(--color-amber-dark) 70%, var(--color-ink));
+    box-sizing: border-box;
+    border: var(--hw-hairline, 1px) solid color-mix(in srgb, var(--_tone) 40%, transparent);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
+    padding: var(--hw-card-pad, var(--spacing-card));
+    background: color-mix(in srgb, var(--_tone) 7%, transparent);
+  }
+  .hw-status[data-tone="error"] {
+    --_tone: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
+  }
+  .hw-status[data-tone="success"] {
+    --_tone: color-mix(in srgb, var(--color-green-dark) 70%, var(--color-ink));
+  }
+  .hw-status[data-tone="info"] {
+    --_tone: var(--color-teal-dark);
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-status {
+      --_tone: var(--color-amber);
+    }
+    .hw-status[data-tone="error"] {
+      --_tone: var(--color-red-night);
+    }
+    .hw-status[data-tone="success"] {
+      --_tone: var(--color-green);
+    }
+    .hw-status[data-tone="info"] {
+      --_tone: var(--color-teal-night);
+    }
+  }
+}

@@ -532,6 +532,17 @@ const ELEMENT_ORDER: [string, string, string][] = [
   ["icon-button", "Round icon control", "icon-button"],
   ["strip", "Gradient strip", "strip"],
   ["code", "Code block", "code"],
+  ["button", "Button", "button"],
+  ["arrow-link", "Arrow link", "arrow-link"],
+  ["field", "Field with button", "field"],
+  ["facts", "Facts list", "facts"],
+  ["segmented", "Segmented control", "segmented"],
+  ["row", "List row", "row"],
+  ["breadcrumb", "Breadcrumb", "breadcrumb"],
+  ["status", "Status box", "status"],
+  ["frame", "Dashed frame", "frame"],
+  ["kpi", "Key figure", "kpi"],
+  ["prose", "Prose block", "prose"],
 ];
 const SCALES: [string, string][] = [
   ["screen", "website, verifier: px"],
@@ -581,7 +592,7 @@ const EXPERT_COMPONENTS = [
   "ThemeToggle",
 ];
 const sharedIntro = `<p>Every element two or more systems show lives here once: one CSS file, shown live in light and night at each of the four scales. A system sets the scale, never a colour or a shape, and shows its exceptions in full on its own design-system page, beside a tile per hub element it uses. ${code('@import "@hackersandwizards/brand/elements.css";')} takes them all, ${code("elements/<name>.css")} with ${code("elements/scales.css")} one each; the scale is ${code('data-hw-scale="screen | dense | print | stage"')} on any container. ${code("brand-elements")} measures each element on the system's own page against this rule, in that system's gate.</p>
-<p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, tooltip, KPI tile, chart bars, slide table, header bars, ghost button.</p>`;
+<p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, tooltip, chart bars, slide table, header bars, ghost button. The slide engine's number tile, a step's number on a square, is a slide part.</p>`;
 const elementsHtml = `${sharedIntro}
 ${sharedHtml}
 <h3 id="expert-group">Expert: the apps</h3>

@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "ce7ae566dd53056eff62965ea2e9931b4117ab5964af254b207fdf6b71780f6a"
+      "sha256": "539948993601dffff25fb0003dfbf39002f1ebbda22b1600a87e8a10f1b30174"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -254,7 +254,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "c5c5b57628ace4bf8fad7a40e57bd577f3354d4e6ad8894a62898188e8430b8a"
+      "sha256": "4d32af6359d3dcedfdf377ba91e3b817b58d4148ce809d598c9a64bb6e9b559f"
     },
     {
       "path": "expert/header.css",
@@ -274,11 +274,11 @@
     },
     {
       "path": "expert/catalogue.css",
-      "sha256": "72f82d8bb9eb5450d603e1fef248562c14e2460a5ebac38304ace9131e2f1db6"
+      "sha256": "ca31034a532c1278ddb4bc7a0b7a7b54d24914427b1a3286cb4083458c17c2ba"
     },
     {
       "path": "expert/catalogue.ts",
-      "sha256": "974724c9104306da2efa3cc77a1718255efa7ccaf4a67862a632ef6aef8dd4a8"
+      "sha256": "b2d2aff7ee94e8f14d04d9e20a0fecf5e7aca769cf2659cc95b84164a77e7b47"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -318,7 +318,7 @@
     },
     {
       "path": "expert/components/ThemeToggle.astro",
-      "sha256": "e31da1fa065fb202f2116713a285239e0e0f287cd9c836a864d4c265d4018e58"
+      "sha256": "bf38714d11adbc04dd1347b43d5ebdd79b2cafd6a273d072882f99c5d119d0ab"
     },
     {
       "path": "expert/components/space-nav.ts",
@@ -334,7 +334,7 @@
     },
     {
       "path": "elements/code.css",
-      "sha256": "e4979a4d1193c589346b093cbb02dfd416c93008e60d51f7ce00c7121635e732"
+      "sha256": "141e21ae288045e6c364c9ad0d61d1e303c282b924d60d09eb96e9dba3fa37ea"
     },
     {
       "path": "elements/code.ts",
@@ -342,7 +342,7 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "952baece9b59db82fcbe789d4a07749a4b4e991e3870314ced375950efaf0301"
+      "sha256": "b1406d94ec459dd0d8dd4e8b60edd21e73e7ab0403a8fb65a56ecb90e927252a"
     },
     {
       "path": "elements/focus.css",
@@ -354,7 +354,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "239cc878234ba4a1a40d4c2215693ad12acd4bc92b9a46c675023a97fe92e66e"
+      "sha256": "3d2fc3ac8dae5afdf6a632882a669df8e2b35d4e436f56ce482fbb51a6210b0d"
     },
     {
       "path": "elements/link.css",
@@ -370,7 +370,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "38840ddd83a1882ba92d32fd5392211ed046a9b2b00e2cd49610384364caa0ee"
+      "sha256": "0ff46ce5cf38e041b8d37bc13489bc06e2085187e855e83a6b4589574120c3bb"
     },
     {
       "path": "elements/strip.css",
@@ -395,6 +395,66 @@
     {
       "path": "press/stefan-munz.jpg",
       "sha256": "96c17e460341279dacd5c929fb03f5ba1ed2aa7800ca22d8df2d95c9d0059c1b"
+    },
+    {
+      "path": "elements/arrow-link.css",
+      "sha256": "6c2d9fd5dedcce74e506b235ba9b994a9be97b700819d63220fd54fb0026d543"
+    },
+    {
+      "path": "elements/breadcrumb.css",
+      "sha256": "ea378bea250b069399121940f68517df7e33585df79404ac877c53139c0dc963"
+    },
+    {
+      "path": "elements/button.css",
+      "sha256": "25bb152a0a69cf005ebf10057fb2b3af3ac501be48ec2df9af969223a1d87007"
+    },
+    {
+      "path": "elements/facts.css",
+      "sha256": "be90fe498e46c1d1051173cd81e32168a575cad543754f01e0689b24628af11e"
+    },
+    {
+      "path": "elements/field.css",
+      "sha256": "05c6b50e84dd94f1ae5ccedda5fde4e17c48715c2c80fd547af8597bb74f0687"
+    },
+    {
+      "path": "elements/frame.css",
+      "sha256": "69ca498754bf9ab577a2531e35c577f3a4bbf6c83d514385f6bc113103e42e2c"
+    },
+    {
+      "path": "elements/kpi.css",
+      "sha256": "9406462921125dc6ecb8482615ec2ffef05c9ba8aad5d360b6f3a08bb5a1b49c"
+    },
+    {
+      "path": "elements/prose.css",
+      "sha256": "f6b61c76da6d80ba113714a4a9ae35843898e914e2b1240c1012d97afef39116"
+    },
+    {
+      "path": "elements/row.css",
+      "sha256": "3ae7bd48ffbd515045b13d0d139fd6978c1d9f30e565eb64b4ef44c63c26f361"
+    },
+    {
+      "path": "elements/segmented.css",
+      "sha256": "0f6cb0ad7af10330221e00716b0a834771516edf6ebee664bd42a9ac7e5e6f65"
+    },
+    {
+      "path": "elements/status.css",
+      "sha256": "7060e0ca57537a7d37a967b0c779960f0dbb34d6fb6f481b706d467543a9934f"
+    },
+    {
+      "path": "tokens/document.css",
+      "sha256": "8c32ebc1093decef40988bcfa2b5de5db012ba56463ddaddd0d7ad6b9795e84e"
+    },
+    {
+      "path": "tokens/fonts.css",
+      "sha256": "358b813a3a2053a98218c1a3eb81775ef289d886cc7bdf74846d0877916bf88b"
+    },
+    {
+      "path": "tokens/night.css",
+      "sha256": "4d70aaa1328a2481cd34ddcca918336a1f4ce8c4a833cdf13f252b3595466ec5"
+    },
+    {
+      "path": "tokens/stage.css",
+      "sha256": "fccd75d711552fa0ef3ddfd19a0c916e3a256a659cf7d0558ec9716f87caf9c3"
     }
   ]
 }

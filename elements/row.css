@@ -1,0 +1,46 @@
+/* The list row: one record in a list, a stripe in the record's colour at its left edge, the lead
+   (title and chips) shrinking with an ellipsis, the trail (figures, dates) keeping its width. The
+   page's ground, a hairline under each row, the muted fill at 70 % on hover. The stripe is a span
+   hw-row-stripe, its colour a background the surface sets; corner clipping belongs to the frame
+   round the list. On night the expert set's night roles.
+
+   Markup: <div class="hw-row"><span class="hw-row-stripe"></span><div>lead</div><div>trail</div></div>
+
+   Settings:
+     --hw-row-pad     block and inline padding
+     --hw-row-stripe  the stripe's width
+     --hw-row-gap     the gap between stripe, lead and trail */
+
+@layer components {
+  .hw-row {
+    display: grid;
+    box-sizing: border-box;
+    grid-template-columns: var(--hw-row-stripe, 4px) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--hw-row-gap, 0.75rem);
+    border-bottom: var(--hw-hairline, 1px) solid var(--color-border);
+    padding: var(--hw-row-pad, 0.5rem 0.75rem);
+    background: var(--color-bg);
+    transition: background-color 0.1s;
+  }
+  .hw-row:hover {
+    background: color-mix(
+      in srgb,
+      color-mix(in srgb, var(--color-ink) 7%, var(--color-bg)) 70%,
+      transparent
+    );
+  }
+  .hw-row > .hw-row-stripe {
+    align-self: stretch;
+    border-radius: 0;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-row {
+      border-bottom-color: color-mix(in srgb, white 18%, var(--color-night));
+      background: var(--color-night);
+    }
+    .hw-row:hover {
+      background: color-mix(in srgb, var(--color-night-2) 70%, transparent);
+    }
+  }
+}

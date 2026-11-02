@@ -37,6 +37,11 @@
   --tracking-label: 0.06em;
 
   --font-heading: var(--font-mono);
+
+  /* The page width of an app: the content column under the internal header (max-w-app). */
+  --container-app: 96rem;
+  /* Where anything stuck under the internal header starts: its strip, row, hairline and safe area. */
+  --nav-offset: var(--spacing-app-header);
 }
 
 /* Every colour is a brand token or a mix of tokens, by the roles in tokens.css. --muted is a

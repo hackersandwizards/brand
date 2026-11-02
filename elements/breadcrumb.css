@@ -1,0 +1,43 @@
+/* The breadcrumb: the way back up from a detail page, an ordered list whose last item is the page
+   itself and links nowhere. The UI size at the foreground's 70 %, a slash between items, the
+   ancestors in the accent and underlined on hover. Spacing above and below stays the surface's. On
+   night the expert set's night roles.
+
+   Markup: <nav class="hw-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="…">…</a></li><li><span aria-current="page">…</span></li></ol></nav>
+
+   Settings: none; the size is the UI step (--text-ui). */
+
+@layer components {
+  .hw-breadcrumb {
+    font-size: var(--text-ui, var(--type-small-size));
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+  .hw-breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hw-breadcrumb li + li::before {
+    content: "/";
+    margin-right: 0.5rem;
+  }
+  .hw-breadcrumb a {
+    text-decoration: none;
+    color: var(--color-teal-dark);
+  }
+  .hw-breadcrumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-breadcrumb {
+      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
+    }
+    .hw-breadcrumb a {
+      color: var(--color-teal-night);
+    }
+  }
+}

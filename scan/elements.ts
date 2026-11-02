@@ -6,7 +6,8 @@
 //   { "pages": ["<url or html file>", ...],
 //     "uses": ["card", "pill", ...],                  every hub element the system uses
 //     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
-//                     | { "reason": "...", "files": ["<path>", ...] }, ... } }
+//                     | { "reason": "...", "files": ["<path>", ...] }, ... },
+//     "lightOnly": true }                             optional: the pages never turn to night
 //
 // 1. Rendered. Every hub element on the pages (an hw-* class; for the focus ring, the first
 //    focusable inside [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception],
@@ -14,7 +15,9 @@
 //    markup in a shadow root beside it, styled only by this package's element files and inheriting
 //    the page's tokens, theme and scale. Any difference in a computed property the element sets
 //    (OWNS: its corner, fill, line, text colour, type, padding or size) fails, by more than 0.02px
-//    for a length.
+//    for a length. Each brand token an element reads must be defined where it renders; with
+//    "lightOnly" the tokens only its night rules read are left out, since a page without night
+//    never draws them.
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote)
 //    and sets a property that element owns (a shorthand counts for its longhands) fails, and so does a component file of such a name,
@@ -35,7 +38,12 @@ import { launch, toUrl } from "./markers";
 
 export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
-export type Config = { pages: string[]; uses: string[]; exceptions?: Record<string, Exception> };
+export type Config = {
+  pages: string[];
+  uses: string[];
+  exceptions?: Record<string, Exception>;
+  lightOnly?: boolean;
+};
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
 
@@ -53,6 +61,17 @@ export const ELEMENTS: Record<string, string> = {
   "icon-button": ".hw-icon-button",
   strip: ".hw-strip",
   code: ".hw-code",
+  button: ".hw-button",
+  "arrow-link": ".hw-arrow-link",
+  field: ".hw-field",
+  facts: ".hw-facts",
+  segmented: ".hw-segmented",
+  row: ".hw-row",
+  breadcrumb: ".hw-breadcrumb",
+  status: ".hw-status",
+  frame: ".hw-frame",
+  kpi: ".hw-kpi",
+  prose: ".hw-prose",
 };
 // What each element (and each part, "<element> <part>") sets, and so what is compared: a property
 // the element leaves to its surroundings, such as a card's text size, stays the surface's.
@@ -92,6 +111,45 @@ const OWNS: Record<string, string[]> = {
   "icon-button svg": ["width", "height"],
   strip: ["height", ...FILL],
   code: [...CORNER, ...FILL, ...PAD, ...TYPE, "color"],
+  button: [...CORNER, ...FILL, ...borders(), ...PAD, ...TYPE, "color", "min-height"],
+  "arrow-link": ["color", "text-decoration-line", "padding-top", "padding-bottom"],
+  "arrow-link .hw-arrow": ["white-space", "font-family"],
+  field: [
+    ...CORNER,
+    ...FILL,
+    ...borders(),
+    "padding-left",
+    "padding-right",
+    "font-family",
+    "font-size",
+    "color",
+    "min-height",
+  ],
+  facts: ["margin-top", "margin-bottom"],
+  "facts div": ["display", "row-gap", ...borders(["top"]), "padding-top", "padding-bottom"],
+  "facts dd": ["margin-left"],
+  segmented: [...CORNER, ...FILL, ...borders(), ...PAD, "font-size"],
+  "segmented a": [...CORNER, ...FILL, ...PAD, "color"],
+  "segmented button": [...CORNER, ...FILL, ...PAD, "color"],
+  row: ["display", ...FILL, ...borders(["bottom"]), ...PAD, "column-gap"],
+  "row .hw-row-stripe": ["align-self"],
+  breadcrumb: ["font-size", "color"],
+  "breadcrumb a": ["color", "text-decoration-line"],
+  status: [...CORNER, ...FILL, ...borders(), ...PAD],
+  frame: [...CORNER, ...FILL, ...borders()],
+  kpi: ["display", "flex-direction", "row-gap"],
+  "kpi .hw-kpi-value": [
+    "font-family",
+    "font-size",
+    "font-weight",
+    "line-height",
+    "letter-spacing",
+    "font-variant-numeric",
+  ],
+  prose: ["overflow-wrap"],
+  "prose h1": ["font-size", "line-height"],
+  "prose h2": [...borders(["top"]), "padding-top", "font-size", "line-height"],
+  "prose h3": ["font-size", "font-weight", "line-height"],
 };
 
 /** The element files' rules, every @import dropped: the reference's only styles. */
@@ -103,14 +161,30 @@ export const elementCss = () =>
 /** The settings a surface may set: every --hw-* an element file reads. */
 export const SETTINGS = [...new Set(elementCss().match(/(?<=var\()--hw-[a-z-]+/g))];
 /** The brand tokens each element reads: a surface that never defines one (Tailwind emits only the
- * @theme tokens a scanned file names) leaves page and reference equally wrong, so each is checked. */
-export const TOKENS = Object.fromEntries(
-  Object.keys(ELEMENTS).map((name) => {
-    const file = join(DIR, `${name === "focus-ring" ? "focus" : name}.css`);
-    const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-    return [name, [...new Set(css.match(/(?<=var\()--(?!hw-|_)[\w-]+(?=\))/g))]];
-  }),
-);
+ * @theme tokens a scanned file names) leaves page and reference equally wrong, so each is checked.
+ * `day` leaves out the tokens only the element's night rules read. */
+const tokensOf = (day: boolean) =>
+  Object.fromEntries(
+    Object.keys(ELEMENTS).map((name) => {
+      const file = join(DIR, `${name === "focus-ring" ? "focus" : name}.css`);
+      let css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+      if (day) css = withoutNight(css);
+      return [name, [...new Set(css.match(/(?<=var\()--(?!hw-|_)[\w-]+(?=\))/g))]];
+    }),
+  );
+/** The CSS with every night block (@scope ([data-theme="dark"]) ...) cut out. */
+export const withoutNight = (css: string) => {
+  let out = css;
+  for (let i = out.search(/@scope \(\[data-theme="dark"\]\)/); i >= 0;) {
+    let j = out.indexOf("{", i) + 1;
+    for (let depth = 1; depth; j++) depth += out[j] === "{" ? 1 : out[j] === "}" ? -1 : 0;
+    out = out.slice(0, i) + out.slice(j);
+    i = out.search(/@scope \(\[data-theme="dark"\]\)/);
+  }
+  return out;
+};
+export const TOKENS = tokensOf(false);
+export const DAY_TOKENS = tokensOf(true);
 
 export type Finding = {
   page: string;
@@ -258,8 +332,8 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
 
 export type PageResult = Awaited<ReturnType<typeof measurePage>>;
 
-/** One page's comparison, with its tiles, after `css` is added. */
-export async function measurePage(browser: Browser, url: string, css = "") {
+/** One page's comparison, with its tiles, after `css` is added; `lightOnly` checks day tokens only. */
+export async function measurePage(browser: Browser, url: string, css = "", lightOnly = false) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: 1280, height: 900 });
@@ -273,7 +347,7 @@ export async function measurePage(browser: Browser, url: string, css = "") {
       OWNS,
       SETTINGS,
       TOLERANCE,
-      TOKENS,
+      lightOnly ? DAY_TOKENS : TOKENS,
     ] as Args);
     return { ...out, findings: out.findings.map((f) => ({ page: url, ...f })) };
   } finally {
@@ -450,7 +524,8 @@ if (import.meta.main) {
   const browser = await launch();
   const results: PageResult[] = [];
   try {
-    for (const url of config.pages) results.push(await measurePage(browser, url));
+    for (const url of config.pages)
+      results.push(await measurePage(browser, url, "", config.lightOnly === true));
   } finally {
     await browser.close();
   }

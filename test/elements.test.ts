@@ -74,6 +74,17 @@ const DRIFT: Record<string, string> = {
   "icon-button": ".hw-icon-button { border-radius: 5px }",
   strip: ".hw-strip { height: 2px }",
   code: ".hw-code { background: #24292e }",
+  button: ".hw-button { border-radius: 5px }",
+  "arrow-link": ".hw-arrow-link { color: var(--color-teal) }",
+  field: ".hw-field { border-color: var(--color-border) }",
+  facts: ".hw-facts > div { row-gap: 8px }",
+  segmented: ".hw-segmented { padding: 4px }",
+  row: ".hw-row { padding: 12px }",
+  breadcrumb: ".hw-breadcrumb a { color: var(--color-purple) }",
+  status: ".hw-status { background: transparent }",
+  frame: ".hw-frame { border-style: solid }",
+  kpi: ".hw-kpi-value { font-weight: 500 }",
+  prose: ".hw-prose h3 { font-weight: 400 }",
 };
 test.each(Object.entries(DRIFT))(
   "a drifted %s is red",
@@ -123,6 +134,19 @@ test("the same colour in another notation is no drift, another colour is", async
     ),
   );
   expect(other.findings.some((f) => f.element === "card")).toBe(true);
+}, 60_000);
+
+// A light-only page (brand-elements.json "lightOnly") may leave the night tokens out: the night
+// rules never draw there. A day token still counts.
+test("a light-only page needs no night token, a day token still counts", async () => {
+  const noNight = page(":root { --color-night-muted: initial }");
+  const strict = await measurePage(browser, file("light-strict.html", noNight));
+  expect(strict.findings.some((f) => f.prop === "--color-night-muted")).toBe(true);
+  const light = await measurePage(browser, file("light-only.html", noNight), "", true);
+  expect(light.findings.filter((f) => f.got === "undefined")).toEqual([]);
+  const noDay = page(":root { --color-teal-dark: initial }");
+  const day = await measurePage(browser, file("light-day.html", noDay), "", true);
+  expect(day.findings.some((f) => f.prop === "--color-teal-dark")).toBe(true);
 }, 60_000);
 
 test("a brand token the surface never defines is red", async () => {
@@ -207,7 +231,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   expect(out).toEqual([
     `card: the tile says brand v0.1.0, the installed package is v${own.version}; rebuild the page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, code)',
+    'brand-elements.json: "chart" is no shared element (label, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, code, button, arrow-link, field, facts, segmented, row, breadcrumb, status, frame, kpi, prose)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',
@@ -266,6 +290,8 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-pill-hue",
     "--hw-pill-hue-night",
     "--hw-pill-edit-corner",
+    "--hw-segment-line",
+    "--hw-prose-check-x",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });
@@ -273,6 +299,6 @@ test("the screen preset sets every setting an element reads", () => {
 // The catalogue's own styles leave its element samples alone.
 test("the catalogue's samples match their rules", async () => {
   const r = await measurePage(browser, join(ROOT, "catalogue.html"));
-  expect(r.seen.length).toBe(10);
+  expect(r.seen.length).toBe(21);
   expect(r.findings).toEqual([]);
 }, 60_000);

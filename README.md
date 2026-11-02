@@ -35,6 +35,10 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)   |
 | `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes  |
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                    |
+| `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`     |
+| `@hackersandwizards/brand/night.css`                      | night for light-token surfaces, below           |
+| `@hackersandwizards/brand/stage.css`                      | the slide engine's stage scale                  |
+| `@hackersandwizards/brand/document.css`                   | the document engine's scale                     |
 | `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below               |
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                      |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                 |
@@ -173,11 +177,13 @@ padding and Tailwind utilities win.
 
 Every element two or more systems show lives in `elements/`, one plain-CSS file each: label,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
-strip, code block. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
+strip, code block (and its panel), button, arrow link, field with button, facts list, segmented
+control, list row, breadcrumb, status box, dashed frame, key figure, prose block. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
 `elements/scales.css`, after `tokens.css` (and `print.css` on paper). The rules sit in
-`@layer components`, so your utilities win, which is what `brand-elements` then measures.
+`@layer components`, so your utilities win, which is what `brand-elements` then measures; the prose
+block sits in no layer, since Tailwind Typography's `prose` comes in the utilities layer.
 
 A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
 website's px), `"dense"` (the apps and the talks site; it also sets the expert set's compact type steps, UI text
@@ -202,6 +208,9 @@ in full with its reason, `<section data-hw-exception="<name>">`. List both in
 }
 ```
 
+A system whose pages never turn to night adds `"lightOnly": true`: the tokens only an element's
+night rules read may then stay undefined there.
+
 An exception's instance on a real page carries `data-hw-exception="<name>"` too: a hub element
 inside it is that exception, not measured. `files` exempts a stylesheet of the system's own medium
 from the source check.
@@ -213,6 +222,13 @@ callout, note; quote) that sets a property that element owns (a card's corner, f
 padding, a label's type and colour; a shorthand counts), or a component of such a name, without the
 `hw-*` class and without an exception of that name, on a used element without a tile or with a stale version, on an exception
 without a reason or a tile, and on a page showing no element.
+
+### Night for a light-token surface
+
+A surface written in the light tokens (`bg-bg`, `text-ink`, `text-teal`) that turns dark imports
+`night.css` after `tokens.css` and puts `data-hw-night` on the subtree that turns, under
+`data-theme="dark"` on itself or an ancestor: every light token takes its hue's night column, and
+the expert roles `header.css` reads take their night values.
 
 ### Check your colours in your gate
 

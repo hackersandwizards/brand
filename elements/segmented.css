@@ -1,0 +1,89 @@
+/* The segmented control: one choice of a few, each segment a link or button in one framed row (a
+   view mode, a filter category, a page's mode). The small corner, a frame 2 px around the
+   segments in the field line (the foreground at 70 % on the page, 3:1 as WCAG 1.4.11 asks of a
+   control's boundary), the UI size; a segment at the foreground's 70 %, the full foreground and the muted fill
+   on hover; the chosen one (aria-current, aria-pressed="true" or data-active="true") filled with the
+   accent and its on-accent text. A leading hw-label names the category. On night the expert set's
+   night roles.
+
+   Settings:
+     --hw-segment-pad   a segment's block and inline padding
+     --hw-segment-line  the frame's colour */
+
+@layer components {
+  .hw-segmented {
+    display: inline-flex;
+    box-sizing: border-box;
+    align-items: stretch;
+    border: var(--hw-hairline, 1px) solid
+      var(--hw-segment-line, color-mix(in srgb, var(--color-ink) 70%, var(--color-bg)));
+    border-radius: var(--radius-sm);
+    padding: 0.125rem;
+    font-size: var(--text-ui, var(--type-small-size));
+    background: var(--color-bg);
+  }
+  .hw-segmented > :is(a, button) {
+    display: flex;
+    align-items: center;
+    border: 0;
+    border-radius: var(--radius-sm);
+    padding: var(--hw-segment-pad, 0.25rem 0.5rem);
+    font: inherit;
+    white-space: nowrap;
+    text-decoration: none;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    background: transparent;
+    cursor: pointer;
+  }
+  .hw-segmented > :is(a, button):hover {
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
+  }
+  .hw-segmented
+    > :is([aria-current]:not([aria-current="false"]), [aria-pressed="true"], [data-active="true"]),
+  .hw-segmented
+    > :is(
+      [aria-current]:not([aria-current="false"]),
+      [aria-pressed="true"],
+      [data-active="true"]
+    ):hover {
+    color: var(--color-white);
+    background: var(--color-teal-dark);
+  }
+  .hw-segmented > .hw-label {
+    display: flex;
+    align-items: center;
+    padding: 0 0.25rem 0 0.375rem;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-segmented {
+      border-color: var(
+        --hw-segment-line,
+        color-mix(in srgb, var(--color-night-ink) 40%, var(--color-night))
+      );
+      background: var(--color-night);
+    }
+    .hw-segmented > :is(a, button) {
+      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
+    }
+    .hw-segmented > :is(a, button):hover {
+      color: var(--color-night-ink);
+      background: var(--color-night-2);
+    }
+    .hw-segmented
+      > :is(
+        [aria-current]:not([aria-current="false"]),
+        [aria-pressed="true"],
+        [data-active="true"]
+      ),
+    .hw-segmented
+      > :is(
+        [aria-current]:not([aria-current="false"]),
+        [aria-pressed="true"],
+        [data-active="true"]
+      ):hover {
+      color: var(--color-night);
+      background: var(--color-teal-night);
+    }
+  }
+}

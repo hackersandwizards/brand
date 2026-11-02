@@ -158,6 +158,11 @@ export const tokens = {
   "--code-string": "var(--color-teal-night)",
   "--code-inserted": "var(--color-green)",
   "--code-deleted": "var(--color-red-night)",
+  "--motion-fast": "150ms ease",
+  "--motion-duration-draw": "1.3s",
+  "--motion-duration-line": "650ms",
+  "--motion-duration-tune": "7s",
+  "--motion-ease-brand": "cubic-bezier(0.16, 1, 0.3, 1)",
   "--gradient-magic": "linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%)"
 } as const;
 

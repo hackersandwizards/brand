@@ -1,0 +1,28 @@
+/* Night for a surface written in the light tokens: inside [data-hw-night] under a dark theme, every
+   light token a utility reads takes its hue's night column (tokens.css roles), and the expert roles
+   header.css reads take expert.css's night values. data-hw-night goes on the subtree that turns:
+   the element itself carrying data-theme="dark", or any element under a dark html. A token derived
+   from another (a color-mix of one of these) resolved where it was declared, so the surface sets it
+   again inside the same subtree. Export ./night.css, after tokens.css. */
+@layer base {
+  :is([data-theme="dark"][data-hw-night], [data-theme="dark"] [data-hw-night]) {
+    --background: var(--color-night);
+    --foreground: var(--color-night-ink);
+    --accent: var(--color-teal-night);
+    --muted: var(--color-night-2);
+    --border: color-mix(in srgb, var(--color-white) 18%, var(--color-night));
+    --color-bg: var(--color-night);
+    --color-ink: var(--color-night-ink);
+    --color-muted: var(--color-night-muted);
+    --color-border: color-mix(in srgb, var(--color-white) 18%, var(--color-night));
+    --color-teal: var(--color-teal-night);
+    --color-teal-dark: var(--color-teal-night);
+    --color-purple: var(--color-purple-night);
+    --color-green-dark: var(--color-green);
+    --color-amber-dark: var(--color-amber);
+    --color-factory: var(--color-factory-light);
+    --color-red: var(--color-red-night);
+    --color-ampersand: var(--color-ampersand-light);
+    color-scheme: dark;
+  }
+}

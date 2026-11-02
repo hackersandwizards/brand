@@ -1,0 +1,19 @@
+/* The screen faces: Inter and JetBrains Mono as one variable file each, self-hosted, so a page
+   makes no third-party request for a font. The family names are the ones tokens.css names. Paper
+   takes print.css's static files instead: Chrome embeds a variable font in a PDF as Type 3 glyphs.
+   A surface imports this file after tokens.css (export ./fonts.css). */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+}

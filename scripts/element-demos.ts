@@ -1,7 +1,7 @@
 // One sample of each shared element (elements/*.css), as the catalogue shows it in every scale and
 // theme and the tests measure it. Words are the website's and a document's own kind of text.
 const play = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3v18l15-9z"/></svg>`;
-const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6.5 6.5 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
 
 export const DEMOS: Record<string, string> = {
   label: `<span class="hw-label">Training für ein Team</span><br><span class="hw-label" data-tone="muted">Kurz gesagt</span>`,
@@ -14,5 +14,16 @@ export const DEMOS: Record<string, string> = {
   "focus-ring": `<button type="button" class="hw-pill" data-variant="outline">Tab hierher</button>`,
   "icon-button": `<button type="button" class="hw-icon-button" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" aria-label="Thema">${moon}</button> <button type="button" class="hw-icon-button" data-on="picture" aria-label="Abspielen">${play}</button>`,
   strip: `<div class="hw-strip"></div>`,
-  code: `<pre class="hw-code"><code>$ bun run check\n<span class="hw-code-comment"># 0 findings</span></code></pre>`,
+  code: `<pre class="hw-code"><code>$ bun run check\n<span class="hw-code-comment"># 0 findings</span></code></pre> <pre class="hw-code" data-variant="panel"><code>$ claude --continue</code></pre>`,
+  button: `<a class="hw-button" href="#elements">Training anfragen</a> <a class="hw-button" data-variant="secondary" href="#elements">Agenda ansehen</a>`,
+  "arrow-link": `<a class="hw-arrow-link" href="#elements">Alle Trainings<span class="hw-arrow" aria-hidden="true">&nbsp;<span>→</span></span></a><br><a class="hw-arrow-link" data-tone="muted" href="#elements">Impressum<span class="hw-arrow" data-external aria-hidden="true">&nbsp;<span>→</span></span></a>`,
+  field: `<div class="hw-field-row"><input class="hw-field" aria-label="ID" placeholder="ID oder Link"><button type="button" class="hw-button">Prüfen</button></div>`,
+  facts: `<dl class="hw-facts" data-variant="ruled"><div><dt class="hw-label" data-tone="muted">Dauer</dt><dd>2 Tage</dd></div><div><dt class="hw-label" data-tone="muted">Format</dt><dd>Remote</dd></div></dl>`,
+  segmented: `<div class="hw-segmented" role="group" aria-label="Ansicht"><span class="hw-label" data-tone="muted">Ansicht</span><button type="button" aria-pressed="true">Liste</button><button type="button" aria-pressed="false">Gruppen</button></div>`,
+  row: `<div class="hw-row"><span class="hw-row-stripe" style="background: var(--color-teal)"></span><div>Musterwerk AG</div><div>2 Tage</div></div>`,
+  breadcrumb: `<nav class="hw-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="#elements">Trainings</a></li><li><span aria-current="page">Foundations</span></li></ol></nav>`,
+  status: `<div class="hw-status"><strong>2 Lücken</strong><br>Trainer fehlt</div><div class="hw-status" data-tone="success">Bestätigt</div>`,
+  frame: `<div class="hw-frame" style="padding: 1rem">Noch kein Eintrag</div>`,
+  kpi: `<div class="hw-kpi"><span class="hw-label" data-tone="muted">Pipeline</span><span class="hw-kpi-value">12</span></div>`,
+  prose: `<div class="hw-prose"><h2>Ablauf</h2><p>Erst der Plan, dann <code>bun run check</code>.</p><h3>Tag 1</h3></div>`,
 };

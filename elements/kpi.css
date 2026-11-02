@@ -1,0 +1,26 @@
+/* The key figure: a figure under its label, read at a glance (a dashboard's pipeline value, a
+   readout's share). The label is an hw-label child; the figure, hw-kpi-value, in the stat role's
+   family and weight, figures of one width, set tight. Its colour stays the surface's, the colour of
+   what the figure counts. Rules between figures and their layout stay the surface's.
+
+   Markup: <div class="hw-kpi"><span class="hw-label" data-tone="muted">Pipeline</span><span class="hw-kpi-value">€ 0</span></div>
+
+   Settings:
+     --hw-kpi-size      the figure's size
+     --hw-kpi-tracking  its tracking */
+
+@layer components {
+  .hw-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .hw-kpi-value {
+    font-family: var(--type-stat-family);
+    font-size: var(--hw-kpi-size, var(--type-stat-size));
+    font-weight: var(--type-stat-weight);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--type-stat-line-height);
+    letter-spacing: var(--hw-kpi-tracking, var(--type-stat-tracking));
+  }
+}

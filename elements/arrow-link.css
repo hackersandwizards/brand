@@ -1,0 +1,59 @@
+/* The arrow link: a link that is an item in a list or the way on ("Verify another certificate →"),
+   never underlined. teal-dark, ink on hover, its arrow moving 4 px along; data-tone="muted" sets it
+   in the muted grey. The arrow is a span hw-arrow after the label's last word and a no-break space,
+   holding the glyph in a span of its own; on a link to another site the glyph turns up and right
+   (data-external on hw-arrow), since Inter's subset has no ↗. Display and spacing between links
+   stay the surface's. On night teal-night, white on hover, the muted one night-muted.
+
+   Markup: <a class="hw-arrow-link">Label<span class="hw-arrow" aria-hidden="true">&nbsp;<span>→</span></span></a>
+
+   Settings:
+     --hw-arrow-link-pad  block padding, keeping a 44 px target on one line */
+
+@layer components {
+  .hw-arrow-link {
+    padding-block: var(--hw-arrow-link-pad, 0.75rem);
+    text-decoration: none;
+    color: var(--color-teal-dark);
+  }
+  .hw-arrow-link:hover {
+    color: var(--color-ink);
+  }
+  .hw-arrow-link[data-tone="muted"] {
+    color: var(--color-muted);
+  }
+  .hw-arrow {
+    white-space: nowrap;
+    font-family: var(--font-sans);
+  }
+  .hw-arrow > span {
+    display: inline-block;
+    transition: translate var(--motion-fast);
+  }
+  .hw-arrow-link:is(:hover, :focus-visible) .hw-arrow > span {
+    translate: 4px 0;
+  }
+  /* One em tall, so the turned arrow's box stays inside the line; the margin keeps a line ending on
+     it inside its block. */
+  .hw-arrow[data-external] > span {
+    margin-inline-end: 0.25em;
+    line-height: 1;
+    rotate: -45deg;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-arrow > span {
+      transition: none;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-arrow-link {
+      color: var(--color-teal-night);
+    }
+    .hw-arrow-link:hover {
+      color: var(--color-white);
+    }
+    .hw-arrow-link[data-tone="muted"] {
+      color: var(--color-night-muted);
+    }
+  }
+}

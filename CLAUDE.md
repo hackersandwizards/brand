@@ -92,9 +92,11 @@ data or secret.
   `node_modules/@hackersandwizards/brand/`. Every other path is internal and may move. Renaming a
   command, changing its arguments or moving an exported file breaks consumers: the release commit
   names it and every consumer follows in the same pass.
-- The two engines are their own packages and never enter this one, not even a primitive: slides in
+- The two engines are their own packages, and their components never enter this one: slides in
   `@hackersandwizards/slides`, the document base, the document components and the PDF renderer in
-  `@hackersandwizards/documents`. Each shows itself on its own specimen page, which the catalogue
+  `@hackersandwizards/documents`. Their values do (decision design-system-hub-spoke, 2026-11-02:
+  every value comes from brand): `tokens/stage.css` holds every length and step the slide engine
+  draws, `tokens/document.css` the document engine's, and an engine keeps only `var()` roles on them. Each shows itself on its own specimen page, which the catalogue
   links; nothing here reads an engine.
 - The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
   both render, this repo's own: a component one app alone uses stays in that app. Where the apps
