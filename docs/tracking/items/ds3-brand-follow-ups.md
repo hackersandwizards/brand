@@ -20,5 +20,3 @@ kept as brand's, night defaults). What remains:
    15 or 18 %; whether they take `--color-night-line` needs a review on os and trainer-hub night.
 3. trainer-hub pins slides v0.24.1 and documents v0.3.1, os documents v0.3.0: raising them follows
    their own releases.
-
-Not yet explained: hycle-private's story pages and its app slides differ by 12k to 248k pixels per slide. The verifier has no `.dev.vars`, so `wrangler dev` cannot show a valid certificate; its screenshots came from a Bun harness with a made-up certificate (simulated, not the real sheet).
