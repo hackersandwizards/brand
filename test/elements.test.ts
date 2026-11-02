@@ -307,6 +307,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-pill-edit-corner",
     "--hw-segment-line",
     "--hw-prose-check-x",
+    "--hw-row-fill",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });

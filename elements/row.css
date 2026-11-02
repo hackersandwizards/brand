@@ -9,7 +9,9 @@
    Settings:
      --hw-row-pad     block and inline padding
      --hw-row-stripe  the stripe's width
-     --hw-row-gap     the gap between stripe, lead and trail */
+     --hw-row-gap     the gap between stripe, lead and trail
+     --hw-row-fill    the fill, where a state of the record (a dimmed, lost or inactive one) takes
+                      another ground: the page's ground, on night the night ground */
 
 @layer components {
   .hw-row {
@@ -20,7 +22,7 @@
     gap: var(--hw-row-gap, 0.75rem);
     border-bottom: var(--hw-hairline, 1px) solid var(--color-border);
     padding: var(--hw-row-pad, 0.5rem 0.75rem);
-    background: var(--color-bg);
+    background: var(--hw-row-fill, var(--color-bg));
     transition: background-color 0.1s;
   }
   .hw-row:hover {
@@ -37,7 +39,7 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-row {
       border-bottom-color: color-mix(in srgb, white 18%, var(--color-night));
-      background: var(--color-night);
+      background: var(--hw-row-fill, var(--color-night));
     }
     .hw-row:hover {
       background: color-mix(in srgb, var(--color-night-2) 70%, transparent);
