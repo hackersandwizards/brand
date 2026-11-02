@@ -78,7 +78,26 @@ verteilt. Gesamt nachher gegen vorher: Claude A 7:5 und 7:6, Claude B 7:6, Codex
 8:7. Rauschen (Claude A, zwei Läufe): 0 auf nachher, 1 auf vorher. Der Mond allein ist ein
 Gleichstand: Claude A zweimal 7:8 für den alten, Claude B 8:7 und Codex A 9:8 für den neuen,
 Codex B 9:9. Er bleibt, weil der talks-Review laut Auftrag in allen vier Läufen die Sichel vorzog und der alte
-Mond bei Claude B als «C» gelesen wurde. Bilder: `~/Downloads/stand-entscheidungen/design-system-phase2/brand/`.
+Mond bei Claude B als «C» gelesen wurde. Bilder: `2026-11-02-design-system-phase2/p3/`.
+
+## Das Brand-Portal in der Katalogform (v0.29.2)
+
+`catalogue.html` trägt jetzt die gemeinsame Form: internen Header, Leiste mit Suche und einer
+Gruppe pro Ansicht samt Zahl, Titel, Lead, Herkunftszeile und eine `hw-card`-Kachel pro Teil
+(Farbfamilien, Typ, Tokens, Logos, die 24 Elemente als Probe, Familien, Pressefotos, Systeme).
+`scripts/catalogue.ts` ruft `renderCatalogue`. Die sieben Ansichten behalten ihr eigenes Markup
+innerhalb der Form, da Farbraster, Elementmatrix, Merch-Ansichten und Tabellen nicht in Kacheln
+passen. Ein Klick in der Leiste öffnet die Ansicht, die Suche filtert die Kacheln und listet
+darüber jedes Token, jede Farbe, jedes Logo, jede Datei und jedes Foto, zu dem keine Kachel führt.
+
+Blind bewertet, zwei Runden: zwei Personas (Mitgründer am 14-Zoll-MacBook, Entwickler eines
+Spokes am 27-Zoll), Claude und Codex, je zwei Läufe, vorher und nachher als X und Y gemischt.
+Runde 1, die Leiste mit vier Sammelgruppen: nachher 7,0 gegen vorher 8,5, verworfen, weil jeder
+Ansichtswechsel zwei Klicks brauchte. Runde 2, eine Gruppe pro Ansicht: nachher 8,0 gegen vorher
+7,6 (Claude 8,0 gegen 6,5, Codex 8,0 gegen 8,75). Rauschen: höchstens 1 Punkt zwischen zwei Läufen
+desselben Reviewers, der Codex-Vorsprung für vorher liegt darin. Was die Reviewer nachher noch
+bemängeln: die lange Übersicht, den schmalen rechten Rand der Form und die blasse Markierung der
+offenen Ansicht. Bilder, nur hell (die Seite hat keine Nacht): `2026-11-02-design-system-phase2/catalogue/`.
 
 ## Offen
 
