@@ -135,11 +135,11 @@ auf der Entscheidungsseite `code-colours`.
 
 ## Umstellung der Flächen
 
-| Repo        | Stand                                                     | Umstellung                                                                                                                                                          |
-| ----------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| documents   | v0.3.1                                                    | `DocElements` gibt einer Seite, die ein Aufrufer selbst rendert, die Brand-Elemente; das Handout nutzt es. Codefarben kommen als Klassen aus dem Aufrufer.          |
-| trainer-hub | wartet auf den Push der laufenden Shared-Elements-Sitzung | `shikiConfig`: `theme` aus `code-theme.json`, `transformers: [codeClasses]`, Transformer `comment-contrast` und github-dark-Import entfallen; documents auf v0.3.1. |
-| os          | offen                                                     | `src/lib/markdown.ts` wie der Hub; pandoc-PDFs bleiben einfarbig, bis os Code über Shiki statt pandoc färbt.                                                        |
-| website     | offen                                                     | `astro.config.mjs` wie der Hub, `comment-contrast` entfällt. Push nur mit `[skip ci]`.                                                                              |
-| slides      | offen                                                     | `lib/code-highlight.tsx` lädt `code-theme.json` und setzt die Klassen statt `style`; Terminal-Block und PPTX auf `--code-*`; Release, dann talks und Hub.           |
-| brand       | v0.27.10                                                  | `terminal.ts` kann die Ausgabe über Shikis `ansi`-Sprache färben statt über handgesetzte Tags, sobald ein Post mehr als vier Farben braucht.                        |
+| Repo        | Stand                | Umstellung                                                                                                                                                                              |
+| ----------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| documents   | v0.3.1               | `DocElements` gibt einer Seite, die ein Aufrufer selbst rendert, die Brand-Elemente; das Handout nutzt es. Codefarben kommen als Klassen aus dem Aufrufer.                              |
+| trainer-hub | umgestellt, fc0ae906 | documents v0.3.1, brand v0.27.11, `shikiConfig` mit `code-theme.json` und `codeClasses`; das Code-Panel bleibt Ausnahme (Rahmen, Padding, Zeilenhöhe), Standard-Handouts neu gerendert. |
+| os          | offen                | `src/lib/markdown.ts` wie der Hub; pandoc-PDFs bleiben einfarbig, bis os Code über Shiki statt pandoc färbt.                                                                            |
+| website     | offen                | `astro.config.mjs` wie der Hub, `comment-contrast` entfällt. Push nur mit `[skip ci]`.                                                                                                  |
+| slides      | offen                | `lib/code-highlight.tsx` lädt `code-theme.json` und setzt die Klassen statt `style`; Terminal-Block und PPTX auf `--code-*`; Release, dann talks und Hub.                               |
+| brand       | v0.27.10             | `terminal.ts` kann die Ausgabe über Shikis `ansi`-Sprache färben statt über handgesetzte Tags, sobald ein Post mehr als vier Farben braucht.                                            |
