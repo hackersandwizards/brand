@@ -95,6 +95,21 @@ test.each(Object.entries(DRIFT))(
   60_000,
 );
 
+// Every instance is measured, not one per kind: one drifted pill among 2,000 is red, and only it.
+test("one drifted instance among many is red", async () => {
+  const pills = Array.from({ length: 2000 }, (_, i) =>
+    i === 1234 ? '<span class="hw-pill" id="odd">pdf</span>' : '<span class="hw-pill">pdf</span>',
+  ).join("");
+  const r = await measurePage(
+    browser,
+    file(
+      "one-of-many.html",
+      page("#odd { padding-left: 13px }").replace("</body>", `${pills}</body>`),
+    ),
+  );
+  expect(r.findings.map((f) => f.prop)).toEqual(["padding-left"]);
+}, 60_000);
+
 test("an element inside an exception's instance is not measured", async () => {
   const r = await measurePage(browser, file("exception.html", page()));
   expect(r.findings).toEqual([]);

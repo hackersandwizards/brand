@@ -239,84 +239,101 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       if (!same(got, want)) findings.push({ element, label: name, prop, got, want });
     }
   };
-  for (const [element, selector] of Object.entries(elements))
-    for (const el of document.querySelectorAll(selector)) {
-      if (el.closest("[data-hw-reference], [data-hw-exception]")) continue;
-      seen.push(element);
-      const clone = el.cloneNode(true) as HTMLElement;
-      clone.removeAttribute("id");
-      clone.removeAttribute("style");
-      const own = getComputedStyle(el);
-      for (const t of tokens[element] ?? [])
-        if (!own.getPropertyValue(t).trim() && !missing.has(element + t)) {
-          missing.add(element + t);
-          findings.push({ element, label: label(el), prop: t, got: "undefined", want: "a value" });
-        }
-      for (const s of settings) {
-        const v = own.getPropertyValue(s).trim();
-        if (v) clone.style.setProperty(s, v);
-      }
-      let inner: Element = clone;
-      if (element === "link" && !el.classList.contains("hw-link")) {
-        const wrap = document.createElement("div");
-        wrap.className = "hw-links";
-        wrap.append(clone);
-        inner = wrap;
-      }
-      if (element === "focus-ring") {
-        const wrap = document.createElement("div");
-        wrap.className = "hw-focus-ring";
-        wrap.append(inner);
-        inner = wrap;
-      }
-      const theme = el.closest("[data-theme]")?.getAttribute("data-theme");
-      const frame = document.createElement("div");
-      if (theme) frame.setAttribute("data-theme", theme);
-      frame.append(inner);
-      // A table cell takes no shadow root and a row no span: the reference then follows the table.
-      const host = document.createElement("span");
-      host.setAttribute("data-hw-reference", "");
-      (el.closest("tr") && el.closest("table") ? el.closest("table")! : el).after(host);
-      const root = host.attachShadow({ mode: "open" });
-      const style = document.createElement("style");
-      style.textContent = css;
-      root.append(style, frame);
-      try {
-        const list = owns[element]!;
-        if (element === "focus-ring") {
-          // Each read while it holds focus: a computed style reads the live state.
-          const read = (x: Element) => {
-            (x as HTMLElement).focus();
-            const g = getComputedStyle(x);
-            return Object.fromEntries(list.map((p) => [p, g.getPropertyValue(p)]));
-          };
-          const [got, want] = [read(el), read(clone)];
-          (clone as HTMLElement).blur();
-          if (got["outline-style"] === "none")
+  // In passes, so the page restyles twice rather than once per instance (os /documents, 3,700
+  // pills: 150 s): read every instance's settings and tokens, insert every reference, then read
+  // every pair.
+  const found = Object.entries(elements).flatMap(([element, selector]) =>
+    [...document.querySelectorAll(selector)]
+      .filter((el) => !el.closest("[data-hw-reference], [data-hw-exception]"))
+      .map((el) => {
+        const own = getComputedStyle(el);
+        for (const t of tokens[element] ?? [])
+          if (!own.getPropertyValue(t).trim() && !missing.has(element + t)) {
+            missing.add(element + t);
             findings.push({
               element,
               label: label(el),
-              prop: "outline-style",
-              got: "none",
-              want: want["outline-style"]!,
+              prop: t,
+              got: "undefined",
+              want: "a value",
             });
-          for (const p of list) {
-            if (!same(got[p]!, want[p]!))
-              findings.push({ element, label: label(el), prop: p, got: got[p]!, want: want[p]! });
           }
-          continue;
+        const set = settings.map((s) => [s, own.getPropertyValue(s).trim()] as const);
+        return { element, el, set };
+      }),
+  );
+  // Every clone before any reference goes in, so none holds another instance's reference.
+  const clones = found.map(({ el }) => el.cloneNode(true) as HTMLElement);
+  const pairs = found.map(({ element, el, set }, i) => {
+    seen.push(element);
+    const clone = clones[i]!;
+    clone.removeAttribute("id");
+    clone.removeAttribute("style");
+    for (const [s, v] of set) if (v) clone.style.setProperty(s, v);
+    let inner: Element = clone;
+    if (element === "link" && !el.classList.contains("hw-link")) {
+      const wrap = document.createElement("div");
+      wrap.className = "hw-links";
+      wrap.append(clone);
+      inner = wrap;
+    }
+    if (element === "focus-ring") {
+      const wrap = document.createElement("div");
+      wrap.className = "hw-focus-ring";
+      wrap.append(inner);
+      inner = wrap;
+    }
+    const theme = el.closest("[data-theme]")?.getAttribute("data-theme");
+    const frame = document.createElement("div");
+    if (theme) frame.setAttribute("data-theme", theme);
+    frame.append(inner);
+    // A table cell takes no shadow root and a row no span: the reference then follows the table.
+    const host = document.createElement("span");
+    host.setAttribute("data-hw-reference", "");
+    (el.closest("tr") && el.closest("table") ? el.closest("table")! : el).after(host);
+    const root = host.attachShadow({ mode: "open" });
+    const style = document.createElement("style");
+    style.textContent = css;
+    root.append(style, frame);
+    return { element, el, clone, host };
+  });
+  try {
+    for (const { element, el, clone } of pairs) {
+      const list = owns[element]!;
+      if (element === "focus-ring") {
+        // Each read while it holds focus: a computed style reads the live state.
+        const read = (x: Element) => {
+          (x as HTMLElement).focus();
+          const g = getComputedStyle(x);
+          return Object.fromEntries(list.map((p) => [p, g.getPropertyValue(p)]));
+        };
+        const [got, want] = [read(el), read(clone)];
+        clone.blur();
+        if (got["outline-style"] === "none")
+          findings.push({
+            element,
+            label: label(el),
+            prop: "outline-style",
+            got: "none",
+            want: want["outline-style"]!,
+          });
+        for (const p of list) {
+          if (!same(got[p]!, want[p]!))
+            findings.push({ element, label: label(el), prop: p, got: got[p]!, want: want[p]! });
         }
-        diff(element, label(el), el, clone, list);
-        for (const [key, props] of Object.entries(owns)) {
-          const [owner, part] = key.split(" ");
-          if (owner !== element || !part) continue;
-          const [a, b] = [el.querySelector(part), clone.querySelector(part)];
-          if (a && b) diff(element, `${label(el)} ${part}`, a, b, props);
-        }
-      } finally {
-        host.remove();
+        continue;
+      }
+      diff(element, label(el), el, clone, list);
+      for (const [key, props] of Object.entries(owns)) {
+        const [owner, part] = key.split(" ");
+        if (owner !== element || !part) continue;
+        const [a, b] = [el.querySelector(part), clone.querySelector(part)];
+        if (a && b) diff(element, `${label(el)} ${part}`, a, b, props);
       }
     }
+  } finally {
+    for (const { host } of pairs) host.remove();
+  }
   const tiles = [...document.querySelectorAll("[data-hw-tile]")].map((t) => ({
     name: t.getAttribute("data-hw-tile")!,
     version: t.getAttribute("data-hw-version") ?? "",
