@@ -199,3 +199,39 @@ html[data-theme="dark"] .hw-header-logo-night {
   margin-inline: 0.25rem;
   background: color-mix(in srgb, var(--hw-fg) 7%, transparent);
 }
+
+/* On a phone the nav's three links fit beside the lockup: no gap in the bar, tighter links. At
+   390 px the last link was cut ("Dokum"); blind review 2026-11-02. */
+@media (max-width: 29.99rem) {
+  .hw-header-row {
+    gap: 0;
+  }
+  .hw-header-brand {
+    margin-right: 0.25rem;
+  }
+  .hw-header-nav {
+    gap: 0;
+  }
+  .hw-header-link {
+    padding-inline: 0.375rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* A nav that still scrolls fades out at its right edge until it is scrolled to the end, so a cut
+   item reads as more to scroll to. Without scroll-driven animations it stays unfaded. */
+@keyframes hw-header-nav-fade {
+  0%,
+  95% {
+    mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+  }
+  100% {
+    mask-image: none;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .hw-header-nav {
+    animation: hw-header-nav-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+}

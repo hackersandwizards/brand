@@ -30,6 +30,7 @@ TOKENS = {
     "--color-night-ink": "color-mix(in srgb, white 92%, var(--color-night))",
     "--color-night-muted": "color-mix(in srgb, white 80%, var(--color-night))",
     "--color-night-subtle": "color-mix(in srgb, white 60%, var(--color-night))",
+    "--color-night-line": "color-mix(in srgb, var(--color-night-ink) 15%, var(--color-night))",
     "--color-teal-night": "#47aec6",
     "--color-purple-night": "#b97af1",
     "--color-subtle": "var(--color-muted)",
@@ -194,6 +195,7 @@ COLORS = {
     "--color-night-ink": "#ebeced",
     "--color-night-muted": "#cecfd1",
     "--color-night-subtle": "#9da0a3",
+    "--color-night-line": "#2d3238",
     "--color-teal-night": "#47aec6",
     "--color-purple-night": "#b97af1",
     "--color-subtle": "#545861"

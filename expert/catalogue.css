@@ -64,6 +64,11 @@
     font-size: var(--text-micro, 0.75rem);
     font-weight: 400;
   }
+  /* The tile grid ends a rem further in than the page's container: at its 1rem alone the tiles
+     read as running into the right edge (blind review 2026-11-02). */
+  .hw-catalogue-main {
+    padding-inline-end: 1rem;
+  }
   .hw-catalogue-main h1 {
     margin: 0;
     font-family: var(--font-mono);

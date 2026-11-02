@@ -236,6 +236,11 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
     for (const prop of list) {
       const got = ga.getPropertyValue(prop);
       const want = gb.getPropertyValue(prop);
+      // A border of no width draws nothing, so its style and colour are no difference (Tailwind's
+      // preflight gives every element a solid zero-width border the reference has as none).
+      const side = /^(border-[a-z]+)-(style|color)$/.exec(prop)?.[1];
+      const width = (g: CSSStyleDeclaration) => g.getPropertyValue(`${side}-width`);
+      if (side && width(ga) === "0px" && width(gb) === "0px") continue;
       if (!same(got, want)) findings.push({ element, label: name, prop, got, want });
     }
   };
@@ -277,6 +282,15 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       wrap.append(clone);
       inner = wrap;
     }
+    // A field or button in a field row takes the row's joined rules: the reference sits in a row too.
+    const row = el.parentElement?.closest(".hw-field-row");
+    if (row && row === el.parentElement) {
+      const wrap = document.createElement("div");
+      wrap.className = "hw-field-row";
+      if (row.hasAttribute("data-joined")) wrap.setAttribute("data-joined", "");
+      wrap.append(inner);
+      inner = wrap;
+    }
     if (element === "focus-ring") {
       const wrap = document.createElement("div");
       wrap.className = "hw-focus-ring";
@@ -287,10 +301,12 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
     const frame = document.createElement("div");
     if (theme) frame.setAttribute("data-theme", theme);
     frame.append(inner);
-    // A table cell takes no shadow root and a row no span: the reference then follows the table.
+    // A table part takes no shadow root and a row no span: the reference to a cell or a row then
+    // follows the table. Anything inside a cell keeps its reference in the cell, under its type.
     const host = document.createElement("span");
     host.setAttribute("data-hw-reference", "");
-    (el.closest("tr") && el.closest("table") ? el.closest("table")! : el).after(host);
+    const part = el.matches("tr, td, th, thead, tbody, tfoot") && el.closest("table");
+    (part || el).after(host);
     const root = host.attachShadow({ mode: "open" });
     const style = document.createElement("style");
     style.textContent = css;

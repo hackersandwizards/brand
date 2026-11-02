@@ -54,6 +54,8 @@
   --color-night-ink: color-mix(in srgb, white 92%, var(--color-night));
   --color-night-muted: color-mix(in srgb, white 80%, var(--color-night));
   --color-night-subtle: color-mix(in srgb, white 60%, var(--color-night));
+  /* The hairline on night: night ink at 15 %, as cards and rules draw it on a slide. */
+  --color-night-line: color-mix(in srgb, var(--color-night-ink) 15%, var(--color-night));
   /* Teal and purple on night, everywhere: the pixel wordmark's -night cut, its "&" in
      ampersand-light, covers, banners, backgrounds and the expert systems' dark theme. */
   --color-teal-night: #47aec6;

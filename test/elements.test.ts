@@ -116,6 +116,31 @@ test("an element inside an exception's instance is not measured", async () => {
   expect(r.exceptions).toEqual(["total-band"]);
 }, 60_000);
 
+// Tailwind's preflight: every element a solid border of no width, which draws nothing.
+test("a border of no width is no drift, whatever its style; a drawn one is", async () => {
+  const unruled = (css: string) =>
+    page(css).replace(
+      "</body>",
+      '<dl class="hw-facts"><div><dt class="hw-label" data-tone="muted">Dauer</dt><dd>2 Tage</dd></div></dl></body>',
+    );
+  const none = await measurePage(
+    browser,
+    file(
+      "zero-border.html",
+      unruled(".hw-facts:not([data-variant]) > div { border: 0 solid red }"),
+    ),
+  );
+  expect(none.findings).toEqual([]);
+  const drawn = await measurePage(
+    browser,
+    file(
+      "drawn-border.html",
+      unruled(".hw-facts:not([data-variant]) > div { border-top: 1px solid }"),
+    ),
+  );
+  expect(drawn.findings.some((f) => f.element === "facts")).toBe(true);
+}, 60_000);
+
 test("a setting the medium sets, or a property the element leaves to it, is no drift", async () => {
   const r = await measurePage(
     browser,
@@ -222,6 +247,31 @@ test("an element in a table cell and a pill's remove button are measured", async
   expect(btn).toBe(pill);
 }, 60_000);
 
+// The link's underline offset is in em: its reference reads the cell's 14 px, not the table's parent.
+test("a link in a smaller table cell is measured at the cell's size", async () => {
+  const r = await measurePage(
+    browser,
+    file(
+      "cell-link.html",
+      page().replace(
+        "</body>",
+        '<table style="font-size: 14px"><tr><td><a class="hw-link" href="#x">Agenda</a></td></tr></table></body>',
+      ),
+    ),
+  );
+  expect(r.findings).toEqual([]);
+}, 60_000);
+
+test("a joined field row is measured joined", async () => {
+  const joined =
+    '<div class="hw-field-row" data-joined><input class="hw-field" aria-label="Suche"><button type="button" class="hw-button">Go</button></div>';
+  const r = await measurePage(
+    browser,
+    file("joined.html", page().replace("</body>", `${joined}</body>`)),
+  );
+  expect(r.findings).toEqual([]);
+}, 60_000);
+
 test("night is measured against the night rule", async () => {
   const r = await measurePage(
     browser,
@@ -308,6 +358,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-segment-line",
     "--hw-prose-check-x",
     "--hw-row-fill",
+    "--hw-field-family",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });

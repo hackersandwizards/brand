@@ -1,7 +1,8 @@
 /* The button on a client surface (website, certificate verifier): the brand corner, a teal hairline,
    weight 500 in the body role. Filled teal with white text by default, the line and fill purple on
    hover; data-variant="secondary" is the outline, teal text on no fill, purple text and line on
-   hover. From 64rem it stands 48 px tall, below 44 px. On night the outline takes white at 40 % with
+   hover, and with data-filled a white fill, so it stands out on a tinted ground (night: the night
+   ground). From 64rem it stands 48 px tall, below 44 px. On night the outline takes white at 40 % with
    white text and a 15 % purple wash on hover. The side padding keeps its px size under enlarged
    text, so the label keeps its width on a phone. The apps' button is expert.css's btn-primary.
 
@@ -47,6 +48,9 @@
     color: var(--color-purple);
     background: transparent;
   }
+  .hw-button[data-variant="secondary"][data-filled] {
+    background: var(--color-white);
+  }
   @media (min-width: 64rem) {
     .hw-button {
       min-height: 3rem;
@@ -66,6 +70,9 @@
       border-color: var(--color-purple);
       color: var(--color-white);
       background: color-mix(in srgb, var(--color-purple) 15%, transparent);
+    }
+    .hw-button[data-variant="secondary"][data-filled] {
+      background: var(--color-night);
     }
   }
 }

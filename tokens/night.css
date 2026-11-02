@@ -10,13 +10,13 @@
     --foreground: var(--color-night-ink);
     --accent: var(--color-teal-night);
     --muted: var(--color-night-2);
-    --border: color-mix(in srgb, var(--color-white) 18%, var(--color-night));
+    --border: var(--color-night-line);
     --color-bg: var(--color-night);
     --color-ink: var(--color-night-ink);
     --color-muted: var(--color-night-muted);
-    --color-border: color-mix(in srgb, var(--color-white) 18%, var(--color-night));
+    --color-border: var(--color-night-line);
     --color-teal: var(--color-teal-night);
-    --color-teal-dark: var(--color-teal-night);
+    --color-teal-dark: color-mix(in srgb, var(--color-teal-night) 70%, white);
     --color-purple: var(--color-purple-night);
     --color-green-dark: var(--color-green);
     --color-amber-dark: var(--color-amber);

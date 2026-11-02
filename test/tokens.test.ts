@@ -20,7 +20,7 @@ const contrast = (a: string, b: string) => {
 };
 
 test("reads every declaration of tokens.css", () => {
-  expect(Object.keys(tokens)).toHaveLength(164);
+  expect(Object.keys(tokens)).toHaveLength(165);
   expect(tokens["--color-teal"]).toBe("#1a7285");
 });
 
@@ -29,10 +29,10 @@ test("mixes color-mix() tokens in sRGB", () => {
   expect(colors["--color-subtle"]).toBe(colors["--color-muted"]); // former name
 });
 
-test("holds 29 brand colours, a former name adding none", () => {
+test("holds 30 brand colours, a former name adding none", () => {
   const own = Object.keys(colors).filter((k) => !alias(k));
-  expect(own).toHaveLength(29);
-  expect(new Set(own.map((k) => colors[k])).size).toBe(29);
+  expect(own).toHaveLength(30);
+  expect(new Set(own.map((k) => colors[k])).size).toBe(30);
 });
 
 test("every role clears WCAG AA: text on light 4.5:1 on bg and white, night on night and night-2", () => {
