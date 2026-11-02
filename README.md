@@ -41,6 +41,8 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                  |
 | `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                 |
 | `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS               |
+| `@hackersandwizards/brand/catalogue.css`                  | the catalogue shape, plain CSS, below           |
+| `@hackersandwizards/brand/catalogue`                      | `renderCatalogue`, the catalogue shape's markup |
 | `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below      |
 | `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`             |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
@@ -131,6 +133,22 @@ page links or inlines it; an Astro app renders `expert/components/AppHeader.astr
 the slot; a React app writes the same markup. Each product keeps its own nav items; page content
 takes the same width with the class `hw-container`.
 
+### The design-system catalogue
+
+Every h&w repository shows its design system in Astrobook at `/design-system/`, and its home in one
+shape (decisions design-system-tool and catalogue-shape, 2026-11-02): the internal header, a rail
+with search and the groups with their counts, the title and lead, a provenance line in mono, and
+an `hw-card` tile per component, grouped by its first folder under the stories directory, drawing
+its first state. Set Astrobook's `home` to a page of the repository's own that renders
+`expert/components/AstrobookHome.astro` with Astrobook's story modules and global config
+(`virtual:astrobook/story-modules.mjs`, `virtual:astrobook/global-config.mjs`) as `modules` and
+`config`, and `product`, `title`, `lead` and `source`, its
+foundations (tokens, element tiles) in the default slot, and give Astrobook's `css` the tokens and
+`elements.css`; the component brings `header.css` and `catalogue.css`. A page outside Astrobook renders
+`expert/components/Catalogue.astro` with its own groups; a generated page calls
+`renderCatalogue` from `@hackersandwizards/brand/catalogue` and links `header.css` and
+`catalogue.css`.
+
 ### The dropdown
 
 A native `<select>` wears the brand chevron in place of the system's arrow: import `select.css`
@@ -160,7 +178,8 @@ and its settings. Import `elements.css` for all of them, or `elements/<name>.css
 `@layer components`, so your utilities win, which is what `brand-elements` then measures.
 
 A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
-website's px), `"dense"` (the apps and the talks site), `"print"` (documents, pt, the type sizes
+website's px), `"dense"` (the apps and the talks site; it also sets the expert set's compact type steps, UI text
+13 px and micro 11 px, and the heights `--hw-row-pad` and `--hw-control-height`), `"print"` (documents, pt, the type sizes
 from `print.css`) or `"stage"` (slides on the 1440 stage) on any container. A surface may also set
 an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed in its file.
 

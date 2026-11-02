@@ -18,6 +18,21 @@ const P = "[PLACEHOLDER]";
 const node = { href: "/space/page", label: P, order: 0, hasPage: true, children: [] };
 const props: Record<string, Record<string, unknown>> = {
   AppHeader: { product: P },
+  AstrobookHome: {
+    modules: [{ name: P, directory: P, stories: [{ id: "placeholder--default" }] }],
+    config: { dashboardBase: "/design-system/dashboard", storyBase: "/design-system/stories" },
+    product: P,
+    title: P,
+    lead: P,
+    source: P,
+  },
+  Catalogue: {
+    product: P,
+    title: P,
+    lead: P,
+    provenance: P,
+    groups: [{ name: P, items: [{ name: P, href: "/" }] }],
+  },
   FilterChip: { label: P, removeHref: "/" },
   FilterChipBar: { show: true, clearHref: "/" },
   PageHeader: { title: P },
@@ -94,3 +109,13 @@ test("SpaceNav takes its words from labels, English by default", async () => {
   for (const text of ["Browse", "pages", "home", "Overview", "sections"])
     expect(german).not.toContain(text);
 }, 30_000);
+
+test("AstrobookHome links each story file's first state and draws it", async () => {
+  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+  const component = (await server.ssrLoadModule("/expert/components/AstrobookHome.astro")).default;
+  const container = await experimental_AstroContainer.create();
+  const html: string = await container.renderToString(component, { props: props.AstrobookHome });
+  expect(html).toContain('href="/design-system/dashboard/placeholder--default"');
+  expect(html).toContain('src="/design-system/stories/placeholder--default"');
+  expect(html).toContain("1 components · 1 states");
+});

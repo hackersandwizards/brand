@@ -570,6 +570,8 @@ const sharedHtml = ELEMENT_ORDER.map(([name, title, file]) => {
 }).join("\n");
 const EXPERT_COMPONENTS = [
   "AppHeader",
+  "AstrobookHome",
+  "Catalogue",
   "PageHeader",
   "Pill",
   "FilterChip",

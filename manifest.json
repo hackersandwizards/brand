@@ -265,6 +265,22 @@
       "sha256": "0a711f98f89c7932fe4fbda968dd6ffb2d006576373a706d3d78ab060188f751"
     },
     {
+      "path": "expert/components/AstrobookHome.astro",
+      "sha256": "800c192900e15ce55c18b2314ce20034e7a636407f9094f93c2fd3f10ffdcc95"
+    },
+    {
+      "path": "expert/components/Catalogue.astro",
+      "sha256": "e088b0119e2b56d2f5c6be0172a8abafdaa2f63d7e9264aa5c9763e18214fada"
+    },
+    {
+      "path": "expert/catalogue.css",
+      "sha256": "3e1d681e91143497686bca37cbd983db8ea778adb92d46bfd49b50aedc251e12"
+    },
+    {
+      "path": "expert/catalogue.ts",
+      "sha256": "8379d8b0f81ede24646f1dbbea49579af265d4ef6cc89078822ec6d058427113"
+    },
+    {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
       "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
     },
@@ -354,7 +370,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "46f981b0dfbc5a513bcb3a8a1a8ff2bada70027968aaa044bb020a6d6d35a6bf"
+      "sha256": "38840ddd83a1882ba92d32fd5392211ed046a9b2b00e2cd49610384364caa0ee"
     },
     {
       "path": "elements/strip.css",

@@ -4,7 +4,8 @@
    element without one takes the screen values, the website's.
 
    screen  the website and the verifier, CSS px at desk distance
-   dense   the apps (os, trainer hub) and the talks site: the expert set's UI sizes
+   dense   the apps (os, trainer hub) and the talks site: the expert set's UI sizes, and the
+           compact type steps and heights its components read
    print   documents, A4 in pt. The type sizes are print.css's paper roles, which the page loads
            (print.css owns them); this preset sets the geometry
    stage   slides on the 1440 stage, whose rem is 1/90 of the slide's width: the website's px times
@@ -58,6 +59,18 @@
   --hw-strip: 3px;
   --hw-code-pad: 0.75rem;
   --hw-code-corner: var(--radius-sm);
+  /* The compact tier (decision density-tiers, 2026-11-02): the expert set's UI text at macOS's
+     13 px, its micro step at 11 px. meta repeats ui here, since a var() resolves where it is
+     declared. The heights an app's components read, at their measured values: a list row's
+     padding and a filter control's height. */
+  --text-ui: 0.8125rem;
+  --text-ui--line-height: 1.45;
+  --text-meta: var(--text-ui);
+  --text-meta--line-height: var(--text-ui--line-height);
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: calc(15 / 11);
+  --hw-row-pad: 0.5rem 0.75rem;
+  --hw-control-height: 2.5rem;
 }
 
 /* Paper is read printed and at about 70 % zoom on a laptop, where 1 pt is about 0.93 CSS px: lines
