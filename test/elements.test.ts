@@ -160,6 +160,29 @@ test("a light subtree inside a dark one draws the day rule", async () => {
   expect(probe).toBe(day);
 }, 60_000);
 
+// A cell takes no shadow root; a remove button sizes by the pill, not the browser's button font.
+test("an element in a table cell and a pill's remove button are measured", async () => {
+  const r = await measurePage(
+    browser,
+    file(
+      "cell.html",
+      page().replace(
+        "</body>",
+        '<table><tr><td class="hw-label">Zeitraum</td><td><span class="hw-pill">agentic<button type="button" class="hw-pill-remove" aria-label="Entfernen"></button></span></td></tr></table></body>',
+      ),
+    ),
+  );
+  expect(r.findings).toEqual([]);
+  const page2 = await browser.newPage();
+  await page2.goto(`file://${file("cell2.html", page())}`);
+  const [btn, pill] = await page2.evaluate(() => {
+    const b = document.querySelector(".hw-pill-remove")!;
+    return [getComputedStyle(b).width, getComputedStyle(b.parentElement!).fontSize];
+  });
+  await page2.close();
+  expect(btn).toBe(pill);
+}, 60_000);
+
 test("night is measured against the night rule", async () => {
   const r = await measurePage(
     browser,

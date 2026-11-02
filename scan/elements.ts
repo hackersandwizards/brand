@@ -199,9 +199,10 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       const frame = document.createElement("div");
       if (theme) frame.setAttribute("data-theme", theme);
       frame.append(inner);
-      const host = document.createElement(el.parentElement?.tagName === "TR" ? "td" : "span");
+      // A table cell takes no shadow root and a row no span: the reference then follows the table.
+      const host = document.createElement("span");
       host.setAttribute("data-hw-reference", "");
-      el.after(host);
+      (el.closest("tr") && el.closest("table") ? el.closest("table")! : el).after(host);
       const root = host.attachShadow({ mode: "open" });
       const style = document.createElement("style");
       style.textContent = css;

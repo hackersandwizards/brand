@@ -83,6 +83,7 @@
     height: 1em;
     border: 0;
     padding: 0;
+    font: inherit;
     background-color: currentColor;
     opacity: 0.7;
     -webkit-mask: var(--_hw-pill-icon) center / contain no-repeat;
