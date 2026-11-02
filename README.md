@@ -50,7 +50,7 @@ the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
 | `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below      |
 | `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`             |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                            |
-| `@hackersandwizards/brand/logos/<file>`                   | logos, `avatar-512.png` square, the favicon set |
+| `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, avatar, `logos.json`        |
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                 |
 | `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                   |
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                |
@@ -104,6 +104,17 @@ built in, so its box is the wizard's and the wordmark's centre line lies 7.8% of
 below the box centre; the night and outline cuts grow their box round the wizard's edge and keep that
 7.8%: a text after the lockup centres on that line once the lockup takes the same
 `translate: 0 var(--logo-wizard-lift)`.
+
+Every logo keeps clear space on every side at least as high as the h in the name, measured from
+its outline: 840 units in every logo file. Each logo has a minimum width: on screen the lockup
+190 px, the compact lockup and the wordmark 150 px; in print 50 mm and 40 mm. Below the lockup's,
+use the wordmark. `logos/logos.json` holds these values for code: `clearSpaceUnits`, and per logo the
+clear space as a share of the day file's height (`clearSpace`), `minWidthPx` and `minWidthMm`.
+The screen width is the narrowest from which every gap between two letters stays open, a pixel
+column through each under 50 % ink, measured in a headless Chrome render series from 40 to 400 px
+at device pixel ratio 2; at ratio 1 that holds only from 370 px (lockup) and 300 px (compact
+lockup, wordmark). The print width is the screen width at 96 px per inch, the CSS reference pixel,
+rounded.
 
 Till drew the wizard, and hackers&wizards GmbH holds the rights to it.
 

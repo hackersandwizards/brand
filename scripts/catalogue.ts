@@ -11,6 +11,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
+import logoRules from "../logos/logos.json";
 import press from "../press/press.json";
 import { ROOT } from "./git";
 import { DEMOS } from "./element-demos";
@@ -208,6 +209,15 @@ const LOGO_USE = [
   ],
   ["Mail signature", "its typed wordmark, under Applications"],
 ];
+// Clear space and minimum width from logos/logos.json, on the cards of the logos it names.
+const logoRule = (base: string) => {
+  const rule = (logoRules.logos as Record<string, { minWidthPx: number; minWidthMm: number }>)[
+    base
+  ];
+  return rule
+    ? `<p>Clear space: the height of the h in the name, on every side. Minimum width: ${rule.minWidthPx} px on screen, ${rule.minWidthMm} mm in print.</p>`
+    : "";
+};
 const logoCard = (base: string) => {
   const files = logoFiles.filter((p) =>
     new RegExp(`^logos/${base}(-night|-outline|-white|-black|-cmyk)?\\.\\w+$`).test(p),
@@ -227,7 +237,7 @@ const logoCard = (base: string) => {
     h: `logos/logo-${base}`,
     x: `${files.join(" ")} download logo`,
   });
-  return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day · on light")}${tile(night, "on-dark", "night cut · on night, also black and black textile")}${tile(outline, "on-gradient", "outline cut · on the gradient, also Purple Love and Stargazer")}${tile(white, "on-dark", "white cut · a surface in one colour, such as a white partner wall")}${tile(black, "on-light", "black cut · a surface in one colour, such as single-colour print")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p><p class="dl">${files
+  return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day · on light")}${tile(night, "on-dark", "night cut · on night, also black and black textile")}${tile(outline, "on-gradient", "outline cut · on the gradient, also Purple Love and Stargazer")}${tile(white, "on-dark", "white cut · a surface in one colour, such as a white partner wall")}${tile(black, "on-light", "black cut · a surface in one colour, such as single-colour print")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p>${logoRule(base)}<p class="dl">${files
     .map(
       (p) =>
         `<a href="${p}" download>${esc(

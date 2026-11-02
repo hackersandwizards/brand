@@ -1,0 +1,8 @@
+{
+  "clearSpaceUnits": 840,
+  "logos": {
+    "lockup": { "clearSpace": 0.564, "minWidthPx": 190, "minWidthMm": 50 },
+    "lockup-compact": { "clearSpace": 0.252, "minWidthPx": 150, "minWidthMm": 40 },
+    "wordmark": { "clearSpace": 0.882, "minWidthPx": 150, "minWidthMm": 40 }
+  }
+}
