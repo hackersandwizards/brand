@@ -21,12 +21,14 @@
     border-color: color-mix(in srgb, var(--color-teal) 40%, white);
     background: color-mix(in srgb, var(--color-teal) 7%, white);
   }
-  :where([data-theme="dark"]) .hw-card {
-    border-color: color-mix(in srgb, white 15%, transparent);
-    background: color-mix(in srgb, white 7%, transparent);
-  }
-  :where([data-theme="dark"]) .hw-card[data-variant="tint"] {
-    border-color: color-mix(in srgb, var(--color-teal-night) 40%, transparent);
-    background: color-mix(in srgb, var(--color-teal-night) 7%, transparent);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-card {
+      border-color: color-mix(in srgb, white 15%, transparent);
+      background: color-mix(in srgb, white 7%, transparent);
+    }
+    .hw-card[data-variant="tint"] {
+      border-color: color-mix(in srgb, var(--color-teal-night) 40%, transparent);
+      background: color-mix(in srgb, var(--color-teal-night) 7%, transparent);
+    }
   }
 }

@@ -51,7 +51,9 @@
   .hw-code-underline {
     text-decoration: underline;
   }
-  :where([data-theme="dark"]) .hw-code {
-    background: var(--color-night-2);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-code {
+      background: var(--color-night-2);
+    }
   }
 }

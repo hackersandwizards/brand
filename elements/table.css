@@ -35,10 +35,12 @@
     text-transform: var(--type-label-case);
     color: var(--hw-muted, var(--color-muted));
   }
-  :where([data-theme="dark"]) .hw-table :is(th, td) {
-    border-bottom-color: color-mix(in srgb, white 15%, transparent);
-  }
-  :where([data-theme="dark"]) .hw-table th {
-    color: var(--color-night-muted);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-table :is(th, td) {
+      border-bottom-color: color-mix(in srgb, white 15%, transparent);
+    }
+    .hw-table th {
+      color: var(--color-night-muted);
+    }
   }
 }

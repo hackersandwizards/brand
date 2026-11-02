@@ -133,6 +133,33 @@ test("a brand token the surface never defines is red", async () => {
   expect(r.findings.some((f) => f.prop === "--type-small-family")).toBe(true);
 }, 60_000);
 
+// The nearest theme decides: a light slide inside a dark page draws its elements by day.
+test("a light subtree inside a dark one draws the day rule", async () => {
+  const r = await measurePage(
+    browser,
+    file(
+      "nested.html",
+      page().replace(
+        "</body>",
+        '<div data-theme="dark"><div data-theme="light"><div data-hw-sample class="hw-card">Tag</div><span class="hw-label">Tag</span></div></div></body>',
+      ),
+    ),
+  );
+  expect(r.findings).toEqual([]);
+  const html = await browser.newPage();
+  await html.goto(
+    `file://${file("nested2.html", page().replace("</body>", '<div data-theme="dark"><div data-theme="light"><span id="probe" class="hw-label">Tag</span></div></div></body>'))}`,
+  );
+  const [day, probe] = await html.evaluate(() => {
+    const ref = document.createElement("span");
+    ref.className = "hw-label";
+    document.body.append(ref);
+    return [getComputedStyle(ref).color, getComputedStyle(document.getElementById("probe")!).color];
+  });
+  await html.close();
+  expect(probe).toBe(day);
+}, 60_000);
+
 test("night is measured against the night rule", async () => {
   const r = await measurePage(
     browser,

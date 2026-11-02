@@ -24,13 +24,15 @@
   .hw-label[data-tone="ink"] {
     color: var(--color-ink);
   }
-  :where([data-theme="dark"]) .hw-label {
-    color: var(--color-teal-night);
-  }
-  :where([data-theme="dark"]) .hw-label[data-tone="muted"] {
-    color: var(--color-night-muted);
-  }
-  :where([data-theme="dark"]) .hw-label[data-tone="ink"] {
-    color: var(--color-night-ink);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-label {
+      color: var(--color-teal-night);
+    }
+    .hw-label[data-tone="muted"] {
+      color: var(--color-night-muted);
+    }
+    .hw-label[data-tone="ink"] {
+      color: var(--color-night-ink);
+    }
   }
 }

@@ -21,11 +21,13 @@
   .hw-callout[data-hue="purple"] {
     --_hue: var(--color-purple);
   }
-  :where([data-theme="dark"]) .hw-callout {
-    --_hue: var(--color-teal-night);
-    background: color-mix(in srgb, var(--_hue) 7%, transparent);
-  }
-  :where([data-theme="dark"]) .hw-callout[data-hue="purple"] {
-    --_hue: var(--color-purple-night);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-callout {
+      --_hue: var(--color-teal-night);
+      background: color-mix(in srgb, var(--_hue) 7%, transparent);
+    }
+    .hw-callout[data-hue="purple"] {
+      --_hue: var(--color-purple-night);
+    }
   }
 }

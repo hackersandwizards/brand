@@ -39,11 +39,13 @@
   .hw-icon-button[data-on="picture"]:hover {
     background: var(--color-teal-dark);
   }
-  :where([data-theme="dark"]) .hw-icon-button:not([data-on="picture"]) {
-    color: var(--color-white);
-    background: color-mix(in srgb, white 15%, transparent);
-  }
-  :where([data-theme="dark"]) .hw-icon-button:not([data-on="picture"]):hover {
-    background: color-mix(in srgb, white 25%, transparent);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-icon-button:not([data-on="picture"]) {
+      color: var(--color-white);
+      background: color-mix(in srgb, white 15%, transparent);
+    }
+    .hw-icon-button:not([data-on="picture"]):hover {
+      background: color-mix(in srgb, white 25%, transparent);
+    }
   }
 }

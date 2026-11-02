@@ -15,10 +15,12 @@
   :is(.hw-link, .hw-links a):hover {
     color: var(--color-ink);
   }
-  :where([data-theme="dark"]) :is(.hw-link, .hw-links a) {
-    color: var(--color-teal-night);
-  }
-  :where([data-theme="dark"]) :is(.hw-link, .hw-links a):hover {
-    color: var(--color-white);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    :is(.hw-link, .hw-links a) {
+      color: var(--color-teal-night);
+    }
+    :is(.hw-link, .hw-links a):hover {
+      color: var(--color-white);
+    }
   }
 }

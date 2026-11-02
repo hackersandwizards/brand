@@ -17,11 +17,13 @@
   .hw-quote[data-tone="muted"] {
     color: var(--hw-muted, var(--color-muted));
   }
-  :where([data-theme="dark"]) .hw-quote {
-    border-left-color: var(--color-purple-night);
-    color: var(--color-night-ink);
-  }
-  :where([data-theme="dark"]) .hw-quote[data-tone="muted"] {
-    color: var(--color-night-muted);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-quote {
+      border-left-color: var(--color-purple-night);
+      color: var(--color-night-ink);
+    }
+    .hw-quote[data-tone="muted"] {
+      color: var(--color-night-muted);
+    }
   }
 }

@@ -98,25 +98,27 @@
   .hw-pill-remove:hover {
     opacity: 1;
   }
-  :where([data-theme="dark"]) .hw-pill {
-    color: var(--color-night-ink);
-    background: color-mix(
-      in srgb,
-      var(--hw-pill-hue-night, var(--color-teal-night)) 20%,
-      var(--color-night)
-    );
-  }
-  :where([data-theme="dark"]) .hw-pill[data-tone="neutral"] {
-    color: color-mix(in srgb, var(--color-night-ink) 75%, transparent);
-    background: color-mix(in srgb, white 10%, transparent);
-  }
-  :where([data-theme="dark"]) .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
-    border-color: color-mix(in srgb, white 25%, transparent);
-    color: var(--color-night-ink);
-    background: transparent;
-  }
-  :where([data-theme="dark"]) .hw-pill[data-variant="add"] {
-    border-color: color-mix(in srgb, white 40%, transparent);
-    color: var(--color-night-muted);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-pill {
+      color: var(--color-night-ink);
+      background: color-mix(
+        in srgb,
+        var(--hw-pill-hue-night, var(--color-teal-night)) 20%,
+        var(--color-night)
+      );
+    }
+    .hw-pill[data-tone="neutral"] {
+      color: color-mix(in srgb, var(--color-night-ink) 75%, transparent);
+      background: color-mix(in srgb, white 10%, transparent);
+    }
+    .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
+      border-color: color-mix(in srgb, white 25%, transparent);
+      color: var(--color-night-ink);
+      background: transparent;
+    }
+    .hw-pill[data-variant="add"] {
+      border-color: color-mix(in srgb, white 40%, transparent);
+      color: var(--color-night-muted);
+    }
   }
 }

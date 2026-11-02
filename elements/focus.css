@@ -15,8 +15,9 @@
   .hw-focus-ring :is(p, li, dt, dd, td, th, blockquote, figcaption) > a:focus-visible {
     border-radius: var(--radius-sm);
   }
-  :where([data-theme="dark"]) :is(.hw-focus-ring :focus-visible, .hw-focus-ring:focus-visible),
-  :is(.hw-focus-ring[data-theme="dark"] :focus-visible) {
-    outline-color: var(--color-purple-night);
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    :is(.hw-focus-ring :focus-visible, .hw-focus-ring:focus-visible) {
+      outline-color: var(--color-purple-night);
+    }
   }
 }
