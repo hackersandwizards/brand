@@ -123,6 +123,16 @@ Ein Reviewer-Prompt, wörtlich bis zur Dateiliste (Runde 1, Claude):
 Nicht bewertet: Website und os (gleicher Astro-Weg wie der Hub), die PPTX-Ausgabe, die Folie im
 Dark-Theme, die helle Variante und der Terminal-Block der Folien.
 
+## LinkedIn-Terminal
+
+Benedikt, 02.11.: „code-colours müssen wir auch bei unseren linkedin posts terminals beachten". Das
+Terminal zeigt den Gewinner schon: `brand-linkedin-terminal` färbt seit v0.23.0 aus denselben
+`--code-*`-Tokens wie `hw-code` (String teal-night, Hervorhebung purple-night, Fehler red-night,
+Kommentar night-subtle). Gerendert mit der echten Spec des Posts vom 04.11. („tree -L 1") unter
+v0.27.8 und unter v0.27.10: die beiden PNGs sind byte-gleich. Das Bild zum Zertifikat läuft über
+denselben Befehl und bleibt ebenso gleich. Kein veröffentlichter Post ändert sich. Die Bilder liegen
+auf der Entscheidungsseite `code-colours`.
+
 ## Umstellung der Flächen
 
 | Repo        | Stand                                                     | Umstellung                                                                                                                                                          |
