@@ -187,7 +187,7 @@ block sits in no layer, since Tailwind Typography's `prose` comes in the utiliti
 
 A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
 website's px), `"dense"` (the apps and the talks site; it also sets the expert set's compact type steps, UI text
-13 px and micro 11 px, and the heights `--hw-row-pad` and `--hw-control-height`), `"print"` (documents, pt, the type sizes
+13 px and micro 11 px, and the heights `--hw-row-pad` and `--hw-control-height`; `data-hw-type="regular"` beside it keeps UI text 14 px and micro 12 px, as the trainer hub does), `"print"` (documents, pt, the type sizes
 from `print.css`) or `"stage"` (slides on the 1440 stage) on any container. A surface may also set
 an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed in its file.
 

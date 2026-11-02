@@ -88,6 +88,18 @@
   --hw-control-height: 2.5rem;
 }
 
+/* The dense tier at the expert set's regular text: UI text 14 px, micro 12 px, every other dense
+   measure kept. Set beside data-hw-scale="dense" on the same element (trainer hub, decision
+   ds-roll-trainer-hub-compact, 2026-11-02: os 13, trainer hub 14). */
+[data-hw-scale="dense"][data-hw-type="regular"] {
+  --text-ui: 0.875rem;
+  --text-ui--line-height: 1.5;
+  --text-meta: var(--text-ui);
+  --text-meta--line-height: var(--text-ui--line-height);
+  --text-micro: 0.75rem;
+  --text-micro--line-height: calc(16 / 12);
+}
+
 /* Paper is read printed and at about 70 % zoom on a laptop, where 1 pt is about 0.93 CSS px: lines
    take 1 pt in border-strong, the card's rule 3 pt, the strip 6 pt (documents, 2026-10-28). */
 [data-hw-scale="print"] {

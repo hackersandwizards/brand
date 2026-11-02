@@ -302,3 +302,31 @@ test("the catalogue's samples match their rules", async () => {
   expect(r.seen.length).toBe(21);
   expect(r.findings).toEqual([]);
 }, 60_000);
+
+// Decision ds-roll-trainer-hub-compact (2026-11-02): os 13 px, trainer hub 14 px, both dense.
+test("dense with data-hw-type=regular takes the expert set's regular text, dense alone 13 px", async () => {
+  const p = await browser.newPage();
+  const read = async (attrs: string) => {
+    await p.goto(
+      pathToFileURL(
+        file(
+          `type-${attrs.length}.html`,
+          `<!doctype html><html ${attrs}><head><link rel="stylesheet" href="${brand("elements/scales.css")}"></head><body></body></html>`,
+        ),
+      ).href,
+    );
+    return p.evaluate(() => {
+      const s = getComputedStyle(document.documentElement);
+      return ["--text-ui", "--text-ui--line-height", "--text-micro"].map((v) =>
+        s.getPropertyValue(v).trim(),
+      );
+    });
+  };
+  const expert = readFileSync(join(ROOT, "expert/expert.css"), "utf8");
+  const regular = ["--text-ui", "--text-ui--line-height", "--text-micro"].map(
+    (v) => expert.match(new RegExp(`\\n\\s*${v}: ([^;]+);`))![1]!,
+  );
+  expect(await read('data-hw-scale="dense" data-hw-type="regular"')).toEqual(regular);
+  expect(await read('data-hw-scale="dense"')).toEqual(["0.8125rem", "1.45", "0.6875rem"]);
+  await p.close();
+}, 60_000);
