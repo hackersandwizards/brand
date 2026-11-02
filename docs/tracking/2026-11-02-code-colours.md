@@ -129,8 +129,8 @@ Benedikt, 02.11.: „code-colours müssen wir auch bei unseren linkedin posts te
 Terminal zeigt den Gewinner schon: `brand-linkedin-terminal` färbt seit v0.23.0 aus denselben
 `--code-*`-Tokens wie `hw-code` (String teal-night, Hervorhebung purple-night, Fehler red-night,
 Kommentar night-subtle). Gerendert mit der echten Spec des Posts vom 04.11. („tree -L 1") unter
-v0.27.8 und unter v0.27.10: die beiden PNGs sind byte-gleich. Das Bild zum Zertifikat läuft über
-denselben Befehl und bleibt ebenso gleich. Kein veröffentlichter Post ändert sich. Die Bilder liegen
+v0.27.8 und unter v0.27.10: die beiden PNGs sind byte-gleich. Das Teilbild zum Zertifikat (os `scripts/certificates/share.ts`) nutzt nur
+`brand-linkedin-frame`, kein Terminal. Kein veröffentlichter Post ändert sich. Die Bilder liegen
 auf der Entscheidungsseite `code-colours`.
 
 ## Umstellung der Flächen
