@@ -256,6 +256,18 @@ html[data-theme="dark"] {
 .chip-link {
   @apply inline-flex items-center gap-1 text-ui text-accent transition-colors hover:text-accent-light;
 }
+/* A link that names no kind of its own gets the arrow, so links in a row stay apart. */
+.chip-link:not(:has(svg))::before {
+  content: "";
+  flex: none;
+  width: 0.875em;
+  height: 0.875em;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
 .chip-link-muted {
   @apply inline-flex items-center gap-1 rounded-full bg-muted/40 px-2.5 py-0.5 text-ui text-foreground/70;
 }
