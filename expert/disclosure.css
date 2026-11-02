@@ -11,7 +11,7 @@
    Everything sits in @layer components, so a surface's own classes and Tailwind's utilities win:
    the file draws the chevron, its turn and the marker's removal, and the summary's type, colour,
    padding and hover stay the surface's. The focus ring takes --focus where the surface sets it,
-   else the brand purple. */
+   else the brand purple; under hw-focus-ring (elements/focus.css) that ring wins. */
 
 @layer components {
   .hw-disclosure > summary {
@@ -26,7 +26,8 @@
   .hw-disclosure > summary::-webkit-details-marker {
     display: none;
   }
-  .hw-disclosure > summary:focus-visible {
+  /* At the specificity of a pseudo-class alone, so focus.css's ring wins under hw-focus-ring. */
+  :where(.hw-disclosure > summary):focus-visible {
     outline: 2px solid var(--focus, var(--color-purple));
     outline-offset: 2px;
     border-radius: var(--radius-sm);
