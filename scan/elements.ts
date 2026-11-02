@@ -312,7 +312,7 @@ export const rules = (css: string) => {
       if (head.startsWith("@") || body.includes("{")) walk(body);
       else
         out.push({
-          selectors: head.split(",").map((x) => x.trim()),
+          selectors: outside(head, ",").map((x) => x.trim()),
           props: [...body.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)].map((m) => m[1]!),
         });
       i = j;
@@ -325,13 +325,26 @@ export const rules = (css: string) => {
 /** A state or a pseudo-element the element leaves to the surface (card.css: hover). */
 const STATE = /::?(before|after|hover|focus|focus-visible|focus-within|active|visited|marker)\b/;
 
-/** The class a selector styles: the last class of its last compound. */
+/** The parts of a selector split at the characters `seps`, outside any parentheses. */
+const outside = (selector: string, seps: string) => {
+  const out = [""];
+  let depth = 0;
+  for (const ch of selector) {
+    depth += ch === "(" ? 1 : ch === ")" ? -1 : 0;
+    if (depth === 0 && seps.includes(ch)) out.push("");
+    else out[out.length - 1] += ch;
+  }
+  return out.filter((x) => x.trim());
+};
+/** A selector's last compound, its functional pseudo-classes and their arguments included. */
+const last = (selector: string) => outside(selector, " >+~").pop() ?? "";
+
+/** The class a selector styles: the last class of its last compound, outside :is(), :has() and the like. */
 const subject = (selector: string) =>
-  selector
-    .replace(/:(is|where|not|has)\([^)]*\)/g, "")
-    .split(/[\s>+~]+/)
-    .pop()
-    ?.match(/\.([\w-]+)/g)
+  outside(last(selector), ":")
+    .filter((x) => !/^(is|where|not|has)\(/.test(x))
+    .join(":")
+    .match(/\.([\w-]+)/g)
     ?.pop()
     ?.slice(1);
 
@@ -359,7 +372,7 @@ export const sourceFindings = (
     if (!STYLED.has(ext)) continue;
     for (const r of rules(styles(raw, ext))) {
       for (const sel of r.selectors) {
-        const cls = STATE.test(sel.split(/[\s>+~]+/).pop() ?? "") ? undefined : subject(sel);
+        const cls = STATE.test(last(sel)) ? undefined : subject(sel);
         const element = cls && !cls.startsWith("hw-") ? namedAs(cls) : undefined;
         if (element && !(cls! in allow) && r.props.some((x) => setsOwned(element, x)))
           out.push(
