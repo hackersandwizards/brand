@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
-// Writes catalogue.html, the brand portal: one file opened from disk, with a left nav, a search
-// over every token and logo, and one view per area (overview, colours, type, tokens, logos,
-// applications, press kit). It reads this repo's files only, so `--check` can hold the committed
+// Writes catalogue.html, the brand portal: one file opened from disk in the catalogue shape every
+// design system shares (renderCatalogue, header.css, catalogue.css), whose search also lists every
+// token, colour, logo, file and photo, and one view per area below the tiles (colours, type,
+// tokens, elements, logos, applications, press kit). It reads this repo's files only, so `--check` can hold the committed
 // page to the generator: it exits 1 where catalogue.html differs from a fresh build.
 // Usage: bun scripts/catalogue.ts [--check]
 import { spawnSync } from "node:child_process";
@@ -17,6 +18,7 @@ import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
 import { parseTokens, resolveColors, SOURCE } from "./tokens";
+import { type CatalogueGroup, renderCatalogue } from "../expert/catalogue";
 
 const tokens = parseTokens(readFileSync(SOURCE, "utf8"));
 const colors = resolveColors(tokens);
@@ -50,11 +52,12 @@ const family = (k: string) =>
 // A former name is a token whose value is another colour token: it resolves, but adds no colour.
 const former = Object.keys(colors).filter((k) => /^var\(--color-[\w-]+\)$/.test(tokens[k]));
 const own = Object.entries(colors).filter(([k]) => !former.includes(k));
-const colourGroups = ["Surface and ink", "Brand", "Status", "Night"].map((g) => {
+const FAMILY_NAMES = ["Surface and ink", "Brand", "Status", "Night"];
+const colourGroups = FAMILY_NAMES.map((g) => {
   const list = own.filter(([k]) => family(k) === g);
   for (const [k, hex] of list)
     index.push({ t: k, k: "colour", h: `colours/${slug(k)}`, x: `${hex} ${g}` });
-  return `<h3 class="label">${g}</h3><div class="grid">${list
+  return `<h3 class="label" id="family-${slug(g)}">${g}</h3><div class="grid">${list
     .map(
       ([k, hex]) =>
         `<button class="swatch" id="${slug(k)}" data-copy="${esc(hex)}" title="Copy ${esc(hex)}"><span style="background:var(${k})"></span><strong>${esc(hex)}</strong>${code(k)}${
@@ -91,14 +94,18 @@ ${table(["Base", "Text on light", "Night", "Tint 7 %", "Tint 40 %"], roleRows)}
 <ol class="chart">${chart.map((c) => `<li>${c}</li>`).join("")}</ol>
 ${former.length ? `<p class="meta">Former names, resolving to their successor: ${former.map((k) => `${code(k)} → ${code(tokens[k].slice(4, -1))}`).join(", ")}.</p>` : ""}`;
 
-const roles = [
+const roleNames = [
   ...new Set(Object.keys(tokens).flatMap((k) => k.match(/^--type-(\w+)-family$/)?.[1] ?? [])),
-]
+];
+const roleSample = (r: string) => {
+  const v = (p: string) => (tokens[`--type-${r}-${p}`] ? `var(--type-${r}-${p})` : "normal");
+  const style = `font-family:${v("family")};font-weight:${v("weight")};font-size:${v("size")};line-height:${v("line-height")};letter-spacing:${v("tracking")};text-transform:${tokens[`--type-${r}-case`] ? `var(--type-${r}-case)` : "none"}`;
+  return `<p style="${style}">Agentic Engineering, from the first prompt to the factory</p>`;
+};
+const roles = roleNames
   .map((r) => {
     index.push({ t: `type ${r}`, k: "type", h: `type/type-${r}` });
-    const v = (p: string) => (tokens[`--type-${r}-${p}`] ? `var(--type-${r}-${p})` : "normal");
-    const style = `font-family:${v("family")};font-weight:${v("weight")};font-size:${v("size")};line-height:${v("line-height")};letter-spacing:${v("tracking")};text-transform:${tokens[`--type-${r}-case`] ? `var(--type-${r}-case)` : "none"}`;
-    return `<div class="role" id="type-${r}"><span class="label">${esc(r)} ${code(`--type-${r}-*`)}</span><p style="${style}">Agentic Engineering, from the first prompt to the factory</p></div>`;
+    return `<div class="role" id="type-${r}"><span class="label">${esc(r)} ${code(`--type-${r}-*`)}</span>${roleSample(r)}</div>`;
   })
   .join("");
 
@@ -492,8 +499,8 @@ ${FAMILIES.map((f) => {
 const pressHtml = `<p>The photos of the press kit, which the website's press page offers with the logos as one ZIP. Credit: "Photo: ${esc(press.credit)}". Each photo is listed with what it shows in <code>press/press.json</code>.</p>
 <div class="assets">${press.photos
   .map((p) => {
-    index.push({ t: p.file, k: "press", h: "press", x: p.shows });
-    return `<figure class="asset"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a></figcaption></figure>`;
+    index.push({ t: p.file, k: "press", h: `pressekit/press-${slug(p.file)}`, x: p.shows });
+    return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a></figcaption></figure>`;
   })
   .join("")}</div>`;
 // Elements: the dropdown as select.css draws it, a live select on light and one on night; the
@@ -617,26 +624,173 @@ const SYSTEMS = [
     "https://certificates.hackersandwizards.dev/design-system",
   ],
 ];
-const systemLinks = SYSTEMS.map(
-  ([name, url, pub]) =>
-    `<li><a href="${esc(url)}"${pub ? ` data-public="${esc(pub)}"` : ""}>${esc(name)}</a></li>`,
-).join("");
+// On GitHub Pages a system link leaves its local address for the public one its owner publishes.
+const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub]) => [url, pub]));
 
-// Overview: what is here and where each system shows its own components.
-const tile = (href: string, title: string, body: string) =>
-  `<a class="tile" href="#${href}"><strong>${title}</strong><span>${body}</span></a>`;
-const overview = `<p class="lead">Everything the hackers&amp;wizards brand is made of: tokens, logos, the files made from them and the press kit.</p>
-<div class="tiles">
-${tile("colours", "Colours", `${own.length} colours in four families, their roles and the chart order, click to copy`)}
-${tile("type", "Type", "Type roles in JetBrains Mono and Inter")}
-${tile("logos", "Logos", "Lockup, compact, wordmark, light, night and outline, SVG and PNG downloads")}
-${tile("applications", "Applications", `${FAMILIES.length} families: ${FAMILIES.map((f) => f.id.replace("-", " ")).join(", ")}`)}
-${tile("press", "Pressekit", "The founders' photos for the press kit, with credit and downloads")}
-</div>
-<h3>Systems</h3>
-<p>Each system shows its components on its own design-system page, served by its dev server.</p>
-<ul>${systemLinks}</ul>
-<h3>Refresh</h3>
+// Overview: the catalogue shape (expert/catalogue.ts), one group per view with a tile per part of
+// it, and the systems' own design-system pages. Quick start and refresh sit above the tiles; the
+// views keep their own markup, one shown at a time in place of the overview.
+// A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
+const sampleFrame = (body: string, css = "") =>
+  `<iframe srcdoc="${esc(`<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="elements/elements.css"><link rel="stylesheet" href="expert/select.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`)}" loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>`;
+// An image under applications/ is in Git LFS and a pointer in a checkout without it: the preview
+// leaves the tile rather than show a broken image.
+const lfsImage = (src: string) =>
+  `<img src="${esc(src)}" alt="" loading="lazy" onerror="this.parentElement.hidden=true">`;
+const familyPreview = (f: Family) => {
+  if (f.id === "merch") return scopeIds(PRODUCTS[0]!.views[0]![0], "tile-merch");
+  if (f.id === "mail-signature")
+    return sampleFrame(fillSignature(signatureTemplate, EXAMPLE, "html"));
+  const files = [...familyStems.get(f.id)!.values()].flat();
+  const svg = files.find((x) => x.endsWith(".svg") && !x.startsWith("qr-"));
+  const png = files.find((x) => x.endsWith(".png"));
+  return svg
+    ? `<img src="${f.dir}/${esc(svg)}" alt="" loading="lazy">`
+    : png
+      ? lfsImage(`${f.dir}/${png}`)
+      : "";
+};
+// One group per view, named so its anchor is the view's key: the rail opens the view itself.
+const swatches = (names: string[]) =>
+  `<span class="pv-colours">${names.map((k) => `<span style="background:var(${k})"></span>`).join("")}</span>`;
+const groups: CatalogueGroup[] = [
+  {
+    name: "Colours",
+    items: [
+      ...FAMILY_NAMES.map((g) => {
+        const list = own.filter(([k]) => family(k) === g).map(([k]) => k);
+        return {
+          name: g,
+          href: `#colours/family-${slug(g)}`,
+          note: list.map((k) => k.replace("--color-", "")).join(", "),
+          pill: `${list.length} colours`,
+          html: swatches(list),
+        };
+      }),
+      {
+        name: "Roles",
+        href: "#colours/roles",
+        note: "Base, text on light, night and two tints per hue",
+        pill: `${roleRows.length} hues`,
+        html: swatches(
+          [
+            ...readFileSync(SOURCE, "utf8").matchAll(
+              /^\s*([\w-]+)\s*\|\s*[\w-]+\s*\|\s*[\w-]+\s*(?:\*\/)?$/gm,
+            ),
+          ].map(([, base]) => `--color-${base}`),
+        ),
+      },
+      {
+        name: "Chart order",
+        href: "#colours/chart",
+        note: `--chart-1 to --chart-${chart.length}`,
+        pill: `${chart.length} series`,
+        html: swatches(Object.keys(tokens).filter((k) => k.startsWith("--chart-"))),
+      },
+    ],
+  },
+  {
+    name: "Type",
+    items: [
+      {
+        name: "Type roles",
+        href: "#type",
+        note: `${roleNames.join(", ")}: in JetBrains Mono and Inter`,
+        pill: `${roleNames.length} roles`,
+        html: `<span class="pv-type">${roleNames.map(roleSample).join("")}</span>`,
+      },
+    ],
+  },
+  {
+    name: "Tokens",
+    items: [
+      {
+        name: "Spacing, radius, shadow, layout",
+        href: "#tokens",
+        note: `Corners and icons, then ${tokenKinds.join(", ")}`,
+        pill: `${otherTokens.length} tokens`,
+        html: `<span class="pv-tokens"><span style="border-radius:var(--radius-brand)"></span><span style="box-shadow:var(--shadow-card)"></span><span style="background:var(--gradient-magic)"></span></span>`,
+      },
+    ],
+  },
+  {
+    name: "Logos",
+    items: shownLogos.map((base) => ({
+      name: base,
+      href: `#logos/logo-${base}`,
+      note: LOGO_NOTES[base],
+      image: `logos/${base}.svg`,
+    })),
+  },
+  {
+    name: "Elements",
+    items: [
+      ...ELEMENT_ORDER.map(([name, title, file]) => ({
+        name: title,
+        href: `#elements/hw-${name}`,
+        note: `${CLASS[name] ?? `.hw-${name}`} · elements/${file}.css`,
+        html: sampleFrame(DEMOS[name]!),
+      })),
+      {
+        name: "Dropdown",
+        href: "#elements/dropdown",
+        note: ".hw-select · expert/select.css",
+        html: sampleFrame(
+          `<select class="hw-select" aria-label="Topic">${dropdownOptions}</select>`,
+          "select{box-sizing:border-box;min-height:2.5rem;width:16rem;padding-left:0.875rem;border:1px solid var(--color-border-strong);border-radius:var(--radius-brand);background-color:var(--color-white);color:var(--color-ink);font:inherit}",
+        ),
+      },
+      {
+        name: "Disclosure",
+        href: "#elements/disclosure",
+        note: ".hw-disclosure · expert/disclosure.css",
+        html: sampleFrame(
+          disclosureDemo,
+          "summary{padding:0.25rem 0}details p{margin:0.25rem 0 0.5rem 1.5rem}",
+        ),
+      },
+    ],
+  },
+  {
+    name: "Applications",
+    items: FAMILIES.map((f) => ({
+      name: f.title,
+      href: `#applications/app-${f.id}`,
+      note: f.dir ?? "@hackersandwizards/documents",
+      pill: f.dir ? `${fileCount(f.id)} files` : undefined,
+      html: familyPreview(f),
+    })),
+  },
+  {
+    name: "Pressekit",
+    items: press.photos.map((p) => ({
+      name: p.file,
+      href: `#pressekit/press-${slug(p.file)}`,
+      note: p.shows,
+      pill: `${p.width} px`,
+      image: `press/${p.file}`,
+    })),
+  },
+  {
+    name: "Systems",
+    items: SYSTEMS.map(([name, url]) => ({
+      name: name!,
+      href: url!,
+      note: `its design-system page, ${url!.replace(/^https?:\/\//, "")}`,
+    })),
+  },
+];
+const entries = groups.reduce((n, g) => n + g.items.length, 0);
+const quick = `<div class="quick">
+<div><h2 class="label">Quick start</h2>
+<ul>
+<li>Logo for a document or a screen: <a href="logos/lockup.svg" download>lockup.svg</a>, on night <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, on Purple Love, Stargazer or the gradient <a href="logos/lockup-outline.svg" download>lockup-outline.svg</a>; for small spots <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>. Which logo where: <a href="#logos">Logos</a>.</li>
+<li>Print: textiles and stickers take the wordmark alone, the second sticker the wizard alone; the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
+<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are on its specimen page, under <a href="#applications/app-slides">Slides</a>. Documents come from the document engine, <code>@hackersandwizards/documents</code>, under <a href="#applications/app-documents">Documents</a>.</li>
+<li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the slide engine.</li>
+<li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
+</ul></div>
+<div><h2 class="label">Refresh</h2>
 ${table(
   ["Source", "Refresh"],
   [
@@ -644,18 +798,10 @@ ${table(
     ["Logo cuts", code("bun scripts/outline.ts")],
     ["This page", code("bun run catalogue")],
   ],
-)}
-<h3>Quick start</h3>
-<ul>
-<li>Logo for a document or a screen: <a href="logos/lockup.svg" download>lockup.svg</a>, on night <a href="logos/lockup-night.svg" download>lockup-night.svg</a>, on Purple Love, Stargazer or the gradient <a href="logos/lockup-outline.svg" download>lockup-outline.svg</a>; for small spots <a href="logos/lockup-compact.svg" download>lockup-compact.svg</a>. Which logo where: <a href="#logos">Logos</a>.</li>
-<li>Print: textiles and stickers take the wordmark alone, the second sticker the wizard alone; the print files are under <a href="#applications/app-merch">Merch</a>, the booth files under <a href="#applications/app-booth">Booth banners</a>.</li>
-<li>Slides: there is no template file. Decks come from the slide engine, <code>@hackersandwizards/slides</code>; its slide types are on its specimen page, under <a href="#applications/app-slides">Slides</a>. Documents come from the document engine, <code>@hackersandwizards/documents</code>, under <a href="#applications/app-documents">Documents</a>.</li>
-<li>Workshop kit for trainers: the lockup above, the night call background <a href="applications/backgrounds/call-background.png" download>call-background.png</a> (all backgrounds under <a href="#applications/app-backgrounds">Applications</a>), slides from the slide engine.</li>
-<li>In code: <code>@import "@hackersandwizards/brand/tokens.css";</code>, the rest in <code>README.md</code>.</li>
-</ul>`;
+)}</div>
+</div>`;
 
 const pages: [string, string, string][] = [
-  ["overview", "Overview", overview],
   ["colours", "Colours", colourGroups.join("") + rolesHtml],
   ["type", "Type", roles],
   ["tokens", "Spacing, radius, shadow, layout", cornersHtml + tokensHtml],
@@ -671,9 +817,16 @@ ${table(
 ${logosHtml}`,
   ],
   ["applications", "Applications: the brand in use", applicationsHtml],
-  ["press", "Pressekit", pressHtml],
+  ["pressekit", "Pressekit", pressHtml],
 ];
-const nav = (id: string, title: string) => `<a href="#${id}"><span>${esc(title)}</span></a>`;
+const catalogue = renderCatalogue({
+  title: "hackers&wizards brand",
+  lead: "Everything the hackers&wizards brand is made of: tokens, logos, the files made from them and the press kit. Each system shows its components on its own design-system page.",
+  provenance: `brand v${pkg.version} · tokens/tokens.css, manifest.json, applications/, press/ · ${entries} entries`,
+  labels: { search: "Search  /" },
+  groups,
+  intro: `<div class="portal">${quick}<div id="results"></div><div class="portal-views">${pages.map(([id, title, body]) => `<section id="view-${id}" data-page="${id}" hidden><h2>${esc(title)}</h2>${body}</section>`).join("\n")}</div></div>`,
+});
 
 const html = `<!doctype html>
 <html lang="en">
@@ -688,147 +841,138 @@ const html = `<!doctype html>
 <link rel="stylesheet" href="tokens/marker.css">
 <link rel="stylesheet" href="expert/header.css">
 <link rel="stylesheet" href="elements/elements.css">
+<link rel="stylesheet" href="expert/catalogue.css">
 <style>
   /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
   html { accent-color: var(--color-teal); caret-color: var(--color-purple); }
-  body { margin: 0; display: grid; grid-template-columns: 17rem 1fr; grid-template-rows: auto 1fr; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
-  /* The internal header (header.css) spans the top; the side bar sits under it. */
-  body > .hw-header { grid-column: 1 / -1; }
-  aside.side { position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); overflow: auto; box-sizing: border-box; padding: 1.25rem 0.75rem 2rem; border-right: 1px solid var(--color-border); background: var(--color-white); }
+  body { margin: 0; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
   :root { --header-h: var(--spacing-app-header); }
-  aside.side .version { margin: 0 0.5rem 0.75rem; }
-  aside.side nav { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; margin-top: 0.5rem; }
-  aside.side nav a { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.3rem 0.5rem; border-radius: var(--radius-sm); color: var(--color-ink); text-decoration: none; }
-  aside.side nav a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  aside.side nav a:hover { background: var(--color-tint); }
-  aside.side nav a.on { background: var(--color-teal-dark); color: var(--color-white); }
-  aside.side .label { margin: 1.25rem 0.5rem 0.25rem; }
-  .label, th:not(.el-cell *) { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
-  .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
-  .input::placeholder { color: var(--color-muted); }
-  .input:hover { border-color: var(--color-muted); }
-  .input:focus-visible { border-color: var(--color-teal); }
   input[type=search]::-webkit-search-cancel-button { cursor: pointer; }
-  #q { margin: 0 0.25rem; width: calc(100% - 0.5rem); }
-  /* Every list on the page takes the brand's marker (tokens/marker.css). */
-  main { padding: 1.5rem clamp(1rem, 3vw, 3rem) 4rem; min-width: 0; --hw-markers: on; }
-  section { display: none; max-width: var(--container-wide); }
-  section.on { display: block; }
-  h1, h2, h3 { font-family: var(--font-mono); letter-spacing: -0.02em; }
-  h2 { font-size: var(--text-h2); margin: 0 0 1rem; }
-  h3 { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
-  .lead { font-size: var(--text-lead); max-width: 40em; }
-  .meta { color: var(--color-muted); }
-  code:not(.el-cell *) { font-family: var(--font-code); font-size: 0.9em; }
-  a:not(.el-cell *) { color: var(--color-teal-dark); }
-  table:not(.el-cell *) { border-collapse: collapse; width: 100%; background: var(--color-white); }
-  :is(th, td):not(.el-cell *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
-  .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
-  .swatch { all: unset; cursor: copy; display: grid; gap: 0.15rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 0.5rem; }
-  .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
-  .swatch span { height: 3.5rem; border-radius: 0; border: 1px solid var(--color-border); margin-bottom: 0.3rem; }
-  .swatch strong { font-family: var(--font-code); }
-  .swatch small { color: var(--color-muted); font-size: 0.7rem; }
-  .swatch.copied strong::after { content: " copied"; color: var(--color-teal); font-weight: 400; }
-  .tiles { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); }
-  .tile { display: grid; gap: 0.25rem; padding: 1rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); color: var(--color-ink); text-decoration: none; }
-  .tile:hover { border-color: var(--color-teal); }
-  .tile strong { font-family: var(--font-mono); font-size: var(--text-h4); }
-  .tile span { color: var(--color-muted); }
-  .logos { display: grid; gap: 1rem; margin-top: 1.5rem; }
-  .logo { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
-  .logo h3 { margin: 0.75rem 0 0.25rem; }
-  .logo p { margin: 0.25rem 0; }
-  .pair { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0.5rem; }
-  .pair figure { margin: 0; border-radius: var(--radius-brand); }
-  .pair img { display: block; width: 100%; height: 7.5rem; object-fit: contain; padding: 1rem 1.25rem 0.5rem; box-sizing: border-box; }
-  .pair figcaption { padding: 0 0.75rem 0.5rem; font: 0.7rem var(--font-code); color: var(--color-muted); }
-  .pair .on-dark figcaption, .pair .on-gradient figcaption { color: rgb(255 255 255 / 0.8); }
-  .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
-  .on-dark { background: var(--color-night); }
-  .on-gradient { background: var(--gradient-magic); }
-  .dl a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill); color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
-  .dl a::before { content: "↓ "; }
-  .dl a:hover { background: var(--color-tint); }
-  .pv { width: 4rem; height: 2rem; background: var(--color-white); border: 1px solid var(--color-border); }
-  .pv.bar { height: 0.5rem; max-width: 100%; background: var(--color-teal); border: 0; }
-  .rules { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-bottom: 1rem; }
-  .rules > div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
-  .rules p { margin: 0.5rem 0 0; }
-  .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
-  .square-demo, .icon-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
-  .square-demo .sw { width: 1.25rem; height: 1.25rem; background: var(--color-teal); }
-  .icon-demo { color: var(--color-teal-dark); font-weight: 500; }
-  .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
-  .role p { margin: 0.25rem 0 0; }
-  #results { display: none; }
-  #results.on { display: block; }
-  #results a { display: flex; gap: 0.75rem; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); color: var(--color-ink); text-decoration: none; background: var(--color-white); }
-  #results a:hover { background: var(--color-tint); }
-  #results .label { min-width: 7rem; }
-  .night-cell { display: inline-block; padding: 0.15rem 0.4rem; background: var(--color-night); color: var(--color-night-ink); border-radius: 0; }
-  .night-cell code { color: inherit; }
-  .chart { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding-left: 1.25rem; }
-  .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 0; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
-  .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
-  .products { display: grid; gap: 1rem; }
-  .product { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; scroll-margin-top: 1rem; }
-  .product h4 { font-family: var(--font-mono); font-size: var(--text-h4); margin: 0.75rem 0 0.25rem; }
-  .product p { margin: 0.25rem 0; }
-  .mock { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, 15.5rem); }
-  .mock figure.wide { grid-column: span 2; }
-  .mock figure { margin: 0; padding: 0.75rem 0.75rem 0.5rem; background: #e4e6ea; border-radius: var(--radius-brand); }
-  .mock svg { display: block; height: 15rem; }
-  .devices { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; column-gap: 2rem; }
-  .devices figure { margin: 0; display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0.75rem; }
-  .devices svg { display: block; align-self: end; max-width: 100%; height: auto; }
-  .devices figcaption { display: grid; align-content: start; gap: 0.25rem; contain: inline-size; min-width: 13rem; }
-  .devices figcaption strong { font-family: var(--font-mono); font-size: var(--text-h4); }
-  .mock figcaption { margin-top: 0.4rem; font: 0.75rem var(--font-code); color: var(--color-muted); }
-  .asset { margin: 0; }
-  .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
-  .asset .dl { display: block; }
-  .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
-  .asset img[src$=".png"] { object-fit: scale-down; }
-  .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
-  .dropdowns { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: start; }
-  .dropdowns label, .dropdowns figure { display: grid; gap: 0.5rem; margin: 0; }
-  .dropdowns .input { width: 16rem; }
-  .dropdowns iframe { width: 18rem; height: 4.5rem; border: 0; border-radius: var(--radius-brand); }
-  .disclosures iframe { height: 7rem; }
-  .disclosure-demo { width: 16rem; }
-  .disclosure-demo summary { padding: 0.25rem 0; }
-  .disclosure-demo p { margin: 0.25rem 0 0.5rem 1.5rem; }
-  .el-matrix { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
-  .el-head { align-self: end; }
-  .el-row { align-self: center; }
-  .el-cell { min-height: 7rem; overflow: hidden; padding: 1rem; border: 1px solid var(--color-border); background: var(--color-white); color: var(--color-ink); font-size: var(--text-body); line-height: var(--text-body--line-height); }
-  .el-cell[data-theme="dark"] { border-color: var(--color-night); background: var(--color-night); color: var(--color-night-ink); }
-  .el-cell[data-hw-scale="dense"] { font-size: 0.875rem; line-height: 1.5; }
-  .el-cell[data-hw-scale="print"] { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
-  .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
-  .el-inner > * + * { margin-top: 0.5em; }
-  .el-inner :is(p, blockquote, pre) { margin-block: 0; }
-  .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
-  .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
-  /* Below 600 px the side bar leaves the page: Search and Menu sit in the header. Search opens the
-     field under the header, Menu opens the nav as a drawer over the page. */
-  .bar-btn { display: none; }
-  @media (max-width: 599.98px) {
+  /* The overview shows the tiles, quick start and refresh; a search the tiles it hits and the other
+     matches; a view its own section only. */
+  .hw-catalogue:not([data-mode="overview"]) .quick,
+  .hw-catalogue:not([data-mode="search"]) #results,
+  .hw-catalogue:not([data-mode="view"]) .portal-views,
+  .hw-catalogue[data-mode="view"] .hw-catalogue-main > :not(.portal) { display: none; }
+  /* The rail marks the open view. */
+  .hw-catalogue-rail a[aria-current] { background: color-mix(in srgb, var(--color-teal) 12%, transparent); font-weight: 600; }
+  /* Tile previews of the foundations. */
+  .pv-colours { display: grid; grid-template-columns: repeat(8, 1fr); height: 100%; }
+  .pv-type { display: block; padding: 1rem; zoom: 0.5; }
+  .pv-type .label { display: none; }
+  .pv-type p { margin: 0 0 0.75rem; white-space: nowrap; }
+  .pv-tokens { display: flex; gap: 1.25rem; align-items: center; justify-content: center; height: 100%; }
+  .pv-tokens span { width: 4.5rem; height: 4.5rem; background: var(--color-white); border: 1px solid var(--color-border); }
+  .hw-catalogue-preview > svg { display: block; width: 100%; height: 100%; }
+  /* The portal's own parts, the views included; the catalogue shape and its tiles are catalogue.css's. */
+  .portal {
+    --hw-markers: on;
+    .quick { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem; margin-top: 2rem; }
+    .quick h2 { margin: 0 0 0.5rem; letter-spacing: var(--type-label-tracking); }
+    .quick ul { margin: 0; padding-left: 1.25rem; }
+    .quick li + li { margin-top: 0.25rem; }
+    #results { margin-top: 2rem; }
+    .label, th:not(.el-cell *) { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
+    .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
+    .input:hover { border-color: var(--color-muted); }
+    .input:focus-visible { border-color: var(--color-teal); }
+    section[data-page] { max-width: var(--container-wide); }
+    .portal-views :is(h2, h3):not(.el-cell *) { font-family: var(--font-mono); letter-spacing: -0.02em; }
+    .portal-views h2:not(.el-cell *) { font-size: var(--text-h2); margin: 0 0 1rem; }
+    .portal-views h3:not(.el-cell *) { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
+    .meta { color: var(--color-muted); }
+    code:not(.el-cell *) { font-family: var(--font-code); font-size: 0.9em; }
+    a:not(.el-cell *) { color: var(--color-teal-dark); }
+    table:not(.el-cell *) { border-collapse: collapse; width: 100%; background: var(--color-white); }
+    :is(th, td):not(.el-cell *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
+    .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
+    .swatch { all: unset; cursor: copy; display: grid; gap: 0.15rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 0.5rem; }
+    .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
+    .swatch span { height: 3.5rem; border-radius: 0; border: 1px solid var(--color-border); margin-bottom: 0.3rem; }
+    .swatch strong { font-family: var(--font-code); }
+    .swatch small { color: var(--color-muted); font-size: 0.7rem; }
+    .swatch.copied strong::after { content: " copied"; color: var(--color-teal); font-weight: 400; }
+    .logos { display: grid; gap: 1rem; margin-top: 1.5rem; }
+    .logo { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
+    .logo h3 { margin: 0.75rem 0 0.25rem; }
+    .logo p { margin: 0.25rem 0; }
+    .pair { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0.5rem; }
+    .pair figure { margin: 0; border-radius: var(--radius-brand); }
+    .pair img { display: block; width: 100%; height: 7.5rem; object-fit: contain; padding: 1rem 1.25rem 0.5rem; box-sizing: border-box; }
+    .pair figcaption { padding: 0 0.75rem 0.5rem; font: 0.7rem var(--font-code); color: var(--color-muted); }
+    .pair .on-dark figcaption, .pair .on-gradient figcaption { color: rgb(255 255 255 / 0.8); }
+    .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
+    .on-dark { background: var(--color-night); }
+    .on-gradient { background: var(--gradient-magic); }
+    .dl a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-pill); color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
+    .dl a::before { content: "↓ "; }
+    .dl a:hover { background: var(--color-tint); }
+    .pv { width: 4rem; height: 2rem; background: var(--color-white); border: 1px solid var(--color-border); }
+    .pv.bar { height: 0.5rem; max-width: 100%; background: var(--color-teal); border: 0; }
+    .rules { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-bottom: 1rem; }
+    .rules > div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
+    .rules p { margin: 0.5rem 0 0; }
+    .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
+    .square-demo, .icon-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
+    .square-demo .sw { width: 1.25rem; height: 1.25rem; background: var(--color-teal); }
+    .icon-demo { color: var(--color-teal-dark); font-weight: 500; }
+    .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
+    .role p { margin: 0.25rem 0 0; }
+    #results a { display: flex; gap: 0.75rem; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); color: var(--color-ink); text-decoration: none; background: var(--color-white); }
+    #results a:hover { background: var(--color-tint); }
+    #results a .label { min-width: 7rem; }
+    .night-cell { display: inline-block; padding: 0.15rem 0.4rem; background: var(--color-night); color: var(--color-night-ink); border-radius: 0; }
+    .night-cell code { color: inherit; }
+    .chart { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding-left: 1.25rem; }
+    .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 0; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
+    .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+    .products { display: grid; gap: 1rem; }
+    .product { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; scroll-margin-top: 1rem; }
+    .product h4 { font-family: var(--font-mono); font-size: var(--text-h4); margin: 0.75rem 0 0.25rem; }
+    .product p { margin: 0.25rem 0; }
+    .mock { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, 15.5rem); }
+    .mock figure.wide { grid-column: span 2; }
+    .mock figure { margin: 0; padding: 0.75rem 0.75rem 0.5rem; background: #e4e6ea; border-radius: var(--radius-brand); }
+    .mock svg { display: block; height: 15rem; }
+    .devices { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; column-gap: 2rem; }
+    .devices figure { margin: 0; display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0.75rem; }
+    .devices svg { display: block; align-self: end; max-width: 100%; height: auto; }
+    .devices figcaption { display: grid; align-content: start; gap: 0.25rem; contain: inline-size; min-width: 13rem; }
+    .devices figcaption strong { font-family: var(--font-mono); font-size: var(--text-h4); }
+    .mock figcaption { margin-top: 0.4rem; font: 0.75rem var(--font-code); color: var(--color-muted); }
+    .asset { margin: 0; }
+    .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
+    .asset .dl { display: block; }
+    .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
+    .asset img[src$=".png"] { object-fit: scale-down; }
+    .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
+    .dropdowns { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: start; }
+    .dropdowns label, .dropdowns figure { display: grid; gap: 0.5rem; margin: 0; }
+    .dropdowns .input { width: 16rem; }
+    .dropdowns iframe { width: 18rem; height: 4.5rem; border: 0; border-radius: var(--radius-brand); }
+    .disclosures iframe { height: 7rem; }
+    .disclosure-demo { width: 16rem; }
+    .disclosure-demo summary { padding: 0.25rem 0; }
+    .disclosure-demo p { margin: 0.25rem 0 0.5rem 1.5rem; }
+    .el-matrix { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
+    .el-head { align-self: end; }
+    .el-row { align-self: center; }
+    .el-cell { min-height: 7rem; overflow: hidden; padding: 1rem; border: 1px solid var(--color-border); background: var(--color-white); color: var(--color-ink); font-size: var(--text-body); line-height: var(--text-body--line-height); }
+    .el-cell[data-theme="dark"] { border-color: var(--color-night); background: var(--color-night); color: var(--color-night-ink); }
+    .el-cell[data-hw-scale="dense"] { font-size: 0.875rem; line-height: 1.5; }
+    .el-cell[data-hw-scale="print"] { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
+    .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
+    .el-inner > * + * { margin-top: 0.5em; }
+    .el-inner :is(p, blockquote, pre) { margin-block: 0; }
+    .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
+    .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
+  }
+  @media (max-width: 47.98rem) {
     html { scroll-padding-top: calc(var(--header-h) + 1rem); }
-    body { display: block; }
-    aside.side { position: sticky; top: var(--header-h); z-index: 10; height: auto; overflow: visible; padding: 0; border: 0; }
-    aside.side .version, aside.side #q { display: none; }
-    .bar-btn { display: inline-flex; }
-    aside.side.searching { padding: 0.5rem 1rem; border-bottom: 1px solid var(--color-border); }
-    aside.side.searching #q { display: block; width: 100%; min-height: 2.75rem; margin: 0; }
-    aside.side nav { display: none; }
-    aside.side.menu nav { display: grid; position: fixed; z-index: 1; top: var(--bar); bottom: 0; left: 0; width: min(20rem, 85vw); margin: 0; padding: 0.75rem; overflow: auto; overscroll-behavior: contain; box-sizing: border-box; align-content: start; background: var(--color-white); border-right: 1px solid var(--color-border); }
-    aside.side.menu::after { content: ""; position: fixed; top: var(--bar); right: 0; bottom: 0; left: 0; background: color-mix(in srgb, var(--color-night) 40%, transparent); }
-    aside.side nav a { min-height: 2.75rem; align-items: center; }
-    #results a { flex-wrap: wrap; gap: 0.25rem 0.75rem; }
-    #results .label { min-width: 0; flex-basis: 100%; }
+    .portal .quick { grid-template-columns: minmax(0, 1fr); }
+    .portal #results a { flex-wrap: wrap; gap: 0.25rem 0.75rem; }
+    .portal #results a .label { min-width: 0; flex-basis: 100%; }
   }
 </style>
 <link rel="stylesheet" href="expert/select.css">
@@ -839,69 +983,48 @@ const html = `<!doctype html>
 <div class="hw-header-strip"></div>
 <div class="hw-header-row hw-container">
 <a class="hw-header-brand" href="#overview" aria-label="hackers&amp;wizards Brand"><img class="hw-header-logo" src="logos/lockup-screen.svg" alt="" width="8042" height="1489"><img class="hw-header-logo-night" src="logos/lockup-screen-night.svg" alt="" width="8196" height="1641"><span class="hw-header-product">Brand</span></a>
-<div class="hw-header-nav">
+<nav class="hw-header-nav" aria-label="Main">
 <a class="hw-header-link" href="#overview" aria-current="page">Brand</a>
 <a class="hw-header-link" href="http://slides.localhost/">Slides</a>
 <a class="hw-header-link" href="http://documents.localhost/">Dokumente</a>
-<button type="button" class="hw-header-link bar-btn" id="search-btn" aria-controls="q" aria-expanded="false">Search</button>
-<button type="button" class="hw-header-link bar-btn" id="menu-btn" aria-controls="side-nav" aria-expanded="false">Menu</button>
-</div>
+</nav>
 </div>
 </header>
-<aside class="side">
-<p class="label version">Brand v${esc(pkg.version)}</p>
-<input type="search" id="q" class="input" placeholder="Search  /" aria-label="Search tokens and logos" autocomplete="off">
-<nav id="side-nav" aria-label="Catalogue">
-${nav("overview", "Overview")}
-<p class="label">Foundations</p>
-${nav("colours", "Colours")}${nav("type", "Type")}${nav("tokens", "Spacing and more")}${nav("logos", "Logos")}${nav("elements", "Elements")}
-<p class="label">Brand in use</p>
-${nav("applications", "Applications")}${nav("press", "Pressekit")}
-</nav>
-</aside>
 <main>
-<section id="results"><h2>Search</h2><div></div></section>
-${pages.map(([id, title, body]) => `<section id="${id}" data-page><h2>${esc(title)}</h2>${body}</section>`).join("\n")}
+${catalogue}
 </main>
 <script>
 const INDEX = ${JSON.stringify(index).replace(/</g, "\\u003c")};
-const q = document.getElementById("q"), results = document.getElementById("results");
+const cat = document.querySelector(".hw-catalogue"), q = cat.querySelector(".hw-catalogue-search"), results = document.getElementById("results");
+const tiles = [...cat.querySelectorAll(".hw-catalogue-tile")];
 const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const words = () => q.value.toLowerCase().split(/\\s+/).filter(Boolean);
 const show = () => {
   const [page, anchor] = decodeURIComponent(location.hash.slice(1)).split("/");
-  const target = document.getElementById(page)?.matches("[data-page]") ? page : "overview";
-  for (const s of document.querySelectorAll("section[data-page]")) s.classList.toggle("on", s.id === target && !q.value);
-  for (const a of document.querySelectorAll("aside nav a")) a.classList.toggle("on", a.getAttribute("href").slice(1) === target);
-  const el = anchor && document.getElementById(anchor);
-  if (el) { el.scrollIntoView({ block: "start" }); el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); }
+  const view = document.querySelector('section[data-page="' + CSS.escape(page) + '"]') ? page : "";
+  const searching = words().length > 0;
+  cat.dataset.mode = searching ? "search" : view ? "view" : "overview";
+  for (const s of document.querySelectorAll("section[data-page]")) s.hidden = s.dataset.page !== view;
+  for (const a of cat.querySelectorAll(".hw-catalogue-rail a")) if (!searching && a.getAttribute("href") === "#" + view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  const el = !searching && (view ? anchor && document.getElementById(anchor) : page !== "overview" && page && document.getElementById(page));
+  if (el) { el.scrollIntoView({ block: "start" }); if (view) { el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); } }
   else scrollTo(0, 0);
 };
+// The search filters the tiles (catalogue.ts) and lists every token, colour, logo, file and photo
+// it hits that no shown tile already leads to.
 const search = () => {
-  const words = q.value.toLowerCase().split(/\\s+/).filter(Boolean);
-  results.classList.toggle("on", words.length > 0);
-  const hits = INDEX.filter((e) => words.every((w) => (e.t + " " + e.k + " " + (e.x || "")).toLowerCase().includes(w))).slice(0, 60);
-  results.querySelector("div").innerHTML = hits.map((e) => '<a href="#' + e.h + '"><span class="label">' + e.k + "</span>" + (e.k === "colour" ? '<i style="width:1rem;height:1rem;border-radius:0;border:1px solid var(--color-border);background:' + e.x.split(" ")[0] + '"></i>' : "") + "<strong>" + h(e.t) + "</strong><span class=meta>" + h(e.x || "").slice(0, 80) + "</span></a>").join("") || "<p>Nothing found.</p>";
+  const w = words();
+  const hit = (s) => w.every((x) => s.toLowerCase().includes(x));
+  const shown = new Set(tiles.filter((t) => hit(t.dataset.search)).map((t) => t.getAttribute("href")));
+  const hits = INDEX.filter((e) => !shown.has("#" + e.h) && hit(e.t + " " + e.k + " " + (e.x || ""))).slice(0, 60);
+  results.innerHTML = hits.length ? '<h2 class="label">Tokens, colours, logos and files</h2>' + hits.map((e) => '<a href="#' + e.h + '"><span class="label">' + e.k + "</span>" + (e.k === "colour" ? '<i style="width:1rem;height:1rem;border-radius:0;border:1px solid var(--color-border);background:' + e.x.split(" ")[0] + '"></i>' : "") + "<strong>" + h(e.t) + "</strong><span class=meta>" + h(e.x || "").slice(0, 80) + "</span></a>").join("") : shown.size ? "" : "<p>Nothing found.</p>";
   show();
 };
 q.addEventListener("input", search);
-// A hit on the page already open fires no hashchange, so the click shows it.
-results.addEventListener("click", (e) => { const same = e.target.closest("a")?.getAttribute("href") === location.hash; q.value = ""; results.classList.remove("on"); if (same) show(); });
+// A link followed from a search clears it; one to the page already open fires no hashchange, so
+// the cleared search shows it.
+cat.addEventListener("click", (e) => { if (!words().length || !e.target.closest('.hw-catalogue-main a[href^="#"]')) return; q.value = ""; q.dispatchEvent(new Event("input", { bubbles: true })); });
 addEventListener("hashchange", show);
-// The phone's top bar: one of Search or Menu is open at a time; a link, Escape or a tap outside
-// the drawer closes the menu.
-const side = document.querySelector("aside.side"), searchBtn = document.getElementById("search-btn"), menuBtn = document.getElementById("menu-btn");
-const bar = (open) => {
-  side.classList.toggle("searching", open === "search");
-  side.classList.toggle("menu", open === "menu");
-  searchBtn.setAttribute("aria-expanded", open === "search");
-  menuBtn.setAttribute("aria-expanded", open === "menu");
-  side.style.setProperty("--bar", side.getBoundingClientRect().bottom + "px");
-};
-searchBtn.addEventListener("click", () => { const open = !side.classList.contains("searching"); bar(open ? "search" : ""); if (open) q.focus(); });
-menuBtn.addEventListener("click", () => { const open = !side.classList.contains("menu"); bar(open ? "menu" : ""); if (open) side.querySelector("nav a")?.focus(); });
-side.addEventListener("click", (e) => { if (e.target === side && side.classList.contains("menu")) bar(""); });
-addEventListener("hashchange", () => { if (side.classList.contains("menu")) bar(""); });
-addEventListener("keydown", (e) => { if (e.key === "Escape" && side.classList.contains("menu")) { bar(""); menuBtn.focus(); } });
 // Keys as in Storybook: / or Cmd+K searches.
 addEventListener("keydown", (e) => {
   const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
@@ -916,7 +1039,8 @@ show();
 <script>
 // On GitHub Pages, links to the other two catalogues and to a system page with a public address
 // leave their local addresses for the public ones; a system page without one stays as its name, marked local only.
-if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; const name = a.hostname.slice(0, -".localhost".length); if (["brand", "slides", "documents"].includes(name)) a.href = "https://hackersandwizards.github.io/" + name + a.pathname + a.hash; else if (a.dataset.public) a.href = a.dataset.public; else a.replaceWith(a.textContent + " (local only)"); }
+const PUBLIC = ${JSON.stringify(PUBLIC)};
+if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; const name = a.hostname.slice(0, -".localhost".length); if (["brand", "slides", "documents"].includes(name)) a.href = "https://hackersandwizards.github.io/" + name + a.pathname + a.hash; else if (PUBLIC[a.href]) a.href = PUBLIC[a.href]; else if (a.matches(".hw-catalogue-tile")) { a.removeAttribute("href"); a.querySelector(".hw-catalogue-note").append(" (local only)"); } else a.replaceWith(a.textContent + " (local only)"); }
 </script>
 </body>
 </html>

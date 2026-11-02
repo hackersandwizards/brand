@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.29.1",
+  "version": "0.29.2",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component, list-marker and element checks a consumer runs in its gate, the list marker rule and the shared elements.",
   "keywords": [
@@ -95,7 +95,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v0.2.0",
+    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v0.3.0",
     "@types/bun": "1.4.4",
     "astro": "7.4.4",
     "eslint": "10.14.0",
@@ -107,5 +107,14 @@
   },
   "dependencies": {
     "puppeteer-core": "25.16.0"
+  },
+  "admin": {
+    "designSystem": "catalogue.html",
+    "products": [
+      {
+        "label": "Assets",
+        "href": "catalogue.html#logos"
+      }
+    ]
   }
 }
