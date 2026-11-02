@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import theme from "../generated/code-theme.json";
 import { codeClasses } from "../elements/code";
+import { colors } from "../generated/tokens";
 
 const span = (color: string, fontStyle = 0) => {
   const node = { properties: { style: `color:${color}` } as Record<string, unknown> };
@@ -28,4 +29,18 @@ test("the block takes hw-code and drops the theme's inline ground", () => {
   };
   codeClasses.pre(pre);
   expect(pre.properties).toEqual({ class: "astro-code hw-code-theme hw-code" });
+});
+
+test("the block's class is set once, even where the theme's name already gave it", () => {
+  const pre = { properties: { class: "astro-code hw-code" } as Record<string, unknown> };
+  codeClasses.pre(pre);
+  expect(pre.properties.class).toBe("astro-code hw-code");
+});
+
+test("the terminal's 16 ANSI colours are core colours", () => {
+  const core = new Set(Object.values(colors).map((c) => c.toLowerCase()));
+  const ansi = Object.entries(theme.colors).filter(([k]) => k.startsWith("terminal.ansi"));
+  expect(ansi).toHaveLength(16);
+  for (const [k, c] of ansi)
+    expect({ k, core: core.has(c.toLowerCase()) }).toEqual({ k, core: true });
 });

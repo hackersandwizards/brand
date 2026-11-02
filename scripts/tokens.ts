@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
 // generated/tokens.root.css (the @theme block as :root), tokens.json, tokens.ts and tokens.py, and
-// code-theme.json, the Shiki theme of the --code-* tokens.
+// code-theme.json, the Shiki theme of the --code-* tokens and the terminal's ANSI colours.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
@@ -142,13 +142,38 @@ const CODE_SCOPES: [string, string[]][] = [
   ["string/underline", ["constant.other.reference.link", "string.other.link"]],
 ];
 
+// A terminal's 16 ANSI colours on the code ground, each a core colour: Shiki's ansi language reads
+// them. Normal and bright differ only where the brand has a lighter step (blind panel, 2026-11-02).
+const ANSI: [string, string][] = [
+  ["Black", "night-subtle"],
+  ["Red", "red-night"],
+  ["Green", "green"],
+  ["Yellow", "amber"],
+  ["Blue", "teal-night"],
+  ["Magenta", "purple-night"],
+  ["Cyan", "teal-light"],
+  ["White", "night-muted"],
+  ["BrightBlack", "night-subtle"],
+  ["BrightRed", "factory-light"],
+  ["BrightGreen", "green"],
+  ["BrightYellow", "amber"],
+  ["BrightBlue", "teal-light"],
+  ["BrightMagenta", "purple-light"],
+  ["BrightCyan", "teal-light"],
+  ["BrightWhite", "night-ink"],
+];
+
 /** The Shiki theme of the --code-* tokens, named hw-code. */
 export const codeTheme = (tokens: Record<string, string>, colors: Record<string, string>) => {
   const code = (role: string) => colors[tokens[`--code-${role}`].slice(4, -1)];
   return {
     name: "hw-code",
     type: "dark",
-    colors: { "editor.background": code("bg"), "editor.foreground": code("fg") },
+    colors: {
+      "editor.background": code("bg"),
+      "editor.foreground": code("fg"),
+      ...Object.fromEntries(ANSI.map(([k, c]) => [`terminal.ansi${k}`, colors[`--color-${c}`]])),
+    },
     tokenColors: CODE_SCOPES.map(([role, scope]) => {
       const [name, fontStyle] = role.split("/");
       return { scope, settings: { foreground: code(name), ...(fontStyle && { fontStyle }) } };

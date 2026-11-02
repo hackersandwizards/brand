@@ -25,7 +25,7 @@ const STYLES = [
 function addClasses(node: Node, add: string[]) {
   const own = node.properties.class;
   const have = Array.isArray(own) ? own.map(String) : own ? String(own).split(/\s+/) : [];
-  node.properties.class = [...have, ...add].join(" ");
+  node.properties.class = [...new Set([...have, ...add])].join(" ");
 }
 
 /** The Shiki transformer: classes from the code palette, no inline style. */

@@ -3,7 +3,23 @@
   "type": "dark",
   "colors": {
     "editor.background": "#0b1118",
-    "editor.foreground": "#ebeced"
+    "editor.foreground": "#ebeced",
+    "terminal.ansiBlack": "#9da0a3",
+    "terminal.ansiRed": "#f26969",
+    "terminal.ansiGreen": "#4ade80",
+    "terminal.ansiYellow": "#f59e0b",
+    "terminal.ansiBlue": "#47aec6",
+    "terminal.ansiMagenta": "#b97af1",
+    "terminal.ansiCyan": "#a3c7ce",
+    "terminal.ansiWhite": "#cecfd1",
+    "terminal.ansiBrightBlack": "#9da0a3",
+    "terminal.ansiBrightRed": "#f29a80",
+    "terminal.ansiBrightGreen": "#4ade80",
+    "terminal.ansiBrightYellow": "#f59e0b",
+    "terminal.ansiBrightBlue": "#a3c7ce",
+    "terminal.ansiBrightMagenta": "#d4adf7",
+    "terminal.ansiBrightCyan": "#a3c7ce",
+    "terminal.ansiBrightWhite": "#ebeced"
   },
   "tokenColors": [
     {
