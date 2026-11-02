@@ -1,0 +1,42 @@
+---
+// One shared element's sample (scripts/element-demos.ts) at one scale, on light or night, in the
+// tile brand-elements counts (data-hw-tile, data-hw-version), with the focus ring turned on.
+import pkg from "../package.json";
+import { DEMOS } from "../scripts/element-demos";
+
+interface Props {
+  name: string;
+  scale?: "screen" | "dense" | "print" | "stage";
+  night?: boolean;
+}
+
+const { name, scale = "screen", night = false } = Astro.props;
+---
+
+<div
+  class="sample hw-focus-ring"
+  data-hw-tile={name}
+  data-hw-version={pkg.version}
+  data-hw-scale={scale}
+  data-theme={night ? "dark" : undefined}
+>
+  <Fragment set:html={DEMOS[name]} />
+</div>
+
+<style>
+  .sample {
+    padding: 1.5rem;
+    background: var(--color-white);
+    color: var(--color-ink);
+  }
+  .sample[data-theme="dark"] {
+    background: var(--color-night);
+    color: var(--color-night-ink);
+  }
+  .sample > :global(* + *) {
+    margin-top: 0.5em;
+  }
+  .sample :global(:is(p, blockquote, pre)) {
+    margin-block: 0;
+  }
+</style>

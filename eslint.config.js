@@ -11,6 +11,8 @@ export default tseslint.config(
       "tokens/**",
       "logos/**",
       "generated/**",
+      "dist/**",
+      "**/.astro/**",
     ],
   },
   js.configs.recommended,

@@ -19,7 +19,7 @@ needs no GitHub access.
 ```
 
 Then import what you need. The colours, each hue's roles (base, text on light, night, tints) and
-the chart order are in `tokens/tokens.css` and on the catalogue's Colours page.
+the chart order are in `tokens/tokens.css` and on the brand portal's Colours page.
 
 ```css
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
@@ -164,7 +164,9 @@ the frames where the host may not be framed), and give Astrobook's `css` the tok
 `elements.css`; the component brings `header.css` and `catalogue.css`. A page outside Astrobook renders
 `expert/components/Catalogue.astro` with its own groups; a generated page calls
 `renderCatalogue` from `@hackersandwizards/brand/catalogue` and links `header.css` and
-`catalogue.css`.
+`catalogue.css`. This shell has moved to `@hackersandwizards/scaffolding/catalog` (its `catalog()`
+preset at `/catalog/`, decision repo-uniformity-plan, 2026-11-02): `catalogue.css`, `catalogue`,
+`AstrobookHome` and `Catalogue` stay until every repository has switched, then leave in a release.
 
 ### The dropdown
 
@@ -357,13 +359,17 @@ its size and the credit. With the logos above, they make the ZIP the website's p
 
 ```sh
 bun install      # also points the git hooks at .githooks/
-bun run check      # format, lint, typecheck, tests on a fresh catalogue.html, generated/ up to date
-bun run catalogue  # write catalogue.html (not committed)
-bun run dev        # serve it on port 4326, written afresh on each request
+bun run check    # scaffolding's gate, then the built catalog's tests, generated/ and admin-check
+bun run dev      # the catalog on port 4326: http://localhost:4326/brand/
+bun run build    # dist/, as the Pages workflow publishes it
 ```
 
-Open `catalogue.html` from disk for the brand portal: tokens, logos, every family of brand files in
-use under `applications/`, the press kit, and a link to each system's own design-system page.
+The catalog is one Astro app in `catalog/`, in scaffolding's catalog shell. Its root is the brand
+portal, `catalog/portal.ts` run by the route `catalog/pages/index.html.ts`: tokens, logos, every
+family of brand files in use under `applications/`, the press kit, and a link to each system's own
+design-system page; the tracked files it links sit beside it (`catalog/files.ts`). The element
+stories (`catalog/stories/`) are at `/brand/catalog/`. `catalogue.html` forwards to the portal with
+its anchor. `dist/index.html` also opens from disk.
 
 A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
 tag in their dependency line. Every brand file changes here; the rest of the rules:

@@ -1,60 +1,16 @@
-# Publishes catalogue.html at https://hackersandwizards.github.io/brand/ (Benedikt 01.11., os row
-# catalogue-addresses: a public repo may have a public page).
+# Publishes the catalog build (dist/: the brand portal at the root, the element stories at
+# catalog/) at https://hackersandwizards.github.io/brand/ (Benedikt 01.11., os row
+# catalogue-addresses: a public repo may have a public page). The build pulls the LFS files the
+# portal shows itself (catalog/files.ts), past .lfsconfig's exclusions.
 name: Pages
 on:
   push:
     branches: [main]
   workflow_dispatch:
-permissions:
-  contents: read
-concurrency:
-  group: pages
-  cancel-in-progress: false
 jobs:
-  # The install runs dependencies' lifecycle scripts, so the build holds no deploy grant and no
-  # persisted checkout credentials: only the deploy job, which runs no code of ours, mints the
-  # Pages token.
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      # The catalogue shows and links the application files and emoji logos, which live in Git LFS
-      # and which .lfsconfig keeps from a clone. The print masters it never links stay out. The
-      # cache spares the LFS bandwidth quota on every push.
-      - run: git lfs ls-files --long > lfs-ids.txt
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .git/lfs/objects
-          key: lfs-${{ hashFiles('lfs-ids.txt') }}
-          restore-keys: lfs-
-      - run: git -c lfs.fetchexclude= lfs pull --exclude="logos/*.tif"
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-        with:
-          bun-version-file: package.json
-      - run: bun install --frozen-lockfile
-      - run: bun run catalogue
-      # Every tracked file outside the dot folders but the unlinked print masters, as `bun run dev`
-      # serves the checkout, the catalogue and its catalogue-assets/ just written (untracked), and the
-      # root forwarding to the catalogue as the local server does.
-      - run: |
-          mkdir _site
-          git ls-files -z -- ':!:.*' ':!:logos/*.tif' | xargs -0 cp --parents -t _site
-          cp -R catalogue.html catalogue-assets _site/
-          echo '<!doctype html><link rel="icon" href="logos/favicon.svg"><meta http-equiv="refresh" content="0; url=catalogue.html">' > _site/index.html
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: _site
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
+  pages:
+    uses: hackersandwizards/scaffolding/.github/workflows/pages.yml@v0.3.0
     permissions:
+      contents: read
       pages: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

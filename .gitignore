@@ -15,6 +15,6 @@ node_modules/
 # Python bytecode from uv run applications/channel-banners/render.py
 __pycache__/
 
-# Written by bun run catalogue, run by bun run check and bun run dev.
-catalogue.html
-catalogue-assets/
+# Astro: the catalog build and its generated types.
+dist/
+.astro/

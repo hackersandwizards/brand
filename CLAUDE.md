@@ -60,31 +60,37 @@ data or secret.
   the design-system page a consumer names in `brand-elements.json`, its element-named source and
   that page's coverage.
   A skill, script or document generator takes the file from the package, never a copy.
-- `catalogue.html`: the brand portal, generated from this repo's files only by
-  `scripts/catalogue.ts` and never committed: `bun run check`, `bun run dev` and the Pages workflow
-  each write it afresh, and the tests and `brand-elements` read that fresh file. Beside it,
-  equally uncommitted, `catalogue-assets/`: the elements as one stylesheet and the PNGs the inlined
-  SVGs embed, so the page loads files instead of base64 text and 23 imports per sample frame.
+- `catalog/`: the catalog, one Astro app in scaffolding's catalog shell (`catalog/astro.config.ts`,
+  preset `catalog()`), built to `dist/` and published by the reusable Pages workflow at
+  `https://hackersandwizards.github.io/brand/`. Its root is the brand portal, generated from this
+  repo's files only by `catalog/portal.ts`, which the route `pages/index.html.ts` runs in its own
+  process, with `catalogue-assets/` (the elements as one stylesheet, the shell's stylesheet and the
+  PNGs the inlined SVGs embed) from their own route and the tracked files it links copied beside it
+  (`files.ts`). The element stories sit in `catalog/stories/` at `/catalog/`. `catalogue.html`
+  forwards to the root with its anchor. The tests in `test/catalog/` read `dist/` after the build.
 
 ## Commands
 
-- `bun run check`: format, lint, typecheck, unique function names, tests (manifest hashes, tokens,
-  the two consumer checks, run on a freshly written `catalogue.html`) and the freshness of
-  `generated/`. No hook runs it:
+- `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
+  structure, coupling, unique names, confidential, the unit tests and the catalog build side by
+  side, then `check:catalog` (the built portal and stories, `brand-elements` over every story),
+  `check:tokens` (the freshness of `generated/`) and `check:admin`. No hook runs it:
   `.githooks/pre-commit` runs `bun run check:staged`: `gitleaks` over the staged changes,
-  `prettier --check` and `eslint` on the staged files. `bun install` points `core.hooksPath` at `.githooks/`.
+  `prettier --check` and `eslint` on the staged files; `commit-msg` runs `check-confidential` on the
+  message, `pre-push` refuses purged commits and hands the refs to `git lfs pre-push` (scaffolding's
+  skeleton hooks). `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
-- `bun run catalogue`: write `catalogue.html`, to open from disk.
-- `bun run dev`: serve the checkout on port 4326 for `http://brand.localhost` (Caddy, as for
-  `os.localhost`), writing the catalogue afresh on each request for it. The header links the slide and document specimens at `slides.localhost` and
-  `documents.localhost`, each served the same way from its own checkout.
+- `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server on port 4326 for
+  `http://brand.localhost` (Caddy, as for `os.localhost`), under `/brand/`; the portal reads the
+  working tree afresh on each request. `bun run build` writes `dist/`. The portal's header links the
+  slide and document specimens at `slides.localhost` and `documents.localhost`.
 
 ## Rules
 
 - A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
   Other repos take it from the package and never commit a copy of a brand file.
-- Nothing about another repo goes on `catalogue.html`: each system shows its components on its own
-  design-system page, whose URL `scripts/catalogue.ts` links.
+- Nothing about another repo goes on the portal: each system shows its components on its own
+  design-system page, whose URL `catalog/portal.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
   their OFL texts, small logos,
   the client marks, the press photos, `manifest.json`, the LinkedIn post renderers and prompts

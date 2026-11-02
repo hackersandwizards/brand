@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.31.0",
+  "version": "0.32.0",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component, list-marker and element checks a consumer runs in its gate, the list marker rule and the shared elements.",
   "keywords": [
@@ -78,17 +78,21 @@
   ],
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && git config core.hooksPath .githooks || true",
-    "check": "bun install --frozen-lockfile && bun run format:check && bun run lint && bun run typecheck && bun .claude/skills/engineering/check-unique-names.ts && bun scripts/catalogue.ts && bun test && bun scripts/tokens.ts --check && admin-check",
+    "check": "scaffolding check",
     "lint": "bun --bun eslint --cache --concurrency=auto .",
     "typecheck": "bun --bun tsc --noEmit",
     "format": "bun --bun prettier --write .",
     "format:check": "bun --bun prettier --check .",
     "fix": "bun --bun eslint --cache --concurrency=auto . --fix && bun --bun prettier --write .",
     "tokens": "bun scripts/tokens.ts",
-    "catalogue": "bun scripts/catalogue.ts",
-    "dev": "bun scripts/serve.ts",
-    "check:staged": "bun .claude/skills/engineering/check-staged.ts",
-    "lfs:pre-push": "git lfs pre-push"
+    "dev": "cd catalog && bun --bun astro dev",
+    "catalog": "bun run dev",
+    "build": "bun --bun astro build --root catalog",
+    "test": "bun test --path-ignore-patterns='test/catalog/**' --path-ignore-patterns='dist/**'",
+    "check:catalog": "bun test ./test/catalog/",
+    "check:tokens": "bun scripts/tokens.ts --check",
+    "check:admin": "admin-check",
+    "check:staged": "bun .claude/skills/engineering/check-staged.ts"
   },
   "overrides": {
     "minimatch": "11.0.3"
@@ -96,12 +100,15 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v0.4.1",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v0.3.0",
     "@types/bun": "1.4.4",
     "astro": "7.4.4",
+    "astrobook": "0.13.3",
     "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "prettier": "3.9.10",
     "sharp": "0.35.5",
+    "stylelint": "17.16.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1"
   },
@@ -109,12 +116,36 @@
     "puppeteer-core": "25.16.0"
   },
   "admin": {
-    "designSystem": "https://hackersandwizards.github.io/brand/catalogue.html",
+    "designSystem": "https://hackersandwizards.github.io/brand/",
     "products": [
       {
         "label": "Assets",
-        "href": "https://hackersandwizards.github.io/brand/catalogue.html#logos"
+        "href": "https://hackersandwizards.github.io/brand/#logos"
       }
+    ]
+  },
+  "scaffolding": {
+    "allow": [
+      {
+        "check": "confidential",
+        "path": ".claude/skills/voice/personal-voice.md",
+        "reason": "the German verb in a quoted phrase of the hub-synced voice skill; the capitals rule drops it once the term list is rebuilt"
+      },
+      {
+        "check": "confidential",
+        "path": ".claude/skills/voice/signature-phrases.md",
+        "reason": "the German verb in a quoted phrase of the hub-synced voice skill; the capitals rule drops it once the term list is rebuilt"
+      }
+    ],
+    "test": "test",
+    "uniqueNames": [
+      "GET",
+      "getStaticPaths"
+    ],
+    "check": [
+      "check:catalog",
+      "check:tokens",
+      "check:admin"
     ]
   }
 }

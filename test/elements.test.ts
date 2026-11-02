@@ -363,13 +363,6 @@ test("the screen preset sets every setting an element reads", () => {
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });
 
-// The catalogue's own styles leave its element samples alone.
-test("the catalogue's samples match their rules", async () => {
-  const r = await measurePage(browser, join(ROOT, "catalogue.html"));
-  expect(r.seen.length).toBe(21);
-  expect(r.findings).toEqual([]);
-}, 60_000);
-
 // Decision ds-roll-trainer-hub-compact (2026-11-02): os 13 px, trainer hub 14 px, both dense.
 test("dense with data-hw-type=regular takes the expert set's regular text, dense alone 13 px", async () => {
   const p = await browser.newPage();

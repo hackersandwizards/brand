@@ -1,4 +1,6 @@
 /* Banner components. A sheet is the file format: final format plus 20 mm bleed (Pixlip GO). */
+/* stylelint-disable csstools/value-no-unknown-custom-properties -- each banner's size, padding,
+   wordmark, heading, QR and URL sizes arrive per sheet as inline style from generate.ts. */
 * {
   margin: 0;
   box-sizing: border-box;

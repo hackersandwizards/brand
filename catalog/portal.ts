@@ -1,26 +1,28 @@
 #!/usr/bin/env bun
-// Writes catalogue.html, the brand portal: one file opened from disk in the catalogue shape every
-// design system shares (renderCatalogue, header.css, catalogue.css), whose search also lists every
-// token, colour, logo, file and photo, and one view per area below the tiles (colours, type,
-// tokens, elements, logos, applications, press kit). It reads this repo's files only. The page is
-// not committed: `bun run check`, `bun run dev` and the Pages workflow each write it afresh.
-// Usage: bun scripts/catalogue.ts
+// The brand portal: one page in the catalog shape every repository shares (scaffolding's
+// renderCatalog and catalog.css, brand's header.css), whose search also lists every token, colour,
+// logo, file and photo, and one view per area below the tiles (colours, type, tokens, elements,
+// logos, applications, press kit). It reads this repo's files only. Run as its own process by the
+// catalog's routes (pages/index.html.ts, pages/catalogue-assets/), so it reads the working tree
+// afresh on each dev request; it prints the page and its assets as JSON and writes nothing.
+// Usage: bun catalog/portal.ts
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { basename, join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
 import logoRules from "../logos/logos.json";
 import press from "../press/press.json";
-import { ROOT } from "./git";
-import { DEMOS } from "./element-demos";
+import { ROOT } from "../scripts/git";
+import { DEMOS } from "../scripts/element-demos";
 import { MARK } from "../applications/avatars/generate";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
-import { parseTokens, resolveColors, SOURCE } from "./tokens";
-import { type CatalogueGroup, renderCatalogue } from "../expert/catalogue";
+import { parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
+import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
 
 const tokens = parseTokens(readFileSync(SOURCE, "utf8"));
 const colors = resolveColors(tokens);
@@ -36,17 +38,21 @@ const table = (head: string[], rows: unknown[][]) =>
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 // An SVG inlined more than once keeps its internal ids unique on the page: each one takes a prefix.
-// Files the page loads beside catalogue.html, written with it (catalogue-assets/, untracked): the
-// elements as one stylesheet, so each sample frame loads one file instead of elements.css and its
-// 23 imports, and each PNG an inlined SVG embeds, so the HTML carries no image as base64 text (the
-// MacBook stickers' wizard was 0.95 MB of 1.28 MB).
+// Files the page loads beside it (catalogue-assets/, served by their own route): the elements as
+// one stylesheet, so each sample frame loads one file instead of elements.css and its 23 imports,
+// the catalog shell's stylesheet, and each PNG an inlined SVG embeds, so the HTML carries no image
+// as base64 text (the MacBook stickers' wizard was 0.95 MB of 1.28 MB).
 const ASSETS = "catalogue-assets";
-mkdirSync(join(ROOT, ASSETS), { recursive: true });
+const assets: Record<string, string> = {};
 const writeAsset = (name: string, content: string | Buffer) => {
-  const path = join(ROOT, ASSETS, name);
-  if (!existsSync(path) || !readFileSync(path).equals(Buffer.from(content)))
-    writeFileSync(path, content);
+  assets[name] = Buffer.from(content).toString("base64");
 };
+writeAsset(
+  "catalog.css",
+  readFileSync(
+    createRequire(import.meta.url).resolve("@hackersandwizards/scaffolding/catalog/catalog.css"),
+  ),
+);
 writeAsset(
   "elements.css",
   readFileSync(join(ROOT, "elements/elements.css"), "utf8").replace(
@@ -187,28 +193,6 @@ const LOGO_NOTES: Record<string, string> = {
     "The lockup as a smaller file (the wizard embedded at 128 px, 15 KB instead of 50 KB), identical on screen, for a header up to 40 px tall.",
   wordmark: "The wordmark alone. Its white and black cuts carry every letter in that one colour.",
 };
-// Which logo goes where, as the design guide's logo table states it.
-const LOGO_USE = [
-  [
-    "Every surface without its own row: screens, documents, website, banners, notebook, cloths",
-    "lockup",
-  ],
-  ["Slides", "lockup on the title and the closing slide, wordmark on every other slide"],
-  ["A screen header up to 40 px tall, such as the website's", "lockup-screen"],
-  [
-    "The 1 x 1 m booth banner",
-    "wordmark, the large wizard below it, under Booth banners (an exception of 01.11.)",
-  ],
-  ["Shirts, hoodie, stickers", "wordmark"],
-  ["The second sticker, beside the wordmark sticker", "the wizard alone, die-cut, under Merch"],
-  ["A product app's sign-in screens", "wordmark, the heading may be in the sans face"],
-  ["Small spots: mug", "lockup-compact"],
-  [
-    "A surface that allows one colour only, such as a partner wall in white",
-    "wordmark-white or wordmark-black",
-  ],
-  ["Mail signature", "its typed wordmark, under Applications"],
-];
 // Clear space and minimum width from logos/logos.json, on the cards of the logos it names.
 const logoRule = (base: string) => {
   const rule = (logoRules.logos as Record<string, { minWidthPx: number; minWidthMm: number }>)[
@@ -690,7 +674,7 @@ const familyPreview = (f: Family) => {
 // One group per view, named so its anchor is the view's key: the rail opens the view itself.
 const swatches = (names: string[]) =>
   `<span class="pv-colours">${names.map((k) => `<span style="background:var(${k})"></span>`).join("")}</span>`;
-const groups: CatalogueGroup[] = [
+const groups: CatalogGroup[] = [
   {
     name: "Colours",
     items: [
@@ -833,7 +817,7 @@ ${table(
   [
     ["Tokens", code("bun run tokens")],
     ["Logo cuts", code("bun scripts/outline.ts")],
-    ["This page", code("bun run catalogue")],
+    ["This page", code("bun run dev")],
   ],
 )}</div>
 </div>`;
@@ -847,16 +831,13 @@ const pages: [string, string, string][] = [
     "logos",
     "Logos",
     `<p>${logoCount} logos, each one line. The ground picks the cut: on light the day file; on night, black and black textile the night cut, with a grey edge round the wizard; on Purple Love, Stargazer and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Gap, lift and alignment: <code>README.md</code>, "Use it in another repo".</p>
-${table(
-  ["Surface", "Logo"],
-  LOGO_USE.map(([where, logo]) => [esc(where), esc(logo)]),
-)}
+<p>Which logo goes on which surface: the logo table of the Brand Guide in Company OS, which owns it.</p>
 ${logosHtml}`,
   ],
   ["applications", "Applications: the brand in use", applicationsHtml],
   ["pressekit", "Pressekit", pressHtml],
 ];
-const catalogue = renderCatalogue({
+const catalogue = renderCatalog({
   title: "hackers&wizards brand",
   lead: "Everything the hackers&wizards brand is made of: tokens, logos, the files made from them and the press kit. Each system shows its components on its own design-system page.",
   provenance: `brand v${pkg.version} · tokens/tokens.css, manifest.json, applications/, press/ · ${entries} entries`,
@@ -878,7 +859,7 @@ const html = `<!doctype html>
 <link rel="stylesheet" href="tokens/marker.css">
 <link rel="stylesheet" href="expert/header.css">
 <link rel="stylesheet" href="${ASSETS}/elements.css">
-<link rel="stylesheet" href="expert/catalogue.css">
+<link rel="stylesheet" href="${ASSETS}/catalog.css">
 <style>
   /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
@@ -1022,6 +1003,7 @@ const html = `<!doctype html>
 <a class="hw-header-brand" href="#overview" aria-label="hackers&amp;wizards Brand"><img class="hw-header-logo" src="logos/lockup-screen.svg" alt="" width="8042" height="1489"><img class="hw-header-logo-night" src="logos/lockup-screen-night.svg" alt="" width="8196" height="1641"><span class="hw-header-product">Brand</span></a>
 <nav class="hw-header-nav" aria-label="Main">
 <a class="hw-header-link" href="#overview" aria-current="page">Brand</a>
+<a class="hw-header-link" href="catalog/">Catalog</a>
 <a class="hw-header-link" href="http://slides.localhost/">Slides</a>
 <a class="hw-header-link" href="http://documents.localhost/">Dokumente</a>
 </nav>
@@ -1083,5 +1065,4 @@ if (location.hostname.endsWith(".github.io")) for (const a of document.querySele
 </html>
 `;
 
-writeFileSync(join(ROOT, "catalogue.html"), html);
-console.log("wrote catalogue.html");
+console.log(JSON.stringify({ html, assets }));

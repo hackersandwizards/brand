@@ -8,9 +8,11 @@
     "noEmit": true,
     "skipLibCheck": true,
     "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true,
     "types": ["bun"]
   },
   "include": [
+    "catalog/**/*.ts",
     "scripts/**/*.ts",
     "scan/**/*.ts",
     "test/**/*.ts",
