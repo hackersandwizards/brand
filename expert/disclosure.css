@@ -59,11 +59,12 @@
     }
   }
 
+  /* The expert set's micro step where a page loads it (11 px under the compact tier), else 12 px. */
   .hw-disclosure-count {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--text-micro, 0.75rem);
     font-weight: 500;
-    line-height: calc(16 / 12);
+    line-height: var(--text-micro--line-height, calc(16 / 12));
     padding: 0.0625rem 0.375rem;
     border-radius: var(--radius-pill);
     color: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
