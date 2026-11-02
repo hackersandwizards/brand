@@ -1,19 +1,21 @@
 # Git hooks
 
-Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `prepare` script sets `core.hooksPath`, never in user-global git config). Each hook is one line calling a package.json script.
+Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `prepare` script sets `core.hooksPath`, never in user-global git config). Each hook calls a package.json script, except `post-merge` and `post-checkout`, which run `bun install` themselves.
 
 ## What fires when
 
-| Hook         | Trigger                                        | Runs                                                                                                            |
-| ------------ | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `pre-commit` | every commit that is not a conflict-free merge | `bun run check:staged`: `gitleaks` over the staged changes, `prettier --check` and `eslint` on the staged files |
-| `pre-push`   | every push                                     | `bun run lfs:pre-push`: the LFS upload                                                                          |
+| Hook            | Trigger                                                     | Runs                                                                                                            |
+| --------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `pre-commit`    | every commit that is not a conflict-free merge              | `bun run check:staged`: `gitleaks` over the staged changes, `prettier --check` and `eslint` on the staged files |
+| `pre-push`      | every push                                                  | `bun run lfs:pre-push`: the LFS upload                                                                          |
+| `post-merge`    | a merge that changed `bun.lock` or `package.json`           | `bun install --frozen-lockfile`, quiet; a failure never fails the merge and shows as the gate's first step      |
+| `post-checkout` | a branch checkout that changed `bun.lock` or `package.json` | the same install                                                                                                |
 
 `check:staged` runs `.claude/skills/engineering/check-staged.ts`, which every repository shares.
 
 ## LFS
 
-`core.hooksPath` bypasses `.git/hooks/`, so `pre-push` runs `git lfs pre-push` itself and fails when `git-lfs` is missing or the upload fails: a push never carries pointers without their objects. Smudging on checkout and merge is the LFS filter's job, not a hook's. Git LFS's `post-checkout`, `post-commit` and `post-merge` hooks only make `lockable` files read-only, and `.gitattributes` declares none, so this repo carries none of them.
+`core.hooksPath` bypasses `.git/hooks/`, so `pre-push` runs `git lfs pre-push` itself and fails when `git-lfs` is missing or the upload fails: a push never carries pointers without their objects. Smudging on checkout and merge is the LFS filter's job, not a hook's. Git LFS's `post-checkout`, `post-commit` and `post-merge` hooks only make `lockable` files read-only, and `.gitattributes` declares none, so this repo carries no `post-commit`, and its `post-checkout` and `post-merge` leave Git LFS out.
 
 ## Troubleshooting
 
