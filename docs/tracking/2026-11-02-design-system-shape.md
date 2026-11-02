@@ -282,7 +282,9 @@ Abdeckungs-Check) und übernimmt nur die Seitenform. hycle-private braucht vorer
 
 ## Was offen bleibt
 
-- Nicht gebaut: alles im Bauplan. Nicht gemessen: Astrobook mit echter Marken-Hülle, Storybook mit
+- Gebaut seit diesem Bericht: der Bauplan in Phase 2 (`2026-11-02-design-system-phase2.md`, brand
+  v0.29.0 bis v0.30.0). trainer-hub liest nach Benedikts Entscheidung vom 02.11. (ds-roll-trainer-hub-compact)
+  14 px statt der kompakten 13 px (trainer-hub c99277d0). Zum Zeitpunkt dieses Berichts nicht gemessen: Astrobook mit echter Marken-Hülle, Storybook mit
   angepasster Hülle, die Katalogform in Nacht und am Telefon, trainer-hub in kompakt.
 - Die Deals-Tabelle vom 26.10. nur in der Gruppenansicht gemessen; heute ist die Tabellenansicht
   Standard. Die Daten unterscheiden sich zwischen den Ständen, die Zeilenzahlen vergleichen den

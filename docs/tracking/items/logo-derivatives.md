@@ -1,8 +1,8 @@
 ---
 kind: decision
 status: assumed
-priority: 3
-order: 1
+priority: 2
+order: 3
 area: brand
 owner: Benedikt
 recommended: a

@@ -18,5 +18,5 @@ kept as brand's, night defaults). What remains:
    (`--accent-soft`, `--result-soft`, a hue at 7 % on white) have no brand token yet.
 2. The elements' own night rules (`row.css`, `facts.css`, `card.css` and others) still mix white at
    15 or 18 %; whether they take `--color-night-line` needs a review on os and trainer-hub night.
-3. trainer-hub pins slides v0.24.1 and documents v0.3.1, os documents v0.3.0: raising them follows
-   their own releases.
+3. trainer-hub pins slides v0.24.1 and documents v0.3.1 on origin/main (02.11. evening); raising
+   them follows their own releases. os is raised (documents v0.5.1, mail v0.2.0).
