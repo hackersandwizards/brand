@@ -6,7 +6,7 @@ The document components the PDFs are built from are the document engine,
 `@hackersandwizards/documents`.
 
 Maintainer: Benedikt Stemmildt. The repo is public, its history included, so nothing goes in
-that may not be public.
+that may not be public. To change the package itself, see [Work on the package](#work-on-the-package).
 
 ## Use it in another repo
 
@@ -76,6 +76,8 @@ These commands and the exported files above are the whole interface: any other p
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
 on disk reads it at `node_modules/@hackersandwizards/brand/<target>`, the target the export maps it to
 (`./fonts/*` to `tokens/fonts/*`).
+
+### The logo
 
 The logo is one line, with no line under it: the wizard beside the pixel wordmark,
 `logos/lockup.svg`, is the standard; the wordmark alone, `logos/wordmark.svg`, goes on textiles
@@ -148,25 +150,13 @@ page links or inlines it; an Astro app renders `expert/components/AppHeader.astr
 the slot; a React app writes the same markup. Each product keeps its own nav items; page content
 takes the same width with the class `hw-container`.
 
-### The design-system catalogue
+### The catalog
 
-Every h&w repository shows its design system in Astrobook at `/design-system/`, and its home in one
-shape (decisions design-system-tool and catalogue-shape, 2026-11-02): the internal header, a rail
-with search and the groups with their counts, the title and lead, a provenance line in mono, and
-an `hw-card` tile per component, grouped by its first folder under the stories directory, drawing
-its first state. Set Astrobook's `home` to a page of the repository's own that renders
-`expert/components/AstrobookHome.astro` with Astrobook's story modules and global config
-(`virtual:astrobook/story-modules.mjs`, `virtual:astrobook/global-config.mjs`) as `modules` and
-`config`, and `product`, `title`, `lead` and `source`, its
-foundations (tokens, element tiles) in the default slot (`previewSize` draws a fixed viewport
-such as a slide's 1440 x 810 whole, `groupOrder` puts named groups first, `previews={false}` drops
-the frames where the host may not be framed), and give Astrobook's `css` the tokens and
-`elements.css`; the component brings `header.css` and `catalogue.css`. A page outside Astrobook renders
-`expert/components/Catalogue.astro` with its own groups; a generated page calls
-`renderCatalogue` from `@hackersandwizards/brand/catalogue` and links `header.css` and
-`catalogue.css`. This shell has moved to `@hackersandwizards/scaffolding/catalog` (its `catalog()`
-preset at `/catalog/`, decision repo-uniformity-plan, 2026-11-02): `catalogue.css`, `catalogue`,
-`AstrobookHome` and `Catalogue` stay until every repository has switched, then leave in a release.
+Every h&w repository with a surface shows its components in a catalog at `/catalog/`, built on
+`@hackersandwizards/scaffolding/catalog` (its README says how). Give the preset's `css` the tokens
+and `elements.css`; its default header is this package's `AppHeader.astro` and `header.css`. The
+older shell here, `catalogue.css`, `catalogue` (`renderCatalogue`), `AstrobookHome.astro` and
+`Catalogue.astro`, stays until every repository has switched, then leaves in a release.
 
 ### The dropdown
 
@@ -206,7 +196,7 @@ an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed
 
 Your design-system page shows each hub element you use as a tile,
 `<div data-hw-tile="card" data-hw-version="<brand version>">` holding the element in your medium,
-marked "aus brand v<version>" with a link to the catalogue, and each element you keep as your own
+marked "aus brand v<version>" with a link to the brand catalog, and each element you keep as your own
 in full with its reason, `<section data-hw-exception="<name>">`. List both in
 `brand-elements.json` at your repo's root:
 
@@ -228,7 +218,7 @@ An exception's instance on a real page carries `data-hw-exception="<name>"` too:
 inside it is that exception, not measured. `files` exempts a stylesheet of the system's own medium
 from the source check.
 
-and run `brand-elements` in your `bun run check`. It fails on an element on the pages whose
+Run `brand-elements` in your gate as a script such as `"check:elements": "brand-elements"`. It fails on an element on the pages whose
 computed corner, fill, line, text colour, type, padding or size differs from the brand rule at the
 same scale and theme (a reference beside it styled only by this package), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
 callout, note; quote) that sets a property that element owns (a card's corner, fill, line or
@@ -262,10 +252,16 @@ A standalone SVG cannot name a token, so there a token hex counts nothing, and n
 the package derives from the tokens: a token colour on white at 7 % or at any 5 % step, and a hue
 row's text colour at 70 % with ink, within 1 per channel. A shadow's colour counts in `shadow` only.
 
-Add it to your `bun run check`:
+Add it to your gate as a `check:<what>` script that scaffolding's `scaffolding.check` runs:
 
 ```json
-"check": "... && brand-colours && brand-copies"
+{
+  "scripts": {
+    "check:colours": "brand-colours",
+    "check:copies": "brand-copies"
+  },
+  "scaffolding": { "check": [["check:colours", "check:copies"]] }
+}
 ```
 
 An exception goes in `brand-colours.json` beside your `package.json`, one entry per file with its
@@ -359,8 +355,8 @@ its size and the credit. With the logos above, they make the ZIP the website's p
 
 ```sh
 bun install      # also points the git hooks at .githooks/
-bun run check    # scaffolding's gate, then the built catalog's tests, generated/ and admin-check
-bun run dev      # the catalog on port 4326: http://localhost:4326/brand/
+bun run check    # scaffolding's shared steps (admin-check among them), then the built catalog's tests and generated/
+bun run dev      # the catalog: http://127.0.0.1:4326/brand/
 bun run build    # dist/, as the Pages workflow publishes it
 ```
 

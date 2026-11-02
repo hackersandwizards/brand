@@ -76,12 +76,12 @@ data or secret.
   check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements`
   over every story) and `check:tokens` (the freshness of `generated/`). No hook runs it:
   `.githooks/pre-commit` runs `bun run check:staged`, scaffolding's `check-staged`: `gitleaks`,
-  coupling and confidential over the staged changes, `prettier --check` and `eslint` on the staged files; `commit-msg` runs `check-confidential` on the
+  coupling and confidential over the staged changes, `prettier --check` and `eslint` on the staged files, `admin-check` when an item is staged; `commit-msg` runs `check-confidential` on the
   message, `pre-push` refuses the commits `.confidential-purged.json` lists (the 248 the 02.11. rewrite replaced) and hands the refs to `git lfs pre-push` (scaffolding's
   skeleton hooks). `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
-- `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server on port 4326 for
-  `http://brand.localhost` (Caddy, as for `os.localhost`), under `/brand/`; the portal reads the
+- `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
+  `http://127.0.0.1:4326/brand/` (`http://brand.localhost` where Caddy proxies it); the portal reads the
   working tree afresh on each request. `bun run build` writes `dist/`. The portal's header links the
   slide and document catalogs on their Pages sites (`https://hackersandwizards.github.io/<repo>/catalog/`).
 
