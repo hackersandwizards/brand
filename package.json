@@ -125,18 +125,7 @@
     ]
   },
   "scaffolding": {
-    "allow": [
-      {
-        "check": "confidential",
-        "path": ".claude/skills/voice/personal-voice.md",
-        "reason": "the German verb in a quoted phrase of the hub-synced voice skill; the capitals rule drops it once the term list is rebuilt"
-      },
-      {
-        "check": "confidential",
-        "path": ".claude/skills/voice/signature-phrases.md",
-        "reason": "the German verb in a quoted phrase of the hub-synced voice skill; the capitals rule drops it once the term list is rebuilt"
-      }
-    ],
+    "allow": [],
     "test": "test",
     "uniqueNames": [
       "GET",
