@@ -250,8 +250,11 @@ html[data-theme="dark"] {
   @apply rounded-sm border border-border px-4 py-2 text-ui transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent;
 }
 
+/* A link to a record or out of the app, beside labels: teal text after an icon naming where it
+   leads, never a chip (os decision label-system C, 2026-11-01). The muted variant is a value
+   only read, a grey pill. */
 .chip-link {
-  @apply inline-flex items-center gap-1 rounded-full bg-muted/40 px-2.5 py-0.5 text-ui text-foreground/70 transition-colors hover:bg-accent/15 hover:text-accent;
+  @apply inline-flex items-center gap-1 text-ui text-accent transition-colors hover:text-accent-light;
 }
 .chip-link-muted {
   @apply inline-flex items-center gap-1 rounded-full bg-muted/40 px-2.5 py-0.5 text-ui text-foreground/70;

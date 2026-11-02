@@ -5,7 +5,8 @@ interface Props {
   label?: string;
   title?: string;
   as?: "span" | "button";
-  emphasis?: "muted" | "strong";
+  /** No value set: a line in the text colour on no fill; `color` then sets only the text. */
+  unset?: boolean;
   size?: "xs" | "sm" | "md";
   class?: string;
   id?: string;
@@ -23,7 +24,7 @@ const {
   label,
   title,
   as = "span",
-  emphasis = "muted",
+  unset = false,
   size = "sm",
   class: extraClass = "",
   id,
@@ -41,12 +42,17 @@ const sizeClass =
       ? "px-1.5 py-0.5 text-ui leading-none min-h-[20px]"
       : "px-2 py-0.5 text-ui leading-none min-h-[22px]";
 
-// The transparent border reserves a strong pill's border width, keeping a mixed row aligned.
+// One meaning per property (os decision label-system C, 2026-11-01): a pill that changes its value
+// here, a button with words, takes the small corner of a button or field; one only read, and a
+// button holding only an icon, stays round. A line means no value set, never emphasis. The
+// transparent border reserves the line's width, keeping a mixed row aligned.
+const editable = as === "button" && (label !== undefined || Astro.slots.has("default"));
 const classes = [
-  "inline-flex items-center gap-1 rounded-full font-medium whitespace-nowrap border",
+  "inline-flex items-center gap-1 font-medium whitespace-nowrap border",
+  editable ? "rounded-sm" : "rounded-full",
   sizeClass,
   color,
-  emphasis === "strong" ? "border-current/25 shadow-card" : "border-transparent",
+  unset ? "border-current/40" : "border-transparent",
   as === "button" ? "cursor-pointer select-none transition-colors" : "",
   extraClass,
 ]

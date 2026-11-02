@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "47d44aa075611731fa2fa675ef320cf5823632f1dc6c4c0eabf13602b4fee9e1"
+      "sha256": "ce7ae566dd53056eff62965ea2e9931b4117ab5964af254b207fdf6b71780f6a"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -254,7 +254,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "418f1fcbfbaabc806423f762a531758aabb18233a8e8339d115fc29fa96e749c"
+      "sha256": "ffccc9f8834e0ef15c12adc8c95195451c9fee80c61d36b111a809c4c12d82aa"
     },
     {
       "path": "expert/header.css",
@@ -290,7 +290,7 @@
     },
     {
       "path": "expert/components/Pill.astro",
-      "sha256": "a08dd99e48eb9d6d0bd6ac0bc218634f795a452b753dbbb237f637728ae0e944"
+      "sha256": "cefa49174e2d89f863d22d40b5c7254f3d5f52be4228d1dd9ad1aac76993af08"
     },
     {
       "path": "expert/components/SpaceNav.astro",

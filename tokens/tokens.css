@@ -10,7 +10,8 @@
      holds only an icon (play, pause, previous, next, theme), on every surface; one over a picture
      is solid teal with a white icon. Buttons and fields by audience: the brand corner on client
      surfaces (website, certificate verifier, documents), sm in the apps (expert.css), decision
-     shared-elements r1, 2026-11-01. */
+     shared-elements r1, 2026-11-01. In the apps a label changed where it shows takes sm too, one
+     only read stays pill (os decision label-system C, 2026-11-01). */
   --radius-sm: 5px;
   --radius-brand: 20px 5px;
   --radius-pill: 9999px;
