@@ -13,5 +13,5 @@ das wir ein gutes dezentrales hub-spoke design system über alle repos haben“.
 Limits: each spoke switches in its own repository, measured before and after in pixels; a visible
 change gets a blind review, and a spoke keeps a local exception only where it scores clearly better
 or the decision keeps the element per system. Every spoke (documents, slides, website, certificate-verifier, trainer-hub, os, talks) runs
-`brand-elements` green in its own gate and the `shared-elements` row has left `items.js` (brand
-v0.27.14).
+`brand-elements` green in its own gate, and the `shared-elements` decision is carried out and closed
+(brand v0.27.14).

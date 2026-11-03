@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 400
+order: 490
 owner: a documents session
 evidence: "documents `brand-elements.json`"
 ---
