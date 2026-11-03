@@ -84,8 +84,9 @@
   }
 
   /* Code in JetBrains Mono, whose ascent and descent round apart from Inter's, made the first line
-     a pixel taller at some sizes (11pt at 1.35 to 1.75: the marker 0.94px low), moving the baseline the
-     marker is placed on. Its inline box takes no height; its background still covers the glyphs. */
+     a pixel taller at some sizes (11pt at 1.35 to 1.75: the marker 0.94px low), moving the baseline
+     the marker is placed on. Its inline box takes no height; its background still covers the
+     glyphs. */
   ul > li :is(code, kbd, samp) {
     line-height: 0;
   }

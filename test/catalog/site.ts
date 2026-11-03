@@ -1,5 +1,3 @@
-// The built catalog (dist/, `bun run build`), which the tests in this folder read after the build,
-// and a server for it under the Pages base on a port the system hands out.
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT } from "../../scripts/git";

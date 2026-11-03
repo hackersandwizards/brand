@@ -144,11 +144,16 @@ test("skips the documents engine's style elements in a composed document, reads 
   expect(scanSource(`<html><head>${engine}</head><body></body></html>`, ".html").counts).toEqual(
     zero,
   );
-  // The same rules in a style element the engine did not write, and beside the engine's, count.
   const hand = scanSource(`<html><head><style>${css}</style></head></html>`, ".html").counts;
   expect(hand).toEqual({ ...zero, hex: 1, tokenHex: 1, radius: 1 });
   expect(scanSource(`${engine}<p style="color: #123456">x</p>`, ".html").counts).toEqual({
     ...zero,
     hex: 1,
   });
+});
+
+test("a glob string in script reads as no comment", () => {
+  const config = `export default { content: ["./src/*"], theme: { color: "#123456" }, ignore: ["**/x"] };`;
+  expect(scanSource(config, ".ts").counts).toEqual({ ...zero, hex: 1 });
+  expect(scanSource(`const a = 1; /* #123456 */`, ".ts").counts).toEqual(zero);
 });

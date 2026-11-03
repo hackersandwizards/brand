@@ -8,7 +8,8 @@
    Markup: <a class="hw-arrow-link">Label<span class="hw-arrow" aria-hidden="true">&nbsp;<span>→</span></span></a>
 
    Settings:
-     --hw-arrow-link-pad  block padding, keeping a 44 px target on one line */
+     --hw-arrow-link-pad  block padding, keeping a 44 px target on one line
+     --hw-muted           the muted grey, where a surface's --color-muted means something else */
 
 @layer components {
   .hw-arrow-link {
@@ -20,7 +21,7 @@
     color: var(--color-ink);
   }
   .hw-arrow-link[data-tone="muted"] {
-    color: var(--color-muted);
+    color: var(--hw-muted, var(--color-muted));
   }
   .hw-arrow {
     white-space: nowrap;

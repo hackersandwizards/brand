@@ -32,7 +32,6 @@ export const PLACEMENT = {
 
 // Silver only: the placement is the same on every finish, and the night sticker reads on silver.
 const F = { body: ["#dfe1e4", "#c3c6cb"], logo: "#a7abb2", edge: "#9da1a8" };
-// The measure's ink, the brand's teal-dark and ink.
 const LINE = colors["--color-teal-dark"];
 const INK = colors["--color-ink"];
 

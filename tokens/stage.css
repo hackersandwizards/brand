@@ -11,8 +11,8 @@
    --slide-stage (1.5), read from the role tokens, never copied. A fluid role resolves to its largest
    step on a slide: the slide's rem is 1.1111vw, so each clamp's preferred value lands above its
    maximum at any stage size. At 1920 a rem is 21.333px, so body reaches 32px and card text 36px,
-   the Meet floor (18pt on the slide, half that in a 960px Meet window). Line heights stay the slide's own,
-   tighter than the website's reading rhythm, so a projected card holds its text.
+   the Meet floor (18pt on the slide, half that in a 960px Meet window). Line heights stay the
+   slide's own, tighter than the website's reading rhythm, so a projected card holds its text.
 
    Tailwind step  role                    size with the tokens of 2026-10-28
    text-xs        label                   0.75 x 1.5 = 1.125rem

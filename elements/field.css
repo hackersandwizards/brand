@@ -2,9 +2,10 @@
    is white with a border-strong hairline (3:1, WCAG 1.4.11), ink on hover, amber-dark when
    aria-invalid; the brand corner; 48 px tall; its text in the body role, its placeholder muted.
    data-joined on hw-field-row sets field and button in one framed row, the button a teal-dark
-   square holding an icon (the website's search), both 44 px tall; without it the button is an hw-button beside the
-   field, 0.75rem apart, stacking under 40rem (the verifier's lookup). On night the field is
-   night-2 with a night-muted line and white text.
+   square holding an icon (the website's search), both 44 px tall; without it the button is an
+   hw-button beside the field, 0.75rem apart, stacking under 40rem (the verifier's lookup). On night
+   the field is night-2 with a night-muted line and white text, white on hover, amber when
+   aria-invalid; the joined row night-2 with a night line.
 
    Markup: <div class="hw-field-row"><input class="hw-field"><button class="hw-button">…</button></div>
 
@@ -12,7 +13,8 @@
      --hw-field-height  the field's least height
      --hw-field-pad     its inline padding
      --hw-field-family  its family: the body role, or mono where a reader compares the value
-                        character by character (an ID) */
+                        character by character (an ID)
+     --hw-muted         the muted grey, where a surface's --color-muted means something else */
 
 @layer components {
   .hw-field-row {
@@ -35,7 +37,7 @@
     transition: border-color var(--motion-fast);
   }
   .hw-field::placeholder {
-    color: var(--color-muted);
+    color: var(--hw-muted, var(--color-muted));
     opacity: 1;
   }
   .hw-field:hover {
@@ -102,6 +104,16 @@
     }
     .hw-field::placeholder {
       color: var(--color-night-muted);
+    }
+    .hw-field:hover {
+      border-color: var(--color-white);
+    }
+    .hw-field[aria-invalid="true"] {
+      border-color: var(--color-amber);
+    }
+    .hw-field-row[data-joined] {
+      border-color: var(--color-night-line);
+      background: var(--color-night-2);
     }
     .hw-field-row[data-joined]:has(:focus-visible) {
       outline-color: var(--color-purple-night);

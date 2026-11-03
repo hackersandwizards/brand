@@ -292,8 +292,9 @@ export async function measureMarkers(
   }
 }
 
+// Written as "not within" so a NaN offset, from a marker and a text that both show no ink, fails.
 export const failing = (r: Reading) =>
-  Math.abs(r.offset) > TOLERANCE || (r.indent !== null && Math.abs(r.indent) > TOLERANCE);
+  !(Math.abs(r.offset) <= TOLERANCE) || (r.indent !== null && !(Math.abs(r.indent) <= TOLERANCE));
 
 export const toUrl = (arg: string) =>
   /^[a-z]+:\/\//.test(arg) ? arg : pathToFileURL(resolve(arg)).href;

@@ -26,6 +26,8 @@ data or secret.
   website's press page publishes them, with `press.json` naming what each shows and the credit.
   In `manifest.json`. The press kit's texts stay with their owners: the bios in the website's
   `src/data/profiles.ts` and os `documents/people/`, the company description in the website's copy.
+- `verbal/verbal.json`: the verbal identity (name, claim, the words it retires), exported as
+  `./verbal.json` and in `manifest.json`; the hub sync copies it into the voice skill.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
   name and mark file in display order, keeping neighbours from different industries, with the
   mark's source where known. `"onepager": false` keeps a mark off the os onepagers' client row,
@@ -42,7 +44,7 @@ data or secret.
   (`sketch-prompt.ts`), which prints `sketch-prompt.txt`, the prompt for a sketch beside a concept
   slide's cards, and its worked example. `mail-signature/` holds one template with placeholders
   (`template.html`, `template.txt`), filled by `fill.ts` and shipped as the `brand-mail-signature`
-  command; no person's signature lives here, since each carries personal data: os renders those from
+  command (`cli.ts`); no person's signature lives here, since each carries personal data: os renders those from
   its people records. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
@@ -93,7 +95,7 @@ data or secret.
   design-system page, whose URL `catalog/portal.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
   their OFL texts, small logos,
-  the client marks, the press photos, `manifest.json`, the LinkedIn post renderers and prompts
+  the client marks, the press photos, `verbal/`, `manifest.json`, the LinkedIn post renderers and prompts
   `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core`, and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an

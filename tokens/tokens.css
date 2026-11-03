@@ -1,9 +1,8 @@
 /* The h&w brand tokens: colour with its roles and chart order, both font families, the type
    scale and its roles, spacing, three radii, two shadows and the gradient. The one source for every
-   h&w repository: the brand repository ships it, with the values it generates
-   from it, in the package the other repositories install, so edit it here,
-   never in a copy. A plain-CSS consumer rewrites @theme to
-   :root. Print values live beside it in print.css. */
+   h&w repository: the brand repository ships it, with the values it generates from it, in the
+   package the other repositories install, so edit it here, never in a copy. A plain-CSS consumer
+   rewrites @theme to :root. Print values live beside it in print.css. */
 @theme {
   /* Three radii. sm: code, small boxes. brand, the brand corner: large top-left and bottom-right,
      small elsewhere, on cards and frames. pill: chips, badges, toggles, and every control that
@@ -125,11 +124,10 @@
   --leading-*: initial;
   --leading-none: 1;
 
-  /* The type roles: every text in every h&w asset takes one of these, never a
-     size of its own. The website sets them through the --text-* step of the
-     same name (typography.css adds the word spacing Tailwind's steps cannot carry); print.css maps each role's
-     size to paper. Mono takes 400 (code only), 500 and 700; Inter 400, 500
-     and 600. */
+  /* The type roles: every text in every h&w asset takes one of these, never a size of its own.
+     The website sets them through the --text-* step of the same name (typography.css adds the word
+     spacing Tailwind's steps cannot carry); print.css maps each role's size to paper. Mono takes
+     400 (code only), 500 and 700; Inter 400, 500 and 600. */
   --type-display-family: var(--font-mono);
   --type-display-weight: 700;
   --type-display-size: var(--text-display);
@@ -203,12 +201,12 @@
   );
   /* Two rhythms: about 96 px between sections, 48 px inside one. */
   --spacing-section: clamp(3rem, 1.8261rem + 5.2174vw, 6rem);
-  /* The sticky header: its 3px brand strip, its h-19 row, its bottom border
-  and the safe area. Anything stuck under it starts here. */
+  /* The sticky header: its 3px brand strip, its h-19 row, its bottom border and the safe area.
+     Anything stuck under it starts here. */
   --spacing-header: calc(3px + 4.75rem + 1px + env(safe-area-inset-top));
   /* The internal header (expert/header.css), the website's structure at the UI's density: its
-  strip, its row, the lockup's height, and the whole header with its bottom border and the safe
-  area. Here rather than in expert.css, so a page that cannot load the expert set reads them. */
+     strip, its row, the lockup's height, and the whole header with its bottom border and the safe
+     area. Here rather than in expert.css, so a page that cannot load the expert set reads them. */
   --spacing-strip: 3px;
   --spacing-header-row: 3.5rem;
   --spacing-logo: 2rem;
@@ -220,8 +218,8 @@
   --spacing-section-head: clamp(2rem, 1.6087rem + 1.7391vw, 3rem);
   --spacing-stack: clamp(1.5rem, 0.913rem + 2.6087vw, 3rem);
   --spacing-grid: clamp(1rem, 0.6087rem + 1.7391vw, 2rem);
-  /* Card padding keeps its px size under enlarged text (the px twin in
-  min()), so a card on a phone keeps its width for the words. */
+  /* Card padding keeps its px size under enlarged text (the px twin in min()), so a card on a
+     phone keeps its width for the words. */
   --spacing-card: min(
     clamp(1.25rem, 0.9565rem + 1.3043vw, 2rem),
     clamp(20px, 15.304px + 1.3043vw, 32px)

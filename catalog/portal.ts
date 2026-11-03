@@ -25,7 +25,8 @@ import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch
 import { parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
 import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
 
-const tokens = parseTokens(readFileSync(SOURCE, "utf8"));
+const source = readFileSync(SOURCE, "utf8");
+const tokens = parseTokens(source);
 const colors = resolveColors(tokens);
 const esc = (s: unknown) =>
   String(s).replace(
@@ -38,7 +39,6 @@ const table = (head: string[], rows: unknown[][]) =>
     .join("")}</tbody></table>`;
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-// An SVG inlined more than once keeps its internal ids unique on the page: each one takes a prefix.
 // Files the page loads beside it (catalogue-assets/, served by their own route): the elements as
 // one stylesheet, so each sample frame loads one file instead of elements.css and its 23 imports,
 // the catalog shell's stylesheet, and each PNG an inlined SVG embeds, so the HTML carries no image
@@ -73,13 +73,13 @@ const pngFiles = (svg: string) =>
 // print files) name theirs in data-href, and show() sets href once their section opens.
 const deferImages = (svg: string) => svg.replace(/(<image\b[^>]*?\s)href="/g, '$1data-href="');
 
+// An SVG inlined more than once keeps its internal ids unique on the page: each one takes a prefix.
 const scopeIds = (svg: string, prefix: string) =>
   svg.replace(/(id="|url\(#|href="#)([^")]+)/g, `$1${prefix}-$2`);
 
 // The search index: what a reader types, where it leads.
 const index: { t: string; k: string; h: string; x?: string }[] = [];
 
-// Colours, grouped by family.
 const family = (k: string) =>
   /night/.test(k)
     ? "Night"
@@ -106,25 +106,20 @@ const colourGroups = FAMILY_NAMES.map((g) => {
     .join("")}</div>`;
 });
 
-// The role table and the chart order, read from tokens.css.
 const swatchCell = (name: string) =>
   `<span class="sw" style="background:var(--color-${name})"></span>${code(name)}`;
 const tintCell = (base: string, p: number) =>
   `<span class="sw" style="background:color-mix(in srgb, var(--color-${base}) ${p}%, white)"></span>${p} %`;
-const roleRows = [
-  ...readFileSync(SOURCE, "utf8").matchAll(
-    /^\s*([\w-]+)\s*\|\s*([\w-]+)\s*\|\s*([\w-]+)\s*(?:\*\/)?$/gm,
-  ),
-].map(([, base, text, night]) => [
+const hues = [...source.matchAll(/^\s*([\w-]+)\s*\|\s*([\w-]+)\s*\|\s*([\w-]+)\s*(?:\*\/)?$/gm)];
+const roleRows = hues.map(([, base, text, night]) => [
   swatchCell(base),
   swatchCell(text),
   `<span class="night-cell">${swatchCell(night)}</span>`,
   tintCell(base, 7),
   tintCell(base, 40),
 ]);
-const chart = Object.keys(tokens)
-  .filter((k) => k.startsWith("--chart-"))
-  .map((k) => swatchCell(tokens[k].match(/--color-([\w-]+)/)![1]));
+const chartKeys = Object.keys(tokens).filter((k) => k.startsWith("--chart-"));
+const chart = chartKeys.map((k) => swatchCell(tokens[k].match(/--color-([\w-]+)/)![1]));
 const rolesHtml = `<h3 class="label" id="roles">Roles</h3>
 <p>Each hue has a base, a text colour on light, one colour on night, and two tints. Text on light clears 4.5:1 on bg and white, night clears 4.5:1 on night and night-2.</p>
 ${table(["Base", "Text on light", "Night", "Tint 7 %", "Tint 40 %"], roleRows)}
@@ -173,7 +168,6 @@ const tokensHtml = tokenKinds
   })
   .join("");
 
-// The two rules on corners and icons the design guide states, each with its example.
 const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
 const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div class="rules">
@@ -182,7 +176,6 @@ const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
 </div>`;
 
-// Logos: one card per logo with its light, night, outline and print files as downloads.
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));
 const bases = [
   ...new Set(
@@ -198,7 +191,6 @@ const LOGO_NOTES: Record<string, string> = {
     "The lockup as a smaller file (the wizard embedded at 128 px, 15 KB instead of 50 KB), identical on screen, for a header up to 40 px tall.",
   wordmark: "The wordmark alone. Its white and black cuts carry every letter in that one colour.",
 };
-// Clear space and minimum width from logos/logos.json, on the cards of the logos it names.
 const logoRule = (base: string) => {
   const rule = (logoRules.logos as Record<string, { minWidthPx: number; minWidthMm: number }>)[
     base
@@ -245,10 +237,10 @@ const order = (b: string) =>
 const isLogo = (b: string) => b.startsWith("lockup") || b.startsWith("wordmark");
 const shownLogos = bases.filter(isLogo).sort((a, b) => order(a) - order(b));
 const logosHtml = `<div class="logos">${shownLogos.map(logoCard).join("")}</div>`;
-const logoCount = ["One", "Two", "Three", "Four", "Five", "Six"][shownLogos.length - 1];
+const logoCount =
+  ["One", "Two", "Three", "Four", "Five", "Six"][shownLogos.length - 1] ??
+  String(shownLogos.length);
 
-// Applications: every family of brand files in use, from applications/. A retired file is deleted;
-// git history keeps it. One card per file name, its formats as downloads beside it.
 type Family = {
   id: string;
   title: string;
@@ -459,7 +451,7 @@ const PRODUCTS: Product[] = [
     stems: wizards.map((s) => s.stem),
   },
 ];
-const merchFiles = familyStems.get("merch") ?? new Map<string, string[]>();
+const merchFiles = familyStems.get("merch")!;
 const merchHtml = `<div class="products">${PRODUCTS.map((p) => {
   const id = `merch-${slug(p.name)}`;
   index.push({
@@ -521,7 +513,6 @@ ${FAMILIES.map((f) => {
   }`;
 }).join("")}`;
 
-// Press kit: the photos in press/, each with what it shows, its size and the credit.
 const pressHtml = `<p>The photos of the press kit, which the website's press page offers with the logos as one ZIP. Credit: "Photo: ${esc(press.credit)}". Each photo is listed with what it shows in <code>press/press.json</code>.</p>
 <div class="assets">${press.photos
   .map((p) => {
@@ -529,8 +520,6 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
     return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a></figcaption></figure>`;
   })
   .join("")}</div>`;
-// Elements: the dropdown as select.css draws it, a live select on light and one on night; the
-// night frame sets data-theme="dark" on its html, as a night page does.
 const dropdownOptions = ["All (116)", "Context engineering (12)", "Testing (9)"]
   .map((o) => `<option>${esc(o)}</option>`)
   .join("");
@@ -541,7 +530,6 @@ index.push({
   h: "elements/dropdown",
   x: "select chevron hw-select form-input",
 });
-// The disclosure as disclosure.css draws it, one open and one closed, on light and on night.
 const disclosureDemo = `<details class="hw-disclosure" open><summary>Meetings <span class="hw-disclosure-count">3</span></summary><p>Kick-off, 12 Oct</p></details><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary><p>Hidden while closed</p></details>`;
 const nightDisclosure = `<!doctype html><html data-theme="dark"><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{--foreground:var(--color-night-ink);margin:0;padding:1rem;background:var(--color-night);color:var(--color-night-ink);font:400 0.875rem/1.5 var(--type-body-family)}summary{padding:0.25rem 0}p{margin:0.25rem 0 0.5rem 1.5rem}</style></head><body>${disclosureDemo}</body></html>`;
 index.push({
@@ -648,12 +636,8 @@ const SYSTEMS = [
     "https://certificates.hackersandwizards.dev/design-system",
   ],
 ];
-// On GitHub Pages a system link leaves its local address for the public one its owner publishes.
 const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub]) => [url, pub]));
 
-// Overview: the catalog shape (scaffolding's renderCatalog), one group per view with a tile per part of
-// it, and the systems' own design-system pages. Quick start and refresh sit above the tiles; the
-// views keep their own markup, one shown at a time in place of the overview.
 // A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
 const sampleFrame = (body: string, css = "") =>
   `<iframe srcdoc="${esc(`<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><link rel="stylesheet" href="expert/select.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`)}" loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>`;
@@ -696,20 +680,14 @@ const groups: CatalogGroup[] = [
         href: "#colours/roles",
         note: "Base, text on light, night and two tints per hue",
         pill: `${roleRows.length} hues`,
-        html: swatches(
-          [
-            ...readFileSync(SOURCE, "utf8").matchAll(
-              /^\s*([\w-]+)\s*\|\s*[\w-]+\s*\|\s*[\w-]+\s*(?:\*\/)?$/gm,
-            ),
-          ].map(([, base]) => `--color-${base}`),
-        ),
+        html: swatches(hues.map(([, base]) => `--color-${base}`)),
       },
       {
         name: "Chart order",
         href: "#colours/chart",
         note: `--chart-1 to --chart-${chart.length}`,
         pill: `${chart.length} series`,
-        html: swatches(Object.keys(tokens).filter((k) => k.startsWith("--chart-"))),
+        html: swatches(chartKeys),
       },
     ],
   },
@@ -836,7 +814,6 @@ ${table(
 )}</div>
 </div>`;
 
-// The verbal identity, verbal/verbal.json: the words that stand for us, as a consumer imports them.
 const lines = (v: { en: string | null; de: string | null }) =>
   [v.en && `EN: ${v.en}`, v.de && `DE: ${v.de}`].filter(Boolean).join(" / ");
 const wordsHtml = `<p>The claim, mission, vision, values and terms as ${code("verbal/verbal.json")}, exported as ${code("@hackersandwizards/brand/verbal.json")}: a surface imports the text instead of retyping it. Source: ${esc(verbal.source)}</p>
@@ -933,9 +910,7 @@ const html = `<!doctype html>
   .hw-catalogue:not([data-mode="search"]) #results,
   .hw-catalogue:not([data-mode="view"]) .portal-views,
   .hw-catalogue[data-mode="view"] .hw-catalogue-main > :not(.portal) { display: none; }
-  /* The rail marks the open view. */
   .hw-catalogue-rail a[aria-current] { background: color-mix(in srgb, var(--color-teal) 12%, transparent); font-weight: 600; }
-  /* Tile previews of the foundations. */
   .pv-colours { display: grid; grid-template-columns: repeat(8, 1fr); height: 100%; }
   .pv-type { display: block; padding: 1rem; zoom: 0.5; }
   .pv-type .label { display: none; }
@@ -1097,7 +1072,7 @@ const search = () => {
   const hit = (s) => w.every((x) => s.toLowerCase().includes(x));
   const shown = new Set(tiles.filter((t) => hit(t.dataset.search)).map((t) => t.getAttribute("href")));
   const hits = INDEX.filter((e) => !shown.has("#" + e.h) && hit(e.t + " " + e.k + " " + (e.x || ""))).slice(0, 60);
-  results.innerHTML = hits.length ? '<h2 class="label">Tokens, colours, logos and files</h2>' + hits.map((e) => '<a href="#' + e.h + '"><span class="label">' + e.k + "</span>" + (e.k === "colour" ? '<i style="width:1rem;height:1rem;border-radius:0;border:1px solid var(--color-border);background:' + e.x.split(" ")[0] + '"></i>' : "") + "<strong>" + h(e.t) + "</strong><span class=meta>" + h(e.x || "").slice(0, 80) + "</span></a>").join("") : shown.size ? "" : "<p>Nothing found.</p>";
+  results.innerHTML = hits.length ? '<h2 class="label">Tokens, colours, logos and files</h2>' + hits.map((e) => '<a href="#' + e.h + '"><span class="label">' + e.k + "</span>" + (e.k === "colour" ? '<i style="width:1rem;height:1rem;border-radius:0;border:1px solid var(--color-border);background:' + e.x.split(" ")[0] + '"></i>' : "") + "<strong>" + h(e.t) + "</strong><span class=meta>" + h((e.x || "").slice(0, 80)) + "</span></a>").join("") : shown.size ? "" : "<p>Nothing found.</p>";
   show();
 };
 q.addEventListener("input", search);

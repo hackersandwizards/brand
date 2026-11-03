@@ -11,6 +11,7 @@ const span = (color: string, fontStyle = 0) => {
 
 test("every colour of code-theme.json becomes a class, never an inline style", () => {
   const colours = new Set(theme.tokenColors.map((t) => t.settings.foreground.toUpperCase()));
+  expect(colours.size).toBeGreaterThan(0);
   for (const colour of colours) expect(span(colour).style).toBeUndefined();
   expect(span("#B97AF1", 3)).toEqual({ class: "hw-code-keyword hw-code-italic hw-code-bold" });
   expect(span(theme.colors["editor.foreground"])).toEqual({});

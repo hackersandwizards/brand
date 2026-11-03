@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -53,7 +53,10 @@ let browser: Browser;
 beforeAll(async () => {
   browser = await launch();
 });
-afterAll(() => browser?.close());
+afterAll(async () => {
+  await browser?.close();
+  rmSync(dir, { recursive: true, force: true });
+});
 
 test("every element matches its rule in every scale and theme", async () => {
   const r = await measurePage(browser, file("clean.html", page()));

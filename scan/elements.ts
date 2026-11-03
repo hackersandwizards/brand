@@ -33,7 +33,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
-import { listTree, scanned } from "./colours";
+import { listTree, scanned, skippedReport } from "./colours";
 import { launch, toUrl } from "./markers";
 
 export const LIST = "brand-elements.json";
@@ -388,7 +388,6 @@ export async function measurePage(browser: Browser, url: string, css = "", light
   }
 }
 
-// ── Source ──
 const NAMED = /(^|-)(card|chip|pill|tag|badge|eyebrow|kicker|label|callout|note|quote)s?($|-)/;
 const WORD: Record<string, string> = {
   card: "card",
@@ -564,14 +563,13 @@ if (import.meta.main) {
   }
   const rendered = results.flatMap((r) => r.findings);
   const empty = config.pages.filter((_, i) => !results[i]!.seen.length);
-  const source = sourceFindings(
-    listTree("brand-elements"),
-    (p) => readFileSync(p, "utf8"),
-    config.exceptions ?? {},
-  );
+  const tree = listTree("brand-elements");
+  const source = sourceFindings(tree, (p) => readFileSync(p, "utf8"), config.exceptions ?? {});
   const covered = coverage(config, results);
   if (json) console.log(JSON.stringify({ rendered, source, coverage: covered, empty }, null, 2));
   else {
+    const report = skippedReport("brand-elements", tree);
+    if (report) console.log(report);
     for (const f of rendered)
       console.error(`${f.page} ${f.element} ${f.label}: ${f.prop} ${f.got}, brand ${f.want}`);
     for (const line of [...source, ...covered]) console.error(line);

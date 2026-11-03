@@ -163,12 +163,18 @@ export const scanned = (p: string) => EXT.has(extname(p)) && !exception(p);
 // gate scans in its source. Whatever else the document carries is the consumer's and is read.
 export const ENGINE_STYLE =
   /<style\s+data-hw-(?:document|components|page|onepager|readout|certificate)\b[^>]*>[\s\S]*?<\/style>/g;
+// In script and JSON a string such as the glob "src/*" holds what reads as a comment opener, so a
+// string there is kept whole before a block comment is dropped.
+const SCRIPT = /^\.([cm]?[jt]sx?|json|webmanifest)$/;
+const BLOCK = /\/\*[\s\S]*?\*\//g;
+const STRING_OR_BLOCK =
+  /("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\//g;
 const strip = (s: string, ext: string) =>
   ext === ".py"
     ? s
     : s
         .replace(ENGINE_STYLE, "")
-        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(SCRIPT.test(ext) ? STRING_OR_BLOCK : BLOCK, (_, str?: string) => str ?? "")
         .replace(/(^|[^:"'`])\/\/.*$/gm, "$1")
         .replace(/<!--[\s\S]*?-->/g, "");
 // 8 and 4 digits carry an alpha channel; the colour part decides token or off-token.
@@ -447,6 +453,16 @@ export const exceptionReport = (cmd: string, skipped: Record<string, number>) =>
     .filter((e) => skipped[e.name])
     .map((e) => `${cmd}: not scanned, ${e.name} (${skipped[e.name]} files): ${e.reason}`)
     .join("\n");
+
+/** exceptionReport over a path list, for a scan whose own filter is only `scanned`. */
+export const skippedReport = (cmd: string, paths: string[]) => {
+  const skipped: Record<string, number> = {};
+  for (const p of paths) {
+    const why = exception(p);
+    if (why) skipped[why] = (skipped[why] ?? 0) + 1;
+  }
+  return exceptionReport(cmd, skipped);
+};
 
 if (import.meta.main) {
   const allow = existsSync(ALLOWLIST)

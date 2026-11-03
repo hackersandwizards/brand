@@ -57,13 +57,25 @@ export async function browser() {
     "--force-color-profile=srgb",
   ]);
   const portFile = join(profile, "DevToolsActivePort");
-  for (let i = 0; !existsSync(portFile) || !readFileSync(portFile, "utf8").includes("\n"); i++) {
-    if (i > 200) throw new Error("Chrome did not start");
-    await Bun.sleep(50);
+  let ws: WebSocket;
+  try {
+    for (let i = 0; !existsSync(portFile) || !readFileSync(portFile, "utf8").includes("\n"); i++) {
+      if (i > 200) throw new Error("Chrome did not start");
+      await Bun.sleep(50);
+    }
+    const [port, path] = readFileSync(portFile, "utf8").trim().split("\n");
+    ws = new WebSocket(`ws://127.0.0.1:${port}${path}`);
+    await new Promise((ok, ko) => {
+      ws.addEventListener("open", ok, { once: true });
+      ws.addEventListener("error", () => ko(new Error("Chrome's DevTools socket failed")), {
+        once: true,
+      });
+    });
+  } catch (e) {
+    proc.kill();
+    rmSync(profile, { recursive: true, force: true });
+    throw e;
   }
-  const [port, path] = readFileSync(portFile, "utf8").trim().split("\n");
-  const ws = new WebSocket(`ws://127.0.0.1:${port}${path}`);
-  await new Promise((ok) => ws.addEventListener("open", ok, { once: true }));
   let id = 0;
   const pending = new Map<number, Pending>();
   const events: ((m: { method: string; sessionId?: string }) => void)[] = [];
@@ -93,7 +105,6 @@ export async function browser() {
   await send("Page.enable", {}, sessionId);
   const scratch = mkdtempSync(join(tmpdir(), "hw-html-"));
 
-  // Opens an HTML string, or an http(s) URL, and waits for its load event and then for `ready`.
   async function load(html: string, ready = "document.fonts.ready") {
     const file = join(scratch, `${id}.html`);
     if (!/^https?:/.test(html)) writeFileSync(file, html);

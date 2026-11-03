@@ -7,13 +7,11 @@ import { DIST, fileOf, page } from "./site";
 
 const html = page("index.html");
 
-// A duplicate anchor means two things on the page claim one name: rename the less specific one.
 test("the portal has no duplicate id", () => {
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
   expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
 });
 
-// The Logos section names as many logos as it shows cards.
 test("the portal counts the logos it shows", () => {
   const word = html.match(/<p>(\w+) logos, each one line\./)![1];
   const cards = html.match(/<article class="logo" /g)!.length;
@@ -25,7 +23,6 @@ test("the portal's colour swatches are square", () => {
   expect(html.match(/\.swatch span \{[^}]*border-radius: ([^;]+);/)![1]).toBe("0");
 });
 
-// Every file the portal links or loads is in the build, its sample frames' (srcdoc) included.
 test("every link and image of the portal resolves in dist/", () => {
   const decode = (s: string) =>
     s.replace(
@@ -41,7 +38,6 @@ test("every link and image of the portal resolves in dist/", () => {
   expect([...new Set(refs)].filter((r) => !fileOf(r))).toEqual([]);
 });
 
-// The former address forwards with its anchor, so old links such as catalogue.html#logos land.
 test("catalogue.html forwards to the portal with its anchor", () => {
   expect(page("catalogue.html")).toContain('location.replace("./" + location.hash)');
 });

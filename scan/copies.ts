@@ -20,17 +20,18 @@ import {
   committedAsIs,
   ENGINE_STYLE,
   exception,
-  exceptionReport,
   isBrandCopy,
   listTree,
   pinChange,
+  skippedReport,
 } from "./colours";
 
 export const LIST = "brand-copies.json";
 export type Allowlist = Record<string, string>;
 
 const LOGOS = join(import.meta.dir, "../logos");
-const logoNames = new Set(readdirSync(LOGOS));
+// The logo files only: logos.json is data about them, a name a consumer's own list also takes.
+const logoNames = new Set(readdirSync(LOGOS).filter((f) => /\.(svg|png|ico|tif)$/.test(f)));
 // Path data of 100 characters and more, and a slice of each embedded image, from every logo SVG: a
 // recoloured or cropped copy keeps them.
 export const signatures = new Set(
@@ -88,14 +89,9 @@ export const unlistedCopies = (
 if (import.meta.main) {
   const brand = brandFiles();
   const sizes = brandSizes(brand);
-  const skipped: Record<string, number> = {};
   const found: Record<string, string> = {};
-  for (const p of listTree("brand-copies")) {
-    const why = exception(p);
-    if (why) {
-      skipped[why] = (skipped[why] ?? 0) + 1;
-      continue;
-    }
+  const tree = listTree("brand-copies");
+  for (const p of tree.filter((p) => !exception(p))) {
     const hit = copyOf(
       p,
       (f) => readFileSync(f, "utf8"),
@@ -103,7 +99,7 @@ if (import.meta.main) {
     );
     if (hit) found[p] = hit;
   }
-  const report = exceptionReport("brand-copies", skipped);
+  const report = skippedReport("brand-copies", tree);
   if (report) console.log(report);
   const allow = existsSync(LIST) ? (JSON.parse(readFileSync(LIST, "utf8")) as Allowlist) : {};
   const head = spawnSync("git", ["show", `HEAD:./${LIST}`], { encoding: "utf8" });

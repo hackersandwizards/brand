@@ -54,7 +54,6 @@ const misses = (css: string, width: number): string[] => {
   return JSON.parse(/<pre id="out">(.*?)<\/pre>/s.exec(dom)![1].replace(/&quot;/g, '"'));
 };
 
-// Needs Chrome, as the LinkedIn renderers do.
 describe("expert/header.css", () => {
   const css = readFileSync(join(ROOT, "expert/header.css"), "utf8");
   for (const width of [1440, 390])

@@ -1,10 +1,10 @@
 /* The segmented control: one choice of a few, each segment a link or button in one framed row (a
    view mode, a filter category, a page's mode). The small corner, a frame 2 px around the
    segments in the field line (the foreground at 70 % on the page, 3:1 as WCAG 1.4.11 asks of a
-   control's boundary), the UI size; a segment at the foreground's 70 %, the full foreground and the muted fill
-   on hover; the chosen one (aria-current, aria-pressed="true" or data-active="true") filled with the
-   accent and its on-accent text. A leading hw-label names the category. On night the expert set's
-   night roles.
+   control's boundary), the UI size; a segment at the foreground's 70 %, the full foreground and the
+   muted fill on hover; the chosen one (aria-current, aria-pressed="true" or data-active="true")
+   filled with the accent and its on-accent text. A leading hw-label names the category. On night
+   the expert set's night roles.
 
    Settings:
      --hw-segment-pad   a segment's block and inline padding

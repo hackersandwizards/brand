@@ -102,7 +102,7 @@
   content: none;
 }
 /* Held at full opacity although GFM emits these disabled: they are readable states, not
-     controls, and the browser's grey washes them out. */
+   controls, and the browser's grey washes them out. */
 .hw-prose li.task-list-item input[type="checkbox"] {
   position: absolute;
   top: 0.375em;

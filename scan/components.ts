@@ -12,7 +12,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { committedAsIs, listTree, pinChange, scanned } from "./colours";
+import { committedAsIs, listTree, pinChange, scanned, skippedReport } from "./colours";
 
 export const LIST = "brand-scan.json";
 export type Allowlist = Record<string, string>;
@@ -62,7 +62,10 @@ export const unlisted = (
 
 if (import.meta.main) {
   const git = (args: string[]) => spawnSync("git", args, { encoding: "utf8", maxBuffer: 1 << 30 });
-  const found = forks(listTree("brand-scan"));
+  const tree = listTree("brand-scan");
+  const report = skippedReport("brand-scan", tree);
+  if (report) console.log(report);
+  const found = forks(tree);
   const allow: Allowlist = existsSync(LIST) ? JSON.parse(readFileSync(LIST, "utf8")) : {};
   const head = git(["show", `HEAD:./${LIST}`]);
   const committed = head.status === 0 ? (JSON.parse(head.stdout) as Allowlist) : undefined;

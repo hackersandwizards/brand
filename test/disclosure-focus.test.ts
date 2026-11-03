@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -19,7 +19,11 @@ let browser: Browser;
 beforeAll(async () => {
   browser = await launch();
 });
-afterAll(() => browser?.close());
+const dir = mkdtempSync(join(tmpdir(), "hw-disclosure-"));
+afterAll(async () => {
+  await browser?.close();
+  rmSync(dir, { recursive: true, force: true });
+});
 
 test.each([
   ["hw-focus-ring", "3px"],
@@ -27,7 +31,7 @@ test.each([
 ])(
   "the summary's focus ring under class '%s' is %s",
   async (cls, width) => {
-    const file = join(mkdtempSync(join(tmpdir(), "hw-disclosure-")), "page.html");
+    const file = join(dir, `page-${width}.html`);
     writeFileSync(file, page(cls));
     const tab = await browser.newPage();
     await tab.goto(pathToFileURL(file).href);

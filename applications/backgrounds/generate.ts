@@ -2,7 +2,6 @@
 // bun applications/backgrounds/generate.ts <out dir> [variant ...] [--mocks]
 // Writes <out>/<variant>/<device>[-home].png and, with --mocks, <out>/mocks/<variant>-<panel>.jpg;
 // the mocks include the current dark files beside this script as "dark".
-// the dark reference mocks come from the PNGs in <dark dir>.
 // Layout round: bun generate.ts <out dir> --layouts [--base dark|light] [--only <file>:<layout>,...]
 // writes <out>/<base>/<file>/<layout>.png and per screen <out>/mocks/<base>~<layout>~<screen>.jpg
 // (1000 px long edge) plus -detail.jpg (the system text at real size, where the mock is larger).
@@ -244,8 +243,6 @@ const homePage = (d: Device, ground = HOME_GROUND, big = false) =>
     ),
   ]);
 
-// ---------- mocks at real display size (points, 1x) ----------
-
 const ICON = [
   "#34C759,#30B0C7",
   "#FF9500,#FF2D55",
@@ -432,8 +429,6 @@ async function generateBackgrounds() {
     await b.close();
   }
 }
-
-// ---------- layout round: arrangement x position on one colour base ----------
 
 // The Night ground of the dark files in the design guide, rebuilt without the lockup: #111A24 to
 // #0B1118, a teal glow top left and a purple glow bottom right, the direction of --gradient-magic.

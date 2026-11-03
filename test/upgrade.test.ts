@@ -23,8 +23,8 @@ const pkg = (version: string) =>
 const consumer = (files: Record<string, string>, pinned = OLD) => {
   const dir = mkdtempSync(join(tmpdir(), "brand-upgrade-"));
   dirs.push(dir);
-  const git = (...args: string[]) =>
-    Bun.spawnSync(
+  const git = (...args: string[]) => {
+    const r = Bun.spawnSync(
       [
         "git",
         "-c",
@@ -39,6 +39,8 @@ const consumer = (files: Record<string, string>, pinned = OLD) => {
       ],
       { cwd: dir },
     );
+    if (r.exitCode !== 0) throw new Error(`git ${args.join(" ")}: ${r.stderr.toString()}`);
+  };
   write(dir, { "package.json": pkg(pinned), ...files });
   git("init", "-q");
   git("add", "-A");
@@ -51,8 +53,14 @@ const write = (dir: string, files: Record<string, string>) => {
     writeFileSync(join(dir, p), content);
   }
 };
-const run = (dir: string, bin: string, ...args: string[]) =>
-  Bun.spawnSync(["bun", join(ROOT, "scan", bin), ...args], { cwd: dir }).exitCode;
+// Exit 1 is a finding, and an uncaught error exits 1 too: Bun's version trailer marks the crash,
+// printed after a load error as after a thrown one.
+const run = (dir: string, bin: string, ...args: string[]) => {
+  const r = Bun.spawnSync(["bun", join(ROOT, "scan", bin), ...args], { cwd: dir });
+  const err = r.stderr.toString();
+  if (/^Bun v\d/m.test(err)) throw new Error(`${bin} crashed:\n${err}`);
+  return r.exitCode;
+};
 const raise = (dir: string, files: Record<string, string> = {}) =>
   write(dir, { "package.json": pkg(own.version), ...files });
 

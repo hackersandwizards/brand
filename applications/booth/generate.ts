@@ -58,7 +58,6 @@ const contact = `<div class="contact"><img src="${qr}" alt=""><div class="label"
 const VARS_200 =
   "--w:1000;--h:2000;--pad-x:90;--pad-y:110;--wm:78;--h1:96;--h2:54;--qr:200;--url:62;--label:56";
 
-// Gradient sheet: lockup, headline, offer line and contact in white on the gradient.
 function gradientTall() {
   const white = "color:#fff";
   const body = `${outlineLockup(800)}${space(120)}<h1 class="headline" style="${white};font-size:calc(108 * var(--mm))">Everyone has coding agents. Releases come no faster.</h1>${space(56)}<p class="offer" style="${white};font-size:calc(64 * var(--mm))">Training and mentoring in agentic engineering.</p><div style="flex:1"></div>${contact.replace('class="label"', `class="label" style="${white}"`).replace('class="url-line"', `class="url-line" style="${white}"`)}`;

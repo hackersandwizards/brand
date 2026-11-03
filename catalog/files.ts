@@ -5,7 +5,7 @@
 // clone and fails on any still a pointer, so the published page never shows one.
 import type { AstroIntegration } from "astro";
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -22,6 +22,14 @@ export const served = () =>
     .split("\0")
     .filter(Boolean);
 
+// One listing per second at most: a portal load requests some 200 files.
+let listed: { at: number; paths: Set<string> } | undefined;
+const isServed = (path: string) => {
+  if (!listed || Date.now() - listed.at > 1000)
+    listed = { at: Date.now(), paths: new Set(served()) };
+  return listed.paths.has(path);
+};
+
 export function files(): AstroIntegration {
   return {
     name: "brand-files",
@@ -34,16 +42,11 @@ export function files(): AstroIntegration {
             req.url = "/index.html";
             return next();
           }
-          const file = join(ROOT, path);
-          if (
-            !file.startsWith(`${ROOT}/`) ||
-            file.startsWith(join(ROOT, "catalog/")) ||
-            !existsSync(file) ||
-            !statSync(file).isFile()
-          )
-            return next();
+          // Only what the build copies, so a link to an untracked file fails here as on Pages.
+          const file = path.slice(1);
+          if (!existsSync(join(ROOT, file)) || !isServed(file)) return next();
           res.setHeader("Cache-Control", "no-cache");
-          res.end(readFileSync(file));
+          res.end(readFileSync(join(ROOT, file)));
         });
       },
       "astro:build:done": ({ dir }) => {

@@ -167,3 +167,16 @@ test("a bullet glyph drawn as ::before content is found", async () => {
   expect(rs.length).toBe(2);
   expect(rs.every((r) => Number.isFinite(r.offset))).toBe(true);
 }, 60_000);
+
+test("a reading with no ink on either side fails", () => {
+  const r: Reading = {
+    page: "x",
+    label: "x",
+    kind: "glyph",
+    scale: 1,
+    newline: false,
+    offset: NaN,
+    indent: null,
+  };
+  expect(failing(r)).toBe(true);
+});

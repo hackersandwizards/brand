@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT } from "../scripts/git";
 
-// The package holds only the core. A new folder, a slide engine file or a print master fails here.
 const SHIPPED =
   /^(package\.json|manifest\.json|README\.md|LICENSE|(tokens|generated|expert|elements|logos|clients|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(colours|copies|components|markers|elements)\.ts)$/;
 const PRINT_MASTERS = /\.tif$|emoji-logo-(long|short)\.png$/;

@@ -86,11 +86,11 @@
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "6ff2974a36e4afe743e5b38ca06953e5cd23dc0c66c38af5b8a0a431d522af40"
+      "sha256": "3d04d9c6e71b8f9a30c8636a99ddd80d5df481f3429911c7d422406a577147c7"
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "c4cf4ce2ef236bd40d07a749fd37aa6b4fc570393d8e5215133a8b6a5f306313"
+      "sha256": "ab73360fb2c1afe78212e7344a5a30e8632f5d49dc18a553e3bfe05f5c0ed8c2"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -258,7 +258,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "4eebb1ae1a6279e9f70ecbdc58e7423a8092248237ab5e6da7503947cbc33627"
+      "sha256": "ae60300b06cc0681c47594924810c9cf202c5463666c094a0c0864147bf9d5a7"
     },
     {
       "path": "expert/header.css",
@@ -330,7 +330,7 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "b1406d94ec459dd0d8dd4e8b60edd21e73e7ab0403a8fb65a56ecb90e927252a"
+      "sha256": "2485b8df7aebd5459e501c17d57ef7635ccb58bfcf56d975359c1e16932c0a97"
     },
     {
       "path": "elements/focus.css",
@@ -366,7 +366,7 @@
     },
     {
       "path": "elements/table.css",
-      "sha256": "07fdd5a7a0bfb6d505541c94a8f8ec4861fcbe71856f27257ac53b96350a4840"
+      "sha256": "d9bf33bbd3dd560bfb9dfb481aa72f091c48cf97bfc63b6715afac6898440fe1"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",
@@ -386,7 +386,7 @@
     },
     {
       "path": "elements/arrow-link.css",
-      "sha256": "6c2d9fd5dedcce74e506b235ba9b994a9be97b700819d63220fd54fb0026d543"
+      "sha256": "1042a45d42fcbf38d4ee30cb0254c081f4dee8d33dd439bd54d5256e601249e2"
     },
     {
       "path": "elements/breadcrumb.css",
@@ -402,7 +402,7 @@
     },
     {
       "path": "elements/field.css",
-      "sha256": "533988401c590ef4a55dbc7e5ff862f0fe55bdbcd4260e8ec48d6755a83de533"
+      "sha256": "138532c964341c8cb8ce5689db9c7733fcacd7ad64957156814235e1949de79e"
     },
     {
       "path": "elements/frame.css",
@@ -414,7 +414,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "f6b61c76da6d80ba113714a4a9ae35843898e914e2b1240c1012d97afef39116"
+      "sha256": "68283af1ea846f7e3fa932bf670a0df52c442c5f70eecf112d319625b1baad06"
     },
     {
       "path": "elements/row.css",
@@ -422,7 +422,7 @@
     },
     {
       "path": "elements/segmented.css",
-      "sha256": "0f6cb0ad7af10330221e00716b0a834771516edf6ebee664bd42a9ac7e5e6f65"
+      "sha256": "4d2d9625ca99f07cdc8c79d59c06cf3fd22cb08c61e8eb3e05b1b779a0471363"
     },
     {
       "path": "elements/status.css",
@@ -442,7 +442,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "7bb4e177dc1d25163317489a6246e86c6e0de17f23b4a72e932d371966ab07f2"
+      "sha256": "ada85ba3c45ca00c98a91aed21c7cbb1b62e3bf99134553c606fa95781f57a53"
     },
     {
       "path": "verbal/verbal.json",

@@ -24,6 +24,7 @@ test("finds an identical copy, a renamed or recoloured logo, and nothing else", 
     "src/components/Logo.astro": `<svg>${wordmark.replaceAll("#1A7285", "#ff0000").replaceAll("#1a7285", "#ff0000")}</svg>`,
     "public/lockup.svg": "<svg/>",
     "src/components/Card.astro": "<div class='card'></div>",
+    "src/data/logos.json": "[]",
   };
   const hits = Object.fromEntries(
     Object.keys(files).map((p) => [
@@ -40,6 +41,7 @@ test("finds an identical copy, a renamed or recoloured logo, and nothing else", 
   expect(hits["src/components/Logo.astro"]).toContain("drawing");
   expect(hits["public/lockup.svg"]).toBe("named like brand logos/lockup.svg");
   expect(hits["src/components/Card.astro"]).toBeUndefined();
+  expect(hits["src/data/logos.json"]).toBeUndefined();
 });
 
 test("a document the documents engine composed may inline the logo, a hand-written one may not", () => {
