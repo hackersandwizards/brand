@@ -402,16 +402,38 @@ const WORD: Record<string, string> = {
   note: "callout",
   quote: "quote",
 };
+/** A name in kebab case, so ProjectCard and projectCard read as project-card. */
+const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 /** The element a class is named like. */
-const namedAs = (cls: string) => WORD[NAMED.exec(cls)?.[2] ?? ""];
-/** Whether a declared property, a shorthand included, sets one the element owns. */
-export const setsOwned = (element: string, prop: string) =>
-  OWNS[element]!.some(
-    (q) =>
-      q === prop ||
-      q.startsWith(`${prop}-`) ||
-      (prop === "border-radius" && q.endsWith("-radius")) ||
-      (/^border-(width|style|color)$/.test(prop) && q.endsWith(prop.slice(6))),
+const namedAs = (cls: string) => WORD[NAMED.exec(kebab(cls))?.[2] ?? ""];
+const LOGICAL: Record<string, string[]> = {
+  block: ["top", "bottom"],
+  inline: ["left", "right"],
+  "block-start": ["top"],
+  "block-end": ["bottom"],
+  "inline-start": ["left"],
+  "inline-end": ["right"],
+};
+/** The physical properties a gap, flex-flow or logical property stands for, else the property. */
+const physical = (prop: string) => {
+  if (prop === "gap") return ["row-gap", "column-gap"];
+  if (prop === "flex-flow") return ["flex-direction", "flex-wrap"];
+  if (/^border-(start|end)-(start|end)-radius$/.test(prop)) return ["border-radius"];
+  const m = /^(padding|margin|border)-(block|inline)(-start|-end)?(-width|-style|-color)?$/.exec(
+    prop,
+  );
+  return m ? LOGICAL[m[2]! + (m[3] ?? "")]!.map((side) => `${m[1]}-${side}${m[4] ?? ""}`) : [prop];
+};
+/** Whether a declared property, a shorthand or logical one included, sets one the element owns. */
+export const setsOwned = (element: string, declared: string) =>
+  physical(declared).some((prop) =>
+    OWNS[element]!.some(
+      (q) =>
+        q === prop ||
+        q.startsWith(`${prop}-`) ||
+        (prop === "border-radius" && q.endsWith("-radius")) ||
+        (/^border-(width|style|color)$/.test(prop) && q.endsWith(prop.slice(6))),
+    ),
   );
 const STYLED = new Set([".css", ".scss", ".astro", ".vue", ".svelte"]);
 const COMPONENT = new Set([".astro", ".tsx", ".jsx", ".vue", ".svelte"]);
@@ -422,33 +444,39 @@ const styles = (raw: string, ext: string) =>
     ? raw
     : [...raw.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
 
-/** Each rule's selectors and the properties it sets, at-rule blocks opened. */
+/** Each rule's selectors and the properties it sets, at-rule blocks opened and nested rules
+ *  (SCSS, CSS nesting) resolved against their parent's selectors. */
 export const rules = (css: string) => {
   const out: { selectors: string[]; props: string[] }[] = [];
-  const src = css.replace(/\/\*[\s\S]*?\*\//g, "");
-  const walk = (s: string) => {
+  const nest = (parents: string[], selectors: string[]) =>
+    parents.flatMap((p) =>
+      selectors.map((s) => (s.includes("&") ? s.replaceAll("&", p) : `${p} ${s}`)),
+    );
+  const walk = (s: string, parents?: string[]) => {
+    let own = "";
     let i = 0;
     while (i < s.length) {
       const open = s.indexOf("{", i);
-      if (open < 0) return;
-      const head = s
-        .slice(i, open)
-        .replace(/^[\s\S]*[;}]/, "")
-        .trim();
+      if (open < 0) break;
+      const pre = s.slice(i, open);
+      const cut = Math.max(pre.lastIndexOf(";"), pre.lastIndexOf("}")) + 1;
+      own += pre.slice(0, cut);
+      const head = pre.slice(cut).trim();
       let depth = 1;
       let j = open + 1;
       for (; j < s.length && depth; j++) depth += s[j] === "{" ? 1 : s[j] === "}" ? -1 : 0;
-      const body = s.slice(open + 1, j - 1);
-      if (head.startsWith("@") || body.includes("{")) walk(body);
-      else
-        out.push({
-          selectors: outside(head, ",").map((x) => x.trim()),
-          props: [...body.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)].map((m) => m[1]!),
-        });
+      const selectors = outside(head, ",").map((x) => x.trim());
+      walk(
+        s.slice(open + 1, j - 1),
+        head.startsWith("@") ? parents : parents ? nest(parents, selectors) : selectors,
+      );
       i = j;
     }
+    own += s.slice(i);
+    const props = [...own.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)].map((m) => m[1]!);
+    if (parents && props.length) out.push({ selectors: parents, props });
   };
-  walk(src);
+  walk(css.replace(/\/\*[\s\S]*?\*\//g, ""));
   return out;
 };
 
@@ -493,7 +521,7 @@ export const sourceFindings = (
     const ext = extname(p);
     const raw = read(p);
     if (COMPONENT.has(ext) && /(^|\/)components\//.test(p)) {
-      const name = basename(p, ext).toLowerCase();
+      const name = kebab(basename(p, ext));
       if (NAMED.test(name) && !(name in allow) && !/\bhw-[a-z]/.test(raw))
         out.push(
           `${p}: a component named like a shared element; render the hw-* element or list "${name}" as an exception`,

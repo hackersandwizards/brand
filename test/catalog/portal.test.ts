@@ -1,7 +1,10 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
-import { measurePage } from "../../scan/elements";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
+import { ELEMENTS, measurePage } from "../../scan/elements";
+import { ROOT } from "../../scripts/git";
 import { failing, launch, measureMarkers } from "../../scan/markers";
 import { DIST, fileOf, page } from "./site";
 
@@ -10,6 +13,14 @@ const html = page("index.html");
 test("the portal has no duplicate id", () => {
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
   expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+});
+
+test("the portal shows every shared element and every expert component", () => {
+  const components = readdirSync(join(ROOT, "expert/components"))
+    .filter((f) => f.endsWith(".astro"))
+    .map((f) => f.slice(0, -6));
+  expect(Object.keys(ELEMENTS).filter((name) => !html.includes(`id="hw-${name}"`))).toEqual([]);
+  expect(components.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
 });
 
 test("the portal counts the logos it shows", () => {

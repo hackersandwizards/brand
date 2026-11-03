@@ -50,6 +50,7 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
       "README.md",
       "public/a.png",
       "brand-colours.json",
+      "brand-elements.json",
     ].some(scanned),
   ).toBe(false);
 });

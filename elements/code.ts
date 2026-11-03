@@ -2,6 +2,7 @@
 // code-theme.json: each token in a code palette colour takes the class hw-code-<role> in place of
 // its inline style, which code.css colours from --code-<role>, and the block takes hw-code. A
 // surface that drops inline styles, such as a document, keeps its colours this way.
+import theme from "../generated/code-theme.json";
 import { colors, tokens } from "../generated/tokens";
 
 type Node = { properties: Record<string, unknown> };
@@ -14,6 +15,11 @@ const roleOf = new Map<string, string>(
     const color = tokens[`--code-${role}`].slice(4, -1) as keyof typeof colors;
     return [colors[color].toLowerCase(), role];
   }),
+);
+const ANSI = new Set(
+  Object.entries(theme.colors)
+    .filter(([k]) => k.startsWith("terminal.ansi"))
+    .map(([, c]) => c.toLowerCase()),
 );
 // Shiki's FontStyle flags.
 const STYLES = [
@@ -37,14 +43,17 @@ export const codeClasses = {
   },
   span(node: Node, _line: number, _col: number, _lineElement: Node, token: Token) {
     const role = roleOf.get(token.color?.toLowerCase() ?? "");
+    // A terminal colour (Shiki's ansi language) outside the roles keeps its inline style: core
+    // colours all, but no class of code.css carries them.
+    const ansi = !!token.color && !role && ANSI.has(token.color.toLowerCase());
     // A colour outside the palette would go grey unnoticed: another theme, or a stale one.
-    if (token.color && !role)
+    if (token.color && !role && !ansi)
       throw new Error(`${token.color} is no code palette colour: highlight with code-theme.json`);
     const add = [
       ...(role && role !== "fg" ? [`hw-code-${role}`] : []),
       ...STYLES.filter(([flag]) => (token.fontStyle ?? 0) & flag).map(([, s]) => `hw-code-${s}`),
     ];
     if (add.length) addClasses(node, add);
-    delete node.properties.style;
+    if (!ansi) delete node.properties.style;
   },
 };

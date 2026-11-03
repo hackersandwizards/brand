@@ -45,3 +45,9 @@ test("the terminal's 16 ANSI colours are core colours", () => {
   for (const [k, c] of ansi)
     expect({ k, core: core.has(c.toLowerCase()) }).toEqual({ k, core: true });
 });
+
+test("a terminal colour outside the roles keeps its inline style, a stray colour still fails", () => {
+  const amber = theme.colors["terminal.ansiYellow"];
+  expect(span(amber, 1)).toEqual({ style: `color:${amber}`, class: "hw-code-italic" });
+  expect(() => span("#F97583")).toThrow("no code palette colour");
+});

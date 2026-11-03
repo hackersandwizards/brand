@@ -11,6 +11,7 @@ import {
   measurePage,
   rules,
   SETTINGS,
+  setsOwned,
   sourceFindings,
   type Config,
 } from "../scan/elements";
@@ -393,3 +394,46 @@ test("dense with data-hw-type=regular takes the expert set's regular text, dense
   expect(await read('data-hw-scale="dense"')).toEqual(["0.8125rem", "1.45", "0.6875rem"]);
   await p.close();
 }, 60_000);
+
+test("rules resolves nested rules against the parent and keeps the parent's own properties", () => {
+  expect(
+    rules(".card { border-radius: 8px; &:hover { color: red } .meta, & + & { x: 1 } }"),
+  ).toEqual([
+    { selectors: [".card:hover"], props: ["color"] },
+    { selectors: [".card .meta", ".card + .card"], props: ["x"] },
+    { selectors: [".card"], props: ["border-radius"] },
+  ]);
+});
+
+test("a gap, flex-flow or logical property sets the longhands an element owns", () => {
+  for (const [element, prop] of [
+    ["kpi", "gap"],
+    ["row", "gap"],
+    ["kpi", "flex-flow"],
+    ["card", "padding-inline"],
+    ["callout", "border-inline-start"],
+    ["card", "border-block-end-color"],
+    ["card", "border-start-end-radius"],
+  ])
+    expect({ element, prop, owned: setsOwned(element!, prop!) }).toEqual({
+      element,
+      prop,
+      owned: true,
+    });
+  expect(setsOwned("kpi", "margin-inline")).toBe(false);
+});
+
+test("source: a PascalCase component, a camelCase class and a nested rule are read like kebab case", () => {
+  const files: Record<string, string> = {
+    "src/components/ProjectCard.astro": `<div/>`,
+    "src/components/StatusPill.tsx": `<span/>`,
+    "src/components/Notebook.astro": `<div/>`,
+    "src/a.scss": `.card { border-radius: 8px; &:hover { color: red } } .projectCard { padding: 0 }`,
+  };
+  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+    'src/components/ProjectCard.astro: a component named like a shared element; render the hw-* element or list "project-card" as an exception',
+    'src/components/StatusPill.tsx: a component named like a shared element; render the hw-* element or list "status-pill" as an exception',
+    'src/a.scss: .card styles an element named like a shared one; use the hw-* element or list "card" as an exception',
+    'src/a.scss: .projectCard styles an element named like a shared one; use the hw-* element or list "projectCard" as an exception',
+  ]);
+});

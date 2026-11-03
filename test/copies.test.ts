@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { brandFiles, contentHash } from "../scan/colours";
+import { brandFiles, brandSizes, contentHash, isBrandCopy } from "../scan/colours";
 import { copyOf, signatures, unlistedCopies } from "../scan/copies";
 import { ROOT } from "../scripts/git";
 
@@ -63,4 +64,21 @@ test("flags an unlisted copy, an entry without a reason and one added against HE
   expect(unlistedCopies(found, {}, {})).toHaveLength(1);
   expect(unlistedCopies({}, { "public/favicon.svg": " " }, allow)).toHaveLength(1);
   expect(unlistedCopies({}, allow, {})).toHaveLength(1);
+});
+
+test("a print master known by hash alone is found by its bytes, a directory is no copy", () => {
+  const dir = mkdtempSync(join(tmpdir(), "brand-copies-"));
+  try {
+    const master = join(dir, "print.tif");
+    writeFileSync(master, Buffer.alloc(5000, 7));
+    const files = new Map(brand).set(
+      contentHash(readFileSync(master)),
+      "logos/master-not-on-disk.tif",
+    );
+    const sizes = brandSizes(files);
+    expect(isBrandCopy(master, files, sizes)).toBe("logos/master-not-on-disk.tif");
+    expect(isBrandCopy(dir, files, sizes)).toBeUndefined();
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
 });

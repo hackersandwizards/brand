@@ -112,7 +112,7 @@ export const EXCEPTIONS = [
   {
     name: "allowlists",
     reason: "the scans' own exception lists, whose reasons name the values they allow",
-    test: (p: string) => /(^|\/)brand-(colours|copies|scan)\.json$/.test(p),
+    test: (p: string) => /(^|\/)brand-(colours|copies|scan|elements)\.json$/.test(p),
   },
   {
     name: "hub",
@@ -403,22 +403,31 @@ export const brandFiles = () => {
     if (statSync(join(PKG, f)).size >= 64) out.set(contentHash(readFileSync(join(PKG, f))), f);
   return out;
 };
-/** The sizes of the brand files present on disk, to hash only consumer files that could match. */
-export const brandSizes = (files: Map<string, string>) =>
-  new Set(
-    [...files.values()]
-      .filter((f) => existsSync(join(PKG, f)))
-      .map((f) => statSync(join(PKG, f)).size),
-  );
+const isPointer = (path: string) =>
+  statSync(path).size < 200 && readFileSync(path).subarray(0, 8).toString() === "version ";
+/** The sizes of the brand files present on disk, to hash only consumer files that could match, and
+ *  the extensions of those known by hash alone (the print masters: not shipped, or an LFS pointer
+ *  here), whose every file is hashed. */
+export const brandSizes = (files: Map<string, string>) => {
+  const sizes = new Set<number>();
+  const unsized = new Set<string>();
+  for (const f of files.values()) {
+    const p = join(PKG, f);
+    if (existsSync(p) && !isPointer(p)) sizes.add(statSync(p).size);
+    else unsized.add(extname(f).toLowerCase());
+  }
+  return { sizes, unsized };
+};
 /** Whether a consumer file is byte-identical to a brand file, the size checked before the hash. */
 export const isBrandCopy = (
   path: string,
   files: Map<string, string>,
-  sizes: Set<number>,
+  { sizes, unsized }: ReturnType<typeof brandSizes>,
 ): string | undefined => {
-  const size = statSync(path).size;
-  const pointer = size < 200 && readFileSync(path).subarray(0, 8).toString() === "version ";
-  if (!sizes.has(size) && !pointer) return;
+  const stat = statSync(path);
+  if (!stat.isFile()) return;
+  if (!sizes.has(stat.size) && !isPointer(path) && !unsized.has(extname(path).toLowerCase()))
+    return;
   return files.get(contentHash(readFileSync(path)));
 };
 
