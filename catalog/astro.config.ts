@@ -25,6 +25,7 @@ export default defineConfig({
       ],
       groupOrder: ["Elements"],
       home: "./Home.astro",
+      head: "./Head.astro",
       header: {
         component: "../expert/components/AppHeader.astro",
         css: [own("expert/header.css")],

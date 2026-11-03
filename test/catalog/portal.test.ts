@@ -34,7 +34,7 @@ test("every link and image of the portal resolves in dist/", () => {
     );
   const frames = [...html.matchAll(/\ssrcdoc="([^"]*)"/g)].map((m) => decode(m[1]!));
   const refs = [html, ...frames]
-    .flatMap((h) => [...h.matchAll(/\s(?:src|href)="([^"#]*)(?:#[^"]*)?"/g)])
+    .flatMap((h) => [...h.matchAll(/\s(?:src|href|data-href)="([^"#]*)(?:#[^"]*)?"/g)])
     .map((m) => decode(m[1]!).split("?")[0]!)
     .filter((r) => r && !/^(?:[a-z]+:|\/\/)/.test(r));
   expect(refs.length).toBeGreaterThan(100);

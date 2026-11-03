@@ -69,6 +69,10 @@ const pngFiles = (svg: string) =>
     return `href="${ASSETS}/${name}"`;
   });
 
+// An SVG <image> loads even inside a hidden section, so the merch and device mockups (1.9 MB of
+// print files) name theirs in data-href, and show() sets href once their section opens.
+const deferImages = (svg: string) => svg.replace(/(<image\b[^>]*?\s)href="/g, '$1data-href="');
+
 const scopeIds = (svg: string, prefix: string) =>
   svg.replace(/(id="|url\(#|href="#)([^")]+)/g, `$1${prefix}-$2`);
 
@@ -464,7 +468,7 @@ const merchHtml = `<div class="products">${PRODUCTS.map((p) => {
     h: `applications/${id}`,
     x: `merch ${p.stems.join(" ")}`,
   });
-  return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c], i) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${scopeIds(svg, `${id}-${i}`)}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
+  return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c], i) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${deferImages(scopeIds(svg, `${id}-${i}`))}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
 }).join("")}</div>`;
 // Device stickers: each device's SVG inline, all at one scale, with what goes where as its caption.
 const DEVICES = "applications/device-stickers";
@@ -482,7 +486,7 @@ const deviceHtml = `<div class="devices">${stickerCaptions()
       (_, w, h) =>
         `width="${(+w * 1.35).toFixed(1)}" height="${(+h * 1.35).toFixed(1)}" role="img" aria-label="${esc(title)}"`,
     );
-    return `<figure id="${id}">${scopeIds(svg, id)}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<span class="dl"><a href="${DEVICES}/${file}.svg" download>svg</a></span></figcaption></figure>`;
+    return `<figure id="${id}">${deferImages(scopeIds(svg, id))}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<span class="dl"><a href="${DEVICES}/${file}.svg" download>svg</a></span></figcaption></figure>`;
   })
   .join("")}</div>`;
 // Mail signature: the template filled for a fictitious person.
@@ -885,14 +889,21 @@ ${logosHtml}`,
   ["pressekit", "Pressekit", pressHtml],
   ["words", "Words: claim, mission, values", wordsHtml],
 ];
+const LEAD =
+  "Everything the hackers&wizards brand is made of: tokens, logos, the files made from them and the press kit. Each system shows its components on its own design-system page.";
+// The overview's mode in the markup: set first by show() at the end of the page, it let the quick
+// start appear above the tiles after they had painted (CLS 0.41 on Lighthouse mobile).
 const catalogue = renderCatalog({
   title: "hackers&wizards brand",
-  lead: "Everything the hackers&wizards brand is made of: tokens, logos, the files made from them and the press kit. Each system shows its components on its own design-system page.",
+  lead: LEAD,
   provenance: `brand v${pkg.version} · tokens/tokens.css, manifest.json, applications/, press/ · ${entries} entries`,
   labels: { search: "Search  /" },
   groups,
   intro: `<div class="portal">${quick}<div id="results"></div><div class="portal-views">${pages.map(([id, title, body]) => `<section id="view-${id}" data-page="${id}" hidden><h2>${esc(title)}</h2>${body}</section>`).join("\n")}</div></div>`,
-});
+}).replace(
+  'class="hw-catalogue hw-container"',
+  'class="hw-catalogue hw-container" data-mode="overview"',
+);
 
 const html = `<!doctype html>
 <html lang="en">
@@ -900,6 +911,7 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hackers&amp;wizards brand</title>
+<meta name="description" content="${esc(LEAD)}">
 <link rel="icon" href="logos/favicon.ico" sizes="32x32">
 <link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="generated/tokens.root.css">
@@ -1072,6 +1084,7 @@ const show = () => {
   const searching = words().length > 0;
   cat.dataset.mode = searching ? "search" : view ? "view" : "overview";
   for (const s of document.querySelectorAll("section[data-page]")) s.hidden = s.dataset.page !== view;
+  for (const i of document.querySelectorAll("section[data-page]:not([hidden]) image[data-href]")) i.setAttribute("href", i.dataset.href);
   for (const a of cat.querySelectorAll(".hw-catalogue-rail a")) if (!searching && a.getAttribute("href") === "#" + view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   const el = !searching && (view ? anchor && document.getElementById(anchor) : page !== "overview" && page && document.getElementById(page));
   if (el) { el.scrollIntoView({ block: "start" }); if (view) { el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); } }

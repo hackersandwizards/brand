@@ -1,0 +1,8 @@
+---
+// Astrobook's <head> on every catalog page: the brand favicons, so no page asks the site root for a
+// favicon.ico that is not there.
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+
+<link rel="icon" href={`${base}logos/favicon.ico`} sizes="32x32" />
+<link rel="icon" href={`${base}logos/favicon.svg`} type="image/svg+xml" />
