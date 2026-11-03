@@ -2,6 +2,7 @@
 kind: work
 status: open
 priority: 3
+order: 30
 area: brand
 owner: Poppy
 evidence: "os docs/tracking/2026-11-01-list-markers.md, section Offen (removed 02.11.; find it with git log --all -- that path in os)"
