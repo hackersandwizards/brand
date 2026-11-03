@@ -71,6 +71,26 @@ const OLD_ELEMENT = `.hw-marker { flex-shrink: 0; width: 0.5625rem; height: 0.56
   top: calc(-1 * round(calc(0.273em - 0.28125rem), 1px)) }`;
 const DISC = `.hw-marker-list { list-style: disc; padding-left: 1.25rem }`;
 
+// Every 1/64px offset of the first line, the side just under a whole pixel (the slide stage's
+// 0.5625rem at 1920): an unrounded side painted a pixel short at one offset in 64 (2026-11-03).
+const fractional = (css: string) => `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<style>
+body { margin: 40px; font-family: var(--font-sans); font-size: 36px; line-height: 1.4;
+  --hw-marker-size: 11.984375px; }
+ul { margin: 0; padding: 0; } .slot { height: 72px; }
+.row { display: flex; align-items: baseline; gap: 24px; }
+${css}
+</style></head><body>
+${Array.from({ length: 64 }, (_, k) => `<div class="slot"><div class="row" style="padding-top:${k / 64}px"><span class="hw-marker"></span><span>Row ${k}</span></div></div>`).join("")}
+${Array.from({ length: 64 }, (_, k) => `<div class="slot"><ul class="hw-marker-list" style="padding-top:${k / 64}px"><li>Item ${k}</li></ul></div>`).join("")}
+</body></html>`;
+// The planted defect: the square back at the unrounded side.
+const UNROUNDED = `.hw-marker, ul > li::before {
+  width: var(--hw-marker-size) !important; height: var(--hw-marker-size) !important }`;
+
 const dir = mkdtempSync(join(tmpdir(), "brand-markers-"));
 const file = (name: string, html: string) => {
   writeFileSync(join(dir, name), html);
@@ -79,6 +99,8 @@ const file = (name: string, html: string) => {
 const NEW = file("new.html", page("", true));
 const OLD = file("old.html", page(`${OLD_LIST}\n${OLD_ELEMENT}`));
 const NATIVE = file("disc.html", page(DISC));
+const FRACTIONAL = file("fractional.html", fractional(""));
+const PLANTED = file("unrounded.html", fractional(UNROUNDED));
 
 let browser: Browser;
 beforeAll(async () => {
@@ -103,6 +125,23 @@ test.each([2, 4])(
   },
   60_000,
 );
+
+test.each([2, 4])(
+  "marker.css sits within 0.25 px at every 1/64 px offset at %dx",
+  async (scale) => {
+    const rs = await measureMarkers(browser, FRACTIONAL, { scale });
+    expect(rs.filter((r) => r.kind === "element").length).toBe(64);
+    expect(rs.filter((r) => r.kind === "before").length).toBe(64);
+    expect(show(rs.filter(failing))).toEqual([]);
+  },
+  60_000,
+);
+
+test("an unrounded side fails at some 1/64 px offset, element and list alike", async () => {
+  const rs = (await measureMarkers(browser, PLANTED, { scale: 4 })).filter(failing);
+  expect(rs.some((r) => r.kind === "element")).toBe(true);
+  expect(rs.some((r) => r.kind === "before")).toBe(true);
+}, 60_000);
 
 test("the old list marker fails: off centre at some size, first lines indented after a newline", async () => {
   const rs = (await all(OLD, 4)).filter((r) => r.kind === "before");

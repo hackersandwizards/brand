@@ -86,7 +86,7 @@
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "3e4738934d85306e8ef57ca7a19164b7c5b4a398a4cedf22d4b50dfb6caaa3af"
+      "sha256": "6ff2974a36e4afe743e5b38ca06953e5cd23dc0c66c38af5b8a0a431d522af40"
     },
     {
       "path": "tokens/tokens.css",
@@ -442,7 +442,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "775c2eaa8842dc26e9809ee2502f9bdc62d8f1e0904f7dc80f730f517b45cdf9"
+      "sha256": "7bb4e177dc1d25163317489a6246e86c6e0de17f23b4a72e932d371966ab07f2"
     }
   ]
 }

@@ -10,7 +10,7 @@
      baseline`), as a card or a slide row draws it beside its text.
 
    Settings, each on any element the marker inherits from:
-     --hw-marker-size    the square's side, 0.375rem (6px at 16px)
+     --hw-marker-size    the square's side, 0.375rem (6px at 16px), rounded to the pixel
      --hw-marker-gap     the space from the square to the text, 0.625rem
      --hw-marker-indent  the item's start padding, size plus gap
      --hw-marker-color   the square's colour, teal
@@ -21,7 +21,10 @@
    device scale), each rounded on its own, screen and PDF alike. A marker placed a fractional
    distance from the text lands up to a pixel off, differently from item to item. So the square
    sits a whole number of pixels from the first line's baseline, which rounds it with the text, and
-   a transform, which Chrome does not round, moves it the rest of the way.
+   a transform, which Chrome does not round, moves it the rest of the way. The square's side is
+   rounded to the pixel too: Chrome rounds a box's top and bottom edges each on its own, so a side
+   just under a whole pixel (the slide stage's 0.5625rem, 11.98px at 1920) painted a pixel short
+   where its top fell within 1/64px from a half pixel on, its middle 0.55 to 0.63px off.
 
    The list marker floats, so the whitespace a newline after <li> leaves (prettier-plugin-astro
    writes one) starts the line and drops out; an inline-block kept it as a space and started the
@@ -58,7 +61,7 @@
 
   ul > li::before,
   ul > li > p:first-child::before {
-    --_hw-size: var(--hw-marker-size, 0.375rem);
+    --_hw-size: round(var(--hw-marker-size, 0.375rem), 1px);
     --_hw-gap: var(--hw-marker-gap, 0.625rem);
     --_hw-ascent: round(0.96875em, 1px);
     --_hw-baseline: calc(
@@ -91,7 +94,7 @@
 /* In a baseline-aligned row the box's bottom sits on the first line's baseline; it is lifted by
    whole pixels and moved the rest of the way by a transform. */
 .hw-marker {
-  --_hw-size: var(--hw-marker-size, 0.375rem);
+  --_hw-size: round(var(--hw-marker-size, 0.375rem), 1px);
   --_hw-lift: calc(var(--hw-marker-mid, 0.5ex) - var(--_hw-size) / 2);
   flex-shrink: 0;
   position: relative;
