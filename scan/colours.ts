@@ -118,7 +118,8 @@ export const EXCEPTIONS = [
     name: "hub",
     reason:
       "agent tooling the ~/.claude hub syncs into every repo, non-h&w ones included, so it cannot take its files from this package",
-    test: (p: string) => p.startsWith(".claude/skills/parallel-session/"),
+    test: (p: string) =>
+      p.startsWith(".claude/skills/parallel-session/") || p === ".claude/skills/voice/verbal.json",
   },
 ] as const;
 

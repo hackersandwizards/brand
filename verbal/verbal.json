@@ -1,5 +1,5 @@
 {
-  "source": "Company OS: src/content/handbook/company/business-foundation.md and the voice skill's brand-voice.md and brand-vocabulary.md. Change a value there first, then here.",
+  "source": "hackers&wizards brand package. Change a value here; the ~/.claude hub sync copies this file into every repo's voice skill.",
   "name": {
     "company": "hackers&wizards",
     "legal": "hackers&wizards GmbH",

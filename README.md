@@ -145,9 +145,9 @@ relative path. `applications/avatars/generate.ts` builds the set beside the avat
 in English and German with the word a surface may highlight, mission, vision, one-line position,
 boilerplate, values, terms and the retired slogans. A surface imports the text
 (`import verbal from "@hackersandwizards/brand/verbal.json"`) and never retypes it; a test may fail
-on any `retired` line. A language the source has not set yet is `null`. The texts are set in
-Company OS (`business-foundation.md` and the voice skill), which also keeps tone of voice, banned
-words and the brand elements never said in copy. The portal shows the file under Words.
+on any `retired` line. A language the source has not set yet is `null`. The texts are set here: the
+`~/.claude` hub sync copies the file into every repo's voice skill, which keeps tone of voice,
+banned words and the brand elements never said in copy. The portal shows the file under Words.
 
 ### The internal header
 
@@ -305,7 +305,7 @@ allowlist by name with its reason.
 | `generated`   | `node_modules/`, `dist/`, `.astro/`, `.next/`, `out/`, `coverage/`, `test-results/`, `playwright-report/`, `.vercel/`, `.wrangler/`, `__pycache__/`, `.turbo/`, `build/`, `worktrees/` | build, cache and dependency output, rebuilt from the source the scans read; a nested worktree is another checkout with its own gate |
 | `tests`       | `*.test.*`, `*.spec.*`, `__tests__/`, `test/`, `tests/`                                                                                                                                | a test states the values it asserts, off-token ones included, and ships no surface                                                  |
 | `allowlists`  | `brand-colours.json`, `brand-copies.json`, `brand-scan.json`                                                                                                                           | the scans' own exception lists, whose reasons name the values they allow                                                            |
-| `hub`         | `.claude/skills/parallel-session/`                                                                                                                                                     | agent tooling the `~/.claude` hub syncs into every repo, non-h&w ones included                                                      |
+| `hub`         | `.claude/skills/parallel-session/`, `.claude/skills/voice/verbal.json`                                                                                                                 | agent tooling the `~/.claude` hub syncs into every repo, non-h&w ones included                                                      |
 | `not styling` | `brand-colours` only: every extension but `.css .scss .astro .tsx .ts .mts .cts .jsx .js .mjs .cjs .vue .svelte .html .svg .py .json .webmanifest`                                     | prose, images, fonts, PDFs and other binaries carry no styling a renderer reads                                                     |
 | `brand copy`  | `brand-colours` only: a file byte-identical to a package file                                                                                                                          | `brand-copies` reports it, and its allowlist governs it                                                                             |
 

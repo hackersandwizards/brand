@@ -37,6 +37,7 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
       "src/content/documents/x.html",
       "src/styles/brand/tokens.css",
       "public/site.webmanifest",
+      ".claude/skills/voice/other.json",
     ].every(scanned),
   ).toBe(true);
   expect(
@@ -45,6 +46,7 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
       "dist/a.css",
       "node_modules/x/a.css",
       ".claude/skills/parallel-session/page.html",
+      ".claude/skills/voice/verbal.json",
       "README.md",
       "public/a.png",
       "brand-colours.json",
