@@ -45,9 +45,9 @@
   z-index: 50;
   padding-top: env(safe-area-inset-top);
   border-bottom: 1px solid var(--border, var(--color-border));
-  background: color-mix(in srgb, var(--hw-bg) 70%, transparent);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  /* Opaque: through a 70 % bar with blur, scrolled text read as a ghost behind the logo (blind
+     review 2026-11-03, opaque +0.9 over translucent across os, trainer-hub, admin, catalog). */
+  background: var(--hw-bg);
   color: var(--hw-fg);
   font-family: var(--font-sans);
 }
