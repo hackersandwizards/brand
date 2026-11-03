@@ -15,6 +15,7 @@ import manifest from "../manifest.json";
 import pkg from "../package.json";
 import logoRules from "../logos/logos.json";
 import press from "../press/press.json";
+import verbal from "../verbal/verbal.json";
 import { ROOT } from "../scripts/git";
 import { DEMOS } from "../scripts/element-demos";
 import { MARK } from "../applications/avatars/generate";
@@ -791,6 +792,17 @@ const groups: CatalogGroup[] = [
     })),
   },
   {
+    name: "Words",
+    items: [
+      {
+        name: "Claim",
+        href: "#words",
+        note: verbal.claim.en,
+        pill: "verbal.json",
+      },
+    ],
+  },
+  {
     name: "Systems",
     items: SYSTEMS.map(([name, url]) => ({
       name: name!,
@@ -820,6 +832,43 @@ ${table(
 )}</div>
 </div>`;
 
+// The verbal identity, verbal/verbal.json: the words that stand for us, as a consumer imports them.
+const lines = (v: { en: string | null; de: string | null }) =>
+  [v.en && `EN: ${v.en}`, v.de && `DE: ${v.de}`].filter(Boolean).join(" / ");
+const wordsHtml = `<p>The claim, mission, vision, values and terms as ${code("verbal/verbal.json")}, exported as ${code("@hackersandwizards/brand/verbal.json")}: a surface imports the text instead of retyping it. Source: ${esc(verbal.source)}</p>
+${table(
+  ["Element", "Text"],
+  [
+    [
+      "Claim",
+      esc(lines(verbal.claim)) +
+        ` (since ${verbal.claim.since}; highlight word: ${esc(verbal.claim.word.en)} / ${esc(verbal.claim.word.de)})`,
+    ],
+    ["Mission", esc(lines(verbal.mission))],
+    ["Vision", esc(lines(verbal.vision))],
+    ["Position", esc(lines(verbal.position))],
+    ["Boilerplate", esc(lines(verbal.boilerplate))],
+    [
+      "Name",
+      `${esc(verbal.name.company)}, legal ${esc(verbal.name.legal)}. ${esc(verbal.name.rule)}`,
+    ],
+    [
+      "Values",
+      verbal.values.map((v) => `<strong>${esc(v.name)}</strong>: "${esc(v.line)}"`).join("<br>"),
+    ],
+    [
+      "Terms",
+      `${esc(verbal.terms.primary)}, with its components ${esc(verbal.terms.components.join(", "))}; the anti-pattern: ${esc(verbal.terms.antiPattern)}`,
+    ],
+  ],
+)}
+<h3>Retired</h3>
+<p>No longer used anywhere; each was replaced by the claim or the mission.</p>
+${table(
+  ["Line", "Language", "Retired"],
+  verbal.retired.map((r) => [esc(r.text), r.lang, "retired" in r ? r.retired : "before the claim"]),
+)}`;
+
 const pages: [string, string, string][] = [
   ["colours", "Colours", colourGroups.join("") + rolesHtml],
   ["type", "Type", roles],
@@ -834,6 +883,7 @@ ${logosHtml}`,
   ],
   ["applications", "Applications: the brand in use", applicationsHtml],
   ["pressekit", "Pressekit", pressHtml],
+  ["words", "Words: claim, mission, values", wordsHtml],
 ];
 const catalogue = renderCatalog({
   title: "hackers&wizards brand",

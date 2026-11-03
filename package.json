@@ -1,8 +1,8 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "0.33.1",
+  "version": "0.34.0",
   "private": true,
-  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component, list-marker and element checks a consumer runs in its gate, the list marker rule and the shared elements.",
+  "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the verbal identity (claim, mission, vision, values, terms, retired slogans), the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component, list-marker and element checks a consumer runs in its gate, the list marker rule and the shared elements.",
   "keywords": [
     "astro-component"
   ],
@@ -37,6 +37,7 @@
     "./logos/*": "./logos/*",
     "./clients/*": "./clients/*",
     "./press/*": "./press/*",
+    "./verbal.json": "./verbal/verbal.json",
     "./mail-signature/*": "./applications/mail-signature/*"
   },
   "bin": {
@@ -66,6 +67,7 @@
     "logos/icon-*.png",
     "clients",
     "press",
+    "verbal",
     "applications/linkedin-visuals/*.ts",
     "applications/linkedin-visuals/*.txt",
     "applications/slide-visuals/*.ts",

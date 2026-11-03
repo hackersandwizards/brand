@@ -443,6 +443,10 @@
     {
       "path": "tokens/stage.css",
       "sha256": "7bb4e177dc1d25163317489a6246e86c6e0de17f23b4a72e932d371966ab07f2"
+    },
+    {
+      "path": "verbal/verbal.json",
+      "sha256": "87b3fe927111e67c858acc2117dadb25b02c1d7a375398ffea0db11bf19003ff"
     }
   ]
 }

@@ -139,6 +139,16 @@ serves at build or install time, then link them:
 A page opened from disk links `node_modules/@hackersandwizards/brand/logos/favicon.svg` by its
 relative path. `applications/avatars/generate.ts` builds the set beside the avatars.
 
+### The words
+
+`verbal/verbal.json` (`@hackersandwizards/brand/verbal.json`) holds the verbal identity: the claim
+in English and German with the word a surface may highlight, mission, vision, one-line position,
+boilerplate, values, terms and the retired slogans. A surface imports the text
+(`import verbal from "@hackersandwizards/brand/verbal.json"`) and never retypes it; a test may fail
+on any `retired` line. A language the source has not set yet is `null`. The texts are set in
+Company OS (`business-foundation.md` and the voice skill), which also keeps tone of voice, banned
+words and the brand elements never said in copy. The portal shows the file under Words.
+
 ### The internal header
 
 Every internal system and page wears one header: the 3 px strip, a 3.5rem bar under a hairline,
