@@ -45,3 +45,15 @@ test("the tel link drops a trunk zero written as (0)", () => {
 test("a character outside the BMP is one numeric reference, not two surrogate halves", () => {
   expect(fillSignature("{{role}}", { name: "x", role: "a😀" }, "html")).toBe("a&#128512;");
 });
+
+test("the LinkedIn field takes only an https: URL", () => {
+  for (const linkedin of [
+    "javascript:alert(1)",
+    "data:text/html,x",
+    "http://linkedin.com/in/x",
+    "linkedin.com/in/x",
+  ])
+    expect(() => fillSignature(template("html"), { ...EXAMPLE, linkedin }, "html")).toThrow(
+      "https: URL",
+    );
+});

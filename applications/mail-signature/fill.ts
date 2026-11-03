@@ -31,13 +31,17 @@ export function fillSignature(
   fields: SignatureFields,
   format: "html" | "text",
 ): string {
+  const linkedin = fields.linkedin?.trim() ?? "";
+  // The value lands in an href: any other scheme (javascript:, data:) would run or load in the mail.
+  if (linkedin && URL.parse(linkedin)?.protocol !== "https:")
+    throw new Error(`mail signature: linkedin must be an https: URL, got ${linkedin}`);
   const values: Record<string, string> = {
     name: fields.name.trim(),
     role: fields.role.trim(),
     phone: fields.phone?.trim() ?? "",
     tel: fields.phone?.replace(/\(0\)|[^\d+]/g, "") ?? "",
-    linkedin: fields.linkedin?.trim() ?? "",
-    linkedinShort: fields.linkedin?.trim().replace(/^https?:\/\/(www\.)?/, "") ?? "",
+    linkedin,
+    linkedinShort: linkedin.replace(/^https:\/\/(www\.)?/, ""),
   };
   const value = (key: string) => {
     if (!(key in values)) throw new Error(`mail signature: unknown field {{${key}}}`);
