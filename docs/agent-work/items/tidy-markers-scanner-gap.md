@@ -5,7 +5,7 @@ priority: 3
 order: 30
 area: brand
 owner: Poppy
-evidence: "os docs/tracking/2026-11-01-list-markers.md, section Offen (removed 02.11.; find it with git log --all -- that path in os)"
+evidence: "os docs/agent-work/2026-11-01-list-markers.md, section Offen (removed 02.11.; find it with git log --all -- that path in os)"
 ---
 
 # brand-markers misses an li that shows both the disc and the square

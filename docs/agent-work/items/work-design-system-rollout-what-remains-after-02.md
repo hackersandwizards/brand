@@ -4,7 +4,7 @@ status: open
 priority: 3
 order: 20
 owner: a brand session, then each spoke drops the exception a shipped proposal makes moot
-evidence: "brand v0.29.0 to v0.34.0; os `docs/tracking/2026-11-02-design-system-rollout.md`, `docs/tracking/2026-11-02-design-system-phase3.md`, `docs/tracking/2026-11-01-shared-elements.md`; checked 03.11.: os draws its list rows with brand's `hw-row`, trainer-hub pins slides v0.30.0 and documents v0.7.1"
+evidence: "brand v0.29.0 to v0.34.0; os `docs/agent-work/2026-11-02-design-system-rollout.md`, `docs/agent-work/2026-11-02-design-system-phase3.md`, `docs/agent-work/2026-11-01-shared-elements.md`; checked 03.11.: os draws its list rows with brand's `hw-row`, trainer-hub pins slides v0.30.0 and documents v0.7.1"
 ---
 
 # Design system: the brand proposals and follow-ups that remain

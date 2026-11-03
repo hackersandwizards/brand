@@ -70,7 +70,7 @@ def logos(band, radius, items):
 # One grid for every banner: the lockup on top, its left edge on
 # the headline's x, the headline's ink top two units below the lockup's ink, a client band one unit
 # below the text. The unit is half the wordmark's cap height, the logo's own measure. The group is
-# centred in the area every device shows (blind reviews in os docs/tracking/2026-10-31-banner-carousel.md
+# centred in the area every device shows (blind reviews in os docs/agent-work/2026-10-31-banner-carousel.md
 # and 2026-10-31-channel-banners-live.md: the set reads as one when the logo sits on top everywhere).
 LOCKUP_CAP = (79.8, 44)  # lockup height, wordmark cap height in px, measured on the profile render
 INK_ALPHA = 5  # lockup pixels up to this alpha are resampling haze above the wizard, not ink
@@ -133,12 +133,12 @@ def grid_surfaces():
     )
     # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
     # its claim in slide 2's headline size, which fills the slide more (blind review in os
-    # docs/tracking/2026-10-31-banner-carousel.md)
+    # docs/agent-work/2026-10-31-banner-carousel.md)
     s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
         # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
-        # to x 458 in a 375 pt mobile browser (os docs/tracking/2026-10-31-channel-banners-live.md)
+        # to x 458 in a 375 pt mobile browser (os docs/agent-work/2026-10-31-channel-banners-live.md)
         "company-cover": grid(
             (1512, 256),
             68,

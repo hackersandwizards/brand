@@ -3,7 +3,7 @@
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
 static fonts, logos, the expert UI layer, and the colour, copy and component checks each consumer
 runs in its own gate. The reasoning is in os
-`docs/tracking/2026-10-29-brand-distribution.md`.
+`docs/agent-work/2026-10-29-brand-distribution.md`.
 
 This repo is public on GitHub (`github.com/hackersandwizards/brand`), its history included.
 Consumers install it as a Git dependency pinned to a tag,

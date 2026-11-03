@@ -2,12 +2,12 @@
 // square, one file per platform; the platform rounds or crops it itself. The hw spans MARK of the
 // tile's width, centred: the largest size whose corners stay inside the circle of 40 % radius that
 // a maskable app icon keeps, so the website's icons share it. os
-// docs/tracking/2026-10-31-icon-sizes.md has the blind reviews.
+// docs/agent-work/2026-10-31-icon-sizes.md has the blind reviews.
 // bun applications/avatars/generate.ts
 // The Google Workspace logo is the wide avatar: the hw centred on the same gradient, full-bleed, in
 // exactly 320 x 132, the one size Google's help names ("displayed at exactly 320 x 132 pixels"),
 // the hw 60 % of its height. Gmail shows it at 78 x 32 pt, where the lockup's letters shrank to
-// about 6 pt; os docs/tracking/2026-11-01-workspace-logo.md has the blind review. The Admin
+// about 6 pt; os docs/agent-work/2026-11-01-workspace-logo.md has the blind review. The Admin
 // console's home header squashes it into 320 x 48, measured on a screenshot of 2026-11-01; no
 // 320 x 132 file escapes that. The package ships one size,
 // logos/avatar-512.png, for a consumer that uploads a square logo (os: Tally forms); the rest stay in LFS.
@@ -92,7 +92,7 @@ if (import.meta.main) {
   // The Qonto invoice logo: logos/wordmark.svg at full width, top-aligned in a transparent 1000 px
   // square, so the mark sits level with the invoice heading. Qonto takes it as a square and prints
   // it at 200 x 200 px; the wordmark alone is an exception in os's design guide, and os
-  // docs/tracking/2026-11-02-invoice-logo.md has the blind review.
+  // docs/agent-work/2026-11-02-invoice-logo.md has the blind review.
   const lockup = readFileSync(logos("wordmark.svg"));
   const lockupWidth = Number(/ width="([\d.]+)"/.exec(lockup.toString())?.[1]);
   await sharp(lockup, { density: (72 * 1000) / lockupWidth })
