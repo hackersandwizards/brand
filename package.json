@@ -79,10 +79,6 @@
   "scripts": {
     "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && git config core.hooksPath .githooks || true",
     "check": "scaffolding check",
-    "lint": "bun --bun eslint --cache --concurrency=auto .",
-    "typecheck": "bun --bun tsc --noEmit",
-    "format": "bun --bun prettier --write .",
-    "format:check": "bun --bun prettier --check .",
     "fix": "bun --bun eslint --cache --concurrency=auto . --fix && bun --bun prettier --write .",
     "tokens": "bun scripts/tokens.ts",
     "dev": "cd catalog && bun --bun astro dev",
