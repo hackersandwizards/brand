@@ -20,7 +20,7 @@
     --color-border: var(--color-night-line);
     --color-teal: var(--color-teal-night);
     --color-teal-dark: color-mix(in srgb, var(--color-teal-night) 70%, white);
-    --color-label: var(--color-label-night);
+    --color-label-text: var(--color-label-text-night);
     --color-purple: var(--color-purple-night);
     --color-green-dark: var(--color-green);
     --color-amber-dark: var(--color-amber);

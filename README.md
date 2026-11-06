@@ -174,7 +174,8 @@ and `elements.css`; its default header is this package's `AppHeader.astro` and `
 A native `<select>` wears the brand chevron in place of the system's arrow: import `select.css`
 and give the select the class `hw-select`, or `form-input` under the expert layer, which imports
 it. The file draws only the arrow and the room for it; corner, border, height and focus stay the
-surface's. The night chevron follows `data-theme="dark"` on `html`.
+surface's. The night chevron follows `data-theme="dark"` on `html`, up to a `data-theme="light"`
+element.
 
 ### The disclosure
 
@@ -257,7 +258,7 @@ A surface written in the light tokens (`bg-bg`, `text-ink`, `text-teal`) that tu
 the expert roles `header.css` reads take their night values. It works on `<html>` too, beside
 `tokens.root.css`. The nearest `data-theme` wins: a `data-theme="light"` element inside that night
 is day again, its tokens (the derived ones included, from `tokens.root.css`), its text colour and
-`--hw-line`. The expert roles stay `expert.css`'s, which turns the whole page.
+`--hw-line`. `expert.css`'s roles follow the nearest `data-theme` the same way.
 
 ### Check your colours in your gate
 

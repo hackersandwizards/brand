@@ -54,8 +54,12 @@
   --hw-label-family: var(--font-sans);
 }
 
+/* Night is the page's (html), as the apps toggle it; a data-theme="light" element inside it takes
+   these day roles again, as in the shared elements and night.css. A data-theme="dark" element below
+   html keeps its page's roles, such as a night slide on a light page. */
 :root,
-html[data-theme="light"] {
+[data-theme="light"] {
+  color-scheme: light;
   --background: var(--color-bg);
   --foreground: var(--color-ink);
   /* teal-dark: the brand teal alone is 3.8:1 on its own 15 percent wash, which a selected chip or

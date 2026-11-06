@@ -134,3 +134,37 @@ test("static-fonts.css holds print.css's faces, each url reaching its file from 
   for (const [, url] of css.matchAll(/url\("([^"]+)"\)/g))
     expect(existsSync(join(ROOT, "generated", url))).toBe(true);
 });
+
+// Tailwind v4 resolves a utility such as text-<name> against two theme namespaces: text-label is
+// a colour wherever --color-label exists, and the element loses the --text-label size (website,
+// brand v1.13.0). No name may sit in both namespaces of such a utility, in any CSS file the package
+// ships, a consumer's @theme reading tokens.css and expert.css side by side.
+const SHARED = [
+  ["text", "color"],
+  ["shadow", "color"],
+  ["font", "font-weight"],
+] as const;
+const collisions = (source: string) => {
+  const names = (ns: string) =>
+    new Set(
+      [...source.matchAll(new RegExp(`--${ns}-([a-z0-9-]+?)(?:--[\\w-]+)?\\s*:`, "g"))].map(
+        (m) => m[1]!,
+      ),
+    );
+  return SHARED.flatMap(([a, b]) => {
+    const other = names(b);
+    return [...names(a)].filter((n) => other.has(n)).map((n) => `--${a}-${n} / --${b}-${n}`);
+  });
+};
+
+test("no theme namespace pair a Tailwind utility reads shares a name", () => {
+  expect(collisions("--color-label: x; --text-label: 1rem; --text-label--line-height: 1;")).toEqual(
+    ["--text-label / --color-label"],
+  );
+  const shipped = [...new Bun.Glob("{tokens,expert,elements,generated}/**/*.css").scanSync(ROOT)];
+  expect(shipped).toContain("expert/expert.css");
+  const source = shipped
+    .map((f) => readFileSync(join(ROOT, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, ""))
+    .join("\n");
+  expect(collisions(source)).toEqual([]);
+});

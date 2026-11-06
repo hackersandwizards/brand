@@ -26,7 +26,7 @@ and the priority pill (`hw-pill data-priority`). What stays open is in the consu
 4. trainer-hub: FormatBadge takes teal, purple, ampersand and neutral, not green or amber; its
    buttons under 32 px take `--radius-sm` (brand v1.3.0), unverified on `origin/main`.
 5. website: TrainingList's third group takes ampersand, not amber-dark.
-6. mail: reads `--color-label` and `--color-label-night` from `tokens` instead of parsing
+6. mail: reads `--color-label-text` and `--color-label-text-night` from `tokens` instead of parsing
    `elements/label.css`.
 7. brand: once os, trainer-hub and website no longer use `hue-amber` or `hue-green`, remove the two
    aliases from `expert/expert.css` in a major release; until then nothing fails a category that

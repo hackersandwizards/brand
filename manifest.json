@@ -114,7 +114,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "7067d09f53d80b51081d3db7fabdd5ab1f0c129528a4b0410abb391269f587b6"
+      "sha256": "455caecd24ee962ab64f3cfaa3c31c80d4b94c6d72ab9ff0dc69158402b5eba9"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -282,7 +282,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "297650f7c340bf6de4628591efaf018b7a9aed6bb49f0ea5994afede64be5c38"
+      "sha256": "ab93a8010d85c3662229e740bc63bad8f5c04cdb0a19adee2dcc8b5a957b4b34"
     },
     {
       "path": "expert/header.css",
@@ -290,7 +290,7 @@
     },
     {
       "path": "expert/select.css",
-      "sha256": "0a711f98f89c7932fe4fbda968dd6ffb2d006576373a706d3d78ab060188f751"
+      "sha256": "b54de9e7021341c08c2584f01003ccce5435c73da9343ba2250eb35ca0f724ad"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "33520c2a8f72d7a51d7e844e83458aec9e4ec830d29e7fbaf18a1ebf3424abdb"
+      "sha256": "375615db5d65373d70b31ceb506394382b6257b04486a97253966d3cc3770a8c"
     },
     {
       "path": "elements/label-box.css",
@@ -486,7 +486,7 @@
     },
     {
       "path": "tokens/night.css",
-      "sha256": "3258e6e99755bd9a92e7a4c683c8eb9f41afed693eaf7a9b795c03c30e7cbcb6"
+      "sha256": "bcdd3ef603de3d3fae950f4605d4e3e0f67b0cad3db3f50dfa5d1dd3938a8107"
     },
     {
       "path": "tokens/stage.css",

@@ -3,15 +3,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT } from "../scripts/git";
 import { parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
+import { launch } from "../scan/markers";
 
 // What a Tailwind consumer's :root holds per theme: the tokens, then the @theme inline block, which
 // Tailwind emits there under the same names, then the theme's roles. Each role must resolve to a
 // colour, without a cycle through a name the inline block shadows.
 const css = readFileSync(join(ROOT, "expert/expert.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 const block = (head: RegExp) => parseTokens(`@theme {${head.exec(css)![1]}}`);
-const light = block(/html\[data-theme="light"\]\s*\{([^}]*)\}/);
-// Both blocks sit on html, so night keeps every light role it does not set (--hue-amber reads
-// --warning, which night sets).
+const light = block(/\[data-theme="light"\]\s*\{([^}]*)\}/);
+// On a night page both blocks match html, so night keeps every light role it does not set.
 const dark = { ...light, ...block(/html\[data-theme="dark"\]\s*\{([^}]*)\}/) };
 const inline = block(/@theme inline\s*\{([^}]*)\}/);
 const token = resolveColors(parseTokens(readFileSync(SOURCE, "utf8")));
@@ -63,4 +63,34 @@ test("teal, purple, rust and slate equal no error, warning or success", () => {
     for (const hue of ["--hue-teal", "--hue-purple", "--hue-rust", "--hue-slate"])
       expect(status).not.toContain(value(hue));
   }
+});
+
+// A light island inside a night page takes every light role, the light colour scheme and the light
+// select chevron, as a light page does. A dark element inside a light page keeps the page's roles
+// (a night slide). Read in Chrome from tokens.root.css, select.css and expert.css as written (the
+// browser skips @theme).
+test("a data-theme=light element under a night html takes the light roles", async () => {
+  const browser = await launch();
+  const tab = await browser.newPage();
+  const sheet = ["generated/tokens.root.css", "expert/select.css"]
+    .map((f) => readFileSync(join(ROOT, f), "utf8"))
+    .join("");
+  const read = async (outer: string, inner: string) => {
+    await tab.setContent(`<!doctype html><html data-theme="${outer}"><head><style>${sheet}${css}</style>
+</head><body><div data-theme="${inner}"><main><select class="form-input"></select></main></div></body></html>`);
+    return tab.evaluate((keys) => {
+      const s = getComputedStyle(document.querySelector("main")!);
+      const chevron = getComputedStyle(document.querySelector("select")!).backgroundImage;
+      return [
+        ...keys.map((k) => `${k}: ${s.getPropertyValue(k).trim()}`),
+        chevron.match(/stroke='%23(\w+)'/)![1],
+        s.colorScheme,
+      ];
+    }, Object.keys(dark));
+  };
+  const [day, night] = [await read("light", "light"), await read("dark", "dark")];
+  expect([day.at(-2), night.at(-2), night.at(-1)]).toEqual(["8c949d", "cecfd1", "dark"]);
+  expect(await read("dark", "light")).toEqual(day);
+  expect(await read("light", "dark")).toEqual(day);
+  await browser.close();
 });
