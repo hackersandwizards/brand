@@ -9,17 +9,17 @@ recommended: f7
 options:
   - key: f7
     label: "Agents bring the speed. Flow takes training. / Agenten bringen das Tempo. Flow braucht Training."
-    detail: "Round 5: claim EN 72.8, DE 72.8, second behind r4; as home H1 over the hero visual EN 79.2, DE 79.4, first, 7 to 11 points ahead of n8 and r4 with both models. Fit with the hero visual 8.4. Keeps flow / Flow as the claim's word."
+    detail: "Round 5: claim EN 72.8, DE 72.8, second behind r4; as home H1 over the hero visual EN 79.2, DE 79.4, first in German and level with p3 in English, 7 to 11 points ahead of n8 and r4 on the panel mean. Fit with the hero visual 8.4. Flow stays the claim's word, capitalised in English too."
     score: 76
     noise: 2.0
   - key: r4
     label: "You lead the agents. We show you how. / Ihr führt die Agenten. Wir zeigen euch, wie."
-    detail: "Round 5: claim EN 76.2, DE 74.5, first; as home H1 EN 72.0, DE 70.3. The most credible line (8.4 to 8.5), but fit with the hero visual 5.2 and distinctive 4.8."
+    detail: "Round 5: claim EN 76.2, DE 74.5, first; as home H1 EN 72.0, DE 70.3. The most credible line as the claim (8.4), but fit with the hero visual 5.2 and distinctive 4.8."
     score: 73
     noise: 2.0
   - key: p3
     label: "Agents bring the speed. We get your teams in tune. / Agenten bringen das Tempo. Wir bringen eure Teams in Einklang."
-    detail: "Round 5: claim EN 65.6, DE 61.9; as home H1 EN 79.8, a tie with f7, DE 75.7. The best fit with the hero visual (9.0), but as the claim reviewers read it as team coordination, not training with agents."
+    detail: "Round 5: claim EN 65.6, DE 61.9; as home H1 EN 79.8, a tie with f7, DE 75.7. Fit with the hero visual 9.0, the best of these four (f5, the same English with 'aufeinander abstimmen', 9.2), but as the claim reviewers read it as team coordination, not training with agents."
     score: 71
     noise: 2.0
   - key: n8
@@ -72,16 +72,17 @@ As the home H1 over the lead sentence and the running hero visual, at 1440 px an
 ## Recommendation
 
 f7, as the claim and as the home H1. It is the only line in the top two of both tests. As the home
-H1 it leads r4 by 7.2 (EN) and 9.1 (DE) and n8 by 8.1 and 10.7, outside the noise of 1.4, with both
-models in both languages; p3 ties it in English and trails by 3.7 in German. As the claim r4 leads
-f7 by 3.4 (EN) and 1.7 (DE) at a noise of 2.0: the English lead stands outside the noise, the
-German one inside. Claude scores r4 ahead in both languages, Codex by 1.6 in English and f7 ahead
-in German. Taking r4 as the
-claim and f7 as the H1 would split the one line the website reads from `verbal.json`, so the
-smaller claim lead goes to the line that wins the home page by more.
+H1 it leads r4 by 7.2 (EN) and 9.1 (DE) and n8 by 8.1 and 10.7 on the panel mean, outside its noise
+of 1.4. Codex puts it 7 to 16 points ahead of both. Claude puts it 7 to 8 ahead of r4 but only 2.9
+(EN) and 5.2 (DE) ahead of n8, and prefers p3 in English (77.6 against 72.5); on the panel mean p3
+ties f7 in English and trails by 3.7 in German. As the claim r4 leads f7 by 3.4 (EN) and 1.7 (DE) at
+a noise of 2.0: the English lead stands outside the noise, the German one inside. Claude scores r4
+ahead in both languages, Codex by 1.6 in English and f7 ahead in German. Taking r4 as the claim and
+f7 as the H1 would split the one line the website reads from `verbal.json`, so the smaller claim
+lead goes to the line that wins the home page by more.
 
-f7 closes n8's main measured gap: it names the training. It keeps flow as the claim's word, so the
-closing slide's highlight word and the hero caption "in flow" stay as they are.
+f7 closes n8's main measured gap: it names the training. It keeps flow as the claim's word, which the
+hero caption "in flow" already shows.
 
 The reviewers' remaining gaps for f7, which a yes accepts:
 
@@ -91,14 +92,15 @@ The reviewers' remaining gaps for f7, which a yes accepts:
   forms, "Training brings the flow" and "Flow comes with training", scored 3 to 10 points lower.
 - "Flow" stays abstract to some reviewers, and Denglisch to some Claude reviewers, on the closing
   slide and the one-pager, where no hero visual explains it.
+- Agents' speed is taken for granted, and Codex reviewers doubt that training alone clears an
+  organisation's bottlenecks.
 - Energy and calm 7.3 as the claim, against n8's 8.6: calm is implied, not said.
-- At 1440 px the home H1 breaks after "Flow", in both languages. The website sets the break when it
-  takes the line.
+- At 1440 px the home H1 breaks after "Flow", in both languages.
 
 ## What a yes changes
 
-1. Brand, a minor release: `verbal.json` takes the new `claim` (en, de, `since`; `word` stays flow /
-   Flow), and the current claim moves into `retired` with `replacedBy: claim`. `position.en` and
+1. Brand, a minor release: `verbal.json` takes the new `claim` (en, de, `since`; `word.en` becomes "Flow", capitalised as in the
+   line, since `test/verbal.test.ts` and the closing slide's highlight match the word case-sensitively), and the current claim moves into `retired` with `replacedBy: claim`. `position.en` and
    `boilerplate.en` quote the old claim's words ("unstoppable, in flow"), so the release rewrites
    both. `applications/channel-banners/render.py` writes the claim into the first LinkedIn profile
    banner, so it gets rewritten and re-rendered. The portal and `test/verbal.test.ts` read
