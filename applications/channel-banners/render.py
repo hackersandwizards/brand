@@ -9,10 +9,13 @@ Run from the brand repo root:
     uv run applications/channel-banners/render.py
 
 The banners with client logos (profile slide 2, the Featured link) take their marks from clients/.
+The profile banners take the claim from verbal/verbal.json, one sentence per line: after a claim
+change, run this and read each of them for the safe area.
 Layout values are measured from the airy set as shipped.
 """
 
 import argparse
+import json
 import re
 from functools import cache
 from io import BytesIO
@@ -211,7 +214,19 @@ def grid_surfaces():
     }
 
 
-PROFILE_LINES = ([("Agents bring the speed.", 0)], [("Flow", 1), (" needs teams in tune.", 0)])
+def claim_lines():
+    """verbal.json's English claim, one sentence per line, its word in the accent."""
+    claim = json.loads((BRAND / "verbal/verbal.json").read_text())["claim"]
+    first, second = claim["en"].split(". ")
+
+    def parts(text):
+        before, word, after = text.partition(claim["word"]["en"])
+        return [(t, role) for t, role in ((before, 0), (word, 1), (after, 0)) if t]
+
+    return parts(first + "."), parts(second)
+
+
+PROFILE_LINES = claim_lines()
 PROFILE_LOGOS = [("mercedes-benz", 569, 63), ("dm", 682.5, 59), ("tchibo", 842, 47), ("vorwerk", 1025, 53), ("bonprix", 1201.5, 45)]
 FEATURED_LOGOS = [("mercedes-benz", 188, 78), ("dm", 327.5, 72), ("tchibo", 522.5, 57), ("vorwerk", 747, 64), ("bonprix", 963.5, 55)]
 
