@@ -40,7 +40,7 @@ const table = (head: string[], rows: unknown[][]) =>
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 // Files the page loads beside it (catalogue-assets/, served by their own route): the elements as
-// one stylesheet, so each sample frame loads one file instead of elements.css and its 23 imports,
+// one stylesheet, so each sample frame loads one file instead of elements.css and its imports,
 // the catalog shell's stylesheet, and each PNG an inlined SVG embeds, so the HTML carries no image
 // as base64 text (the MacBook stickers' wizard was 0.95 MB of 1.28 MB).
 const ASSETS = "catalogue-assets";

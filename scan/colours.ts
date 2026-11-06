@@ -241,10 +241,12 @@ const valueAt = (src: string, i: number) => {
 const onToken = (value: string, shadow: boolean) => {
   const v = norm(value);
   if (NEUTRAL.test(v) || pureVar(v) || (shadow ? SHADOWS : RADII).has(v)) return true;
+  if (!v || /[${}]/.test(v) || /^[a-z_][\w.]*$/.test(v)) return undefined;
   const key = /^[a-z_$][\w$.]*\[(["'`])([^"'`]*)\1\]$/.exec(v)?.[2];
   if (key !== undefined)
-    return key.startsWith("--") ? key.startsWith(shadow ? "--shadow-" : "--radius-") : undefined;
-  if (!v || /[${}]/.test(v) || /^[a-z_][\w.]*$/.test(v)) return undefined;
+    return key.startsWith("--")
+      ? key.startsWith(shadow ? "--shadow-" : "--radius-") && key in tokens
+      : undefined;
   return false;
 };
 

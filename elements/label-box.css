@@ -2,7 +2,8 @@
    ONE), a frame's title over its edge or a strip of labels (a slide's stage strip). A hairline on
    the white ground; the line takes the label's colour where data-hue or data-tone sets one, else
    the hairline grey. Put it on the label itself (class="hw-label hw-label-box", data-hue="purple"
-   colours both) or on a box around several labels and chips. In a blind panel on three slides
+   colours both; data-hue="teal" on a teal label draws the line in its colour) or, without a hue,
+   on a box around several labels and chips. In a blind panel on three slides
    (2026-11-06, overall of 10, noise 0.33) the hairline in the label's colour scored 8.2, a hue
    tint with a light line 8.0, a double line 7.8, the hand-drawn boxes before 7.1.
 
@@ -23,28 +24,13 @@
     padding: var(--hw-label-box-pad, 0.25rem 0.625rem);
     background: var(--color-white);
   }
-  .hw-label-box[data-hue="teal"] {
-    --_line: var(--color-teal);
-  }
-  .hw-label-box[data-hue="purple"] {
-    --_line: var(--color-purple);
-  }
-  .hw-label-box[data-tone="ink"] {
-    --_line: var(--color-ink);
+  .hw-label-box:is([data-hue], [data-tone="ink"]) {
+    --_line: currentColor;
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-label-box {
       --_line: var(--color-night-line);
       background: var(--color-night);
-    }
-    .hw-label-box[data-hue="teal"] {
-      --_line: var(--color-teal-night);
-    }
-    .hw-label-box[data-hue="purple"] {
-      --_line: var(--color-purple-night);
-    }
-    .hw-label-box[data-tone="ink"] {
-      --_line: var(--color-night-ink);
     }
   }
 }

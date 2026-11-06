@@ -241,16 +241,25 @@ async function inkMiddle(png: string, scale: number): Promise<number> {
   return sum / total / scale;
 }
 
-/** Opens `url` and throws where a stylesheet it links fails to load: an unstyled page shows the
- *  browser's own list markers and spacing, as a build linking file:// stylesheets does when served
- *  over http with --site. */
+/** Opens `url` and throws where a stylesheet of its own (its origin's or a file) fails to load: an
+ *  unstyled page shows the browser's own list markers and spacing, as a build linking file://
+ *  stylesheets does when served over http with --site. A third party's sheet, such as a web font
+ *  service's, may fail offline without reddening the run. */
 export async function open(page: Page, url: string) {
+  const origin = new URL(url).origin;
   const missing: string[] = [];
-  const failed = (r: HTTPRequest) => r.resourceType() === "stylesheet" && missing.push(r.url());
+  const failed = (r: HTTPRequest) => {
+    const u = new URL(r.url());
+    if (r.resourceType() === "stylesheet" && (u.protocol === "file:" || u.origin === origin))
+      missing.push(r.url());
+  };
   const status = (r: HTTPResponse) => r.status() >= 400 && failed(r.request());
   page.on("requestfailed", failed).on("response", status);
-  await page.goto(url, { waitUntil: "networkidle0" });
-  page.off("requestfailed", failed).off("response", status);
+  try {
+    await page.goto(url, { waitUntil: "networkidle0" });
+  } finally {
+    page.off("requestfailed", failed).off("response", status);
+  }
   if (missing.length) throw new Error(`${url}: stylesheet not loaded: ${missing.join(", ")}`);
 }
 

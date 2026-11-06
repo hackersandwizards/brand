@@ -78,6 +78,10 @@
       border-color: color-mix(in srgb, white 40%, transparent);
       color: var(--color-white);
     }
+    .hw-button[data-hue="purple"][data-variant="secondary"] {
+      border-color: var(--color-purple-night);
+      color: var(--color-purple-night);
+    }
     .hw-button[data-variant="secondary"]:hover {
       border-color: var(--color-purple);
       color: var(--color-white);
@@ -85,10 +89,6 @@
     }
     .hw-button[data-variant="secondary"][data-filled] {
       background: var(--color-night);
-    }
-    .hw-button[data-hue="purple"][data-variant="secondary"] {
-      border-color: var(--color-purple-night);
-      color: var(--color-purple-night);
     }
   }
 }

@@ -350,7 +350,7 @@
     },
     {
       "path": "elements/label-box.css",
-      "sha256": "853591bc4346ffb30b10d8a2f27d43a3aa25f7197a71a39e93eff4aac62a59ec"
+      "sha256": "97f1ec79aa9e7f4d79299c0a31d9ad7fbabc147dec9e0e112a112b87901c32e5"
     },
     {
       "path": "elements/link.css",
@@ -402,7 +402,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "553d70fcf82876bdf140e03849de9767003832c8af954a177df5567a96c15130"
+      "sha256": "6435840c5e7f50055a311f7a17ad5da317ae623425d778574f13759e9b5ec681"
     },
     {
       "path": "elements/facts.css",
