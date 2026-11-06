@@ -262,7 +262,7 @@
     },
     {
       "path": "expert/header.css",
-      "sha256": "12a5e041b163e8f15fc69c53e4867b473ad2d6dbc498295da28263a79ab8e95e"
+      "sha256": "16097698b1ff1c77f231ce00acf9b6422825c189e838258b9160d5fcfd64bb92"
     },
     {
       "path": "expert/select.css",
@@ -306,7 +306,7 @@
     },
     {
       "path": "expert/components/ThemeToggle.astro",
-      "sha256": "ff97071604a5d9395c70b9f7ce64839c0c9eb830c7341feba17ff615578aad65"
+      "sha256": "435a8fcba00ec5420f956f8f9452e0dd905945f75311ec57020d360cd6db5bb0"
     },
     {
       "path": "expert/components/space-nav.ts",
@@ -426,7 +426,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "03132e891202855e6f79cc7dc3fb4dea3ca71a30f49f59fe82fed77c29c7aa52"
+      "sha256": "6553f13996129a8b5131aebfe9b3462f8eb5768659b89c29f7e77a12866e79f9"
     },
     {
       "path": "elements/row.css",

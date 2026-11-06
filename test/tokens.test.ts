@@ -30,6 +30,11 @@ test("mixes color-mix() tokens in sRGB", () => {
   expect(colors["--color-subtle"]).toBe(colors["--color-muted"]); // former name
 });
 
+test("ampersand-light, written out against night.css's loop, stays ampersand 60 % on white", () => {
+  const mix = rgb(colors["--color-ampersand"]).map((v) => Math.round(v * 0.6 + 255 * 0.4));
+  expect(rgb(colors["--color-ampersand-light"])).toEqual(mix);
+});
+
 test("holds 30 brand colours, a former name adding none", () => {
   const own = Object.keys(colors).filter((k) => !alias(k));
   expect(own).toHaveLength(30);

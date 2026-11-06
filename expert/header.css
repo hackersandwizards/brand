@@ -179,7 +179,12 @@ html[data-theme="dark"] .hw-header-logo-night {
 /* An icon-only link or button (theme, menu, search) is round, per the shape rule: data-icon on
    it, its svg the only content. 36 px across with a 20 px icon, at every width. */
 .hw-header-link[data-icon] {
-  padding: 0.5rem;
+  box-sizing: border-box;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  justify-content: center;
+  padding: 0;
   border-radius: var(--radius-pill);
 }
 

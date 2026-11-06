@@ -1,8 +1,9 @@
 // The tracked brand files, served beside the portal, which links them: in dev from the working
 // tree, in the build copied into dist/. Only the brand folders: the repo's code, tests and docs
 // stay out, as a test copied into dist/ runs again under a bare `bun test`. The print masters
-// (logos/*.tif) stay out too, as the portal links none of them. On GitHub Actions the build first pulls the LFS files .lfsconfig keeps from a
-// clone and fails on any still a pointer, so the published page never shows one.
+// (logos/*.tif) stay out too, as the portal links none of them. On GitHub Actions the build first
+// pulls the LFS files .lfsconfig keeps from a clone and fails on any still a pointer, so the
+// published page never shows one.
 import type { AstroIntegration } from "astro";
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";

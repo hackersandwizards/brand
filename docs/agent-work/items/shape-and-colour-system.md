@@ -4,7 +4,7 @@ status: open
 priority: 1
 order: 10
 owner: each consumer session, against brand v1.1.0
-evidence: "brand v1.3.0 (elements/label-box.css, button.css data-hue, label.css data-hue, inline-code.css, tokens.css --gradient-strip and the small-size corner); brand v1.1.0 (tokens/tokens.css radii and palettes, elements/rule.css, elements/code.css, elements/button.css, elements/scales.css, tokens/stage.css, expert/expert.css); blind panels of 06.11. below"
+evidence: "brand v1.4.0 (elements/inline-code.css, expert/header.css data-icon, expert/components/theme-icons.ts); brand v1.3.0 (elements/label-box.css, button.css data-hue, label.css data-hue, inline-code.css, tokens.css --gradient-strip and the small-size corner); brand v1.1.0 (tokens/tokens.css radii and palettes, elements/rule.css, elements/code.css, elements/button.css, elements/scales.css, tokens/stage.css, expert/expert.css); blind panels of 06.11. below"
 ---
 
 # One shape and colour system: what the consumers still adopt
@@ -81,3 +81,25 @@ teal 6.7), inline code at 0.25em side padding (8.5, 0.375em 7.3), the small corn
 8. mail: pictures take `--radius-sm` (`components/theme.ts` `corner`, `test/image.test.tsx`); its
    gate names the `CATALOG_FILE=1` build's pages as files for `brand-markers`, never `--site`.
 9. admin, os, trainer-hub: a button under 32 px tall takes `--radius-sm`.
+
+## Since v1.4.0 (06.11.)
+
+Blind panel for inline code on two website articles (feature-planner blog post, the knowledge
+article on agent interfaces) at 320 and 1440 px; a CTO, a platform engineer and an editorial
+typographer, two Claude runs and one Codex run each, noise 0.3 (max 0.8): regular weight with a
+sixteenth em above and below and a light ink tint 8.8, the website's own 1px x 0.3em at 0.875rem
+8.4, v1.3.0's chip 8.0. Not panelled: os, trainer-hub, certificate-verifier and documents, where
+the chip's day fill turns from the muted fill to the ink tint and its weight from 500 to 400.
+
+10. website: drop the `inline-code` exception (`brand-elements.json`) and the inline-code rules in
+    `src/components/ui/Prose.astro` (both `:is(.blog-prose, .knowledge-prose) code` blocks); mark
+    inline code `hw-inline-code` in `src/lib/prose-markdown.ts`, import
+    `@hackersandwizards/brand/elements/inline-code.css` in `src/styles/elements.css`, add
+    `inline-code` to `uses`. At 320 px `needs-human` on `/blog/2026/feature-planner/` stays inside
+    its column.
+11. talks: the theme toggle (`components/theme-toggle.tsx`) takes `data-icon` beside
+    `hw-header-link`, drops `size-5` on its svgs, and draws `MOON` and `SUN` from
+    `@hackersandwizards/brand/expert/components/theme-icons.ts` instead of its own paths, the old
+    moon included.
+12. os: the header's figures toggle (`src/components/Header.astro`, `rounded-full p-2
+hover:bg-muted`) becomes `hw-header-link` with `data-icon`; `ThemeToggle` follows by itself.

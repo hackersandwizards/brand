@@ -486,3 +486,18 @@ test("source: a PascalCase component, a camelCase class and a nested rule are re
     'src/a.scss: .projectCard styles an element named like a shared one; use the hw-* element or list "projectCard" as an exception',
   ]);
 });
+
+test("the prose block's inline code repeats inline-code.css's day rule declaration for declaration", () => {
+  const block = (file: string, selector: string) => {
+    const src = readFileSync(join(import.meta.dir, "../elements", file), "utf8");
+    const at = src.indexOf(`${selector} {`);
+    expect(at).toBeGreaterThan(-1);
+    return src
+      .slice(src.indexOf("{", at) + 1, src.indexOf("}", at))
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+  expect(block("prose.css", ".hw-prose :not(pre) > code")).toBe(
+    block("inline-code.css", ".hw-inline-code"),
+  );
+});
