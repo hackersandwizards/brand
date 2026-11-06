@@ -304,13 +304,14 @@
 
   /* The brand gradient: a field (a banner, a background, a header behind a picture) and the strip
      (elements/strip.css). A rule line under a title or over a block is teal, never the gradient
-     (elements/rule.css). --gradient-strip is the strip's, left to right and mixed in oklab as the
-     website draws it, for any edge that can only take a background (a page rail, a certificate's
-     band). */
+     (elements/rule.css). --gradient-strip is the strip's, left to right in sRGB, for any edge that
+     can only take a background (a page rail, a certificate's band). Blind panel 2026-11-06 on a
+     readout, the website header and the app header, Claude and Codex, two runs: sRGB 8.3, oklab 7.5,
+     whose middle read greyish. */
   --gradient-magic: linear-gradient(
     135deg,
     var(--color-teal) 0%,
     var(--color-purple) 100%
   );
-  --gradient-strip: linear-gradient(to right in oklab, var(--color-teal), var(--color-purple));
+  --gradient-strip: linear-gradient(to right, var(--color-teal), var(--color-purple));
 }

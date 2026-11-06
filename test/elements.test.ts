@@ -380,10 +380,9 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
   ]);
 });
 
-// The website's strip (Tailwind's gradient) mixes in oklab; sRGB shifted its middle on every page.
-test("the strip and the expert header strip draw the strip gradient, teal to purple in oklab", () => {
+test("the strip and the expert header strip draw the strip gradient, teal to purple", () => {
   expect(tokens["--gradient-strip"]).toBe(
-    "linear-gradient(to right in oklab, var(--color-teal), var(--color-purple))",
+    "linear-gradient(to right, var(--color-teal), var(--color-purple))",
   );
   for (const f of ["elements/strip.css", "expert/header.css"])
     expect(readFileSync(join(ROOT, f), "utf8")).toContain("background: var(--gradient-strip);");
@@ -487,10 +486,11 @@ test("source: a PascalCase component, a camelCase class and a nested rule are re
   ]);
 });
 
-test("the prose block's inline code repeats inline-code.css's day rule declaration for declaration", () => {
-  const block = (file: string, selector: string) => {
+test("the prose block's inline code repeats inline-code.css's rules declaration for declaration", () => {
+  // The first rule for the selector is day's, the last night's.
+  const block = (file: string, selector: string, night = false) => {
     const src = readFileSync(join(import.meta.dir, "../elements", file), "utf8");
-    const at = src.indexOf(`${selector} {`);
+    const at = night ? src.lastIndexOf(`${selector} {`) : src.indexOf(`${selector} {`);
     expect(at).toBeGreaterThan(-1);
     return src
       .slice(src.indexOf("{", at) + 1, src.indexOf("}", at))
@@ -499,5 +499,8 @@ test("the prose block's inline code repeats inline-code.css's day rule declarati
   };
   expect(block("prose.css", ".hw-prose :not(pre) > code")).toBe(
     block("inline-code.css", ".hw-inline-code"),
+  );
+  expect(block("prose.css", ".hw-prose :not(pre) > code", true)).toBe(
+    block("inline-code.css", ".hw-inline-code", true),
   );
 });

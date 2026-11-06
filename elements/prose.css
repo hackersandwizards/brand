@@ -133,6 +133,6 @@
 }
 @scope ([data-theme="dark"]) to ([data-theme="light"]) {
   .hw-prose :not(pre) > code {
-    background-color: color-mix(in srgb, var(--muted, var(--color-night-2)) 70%, transparent);
+    background-color: color-mix(in srgb, var(--color-night-ink) 8%, transparent);
   }
 }
