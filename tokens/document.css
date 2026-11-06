@@ -1,7 +1,7 @@
 /* The document scale: every length, size and step the document engine (@hackersandwizards/documents)
    draws a page with: print lengths in pt, page geometry in mm, the onepager's px rhythm and the
-   readout deck's rem (every value comes from brand). The engine
-   keeps its components and the roles it derives from these, tokens.css and print.css with var().
+   readout deck's rem. Every value comes from brand: the engine keeps its components and the roles
+   it derives from these, tokens.css and print.css with var().
    The readout deck's values that equal the slide stage's read them from stage.css. Export
    ./document.css, after tokens.css and print.css. */
 @import "./stage.css";

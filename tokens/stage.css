@@ -1,8 +1,7 @@
 /* The stage scale: every length, size and step the slide engine (@hackersandwizards/slides) draws a
-   slide with, at the 1440 stage whose rem is 1/90 of the slide's width (every value
-   comes from brand). The engine keeps its components and the
-   roles it derives from these and from tokens.css with var(); a value whose reason concerns one
-   component is stated beside it here. The @theme block is the engine's Tailwind steps: import
+   slide with, at the 1440 stage whose rem is 1/90 of the slide's width. Every value comes from
+   brand: the engine keeps its components and the roles it derives from these and from tokens.css
+   with var(); a value whose reason concerns one component is stated beside it here. The @theme block is the engine's Tailwind steps: import
    this file with theme(static) after tokens.css (export ./stage.css). A plain-CSS reader, such as
    the documents engine's readout deck, takes the :root block; a browser drops the @theme block. */
 
@@ -27,7 +26,8 @@
    text-5xl, -6xl, -8xl  statement steps  2, 2.5 and 4 x the slide body
 
    text-sm and text-lg keep their sizes from before the roles: the code role at stage size
-   (1.3125rem) and h4 (1.6875rem) push hub slides under the fit guard or deeper into it, and a guard that shrinks the whole body loses more than the step gains.
+   (1.3125rem) and h4 (1.6875rem) push hub slides under the fit guard or deeper into it, and a
+   guard that shrinks the whole body loses more than the step gains.
    The statement steps carry the title, statement, closing and big-number slides. The website
    has no role for type that fills a stage (its display role at stage size, 5.25rem, sits between
    two of them), so they stay steps of the slide body. Not inline, so the utilities read the

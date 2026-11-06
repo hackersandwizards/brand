@@ -106,7 +106,7 @@
     },
     {
       "path": "tokens/print.css",
-      "sha256": "b51a9afd19f6b474e6d37d82ec800709716e84a7aa405cec928a849b10e91109"
+      "sha256": "7d3916a93ae35b48fbba13e6ad00d6d815729d30168283f44764b56477d7981f"
     },
     {
       "path": "tokens/marker.css",
@@ -458,7 +458,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "2a9f815416b6a72aeae1d2221170610e448a7a2114c098f21be391f947cc8b29"
+      "sha256": "f8850cbdb170fc9dc1cf338411d1661538465bc95c206f5c5163306aaeee7934"
     },
     {
       "path": "elements/row.css",
@@ -478,7 +478,7 @@
     },
     {
       "path": "tokens/document.css",
-      "sha256": "604c508e58446d09be1c2465da00333ebc7d55b9d1f1f7aa5b9e82a6997b8173"
+      "sha256": "842556313da9b2b3cdc5ec041ec1fae908e0fa3bb117316de1b5699a33689118"
     },
     {
       "path": "tokens/fonts.css",
@@ -490,7 +490,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "7b24b84ae1f0789b9870de531b2b07252b103d6b2f4dd33ca403b5ccbd7fe53d"
+      "sha256": "77fa923755d5c1332ccfe09e684196e53cad83c737d55afd3b25a61fd6b35fd0"
     },
     {
       "path": "verbal/verbal.json",

@@ -1,16 +1,13 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT } from "../scripts/git";
+import { packed as listPacked, ROOT } from "../scripts/git";
 
 const SHIPPED =
   /^(package\.json|manifest\.json|README\.md|LICENSE|(tokens|generated|expert|elements|logos|clients|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(colours|copies|components|markers|elements)\.ts)$/;
 const PRINT_MASTERS = /\.tif$|emoji-logo-(long|short)\.png$/;
 
-const packed = Bun.spawnSync(["bun", "pm", "pack", "--dry-run"], { cwd: ROOT })
-  .stdout.toString()
-  .split("\n")
-  .flatMap((line) => line.match(/^packed \S+ (.+)$/)?.[1] ?? []);
+const packed = listPacked();
 
 test("the package ships only the core", () => {
   expect(packed.length).toBeGreaterThan(30);

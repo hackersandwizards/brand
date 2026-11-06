@@ -26,16 +26,19 @@ and components, the line comments in `expert/components/` and `elements/code.ts`
 
 The build copies three generator scripts into `dist/` (`applications/backgrounds/generate.ts`,
 `applications/channel-banners/render.py`, `applications/avatars/generate.ts`). Their comments
-lose the decision names, review scores and pointers to os review reports. The device and platform
-measurements stay, because changing a layout needs them.
+lose the decision names, review scores and pointers to os review reports, as does the shipped
+`applications/linkedin-visuals/render.ts`. The device and platform measurements stay, with the
+date of a measurement taken on an outside platform (X, XING, Facebook, Google Admin): those
+platforms change their crops, so the date tells a reader whether the number still holds.
 
 ## The guard
 
-`test/history.test.ts` reads every `.css`, `.astro` and `.ts` file an export names and fails on
-a decision id, a review score, an item id (`OS-1` style, or one of this repo's own item ids), a
-date or a founder's name. Its control runs the patterns over seven comments as they shipped in
-v1.16.0, and each one must hit. Run against v1.16.0's files, the test fails on 14 of the 15 files
-this release changes. The 15th is `fonts.css`, whose sample surname no pattern can know.
+`test/history.test.ts` reads the comments of every `.css`, `.astro`, `.ts` and `.html` file the
+package ships (65 files, from `bun pm pack --dry-run`) and fails on a decision id, a review score,
+an item id (`OS-1` style, or one of this repo's own item ids), a date or a founder's name. Its
+control runs the patterns over eight comments as they shipped, and each one must hit. Run against
+v1.16.0's files, the test fails on 15 of the 16 shipped files this release changes. The 16th is
+`fonts.css`, whose sample surname no pattern can know. Another person's name would pass it too.
 
 ## Rendering
 

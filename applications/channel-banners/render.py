@@ -136,7 +136,7 @@ def grid_surfaces():
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
         # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
-        # to x 458 in a 375 pt mobile browser (os docs/agent-work/2026-10-31-channel-banners-live.md)
+        # to x 458 in a 375 pt mobile browser
         "company-cover": grid(
             (1512, 256),
             68,
