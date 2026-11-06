@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 260
+order: 4
 area: brand
 owner: a brand session
 evidence: "not established; 03.11. logos/ still holds type-logo-long.svg, emoji-logo-long.png and its TIF, and avatar-512.png"
