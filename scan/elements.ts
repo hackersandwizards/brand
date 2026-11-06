@@ -423,7 +423,7 @@ export async function measurePage(
       TOLERANCE,
       lightOnly ? DAY_TOKENS : TOKENS,
     ] as Args);
-    return { ...out, findings: out.findings.map((f) => ({ page: url, ...f })) };
+    return { ...out, page: url, findings: out.findings.map((f) => ({ page: url, ...f })) };
   } finally {
     await page.close();
   }
@@ -586,10 +586,10 @@ export const sourceFindings = (
 /** Coverage of brand-elements.json against what the pages show. */
 export const coverage = (
   config: Config,
-  results: { seen: string[]; tiles: PageResult["tiles"]; exceptions: string[] }[],
+  results: { page?: string; seen: string[]; tiles: PageResult["tiles"]; exceptions: string[] }[],
 ) => {
   const out: string[] = [];
-  const tiles = results.flatMap((r) => r.tiles);
+  const tiles = results.flatMap((r) => r.tiles.map((t) => ({ ...t, page: r.page ?? "a page" })));
   const shown = new Set(results.flatMap((r) => r.seen));
   const exceptionTiles = new Set(results.flatMap((r) => r.exceptions));
   for (const name of config.uses) {
@@ -598,11 +598,12 @@ export const coverage = (
       continue;
     }
     const held = tiles.filter((t) => t.name === name && t.holds);
-    const stale = held.find((t) => t.version !== own.version);
     if (!held.length) out.push(`${name}: used, but no page shows it in a [data-hw-tile="${name}"]`);
-    else if (stale)
+    for (const t of new Map(
+      held.filter((t) => t.version !== own.version).map((t) => [t.page, t]),
+    ).values())
       out.push(
-        `${name}: the tile says brand v${stale.version || "?"}, the installed package is v${own.version}; rebuild the page`,
+        `${name}: the tile on ${t.page} says brand v${t.version || "?"}, the installed package is v${own.version}; rebuild that page`,
       );
   }
   for (const name of shown)

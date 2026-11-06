@@ -144,25 +144,6 @@ test("an element of the catalog shell is not measured and needs no uses entry", 
   );
 }, 60_000);
 
-// The tile version is read from the page, and every page is compared: a stale page listed after a
-// fresh one still fails.
-test("a stale tile on any page fails coverage; tiles at the installed version pass", async () => {
-  const built = (name: string, version: string) =>
-    measurePage(
-      browser,
-      file(
-        name,
-        only(`<div data-hw-tile="label" data-hw-version="${version}">${DEMOS.label}</div>`),
-      ),
-    );
-  const fresh = await built("fresh.html", own.version);
-  expect(coverage({ pages: [], uses: ["label"] }, [fresh])).toEqual([]);
-  const stale = await built("stale.html", "1.0.0");
-  expect(coverage({ pages: [], uses: ["label"] }, [fresh, stale])).toEqual([
-    `label: the tile says brand v1.0.0, the installed package is v${own.version}; rebuild the page`,
-  ]);
-}, 60_000);
-
 // A closed fold draws its elements once opened, so they are measured open: a focusable in a shut
 // fold takes no focus and reads as having no ring.
 test("an element in a closed details is measured open; a header's menu stays shut", async () => {
@@ -359,13 +340,21 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   };
   const out = coverage(config, [
     {
+      page: "a.html",
       seen: ["card", "label"],
-      tiles: [{ name: "card", version: "0.1.0", holds: true }],
+      tiles: [{ name: "card", version: own.version, holds: true }],
       exceptions: ["total-band"],
+    },
+    // A stale page listed after a fresh one still fails, named.
+    {
+      page: "b.html",
+      seen: [],
+      tiles: [{ name: "card", version: "0.1.0", holds: true }],
+      exceptions: [],
     },
   ]);
   expect(out).toEqual([
-    `card: the tile says brand v0.1.0, the installed package is v${own.version}; rebuild the page`,
+    `card: the tile on b.html says brand v0.1.0, the installed package is v${own.version}; rebuild that page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
     'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, button, arrow-link, field, facts, segmented, row, breadcrumb, status, frame, kpi, prose)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
