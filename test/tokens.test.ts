@@ -3,13 +3,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import fonts from "../generated/fonts.json";
 import { ROOT } from "../scripts/git";
-import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
+import { fontFaces, palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
 
 const css = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(css);
 const colors = resolveColors(tokens);
 const alias = (k: string) => /^var\(--color-[\w-]+\)$/.test(tokens[k]);
 const { neutrals, hues } = palettes(css);
+const print = readFileSync(SOURCE.replace("tokens.css", "print.css"), "utf8");
 
 const luminance = (hex: string) => {
   const [r, g, b] = rgb(hex).map((v) => {
@@ -92,7 +93,6 @@ test("every chart series clears 3:1 on white", () => {
 });
 
 test("print.css's page-box variables match its @page rule, which cannot read them", () => {
-  const print = readFileSync(SOURCE.replace("tokens.css", "print.css"), "utf8");
   const v = (name: string) => print.match(new RegExp(`${name}: ([^;]+);`))![1];
   expect(print).toContain(
     `@page {\n  size: A4;\n  margin: 14mm 0 ${v("--print-margin-bottom")};\n}`,
@@ -104,4 +104,21 @@ test("fonts.json names each family tokens.css leads with, and every file it list
   for (const stack of [tokens["--font-sans"], tokens["--font-mono"]])
     expect(fonts.faces.map((f) => `"${f.fontFamily}"`)).toContain(stack.split(",")[0]);
   for (const f of fonts.faces) expect(existsSync(join(ROOT, "tokens/fonts", f.file))).toBe(true);
+});
+
+// A static latin-ext face covers what its Latin file lacks only if its range is fonts.css's.
+test("print.css's latin-ext faces take fonts.css's range, mono at its Latin weights", () => {
+  const faces = fontFaces(print);
+  const range = Object.fromEntries(
+    fonts.faces.filter((f) => f.unicodeRange).map((f) => [f.fontFamily, f.unicodeRange!]),
+  );
+  const weights = (family: string, subset: string) =>
+    faces
+      .filter((f) => f.fontFamily === family && new RegExp(`-${subset}-\\d+-normal`).test(f.file))
+      .map((f) => f.fontWeight);
+  for (const f of faces.filter((f) => f.file.includes("-latin-ext-")))
+    expect(f.unicodeRange).toBe(range[f.fontFamily]);
+  expect(weights("Inter Variable", "latin-ext")).toEqual(["400", "600"]);
+  const mono = "JetBrains Mono Variable";
+  expect(weights(mono, "latin-ext")).toEqual(weights(mono, "latin"));
 });

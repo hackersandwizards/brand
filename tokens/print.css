@@ -9,12 +9,12 @@
    --font-mono and --font-code reach these files. Latin subset, plus latin-ext
    for Inter 400 and 600, the weights print sets names in, so a certificate
    prints Ł and ř in Inter, and for JetBrains Mono at every weight, so mono
-   text prints Č and ő in it. Each static file is fontTools' instance of the
-   variable file fonts.css names, at its weight, under the Latin file's names;
-   a latin-ext face takes fonts.css's range for its family. Arrows (Inter, JetBrains Mono) and box drawing
-   (JetBrains Mono, for file trees in code) come as separate files under a
-   unicode-range, cut from the Google Fonts release of the same versions, so a
-   page without them loads nothing extra. Licences: the OFL files in fonts/. */
+   text prints Č and ő in it, each fontTools' instance of the variable file
+   fonts.css names, under the Latin file's names. Arrows (Inter, JetBrains
+   Mono) and box drawing (JetBrains Mono, for file trees in code) come as
+   separate files under a unicode-range, cut from the Google Fonts release of
+   the same versions, so a page without them loads nothing extra. Licences:
+   the OFL files in fonts/. */
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;

@@ -207,10 +207,10 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
   };
 };
 
-/** The @font-face rules of fonts.css, each descriptor camel-cased (fontFamily unquoted,
- *  unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
+/** The @font-face rules of fonts.css (or print.css), each descriptor camel-cased (fontFamily
+ *  unquoted, unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
  *  unicodeRange takes every character. */
-const fontFaces = (css: string) =>
+export const fontFaces = (css: string) =>
   [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map(([, body]) => {
     const { src, ...rest } = declarations(body);
     const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
