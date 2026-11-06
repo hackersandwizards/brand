@@ -39,8 +39,7 @@
    reports it; choose another line height there.
 
    Measured with brand-markers on the documents specimen at 4x and in its PDF at 600 dpi, every
-   item within 0.21px of the x-height middle (2026-11-01, documents v0.1.25, where this rule was
-   first written). The whole-pixel lift alone sat up to 0.56px off. */
+   item within 0.21px of the x-height middle. The whole-pixel lift alone sat up to 0.56px off. */
 
 .hw-marker-list {
   --hw-markers: on;

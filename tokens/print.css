@@ -15,8 +15,7 @@
    the same versions, so a page without them loads nothing extra. Licences:
    the OFL files in fonts/. font-display: swap shows a screen the fallback
    face until a face arrives. A PDF was unchanged by it in Chrome 156, printed
-   at load, after network idle and with text added at load (measured
-   06.11.2026); a renderer that prints earlier awaits document.fonts.ready. */
+   at load, after network idle and with text added at load; a renderer that prints earlier awaits document.fonts.ready. */
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
@@ -253,9 +252,9 @@
   /* The type roles of tokens.css at paper size, A4: each medium has its own
      scale. Family and weight stay the role's. Body sets tighter on paper so
      the larger small, label and code sizes add no pages; label caps take less
-     tracking; secondary grey is darker. The small sizes come from OS-1's
-     three blind rounds of PDFs at 70% zoom, where both reviewers ranked small
-     type the top readability problem each time. Load after tokens.css. */
+     tracking; secondary grey is darker. The small sizes are set for a PDF
+     read at 70% zoom, where small type is the first to fail. Load after
+     tokens.css. */
   --type-display-size: 26pt;
   --type-h1-size: 20pt;
   --type-h2-size: 15pt;
@@ -272,7 +271,7 @@
   /* Off the opacity ladder (7, 15, 25, 40, 70, 100) on purpose: secondary text on paper is darker
      than on screen, and the ladder has no step for it. Ink at 85 % is 9.3:1 on white; the 70 %
      step is 5.6:1, lighter than the screen's muted (7.1:1), and 100 % is the text itself
-     (measured 06.11.2026, WCAG relative luminance). */
+     (WCAG relative luminance). */
   --color-muted: color-mix(in srgb, var(--color-ink) 85%, white);
 
   /* The brand corner at paper size, as the onepager draws it. */

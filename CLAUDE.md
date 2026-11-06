@@ -92,6 +92,9 @@ data or secret.
 
 - A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
   Other repos take it from the package and never commit a copy of a brand file.
+- A comment in a file the package exports states how to use the token or element, never its
+  history: no score, review, date, decision or item id or person. The evidence goes to the item,
+  `docs/agent-work/` or the commit message. `test/history.test.ts` fails on one.
 - Nothing about another repo goes on the portal: each system shows its components on its own
   design-system page, whose URL `catalog/portal.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with

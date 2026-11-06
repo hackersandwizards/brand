@@ -1,4 +1,4 @@
-// Light and mid-tone device backgrounds in logo system D, plus device mocks for the blind review.
+// Light and mid-tone device backgrounds in logo system D, plus device mocks to compare them.
 // bun applications/backgrounds/generate.ts <out dir> [variant ...] [--mocks]
 // Writes <out>/<variant>/<device>[-home].png and, with --mocks, <out>/mocks/<variant>-<panel>.jpg;
 // the mocks include the current dark files beside this script as "dark".
@@ -515,11 +515,11 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     ],
     "lw-stack-c": [["k", 560, 408, 620]],
     "lw-stack-low": [["k", 480, 448, 1017]],
-    // Measured on Benedikt's iPad: the lock screen shows the file 1.155 times enlarged around (688, 704);
+    // Measured on the iPad: the lock screen shows the file 1.155 times enlarged around (688, 704);
     // the clock ends at y 470 of the file, notifications rise from the bottom. A smaller stack under
     // the clock, as wide as the clock.
     "lw-stack-up": [["k", 360, 508, 500]],
-    // Measured on Benedikt's iPad, landscape: the lock screen shows the file 1.28 times enlarged
+    // Measured on the iPad, landscape: the lock screen shows the file 1.28 times enlarged
     // with its top left at file point (91, 91), so the clock axis lies at file x 625, the clock ends at
     // y 256 and a notification starts at y 800. The stack on that axis, a third of the way down the gap.
     "lw-stack-axis": [["k", 360, 445, 350]],
@@ -528,9 +528,9 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // set, so the stack sits on the file's centre axis and inside the band both crops keep clear
     // (y 337-800).
     "lw-stack-centre": [["k", 360, 508, 440]],
-    // Decision backgrounds-family b (01.11.): the one-line lockup low, bottom centre. Both measured
+    // The one-line lockup low, bottom centre. Both measured
     // landscape crops show rows down to 897 and 1053 and their notifications start at 800 and 945, so
-    // the ink ends at 790; the portrait crop's bottom rows never show in his landscape lock screen.
+    // the ink ends at 790; the portrait crop's bottom rows never show in the landscape lock screen.
     "logo-band-low": [["l", 56, 537.8, 734]],
     "logo-c": [["l", 80, 473, 800]],
     "logo-low": [["l", 56, 538, 1200]],
@@ -543,17 +543,17 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
   "ipad-home-wide": {
     // Five landscape home screenshots showed the square file at full width with its top 220 to 345
     // points down: 125 points of play against the 104 the band between labels and Dock leaves a
-    // 36-point lockup, so no row of the square file clears all. Screen points of his landscape home
+    // 36-point lockup, so no row of the square file clears all. Screen points of the landscape home
     // screen: the lowest app labels end at y 789.5, the Dock starts at 925.8. The lockup's ink
     // (841.5-875) centred between them, 52 and 51 points from each.
     "logo-gap": [["l", 36, 586.4, 838.7]],
-    // Decision backgrounds-family b (01.11.): the same lockup bottom right beside the Dock, its ink
+    // The same lockup bottom right beside the Dock, its ink
     // (878-912) 14 points above the Dock and 80 from the right edge.
     "logo-br": [["l", 36, 1092.8, 875.5]],
   },
   "ipad-home": {
     "logo-band": [["l", 62, 521, 960]],
-    // Measured on Benedikt's iPad: landscape home shows rows 219-1251 unscaled; the lockup sat behind the
+    // Measured on the iPad: landscape home shows rows 219-1251 unscaled; the lockup sat behind the
     // last icon row. Free band between the widgets (to y 1052) and the Dock (from y 1153).
     "logo-gap": [["l", 44, 570, 1081]],
     // Same evening: landscape home shows rows 275-1298 unscaled; the lockup centred between the
@@ -562,7 +562,7 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // 21:13: rows 352-1374. The two measured crops differ by 77 points, so a smaller lockup sits
     // where it clears the app labels and the Dock under both.
     "logo-gap-r": [["l", 36, 591.4, 1153]],
-    // His third landscape screenshot with logo-gap-r set: rows 344-1376 unscaled (bottom-aligned, as
+    // The third landscape screenshot with logo-gap-r set: rows 344-1376 unscaled (bottom-aligned, as
     // the second), last app labels end at y 1143, Dock from y 1279. The lockup's centre on the
     // band's centre (y 1211). Under the first crop (rows 275-1298) its lower half sits behind the Dock.
     "logo-gap-low": [["l", 36, 591.4, 1191]],
@@ -584,17 +584,17 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
       ["l", 44, 102, 500],
     ],
     "lw-stack-c": [["k", 300, 70, 470]],
-    // Measured on Benedikt's phone: notifications cover y 516-727, so the stack sits under the clock.
+    // Measured on the iPhone: notifications cover y 516-727, so the stack sits under the clock.
     "lw-stack-up": [["k", 270, 85, 277]],
     "lw-stack-low": [["k", 240, 100, 777]],
-    // Measured on Benedikt's phone: it shows the file 1.1525 times enlarged around its centre;
+    // Measured on the iPhone: it shows the file 1.1525 times enlarged around its centre;
     // the stack 53 pt lower, clear of the clock and still above two expanded notifications, the
     // wizard's edge 5 pt below the widget row (y 316).
     "lw-stack-mid": [["k", 270, 85, 330]],
     "logo-c": [["l", 44, 102, 520]],
     "logo-up": [["l", 40, 113, 360]],
     "logo-low": [["l", 40, 113, 816]],
-    // Decision backgrounds-family b (01.11.): the iPhone home's lockup (40.5 pt) bottom centre. The
+    // The iPhone home's lockup (40.5 pt) bottom centre. The
     // 1.1525 enlargement around the centre puts its ink at screen y 783-830, 18 pt above the
     // flashlight and camera row (848) and 56 pt below two notifications (to 727).
     "logo-bottom": [["l", 40.5, 111, 742.9]],
@@ -605,7 +605,7 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
   },
   "iphone-home": {
     "logo-band": [["l", 40.5, 111, 752]],
-    // Measured on Benedikt's phone: the Search pill sits at y 770-798, so the lockup moves into the gap
+    // Measured on the iPhone: the Search pill sits at y 770-798, so the lockup moves into the gap
     // between the last icon row (to y 688) and the pill.
     "logo-gap": [["l", 40.5, 111, 708]],
     "logo-band-s": [["l", 30, 139, 762]],

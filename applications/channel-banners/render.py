@@ -70,8 +70,7 @@ def logos(band, radius, items):
 # One grid for every banner: the lockup on top, its left edge on
 # the headline's x, the headline's ink top two units below the lockup's ink, a client band one unit
 # below the text. The unit is half the wordmark's cap height, the logo's own measure. The group is
-# centred in the area every device shows (blind reviews in os docs/agent-work/2026-10-31-banner-carousel.md
-# and 2026-10-31-channel-banners-live.md: the set reads as one when the logo sits on top everywhere).
+# centred in the area every device shows; the set reads as one when the logo sits on top everywhere.
 LOCKUP_CAP = (79.8, 44)  # lockup height, wordmark cap height in px, measured on the profile render
 INK_ALPHA = 5  # lockup pixels up to this alpha are resampling haze above the wizard, not ink
 
@@ -132,8 +131,7 @@ def grid_surfaces():
         left=480,
     )
     # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
-    # its claim in slide 2's headline size, which fills the slide more (blind review in os
-    # docs/agent-work/2026-10-31-banner-carousel.md)
+    # its claim in slide 2's headline size, which fills the slide more
     s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
@@ -146,32 +144,32 @@ def grid_surfaces():
         ),
         "profile-1": s1,
         "profile-2": s2,
-        # Benedikt's X header: profile slide 1 at its own size, centred in rows 60 to 440, which X Help
+        # The X header: profile slide 1 at its own size, centred in rows 60 to 440, which X Help
         # says every screen shows (60 px may be cropped top and bottom); the profile photo's circle
         # covers the lower left, centre x 210 to 234, y 500, radius 170 to 174 at 1440, 390 and 440 px
         # (measured 1.11. on x.com logged out)
         "x-profile": grid((1500, 500), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(60, 440), left=480),
-        # Benedikt's XING cover: XING crops it centred (object-fit cover) to 944 x 208 at 1024 px, 944 x 268
+        # The XING cover: XING crops it centred (object-fit cover) to 944 x 208 at 1024 px, 944 x 268
         # at 1440 and 375 x 188 at 375, so rows 175 to 464 show everywhere; the photo covers x < 303 below
         # row 371 on desktop and x 126 to 542 below row 431 on mobile (measured 1.11. on xing.com). The
-        # group sits right of the desktop photo and above the mobile one (blind review 1.11.: the claim at
-        # slide 1's size beat a smaller one right of the mobile photo, 7.75 to 6.75 over four reviewers)
+        # group sits right of the desktop photo and above the mobile one, the claim at
+        # slide 1's size rather than a smaller one right of the mobile photo
         "xing-profile": grid((1312, 639), 79.8, two_lines(*PROFILE_LINES, x=355, b1=0, b2=59.3, size=49.0, track=-0.050), area=(175, 431), left=355),
-        # Benedikt's Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
+        # The Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
         # 832 px, 288 below 992, 400 above, centred (object-fit cover), so a 375 px phone shows x 581 to 1419
         # and a 2560 px screen rows 94 to 406; the round photo overlaps the bottom 32 px (measured 1.11. on
-        # sessionize.com). The group centred in that box, with margins on the phone (blind review 1.11.: 8.0
-        # to 7.5 against the claim at 43 px filling the phone's width)
+        # sessionize.com). The group centred in that box, with margins on the phone rather than the claim at
+        # 43 px filling the phone's width
         "sessionize-profile": grid(
             (2000, 500), 61.9, two_lines(*PROFILE_LINES, x=651, b1=0, b2=46.0, size=38.0, track=-0.050), area=(94, 406), left=651
         ),
-        # Benedikt's Brella cover (Digitale Leute Summit 2026): Brella asks for 2000 x 800; how much of it
+        # The Brella cover (Digitale Leute Summit 2026): Brella asks for 2000 x 800; how much of it
         # Brella shows on desktop and phone is not measured yet, so the group sits centred in the full
         # frame at 1.5 times the Sessionize cover, about 485 px clear left and right and 265 above and below
         "brella-profile": grid(
             (2000, 800), 92.85, two_lines(*PROFILE_LINES, x=485, b1=0, b2=69.0, size=57.0, track=-0.050), left=485
         ),
-        # Benedikt's Facebook profile cover: Facebook Help (facebook.com/help/220070894714080, read 6.11.)
+        # The Facebook profile cover: Facebook Help (facebook.com/help/220070894714080, read 6.11.)
         # asks only for at least 720 px wide; its 2.4:1 and 16:9 crops (help/125379114252045) are for
         # Pages. Measured 6.11. on facebook.com logged out: desktop shows it whole in a 940 x 348 frame
         # (2.70:1) at 1024, 1440 and 1920 px, the photo's circle over x 32 to 208 from row 243; a 375 px

@@ -106,15 +106,15 @@
     },
     {
       "path": "tokens/print.css",
-      "sha256": "5b3616bf2bf4711aae363a7256fa394526e5d312188476728802082118a551da"
+      "sha256": "b51a9afd19f6b474e6d37d82ec800709716e84a7aa405cec928a849b10e91109"
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "3d04d9c6e71b8f9a30c8636a99ddd80d5df481f3429911c7d422406a577147c7"
+      "sha256": "91a6ea335502bd977c3234bf0254591950df206782ebd40d2b35fc1889b44fc4"
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "d4abbc92fc6e9320c4b9722d6d79dd7274fce70eccf8f4ee15a61c4350077444"
+      "sha256": "c976df471803e587a011e949759d13a65400d3d8788a6a2b12f41916c154d165"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -282,11 +282,11 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "475cba331d083116f1652e9b196a51b6ed048b842bb36bb4e0f54f34d5bbf60a"
+      "sha256": "3541c7fa464ba25e5584265272a7b0f63c6bc385d94f74f6911235e414f6e7c6"
     },
     {
       "path": "expert/header.css",
-      "sha256": "0d669cadc7428e0953dd7c36987ebd0c358accbf03598c24d88dba870178112f"
+      "sha256": "546e94d6f4708d31fe7a9369ab3aecbe7cf823bea5fbcf208e6cc94b481ba66e"
     },
     {
       "path": "expert/select.css",
@@ -326,7 +326,7 @@
     },
     {
       "path": "expert/components/Pill.astro",
-      "sha256": "cefa49174e2d89f863d22d40b5c7254f3d5f52be4228d1dd9ad1aac76993af08"
+      "sha256": "c42c5dcd349785519db43d589c6c1d1d6b551ad15757ff216c22f948946756fe"
     },
     {
       "path": "expert/components/SpaceNav.astro",
@@ -366,7 +366,7 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "86313e0c897a93b980ff647014ab94e32e71b475fc0183bbfb12a0b6b7c34138"
+      "sha256": "e43f1ea11a6c03be4593369f1ba95af8fca967e408680747f7a2fab0a7f9309d"
     },
     {
       "path": "elements/elements.css",
@@ -386,7 +386,7 @@
     },
     {
       "path": "elements/label-box.css",
-      "sha256": "13658fd9f0d282651f6cbff840fb17db612142950c024ef2274e74989361f5b8"
+      "sha256": "ecdefa974395cecd2586572f31a06761dfe88a1666dbf911fa2038a68b2071c2"
     },
     {
       "path": "elements/link.css",
@@ -394,7 +394,7 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "23e3c4df71a9e95e61331b994584ece5252cf38f548e1bb3836f57591fe92200"
+      "sha256": "ad38b4e9cb22192d25ca95654223966d5bc56581d411d0cc6c27b1b76d8731db"
     },
     {
       "path": "elements/quote.css",
@@ -402,7 +402,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "5832d0849caf18ccd6855066d72032d0fbb4b6c150ae4f7cce68e679969a616b"
+      "sha256": "68d00f27e55049bbf2156416653589616b3db774bb43a798d847449b2cdb4ecc"
     },
     {
       "path": "elements/strip.css",
@@ -458,7 +458,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "971344036db49baaba4cf3e7313c0f734b4b14f3d8b915e811805d14cb76e43a"
+      "sha256": "2a9f815416b6a72aeae1d2221170610e448a7a2114c098f21be391f947cc8b29"
     },
     {
       "path": "elements/row.css",
@@ -466,7 +466,7 @@
     },
     {
       "path": "elements/rule.css",
-      "sha256": "c24eac59a8261cd40fcf77be2630bc8e9e5450e087aa3c5421ddaceb1fb90cda"
+      "sha256": "bb9827a3e0e2c405b299a0fdc82325b5ccaba48d6dfce53a15a0d764b22fd881"
     },
     {
       "path": "elements/segmented.css",
@@ -478,11 +478,11 @@
     },
     {
       "path": "tokens/document.css",
-      "sha256": "8ac6d813cf5c850071dae1c87e713fa2f7b3da22681fbde86a729b6aa0a5e770"
+      "sha256": "604c508e58446d09be1c2465da00333ebc7d55b9d1f1f7aa5b9e82a6997b8173"
     },
     {
       "path": "tokens/fonts.css",
-      "sha256": "b1f8f6a4e88965187f807dc62f956a2e8120f229fd32e8a574bd3ccc5c1ef0da"
+      "sha256": "365b7fbcf04450e35d285142b4e57fef12b8b99865ebb0303306e3bcee3759fb"
     },
     {
       "path": "tokens/night.css",
@@ -490,7 +490,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "5908b6c9b02e3ac0b22e24689f661b49680a07f71dd4160d729db04f5f0865e1"
+      "sha256": "7b24b84ae1f0789b9870de531b2b07252b103d6b2f4dd33ca403b5ccbd7fe53d"
     },
     {
       "path": "verbal/verbal.json",

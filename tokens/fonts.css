@@ -2,7 +2,7 @@
    third-party request for a font. Each family has a Latin and a Latin Extended file
    (@fontsource-variable 5.3.0). The Latin face takes every character, as it did alone; the Latin
    Extended one only its range (fontsource's, less what the Latin file holds), so
-   the browser fetches it only for a page that shows such a character, as in a name like Čaluk.
+   the browser fetches it only for a page that shows such a character, such as Č or ł in a name.
    The family names are the ones tokens.css names. Paper takes print.css's static files instead:
    Chrome embeds a variable font in a PDF as Type 3 glyphs. A surface imports this file after
    tokens.css (export ./fonts.css); one that writes its own @font-face reads the same faces from

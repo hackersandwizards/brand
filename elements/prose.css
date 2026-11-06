@@ -7,9 +7,7 @@
    checkbox is painted like a field, ticked in the accent. Lists start at the text edge, as the
    marker list does everywhere else: a bullet or a task box stands on the paragraphs' left edge, a
    number just inside it, a nested list under its item's text. Typography's own indent (1.625em)
-   set bullets 26px and task text 42px in from the paragraphs (admin, 2026-11-06); a blind panel
-   of three readers on Claude and Codex scored the edge 8.3, a hanging marker 7.8 and Typography's
-   indent 7.0. Typography's colours point at the theme roles, so night follows the page. Tables,
+   set bullets 26px and task text 42px in from the paragraphs. Typography's colours point at the theme roles, so night follows the page. Tables,
    code blocks and quotes are the hw-* elements, marked not-prose, which the block only spaces; a
    link that is no link in text (a button, an arrow link) is marked not-prose too. Unlike the other
    elements these rules sit in no layer: Typography's prose rules come in Tailwind's utilities
@@ -107,8 +105,7 @@
    controls, and the browser's grey washes them out. The box's middle sits on the first line's
    x-height middle, placed from the line box as marker.css places the list marker (its comment says
    why): a whole number of pixels from the baseline, a transform the rest of the way. A fixed top
-   (0.375em) sat 0.87 to 2.87px off at line heights 1.25 to 2 in admin (brand-markers,
-   2026-11-06). font: inherit, which Tailwind's preflight sets too, takes em and lh from the item. */
+   (0.375em) sat 0.87 to 2.87px off at line heights 1.25 to 2 (brand-markers). font: inherit, which Tailwind's preflight sets too, takes em and lh from the item. */
 .hw-prose li.task-list-item input[type="checkbox"] {
   --_hw-size: round(1em, 1px);
   --_hw-ascent: round(0.96875em, 1px);

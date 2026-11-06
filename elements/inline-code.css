@@ -4,16 +4,8 @@
    it. A quarter em at the sides, so a comma after the chip sits with it, and a sixteenth above and
    below, so the tint stays clear of the lines around it. Split by a line break, the padding stays
    at the chip's two ends: repeated at the break, it pushed a wrapped name past a 288 px column.
-   Blind panel on two website articles at 320 and 1440 px (2026-11-06, overall of 10, three
-   personas, Claude and Codex, noise 0.3): this 8.8, the site's 1px x 0.3em at 0.875rem 8.4, the
-   former 500 weight with 0.125em padding 8.0. On night a light night-ink tint as on day: the
-   earlier muted fill vanished on a night card (contrast 1.00 to the card), panel 2026-11-06 on a
-   night page with a card, two personas, Claude and Codex, two runs, noise 0.45: 8% 8.6, 12% 8.2,
-   the muted fill 6.0. On code-dense text a tie: panel 2026-11-06 on a knowledge article's paragraph
-   with 13 code terms and one with a single term, phone and laptop, three personas (head of
-   engineering, platform engineer, editorial typographer), Claude and Codex, two runs, noise 0.39:
-   a 4% tint at 0.9em 7.75, bare mono 7.67, this 7.5; reviewers of every variant named the chip
-   split at a line break. The prose block's inline code is this element too (prose.css).
+   On night a light night-ink tint as on day: the muted fill vanishes on a night card (contrast
+   1.00 to the card). The prose block's inline code is this element too (prose.css).
 
    Settings:
      --hw-corner-sm  the corner, the small corner at the medium's size */

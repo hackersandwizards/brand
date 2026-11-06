@@ -273,7 +273,7 @@ html[data-theme="dark"] {
 }
 
 /* A link to a record or out of the app, beside labels: teal text after an icon naming where it
-   leads, never a chip (os decision label-system C, 2026-11-01). The muted variant is a value
+   leads, never a chip. The muted variant is a value
    only read, a grey pill. */
 .chip-link {
   @apply inline-flex items-center gap-1 text-ui text-accent transition-colors hover:text-accent-light;

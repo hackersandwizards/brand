@@ -3,9 +3,7 @@
    the white ground; the line takes the label's colour where data-hue or data-tone="ink" sets one,
    else the hairline grey. Put it on the label itself (class="hw-label hw-label-box", data-hue="purple"
    colours both; data-hue="teal" on a teal label draws the line in its colour) or, without a hue,
-   on a box around several labels and chips. In a blind panel on three slides
-   (2026-11-06, overall of 10, noise 0.33) the hairline in the label's colour scored 8.2, a hue
-   tint with a light line 8.0, a double line 7.8, the hand-drawn boxes before 7.1.
+   on a box around several labels and chips.
 
    Settings (scales.css sets them per medium):
      --hw-label-box-pad  block and inline padding

@@ -46,8 +46,7 @@
   z-index: 50;
   padding-top: env(safe-area-inset-top);
   border-bottom: 1px solid var(--border, var(--color-border));
-  /* Opaque: through a 70 % bar with blur, scrolled text read as a ghost behind the logo (blind
-     review 2026-11-03, opaque +0.9 over translucent across os, trainer-hub, admin, catalog). */
+  /* Opaque: through a 70 % bar with blur, scrolled text read as a ghost behind the logo. */
   background: var(--hw-bg);
   color: var(--hw-fg);
   font-family: var(--font-sans);
@@ -223,7 +222,7 @@
 }
 
 /* On a phone the nav's three links fit beside the lockup: no gap in the bar, tighter links. At
-   390 px the last link was cut ("Dokum"); blind review 2026-11-02. */
+   390 px the last link was cut ("Dokum"). */
 @media (max-width: 29.99rem) {
   .hw-header-row {
     gap: 0;

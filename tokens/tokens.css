@@ -4,9 +4,7 @@
    package the other repositories install, so edit it here, never in a copy. A plain-CSS consumer
    rewrites @theme to :root. Print values live beside it in print.css. */
 @theme {
-  /* Three radii and a square, one job each, on every surface (blind panel 2026-11-06 on slides,
-     documents, website and os, two rounds: this set 7.5, square small marks 7.3, the state before
-     7.1, round buttons and selectors 6.9; overall of 10, noise 0.7):
+  /* Three radii and a square, one job each, on every surface:
      brand  the brand corner, large top-left and bottom-right: everything that holds content or
             is pressed with words on it: cards, panels, callouts, code blocks, pictures, buttons
             (the onepager's call to action and a slide's "Read more" included) and the client
@@ -14,17 +12,10 @@
      sm     the small corner: everything one text line tall that is no pill: a label box (PART
             ONE), a number or icon tile, inline code, the segmented control and its segments (the
             slide's stage strip included), the apps' fields, an app's button under 32 px tall, and
-            a picture in a mail. The last two from a blind panel 2026-11-06 (overall of 10, two
-            Claude runs and one Codex run per persona): 28 px buttons in an app list, small corner
-            8.0, brand corner 5.9, brand corner at half size 8.3 (a tie, noise 0.33); a 152 px
-            picture in a mail, small corner 8.1, half size 8.0, brand corner 7.3 (noise 0.38). On
-            paper the 28 px onepager button keeps the brand corner: brand corner 8.4, small corner
-            7.4, the brand corner at 32 px 7.4 (blind panel 2026-11-06, two personas, Claude and
-            Codex, two runs, noise 0.75).
+            a picture in a mail. On paper the 28 px onepager button keeps the brand corner.
      pill   round: chips, badges and toggles, and every control that holds only an icon (play,
             pause, previous, next, theme); one over a picture is solid teal with a white icon.
-            In the apps a label changed where it shows takes sm, one only read stays pill (os
-            decision label-system C, 2026-11-01).
+            In the apps a label changed where it shows takes sm, one only read stays pill.
      square no radius: a mark smaller than a line, the list marker and a colour swatch.
      Each medium scales them (elements/scales.css; stage.css, print.css). */
   --radius-sm: 5px;
@@ -38,7 +29,7 @@
   --color-border: #d0d2d8;
   --color-border-strong: color-mix(in srgb, var(--color-ink) 50%, white);
   /* The ground of a social image (LinkedIn post frame, certificate share image): bg blends into
-     LinkedIn's white feed, this tint scored higher in two blind feed rounds. */
+     LinkedIn's white feed, so a social image takes this tint. */
   --color-tint: #eef1f4;
 
   --color-teal: #1a7285;
@@ -73,8 +64,7 @@
   --color-teal-night: #47aec6;
   --color-purple-night: #b97af1;
 
-  /* Two palettes hold every colour above (blind panel 2026-11-06, overall of 10: two tables 8.3,
-     one table 7.0, six family groups 5.3).
+  /* Two palettes hold every colour above.
 
      Neutrals, one row per job: job | day | night. A "-" is a job one ground alone has.
      ground        | bg            | night
@@ -103,10 +93,7 @@
      A category (a type, a format, a group) takes teal, purple or ampersand, in that order, and a
      set with more values leaves the rest neutral. Amber, green and red only ever mean their state,
      and factory only the Software Factory area: its 15 % wash is ΔE 4.1 from amber's and 4.9 from
-     red's (teal to purple 16.2). A priority is a state too (elements/pill.css, data-priority). Blind panel 2026-11-06 on an app table, a work list, an
-     agenda and the website's training list, four personas, Claude and Codex, two runs, overall of
-     10: this rule 8.6, categories without a hue 7.0, categories in every hue with one priority
-     scale 5.9, the state before 4.8; noise 0.47. */
+     red's (teal to purple 16.2). A priority is a state too (elements/pill.css, data-priority). */
 
   /* The label's colour (elements/label.css), day and night: an eyebrow, kicker, fact name or
      table head. A surface that cannot load the element, such as a mail, reads these. Never
@@ -300,8 +287,7 @@
      LinkedIn terminal image. Shiki reads it as generated/code-theme.json (export
      ./code-theme.json), github-dark's scopes in these colours; keyword also takes constants and
      property names, string also regexes, inserted also tags and the shell prompt. Every text
-     colour clears 4.5:1 on night and night-2. Chosen in a blind panel on 2026-11-01 (os decision
-     code-palette). */
+     colour clears 4.5:1 on night and night-2. */
   --code-bg: var(--color-night);
   --code-fg: var(--color-night-ink);
   --code-comment: var(--color-night-subtle);
@@ -322,12 +308,11 @@
   /* The brand gradient: a field (a banner, a background, a header behind a picture) and the strip
      (elements/strip.css). A rule line under a title or over a block is teal, never the gradient
      (elements/rule.css). --gradient-strip is the strip's, left to right in sRGB, for any edge that
-     can only take a background (a page rail, a certificate's band). Blind panel 2026-11-06 on a
-     readout, the website header and the app header, Claude and Codex, two runs: sRGB 8.3, oklab 7.5,
-     whose middle read greyish. A PDF from Chrome mixes every gradient in sRGB, whatever its
-     interpolation space: Chrome 156 writes a two-stop gradient as one shading between its two
-     colours (FunctionType 2), so "in oklab" printed pixel for pixel as sRGB, middle #5753b7 against
-     #665eb7 on screen (control 2026-11-06, rasterized with pdftoppm and with Quartz). */
+     can only take a background (a page rail, a certificate's band). sRGB, not oklab, whose middle
+     reads greyish. A PDF from Chrome mixes every gradient in sRGB, whatever its interpolation
+     space: Chrome 156 writes a two-stop gradient as one shading between its two colours
+     (FunctionType 2), so "in oklab" prints pixel for pixel as sRGB, middle #5753b7 against #665eb7
+     on screen. */
   --gradient-magic: linear-gradient(
     135deg,
     var(--color-teal) 0%,
