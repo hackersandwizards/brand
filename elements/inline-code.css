@@ -1,7 +1,9 @@
 /* Inline code: a command, a path or a name inside a line of text, in the code role on the muted
    fill with the small corner (a mark inside a line, tokens.css), no ligatures as the code block,
    at the size of the app's UI text, else 0.875em of the line around it; split by a line break,
-   each piece keeps its corner and padding. The prose block's inline code is this element too: its
+   each piece keeps its corner and padding. The side padding is a quarter em, so a comma after the
+   chip sits with it: in a blind panel of a verifier page (2026-11-06, overall of 10, noise 0.35),
+   0.25em scored 8.5, 0.2em 8.1, 0.375em 7.3. The prose block's inline code is this element too: its
    rule repeats the class's outside any layer, since inside prose Tailwind Typography's code rules
    come in the utilities layer, which a layered rule would lose to.
 
@@ -11,7 +13,7 @@
 @layer components {
   .hw-inline-code {
     border-radius: var(--hw-corner-sm, var(--radius-sm));
-    padding: 0.125em 0.375em;
+    padding: 0.125em 0.25em;
     font-family: var(--type-code-family);
     font-size: var(--text-ui, 0.875em);
     font-weight: 500;
@@ -32,7 +34,7 @@
 
 .hw-prose :not(pre) > code {
   border-radius: var(--hw-corner-sm, var(--radius-sm));
-  padding: 0.125em 0.375em;
+  padding: 0.125em 0.25em;
   font-family: var(--type-code-family);
   font-size: var(--text-ui, 0.875em);
   font-weight: 500;

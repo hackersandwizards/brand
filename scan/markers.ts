@@ -22,7 +22,12 @@
 import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import puppeteer, { type Browser } from "puppeteer-core";
+import puppeteer, {
+  type Browser,
+  type HTTPRequest,
+  type HTTPResponse,
+  type Page,
+} from "puppeteer-core";
 import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
 
 export const TOLERANCE = 0.25; // CSS px
@@ -236,6 +241,19 @@ async function inkMiddle(png: string, scale: number): Promise<number> {
   return sum / total / scale;
 }
 
+/** Opens `url` and throws where a stylesheet it links fails to load: an unstyled page shows the
+ *  browser's own list markers and spacing, as a build linking file:// stylesheets does when served
+ *  over http with --site. */
+export async function open(page: Page, url: string) {
+  const missing: string[] = [];
+  const failed = (r: HTTPRequest) => r.resourceType() === "stylesheet" && missing.push(r.url());
+  const status = (r: HTTPResponse) => r.status() >= 400 && failed(r.request());
+  page.on("requestfailed", failed).on("response", status);
+  await page.goto(url, { waitUntil: "networkidle0" });
+  page.off("requestfailed", failed).off("response", status);
+  if (missing.length) throw new Error(`${url}: stylesheet not loaded: ${missing.join(", ")}`);
+}
+
 export const launch = () =>
   puppeteer.launch({ executablePath: findChrome(), headless: true, args: NO_KEYCHAIN });
 
@@ -251,7 +269,7 @@ export async function measureMarkers(
     await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
     // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
-    await page.goto(url, { waitUntil: "networkidle0" });
+    await open(page, url);
     if (css) await page.addStyleTag({ content: css });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     // Each box is shot inside the viewport, scrolled to it: capturing beyond the viewport resizes it,

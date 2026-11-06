@@ -17,6 +17,7 @@ import {
 } from "../scan/elements";
 import { launch } from "../scan/markers";
 import { DEMOS } from "../scripts/element-demos";
+import { tokens } from "../generated/tokens";
 import { ROOT } from "../scripts/git";
 
 // Every element in every scale and theme, as a spoke's page shows it: tiles holding the samples.
@@ -94,6 +95,7 @@ const DRIFT: Record<string, string> = {
   status: ".hw-status { background: transparent }",
   frame: ".hw-frame { border-style: solid }",
   kpi: ".hw-kpi-value { font-weight: 500 }",
+  "label-box": ".hw-label-box { padding: 9px }",
   prose: ".hw-prose h3 { font-weight: 400 }",
 };
 test.each(Object.entries(DRIFT))(
@@ -346,7 +348,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   expect(out).toEqual([
     `card: the tile says brand v0.1.0, the installed package is v${own.version}; rebuild the page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, button, arrow-link, field, facts, segmented, row, breadcrumb, status, frame, kpi, prose)',
+    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, button, arrow-link, field, facts, segmented, row, breadcrumb, status, frame, kpi, prose)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',
@@ -379,11 +381,12 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
 });
 
 // The website's strip (Tailwind's gradient) mixes in oklab; sRGB shifted its middle on every page.
-test("the strip and the expert header strip mix teal to purple in oklab", () => {
+test("the strip and the expert header strip draw the strip gradient, teal to purple in oklab", () => {
+  expect(tokens["--gradient-strip"]).toBe(
+    "linear-gradient(to right in oklab, var(--color-teal), var(--color-purple))",
+  );
   for (const f of ["elements/strip.css", "expert/header.css"])
-    expect(readFileSync(join(ROOT, f), "utf8")).toContain(
-      "linear-gradient(to right in oklab, var(--color-teal), var(--color-purple))",
-    );
+    expect(readFileSync(join(ROOT, f), "utf8")).toContain("background: var(--gradient-strip);");
 });
 
 test("rules opens at-rule blocks and reads each rule's properties", () => {

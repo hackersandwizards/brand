@@ -184,7 +184,7 @@ padding and Tailwind utilities win.
 
 ### The shared elements
 
-Every element two or more systems show lives in `elements/`, one plain-CSS file each: label,
+Every element two or more systems show lives in `elements/`, one plain-CSS file each: label, label box,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
 strip, accent rule, code block (and its panel), inline code, button, arrow link, field with button, facts list, segmented
 control, list row, breadcrumb, status box, dashed frame, key figure, prose block. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
@@ -257,8 +257,9 @@ and counts, per file:
 - `radius`, `shadow`: a `border-radius` or `box-shadow` (CSS, a custom property named for either,
   a style object, a Tailwind arbitrary value) that is no brand token, and Tailwind's default
   radius and shadow classes (`rounded-lg`, `shadow-md`). A token value, `0`, `none`, a CSS-wide
-  keyword or a lone `var()` passes; a value the scan cannot read, an interpolation or a variable,
-  counts nothing.
+  keyword, a `var()` whose fallback is a value or another such `var()` (`var(--a, var(--b))`), and
+  the generated tokens' own key (`tokens["--radius-brand"]`) pass; a value the scan cannot read, an
+  interpolation or a variable, counts nothing.
 
 A standalone SVG cannot name a token, so there a token hex counts nothing, and neither does a mix
 the package derives from the tokens: a token colour on white at 7 % or at any 5 % step, and a hue
@@ -371,7 +372,10 @@ where the wrapped lines start, and on a page with no marker. Run it in your gate
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first.
 `--site <dir>` serves a built site folder on a free port for the run, a folder answering with its
 `index.html`, and a page starting with `/` is a path on it, so pages whose links start at the root
-load as published: `brand-markers --site dist /catalog/ /verify/`.
+load as published: `brand-markers --site dist /catalog/ /verify/`. Both measuring scans fail on a
+page whose stylesheet does not load, such as a build linking `file://` stylesheets served with
+`--site`: unstyled, the page shows the browser's own markers and spacing. Name such a build's
+pages as files instead.
 
 ## Press kit
 

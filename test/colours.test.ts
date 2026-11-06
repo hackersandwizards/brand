@@ -127,7 +127,9 @@ test("a radius or shadow off the tokens counts, a token, a keyword or a referenc
      .c { --card-radius: 20px 5px; box-shadow: none; }
      const s = { borderRadius: 9999, boxShadow: "0 18px 46px rgb(25 40 58 / 0.1)" };
      <div class="rounded-sm rounded-brand rounded-full shadow-card shadow-overlay rounded-[var(--radius-sm)]">
-     const t = { borderRadius: radius, boxShadow: \`\${shadow}\` };`,
+     const t = { borderRadius: radius, boxShadow: \`\${shadow}\` };
+     const u = { borderRadius: tokens["--radius-brand"], boxShadow: tokens['--shadow-card'] };
+     .d { border-radius: var(--hw-corner, var(--radius-sm)); box-shadow: var(--a, var(--b, var(--shadow-card))); }`,
     ".tsx",
   ).counts;
   expect(ok).toEqual(zero);
@@ -135,10 +137,12 @@ test("a radius or shadow off the tokens counts, a token, a keyword or a referenc
     `.a { border-radius: 6px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
      .b { --chip-radius: 4px; }
      const s = { borderRadius: 6, boxShadow: "0 0 0 3px #123456" };
-     <div class="rounded-lg md:rounded-t-xl shadow-md rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.3)]">`,
+     <div class="rounded-lg md:rounded-t-xl shadow-md rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+     const u = { borderRadius: tokens["--color-teal"], boxShadow: tokens["--radius-sm"] };
+     .d { border-radius: var(--hw-corner, calc(1px + 2px)); }`,
     ".tsx",
   ).counts;
-  expect(bad).toEqual({ ...zero, radius: 6, shadow: 4 });
+  expect(bad).toEqual({ ...zero, radius: 8, shadow: 5 });
 });
 
 test("an SVG may write a token hex and the tint ladder, never an off-ladder colour", () => {

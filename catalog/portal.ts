@@ -184,7 +184,7 @@ const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none
 const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div class="rules">
 <div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}: everything that holds content or is pressed with words on it, cards, panels, callouts, code blocks, pictures and buttons.</p></div>
-<div><p class="shape-demo"><span class="box"><span class="hw-label">Part one</span></span> <span class="box"><code>bun run check</code></span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments.</p></div>
+<div><p class="shape-demo"><span class="hw-label hw-label-box">Part one</span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments, a button under 32 px tall and a picture in a mail.</p></div>
 <div><p class="shape-demo"><span class="hw-pill">Remote</span> <span class="hw-icon-button">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
 <div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Square: a mark smaller than a line, a list marker or a colour swatch.</p></div>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
@@ -558,6 +558,7 @@ index.push({
 // only the data-hw-scale on the cell changes.
 const ELEMENT_ORDER: [string, string, string][] = [
   ["label", "Label", "label"],
+  ["label-box", "Label box", "label-box"],
   ["pill", "Pill", "pill"],
   ["card", "Card", "card"],
   ["callout", "Callout", "callout"],
@@ -978,7 +979,6 @@ const html = `<!doctype html>
     .rules p { margin: 0.5rem 0 0; }
     .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
     .square-demo, .icon-demo, .shape-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
-    .shape-demo .box { border-radius: var(--radius-sm); padding: 0.125rem 0.5rem; background: color-mix(in srgb, var(--color-teal) 7%, white); }
     .square-demo .sw { width: 1.25rem; height: 1.25rem; background: var(--color-teal); }
     .icon-demo { color: var(--color-teal-dark); font-weight: 500; }
     .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }

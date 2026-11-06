@@ -95,7 +95,12 @@ const tokenValues = (prefix: string) =>
 const RADII = tokenValues("--radius-");
 const SHADOWS = tokenValues("--shadow-");
 const NEUTRAL = /^(0|0px|none|inherit|initial|unset|revert|revert-layer)$/;
-const PURE_VAR = /^(var\(--[\w-]+(, [^()]+)?\)|theme\([^()]+\))$/;
+// A var() whose fallback is a literal or another such var(), at any depth, and theme().
+const VAR = /var\(--[\w-]+(, [^()]+)?\)/g;
+const pureVar = (v: string) => {
+  for (let prev = ""; prev !== v;) [prev, v] = [v, v.replace(VAR, "var")];
+  return v === "var" || /^theme\([^()]+\)$/.test(v);
+};
 
 /** Exceptions the scan applies before it reads a file, each with its reason. The README names
  *  the same list; the scan prints each one it applied. */
@@ -222,17 +227,23 @@ const valueAt = (src: string, i: number) => {
   }
   const num = /^-?\d+(\.\d+)?(?=\s*[,}\n;)])/.exec(src.slice(i, i + 20));
   if (num) return { value: num[0] === "0" ? "0" : `${num[0]}px`, end: i + num[0].length };
-  const name = /^[A-Za-z_$][\w$.]*(?=\s*[,}\n;)])/.exec(src.slice(i, i + 100));
+  const name = /^[A-Za-z_$][\w$.]*(\[(["'`])[^"'`\]]*\2\])*(?=\s*[,}\n;)])/.exec(
+    src.slice(i, i + 100),
+  );
   if (name) return { value: name[0], end: i + name[0].length };
   const m = /^[^;}"'`{<>]{0,400}/.exec(src.slice(i))!;
   return { value: m[0], end: i + m[0].length };
 };
 
-/** Whether a radius or shadow value is a token, a neutral keyword or a reference to one; undefined
- *  where the scan cannot read a value (an interpolation or a variable). */
-const onToken = (value: string, tokenSet: Set<string>) => {
+/** Whether a radius or shadow value is a token, a neutral keyword or a reference to one, the
+ *  generated tokens' own key (`tokens["--radius-brand"]`) included; undefined where the scan cannot
+ *  read a value (an interpolation or a variable). */
+const onToken = (value: string, shadow: boolean) => {
   const v = norm(value);
-  if (NEUTRAL.test(v) || PURE_VAR.test(v) || tokenSet.has(v)) return true;
+  if (NEUTRAL.test(v) || pureVar(v) || (shadow ? SHADOWS : RADII).has(v)) return true;
+  const key = /^[a-z_$][\w$.]*\[(["'`])([^"'`]*)\1\]$/.exec(v)?.[2];
+  if (key !== undefined)
+    return key.startsWith("--") ? key.startsWith(shadow ? "--shadow-" : "--radius-") : undefined;
   if (!v || /[${}]/.test(v) || /^[a-z_][\w.]*$/.test(v)) return undefined;
   return false;
 };
@@ -258,14 +269,14 @@ export const scanSource = (raw: string, ext: string) => {
     const start = m.index + m[0].length;
     const { value, end } = valueAt(src, start);
     const shadow = /shadow/i.test(m[1]);
-    const ok = onToken(value, shadow ? SHADOWS : RADII);
+    const ok = onToken(value, shadow);
     if (ok === false) counts[shadow ? "shadow" : "radius"]++;
     if (shadow) blank(start, Math.max(start, end));
   }
   for (const m of [...src.matchAll(CLASS)]) {
     const shadow = m[2] !== undefined;
     const arb = (m[1] ?? m[2]).match(/^\[(.+)\]$/)?.[1];
-    const ok = arb ? onToken(arb.replace(/_/g, " "), shadow ? SHADOWS : RADII) : false;
+    const ok = arb ? onToken(arb.replace(/_/g, " "), shadow) : false;
     if (ok === false) counts[shadow ? "shadow" : "radius"]++;
     if (shadow) blank(m.index, m.index + m[0].length);
   }

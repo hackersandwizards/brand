@@ -203,3 +203,26 @@ test("--site serves a built folder: a page path starting with / is on it, nothin
     rmSync(base, { recursive: true, force: true });
   }
 });
+
+test("a page whose stylesheet does not load throws rather than measuring the unstyled page", async () => {
+  const site = mkdtempSync(join(tmpdir(), "brand-site-"));
+  const ok = pathToFileURL(join(site, "a.css")).href;
+  writeFileSync(join(site, "a.css"), "li { list-style: none; }");
+  writeFileSync(join(site, "file.html"), `<link rel="stylesheet" href="${ok}"><ul><li>x</li></ul>`);
+  writeFileSync(
+    join(site, "gone.html"),
+    `<link rel="stylesheet" href="/b.css"><ul><li>x</li></ul>`,
+  );
+  const server = serve(site);
+  try {
+    // The control: the same file:// link loads when the page is opened as a file.
+    expect(await measureMarkers(browser, toUrl(join(site, "file.html")))).toEqual([]);
+    for (const p of ["/file.html", "/gone.html"])
+      await expect(measureMarkers(browser, toUrl(p, server.url))).rejects.toThrow(
+        "stylesheet not loaded",
+      );
+  } finally {
+    await server.stop(true);
+    rmSync(site, { recursive: true, force: true });
+  }
+});

@@ -164,7 +164,8 @@ export const tokens = {
   "--motion-duration-line": "650ms",
   "--motion-duration-tune": "7s",
   "--motion-ease-brand": "cubic-bezier(0.16, 1, 0.3, 1)",
-  "--gradient-magic": "linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%)"
+  "--gradient-magic": "linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%)",
+  "--gradient-strip": "linear-gradient(to right in oklab, var(--color-teal), var(--color-purple))"
 } as const;
 
 export const colors = {

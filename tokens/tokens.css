@@ -13,7 +13,11 @@
             surfaces' fields.
      sm     the small corner: everything one text line tall that is no pill: a label box (PART
             ONE), a number or icon tile, inline code, the segmented control and its segments (the
-            slide's stage strip included), the apps' fields.
+            slide's stage strip included), the apps' fields, a button under 32 px tall, and a
+            picture in a mail. The last two from a blind panel 2026-11-06 (overall of 10, two Claude
+            runs and one Codex run per persona): 28 px buttons in an app list, small corner 8.0,
+            brand corner 5.9, brand corner at half size 8.3 (a tie, noise 0.33); a 152 px picture in
+            a mail, small corner 8.1, half size 8.0, brand corner 7.3 (noise 0.38).
      pill   round: chips, badges and toggles, and every control that holds only an icon (play,
             pause, previous, next, theme); one over a picture is solid teal with a white icon.
             In the apps a label changed where it shows takes sm, one only read stays pill (os
@@ -302,11 +306,14 @@
   --motion-ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* The brand gradient: a field (a banner, a background, a header behind a picture) and the strip
-     (elements/strip.css, left to right). A rule line under a title or over a block is teal, never
-     the gradient (elements/rule.css). */
+     (elements/strip.css). A rule line under a title or over a block is teal, never the gradient
+     (elements/rule.css). --gradient-strip is the strip's, left to right and mixed in oklab as the
+     website draws it, for any edge that can only take a background (a page rail, a certificate's
+     band). */
   --gradient-magic: linear-gradient(
     135deg,
     var(--color-teal) 0%,
     var(--color-purple) 100%
   );
+  --gradient-strip: linear-gradient(to right in oklab, var(--color-teal), var(--color-purple));
 }

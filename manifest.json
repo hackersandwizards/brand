@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "69cab0d523782cafb1df65d62c396abb9949e3059b6220403aa76b457ed3f9d8"
+      "sha256": "c9e5ac27496414a526c7c21d382eedc8343b25ea7522d40bab07eac72fece468"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -262,7 +262,7 @@
     },
     {
       "path": "expert/header.css",
-      "sha256": "48c169cc2e408551d15cf40e8c4f2b5e9a4a2825f201bc5b213c6f7e51cb607f"
+      "sha256": "4ea0b52687caf535bae6eab9fd33fdf13cf20e29ac47286d69af8dd8d7bf929a"
     },
     {
       "path": "expert/select.css",
@@ -330,11 +330,11 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "b2916b277d01e42f9e10a44d7f57fcacc44f3858f35d0af4b36e688353cfa422"
+      "sha256": "4cf9a534403131136a15d855c54ec3537566e8172f25a46dbec6f494b9539b34"
     },
     {
       "path": "elements/elements.css",
-      "sha256": "64791e8b3c2b4320a8ca5e5bd1a5ee534eaaa4151246a9d835efad450d9b0296"
+      "sha256": "d8c2cd27cee74467ab9a85bb28ba628d80fb41dd620c17caf3d23e9e5b67dc69"
     },
     {
       "path": "elements/focus.css",
@@ -346,7 +346,11 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "86b22b644bca5270b823171ca7206b55448b8c3b162b5d73d030920923ca093a"
+      "sha256": "65cf3905f60d6ac4aa8022a941de5e7481004c975b787b50c024b0953e5bbc54"
+    },
+    {
+      "path": "elements/label-box.css",
+      "sha256": "853591bc4346ffb30b10d8a2f27d43a3aa25f7197a71a39e93eff4aac62a59ec"
     },
     {
       "path": "elements/link.css",
@@ -362,11 +366,11 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "0924f6b19ed670266c82b8e282b410861f67d8089a215573d5452e51ff136416"
+      "sha256": "5832d0849caf18ccd6855066d72032d0fbb4b6c150ae4f7cce68e679969a616b"
     },
     {
       "path": "elements/strip.css",
-      "sha256": "51aaf9cebf861af495e7f86f74e2fd573ad527c5d468e81845ed63a6db69991d"
+      "sha256": "893a98bb6a05291a935680a5d65e58acdb3aa88f28b6fe2905e583ec49350210"
     },
     {
       "path": "elements/table.css",
@@ -398,7 +402,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "496733d7de556b8c943e6134eaac765c4553fa20ac525fecacfc6cc7d1dffc91"
+      "sha256": "553d70fcf82876bdf140e03849de9767003832c8af954a177df5567a96c15130"
     },
     {
       "path": "elements/facts.css",
@@ -438,7 +442,7 @@
     },
     {
       "path": "tokens/document.css",
-      "sha256": "8c32ebc1093decef40988bcfa2b5de5db012ba56463ddaddd0d7ad6b9795e84e"
+      "sha256": "7f7b76cd33052eed8d9c8bab1196cf37838679ef4c43c69fb111e79075ebb55f"
     },
     {
       "path": "tokens/fonts.css",

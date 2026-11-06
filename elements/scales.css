@@ -35,6 +35,7 @@
   --hw-strip: 3px;
   --hw-code-pad: 1rem;
   --hw-corner-sm: var(--radius-sm);
+  --hw-label-box-pad: 0.25rem 0.625rem;
   --hw-frame-width: 1px;
   --hw-button-height: 2.75rem;
   --hw-button-height-wide: initial;
@@ -80,6 +81,7 @@
   --hw-strip: 3px;
   --hw-code-pad: 0.75rem;
   --hw-corner-sm: var(--radius-sm);
+  --hw-label-box-pad: 0.125rem 0.5rem;
   --hw-frame-width: 1px;
   --hw-kpi-size: var(--text-page, 1.5rem);
   --hw-kpi-tracking: -0.01em;
@@ -138,6 +140,7 @@
   --hw-code-pad: 14pt;
   /* The small corner at paper size, in the ratio of print.css's brand corner (16px 4px). */
   --hw-corner-sm: 4px;
+  --hw-label-box-pad: 2pt 6pt;
 }
 
 [data-hw-scale="stage"] {
@@ -164,6 +167,7 @@
   --hw-strip: 0.75rem;
   --hw-code-pad: 1.5rem;
   --hw-corner-sm: 0.46875rem;
+  --hw-label-box-pad: 0.375rem 1rem;
   /* The website's button times 1.5: a slide's "Read more" or call to action. */
   --hw-button-height: 4.5rem;
   --hw-button-height-wide: 4.5rem;

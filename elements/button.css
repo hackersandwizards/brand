@@ -4,8 +4,10 @@
    hover, and with data-filled a white fill, so it stands out on a tinted ground (night: the night
    ground). From 64rem it stands 48 px tall, below 44 px. On night the outline takes white at 40 % with
    white text and a 15 % purple wash on hover. The side padding keeps its px size under enlarged
-   text, so the label keeps its width on a phone. The apps' button is expert.css's btn-primary, in
-   the same brand corner.
+   text, so the label keeps its width on a phone. data-hue="purple" draws it in purple where the
+   block it belongs to carries purple (a second speaker, a second part): purple where it is teal,
+   darker purple on hover, purple-night lines and text on night. The apps' button is expert.css's
+   btn-primary, in the same brand corner.
 
    Settings:
      --hw-button-height       the least height below 64rem
@@ -16,13 +18,15 @@
 
 @layer components {
   .hw-button {
+    --_hue: var(--color-teal);
+    --_hover: var(--color-purple);
     display: inline-flex;
     box-sizing: border-box;
     max-width: 100%;
     min-height: var(--hw-button-height, 2.75rem);
     align-items: center;
     justify-content: center;
-    border: var(--hw-hairline, 1px) solid var(--color-teal);
+    border: var(--hw-hairline, 1px) solid var(--_hue);
     border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: var(--hw-button-pad, 0.5rem min(1.5rem, 24px));
     font-family: var(--type-body-family);
@@ -32,24 +36,28 @@
     text-align: center;
     text-decoration: none;
     color: var(--color-white);
-    background: var(--color-teal);
+    background: var(--_hue);
     cursor: pointer;
     transition:
       background-color var(--motion-fast),
       border-color var(--motion-fast),
       color var(--motion-fast);
   }
+  .hw-button[data-hue="purple"] {
+    --_hue: var(--color-purple);
+    --_hover: color-mix(in srgb, var(--color-purple) 80%, var(--color-ink));
+  }
   .hw-button:hover {
-    border-color: var(--color-purple);
-    background: var(--color-purple);
+    border-color: var(--_hover);
+    background: var(--_hover);
   }
   .hw-button[data-variant="secondary"] {
-    color: var(--color-teal);
+    color: var(--_hue);
     background: transparent;
   }
   .hw-button[data-variant="secondary"]:hover {
-    border-color: var(--color-purple);
-    color: var(--color-purple);
+    border-color: var(--_hover);
+    color: var(--_hover);
     background: transparent;
   }
   .hw-button[data-variant="secondary"][data-filled] {
@@ -77,6 +85,10 @@
     }
     .hw-button[data-variant="secondary"][data-filled] {
       background: var(--color-night);
+    }
+    .hw-button[data-hue="purple"][data-variant="secondary"] {
+      border-color: var(--color-purple-night);
+      color: var(--color-purple-night);
     }
   }
 }

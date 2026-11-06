@@ -7,6 +7,7 @@
    The list marker is tokens/marker.css (export ./marker.css). */
 @import "./scales.css";
 @import "./label.css";
+@import "./label-box.css";
 @import "./pill.css";
 @import "./card.css";
 @import "./callout.css";

@@ -21,7 +21,7 @@ const contrast = (a: string, b: string) => {
 };
 
 test("reads every declaration of tokens.css", () => {
-  expect(Object.keys(tokens)).toHaveLength(165);
+  expect(Object.keys(tokens)).toHaveLength(166);
   expect(tokens["--color-teal"]).toBe("#1a7285");
 });
 

@@ -38,7 +38,7 @@ import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
-import { launch, openFolds, serve, toUrl } from "./markers";
+import { launch, open, openFolds, serve, toUrl } from "./markers";
 
 export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
@@ -56,6 +56,7 @@ const DIR = join(import.meta.dir, "../elements");
 /** Each element by name: the selector that finds it on a page. */
 export const ELEMENTS: Record<string, string> = {
   label: ".hw-label",
+  "label-box": ".hw-label-box",
   pill: ".hw-pill",
   card: ".hw-card",
   callout: ".hw-callout",
@@ -112,6 +113,7 @@ const INLINE_CODE = [
 ];
 const OWNS: Record<string, string[]> = {
   label: [...TYPE, "color"],
+  "label-box": [...CORNER, ...FILL, ...borders(), ...PAD],
   pill: [...CORNER, ...FILL, ...borders(), ...PAD, ...TYPE, "color"],
   "pill .hw-pill-chevron": ["width", "height", "opacity"],
   "pill .hw-pill-remove": ["width", "height", "opacity"],
@@ -398,7 +400,7 @@ export async function measurePage(
   try {
     await page.setViewport({ width: 1280, height: 900 });
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
-    await page.goto(toUrl(url, site), { waitUntil: "networkidle0" });
+    await open(page, toUrl(url, site));
     if (css) await page.addStyleTag({ content: css });
     await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));

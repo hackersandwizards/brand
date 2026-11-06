@@ -4,7 +4,7 @@ status: open
 priority: 1
 order: 10
 owner: each consumer session, against brand v1.1.0
-evidence: "brand v1.1.0 (tokens/tokens.css radii and palettes, elements/rule.css, elements/code.css, elements/button.css, elements/scales.css, tokens/stage.css, expert/expert.css); blind panels of 06.11. below"
+evidence: "brand v1.3.0 (elements/label-box.css, button.css data-hue, label.css data-hue, inline-code.css, tokens.css --gradient-strip and the small-size corner); brand v1.1.0 (tokens/tokens.css radii and palettes, elements/rule.css, elements/code.css, elements/button.css, elements/scales.css, tokens/stage.css, expert/expert.css); blind panels of 06.11. below"
 ---
 
 # One shape and colour system: what the consumers still adopt
@@ -60,3 +60,24 @@ data-variant="secondary"` at stage scale; the stage strip (`SectionHeader.tsx`) 
    on the pin raise; a measured before/after on a dense page.
 5. talks, certificate-verifier, admin: raise the pin and run `brand-elements`. The scaffolding
    catalog shell follows the shapes since scaffolding v2.4.0 (raised in brand's own catalog).
+
+## Since v1.3.0 (06.11.)
+
+Blind panels, overall of 10, two Claude runs and one Codex run per persona, scores in each file's
+comment: the label box (hairline in the label's colour 8.2, hue tint 8.0, double line 7.8, hand-drawn
+7.1; slides attendee and presentation designer), the purple button on a purple speaker (8.7 against
+teal 6.7), inline code at 0.25em side padding (8.5, 0.375em 7.3), the small corner on buttons under
+32 px (8.0 against the brand corner 5.9) and on a picture in a mail (8.1 against 7.3).
+
+6. slides: the frame title (`SlideChrome.tsx`), the roadmap part label (`RoadmapSlide.tsx`, drop
+   `badge` in `lib/section-styles.ts`) and the stage strip (`SectionHeader.tsx`) become
+   `hw-label hw-label-box` with `data-tone="ink"`, `data-hue="teal"`/`"purple"`, or a plain
+   `hw-label-box` around the strip; the second speaker's mail button (`ClosingSlide.tsx`) takes
+   `data-hue="purple"`; every `data-hw-exception="label-hue"` becomes `hw-label data-hue` and the
+   exception leaves `brand-elements.json`.
+7. documents: readout, certificate and page-edge strips take `var(--gradient-strip)` instead of
+   `--gradient` (`tokens.css`, `readout.css`, `document.css`, `DocHeader.astro`,
+   `DocCertificate.astro`); `--handout-title-bar` is gone (no reader).
+8. mail: pictures take `--radius-sm` (`components/theme.ts` `corner`, `test/image.test.tsx`); its
+   gate names the `CATALOG_FILE=1` build's pages as files for `brand-markers`, never `--site`.
+9. admin, os, trainer-hub: a button under 32 px tall takes `--radius-sm`.
