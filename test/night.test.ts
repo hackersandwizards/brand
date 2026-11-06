@@ -60,34 +60,37 @@ test("night.css after tokens.root.css turns every token on a dark html", async (
 
 // A light island in that night, such as a catalog frame drawing a light-only page: the nearest
 // data-theme wins, so every token tokens.root.css declares, a derived one included, computes there
-// as on a day page, and so do its text, which body's colour would hand down in night ink, and its
-// colour scheme. The expert roles night.css also sets keep expert.css's page-wide night.
+// as on a day page, and so do its text, which body's colour would hand down in night ink, and
+// scales.css's line; also where the island carries data-hw-night or holds a data-hw-night element.
+// The expert roles night.css also sets keep expert.css's page-wide night.
 test("a data-theme=light element under a night html keeps every day token", async () => {
   const tab = await browser.newPage();
-  const read = async (html: string, main: string) => {
+  const read = async (html: string, body: string) => {
     await tab.setContent(`<!doctype html><html data-hw-scale="screen" ${html}><head>
 <style>${tokens}${css("elements/scales.css")}</style>
-<style>${night} body { color: var(--color-ink) }</style></head>
-<body><main ${main}></main></body></html>`);
+<style>${night} body { color: var(--color-ink) }</style></head><body>${body}</body></html>`);
     return tab.evaluate((names) => {
       const s = getComputedStyle(document.querySelector("main")!);
-      const scheme = s.colorScheme === "normal" ? "light" : s.colorScheme;
       return {
         ...Object.fromEntries(names.map((n) => [n, s.getPropertyValue(n).trim()])),
         line: s.getPropertyValue("--hw-line").trim(),
         color: s.color,
-        scheme,
       };
     }, names);
   };
-  const day = await read("", "");
-  const island = await read('data-theme="dark" data-hw-night', 'data-theme="light"');
-  await tab.close();
   const own = (o: Record<string, string>) =>
     Object.fromEntries(
       Object.entries(o).filter(([n]) => !n.startsWith("--") || tokens.includes(`  ${n}:`)),
     );
-  expect(own(island)).toEqual(own(day));
+  const day = own(await read("", "<main></main>"));
+  const dark = 'data-theme="dark" data-hw-night';
+  for (const body of [
+    '<main data-theme="light"></main>',
+    '<main data-theme="light" data-hw-night></main>',
+    '<div data-theme="light"><main data-hw-night></main></div>',
+  ])
+    expect([body, own(await read(dark, body))]).toEqual([body, day]);
+  await tab.close();
 });
 
 test("the purple button turns darker on hover under night.css", async () => {

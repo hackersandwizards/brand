@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
-// generated/tokens.root.css (the @theme block as :root and on a light element under night), tokens.json, tokens.ts and tokens.py, and
+// generated/tokens.root.css (the @theme block as :root and on a light element under night),
+// tokens.json, tokens.ts and tokens.py, and
 // code-theme.json, the Shiki theme of the --code-* tokens and the terminal's ANSI colours; and from
 // tokens/fonts.css fonts.json, its faces, for a surface that writes its own @font-face; and from
 // tokens/print.css static-fonts.css, its @font-face rules alone, for a surface that needs the static

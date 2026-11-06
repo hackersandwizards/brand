@@ -255,9 +255,9 @@ A surface written in the light tokens (`bg-bg`, `text-ink`, `text-teal`) that tu
 `night.css` after `tokens.css` and puts `data-hw-night` on the subtree that turns, under
 `data-theme="dark"` on itself or an ancestor: every light token takes its hue's night column, and
 the expert roles `header.css` reads take their night values. It works on `<html>` too, beside
-`tokens.root.css`. A `data-theme="light"` element inside that night is day again: its tokens, the
-derived ones included, its text colour, colour scheme and `--hw-line`. The expert roles stay
-`expert.css`'s, which turns the whole page.
+`tokens.root.css`. The nearest `data-theme` wins: a `data-theme="light"` element inside that night
+is day again, its tokens (the derived ones included, from `tokens.root.css`), its text colour and
+`--hw-line`. The expert roles stay `expert.css`'s, which turns the whole page.
 
 ### Check your colours in your gate
 
