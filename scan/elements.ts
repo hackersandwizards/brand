@@ -111,6 +111,12 @@ const INLINE_CODE = [
   "font-weight",
   "font-variant-ligatures",
 ];
+const LINK = [
+  "color",
+  "text-decoration-line",
+  "text-decoration-thickness",
+  "text-underline-offset",
+];
 const OWNS: Record<string, string[]> = {
   label: [...TYPE, "color"],
   "label-box": [...CORNER, ...FILL, ...borders(), ...PAD],
@@ -123,7 +129,7 @@ const OWNS: Record<string, string[]> = {
   table: ["font-size", "line-height"],
   "table th": [...borders(["bottom"]), ...PAD, ...TYPE, "color", "text-align", "vertical-align"],
   "table td": [...borders(["bottom"]), ...PAD, "text-align", "vertical-align"],
-  link: ["color", "text-decoration-line", "text-decoration-thickness", "text-underline-offset"],
+  link: LINK,
   "focus-ring": ["outline-style", "outline-width", "outline-color", "outline-offset"],
   "icon-button": ["width", "height", ...CORNER, ...FILL, ...PAD, "color"],
   "icon-button svg": ["width", "height"],
@@ -171,6 +177,10 @@ const OWNS: Record<string, string[]> = {
   "prose h2": [...borders(["top"]), "padding-top", "font-size", "line-height"],
   "prose h3": ["font-size", "font-weight", "line-height"],
   "prose :not(pre) > code": INLINE_CODE,
+  // Typography's own link weight and list indent come in a later layer than the hub elements.
+  "prose a": [...LINK, "font-weight"],
+  "prose ul": ["padding-left"],
+  "prose ol": ["padding-left"],
 };
 
 /** The element files' rules, every @import dropped: the reference's only styles. */

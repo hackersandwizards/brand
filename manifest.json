@@ -426,7 +426,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "230bdac47dcdbf2b74a1d9f06e10bb2d7eef6cf41a75b1e3e6fce4bafad1d90e"
+      "sha256": "5861dbdfd850d00d37b18dccd726abfca0bc9cd2fa61d54083045b13da79e0c6"
     },
     {
       "path": "elements/row.css",
@@ -446,7 +446,7 @@
     },
     {
       "path": "tokens/document.css",
-      "sha256": "7f7b76cd33052eed8d9c8bab1196cf37838679ef4c43c69fb111e79075ebb55f"
+      "sha256": "8ac6d813cf5c850071dae1c87e713fa2f7b3da22681fbde86a729b6aa0a5e770"
     },
     {
       "path": "tokens/fonts.css",

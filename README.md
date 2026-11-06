@@ -197,7 +197,9 @@ and its settings. Import `elements.css` for all of them, or `elements/<name>.css
 `@layer components`, so your utilities win, which is what `brand-elements` then measures; the prose
 block and its inline code sit in no layer, since Tailwind Typography's `prose` comes in the utilities
 layer. A `<code>` in running text takes `class="hw-inline-code"`; inside the prose block every
-inline `<code>` is that element already.
+inline `<code>` is that element already, and every link the link in text: mark tables, code blocks,
+quotes and any link that is a button or an arrow link `not-prose`, nothing else. The prose block's
+lists start at the text edge, as the marker list does everywhere.
 
 A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
 website's px), `"dense"` (the apps and the talks site; it also sets the expert set's compact type steps, UI text
@@ -207,7 +209,8 @@ an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed
 
 Your design-system page shows each hub element you use as a tile,
 `<div data-hw-tile="card" data-hw-version="<brand version>">` holding the element in your medium,
-marked "aus brand v<version>" with a link to the brand catalog, and each element you keep as your own
+marked in the page's own language, "from brand v<version>" on an English page and "aus brand
+v<version>" on a German one, with a link to the brand catalog, and each element you keep as your own
 in full with its reason, `<section data-hw-exception="<name>">`. List both in
 `brand-elements.json` at your repo's root:
 

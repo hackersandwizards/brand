@@ -409,6 +409,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-pill-edit-corner",
     "--hw-segment-line",
     "--hw-prose-check-x",
+    "--hw-marker-gap",
     "--hw-row-fill",
     "--hw-field-family",
   ]);
@@ -502,5 +503,47 @@ test("the prose block's inline code repeats inline-code.css's rules declaration 
   );
   expect(block("prose.css", ".hw-prose :not(pre) > code", true)).toBe(
     block("inline-code.css", ".hw-inline-code", true),
+  );
+});
+
+// Typography's prose rules come in a later layer than the elements: its link weight and list
+// indent must lose to the prose block, and the same values written unlayered must turn it red.
+test("the prose block's links and lists hold against Typography's layer", async () => {
+  const typography =
+    "@layer utilities { .prose :where(a) { color: #111; font-weight: 500 } .prose :where(ul, ol) { padding-inline-start: 1.625em } }";
+  const html = (css: string) =>
+    only(
+      `<style>${css}</style><div data-hw-tile="prose" data-hw-version="${own.version}">${DEMOS.prose!.replace('class="hw-prose"', 'class="prose hw-prose"')}</div>`,
+    );
+  const clean = await measurePage(browser, file("prose-typography.html", html(typography)));
+  expect(clean.findings).toEqual([]);
+  for (const [drift, prop] of [
+    [".prose.hw-prose a:not(.not-prose) { font-weight: 500 }", "font-weight"],
+    [".hw-prose ul { padding-inline-start: 1.625em }", "padding-left"],
+    [".hw-prose ol { padding-inline-start: 1.625em }", "padding-left"],
+  ] as const) {
+    const r = await measurePage(browser, file("prose-drift.html", html(drift)));
+    expect(r.findings.map((f) => `${f.label.split(" ").at(-1)} ${f.prop}`)).toContain(
+      `${drift.split(" ")[1]!.replace(/:.*/, "")} ${prop}`,
+    );
+  }
+}, 60_000);
+
+test("the prose block's links repeat link.css's declarations", () => {
+  const src = (f: string) => readFileSync(join(import.meta.dir, "../elements", f), "utf8");
+  const decls = (css: string, selector: string) =>
+    [
+      ...css.matchAll(
+        new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\{([^}]*)\\}`, "g"),
+      ),
+    ].map((m) => m[1]!.replace(/\s+/g, " ").trim());
+  const link = decls(src("link.css"), ":is(.hw-link, .hw-links a)");
+  const prose = decls(src("prose.css"), ".hw-prose a:not(.not-prose, .not-prose *)");
+  expect(link).toHaveLength(2);
+  expect(prose).toHaveLength(2);
+  link.forEach((d, i) => expect(prose[i]).toContain(d));
+  const hover = (css: string, s: string) => decls(css, `${s}:hover`);
+  expect(hover(src("prose.css"), ".hw-prose a:not(.not-prose, .not-prose *)")).toEqual(
+    hover(src("link.css"), ":is(.hw-link, .hw-links a)"),
   );
 });
