@@ -165,6 +165,12 @@ def grid_surfaces():
         "sessionize-profile": grid(
             (2000, 500), 61.9, two_lines(*PROFILE_LINES, x=651, b1=0, b2=46.0, size=38.0, track=-0.050), area=(94, 406), left=651
         ),
+        # Benedikt's Brella cover (Digitale Leute Summit 2026): Brella asks for 2000 x 800; how much of it
+        # Brella shows on desktop and phone is not measured yet, so the group sits centred in the full
+        # frame at 1.5 times the Sessionize cover, about 485 px clear left and right and 265 above and below
+        "brella-profile": grid(
+            (2000, 800), 92.85, two_lines(*PROFILE_LINES, x=485, b1=0, b2=69.0, size=57.0, track=-0.050), left=485
+        ),
         "featured": grid(
             (1200, 627),
             94,
@@ -215,6 +221,7 @@ REPO_FILES = {
     "x-profile-header-1500x500.png": ("x-profile", 1),
     "xing-profile-cover-1312x639.png": ("xing-profile", 1),
     "sessionize-profile-cover-2000x500.png": ("sessionize-profile", 1),
+    "brella-profile-cover-2000x800.png": ("brella-profile", 1),
 }
 
 
