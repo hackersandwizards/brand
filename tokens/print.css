@@ -269,6 +269,10 @@
   --type-label-tracking: 0.04em;
   --type-stat-size: 20pt;
   --type-code-size: 9.5pt;
+  /* Off the opacity ladder (7, 15, 25, 40, 70, 100) on purpose: secondary text on paper is darker
+     than on screen, and the ladder has no step for it. Ink at 85 % is 9.3:1 on white; the 70 %
+     step is 5.6:1, lighter than the screen's muted (7.1:1), and 100 % is the text itself
+     (measured 06.11.2026, WCAG relative luminance). */
   --color-muted: color-mix(in srgb, var(--color-ink) 85%, white);
 
   /* The brand corner at paper size, as the onepager draws it. */

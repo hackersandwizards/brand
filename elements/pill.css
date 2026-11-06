@@ -10,12 +10,16 @@
      data-variant="add"     adds a value: the hairline dashed, on no fill, muted
      data-caps              the words in the label role (mono capitals), as a document's type tag
      data-editable          a value changed here (a menu opens on it): takes --hw-pill-edit-corner
+     data-priority="0"-"4"  a priority, P0 to P4, the same wherever it shows: 0 red, 1 amber, 2
+                            neutral, 3 and 4 outline (the hue rule in tokens.css)
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
    changes the value) and hw-pill-remove (a button: removes the value). A leading icon is an svg
    child. With any of them the pill lays its children out in a row, 0.25em apart.
 
    Settings:
-     --hw-pill-hue         the hue (a brand hue token; teal unless the surface groups by hue)
+     --hw-pill-hue         the hue (a brand hue token; teal unless the surface groups by hue). A
+                           category takes teal, purple or ampersand; amber, green and red mean a
+                           state (tokens.css)
      --hw-pill-hue-night   that hue's night tone
      --hw-pill-size        the small role's size
      --hw-pill-pad         block and inline padding
@@ -59,11 +63,24 @@
     letter-spacing: var(--type-label-tracking);
     text-transform: var(--type-label-case);
   }
-  .hw-pill[data-tone="neutral"] {
+  .hw-pill[data-priority="0"] {
+    --hw-pill-hue: var(--color-red);
+    --hw-pill-hue-night: var(--color-red-night);
+  }
+  .hw-pill[data-priority="1"] {
+    --hw-pill-hue: var(--color-amber-dark);
+    --hw-pill-hue-night: var(--color-amber);
+  }
+  .hw-pill:is([data-tone="neutral"], [data-priority="2"]) {
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
-  .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
+  .hw-pill:is(
+    [data-variant="outline"],
+    [data-variant="add"],
+    [data-priority="3"],
+    [data-priority="4"]
+  ) {
     border-color: var(--color-border);
     color: var(--color-ink);
     background: transparent;
@@ -108,11 +125,16 @@
         var(--color-night)
       );
     }
-    .hw-pill[data-tone="neutral"] {
+    .hw-pill:is([data-tone="neutral"], [data-priority="2"]) {
       color: color-mix(in srgb, var(--color-night-ink) 75%, transparent);
       background: color-mix(in srgb, white 10%, transparent);
     }
-    .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
+    .hw-pill:is(
+      [data-variant="outline"],
+      [data-variant="add"],
+      [data-priority="3"],
+      [data-priority="4"]
+    ) {
       border-color: color-mix(in srgb, white 25%, transparent);
       color: var(--color-night-ink);
       background: transparent;

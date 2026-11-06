@@ -33,6 +33,8 @@ TOKENS = {
     "--color-night-line": "color-mix(in srgb, var(--color-night-ink) 15%, var(--color-night))",
     "--color-teal-night": "#47aec6",
     "--color-purple-night": "#b97af1",
+    "--color-label": "var(--color-teal-dark)",
+    "--color-label-night": "var(--color-teal-night)",
     "--color-subtle": "var(--color-muted)",
     "--font-mono": "\"JetBrains Mono Variable\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
     "--font-code": "\"JetBrains Mono Variable\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
@@ -199,5 +201,7 @@ COLORS = {
     "--color-night-line": "#2d3238",
     "--color-teal-night": "#47aec6",
     "--color-purple-night": "#b97af1",
+    "--color-label": "#155b6a",
+    "--color-label-night": "#47aec6",
     "--color-subtle": "#545861"
 }

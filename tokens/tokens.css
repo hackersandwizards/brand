@@ -13,11 +13,14 @@
             surfaces' fields.
      sm     the small corner: everything one text line tall that is no pill: a label box (PART
             ONE), a number or icon tile, inline code, the segmented control and its segments (the
-            slide's stage strip included), the apps' fields, a button under 32 px tall, and a
-            picture in a mail. The last two from a blind panel 2026-11-06 (overall of 10, two Claude
-            runs and one Codex run per persona): 28 px buttons in an app list, small corner 8.0,
-            brand corner 5.9, brand corner at half size 8.3 (a tie, noise 0.33); a 152 px picture in
-            a mail, small corner 8.1, half size 8.0, brand corner 7.3 (noise 0.38).
+            slide's stage strip included), the apps' fields, an app's button under 32 px tall, and
+            a picture in a mail. The last two from a blind panel 2026-11-06 (overall of 10, two
+            Claude runs and one Codex run per persona): 28 px buttons in an app list, small corner
+            8.0, brand corner 5.9, brand corner at half size 8.3 (a tie, noise 0.33); a 152 px
+            picture in a mail, small corner 8.1, half size 8.0, brand corner 7.3 (noise 0.38). On
+            paper the 28 px onepager button keeps the brand corner: brand corner 8.4, small corner
+            7.4, the brand corner at 32 px 7.4 (blind panel 2026-11-06, two personas, Claude and
+            Codex, two runs, noise 0.75).
      pill   round: chips, badges and toggles, and every control that holds only an icon (play,
             pause, previous, next, theme); one over a picture is solid teal with a white icon.
             In the apps a label changed where it shows takes sm, one only read stays pill (os
@@ -95,7 +98,21 @@
      green     | green-dark | green           | success
      factory   | factory    | factory-light   | the Software Factory area
      red       | red        | red-night       | error, anti-pattern
-     ampersand | muted      | ampersand-light | the quiet hue: a label without its own colour */
+     ampersand | muted      | ampersand-light | the quiet hue: a label without its own colour
+
+     A category (a type, a format, a group) takes teal, purple or ampersand, in that order, and a
+     set with more values leaves the rest neutral. Amber, green and red only ever mean their state,
+     and factory only the Software Factory area: its 15 % wash is ΔE 4.1 from amber's and 4.9 from
+     red's (teal to purple 16.2). A priority is a state too: P0 red, P1 amber, P2 neutral, P3 and
+     below an outline (elements/pill.css). Blind panel 2026-11-06 on an app table, a work list, an
+     agenda and the website's training list, four personas, Claude and Codex, two runs, overall of
+     10: this rule 8.6, categories without a hue 7.0, categories in every hue with one priority
+     scale 5.9, the state before 4.8; noise 0.47. */
+
+  /* The label's colour (elements/label.css), day and night: an eyebrow, kicker, fact name or
+     table head. A surface that cannot load the element, such as a mail, reads these. */
+  --color-label: var(--color-teal-dark);
+  --color-label-night: var(--color-teal-night);
 
   /* Former names, resolving to their successors. */
   --color-subtle: var(--color-muted);

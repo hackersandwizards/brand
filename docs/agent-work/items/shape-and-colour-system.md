@@ -4,21 +4,27 @@ status: open
 priority: 2
 order: 350
 owner: each consumer session named below
-evidence: "consumers' origin/main package.json read 2026-11-06 14:40: brand v1.6.0 in slides, mail, admin; v1.5.0 in os, trainer-hub, website, documents, hycle-private; v1.4.0 in talks and certificate-verifier. os 0cc07642e carried its shape steps (header toggle hw-header-link data-icon, btn corners from expert.css, buttons under 32 px on the small corner, measured on nine pages)."
+evidence: "consumers' origin/main read 2026-11-06 17:00: os config.ts colours categories with hue-amber and hue-green and company P1 with hue-rust; admin ItemRow colours P1 red, P2 amber; trainer-hub FormatBadge discussion amber, practice green; website TrainingList special amber-dark. Pins: documents v1.11.1; the rest as on 06.11. 14:40 (slides, mail, admin v1.6.0; os, trainer-hub, website v1.5.0; talks, certificate-verifier v1.4.0)."
 ---
 
 # One shape and colour system: what the consumers still owe
 
-The rule set of Benedikt's review round of 06.11. lives in brand (`tokens/tokens.css`, the files
-under `elements/`, `expert/expert.css`, their comments carry the panel scores). slides, website and
-os have done their code steps (os in 0cc07642e); what stays open is the v1.6.0 raise and one check.
+The rule set lives in brand (`tokens/tokens.css`, the files under `elements/`, `expert/expert.css`;
+their comments carry the panel scores). brand v1.13.0 adds the hue rule (a category takes teal,
+purple or ampersand; amber, green and red mean a state; factory is the Software Factory area alone)
+and the priority pill (`hw-pill data-priority`). What stays open is in the consumers.
 
 ## What remains
 
-1. os, trainer-hub, website, documents, hycle-private (v1.5.0) and talks, certificate-verifier
-   (v1.4.0): raise the pin to v1.6.0, so the strip mixes in sRGB and night inline code takes the
-   night-ink tint; no code change. Pin-update sessions had the raise uncommitted in all of them but
-   os on 06.11. 14:40.
-2. trainer-hub: its buttons take the brand corner from `expert.css`, and one under 32 px tall takes
-   `--radius-sm` (brand v1.3.0). Not verified on `origin/main`: the session there checks its
-   buttons and closes this point.
+1. Every consumer raises its pin to v1.13.0 (v1.6.0's sRGB strip and night inline code come with
+   it).
+2. os: no category takes `hue-amber` or `hue-green` (company type, standing, pipeline, trainer
+   type, training mode and the rest of `src/config.ts`); a set takes teal, purple, slate and leaves
+   the rest neutral; `hue-rust` only for the Software Factory area. Company priority renders
+   `hw-pill data-priority="0"`-`"4"`.
+3. admin: ItemRow's priority pill takes `data-priority` instead of its inline hue.
+4. trainer-hub: FormatBadge takes teal, purple, ampersand and neutral, not green or amber; its
+   buttons under 32 px take `--radius-sm` (brand v1.3.0), unverified on `origin/main`.
+5. website: TrainingList's third group takes ampersand, not amber-dark.
+6. mail: reads `--color-label` and `--color-label-night` from `tokens` instead of parsing
+   `elements/label.css`.

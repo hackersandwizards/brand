@@ -10,7 +10,9 @@ import { parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
 const css = readFileSync(join(ROOT, "expert/expert.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 const block = (head: RegExp) => parseTokens(`@theme {${head.exec(css)![1]}}`);
 const light = block(/html\[data-theme="light"\]\s*\{([^}]*)\}/);
-const dark = block(/html\[data-theme="dark"\]\s*\{([^}]*)\}/);
+// Both blocks sit on html, so night keeps every light role it does not set (--hue-amber reads
+// --warning, which night sets).
+const dark = { ...light, ...block(/html\[data-theme="dark"\]\s*\{([^}]*)\}/) };
 const inline = block(/@theme inline\s*\{([^}]*)\}/);
 const token = resolveColors(parseTokens(readFileSync(SOURCE, "utf8")));
 const root = (roles: Record<string, string>) => {
@@ -52,4 +54,15 @@ test("the select chevron is border-strong on light and night-muted on night", ()
   );
   const strokes = [...select.matchAll(/stroke='%23([0-9a-f]{6})'/g)].map(([, hex]) => `#${hex}`);
   expect(strokes).toEqual([token["--color-border-strong"], token["--color-night-muted"]]);
+});
+
+test("no category hue equals a status role but amber and green, the status roles' former names", () => {
+  for (const roles of [light, dark]) {
+    const value = root(roles);
+    expect(value("--hue-amber")).toBe(value("--warning"));
+    expect(value("--hue-green")).toBe(value("--success"));
+    const status = ["--error", "--warning", "--success"].map(value);
+    for (const hue of ["--hue-teal", "--hue-purple", "--hue-rust", "--hue-slate"])
+      expect(status).not.toContain(value(hue));
+  }
 });

@@ -184,7 +184,7 @@ const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none
 const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div class="rules">
 <div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}: everything that holds content or is pressed with words on it, cards, panels, callouts, code blocks, pictures and buttons.</p></div>
-<div><p class="shape-demo"><span class="hw-label hw-label-box">Part one</span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments, a button under 32 px tall and a picture in a mail.</p></div>
+<div><p class="shape-demo"><span class="hw-label hw-label-box">Part one</span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments, an app's button under 32 px tall and a picture in a mail.</p></div>
 <div><p class="shape-demo"><span class="hw-pill">Remote</span> <span class="hw-icon-button">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
 <div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Square: a mark smaller than a line, a list marker or a colour swatch.</p></div>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>

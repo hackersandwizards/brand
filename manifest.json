@@ -106,7 +106,7 @@
     },
     {
       "path": "tokens/print.css",
-      "sha256": "0438ba3d415f15a19b607bba7a50838ff12f2df279403e7b52777c950c0eba9e"
+      "sha256": "5b3616bf2bf4711aae363a7256fa394526e5d312188476728802082118a551da"
     },
     {
       "path": "tokens/marker.css",
@@ -114,7 +114,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "5ba29440ba42a54a0af06a3e8d3e4fbe04ccec2f2bb99e66d61c32d758c51a80"
+      "sha256": "dbd3f6bf5b20fe59fb7628aa4979127bc1a2dda302b1077b0f9ff7f5e13e3f2d"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -282,7 +282,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "bed984990110dfd72f1e7e81b7b8f84f4cdc3ed7846b99be387169f71604c008"
+      "sha256": "4b6a8dcb2ff7b5ba6d33c04d4945af02acab22afc7d9a3c2a34a503cb3848e01"
     },
     {
       "path": "expert/header.css",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "16be363dafbba3dc20b40385f292542b3c7fef69b2c6fbb74138704135fb6340"
+      "sha256": "03574c619814455e84cca32be8cbe9c43b7928404d7d3271816da4e11b1179a5"
     },
     {
       "path": "elements/label-box.css",
@@ -394,7 +394,7 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "2d92e982c1d6cec5743d34a5f9c49b89507d9f126315979ccb1b10e793c33c21"
+      "sha256": "aef348abfc412d7c96e1e427d4aaa340ad9e28e646920180f1f42d24b0cbb77c"
     },
     {
       "path": "elements/quote.css",
