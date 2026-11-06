@@ -2,7 +2,9 @@
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
 // generated/tokens.root.css (the @theme block as :root), tokens.json, tokens.ts and tokens.py, and
 // code-theme.json, the Shiki theme of the --code-* tokens and the terminal's ANSI colours; and from
-// tokens/fonts.css fonts.json, its faces, for a surface that writes its own @font-face.
+// tokens/fonts.css fonts.json, its faces, for a surface that writes its own @font-face; and from
+// tokens/print.css static-fonts.css, its @font-face rules alone, for a surface that needs the static
+// faces without the print scale.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
@@ -246,6 +248,13 @@ const generate = () => {
         null,
         2,
       ) + "\n",
+    "static-fonts.css": `/* Generated from tokens/print.css by scripts/tokens.ts. Edit the source, never this file.
+   print.css's static faces alone, without the print scale: one static file per weight, so Chrome
+   embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
+${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(/@font-face\s*\{[^}]*\}/g)]
+  .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
+  .join("\n\n")}
+`,
   };
 };
 

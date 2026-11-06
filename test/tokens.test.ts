@@ -122,3 +122,10 @@ test("print.css's latin-ext faces take fonts.css's range, mono at its Latin weig
   const mono = "JetBrains Mono Variable";
   expect(weights(mono, "latin-ext")).toEqual(weights(mono, "latin"));
 });
+
+test("static-fonts.css holds print.css's faces, each url reaching its file from generated/", () => {
+  const css = readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8");
+  const urls = [...css.matchAll(/url\("([^"]+)"\)/g)].map(([, url]) => url);
+  expect(urls).toHaveLength(fontFaces(print).length);
+  for (const url of urls) expect(existsSync(join(ROOT, "generated", url))).toBe(true);
+});

@@ -1,0 +1,188 @@
+/* Generated from tokens/print.css by scripts/tokens.ts. Edit the source, never this file.
+   print.css's static faces alone, without the print scale: one static file per weight, so Chrome
+   embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../tokens/fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../tokens/fonts/inter-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../tokens/fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../tokens/fonts/inter-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../tokens/fonts/inter-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../tokens/fonts/inter-latin-ext-600-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../tokens/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../tokens/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../tokens/fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../tokens/fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../tokens/fonts/jetbrains-mono-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0101, U+0103-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../tokens/fonts/jetbrains-mono-latin-ext-500-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0101, U+0103-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../tokens/fonts/jetbrains-mono-latin-ext-600-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0101, U+0103-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../tokens/fonts/jetbrains-mono-latin-ext-700-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0101, U+0103-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../tokens/fonts/inter-arrows-400-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../tokens/fonts/inter-arrows-500-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../tokens/fonts/inter-arrows-600-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../tokens/fonts/inter-arrows-700-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../tokens/fonts/jetbrains-mono-symbols-400-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../tokens/fonts/jetbrains-mono-symbols-500-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 600;
+  src: url("../tokens/fonts/jetbrains-mono-symbols-600-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Variable";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../tokens/fonts/jetbrains-mono-symbols-700-normal.woff2") format("woff2");
+  unicode-range: U+2190-21FF, U+2500-257F;
+}
