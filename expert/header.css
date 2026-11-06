@@ -102,12 +102,15 @@
   height: calc(var(--spacing-logo) * 1640.612 / 1489);
 }
 
-html[data-theme="dark"] .hw-header-logo {
-  display: none;
-}
+/* Night is the page's, up to a data-theme="light" element. */
+@scope (html[data-theme="dark"]) to ([data-theme="light"]) {
+  :scope .hw-header-logo {
+    display: none;
+  }
 
-html[data-theme="dark"] .hw-header-logo-night {
-  display: block;
+  :scope .hw-header-logo-night {
+    display: block;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

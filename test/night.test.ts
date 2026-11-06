@@ -63,7 +63,7 @@ test("night.css after tokens.root.css turns every token on a dark html", async (
 // data-theme wins, so every token tokens.root.css declares, a derived one included, computes there
 // as on a day page, and so do its text, which body's colour would hand down in night ink, and
 // scales.css's line; also where the island carries data-hw-night or holds a data-hw-night element.
-// The expert roles night.css also sets keep expert.css's page-wide night.
+// The expert roles night.css also sets are expert.css's on the island (test/expert.test.ts).
 test("a data-theme=light element under a night html keeps every day token", async () => {
   const tab = await browser.newPage();
   // Every token tokens.root.css declares, scales.css's line, and the text colour.

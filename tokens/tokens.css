@@ -109,9 +109,8 @@
      scale 5.9, the state before 4.8; noise 0.47. */
 
   /* The label's colour (elements/label.css), day and night: an eyebrow, kicker, fact name or
-     table head. A surface that cannot load the element, such as a mail, reads these. Not
-     --color-label: Tailwind would make text-label a colour and drop the label size
-     (test/tokens.test.ts). */
+     table head. A surface that cannot load the element, such as a mail, reads these. Never
+     --color-label: test/tokens.test.ts. */
   --color-label-text: var(--color-teal-dark);
   --color-label-text-night: var(--color-teal-night);
 

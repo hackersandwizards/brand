@@ -6,8 +6,7 @@
    The chevron is border-strong on light and night-muted on night, as hex since a data URI cannot
    read a variable (test/expert.test.ts holds both equal to tokens.css). Night follows
    data-theme="dark" on html, up to a data-theme="light" element; without it the chevron is the
-   light one. A dark band inside a light page keeps it light: the website draws its select white
-   there. */
+   light one, also in a dark band of a light page, whose select may stay white. */
 
 .hw-select,
 select.form-input {
@@ -21,7 +20,7 @@ select.form-input {
   padding-right: 2rem;
 }
 @scope (html[data-theme="dark"]) to ([data-theme="light"]) {
-  :is(.hw-select, select.form-input) {
+  :scope :is(.hw-select, select.form-input) {
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
   }
 }

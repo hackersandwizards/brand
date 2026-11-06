@@ -136,6 +136,13 @@ html[data-theme="dark"] {
   --dim-floor: 51%;
 }
 
+/* A light island's text: body hands down the night ink it computed. */
+@layer base {
+  html[data-theme="dark"] [data-theme="light"] {
+    color: var(--foreground);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

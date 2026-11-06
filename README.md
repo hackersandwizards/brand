@@ -258,7 +258,8 @@ A surface written in the light tokens (`bg-bg`, `text-ink`, `text-teal`) that tu
 the expert roles `header.css` reads take their night values. It works on `<html>` too, beside
 `tokens.root.css`. The nearest `data-theme` wins: a `data-theme="light"` element inside that night
 is day again, its tokens (the derived ones included, from `tokens.root.css`), its text colour and
-`--hw-line`. `expert.css`'s roles follow the nearest `data-theme` the same way.
+`--hw-line`. `expert.css` turns night on `html` alone, and a `data-theme="light"` element inside
+it takes the day roles and text colour again.
 
 ### Check your colours in your gate
 

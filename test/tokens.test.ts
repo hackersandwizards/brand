@@ -143,6 +143,7 @@ const SHARED = [
   ["text", "color"],
   ["shadow", "color"],
   ["font", "font-weight"],
+  ["container", "spacing"],
 ] as const;
 const collisions = (source: string) => {
   const names = (ns: string) =>
