@@ -65,6 +65,22 @@
       "sha256": "b85c33ea37af7477fb68938187e1081eb7c3345655fb55707e1b4e3dfab50fc9"
     },
     {
+      "path": "tokens/fonts/jetbrains-mono-latin-ext-400-normal.woff2",
+      "sha256": "f492fdccb88b0a5575ec28d2ccdf3bbcf4c7654899182c0fd4c135d81807e0ca"
+    },
+    {
+      "path": "tokens/fonts/jetbrains-mono-latin-ext-500-normal.woff2",
+      "sha256": "bd84070ef50ee6105991dfff785ce3eb93c774c649942688932781f105660577"
+    },
+    {
+      "path": "tokens/fonts/jetbrains-mono-latin-ext-600-normal.woff2",
+      "sha256": "9a3b04dc64800a2a7cb4142f90a8202c44d96c47cb6f0b7a035038908047d0c3"
+    },
+    {
+      "path": "tokens/fonts/jetbrains-mono-latin-ext-700-normal.woff2",
+      "sha256": "9507196a8de84f3fa5b0313844800e5979e92d9a0973e96094db25122ed7a45c"
+    },
+    {
       "path": "tokens/fonts/jetbrains-mono-symbols-400-normal.woff2",
       "sha256": "94d4642d303cb59fe33f499f4f53760bf1ec26c9b24d30e1a3f0ae43b390cbe8"
     },
@@ -82,7 +98,7 @@
     },
     {
       "path": "tokens/print.css",
-      "sha256": "71c399a0941abfcb528b0c93e5bf07e7f7e4ddecf87741a374eeb836a60c1773"
+      "sha256": "300dc9c6b3ea403153dc3b78e78b3c7d59cb1ba3d4c028d8ed6682f40a60fd53"
     },
     {
       "path": "tokens/marker.css",
@@ -458,7 +474,7 @@
     },
     {
       "path": "tokens/fonts.css",
-      "sha256": "de4dcb5f468404533dffb1581c00181da7db54c5050d8f357ebcdb71cfda647b"
+      "sha256": "b1f8f6a4e88965187f807dc62f956a2e8120f229fd32e8a574bd3ccc5c1ef0da"
     },
     {
       "path": "tokens/night.css",
