@@ -48,7 +48,7 @@ data or secret.
   its people records. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
-- `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python), the Shiki theme of its code palette (`code-theme.json`)
+- `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python), the Shiki theme of its code palette (`code-theme.json`),
   the faces of `tokens/fonts.css` (`fonts.json`) and the `@font-face` rules of `tokens/print.css`
   alone (`static-fonts.css`). Never edit them; run `bun run tokens`.
 - `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;

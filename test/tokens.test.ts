@@ -125,7 +125,8 @@ test("print.css's latin-ext faces take fonts.css's range, mono at its Latin weig
 
 test("static-fonts.css holds print.css's faces, each url reaching its file from generated/", () => {
   const css = readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8");
-  const urls = [...css.matchAll(/url\("([^"]+)"\)/g)].map(([, url]) => url);
-  expect(urls).toHaveLength(fontFaces(print).length);
-  for (const url of urls) expect(existsSync(join(ROOT, "generated", url))).toBe(true);
+  // fontFaces throws on a src outside url("fonts/…"), so a url the generator missed fails here.
+  expect(fontFaces(css.replaceAll('url("../tokens/', 'url("'))).toEqual(fontFaces(print));
+  for (const [, url] of css.matchAll(/url\("([^"]+)"\)/g))
+    expect(existsSync(join(ROOT, "generated", url))).toBe(true);
 });

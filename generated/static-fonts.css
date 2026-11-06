@@ -1,6 +1,6 @@
 /* Generated from tokens/print.css by scripts/tokens.ts. Edit the source, never this file.
-   print.css's static faces alone, without the print scale: one static file per weight, so Chrome
-   embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
+   print.css's static faces alone, without the print scale: static files, never variable ones, so
+   Chrome embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;

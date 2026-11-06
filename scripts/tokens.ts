@@ -209,11 +209,13 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
   };
 };
 
+const FONT_FACE = /@font-face\s*\{([^}]*)\}/g;
+
 /** The @font-face rules of fonts.css (or print.css), each descriptor camel-cased (fontFamily
  *  unquoted, unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
  *  unicodeRange takes every character. */
 export const fontFaces = (css: string) =>
-  [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map(([, body]) => {
+  [...css.matchAll(FONT_FACE)].map(([, body]) => {
     const { src, ...rest } = declarations(body);
     const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
     const face: Record<string, string> = { file, format };
@@ -249,9 +251,9 @@ const generate = () => {
         2,
       ) + "\n",
     "static-fonts.css": `/* Generated from tokens/print.css by scripts/tokens.ts. Edit the source, never this file.
-   print.css's static faces alone, without the print scale: one static file per weight, so Chrome
-   embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
-${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(/@font-face\s*\{[^}]*\}/g)]
+   print.css's static faces alone, without the print scale: static files, never variable ones, so
+   Chrome embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
+${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(FONT_FACE)]
   .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
   .join("\n\n")}
 `,
