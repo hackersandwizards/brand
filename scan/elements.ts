@@ -27,9 +27,10 @@
 //    and sets a property that element owns (a shorthand counts for its longhands) fails, and so does a component file of such a name,
 //    unless it carries the hw-* class, its name is an exception, or its file is one an exception
 //    lists in "files" (a stylesheet of the system's own medium, such as a slide deck's).
-// 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it, its
-//    data-hw-version this package's version, which a page built from an older brand fails), each exception a tile ([data-hw-exception="<name>"])
-//    and a reason, and every hub element a page shows is listed as used.
+// 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it), every
+//    such tile's data-hw-version is this package's version (a page built from another brand
+//    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, and every hub
+//    element a page shows is listed as used.
 //
 // Usage: brand-elements [--json]. Exits 1 on any finding, and on a page with no hub element (a zero
 // proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
@@ -596,11 +597,12 @@ export const coverage = (
       out.push(`${LIST}: "${name}" is no shared element (${Object.keys(ELEMENTS).join(", ")})`);
       continue;
     }
-    const tile = tiles.find((t) => t.name === name && t.holds);
-    if (!tile) out.push(`${name}: used, but no page shows it in a [data-hw-tile="${name}"]`);
-    else if (tile.version !== own.version)
+    const held = tiles.filter((t) => t.name === name && t.holds);
+    const stale = held.find((t) => t.version !== own.version);
+    if (!held.length) out.push(`${name}: used, but no page shows it in a [data-hw-tile="${name}"]`);
+    else if (stale)
       out.push(
-        `${name}: the tile says brand v${tile.version || "?"}, the installed package is v${own.version}; rebuild the page`,
+        `${name}: the tile says brand v${stale.version || "?"}, the installed package is v${own.version}; rebuild the page`,
       );
   }
   for (const name of shown)

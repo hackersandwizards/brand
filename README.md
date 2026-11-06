@@ -245,8 +245,9 @@ same scale and theme (a reference beside it styled only by this package), on a C
 callout, note; quote) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts), or a component of such a name, without the
 `hw-*` class and without an exception of that name, on a used element without a tile or with a stale version, on an exception
-without a reason or a tile, and on a page showing no element. A stale version is a page built
-before the brand you installed: a `dist/` from before `bun install`, or a server started then.
+without a reason or a tile, and on a page showing no element. Every tile is compared: a version
+other than the installed one means the page was not built from it, such as a `dist/` or a
+running server older than your last `bun install`.
 
 ### Night for a light-token surface
 

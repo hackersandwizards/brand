@@ -144,15 +144,21 @@ test("an element of the catalog shell is not measured and needs no uses entry", 
   );
 }, 60_000);
 
-// A tile reads its version from the installed package at build time, so only a page built before
-// the installed brand, a stale dist or a server started before `bun install`, says another one.
-test("a page built from an older brand fails coverage; one built from the installed brand passes", async () => {
-  const built = (version: string) =>
-    only(`<div data-hw-tile="label" data-hw-version="${version}">${DEMOS.label}</div>`);
-  const fresh = await measurePage(browser, file("fresh.html", built(own.version)));
+// The tile version is read from the page, and every page is compared: a stale page listed after a
+// fresh one still fails.
+test("a stale tile on any page fails coverage; tiles at the installed version pass", async () => {
+  const built = (name: string, version: string) =>
+    measurePage(
+      browser,
+      file(
+        name,
+        only(`<div data-hw-tile="label" data-hw-version="${version}">${DEMOS.label}</div>`),
+      ),
+    );
+  const fresh = await built("fresh.html", own.version);
   expect(coverage({ pages: [], uses: ["label"] }, [fresh])).toEqual([]);
-  const stale = await measurePage(browser, file("stale.html", built("1.0.0")));
-  expect(coverage({ pages: [], uses: ["label"] }, [stale])).toEqual([
+  const stale = await built("stale.html", "1.0.0");
+  expect(coverage({ pages: [], uses: ["label"] }, [fresh, stale])).toEqual([
     `label: the tile says brand v1.0.0, the installed package is v${own.version}; rebuild the page`,
   ]);
 }, 60_000);
