@@ -16,8 +16,8 @@ and the priority pill (`hw-pill data-priority`). What stays open is in the consu
 
 ## What remains
 
-1. Every consumer raises its pin to v1.13.0 (v1.6.0's sRGB strip and night inline code come with
-   it).
+1. Every consumer raises its pin to v1.15.0 (v1.6.0's sRGB strip and night inline code come with
+   it; v1.15.0 draws P3 and P4 on a fading fill, never the outline).
 2. os: no category takes `hue-amber` or `hue-green` (company type, standing, pipeline, trainer
    type, training mode and the rest of `src/config.ts`); a set takes teal, purple, slate and leaves
    the rest neutral; `hue-rust` only for the Software Factory area. Company priority renders

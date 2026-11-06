@@ -122,6 +122,35 @@ test("one drifted instance among many is red", async () => {
   expect(r.findings.map((f) => f.prop)).toEqual(["padding-left"]);
 }, 60_000);
 
+// A set priority never takes the outline that means "no value": P2 to P4 fill, each lighter.
+test("priority pills P2 to P4 fade on a fill, day and night, and none is the outline", async () => {
+  const row = [2, 3, 4]
+    .map((p) => `<span class="hw-pill" data-priority="${p}">P${p}</span>`)
+    .join("");
+  const html = only(
+    `<div>${row}<span class="hw-pill" data-variant="outline">P–</span></div><div data-theme="dark">${row}<span class="hw-pill" data-variant="outline">P–</span></div>`,
+  );
+  const tab = await browser.newPage();
+  await tab.goto(pathToFileURL(file("priority.html", html)).href);
+  const themes = await tab.evaluate(() =>
+    [...document.querySelectorAll("body > div")].map((d) =>
+      [...d.children].map((e) => {
+        const s = getComputedStyle(e);
+        return { bg: s.backgroundColor, border: s.borderTopColor };
+      }),
+    ),
+  );
+  await tab.close();
+  const alpha = (c: string) => Number(/[\d.]+(?=\)$)/.exec(c)?.[0] ?? 1);
+  for (const [p2, p3, p4, outline] of themes) {
+    expect(alpha(p2!.bg)).toBeGreaterThan(alpha(p3!.bg));
+    expect(alpha(p3!.bg)).toBeGreaterThan(alpha(p4!.bg));
+    expect(alpha(p4!.bg)).toBeGreaterThan(0);
+    expect(alpha(outline!.bg)).toBe(0);
+    for (const p of [p3!, p4!]) expect(p.border).not.toBe(outline!.border);
+  }
+}, 60_000);
+
 // The scaffolding catalog shell's own card and pill (data-hw-shell): neither measured nor shown.
 test("an element of the catalog shell is not measured and needs no uses entry", async () => {
   const shell =

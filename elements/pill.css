@@ -11,7 +11,12 @@
      data-caps              the words in the label role (mono capitals), as a document's type tag
      data-editable          a value changed here (a menu opens on it): takes --hw-pill-edit-corner
      data-priority="0"-"4"  a priority, P0 to P4, the same wherever it shows: 0 red, 1 amber, 2
-                            neutral, 3 and 4 outline (the hue rule in tokens.css)
+                            neutral, 3 and 4 the neutral fill fading (ink at 4 % and 2 %, their
+                            text ink at 66 %, 4.8:1), so no set priority looks like the outline's
+                            "no value" (the hue rule in tokens.css). Blind panel 2026-11-06, an
+                            app table and a work list, three personas, Claude and Codex, two
+                            runs, overall of 10: this ladder 8.0 with both models, 2 to 4 one
+                            neutral 6.8 and 7.0, 3 and 4 outline 3.7 and 5.3; noise 0.67
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
    changes the value) and hw-pill-remove (a button: removes the value). A leading icon is an svg
    child. With any of them the pill lays its children out in a row, 0.25em apart.
@@ -75,12 +80,14 @@
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
-  .hw-pill:is(
-    [data-variant="outline"],
-    [data-variant="add"],
-    [data-priority="3"],
-    [data-priority="4"]
-  ) {
+  .hw-pill:is([data-priority="3"], [data-priority="4"]) {
+    color: color-mix(in srgb, var(--color-ink) 66%, transparent);
+    background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+  }
+  .hw-pill[data-priority="4"] {
+    background: color-mix(in srgb, var(--color-ink) 2%, transparent);
+  }
+  .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
     border-color: var(--color-border);
     color: var(--color-ink);
     background: transparent;
@@ -129,12 +136,14 @@
       color: color-mix(in srgb, var(--color-night-ink) 75%, transparent);
       background: color-mix(in srgb, white 10%, transparent);
     }
-    .hw-pill:is(
-      [data-variant="outline"],
-      [data-variant="add"],
-      [data-priority="3"],
-      [data-priority="4"]
-    ) {
+    .hw-pill:is([data-priority="3"], [data-priority="4"]) {
+      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
+      background: color-mix(in srgb, white 6%, transparent);
+    }
+    .hw-pill[data-priority="4"] {
+      background: color-mix(in srgb, white 3%, transparent);
+    }
+    .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
       border-color: color-mix(in srgb, white 25%, transparent);
       color: var(--color-night-ink);
       background: transparent;
