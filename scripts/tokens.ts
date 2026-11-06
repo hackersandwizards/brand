@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
-// generated/tokens.root.css (the @theme block as :root), tokens.json, tokens.ts and tokens.py, and
+// generated/tokens.root.css (the @theme block as :root and on a light element under night), tokens.json, tokens.ts and tokens.py, and
 // code-theme.json, the Shiki theme of the --code-* tokens and the terminal's ANSI colours; and from
 // tokens/fonts.css fonts.json, its faces, for a surface that writes its own @font-face; and from
 // tokens/print.css static-fonts.css, its @font-face rules alone, for a surface that needs the static
@@ -237,7 +237,12 @@ const generate = () => {
     "Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file.";
   const json = JSON.stringify({ tokens, colors }, null, 2);
   return {
-    "tokens.root.css": `/* ${head} */\n:root {\n${Object.entries(tokens)
+    // A data-theme="light" element under night.css's night takes the day values back, as the
+    // shared elements do: the nearest data-theme wins. :where() leaves the surface's own values
+    // on that element winning.
+    "tokens.root.css": `/* ${head} */\n:root,\n:where([data-hw-night] [data-theme="light"]) {\n${Object.entries(
+      tokens,
+    )
       .map(([k, v]) => `  ${k}: ${v};`)
       .join("\n")}\n}\n`,
     "tokens.json": json + "\n",

@@ -1,5 +1,6 @@
 /* Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file. */
-:root {
+:root,
+:where([data-hw-night] [data-theme="light"]) {
   --radius-sm: 5px;
   --radius-brand: 20px 5px;
   --radius-pill: 9999px;

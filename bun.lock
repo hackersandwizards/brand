@@ -9,7 +9,7 @@
       },
       "devDependencies": {
         "@eslint/js": "10.0.1",
-        "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.6.0",
+        "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.7.0",
         "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v2.8.0",
         "@types/bun": "1.4.4",
         "astro": "7.4.4",
@@ -140,7 +140,7 @@
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.7.3", "", { "dependencies": { "@eslint/core": "^1.2.1", "levn": "^0.4.1" } }, "sha512-IkO+/KEUvwbVpiURZg+P7zF74z5Jxe0UgJxVni+RtoHQ6IZieXaO02kmadomap/q+l6bc/jdPGGqTjhuZnuz1Q=="],
 
-    "@hackersandwizards/admin": ["@hackersandwizards/admin@github:hackersandwizards/admin#b8f33e3", { "peerDependencies": { "@hackersandwizards/brand": "*", "@hackersandwizards/scaffolding": "*", "@tailwindcss/typography": "^0.5.20", "@tailwindcss/vite": "^4.3.3", "astro": "^7.4.4", "tailwindcss": "^4.3.3" }, "optionalPeers": ["@hackersandwizards/brand", "@hackersandwizards/scaffolding"], "hasInstallScript": true, "bin": { "admin-serve": "bin/admin-serve.ts", "admin-check": "bin/admin-check.ts" } }, "hackersandwizards-admin-b8f33e3", "sha512-DGFpAft4WlF3nw0H1fRVyWM882mvqlhKLanwbzX6nsAl+kAWsGV1q4hhVS1DpC4/u1PjJUUgiyn7J/tH9+RlZw=="],
+    "@hackersandwizards/admin": ["@hackersandwizards/admin@github:hackersandwizards/admin#3544b6c", { "peerDependencies": { "@hackersandwizards/brand": ">=1.13.0", "@hackersandwizards/scaffolding": "*", "@tailwindcss/typography": "^0.5.20", "@tailwindcss/vite": "^4.3.3", "astro": "^7.4.4", "tailwindcss": "^4.3.3" }, "optionalPeers": ["@hackersandwizards/brand", "@hackersandwizards/scaffolding"], "hasInstallScript": true, "bin": { "admin-serve": "bin/admin-serve.ts", "admin-check": "bin/admin-check.ts" } }, "hackersandwizards-admin-3544b6c", "sha512-hw+/oUAzD02Y4novDY2JqH0oDcbChWR/NjkScYZwax4LHM9QVfL4WjBQb6zipMGHaKnS8yt9PCTL1j5HXV6A2g=="],
 
     "@hackersandwizards/scaffolding": ["@hackersandwizards/scaffolding@github:hackersandwizards/scaffolding#b853d04", { "dependencies": { "@eslint/js": "10.0.1", "eslint-config-prettier": "10.1.8", "globals": "17.14.0", "postcss-html": "2.0.0", "prettier-plugin-astro": "1.1.2", "stylelint-value-no-unknown-custom-properties": "6.1.1", "typescript-eslint": "8.72.1" }, "peerDependencies": { "astro": ">=7", "astrobook": ">=0.13", "eslint": ">=10", "eslint-plugin-astro": ">=1", "prettier": ">=3", "stylelint": ">=16", "typescript": ">=5" }, "optionalPeers": ["astro", "astrobook", "eslint", "eslint-plugin-astro", "prettier", "stylelint", "typescript"], "hasInstallScript": true, "bin": { "scaffold": "bin/scaffold.ts", "check-structure": "bin/check-structure.ts", "check-confidential": "bin/check-confidential.ts", "check-staged": "bin/check-staged.ts", "scaffolding": "bin/scaffolding.ts" } }, "hackersandwizards-scaffolding-b853d04", "sha512-TWGk1mFO6sOn4RMcUSwcyE9zihXHEm4247B4uEPz5vGKgfK9Al3exG6bvyKq/sJBnZoH4I9qgbwRGJt1UIqXWw=="],
 

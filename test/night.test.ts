@@ -34,6 +34,62 @@ ${night}</style></head><body></body></html>`);
   expect(empty).toEqual([]);
 });
 
+// A surface without Tailwind links tokens.root.css, unlayered, and then night.css, the order the
+// export names, with the dark toggle on <html>: every token night.css sets takes its night value
+// there, and the page's colour scheme turns dark.
+test("night.css after tokens.root.css turns every token on a dark html", async () => {
+  const set = [...night.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)].map((m) => [m[1]!, m[2]!]);
+  expect(set.length).toBeGreaterThan(10);
+  const tab = await browser.newPage();
+  await tab.setContent(`<!doctype html><html data-theme="dark" data-hw-night><head>
+<style>${tokens}</style><style>${night}</style></head><body><i></i></body></html>`);
+  const wrong = await tab.evaluate((set) => {
+    const html = getComputedStyle(document.documentElement);
+    const probe = document.querySelector("i")!;
+    const out = set.flatMap(([name, value]) => {
+      probe.style.setProperty("--probe", value!);
+      const want = getComputedStyle(probe).getPropertyValue("--probe").trim();
+      const got = html.getPropertyValue(name!).trim();
+      return got === want ? [] : [`${name}: ${got}, want ${want}`];
+    });
+    return html.colorScheme === "dark" ? out : [...out, `color-scheme: ${html.colorScheme}`];
+  }, set);
+  await tab.close();
+  expect(wrong).toEqual([]);
+});
+
+// A light island in that night, such as a catalog frame drawing a light-only page: the nearest
+// data-theme wins, so every token tokens.root.css declares, a derived one included, computes there
+// as on a day page, and so do its text, which body's colour would hand down in night ink, and its
+// colour scheme. The expert roles night.css also sets keep expert.css's page-wide night.
+test("a data-theme=light element under a night html keeps every day token", async () => {
+  const tab = await browser.newPage();
+  const read = async (html: string, main: string) => {
+    await tab.setContent(`<!doctype html><html data-hw-scale="screen" ${html}><head>
+<style>${tokens}${css("elements/scales.css")}</style>
+<style>${night} body { color: var(--color-ink) }</style></head>
+<body><main ${main}></main></body></html>`);
+    return tab.evaluate((names) => {
+      const s = getComputedStyle(document.querySelector("main")!);
+      const scheme = s.colorScheme === "normal" ? "light" : s.colorScheme;
+      return {
+        ...Object.fromEntries(names.map((n) => [n, s.getPropertyValue(n).trim()])),
+        line: s.getPropertyValue("--hw-line").trim(),
+        color: s.color,
+        scheme,
+      };
+    }, names);
+  };
+  const day = await read("", "");
+  const island = await read('data-theme="dark" data-hw-night', 'data-theme="light"');
+  await tab.close();
+  const own = (o: Record<string, string>) =>
+    Object.fromEntries(
+      Object.entries(o).filter(([n]) => !n.startsWith("--") || tokens.includes(`  ${n}:`)),
+    );
+  expect(own(island)).toEqual(own(day));
+});
+
 test("the purple button turns darker on hover under night.css", async () => {
   const tab = await browser.newPage();
   await tab.setContent(`<!doctype html><html><head><style>

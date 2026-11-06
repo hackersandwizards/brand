@@ -3,27 +3,38 @@
    header.css reads take expert.css's night values. data-hw-night goes on the subtree that turns:
    the element itself carrying data-theme="dark", or any element under a dark html. A token derived
    from another (a color-mix of one of these) resolved where it was declared, so the surface sets it
-   again inside the same subtree. Export ./night.css, after tokens.css. */
+   again inside the same subtree, as this does for scales.css's --hw-line. Unlayered, so on <html> it wins over tokens.root.css's unlayered
+   :root. Export ./night.css, after tokens.css. */
+:is([data-theme="dark"][data-hw-night], [data-theme="dark"] [data-hw-night]) {
+  --background: var(--color-night);
+  --foreground: var(--color-night-ink);
+  --accent: var(--color-teal-night);
+  --muted: var(--color-night-2);
+  --border: var(--color-night-line);
+  --color-bg: var(--color-night);
+  --color-ink: var(--color-night-ink);
+  --color-muted: var(--color-night-muted);
+  --color-border: var(--color-night-line);
+  --color-teal: var(--color-teal-night);
+  --color-teal-dark: color-mix(in srgb, var(--color-teal-night) 70%, white);
+  --color-label: var(--color-label-night);
+  --color-purple: var(--color-purple-night);
+  --color-green-dark: var(--color-green);
+  --color-amber-dark: var(--color-amber);
+  --color-factory: var(--color-factory-light);
+  --color-red: var(--color-red-night);
+  --color-ampersand: var(--color-ampersand-light);
+  --hw-line: var(--color-border);
+  color-scheme: dark;
+}
+
+/* A data-theme="light" element inside that night is day again: tokens.root.css gives it the day
+   tokens, and this its text, controls and scales.css's line, in base so the surface's own rules and
+   utilities win. */
 @layer base {
-  :is([data-theme="dark"][data-hw-night], [data-theme="dark"] [data-hw-night]) {
-    --background: var(--color-night);
-    --foreground: var(--color-night-ink);
-    --accent: var(--color-teal-night);
-    --muted: var(--color-night-2);
-    --border: var(--color-night-line);
-    --color-bg: var(--color-night);
-    --color-ink: var(--color-night-ink);
-    --color-muted: var(--color-night-muted);
-    --color-border: var(--color-night-line);
-    --color-teal: var(--color-teal-night);
-    --color-teal-dark: color-mix(in srgb, var(--color-teal-night) 70%, white);
-    --color-label: var(--color-label-night);
-    --color-purple: var(--color-purple-night);
-    --color-green-dark: var(--color-green);
-    --color-amber-dark: var(--color-amber);
-    --color-factory: var(--color-factory-light);
-    --color-red: var(--color-red-night);
-    --color-ampersand: var(--color-ampersand-light);
-    color-scheme: dark;
+  :is([data-theme="dark"][data-hw-night], [data-theme="dark"] [data-hw-night]) [data-theme="light"] {
+    --hw-line: var(--color-border);
+    color: var(--color-ink);
+    color-scheme: light;
   }
 }
