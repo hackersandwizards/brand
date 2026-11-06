@@ -4,120 +4,107 @@ status: open
 priority: 1
 area: copy
 owner: Benedikt, Stefan
-evidence: "Blind review 06.11., three rounds, five personas, Claude and Codex; every candidate's scores in docs/agent-work/2026-11-06-new-claim.md"
-recommended: a
+evidence: "Blind review 06.11., four rounds, five personas, Claude and Codex; every candidate's scores in docs/agent-work/2026-11-06-new-claim.md"
+recommended: n8
 options:
+  - key: n8
+    label: "Agents bring the speed. We bring the calm. / Agenten bringen das Tempo. Wir bringen die Ruhe."
+    detail: "Round 4: claim EN 76.7, DE 74.8; as home H1 EN 79.8, DE 79.2, first with both models, Codex's English a tie with r4. Energy and calm 9.4, the highest of any line. Highlight word: calm / Ruhe."
+    score: 76
+    noise: 0.9
+  - key: r4
+    label: "You lead the agents. We show you how. / Ihr führt die Agenten. Wir zeigen euch, wie."
+    detail: "Round 4: claim EN 77.0, DE 75.8, a tie with n8; as home H1 EN 77.8, DE 75.8, 2.0 and 3.4 behind n8. The clearest and most credible line (8.6), but energy and calm only 6.0."
+    score: 76
+    noise: 0.9
+  - key: r5
+    label: "Ship fast with agents and sleep well. / Mit Agenten schnell liefern und ruhig schlafen."
+    detail: "Round 4: claim EN 71.0, DE 67.5; as home H1 EN 71.9, DE 69.4. Energy and calm 8.9, but reviewers placed 'sleep well' on any DevOps vendor's site."
+    score: 69
+    noise: 0.9
   - key: a
     label: "Calm teams ship sooner with agents. / Gelassene Teams liefern mit Agenten früher."
-    detail: "Round 3: claim EN 74.2, DE 68.6; as home H1 EN 80.8, DE 77.6, first with every persona. The claim is the home H1, as it is today."
-    score: 71
-    noise: 1.0
-  - key: b
-    label: "Ship sooner with agents, and stay steady. / Mit Agenten früher liefern und ruhig bleiben."
-    detail: "Round 3: claim EN 69.6, DE 67.7. Ties a in German, 4.6 behind in English. Reviewers read 'ruhig bleiben' as a call to keep calm under pressure."
-    score: 69
-    noise: 1.0
-  - key: a2
-    label: "a with the German word order changed: Mit Agenten liefern gelassene Teams früher."
-    detail: "Round 3: DE 62.8, 5.8 below a's own German. Reviewers read the fronted 'Mit Agenten' as constructed and the tool put ahead of the people."
-    score: 68
-    noise: 1.0
-  - key: f
-    label: "The current claim without 'unstoppable': Your whole company in flow with agentic engineering. / Euer ganzes Unternehmen im Flow mit Agentic Engineering."
-    detail: "Round 3: claim EN 48.2, DE 42.9; as home H1 EN 59.0, DE 56.5. Above the current claim, below a, b and a2 with every persona, in both languages, with both models."
-    score: 46
-    noise: 1.0
+    detail: "Round 4, as a control: claim EN 62.5, DE 55.5; as home H1 EN 69.8, DE 63.4. Led rounds 2 and 3; 14 to 19 points behind n8 once the new lines ran beside it."
+    score: 59
+    noise: 0.9
 ---
 
 # Which claim stands for h&w everywhere?
 
 The claim stands on the home H1 and its social card, the website footer, the one-pagers, the deck
-closing slide, the press boilerplate, LinkedIn banners and profiles, and `verbal.json` `claim`. Round
-3 scored the four lines above and the current claim as claims, then the home hero in three
-arrangements, then where the long outcome line (option d of the website item `home-headline`) would
-stand if it is not the home H1.
+closing slide, the press boilerplate, LinkedIn banners and profiles, and `verbal.json` `claim`.
+Four blind rounds scored the lines. The report `docs/agent-work/2026-11-06-new-claim.md` keeps every
+round's table, the method and a reviewer prompt.
 
-## Scores, round 3
+## Scores
 
-Five personas, blind: a CTO of a Mittelstand manufacturer under board pressure, a VP of Engineering
-at a scale-up, a Head of Engineering worried about quality and morale, a brand strategist for DACH
-B2B tech services, and a senior developer reading the closing slide after a two-day training.
-Claude and Codex, two runs each, the order shuffled per reviewer, nothing marking a line as current
-or naming its author. Overall 0 to 100, mean of all reviewers.
+Five personas: a CTO of a Mittelstand manufacturer under board pressure, a VP of Engineering at a
+scale-up, a Head of Engineering worried about quality and morale, a brand strategist for DACH B2B
+tech services, and a senior developer after a two-day training. Claude and Codex, two runs each,
+the order shuffled per reviewer, nothing marking a line as current or naming its author. Overall 0
+to 100, mean of all reviewers.
 
-As the claim, shown on the home hero at 1440 px, the deck closing slide and the one-pager header
-(noise 3.8 per reviewer, 1.0 on the panel mean):
+As the claim, on the home hero at 1440 px, the deck closing slide and the one-pager header (round
+4, second pass, noise 3.4 per reviewer, 0.9 on the panel mean):
 
-| Line                                                              | EN   | DE   | Clear | Credible | Distinctive | Energy and calm |
-| ----------------------------------------------------------------- | ---- | ---- | ----- | -------- | ----------- | --------------- |
-| a: Calm teams ship sooner with agents.                            | 74.2 | 68.6 | 5.7   | 7.1      | 6.1         | 8.3             |
-| b: Ship sooner with agents, and stay steady.                      | 69.6 | 67.7 | 6.0   | 7.2      | 5.1         | 7.6             |
-| a2: a, German "Mit Agenten liefern gelassene Teams früher."       | 74.1 | 62.8 | 5.6   | 7.1      | 6.1         | 8.0             |
-| f: Your whole company in flow with agentic engineering.           | 48.2 | 42.9 | 4.5   | 4.8      | 3.8         | 5.6             |
-| Control: Your whole company unstoppable, in flow with agentic ... | 27.8 | 23.3 | 3.8   | 2.0      | 3.2         | 3.0             |
+| Line                                           | EN   | DE   | Clear | Credible | Distinctive | Energy and calm | Memorable |
+| ---------------------------------------------- | ---- | ---- | ----- | -------- | ----------- | --------------- | --------- |
+| r4: You lead the agents. We show you how.      | 77.0 | 75.8 | 7.6   | 8.6      | 5.2         | 6.0             | 8.5       |
+| n8: Agents bring the speed. We bring the calm. | 76.7 | 74.8 | 5.3   | 6.7      | 6.6         | 9.4             | 8.9       |
+| r5: Ship fast with agents and sleep well.      | 71.0 | 67.5 | 5.8   | 6.3      | 5.0         | 8.9             | 8.1       |
+| a: Calm teams ship sooner with agents.         | 62.5 | 55.5 | 4.7   | 5.7      | 5.5         | 7.7             | 6.6       |
+| The current claim                              | 26.3 | 22.6 | 3.4   | 1.9      | 2.8         | 3.5             | 3.2       |
 
-As the home hero, the H1 over the current lead sentence at 1440 px and 375 px (noise 4.3 per
-reviewer, 0.6 on the panel mean):
+As the home H1 over the current lead sentence, at 1440 px and 375 px (noise 2.3 per reviewer, 0.8
+on the panel mean):
 
-| Home hero                                   | EN   | DE   | Clear | Credible | Distinctive | Energy and calm |
-| ------------------------------------------- | ---- | ---- | ----- | -------- | ----------- | --------------- |
-| a as H1                                     | 80.8 | 77.6 | 7.7   | 7.5      | 7.4         | 8.6             |
-| d as H1, a as a small line above it         | 74.6 | 71.5 | 7.9   | 7.4      | 6.9         | 7.9             |
-| d as H1, f as a small line above it         | 69.3 | 66.8 | 7.7   | 6.8      | 6.0         | 7.0             |
-| f as H1                                     | 59.0 | 56.5 | 6.5   | 5.6      | 4.4         | 6.1             |
-| Control: the current claim as H1, unchanged | 40.1 | 36.5 | 6.0   | 2.6      | 3.7         | 3.1             |
+| Home H1           | EN   | DE   | Claude EN / DE | Codex EN / DE | Clear | Credible | Distinctive | Energy and calm |
+| ----------------- | ---- | ---- | -------------- | ------------- | ----- | -------- | ----------- | --------------- |
+| n8                | 79.8 | 79.2 | 77.3 / 76.3    | 82.2 / 82.1   | 7.5   | 7.3      | 7.1         | 9.2             |
+| r4                | 77.8 | 75.8 | 73.8 / 72.1    | 81.9 / 79.4   | 8.6   | 8.6      | 5.2         | 6.4             |
+| r5                | 71.9 | 69.4 | 65.2 / 62.2    | 78.6 / 76.6   | 7.5   | 6.2      | 5.0         | 8.3             |
+| a                 | 69.8 | 63.4 | 63.5 / 57.9    | 76.0 / 68.9   | 7.1   | 6.6      | 5.6         | 7.3             |
+| The current claim | 39.8 | 35.2 | 39.9 / 35.4    | 39.7 / 35.0   | 5.5   | 2.8      | 3.2         | 3.5             |
 
-Where d stands if it is not the home H1: d on the first screen of four live pages against that
-page's current first screen at 1440 px, scored as the first screen of that page (two runs, noise
-2.8 per reviewer, 0.8 on the panel mean):
-
-| Page                              | Current first screen EN / DE | With d EN / DE | Fit current / d |
-| --------------------------------- | ---------------------------- | -------------- | --------------- |
-| Home, a as H1, d as the lead line | 83.7 / 80.0                  | 62.8 / 59.0    | 8.7 / 6.3       |
-| Enablement, d as H1               | 82.6 / 78.0                  | 67.8 / 64.8    | 8.8 / 6.3       |
-| Enablement at scale, d as H1      | 85.7 / 83.8                  | 66.7 / 64.0    | 9.4 / 6.2       |
-| Software Factory, d as H1         | 74.3 / 75.3                  | 69.4 / 66.5    | 8.5 / 6.7       |
-
-d lost on every page, in both languages, with both models. On the home page it drops what h&w
-does: the current lead says training and mentoring, d repeats the outcome. On the other pages it
-names neither the page's subject nor h&w's work, runs to six lines, and "they" reads as either the
-teams or the customers. So d stands nowhere as a headline; the claim carries its direction.
+The long outcome line d of the website item `home-headline` stands nowhere as a headline: on the
+first screen of the home page, Enablement, Enablement at scale and Software Factory it scored 5 to
+21 points below each page's current first screen, in both languages, with both models.
 
 ## Recommendation
 
-a, as the claim and as the home H1. It leads both tables. As the claim it is first in English with
-every persona and in German with three of five; the brand strategist and the developer put b first
-in German. As the home hero it is first with every persona in both languages, 6.2 points (EN) and
-6.1 (DE) ahead of d with a above it, with both models.
+n8, as the claim and as the home H1. As the claim it ties r4: the lead is 0.3 (EN) and 1.0 (DE) at
+a noise of 0.9, and the models split, Claude for n8, Codex for r4. As the home H1 n8 leads r4 by 2.0
+and 3.4, outside the noise, with Claude in both languages and with Codex in German; Codex's English
+is a tie. The tie on the claim breaks on energy and calm: n8 scores 9.4, r4 6.0, and energy and calm
+together was the direction the claim search started from. On the claim n8 is first with the Head of
+Engineering and the brand strategist, r4 with the CTO, the VP of Engineering and the developer.
 
-f, the current claim without "unstoppable", gains about 20 points on the current claim but stays
-26 (EN) and 26 (DE) points behind a as the claim, and 22 and 21 behind it as the home H1. The
-reviewers named the same three reasons with both models: "whole company" overreaches for a training
-firm, "in flow" names no outcome, and the German reads as Denglisch.
+n8 closes the gaps a left: the calm is what h&w brings, not a trait a team needs beforehand;
+distinctive rose from 5.5 to 6.6 against a in the same pass; the German ends on "Ruhe", not on
+"früher". The pass also tested "Wir bringen Gelassenheit": 3.3 points below "die Ruhe" in German.
 
-The German word-order fix a2 did not help: it scored 5.8 below a's own German, outside the noise.
-a keeps "Gelassene Teams liefern mit Agenten früher."
+The reviewers' remaining gaps for n8, which a yes accepts:
 
-The reviewers' remaining gaps for a, which a yes accepts:
-
-- The line does not say that h&w trains and mentors. On the home page the lead sentence carries it;
-  on the closing slide and the one-pager the context does.
-- Codex reviewers read "calm" as a precondition, teams that are already calm, rather than what h&w
-  helps a team become, for every persona.
-- In German, Claude reviewers read the sentence-final "früher" as possibly "formerly".
+- The line implies the training and mentoring but does not name them. On the home page the lead
+  sentence names them; on the closing slide and the one-pager the context does.
+- "We" needs the logo beside it, as in a mail signature or a banner.
+- Codex reviewers read "Agents bring the speed" as giving agents the credit for speed, and some
+  read "Ruhe" as standing still.
+- n8 names agents before people. r4 puts people first.
 
 ## What a yes changes
 
-1. Brand, a minor release: `verbal.json` takes the new `claim` (en, de, `word`, `since`), and the
-   current claim moves into `retired` with `replacedBy: claim`. `position.en` and `boilerplate.en`
-   quote the old claim's words ("unstoppable, in flow"), so the release rewrites both.
+1. Brand, a minor release: `verbal.json` takes the new `claim` (en, de, `word` calm / Ruhe,
+   `since`), and the current claim moves into `retired` with `replacedBy: claim`. `position.en` and
+   `boilerplate.en` quote the old claim's words ("unstoppable, in flow"), so the release rewrites
+   both.
    `applications/channel-banners/render.py` writes the claim into the first LinkedIn profile
    banner, so it gets rewritten and re-rendered. The portal and `test/verbal.test.ts` read
    `verbal.json` and follow on their own.
 2. Each consumer then raises its brand pin and picks the claim up, one session per repo:
    - website: the home H1 (`start.*.ts`), the footer slogan, the social cards and the OG alt text
      follow `verbal.claim`. `claimLines` in `src/copy/ui.ts` splits the footer slogan at the first
-     comma, and a has none. Hard-coded copies change by hand: 14 one-pager `<p class="claim">`,
+     comma, and n8 has none: it breaks at the full stop between its two sentences or stays on one line. Hard-coded copies change by hand: 14 one-pager `<p class="claim">`,
      `scripts/og/template.html`, the boilerplate in `src/copy/press.ts`, `public/llms.txt`,
      `src/lib/structured-data.ts`, and the two e2e guards (`headline-motion`, `reflow-motion`).
      The `home-headline` item closes with it.
