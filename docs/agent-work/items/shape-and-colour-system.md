@@ -58,5 +58,5 @@ data-variant="secondary"` at stage scale; the stage strip (`SectionHeader.tsx`) 
    against `hw-button data-variant="secondary"`.
 4. os and trainer-hub: `btn-primary` and `btn-secondary` take the brand corner from `expert.css`
    on the pin raise; a measured before/after on a dense page.
-5. talks, certificate-verifier, admin, scaffolding catalog: raise the pin and run `brand-elements`;
-   the catalog shell's own buttons and code blocks follow the same shapes.
+5. talks, certificate-verifier, admin: raise the pin and run `brand-elements`. The scaffolding
+   catalog shell follows the shapes since scaffolding v2.4.0 (raised in brand's own catalog).
