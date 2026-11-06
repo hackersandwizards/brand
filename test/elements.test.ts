@@ -408,7 +408,6 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-pill-hue-night",
     "--hw-pill-edit-corner",
     "--hw-segment-line",
-    "--hw-prose-check-x",
     "--hw-marker-gap",
     "--hw-row-fill",
     "--hw-field-family",
@@ -487,23 +486,37 @@ test("source: a PascalCase component, a camelCase class and a nested rule are re
   ]);
 });
 
-test("the prose block's inline code repeats inline-code.css's rules declaration for declaration", () => {
-  // The first rule for the selector is day's, the last night's.
-  const block = (file: string, selector: string, night = false) => {
-    const src = readFileSync(join(import.meta.dir, "../elements", file), "utf8");
-    const at = night ? src.lastIndexOf(`${selector} {`) : src.indexOf(`${selector} {`);
+// The prose block repeats these elements' rules outside any layer, each declaration as the element
+// file has it (the link's day rule adds Typography's weight undone). The first rule for a selector
+// is day's, the last night's.
+test.each([
+  [".hw-prose :not(pre) > code", "inline-code.css", ".hw-inline-code", ""],
+  [
+    ".hw-prose a:not(.not-prose, .not-prose *)",
+    "link.css",
+    ":is(.hw-link, .hw-links a)",
+    " font-weight: inherit;",
+  ],
+  [
+    ".hw-prose a:not(.not-prose, .not-prose *):hover",
+    "link.css",
+    ":is(.hw-link, .hw-links a):hover",
+    "",
+  ],
+])("the prose block's %s repeats %s", (prose, file, selector, extra) => {
+  const block = (f: string, sel: string, night: boolean) => {
+    const src = readFileSync(join(import.meta.dir, "../elements", f), "utf8");
+    const at = night ? src.lastIndexOf(`${sel} {`) : src.indexOf(`${sel} {`);
     expect(at).toBeGreaterThan(-1);
     return src
       .slice(src.indexOf("{", at) + 1, src.indexOf("}", at))
       .replace(/\s+/g, " ")
       .trim();
   };
-  expect(block("prose.css", ".hw-prose :not(pre) > code")).toBe(
-    block("inline-code.css", ".hw-inline-code"),
-  );
-  expect(block("prose.css", ".hw-prose :not(pre) > code", true)).toBe(
-    block("inline-code.css", ".hw-inline-code", true),
-  );
+  for (const night of [false, true])
+    expect(block("prose.css", prose, night)).toBe(
+      block(file, selector, night) + (night ? "" : extra),
+    );
 });
 
 // Typography's prose rules come in a later layer than the elements: its link weight and list
@@ -517,33 +530,16 @@ test("the prose block's links and lists hold against Typography's layer", async 
     );
   const clean = await measurePage(browser, file("prose-typography.html", html(typography)));
   expect(clean.findings).toEqual([]);
-  for (const [drift, prop] of [
-    [".prose.hw-prose a:not(.not-prose) { font-weight: 500 }", "font-weight"],
-    [".hw-prose ul { padding-inline-start: 1.625em }", "padding-left"],
-    [".hw-prose ol { padding-inline-start: 1.625em }", "padding-left"],
+  for (const [drift, want] of [
+    [".prose.hw-prose a:not(.not-prose) { font-weight: 500 }", "a font-weight"],
+    [".prose.hw-prose ul:not(.not-prose) { padding-inline-start: 1.625em }", "ul padding-left"],
+    [".prose.hw-prose ol:not(.not-prose) { padding-inline-start: 1.625em }", "ol padding-left"],
   ] as const) {
     const r = await measurePage(browser, file("prose-drift.html", html(drift)));
-    expect(r.findings.map((f) => `${f.label.split(" ").at(-1)} ${f.prop}`)).toContain(
-      `${drift.split(" ")[1]!.replace(/:.*/, "")} ${prop}`,
-    );
+    expect(
+      r.findings.map(
+        (f) => `${f.label.slice(f.label.lastIndexOf('" ') + 2).split(":")[0]} ${f.prop}`,
+      ),
+    ).toContain(want);
   }
 }, 60_000);
-
-test("the prose block's links repeat link.css's declarations", () => {
-  const src = (f: string) => readFileSync(join(import.meta.dir, "../elements", f), "utf8");
-  const decls = (css: string, selector: string) =>
-    [
-      ...css.matchAll(
-        new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\{([^}]*)\\}`, "g"),
-      ),
-    ].map((m) => m[1]!.replace(/\s+/g, " ").trim());
-  const link = decls(src("link.css"), ":is(.hw-link, .hw-links a)");
-  const prose = decls(src("prose.css"), ".hw-prose a:not(.not-prose, .not-prose *)");
-  expect(link).toHaveLength(2);
-  expect(prose).toHaveLength(2);
-  link.forEach((d, i) => expect(prose[i]).toContain(d));
-  const hover = (css: string, s: string) => decls(css, `${s}:hover`);
-  expect(hover(src("prose.css"), ".hw-prose a:not(.not-prose, .not-prose *)")).toEqual(
-    hover(src("link.css"), ":is(.hw-link, .hw-links a)"),
-  );
-});

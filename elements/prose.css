@@ -13,10 +13,7 @@
    code blocks and quotes are the hw-* elements, marked not-prose, which the block only spaces; a
    link that is no link in text (a button, an arrow link) is marked not-prose too. Unlike the other
    elements these rules sit in no layer: Typography's prose rules come in Tailwind's utilities
-   layer, which a layered rule would lose to.
-
-   Settings:
-     --hw-prose-check-x  the checkbox's offset from its item's start, 0 */
+   layer, which a layered rule would lose to. A list marked not-prose keeps its own start. */
 
 .hw-prose {
   overflow-wrap: break-word;
@@ -85,15 +82,21 @@
 }
 .hw-prose ul {
   list-style: none;
+}
+.hw-prose ul:not(.not-prose, .not-prose *) {
   padding-inline-start: 0;
 }
-.hw-prose ol {
+/* A one-digit number stands inside the text edge; from 10 on it reaches about 0.45em past it. */
+.hw-prose ol:not(.not-prose, .not-prose *) {
   padding-inline-start: 1.25em;
 }
-.hw-prose ul > li {
+.hw-prose ol:not(.not-prose, .not-prose *) > li {
+  padding-inline-start: 0.375em;
+}
+.hw-prose :is(ul > li, li.task-list-item) {
   position: relative;
 }
-.hw-prose li.task-list-item {
+.hw-prose li.task-list-item:not(.not-prose, .not-prose *) {
   padding-inline-start: calc(1em + var(--hw-marker-gap, 0.625rem));
 }
 .hw-prose li.task-list-item::before,
@@ -116,7 +119,7 @@
   --_hw-top: calc(0.5ex + var(--_hw-size) / 2);
   position: absolute;
   top: calc(var(--_hw-baseline) - round(var(--_hw-top), 1px));
-  left: var(--hw-prose-check-x, 0);
+  left: 0;
   box-sizing: border-box;
   width: var(--_hw-size);
   height: var(--_hw-size);

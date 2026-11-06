@@ -178,9 +178,9 @@ const OWNS: Record<string, string[]> = {
   "prose h3": ["font-size", "font-weight", "line-height"],
   "prose :not(pre) > code": INLINE_CODE,
   // Typography's own link weight and list indent come in a later layer than the hub elements.
-  "prose a": [...LINK, "font-weight"],
-  "prose ul": ["padding-left"],
-  "prose ol": ["padding-left"],
+  "prose a:not(.not-prose, .not-prose *)": [...LINK, "font-weight"],
+  "prose ul:not(.not-prose, .not-prose *)": ["padding-left"],
+  "prose ol:not(.not-prose, .not-prose *)": ["padding-left"],
 };
 
 /** The element files' rules, every @import dropped: the reference's only styles. */
