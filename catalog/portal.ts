@@ -968,8 +968,6 @@ const html = `<!doctype html>
     .on-light { background: var(--color-bg); border: 1px solid var(--color-border); }
     .on-dark { background: var(--color-night); }
     .on-gradient { background: var(--gradient-magic); }
-    /* A download link is one text line tall: the small corner (blind panel 06.11., overall of 10:
-       small corner 8.3, pill 7.5, brand corner 7.0, which looked broken at this height). */
     .dl a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
     .dl a::before { content: "↓ "; }
     .dl a:hover { background: var(--color-tint); }

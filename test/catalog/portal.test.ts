@@ -34,6 +34,11 @@ test("the portal's colour swatches are square", () => {
   expect(html.match(/\.swatch span \{[^}]*border-radius: ([^;]+);/)![1]).toBe("0");
 });
 
+// A download link is one text line tall: the small corner.
+test("the portal's download links take the small corner", () => {
+  expect(html.match(/\.dl a \{[^}]*border-radius: ([^;]+);/)![1]).toBe("var(--radius-sm)");
+});
+
 test("every link and image of the portal resolves in dist/", () => {
   const decode = (s: string) =>
     s.replace(
