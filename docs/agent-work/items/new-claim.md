@@ -4,81 +4,107 @@ status: open
 priority: 1
 area: copy
 owner: Benedikt, Stefan
-evidence: "Blind review 06.11., two rounds, five personas, Claude and Codex; every candidate's scores in docs/agent-work/2026-11-06-new-claim.md"
+evidence: "Blind review 06.11., three rounds, five personas, Claude and Codex; every candidate's scores in docs/agent-work/2026-11-06-new-claim.md"
 recommended: a
 options:
   - key: a
     label: "Calm teams ship sooner with agents. / Gelassene Teams liefern mit Agenten früher."
-    detail: "Round 2: EN 75.2, DE 71.1 (Claude 69.8 / 66.4, Codex 80.6 / 75.8). Highest overall; first with three of five personas in both languages. Highlight word: Calm / Gelassene."
-    score: 73
-    noise: 1.3
+    detail: "Round 3: claim EN 74.2, DE 68.6; as home H1 EN 80.8, DE 77.6, first with every persona. The claim is the home H1, as it is today."
+    score: 71
+    noise: 1.0
   - key: b
     label: "Ship sooner with agents, and stay steady. / Mit Agenten früher liefern und ruhig bleiben."
-    detail: "Round 2: EN 73.6, DE 70.2 (Claude 66.6 / 64.6, Codex 80.6 / 75.8). Tied with a. Several reviewers read the German 'ruhig bleiben' as an instruction to bear the pressure. Highlight word: steady / ruhig."
-    score: 72
-    noise: 1.3
-  - key: c
-    label: "Calm teams ship sooner. / Gelassene Teams liefern früher."
-    detail: "Round 2: EN 69.4, DE 66.4. a without agents: most memorable (9.0), but clear only 3.6, since the line alone does not say what h&w works on."
+    detail: "Round 3: claim EN 69.6, DE 67.7. Ties a in German, 4.6 behind in English. Reviewers read 'ruhig bleiben' as a call to keep calm under pressure."
+    score: 69
+    noise: 1.0
+  - key: a2
+    label: "a with the German word order changed: Mit Agenten liefern gelassene Teams früher."
+    detail: "Round 3: DE 62.8, 5.8 below a's own German. Reviewers read the fronted 'Mit Agenten' as constructed and the tool put ahead of the people."
     score: 68
-    noise: 1.3
-  - key: d
-    label: "Ship sooner, stay steady. / Früher liefern, ruhig bleiben."
-    detail: "Round 2: EN 69.2, DE 64.5. b without agents: memorable 9.1, clear 3.4, and distinctive 4.2, the lowest of the four: reviewers placed it on any DevOps vendor's site."
-    score: 67
-    noise: 1.3
+    noise: 1.0
+  - key: f
+    label: "The current claim without 'unstoppable': Your whole company in flow with agentic engineering. / Euer ganzes Unternehmen im Flow mit Agentic Engineering."
+    detail: "Round 3: claim EN 48.2, DE 42.9; as home H1 EN 59.0, DE 56.5. Above the current claim, below a, b and a2 with every persona, in both languages, with both models."
+    score: 46
+    noise: 1.0
 ---
 
 # Which claim stands for h&w everywhere?
 
-The founders answered the home headline question (website item `home-headline`) on 06.11. by asking
-for a new claim in the direction of its winner, d. The claim stands on the home H1 and its social
-card, the website footer, the one-pagers, the deck closing slide, the press boilerplate, LinkedIn
-banners and profiles, and `verbal.json` `claim`. So it needs to be short and hold up without a
-sentence under it, and d as a full sentence does not do that.
+The claim stands on the home H1 and its social card, the website footer, the one-pagers, the deck
+closing slide, the press boilerplate, LinkedIn banners and profiles, and `verbal.json` `claim`. Round
+3 scored the four lines above and the current claim as claims, then the home hero in three
+arrangements, then where the long outcome line (option d of the website item `home-headline`) would
+stand if it is not the home H1.
 
-## Scores
+## Scores, round 3
 
 Five personas, blind: a CTO of a Mittelstand manufacturer under board pressure, a VP of Engineering
 at a scale-up, a Head of Engineering worried about quality and morale, a brand strategist for DACH
-B2B tech services, and a senior developer reading the closing slide after a two-day training. Each
-scored every pair on the home hero at 1440 px with its lead sentence and on the deck's closing slide
-at 1920 x 1080, in English and German. Criteria were clear, credible, distinctive, energy and calm,
-memorable and language, plus an overall score from 0 to 100. Claude and Codex both scored, the order
-shuffled per reviewer, with nothing marking a line as current or naming its author. Round 1 scored 16
-pairs twice. Noise is 4.7 points per reviewer and 1.3 points on the panel mean. Round 2 refined the
-top five, and the current claim and d ran again as controls.
+B2B tech services, and a senior developer reading the closing slide after a two-day training.
+Claude and Codex, two runs each, the order shuffled per reviewer, nothing marking a line as current
+or naming its author. Overall 0 to 100, mean of all reviewers.
 
-| Pair                                         | EN round 2 | DE round 2 | Clear | Distinctive | Energy and calm | Memorable |
-| -------------------------------------------- | ---------- | ---------- | ----- | ----------- | --------------- | --------- |
-| a: Calm teams ship sooner with agents.       | 75.2       | 71.1       | 6.5   | 6.2         | 8.5             | 7.5       |
-| b: Ship sooner with agents, and stay steady. | 73.6       | 70.2       | 6.5   | 5.6         | 8.2             | 7.4       |
-| c: Calm teams ship sooner.                   | 69.4       | 66.4       | 3.6   | 4.7         | 8.8             | 9.0       |
-| d: Ship sooner, stay steady.                 | 69.2       | 64.5       | 3.4   | 4.2         | 8.7             | 9.1       |
-| Control: d of `home-headline`, full          | 47.8       | 46.2       | 7.1   | 5.9         | 7.3             | 2.5       |
-| Control: the current claim                   | 27.0       | 23.6       | 3.9   | 3.3         | 3.0             | 4.0       |
+As the claim, shown on the home hero at 1440 px, the deck closing slide and the one-pager header
+(noise 3.8 per reviewer, 1.0 on the panel mean):
 
-The current claim came last in both rounds, in both languages, with both models.
-Its credible score was 2.0. The full d line scored memorable 2.5: reviewers called it a lead sentence
-rather than a claim, one counted six lines in the hero.
+| Line                                                              | EN   | DE   | Clear | Credible | Distinctive | Energy and calm |
+| ----------------------------------------------------------------- | ---- | ---- | ----- | -------- | ----------- | --------------- |
+| a: Calm teams ship sooner with agents.                            | 74.2 | 68.6 | 5.7   | 7.1      | 6.1         | 8.3             |
+| b: Ship sooner with agents, and stay steady.                      | 69.6 | 67.7 | 6.0   | 7.2      | 5.1         | 7.6             |
+| a2: a, German "Mit Agenten liefern gelassene Teams früher."       | 74.1 | 62.8 | 5.6   | 7.1      | 6.1         | 8.0             |
+| f: Your whole company in flow with agentic engineering.           | 48.2 | 42.9 | 4.5   | 4.8      | 3.8         | 5.6             |
+| Control: Your whole company unstoppable, in flow with agentic ... | 27.8 | 23.3 | 3.8   | 2.0      | 3.2         | 3.0             |
+
+As the home hero, the H1 over the current lead sentence at 1440 px and 375 px (noise 4.3 per
+reviewer, 0.6 on the panel mean):
+
+| Home hero                                   | EN   | DE   | Clear | Credible | Distinctive | Energy and calm |
+| ------------------------------------------- | ---- | ---- | ----- | -------- | ----------- | --------------- |
+| a as H1                                     | 80.8 | 77.6 | 7.7   | 7.5      | 7.4         | 8.6             |
+| d as H1, a as a small line above it         | 74.6 | 71.5 | 7.9   | 7.4      | 6.9         | 7.9             |
+| d as H1, f as a small line above it         | 69.3 | 66.8 | 7.7   | 6.8      | 6.0         | 7.0             |
+| f as H1                                     | 59.0 | 56.5 | 6.5   | 5.6      | 4.4         | 6.1             |
+| Control: the current claim as H1, unchanged | 40.1 | 36.5 | 6.0   | 2.6      | 3.7         | 3.1             |
+
+Where d stands if it is not the home H1: d on the first screen of four live pages against that
+page's current first screen at 1440 px, scored as the first screen of that page (two runs, noise
+2.8 per reviewer, 0.8 on the panel mean):
+
+| Page                              | Current first screen EN / DE | With d EN / DE | Fit current / d |
+| --------------------------------- | ---------------------------- | -------------- | --------------- |
+| Home, a as H1, d as the lead line | 83.7 / 80.0                  | 62.8 / 59.0    | 8.7 / 6.3       |
+| Enablement, d as H1               | 82.6 / 78.0                  | 67.8 / 64.8    | 8.8 / 6.3       |
+| Enablement at scale, d as H1      | 85.7 / 83.8                  | 66.7 / 64.0    | 9.4 / 6.2       |
+| Software Factory, d as H1         | 74.3 / 75.3                  | 69.4 / 66.5    | 8.5 / 6.7       |
+
+d lost on every page, in both languages, with both models. On the home page it drops what h&w
+does: the current lead says training and mentoring, d repeats the outcome. On the other pages it
+names neither the page's subject nor h&w's work, runs to six lines, and "they" reads as either the
+teams or the customers. So d stands nowhere as a headline; the claim carries its direction.
 
 ## Recommendation
 
-a. It is the highest overall. a or b is first with every persona, and a is first in both languages
-with three of five: the VP of Engineering preferred b, the developer b in German. Over its short form
-c, a leads by 5.8 (EN) and 4.7 (DE) with both models, outside the noise. Against b the lead is 1.6
-and 0.9, a tie: Codex scored both the same, Claude preferred a. The tie breaks on the German. b's
-"ruhig bleiben" read to Codex reviewers as a call to bear the pressure, and to Claude reviewers as a
-to-do list. a's German has a word-order flaw that one edit fixes.
+a, as the claim and as the home H1. It leads both tables. As the claim it is first in English with
+every persona and in German with three of five; the brand strategist and the developer put b first
+in German. As the home hero it is first with every persona in both languages, 6.2 points (EN) and
+6.1 (DE) ahead of d with a above it, with both models.
 
-The reviewers' remaining gaps for a, which a yes accepts or a follow-up review fixes:
+f, the current claim without "unstoppable", gains about 20 points on the current claim but stays
+26 (EN) and 26 (DE) points behind a as the claim, and 22 and 21 behind it as the home H1. The
+reviewers named the same three reasons with both models: "whole company" overreaches for a training
+firm, "in flow" names no outcome, and the German reads as Denglisch.
 
-- "Calm" can read as a precondition, teams that are already calm, rather than what h&w helps a
-  team become. Codex raised it for four of five personas.
-- The German word order "liefern mit Agenten früher" read as clunky to all five Claude reviewers.
-  "Mit Agenten liefern gelassene Teams früher." fixes the order and has not been scored.
-- Distinctive stays at about 6. "Sooner" is still something any delivery firm could say, the same
-  gap the home headline review found.
+The German word-order fix a2 did not help: it scored 5.8 below a's own German, outside the noise.
+a keeps "Gelassene Teams liefern mit Agenten früher."
+
+The reviewers' remaining gaps for a, which a yes accepts:
+
+- The line does not say that h&w trains and mentors. On the home page the lead sentence carries it;
+  on the closing slide and the one-pager the context does.
+- Codex reviewers read "calm" as a precondition, teams that are already calm, rather than what h&w
+  helps a team become, for every persona.
+- In German, Claude reviewers read the sentence-final "früher" as possibly "formerly".
 
 ## What a yes changes
 
