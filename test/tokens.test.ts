@@ -107,7 +107,7 @@ test("fonts.json names each family tokens.css leads with, and every file it list
 });
 
 // A static latin-ext face covers what its Latin file lacks only if its range is fonts.css's.
-test("print.css's latin-ext faces take fonts.css's range, mono at its Latin weights", () => {
+test("print.css's latin-ext faces take fonts.css's range, at every Latin weight", () => {
   const faces = fontFaces(print);
   const range = Object.fromEntries(
     fonts.faces.filter((f) => f.unicodeRange).map((f) => [f.fontFamily, f.unicodeRange!]),
@@ -118,15 +118,16 @@ test("print.css's latin-ext faces take fonts.css's range, mono at its Latin weig
       .map((f) => f.fontWeight);
   for (const f of faces.filter((f) => f.file.includes("-latin-ext-")))
     expect(f.unicodeRange).toBe(range[f.fontFamily]);
-  expect(weights("Inter Variable", "latin-ext")).toEqual(["400", "600"]);
-  const mono = "JetBrains Mono Variable";
-  expect(weights(mono, "latin-ext")).toEqual(weights(mono, "latin"));
+  for (const family of ["Inter Variable", "JetBrains Mono Variable"])
+    expect(weights(family, "latin-ext")).toEqual(weights(family, "latin"));
 });
 
 test("static-fonts.css holds print.css's faces, each url reaching its file from generated/", () => {
   const css = readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8");
   // fontFaces throws on a src outside url("fonts/…"), so a url the generator missed fails here.
   expect(fontFaces(css.replaceAll('url("../tokens/', 'url("'))).toEqual(fontFaces(print));
+  // A live page shows the fallback face meanwhile, never blank text for up to 3 s.
+  for (const f of fontFaces(print)) expect(f.fontDisplay).toBe("swap");
   for (const [, url] of css.matchAll(/url\("([^"]+)"\)/g))
     expect(existsSync(join(ROOT, "generated", url))).toBe(true);
 });

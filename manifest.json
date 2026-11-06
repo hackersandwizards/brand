@@ -45,8 +45,16 @@
       "sha256": "770af9f9a1fb19da256f84a00ffdd934d68f6e9580aed5fb5d9817bde228a58e"
     },
     {
+      "path": "tokens/fonts/inter-latin-ext-500-normal.woff2",
+      "sha256": "d3ea5c59df0fe81f6d552073cb6f8476f05a94ae0dd360043846240db64aaba2"
+    },
+    {
       "path": "tokens/fonts/inter-latin-ext-600-normal.woff2",
       "sha256": "9ae73a71ac1b21aff65083291ca912021c8a750de8c94bb9196787f9801797d5"
+    },
+    {
+      "path": "tokens/fonts/inter-latin-ext-700-normal.woff2",
+      "sha256": "092c57bde12aea9091aeb151a1c5261525bfc37f2f07ffea0f1949be4ac63b13"
     },
     {
       "path": "tokens/fonts/jetbrains-mono-latin-400-normal.woff2",
@@ -98,7 +106,7 @@
     },
     {
       "path": "tokens/print.css",
-      "sha256": "aa4fed082fd790d640c03a8ec1adc3429a07657d679664b215820fbdaed37d84"
+      "sha256": "422ae75ebc5f317a24d13a59dfb4d06b1b273c3315f3ab4a672fb5a266b567e8"
     },
     {
       "path": "tokens/marker.css",

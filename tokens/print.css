@@ -7,17 +7,20 @@
    Same font versions as the website's files (Inter 4.001, JetBrains Mono
    2.211). The family names are the ones tokens.css names, so --font-sans,
    --font-mono and --font-code reach these files. Latin subset, plus latin-ext
-   for Inter 400 and 600, the weights print sets names in, so a certificate
-   prints Ł and ř in Inter, and for JetBrains Mono at every weight, so mono
-   text prints Č and ő in it, each fontTools' instance of the variable file
-   fonts.css names, under the Latin file's names. Arrows (Inter, JetBrains
+   at every weight of each family, so a name prints Ł, ř, Č and ő in the
+   face around it, each fontTools' instance of the variable file fonts.css
+   names, under the Latin file's names. Arrows (Inter, JetBrains
    Mono) and box drawing (JetBrains Mono, for file trees in code) come as
    separate files under a unicode-range, cut from the Google Fonts release of
    the same versions, so a page without them loads nothing extra. Licences:
-   the OFL files in fonts/. */
+   the OFL files in fonts/. font-display: swap shows a screen the fallback
+   face until a face arrives; a PDF is unchanged, since Chrome's print waits
+   for every face the page requests, and the window's load waits for them
+   (measured 06.11.2026). */
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   src: url("fonts/inter-latin-400-normal.woff2") format("woff2");
 }
@@ -25,6 +28,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 500;
   src: url("fonts/inter-latin-500-normal.woff2") format("woff2");
 }
@@ -32,6 +36,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 600;
   src: url("fonts/inter-latin-600-normal.woff2") format("woff2");
 }
@@ -39,6 +44,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 700;
   src: url("fonts/inter-latin-700-normal.woff2") format("woff2");
 }
@@ -46,6 +52,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   src: url("fonts/inter-latin-ext-400-normal.woff2") format("woff2");
   unicode-range:
@@ -57,6 +64,19 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("fonts/inter-latin-ext-500-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
   font-weight: 600;
   src: url("fonts/inter-latin-ext-600-normal.woff2") format("woff2");
   unicode-range:
@@ -66,8 +86,21 @@
 }
 
 @font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("fonts/inter-latin-ext-700-normal.woff2") format("woff2");
+  unicode-range:
+    U+0100-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   src: url("fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
 }
@@ -75,6 +108,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 500;
   src: url("fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");
 }
@@ -82,6 +116,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 600;
   src: url("fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2");
 }
@@ -89,6 +124,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 700;
   src: url("fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
 }
@@ -96,6 +132,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   src: url("fonts/jetbrains-mono-latin-ext-400-normal.woff2") format("woff2");
   unicode-range:
@@ -107,6 +144,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 500;
   src: url("fonts/jetbrains-mono-latin-ext-500-normal.woff2") format("woff2");
   unicode-range:
@@ -118,6 +156,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 600;
   src: url("fonts/jetbrains-mono-latin-ext-600-normal.woff2") format("woff2");
   unicode-range:
@@ -129,6 +168,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 700;
   src: url("fonts/jetbrains-mono-latin-ext-700-normal.woff2") format("woff2");
   unicode-range:
@@ -140,6 +180,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   src: url("fonts/inter-arrows-400-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF;
@@ -148,6 +189,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 500;
   src: url("fonts/inter-arrows-500-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF;
@@ -156,6 +198,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 600;
   src: url("fonts/inter-arrows-600-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF;
@@ -164,6 +207,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 700;
   src: url("fonts/inter-arrows-700-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF;
@@ -172,6 +216,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 400;
   src: url("fonts/jetbrains-mono-symbols-400-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF, U+2500-257F;
@@ -180,6 +225,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 500;
   src: url("fonts/jetbrains-mono-symbols-500-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF, U+2500-257F;
@@ -188,6 +234,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 600;
   src: url("fonts/jetbrains-mono-symbols-600-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF, U+2500-257F;
@@ -196,6 +243,7 @@
 @font-face {
   font-family: "JetBrains Mono Variable";
   font-style: normal;
+  font-display: swap;
   font-weight: 700;
   src: url("fonts/jetbrains-mono-symbols-700-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF, U+2500-257F;
