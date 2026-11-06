@@ -79,6 +79,9 @@ test("a partner's mark may be listed against HEAD; a partner entry needs a name,
   const unnamed = { [logo]: { ...zero, hex: 32, partner: " ", reason: "r" } };
   expect(violations({ [logo]: { ...zero, hex: 32 } }, unnamed, {})).toHaveLength(2);
   expect(tighten({ [logo]: { ...zero, hex: 30 } }, partner)).toEqual(partner);
+  // Tightening keeps a misplaced partner, so the run after it still fails on it.
+  const counts = { "a.ts": { ...zero, hex: 1 } };
+  expect(violations(counts, tighten(counts, note), {})).toEqual(violations(counts, note, {}));
 });
 
 test("tightening lowers and drops entries, never raises or adds", () => {

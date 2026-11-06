@@ -358,7 +358,13 @@ export const tighten = (
     const limit = (k: (typeof METRICS)[number]) =>
       allow ? Math.max(prior?.[k] ?? 0, ceiling[file]?.[k] ?? 0) : Infinity;
     const c = Object.fromEntries(METRICS.map((k) => [k, Math.min(limit(k), counts[k])])) as Counts;
-    if (METRICS.some((k) => c[k])) next[file] = { ...c, reason: prior?.reason ?? "" };
+    // A misplaced partner stays, so the next run still reports it.
+    if (METRICS.some((k) => c[k]))
+      next[file] = {
+        ...c,
+        reason: prior?.reason ?? "",
+        ...(prior?.partner !== undefined && { partner: prior.partner }),
+      };
   }
   return next;
 };

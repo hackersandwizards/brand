@@ -33,3 +33,23 @@ ${night}</style></head><body></body></html>`);
   await tab.close();
   expect(empty).toEqual([]);
 });
+
+test("the purple button turns darker on hover under night.css", async () => {
+  const tab = await browser.newPage();
+  await tab.setContent(`<!doctype html><html><head><style>
+${tokens}${night}${css("elements/button.css")} * { transition: none !important }</style></head>
+<body data-theme="dark" data-hw-night><a class="hw-button" data-hue="purple" href="#">Go</a></body></html>`);
+  const lightness = () =>
+    tab.$eval(".hw-button", (e) => {
+      const c = document.createElement("canvas").getContext("2d")!;
+      c.fillStyle = getComputedStyle(e).backgroundColor;
+      c.fillRect(0, 0, 1, 1);
+      const [r, g, b] = c.getImageData(0, 0, 1, 1).data;
+      return r! + g! + b!;
+    });
+  const rest = await lightness();
+  await tab.hover(".hw-button");
+  const hover = await lightness();
+  await tab.close();
+  expect(hover).toBeLessThan(rest);
+});
