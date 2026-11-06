@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import { ROOT } from "../scripts/git";
-import { failing, launch, measureMarkers, type Reading } from "../scan/markers";
+import { failing, launch, measureMarkers, serve, toUrl, type Reading } from "../scan/markers";
 
 // marker.css on lists at five text sizes, wrapped and not, and on element markers in baseline rows,
 // against the rules it replaced: the inline-block list marker lifted by whole pixels (the website's
@@ -179,4 +179,27 @@ test("a reading with no ink on either side fails", () => {
     indent: null,
   };
   expect(failing(r)).toBe(true);
+});
+
+test("--site serves a built folder: a page path starting with / is on it, nothing outside it", async () => {
+  const base = mkdtempSync(join(tmpdir(), "brand-site-"));
+  const site = join(base, "site");
+  mkdirSync(join(site, "catalog"), { recursive: true });
+  writeFileSync(join(site, "catalog/index.html"), "<p>catalog</p>");
+  writeFileSync(join(base, "outside.txt"), "outside");
+  const server = serve(site);
+  try {
+    const url = toUrl("/catalog/", server.url);
+    expect(url).toBe(`${server.url.origin}/catalog/`);
+    expect(await (await fetch(url)).text()).toBe("<p>catalog</p>");
+    // A folder without its slash redirects, so its relative links resolve as on Pages.
+    const moved = await fetch(`${server.url.origin}/catalog`, { redirect: "manual" });
+    expect([moved.status, moved.headers.get("location")]).toEqual([301, "/catalog/"]);
+    expect((await fetch(`${server.url.origin}/100%.html`)).status).toBe(404);
+    expect((await fetch(`${server.url.origin}/%2e%2e/outside.txt`)).status).toBe(404);
+    expect(toUrl("/catalog/")).toStartWith("file://");
+  } finally {
+    await server.stop(true);
+    rmSync(base, { recursive: true, force: true });
+  }
 });

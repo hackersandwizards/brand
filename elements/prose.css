@@ -1,16 +1,17 @@
 /* The prose block: Markdown read in an app (a record's notes, a handbook page, a knowledge article),
    on top of Tailwind Typography's prose, so a surface writes class="prose hw-prose". Headings step
    down to the app's page, heading and subheading sizes so they nest under the page title, an h2
-   opens with a hairline, paragraphs in a list item lose their margin, inline code sits on the muted
-   fill, list bullets are the brand marker (marker.css), and a task item's checkbox is painted like
-   a field, ticked in the accent. Typography's colours point at the theme roles, so night follows
-   the page. Tables, code blocks and quotes are the hw-* elements, marked not-prose, which the block
+   opens with a hairline, paragraphs in a list item lose their margin, inline code is the inline
+   code element (inline-code.css), list bullets are the brand marker (marker.css), and a task
+   item's checkbox is painted like a field, ticked in the accent. Typography's colours point at the
+   theme roles, so night follows the page. Tables, code blocks and quotes are the hw-* elements, marked not-prose, which the block
    only spaces. Unlike the other elements these rules sit in no layer: Typography's prose rules come
    in Tailwind's utilities layer, which a layered rule would lose to.
 
    Settings:
-     --hw-corner-sm      inline code's corner, the small corner at the medium's size
      --hw-prose-check-x  the checkbox's offset from its item's start */
+
+@import "./inline-code.css";
 
 .hw-prose {
   overflow-wrap: break-word;
@@ -39,21 +40,6 @@
 }
 .hw-prose .hw-quote > * + * {
   margin-top: 0.75em;
-}
-.hw-prose :not(pre) > code {
-  border-radius: var(--hw-corner-sm, var(--radius-sm));
-  padding: 0.125em 0.375em;
-  font-size: var(--text-ui, 0.875rem);
-  font-weight: 500;
-  background-color: color-mix(
-    in srgb,
-    var(--muted, color-mix(in srgb, var(--color-ink) 7%, var(--color-bg))) 70%,
-    transparent
-  );
-}
-.hw-prose :not(pre) > code::before,
-.hw-prose :not(pre) > code::after {
-  content: none;
 }
 .hw-prose hr {
   margin-block: 2rem;
@@ -127,11 +113,8 @@
   background-color: var(--accent, var(--color-teal-dark));
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
 }
-/* Night: the muted fill is night-2, and the accent a light teal, so the tick turns night on it. */
+/* Night: the accent is a light teal, so the tick turns night on it. */
 @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-  .hw-prose :not(pre) > code {
-    background-color: color-mix(in srgb, var(--muted, var(--color-night-2)) 70%, transparent);
-  }
   .hw-prose li.task-list-item input[type="checkbox"]:checked {
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
   }

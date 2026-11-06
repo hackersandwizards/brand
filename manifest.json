@@ -329,8 +329,12 @@
       "sha256": "691df627703b93a1b97931ec683feb5c829994cb9b3aa25639c6264da11d9214"
     },
     {
+      "path": "elements/inline-code.css",
+      "sha256": "b2916b277d01e42f9e10a44d7f57fcacc44f3858f35d0af4b36e688353cfa422"
+    },
+    {
       "path": "elements/elements.css",
-      "sha256": "6e89f59167bc454d5641430faa0411743dae2eff1221cd94aee2fa1424c6d860"
+      "sha256": "64791e8b3c2b4320a8ca5e5bd1a5ee534eaaa4151246a9d835efad450d9b0296"
     },
     {
       "path": "elements/focus.css",
@@ -414,7 +418,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "548aed1c5109c381ad6f4fcc26c77cf5f0be2310c1caea398afde2721f493cb2"
+      "sha256": "be240aa7d9dbe0d513e8037eb35529d81386cf0b8b2d15597a02af1d4dafce40"
     },
     {
       "path": "elements/row.css",

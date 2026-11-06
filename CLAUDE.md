@@ -85,7 +85,7 @@ data or secret.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/brand/` (`http://brand.localhost` where Caddy proxies it); the portal reads the
   working tree afresh on each request. `bun run build` writes `dist/`. The portal's header links the
-  slide and document catalogs on their Pages sites (`https://hackersandwizards.github.io/<repo>/catalog/`).
+  slide and document catalogs on their Pages sites (`https://hackersandwizards.github.io/<repo>/`).
 
 ## Rules
 

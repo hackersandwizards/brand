@@ -17,7 +17,7 @@ export default defineConfig({
   integrations: [
     catalog({
       product: "Brand",
-      lead: "Every shared element (elements/*.css) at the four scales and on night. Colours, type, tokens, logos, the files made from them and the press kit are in the brand portal.",
+      lead: "Every shared element (elements/*.css) at the four scales and on night.",
       css: [
         own("generated/tokens.root.css"),
         own("tokens/marker.css"),

@@ -16,6 +16,7 @@ export const DEMOS: Record<string, string> = {
   strip: `<div class="hw-strip"></div>`,
   rule: `<h3 style="margin:0">Wie ein Agent arbeitet</h3><hr class="hw-rule" data-variant="bar" aria-hidden="true"><p>Ein Block, über dem die Linie in voller Breite steht:</p><hr class="hw-rule"><hr class="hw-rule" data-hue="purple">`,
   code: `<pre class="hw-code"><code>$ bun run check\n<span class="hw-code-comment"># 0 findings</span></code></pre> <pre class="hw-code" data-variant="panel"><code>$ claude --continue</code></pre>`,
+  "inline-code": `<p>Vor dem Commit läuft <code class="hw-inline-code">bun run check</code>, die Ausnahmen stehen in <code class="hw-inline-code">brand-elements.json</code>.</p>`,
   button: `<a class="hw-button" href="#elements">Training anfragen</a> <a class="hw-button" data-variant="secondary" href="#elements">Agenda ansehen</a>`,
   "arrow-link": `<a class="hw-arrow-link" href="#elements">Alle Trainings<span class="hw-arrow" aria-hidden="true">&nbsp;<span>→</span></span></a><br><a class="hw-arrow-link" data-tone="muted" href="#elements">Impressum<span class="hw-arrow" data-external aria-hidden="true">&nbsp;<span>→</span></span></a>`,
   field: `<div class="hw-field-row"><input class="hw-field" aria-label="ID" placeholder="ID oder Link"><button type="button" class="hw-button">Prüfen</button></div>`,

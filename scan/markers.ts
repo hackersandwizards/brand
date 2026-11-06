@@ -14,10 +14,13 @@
 // the browser's own marker in a ul. Not measured: a
 // heading's or link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
-// Usage: brand-markers [--scale 2,4] [--width 1280] [--json] <url or html file>...
+// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--json] <url, html file or
+// site path>... --site serves a built folder on a free port, and a page starting with / is a path
+// on it.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, or a page
 // with no marker (a zero proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
-import { resolve } from "node:path";
+import { existsSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer, { type Browser } from "puppeteer-core";
 import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
@@ -38,12 +41,15 @@ export type Reading = {
   indent: number | null;
 };
 
-/** Runs in the page: rewrites the line beside each marker and returns the boxes to read. */
-function collect([newline, maxSide]: [boolean, number]): Probe[] {
-  // A closed panel's lists are markers too, painted once it opens.
-  // Not a header's or nav's disclosure: a site's menu script may hold the page while one is open.
+/** Runs in the page: opens every closed <details>, whose contents are drawn only once it opens. Not
+ * a header's or nav's disclosure: a site's menu script may hold the page while one is open. */
+export function openFolds() {
   for (const d of document.querySelectorAll("details:not(header details, nav details)"))
     (d as HTMLDetailsElement).open = true;
+}
+
+/** Runs in the page: rewrites the line beside each marker and returns the boxes to read. */
+function collect([newline, maxSide]: [boolean, number]): Probe[] {
   if (newline)
     for (const li of document.querySelectorAll("li"))
       li.insertBefore(document.createTextNode("\n      "), li.firstChild);
@@ -272,6 +278,8 @@ export async function measureMarkers(
       return clip.y + (await page.evaluate(inkMiddle, png, scale));
     };
     const out: Reading[] = [];
+    // A closed panel's lists are markers too.
+    await page.evaluate(openFolds);
     for (const p of await page.evaluate(collect, [newline, MAX_SIDE] as [boolean, number])) {
       // A square ::before that is not beside its first line (an absolute dot above the item) leaves
       // no room left of the text: it is decoration, not this line's marker.
@@ -296,8 +304,52 @@ export async function measureMarkers(
 export const failing = (r: Reading) =>
   !(Math.abs(r.offset) <= TOLERANCE) || (r.indent !== null && !(Math.abs(r.indent) <= TOLERANCE));
 
-export const toUrl = (arg: string) =>
-  /^[a-z]+:\/\//.test(arg) ? arg : pathToFileURL(resolve(arg)).href;
+/** A page argument as a URL: a URL as it is, a path starting with / on the served site `site`, else
+ * a file. */
+export const toUrl = (arg: string, site?: URL) =>
+  /^[a-z]+:\/\//.test(arg)
+    ? arg
+    : site && arg.startsWith("/")
+      ? new URL(arg, site).href
+      : pathToFileURL(resolve(arg)).href;
+
+/** The file a path names inside `root`, a folder answering with its index.html, as a static host
+ * does; undefined for none or for a path leaving `root`. */
+export const fileIn = (root: string, path: string) => {
+  let file: string;
+  try {
+    file = join(root, decodeURIComponent(path));
+  } catch {
+    return; // a malformed escape names no file
+  }
+  if (!file.startsWith(`${root}/`)) return;
+  if (statSync(file, { throwIfNoEntry: false })?.isDirectory()) file = join(file, "index.html");
+  return statSync(file, { throwIfNoEntry: false })?.isFile() ? file : undefined;
+};
+
+/** A built site folder served at the root of a free local port: pages whose links start at / then
+ * load as published, and a folder's path without its slash redirects to it, so relative links
+ * resolve as on Pages. */
+export const serve = (dir: string) => {
+  const root = resolve(dir);
+  if (!existsSync(root)) throw new Error(`no site folder ${root}; build it first`);
+  return Bun.serve({
+    hostname: "127.0.0.1",
+    port: 0,
+    fetch(request) {
+      const { pathname } = new URL(request.url);
+      const file = fileIn(root, pathname);
+      if (
+        file &&
+        !pathname.endsWith("/") &&
+        file.endsWith("/index.html") &&
+        !pathname.endsWith(".html")
+      )
+        return Response.redirect(`${pathname}/`, 301);
+      return file ? new Response(Bun.file(file)) : new Response("Not found", { status: 404 });
+    },
+  });
+};
 
 if (import.meta.main) {
   const args = process.argv.slice(2);
@@ -307,15 +359,18 @@ if (import.meta.main) {
   };
   const scales = opt("--scale", "2,4").split(",").map(Number);
   const width = Number(opt("--width", "1280"));
+  const site = opt("--site", "");
   const json = args.includes("--json");
-  const pages = args.filter((a) => a !== "--json").map(toUrl);
-  if (!pages.length) {
+  const named = args.filter((a) => a !== "--json");
+  if (!named.length) {
     console.error(
-      "usage: brand-markers [--scale 2,4] [--width 1280] [--json] <url or html file>...",
+      "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--json] <url, html file or site path>...",
     );
     process.exit(2);
   }
   const browser = await launch();
+  const server = site ? serve(site) : undefined;
+  const pages = named.map((a) => toUrl(a, server?.url));
   const readings: Reading[] = [];
   const empty: string[] = [];
   try {
@@ -328,6 +383,7 @@ if (import.meta.main) {
     }
   } finally {
     await browser.close();
+    await server?.stop(true);
   }
   const bad = readings.filter(failing);
   if (json) console.log(JSON.stringify(readings, null, 2));

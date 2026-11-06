@@ -331,7 +331,7 @@ const FAMILIES: Family[] = [
     note: 'Decks come from the slide engine, the package @hackersandwizards/slides; there is no template file. Its catalog shows one slide of every type. The slide logo: the lockup on the title and the closing slide, the wordmark alone on every other slide. A concept slide that claims a mechanism in a few short cards may carry a generated marker sketch beside them: brand-slide-sketch-prompt prints the prompt and the worked example, the sketch-example card here; the slides README, "Deck structure", says which slides get one.',
     dir: "applications/slide-visuals",
     links: [
-      ["Slide catalog", "https://hackersandwizards.github.io/slides/catalog/"],
+      ["Slide catalog", "https://hackersandwizards.github.io/slides/"],
       ["slides on GitHub", "https://github.com/hackersandwizards/slides"],
     ],
   },
@@ -340,7 +340,7 @@ const FAMILIES: Family[] = [
     title: "Documents",
     note: "Proposals, rate cards, Leistungsnachweise, certificates and handouts come from the document engine, the package @hackersandwizards/documents, rendered by Company OS and the trainer hub. Its catalog shows every document type with invented data.",
     links: [
-      ["Document catalog", "https://hackersandwizards.github.io/documents/catalog/"],
+      ["Document catalog", "https://hackersandwizards.github.io/documents/"],
       ["documents on GitHub", "https://github.com/hackersandwizards/documents"],
     ],
   },
@@ -569,6 +569,7 @@ const ELEMENT_ORDER: [string, string, string][] = [
   ["strip", "Gradient strip", "strip"],
   ["rule", "Accent rule", "rule"],
   ["code", "Code block", "code"],
+  ["inline-code", "Inline code", "inline-code"],
   ["button", "Button", "button"],
   ["arrow-link", "Arrow link", "arrow-link"],
   ["field", "Field with button", "field"],
@@ -1049,8 +1050,8 @@ const html = `<!doctype html>
 <nav class="hw-header-nav" aria-label="Main">
 <a class="hw-header-link" href="#overview" aria-current="page">Brand</a>
 <a class="hw-header-link" href="catalog/">Catalog</a>
-<a class="hw-header-link" href="https://hackersandwizards.github.io/slides/catalog/">Slides</a>
-<a class="hw-header-link" href="https://hackersandwizards.github.io/documents/catalog/">Dokumente</a>
+<a class="hw-header-link" href="https://hackersandwizards.github.io/slides/">Slides</a>
+<a class="hw-header-link" href="https://hackersandwizards.github.io/documents/">Dokumente</a>
 </nav>
 </div>
 </header>

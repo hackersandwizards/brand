@@ -57,18 +57,18 @@ Run a command the package ships from your repo's root with `bun run <name>`. Nev
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
 with `Script not found`.
 
-| Command                                                       | Does                                                                  |
-| ------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"` | frames an image as a 1080 x 1350 LinkedIn post image                  |
-| `brand-linkedin-terminal <spec.json> <out.png>`               | renders a terminal snippet for the frame; no arguments print the spec |
-| `brand-linkedin-sketch-prompt`                                | prints the prompt for a generated sketch and its worked examples      |
-| `brand-slide-sketch-prompt`                                   | prints the prompt for a slide sketch and its worked example           |
-| `brand-mail-signature --name <n> --role <r> --out <path>`     | writes a mail signature as HTML and text; all flags in `cli.ts`       |
-| `brand-colours [--tighten]`                                   | the colour, radius and shadow scan for your gate, below               |
-| `brand-copies [--tighten]`                                    | flags a copy of a brand file in your tree, below                      |
-| `brand-scan [--tighten]`                                      | flags a fork of an expert component, below                            |
-| `brand-markers [--scale 2,4] <url or file>...`                | measures every list marker on your pages, below                       |
-| `brand-elements [--json]`                                     | measures the shared elements on your design-system page, below        |
+| Command                                                              | Does                                                                  |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`        | frames an image as a 1080 x 1350 LinkedIn post image                  |
+| `brand-linkedin-terminal <spec.json> <out.png>`                      | renders a terminal snippet for the frame; no arguments print the spec |
+| `brand-linkedin-sketch-prompt`                                       | prints the prompt for a generated sketch and its worked examples      |
+| `brand-slide-sketch-prompt`                                          | prints the prompt for a slide sketch and its worked example           |
+| `brand-mail-signature --name <n> --role <r> --out <path>`            | writes a mail signature as HTML and text; all flags in `cli.ts`       |
+| `brand-colours [--tighten]`                                          | the colour, radius and shadow scan for your gate, below               |
+| `brand-copies [--tighten]`                                           | flags a copy of a brand file in your tree, below                      |
+| `brand-scan [--tighten]`                                             | flags a fork of an expert component, below                            |
+| `brand-markers [--scale 2,4] [--site <dir>] <url, file or /path>...` | measures every list marker on your pages, below                       |
+| `brand-elements [--json]`                                            | measures the shared elements on your design-system page, below        |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -186,13 +186,15 @@ padding and Tailwind utilities win.
 
 Every element two or more systems show lives in `elements/`, one plain-CSS file each: label,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
-strip, accent rule, code block (and its panel), button, arrow link, field with button, facts list, segmented
+strip, accent rule, code block (and its panel), inline code, button, arrow link, field with button, facts list, segmented
 control, list row, breadcrumb, status box, dashed frame, key figure, prose block. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
 `elements/scales.css`, after `tokens.css` (and `print.css` on paper). The rules sit in
 `@layer components`, so your utilities win, which is what `brand-elements` then measures; the prose
-block sits in no layer, since Tailwind Typography's `prose` comes in the utilities layer.
+block and its inline code sit in no layer, since Tailwind Typography's `prose` comes in the utilities
+layer. A `<code>` in running text takes `class="hw-inline-code"`; inside the prose block every
+inline `<code>` is that element already.
 
 A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
 website's px), `"dense"` (the apps and the talks site; it also sets the expert set's compact type steps, UI text
@@ -218,7 +220,11 @@ in full with its reason, `<section data-hw-exception="<name>">`. List both in
 ```
 
 A system whose pages never turn to night adds `"lightOnly": true`: the tokens only an element's
-night rules read may then stay undefined there.
+night rules read may then stay undefined there. `"site": "<dir>"` is `brand-markers --site` (below).
+
+Before it measures, `brand-elements` opens every closed `<details>` outside a header or nav, since
+a focusable in a shut fold takes no focus. An element inside `[data-hw-shell]`, the scaffolding
+catalog shell's own card and pill, is the shell's: neither measured nor counted as shown.
 
 An exception's instance on a real page carries `data-hw-exception="<name>"` too: a hub element
 inside it is that exception, not measured. `files` exempts a stylesheet of the system's own medium
@@ -274,6 +280,20 @@ An exception goes in `brand-colours.json` beside your `package.json`, one entry 
 counts and the reason, and the list may only shrink: the scan fails where an entry grows against
 `HEAD` or names no reason. A metric an entry leaves out allows none. `brand-colours --tighten`
 lowers every entry to today's counts.
+
+A third party's mark, such as a partner conference's or a client's logo as an SVG, carries its
+owner's colours, not the brand's. Its entry names the owner in `partner` and its reason, takes no
+counts, and may be added in any commit: the scan leaves the file uncounted and prints every partner
+mark it allowed. `partner` on any file but an SVG fails.
+
+```json
+{
+  "public/talk/conf-logo.svg": {
+    "partner": "Example Conf",
+    "reason": "the conference's logo beside our closing slide, in its own colours"
+  }
+}
+```
 
 #### Raise your pin
 
@@ -348,7 +368,10 @@ newline follows `<li>`.
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting
 where the wrapped lines start, and on a page with no marker. Run it in your gate on the pages or
-specimen that show your lists.
+specimen that show your lists. It opens every closed `<details>` outside a header or nav first.
+`--site <dir>` serves a built site folder on a free port for the run, a folder answering with its
+`index.html`, and a page starting with `/` is a path on it, so pages whose links start at the root
+load as published: `brand-markers --site dist /catalog/ /verify/`.
 
 ## Press kit
 

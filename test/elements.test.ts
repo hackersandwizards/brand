@@ -44,6 +44,10 @@ ${["screen", "dense", "print", "stage"]
 <div data-hw-exception="total-band"><table class="hw-table"><tr><td>Sum</td></tr></table></div>
 </body></html>`;
 
+/** A page holding only `body`, on the tokens and the elements. */
+const only = (body: string, bodyClass = "") =>
+  `<!doctype html><html><head><link rel="stylesheet" href="${brand("generated/tokens.root.css")}"><link rel="stylesheet" href="${brand("elements/elements.css")}"></head><body class="${bodyClass}">${body}</body></html>`;
+
 const dir = mkdtempSync(join(tmpdir(), "brand-elements-"));
 const file = (name: string, html: string) => {
   writeFileSync(join(dir, name), html);
@@ -79,6 +83,7 @@ const DRIFT: Record<string, string> = {
   strip: ".hw-strip { height: 2px }",
   rule: ".hw-rule { background: linear-gradient(90deg, #1a7285, #9333ea) }",
   code: ".hw-code { background: #24292e }",
+  "inline-code": ".hw-inline-code { border-radius: 0 }",
   button: ".hw-button { border-radius: 5px }",
   "arrow-link": ".hw-arrow-link { color: var(--color-teal) }",
   field: ".hw-field { border-color: var(--color-border) }",
@@ -113,6 +118,46 @@ test("one drifted instance among many is red", async () => {
     ),
   );
   expect(r.findings.map((f) => f.prop)).toEqual(["padding-left"]);
+}, 60_000);
+
+// The scaffolding catalog shell's own card and pill (data-hw-shell): neither measured nor shown.
+test("an element of the catalog shell is not measured and needs no uses entry", async () => {
+  const shell =
+    '<a data-hw-shell class="hw-card" style="border-radius: 0"><span data-hw-shell class="hw-pill" style="padding: 0">3 states</span></a>';
+  const html = only(
+    `${shell}<div data-hw-tile="label" data-hw-version="${own.version}">${DEMOS.label}</div>`,
+  );
+  const r = await measurePage(browser, file("shell.html", html));
+  expect(r.findings).toEqual([]);
+  expect(r.seen).toEqual(["label"]);
+  expect(coverage({ pages: [], uses: ["label"] }, [r])).toEqual([]);
+  // Control: the same markup without the marker is measured and must be listed.
+  const bare = await measurePage(
+    browser,
+    file("no-shell.html", html.replaceAll("data-hw-shell ", "")),
+  );
+  expect(bare.findings.map((f) => f.element)).toContain("card");
+  expect(coverage({ pages: [], uses: ["label"] }, [bare])).toContain(
+    'card: a page shows it, but brand-elements.json does not list it in "uses"',
+  );
+}, 60_000);
+
+// A closed fold draws its elements once opened, so they are measured open: a focusable in a shut
+// fold takes no focus and reads as having no ring.
+test("an element in a closed details is measured open; a header's menu stays shut", async () => {
+  const fold = (inner: string) => only(inner, "hw-focus-ring");
+  const tile = `<div data-hw-tile="focus-ring" data-hw-version="${own.version}">${DEMOS["focus-ring"]}</div>`;
+  const closed = await measurePage(
+    browser,
+    file("fold.html", fold(`<details><summary>Mehr</summary>${tile}</details>`)),
+  );
+  expect(closed.findings).toEqual([]);
+  // Control: the menu in a header is left shut, and its focusable reads no ring.
+  const menu = await measurePage(
+    browser,
+    file("menu.html", fold(`<header><details><summary>Menü</summary>${tile}</details></header>`)),
+  );
+  expect(menu.findings.map((f) => f.prop)).toEqual(["outline-style"]);
 }, 60_000);
 
 test("an element inside an exception's instance is not measured", async () => {
@@ -301,7 +346,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   expect(out).toEqual([
     `card: the tile says brand v0.1.0, the installed package is v${own.version}; rebuild the page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, button, arrow-link, field, facts, segmented, row, breadcrumb, status, frame, kpi, prose)',
+    'brand-elements.json: "chart" is no shared element (label, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, button, arrow-link, field, facts, segmented, row, breadcrumb, status, frame, kpi, prose)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',

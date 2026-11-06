@@ -3,15 +3,19 @@
 // own design-system page renders them, against the brand's rule at the same scale, plus the source
 // that could fork one. It reads the consumer's brand-elements.json:
 //
-//   { "pages": ["<url or html file>", ...],
+//   { "pages": ["<url, html file or site path>", ...],
 //     "uses": ["card", "pill", ...],                  every hub element the system uses
 //     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
 //                     | { "reason": "...", "files": ["<path>", ...] }, ... },
-//     "lightOnly": true }                             optional: the pages never turn to night
+//     "lightOnly": true,                              optional: the pages never turn to night
+//     "site": "<folder>" }                            optional: a built site, served on a free
+//                                                     port, which a page starting with / names
 //
-// 1. Rendered. Every hub element on the pages (an hw-* class; for the focus ring, the first
-//    focusable inside [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception],
-//    which is that exception's instance) is compared with a reference: the same
+// 1. Rendered. Every closed <details> outside a header or nav is opened, as brand-markers does. Every
+//    hub element on the pages (an hw-* class; for the focus ring, the first focusable inside
+//    [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception], which is that
+//    exception's instance, nor one inside [data-hw-shell], the scaffolding catalog shell's own
+//    card and pill) is compared with a reference: the same
 //    markup in a shadow root beside it, styled only by this package's element files and inheriting
 //    the page's tokens, theme and scale. Any difference in a computed property the element sets
 //    (OWNS: its corner, fill, line, text colour, type, padding or size) fails, by more than 0.02px
@@ -34,7 +38,7 @@ import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
-import { launch, toUrl } from "./markers";
+import { launch, openFolds, serve, toUrl } from "./markers";
 
 export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
@@ -43,6 +47,7 @@ export type Config = {
   uses: string[];
   exceptions?: Record<string, Exception>;
   lightOnly?: boolean;
+  site?: string;
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
@@ -62,6 +67,7 @@ export const ELEMENTS: Record<string, string> = {
   strip: ".hw-strip",
   rule: ".hw-rule",
   code: ".hw-code",
+  "inline-code": ".hw-inline-code",
   button: ".hw-button",
   "arrow-link": ".hw-arrow-link",
   field: ".hw-field",
@@ -95,6 +101,15 @@ const TYPE = [
   "letter-spacing",
   "text-transform",
 ];
+const INLINE_CODE = [
+  ...CORNER,
+  ...FILL,
+  ...PAD,
+  "font-family",
+  "font-size",
+  "font-weight",
+  "font-variant-ligatures",
+];
 const OWNS: Record<string, string[]> = {
   label: [...TYPE, "color"],
   pill: [...CORNER, ...FILL, ...borders(), ...PAD, ...TYPE, "color"],
@@ -113,6 +128,7 @@ const OWNS: Record<string, string[]> = {
   strip: ["height", ...FILL],
   rule: ["height", ...FILL],
   code: [...CORNER, ...FILL, ...PAD, ...TYPE, "color"],
+  "inline-code": INLINE_CODE,
   button: [...CORNER, ...FILL, ...borders(), ...PAD, ...TYPE, "color", "min-height"],
   "arrow-link": ["color", "text-decoration-line", "padding-top", "padding-bottom"],
   "arrow-link .hw-arrow": ["white-space", "font-family"],
@@ -152,6 +168,7 @@ const OWNS: Record<string, string[]> = {
   "prose h1": ["font-size", "line-height"],
   "prose h2": [...borders(["top"]), "padding-top", "font-size", "line-height"],
   "prose h3": ["font-size", "font-weight", "line-height"],
+  "prose :not(pre) > code": INLINE_CODE,
 };
 
 /** The element files' rules, every @import dropped: the reference's only styles. */
@@ -251,7 +268,7 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   // every pair.
   const found = Object.entries(elements).flatMap(([element, selector]) =>
     [...document.querySelectorAll(selector)]
-      .filter((el) => !el.closest("[data-hw-reference], [data-hw-exception]"))
+      .filter((el) => !el.closest("[data-hw-reference], [data-hw-exception], [data-hw-shell]"))
       .map((el) => {
         const own = getComputedStyle(el);
         for (const t of tokens[element] ?? [])
@@ -343,7 +360,8 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       }
       diff(element, label(el), el, clone, list);
       for (const [key, props] of Object.entries(owns)) {
-        const [owner, part] = key.split(" ");
+        const [owner, ...rest] = key.split(" ");
+        const part = rest.join(" ");
         if (owner !== element || !part) continue;
         const [a, b] = [el.querySelector(part), clone.querySelector(part)];
         if (a && b) diff(element, `${label(el)} ${part}`, a, b, props);
@@ -367,14 +385,22 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
 
 export type PageResult = Awaited<ReturnType<typeof measurePage>>;
 
-/** One page's comparison, with its tiles, after `css` is added; `lightOnly` checks day tokens only. */
-export async function measurePage(browser: Browser, url: string, css = "", lightOnly = false) {
+/** One page's comparison, with its tiles, after `css` is added; `lightOnly` checks day tokens only,
+ * and a page starting with / is a path on the served `site`. */
+export async function measurePage(
+  browser: Browser,
+  url: string,
+  css = "",
+  lightOnly = false,
+  site?: URL,
+) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: 1280, height: 900 });
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
-    await page.goto(toUrl(url), { waitUntil: "networkidle0" });
+    await page.goto(toUrl(url, site), { waitUntil: "networkidle0" });
     if (css) await page.addStyleTag({ content: css });
+    await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     const out = await page.evaluate(compare, [
       elementCss(),
@@ -584,12 +610,14 @@ if (import.meta.main) {
   }
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
   const browser = await launch();
+  const server = config.site ? serve(config.site) : undefined;
   const results: PageResult[] = [];
   try {
     for (const url of config.pages)
-      results.push(await measurePage(browser, url, "", config.lightOnly === true));
+      results.push(await measurePage(browser, url, "", config.lightOnly === true, server?.url));
   } finally {
     await browser.close();
+    await server?.stop(true);
   }
   const rendered = results.flatMap((r) => r.findings);
   const empty = config.pages.filter((_, i) => !results[i]!.seen.length);

@@ -65,6 +65,22 @@ test("flags a count above its entry, an unlisted file, a missing reason and a gr
   expect(violations({}, allow, { "a.css": { ...zero, hex: 1, reason: "r" } })).toHaveLength(1);
 });
 
+test("a partner's mark may be listed against HEAD; a partner entry needs a name, a reason and an SVG", () => {
+  const logo = "public/conf-logo.svg";
+  const partner: Allowlist = { [logo]: { partner: "A Conference", reason: "r" } };
+  expect(violations({ [logo]: { ...zero, hex: 32, rgb: 2 } }, partner, {})).toEqual([]);
+  // Control: the same entry without its partner is a grown entry.
+  expect(
+    violations({ [logo]: { ...zero, hex: 32 } }, { [logo]: { ...zero, hex: 32, reason: "r" } }, {}),
+  ).toHaveLength(1);
+  // Only an SVG named for its owner is a partner's mark.
+  const note = { "a.ts": { ...zero, hex: 1, partner: "A Conference", reason: "r" } };
+  expect(violations({ "a.ts": { ...zero, hex: 1 } }, note, {})).toHaveLength(2);
+  const unnamed = { [logo]: { ...zero, hex: 32, partner: " ", reason: "r" } };
+  expect(violations({ [logo]: { ...zero, hex: 32 } }, unnamed, {})).toHaveLength(2);
+  expect(tighten({ [logo]: { ...zero, hex: 30 } }, partner)).toEqual(partner);
+});
+
 test("tightening lowers and drops entries, never raises or adds", () => {
   expect(tighten({ "a.css": { ...zero, hex: 5 }, "b.css": { ...zero, hex: 1 } }, allow)).toEqual(
     allow,

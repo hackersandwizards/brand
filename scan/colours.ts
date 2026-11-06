@@ -10,8 +10,10 @@
 // that grew against HEAD: the allowlist may only shrink. Where the working tree changes the brand
 // pin package.json holds at HEAD, an entry may also grow to what this scanner finds in the file as
 // committed at HEAD, so a pin raise lists a newer scanner's findings in the same commit while
-// anything the consumer's own new code adds still fails. Prints every built-in exception it applied
-// with the number of files it skipped.
+// anything the consumer's own new code adds still fails. An entry on an SVG naming a `partner`, the
+// third party whose mark it is (a conference's or a client's logo), keeps that file out of the
+// counts with its reason, and may be added in any commit: its colours are its owner's. Prints every built-in exception
+// it applied with the number of files it skipped, and every partner mark it allowed.
 // Usage: brand-colours [--tighten]
 //   --tighten  lowers every entry to today's count and drops entries at zero; creates the
 //              allowlist from today's counts where none exists. Raises an entry, or adds one with
@@ -34,7 +36,10 @@ export type Counts = {
   shadow: number;
 };
 export const METRICS = ["hex", "tokenHex", "font", "palette", "rgb", "radius", "shadow"] as const;
-export type Allowlist = Record<string, Partial<Counts> & { reason: string }>;
+export type Allowlist = Record<string, Partial<Counts> & { reason: string; partner?: string }>;
+/** Whether an entry is a partner's mark: an SVG naming the third party it belongs to. */
+export const isPartner = (file: string, e: Allowlist[string] | undefined) =>
+  Boolean(e?.partner?.trim()) && extname(file) === ".svg";
 export const ALLOWLIST = "brand-colours.json";
 
 const palette = new Set<string>([...Object.values(colors), "#ffffff", "#000000"]);
@@ -306,12 +311,15 @@ export const violations = (
   const out: string[] = [];
   for (const [file, counts] of Object.entries(files))
     for (const k of METRICS) {
+      if (isPartner(file, allow[file])) break;
       const allowed = allow[file]?.[k] ?? 0;
       if (counts[k] > allowed) out.push(`${file}: ${k} ${counts[k]}, allowed ${allowed}`);
     }
   for (const [file, e] of Object.entries(allow)) {
     if (!e.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
-    if (committed)
+    if (e.partner !== undefined && !isPartner(file, e))
+      out.push(`${ALLOWLIST}: ${file}: "partner" names a third party's mark, an SVG, by name`);
+    if (committed && !isPartner(file, e))
       for (const k of METRICS)
         if ((e[k] ?? 0) > Math.max(committed[file]?.[k] ?? 0, ceiling[file]?.[k] ?? 0))
           out.push(
@@ -329,6 +337,10 @@ export const tighten = (
   const next: Allowlist = {};
   for (const [file, counts] of Object.entries(files)) {
     const prior = allow?.[file];
+    if (isPartner(file, prior)) {
+      next[file] = prior!;
+      continue;
+    }
     const limit = (k: (typeof METRICS)[number]) =>
       allow ? Math.max(prior?.[k] ?? 0, ceiling[file]?.[k] ?? 0) : Infinity;
     const c = Object.fromEntries(METRICS.map((k) => [k, Math.min(limit(k), counts[k])])) as Counts;
@@ -482,6 +494,9 @@ if (import.meta.main) {
   const { files, skipped } = scanTree();
   const report = exceptionReport("brand-colours", skipped);
   if (report) console.log(report);
+  for (const [file, e] of Object.entries(allow ?? {}))
+    if (isPartner(file, e))
+      console.log(`brand-colours: partner mark ${file} (${e.partner}): ${e.reason}`);
   // Only a file holding more than the committed list allows is read at HEAD.
   const ceiling: Record<string, Counts> = {};
   if (committed && pinChange("brand-colours"))
