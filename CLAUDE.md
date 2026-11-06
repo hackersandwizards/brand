@@ -75,7 +75,7 @@ data or secret.
 ## Commands
 
 - `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
-  structure, coupling, unique names, confidential, the unit tests, the catalog build and the item
+  structure, coupling, unique names, spaces, confidential, history, licenses, the unit tests, the catalog build and the item
   check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements`
   over every story) and `check:tokens` (the freshness of `generated/`). No hook runs it:
   `.githooks/pre-commit` runs `bun run check:staged`, scaffolding's `check-staged`: `gitleaks`,
@@ -94,7 +94,7 @@ data or secret.
   Other repos take it from the package and never commit a copy of a brand file.
 - A comment in a file the package exports states how to use the token or element, never its
   history: no score, review, date, decision or item id or person. The evidence goes to the item,
-  `docs/agent-work/` or the commit message. `test/history.test.ts` fails on one.
+  `docs/agent-work/` or the commit message. scaffolding's `history` gate step fails on one.
 - Nothing about another repo goes on the portal: each system shows its components on its own
   design-system page, whose URL `catalog/portal.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with

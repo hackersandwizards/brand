@@ -2,6 +2,7 @@
 kind: decision
 status: open
 priority: 1
+order: 16
 area: copy
 owner: Benedikt
 evidence: "Blind review 06.11., six rounds, five personas, Claude and Codex; every candidate's scores in docs/agent-work/2026-11-06-new-claim.md. Score: mean of round 6's second pass, claim EN and DE and home H1 EN and DE; noise 0.8 on the claim's panel mean, 1.0 on the home H1's."

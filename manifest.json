@@ -190,15 +190,15 @@
     },
     {
       "path": "logos/lockup.svg",
-      "sha256": "d7f394d1d3700c948770dd939b7b55bada7769563df21975d971f8a24260774b"
+      "sha256": "42baf3a7b64a71e6aba2ca78cc103643759a0b22a814b70a85d2281199a3f430"
     },
     {
       "path": "logos/lockup-screen.svg",
-      "sha256": "4ca8e665fe9c86eb46a5c9d217be0e4be261307ad63ab8d78ecd479c4f6e6aa2"
+      "sha256": "106cde5f2370e0b0756d4371d53610da28c56294ae22bbd9aeda60787b89e07d"
     },
     {
       "path": "logos/lockup-screen-night.svg",
-      "sha256": "2e3887558ee3c6adfb57dc5597760293b3cc3608f48b1424682e8e52cf4788e9"
+      "sha256": "3ed2bcd379e23154fa7a51f9d710c923eaa0850094eede807d8e79552cda05d8"
     },
     {
       "path": "logos/lockup.png",
@@ -206,7 +206,7 @@
     },
     {
       "path": "logos/lockup-night.svg",
-      "sha256": "fa53e08649d0e976be4123be55e81185ff111c80cca6694aecbdbebc434b0d68"
+      "sha256": "7c9c93da0518e2a0e4bc1f3bc8ee7ca9fcf760daf0ffaeb88878a9f595c12a57"
     },
     {
       "path": "logos/lockup-night.png",
@@ -214,7 +214,7 @@
     },
     {
       "path": "logos/lockup-outline.svg",
-      "sha256": "cc205aa53886ace3d7a60f06984ce16e24cf3fa47776cced48d29171d23d8ceb"
+      "sha256": "650dfdf4e78da713c8ced792c1e90b4c7193e65e746eff4fd47d9833e7ab3789"
     },
     {
       "path": "logos/lockup-outline.png",
