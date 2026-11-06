@@ -9,7 +9,7 @@ recommended: b1
 options:
   - key: b1
     label: "Agents bring the speed. Flow takes practice. / Agenten bringen das Tempo. Flow braucht Übung."
-    detail: "Round 6: claim EN 74.8, DE 74.8, first in both languages, 2.8 to 5.4 ahead of n8 and r4; as home H1 over the hero visual EN 76.7, DE 77.2, fifth, 5.1 and 8.0 behind q6. Ahead of f7 by 4.8 to 7.4 in both tests. One meaning in both languages. Flow stays the claim's word, capitalised in English too."
+    detail: "Round 6: claim EN 74.8, DE 74.8, first in both languages, 2.8 to 5.4 ahead of n8 and r4; as home H1 over the hero visual EN 76.7, DE 77.2, fifth, 5.1 and 8.0 behind q6. Ahead of f7 by 4.8 to 7.4 in both tests. Level with q6 over both tests within the noise, and recommended for its lead as the claim and its one meaning in both languages. Flow stays the claim's word, capitalised in English too."
     score: 76
     noise: 0.9
   - key: q6
@@ -19,7 +19,7 @@ options:
     noise: 0.9
   - key: f7
     label: "Agents bring the speed. Flow takes training. / Agenten bringen das Tempo. Flow braucht Training."
-    detail: "Round 5's recommendation. Round 6: claim EN 70.0, DE 69.5; as home H1 EN 70.5, DE 69.8. The clearest of these lines (7.8 as the claim), below b1 in both tests."
+    detail: "Round 5's recommendation. Round 6: claim EN 70.0, DE 69.5; as home H1 EN 70.5, DE 69.8. Clearer than b1 (7.8 against 6.5 as the claim), below it in both tests."
     score: 70
     noise: 0.9
   - key: r4
@@ -61,8 +61,8 @@ the panel mean):
 | b1: Agents bring the speed. Flow takes practice.      | 74.8 | 74.8 | 71.4 / 70.8    | 78.2 / 78.8   | 6.5   | 8.2      | 5.2         | 7.8             |
 | n8: Agents bring the speed. We bring the calm.        | 72.0 | 70.0 | 70.8 / 69.1    | 73.3 / 71.0   | 5.5   | 6.3      | 6.3         | 8.9             |
 | r4: You lead the agents. We show you how.             | 71.5 | 69.4 | 63.8 / 61.5    | 79.1 / 77.3   | 8.3   | 8.1      | 4.0         | 6.2             |
-| f7: Agents bring the speed. Flow takes training.      | 70.0 | 69.5 | 63.1 / 61.3    | 76.9 / 77.7   | 7.8   | 7.3      | 4.5         | 6.6             |
 | q6: Agents bring the speed. Flow needs teams in tune. | 66.2 | 73.5 | 64.1 / 71.0    | 68.4 / 76.0   | 6.5   | 7.8      | 5.6         | 7.8             |
+| f7: Agents bring the speed. Flow takes training.      | 70.0 | 69.5 | 63.1 / 61.3    | 76.9 / 77.7   | 7.8   | 7.3      | 4.5         | 6.6             |
 | The current claim                                     | 26.3 | 23.1 | 27.8 / 23.8    | 24.8 / 22.5   | 4.3   | 2.0      | 3.0         | 2.7             |
 
 As the home H1 over the lead sentence and the running hero visual, at 1440 px and 375 px (noise
@@ -102,7 +102,7 @@ The reviewers' remaining gaps for b1, which a yes accepts:
 - Agents' speed is taken for granted.
 - Fit with the hero visual 7.1 against q6's 9.6: the visual shows roles lining up, the line names
   practice.
-- At 1440 px the home H1 breaks after "Flow", in both languages.
+- At 1440 px the home H1 breaks after "Flow", in both languages (measured in round 6's renders).
 
 ## What a yes changes
 
