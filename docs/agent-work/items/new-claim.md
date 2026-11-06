@@ -1,6 +1,9 @@
 ---
 kind: decision
-status: open
+status: decided
+decision: q6
+by: Benedikt
+quote: '"q6 ist super", then, asked where q6 should stand: "q6 überall"'
 priority: 1
 order: 16
 area: copy
