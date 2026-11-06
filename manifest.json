@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "c9e5ac27496414a526c7c21d382eedc8343b25ea7522d40bab07eac72fece468"
+      "sha256": "b687f3c0b4b26734b32211e4cd3d009bae15cd5648300d4e83f09490d45e52f8"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -262,7 +262,7 @@
     },
     {
       "path": "expert/header.css",
-      "sha256": "4ea0b52687caf535bae6eab9fd33fdf13cf20e29ac47286d69af8dd8d7bf929a"
+      "sha256": "12a5e041b163e8f15fc69c53e4867b473ad2d6dbc498295da28263a79ab8e95e"
     },
     {
       "path": "expert/select.css",
@@ -306,11 +306,15 @@
     },
     {
       "path": "expert/components/ThemeToggle.astro",
-      "sha256": "bf38714d11adbc04dd1347b43d5ebdd79b2cafd6a273d072882f99c5d119d0ab"
+      "sha256": "ff97071604a5d9395c70b9f7ce64839c0c9eb830c7341feba17ff615578aad65"
     },
     {
       "path": "expert/components/space-nav.ts",
       "sha256": "d022cd6a26046761ad2bd28c4b6f2485c0fe2be3f65f642c9f9996982be3fe4b"
+    },
+    {
+      "path": "expert/components/theme-icons.ts",
+      "sha256": "f14f6a6b2877a2610d127a7f4f30bf37d56b00dffca58fe58787144658d7bf7e"
     },
     {
       "path": "elements/callout.css",
@@ -330,7 +334,7 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "4cf9a534403131136a15d855c54ec3537566e8172f25a46dbec6f494b9539b34"
+      "sha256": "413cc4608757b16e24320f3aa7cf957ce59bb5fb778f8a4cc7b0ac8b5c7e303f"
     },
     {
       "path": "elements/elements.css",
@@ -422,7 +426,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "be240aa7d9dbe0d513e8037eb35529d81386cf0b8b2d15597a02af1d4dafce40"
+      "sha256": "03132e891202855e6f79cc7dc3fb4dea3ca71a30f49f59fe82fed77c29c7aa52"
     },
     {
       "path": "elements/row.css",

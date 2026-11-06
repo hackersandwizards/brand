@@ -156,7 +156,9 @@ the lockup at 2rem with the product name beside it, and a 96rem content width wi
 `header.css` holds it as plain CSS with its markup in the opening comment, so a static or generated
 page links or inlines it; an Astro app renders `expert/components/AppHeader.astro` with its nav in
 the slot; a React app writes the same markup. Each product keeps its own nav items; page content
-takes the same width with the class `hw-container`.
+takes the same width with the class `hw-container`. A control holding only an icon (theme, menu,
+search) is `hw-header-link` with `data-icon`: round, 36 px. `ThemeToggle.astro` is one; an app
+that renders no `.astro` takes its two icons from `expert/components/theme-icons.ts`.
 
 ### The catalog
 

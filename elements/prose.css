@@ -2,7 +2,7 @@
    on top of Tailwind Typography's prose, so a surface writes class="prose hw-prose". Headings step
    down to the app's page, heading and subheading sizes so they nest under the page title, an h2
    opens with a hairline, paragraphs in a list item lose their margin, inline code is the inline
-   code element (inline-code.css), list bullets are the brand marker (marker.css), and a task
+   code element (inline-code.css, its rule repeated here outside any layer), list bullets are the brand marker (marker.css), and a task
    item's checkbox is painted like a field, ticked in the accent. Typography's colours point at the
    theme roles, so night follows the page. Tables, code blocks and quotes are the hw-* elements, marked not-prose, which the block
    only spaces. Unlike the other elements these rules sit in no layer: Typography's prose rules come
@@ -10,8 +10,6 @@
 
    Settings:
      --hw-prose-check-x  the checkbox's offset from its item's start */
-
-@import "./inline-code.css";
 
 .hw-prose {
   overflow-wrap: break-word;
@@ -117,5 +115,23 @@
 @scope ([data-theme="dark"]) to ([data-theme="light"]) {
   .hw-prose li.task-list-item input[type="checkbox"]:checked {
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
+  }
+}
+.hw-prose :not(pre) > code {
+  border-radius: var(--hw-corner-sm, var(--radius-sm));
+  padding: 0.0625em 0.25em;
+  font-family: var(--type-code-family);
+  font-size: var(--text-ui, 0.875em);
+  font-weight: 400;
+  font-variant-ligatures: none;
+  background-color: color-mix(in srgb, var(--color-ink) 7%, transparent);
+}
+.hw-prose :not(pre) > code::before,
+.hw-prose :not(pre) > code::after {
+  content: none;
+}
+@scope ([data-theme="dark"]) to ([data-theme="light"]) {
+  .hw-prose :not(pre) > code {
+    background-color: color-mix(in srgb, var(--muted, var(--color-night-2)) 70%, transparent);
   }
 }

@@ -20,6 +20,7 @@
        </a>
        <nav class="hw-header-nav" aria-label="Main">
          <a class="hw-header-link" href="..." aria-current="page">...</a>
+         <button class="hw-header-link" data-icon type="button" aria-label="..."><svg>...</svg></button>
          <span class="hw-header-sep"></span>
        </nav>
      </div>
@@ -173,6 +174,19 @@ html[data-theme="dark"] .hw-header-logo-night {
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.15s, background-color 0.15s;
+}
+
+/* An icon-only link or button (theme, menu, search) is round, per the shape rule: data-icon on
+   it, its svg the only content. 36 px across with a 20 px icon, at every width. */
+.hw-header-link[data-icon] {
+  padding: 0.5rem;
+  border-radius: var(--radius-pill);
+}
+
+.hw-header-link[data-icon] > svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
 }
 
 /* The nav clips on every side (overflow-x makes overflow-y auto too), so the ring goes inside. */

@@ -1,11 +1,13 @@
-/* Inline code: a command, a path or a name inside a line of text, in the code role on the muted
-   fill with the small corner (a mark inside a line, tokens.css), no ligatures as the code block,
-   at the size of the app's UI text, else 0.875em of the line around it; split by a line break,
-   each piece keeps its corner and padding. The side padding is a quarter em, so a comma after the
-   chip sits with it: in a blind panel of a verifier page (2026-11-06, overall of 10, noise 0.35),
-   0.25em scored 8.5, 0.2em 8.1, 0.375em 7.3. The prose block's inline code is this element too: its
-   rule repeats the class's outside any layer, since inside prose Tailwind Typography's code rules
-   come in the utilities layer, which a layered rule would lose to.
+/* Inline code: a command, a path or a name inside a line of text, in the code role at regular
+   weight on a light ink tint with the small corner (a mark inside a line, tokens.css), no
+   ligatures as the code block, at the size of the app's UI text, else 0.875em of the line around
+   it. A quarter em at the sides, so a comma after the chip sits with it, and a sixteenth above and
+   below, so the tint stays clear of the lines around it. Split by a line break, the padding stays
+   at the chip's two ends: repeated at the break, it pushed a wrapped name past a 288 px column.
+   Blind panel on two website articles at 320 and 1440 px (2026-11-06, overall of 10, three
+   personas, Claude and Codex, noise 0.3): this 8.8, the site's 1px x 0.3em at 0.875rem 8.4, the
+   former 500 weight with 0.125em padding 8.0. The prose block's inline code is this element too
+   (prose.css).
 
    Settings:
      --hw-corner-sm  the corner, the small corner at the medium's size */
@@ -13,46 +15,16 @@
 @layer components {
   .hw-inline-code {
     border-radius: var(--hw-corner-sm, var(--radius-sm));
-    padding: 0.125em 0.25em;
+    padding: 0.0625em 0.25em;
     font-family: var(--type-code-family);
     font-size: var(--text-ui, 0.875em);
-    font-weight: 500;
+    font-weight: 400;
     font-variant-ligatures: none;
-    box-decoration-break: clone;
-    background-color: color-mix(
-      in srgb,
-      var(--muted, color-mix(in srgb, var(--color-ink) 7%, var(--color-bg))) 70%,
-      transparent
-    );
+    background-color: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-inline-code {
       background-color: color-mix(in srgb, var(--muted, var(--color-night-2)) 70%, transparent);
     }
-  }
-}
-
-.hw-prose :not(pre) > code {
-  border-radius: var(--hw-corner-sm, var(--radius-sm));
-  padding: 0.125em 0.25em;
-  font-family: var(--type-code-family);
-  font-size: var(--text-ui, 0.875em);
-  font-weight: 500;
-  font-variant-ligatures: none;
-  box-decoration-break: clone;
-  background-color: color-mix(
-    in srgb,
-    var(--muted, color-mix(in srgb, var(--color-ink) 7%, var(--color-bg))) 70%,
-    transparent
-  );
-}
-.hw-prose :not(pre) > code::before,
-.hw-prose :not(pre) > code::after {
-  content: none;
-}
-/* Night: the muted fill is night-2. */
-@scope ([data-theme="dark"]) to ([data-theme="light"]) {
-  .hw-prose :not(pre) > code {
-    background-color: color-mix(in srgb, var(--muted, var(--color-night-2)) 70%, transparent);
   }
 }

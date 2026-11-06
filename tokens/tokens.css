@@ -44,12 +44,9 @@
   --color-purple: #9333ea;
   --color-purple-light: color-mix(in srgb, var(--color-purple) 40%, white);
   --color-ampersand: #7c849c;
-  /* Hero label of a section without its own colour: 9.3:1 on night. */
-  --color-ampersand-light: color-mix(
-    in srgb,
-    var(--color-ampersand) 60%,
-    white
-  );
+  /* Hero label of a section without its own colour: 9.3:1 on night. Ampersand 60 % on white,
+     written out: night.css sets ampersand from it, so a mix of ampersand would loop. */
+  --color-ampersand-light: #b0b5c4;
   --color-green: #4ade80;
   --color-green-dark: #15803d;
   --color-amber: #f59e0b;

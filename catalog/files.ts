@@ -1,7 +1,7 @@
-// The tracked files the portal links (logos/, applications/, press/, generated/, tokens/, expert/
-// and the rest), served beside it: in dev from the working tree, in the build copied into dist/.
-// Dot folders, this app's own folder and the print masters (logos/*.tif) stay out, as the portal
-// links none of them. On GitHub Actions the build first pulls the LFS files .lfsconfig keeps from a
+// The tracked brand files, served beside the portal, which links them: in dev from the working
+// tree, in the build copied into dist/. Only the brand folders: the repo's code, tests and docs
+// stay out, as a test copied into dist/ runs again under a bare `bun test`. The print masters
+// (logos/*.tif) stay out too, as the portal links none of them. On GitHub Actions the build first pulls the LFS files .lfsconfig keeps from a
 // clone and fails on any still a pointer, so the published page never shows one.
 import type { AstroIntegration } from "astro";
 import { spawnSync } from "node:child_process";
@@ -16,9 +16,20 @@ const git = (args: string[]) => {
   if (run.status !== 0) throw new Error(`git ${args.join(" ")}: ${run.stderr}`);
   return run.stdout;
 };
+const BRAND = [
+  "applications",
+  "clients",
+  "elements",
+  "expert",
+  "generated",
+  "logos",
+  "press",
+  "tokens",
+  "verbal",
+];
 /** The tracked files the site serves, as repository paths. */
 export const served = () =>
-  git(["ls-files", "-z", "--", ":!:.*", ":!:**/.*", ":!:catalog/**", ":!:logos/*.tif"])
+  git(["ls-files", "-z", "--", ...BRAND, ":!:**/.*", ":!:logos/*.tif"])
     .split("\0")
     .filter(Boolean);
 

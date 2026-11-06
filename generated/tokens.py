@@ -16,7 +16,7 @@ TOKENS = {
     "--color-purple": "#9333ea",
     "--color-purple-light": "color-mix(in srgb, var(--color-purple) 40%, white)",
     "--color-ampersand": "#7c849c",
-    "--color-ampersand-light": "color-mix(in srgb, var(--color-ampersand) 60%, white)",
+    "--color-ampersand-light": "#b0b5c4",
     "--color-green": "#4ade80",
     "--color-green-dark": "#15803d",
     "--color-amber": "#f59e0b",
