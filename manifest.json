@@ -114,7 +114,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "dbd3f6bf5b20fe59fb7628aa4979127bc1a2dda302b1077b0f9ff7f5e13e3f2d"
+      "sha256": "7067d09f53d80b51081d3db7fabdd5ab1f0c129528a4b0410abb391269f587b6"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -282,7 +282,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "4b6a8dcb2ff7b5ba6d33c04d4945af02acab22afc7d9a3c2a34a503cb3848e01"
+      "sha256": "297650f7c340bf6de4628591efaf018b7a9aed6bb49f0ea5994afede64be5c38"
     },
     {
       "path": "expert/header.css",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "03574c619814455e84cca32be8cbe9c43b7928404d7d3271816da4e11b1179a5"
+      "sha256": "33520c2a8f72d7a51d7e844e83458aec9e4ec830d29e7fbaf18a1ebf3424abdb"
     },
     {
       "path": "elements/label-box.css",
@@ -486,7 +486,7 @@
     },
     {
       "path": "tokens/night.css",
-      "sha256": "0ddb7fed6eb3a11f1a95f4f55a040adc7baae12d3b039e809ea48c1479ea2ec7"
+      "sha256": "253367d0e7120b3f3799fe204c837443733f8e481bf8dbbd6d8d53f22f67ed65"
     },
     {
       "path": "tokens/stage.css",

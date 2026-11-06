@@ -103,8 +103,7 @@
      A category (a type, a format, a group) takes teal, purple or ampersand, in that order, and a
      set with more values leaves the rest neutral. Amber, green and red only ever mean their state,
      and factory only the Software Factory area: its 15 % wash is ΔE 4.1 from amber's and 4.9 from
-     red's (teal to purple 16.2). A priority is a state too: P0 red, P1 amber, P2 neutral, P3 and
-     below an outline (elements/pill.css). Blind panel 2026-11-06 on an app table, a work list, an
+     red's (teal to purple 16.2). A priority is a state too (elements/pill.css, data-priority). Blind panel 2026-11-06 on an app table, a work list, an
      agenda and the website's training list, four personas, Claude and Codex, two runs, overall of
      10: this rule 8.6, categories without a hue 7.0, categories in every hue with one priority
      scale 5.9, the state before 4.8; noise 0.47. */

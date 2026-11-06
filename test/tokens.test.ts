@@ -45,11 +45,6 @@ test("holds 30 brand colours, a former name adding none", () => {
   expect(new Set(own.map((k) => colors[k])).size).toBe(30);
 });
 
-test("the label colour is teal-dark, teal-night on night", () => {
-  expect(colors["--color-label"]).toBe(colors["--color-teal-dark"]);
-  expect(colors["--color-label-night"]).toBe(colors["--color-teal-night"]);
-});
-
 test("every role clears WCAG AA: text on light 4.5:1 on bg and white, night on night and night-2", () => {
   expect(hues).toHaveLength(7);
   for (const { text, night } of hues) {

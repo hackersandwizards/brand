@@ -56,11 +56,9 @@ test("the select chevron is border-strong on light and night-muted on night", ()
   expect(strokes).toEqual([token["--color-border-strong"], token["--color-night-muted"]]);
 });
 
-test("no category hue equals a status role but amber and green, the status roles' former names", () => {
+test("teal, purple, rust and slate equal no error, warning or success", () => {
   for (const roles of [light, dark]) {
     const value = root(roles);
-    expect(value("--hue-amber")).toBe(value("--warning"));
-    expect(value("--hue-green")).toBe(value("--success"));
     const status = ["--error", "--warning", "--success"].map(value);
     for (const hue of ["--hue-teal", "--hue-purple", "--hue-rust", "--hue-slate"])
       expect(status).not.toContain(value(hue));

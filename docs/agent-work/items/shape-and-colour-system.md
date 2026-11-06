@@ -28,3 +28,6 @@ and the priority pill (`hw-pill data-priority`). What stays open is in the consu
 5. website: TrainingList's third group takes ampersand, not amber-dark.
 6. mail: reads `--color-label` and `--color-label-night` from `tokens` instead of parsing
    `elements/label.css`.
+7. brand: once os, trainer-hub and website no longer use `hue-amber` or `hue-green`, remove the two
+   aliases from `expert/expert.css` in a major release; until then nothing fails a category that
+   still uses them.
