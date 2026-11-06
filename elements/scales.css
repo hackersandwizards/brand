@@ -37,9 +37,9 @@
   --hw-corner-sm: var(--radius-sm);
   --hw-frame-width: 1px;
   --hw-button-height: 2.75rem;
-  --hw-button-height-wide: 3rem;
+  --hw-button-height-wide: initial;
   --hw-button-pad: 0.5rem min(1.5rem, 24px);
-  --hw-button-size: var(--type-body-size);
+  --hw-button-size: initial;
   --hw-arrow-link-pad: 0.75rem;
   --hw-field-height: 3rem;
   --hw-field-pad: 1rem;
@@ -52,6 +52,11 @@
 }
 
 [data-hw-scale="dense"] {
+  /* The button at its own defaults (button.css), not a surrounding scale's. */
+  --hw-button-height: initial;
+  --hw-button-height-wide: initial;
+  --hw-button-pad: initial;
+  --hw-button-size: initial;
   --hw-label-size: 0.75rem;
   --hw-pill-size: 0.75rem;
   --hw-pill-pad: 0.0625rem 0.5rem;
@@ -107,6 +112,11 @@
 /* Paper is read printed and at about 70 % zoom on a laptop, where 1 pt is about 0.93 CSS px: lines
    take 1 pt in border-strong, the card's rule 3 pt, the strip 6 pt (documents, 2026-10-28). */
 [data-hw-scale="print"] {
+  /* The button at its own defaults (button.css), not a surrounding scale's. */
+  --hw-button-height: initial;
+  --hw-button-height-wide: initial;
+  --hw-button-pad: initial;
+  --hw-button-size: initial;
   --hw-label-size: var(--type-label-size);
   --hw-pill-size: var(--type-small-size);
   --hw-pill-pad: 2pt 7pt;

@@ -22,7 +22,7 @@ import { MARK } from "../applications/avatars/generate";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
-import { palettes, parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
+import { colorValue, palettes, parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
 import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
 
 const source = readFileSync(SOURCE, "utf8");
@@ -109,10 +109,7 @@ const tintCell = (base: string, p: number) => {
   const k = tintToken(base, p);
   return k
     ? colourCell(k.slice("--color-".length), "Hues")
-    : swatch(
-        hueMix(base, p),
-        resolveColors({ ...tokens, "--color-mix": hueMix(base, p) })["--color-mix"]!,
-      );
+    : swatch(hueMix(base, p), colorValue(tokens)(hueMix(base, p)));
 };
 const nightCell = (name: string, palette: string) =>
   name === "-"
@@ -191,7 +188,7 @@ const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div><p class="shape-demo"><span class="hw-pill">Remote</span> <span class="hw-icon-button">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
 <div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Square: a mark smaller than a line, a list marker or a colour swatch.</p></div>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
-<div><div class="shape-demo"><hr class="hw-rule" data-variant="bar"></div><p>A rule line under a title or over a block is teal; the gradient stays on the strip along the top edge.</p></div>
+<div><div class="shape-demo"><hr class="hw-rule" data-variant="bar" aria-hidden="true"></div><p>A rule line under a title or over a block is teal; the gradient stays on the strip along the top edge.</p></div>
 </div>`;
 
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));

@@ -14,7 +14,7 @@ export const DEMOS: Record<string, string> = {
   "focus-ring": `<button type="button" class="hw-pill" data-variant="outline">Tab hierher</button>`,
   "icon-button": `<button type="button" class="hw-icon-button" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" aria-label="Thema">${moon}</button> <button type="button" class="hw-icon-button" data-on="picture" aria-label="Abspielen">${play}</button>`,
   strip: `<div class="hw-strip"></div>`,
-  rule: `<h3 style="margin:0">Wie ein Agent arbeitet</h3><hr class="hw-rule" data-variant="bar"><p>Ein Block, über dem die Linie in voller Breite steht:</p><hr class="hw-rule"><hr class="hw-rule" data-hue="purple">`,
+  rule: `<h3 style="margin:0">Wie ein Agent arbeitet</h3><hr class="hw-rule" data-variant="bar" aria-hidden="true"><p>Ein Block, über dem die Linie in voller Breite steht:</p><hr class="hw-rule"><hr class="hw-rule" data-hue="purple">`,
   code: `<pre class="hw-code"><code>$ bun run check\n<span class="hw-code-comment"># 0 findings</span></code></pre> <pre class="hw-code" data-variant="panel"><code>$ claude --continue</code></pre>`,
   button: `<a class="hw-button" href="#elements">Training anfragen</a> <a class="hw-button" data-variant="secondary" href="#elements">Agenda ansehen</a>`,
   "arrow-link": `<a class="hw-arrow-link" href="#elements">Alle Trainings<span class="hw-arrow" aria-hidden="true">&nbsp;<span>→</span></span></a><br><a class="hw-arrow-link" data-tone="muted" href="#elements">Impressum<span class="hw-arrow" data-external aria-hidden="true">&nbsp;<span>→</span></span></a>`,

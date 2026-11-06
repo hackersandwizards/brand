@@ -186,7 +186,7 @@ padding and Tailwind utilities win.
 
 Every element two or more systems show lives in `elements/`, one plain-CSS file each: label,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
-strip, code block (and its panel), button, arrow link, field with button, facts list, segmented
+strip, accent rule, code block (and its panel), button, arrow link, field with button, facts list, segmented
 control, list row, breadcrumb, status box, dashed frame, key figure, prose block. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with

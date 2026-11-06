@@ -39,8 +39,8 @@ const hex = (c: number[]) =>
   "#" + c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");
 const NAMED: Record<string, string> = { white: "#ffffff", black: "#000000" };
 
-/** Every --color-* token as a hex, color-mix() resolved. */
-export const resolveColors = (tokens: Record<string, string>) => {
+/** A colour value as a hex, var() and color-mix() resolved against the tokens. */
+export const colorValue = (tokens: Record<string, string>) => {
   const value = (v: string): string => {
     v = v.trim();
     if (NAMED[v]) return NAMED[v];
@@ -55,6 +55,12 @@ export const resolveColors = (tokens: Record<string, string>) => {
     }
     throw new Error(`unresolvable colour ${v}`);
   };
+  return value;
+};
+
+/** Every --color-* token as a hex, color-mix() resolved. */
+export const resolveColors = (tokens: Record<string, string>) => {
+  const value = colorValue(tokens);
   return Object.fromEntries(
     Object.entries(tokens)
       .filter(([k]) => k.startsWith("--color-"))

@@ -1,10 +1,12 @@
 /* The accent rule: a line in teal that closes a title or opens a block, as a chapter title's short
    bar, a cover's bar under its figures, or the line on top of a card or a part. Teal on day,
    teal-night on night; data-hue="purple" where the block it marks carries purple (a second part,
-   a result). data-variant="bar" is the short bar under a title. The brand gradient stays on the
-   strip (strip.css) and nowhere else: in a blind panel on a handout, an offer, a readout cover and
-   a slide (2026-11-06, overall of 10, noise 0.5), teal on every rule scored 8.4, the gradient on
-   every rule 7.0, the gradient on titles with teal in content 6.9, the mixed state 5.1.
+   a result). data-variant="bar" is the short bar under a title, decoration only: aria-hidden="true"
+   on it, so a screen reader announces no separator between a heading and its text. The brand
+   gradient stays on the strip (strip.css) and nowhere else: in a blind panel on a handout, an
+   offer, a readout cover and a slide (2026-11-06, overall of 10, noise 0.5), teal on every rule
+   scored 8.4, the gradient on every rule 7.0, the gradient on titles with teal in content 6.9,
+   the mixed state 5.1.
 
    Settings (scales.css sets them per medium):
      --hw-rule-accent  the line's thickness

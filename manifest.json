@@ -298,7 +298,7 @@
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "5c858e89299a20f931620745d18ec15362ad268400ec59121e51848d46cc9e7a"
+      "sha256": "db8203aa044741a3e1e4de0f92e993c63aeb29c2d4be7032567ec647cd43e32b"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "32f39cdb8f16ea648c82a1f074a942ec2cda04972588017651a597fe112ba9a0"
+      "sha256": "0924f6b19ed670266c82b8e282b410861f67d8089a215573d5452e51ff136416"
     },
     {
       "path": "elements/strip.css",
@@ -422,7 +422,7 @@
     },
     {
       "path": "elements/rule.css",
-      "sha256": "9083e995114b0dfe652be40e3a446c9103024fa53150ab95e99735fa996a4543"
+      "sha256": "c24eac59a8261cd40fcf77be2630bc8e9e5450e087aa3c5421ddaceb1fb90cda"
     },
     {
       "path": "elements/segmented.css",

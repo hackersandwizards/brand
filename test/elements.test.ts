@@ -77,6 +77,7 @@ const DRIFT: Record<string, string> = {
   "focus-ring": ".hw-focus-ring :focus-visible { outline-width: 2px }",
   "icon-button": ".hw-icon-button { border-radius: 5px }",
   strip: ".hw-strip { height: 2px }",
+  rule: ".hw-rule { background: linear-gradient(90deg, #1a7285, #9333ea) }",
   code: ".hw-code { background: #24292e }",
   button: ".hw-button { border-radius: 5px }",
   "arrow-link": ".hw-arrow-link { color: var(--color-teal) }",
