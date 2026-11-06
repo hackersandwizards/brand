@@ -14,9 +14,9 @@
    separate files under a unicode-range, cut from the Google Fonts release of
    the same versions, so a page without them loads nothing extra. Licences:
    the OFL files in fonts/. font-display: swap shows a screen the fallback
-   face until a face arrives; a PDF is unchanged, since Chrome's print waits
-   for every face the page requests, and the window's load waits for them
-   (measured 06.11.2026). */
+   face until a face arrives. A PDF was unchanged by it in Chrome 156, printed
+   at load, after network idle and with text added at load (measured
+   06.11.2026); a renderer that prints earlier awaits document.fonts.ready. */
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;

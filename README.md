@@ -36,7 +36,7 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes                                                                     |
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                                                                                       |
 | `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`                                                                        |
-| `@hackersandwizards/brand/static-fonts.css`               | `print.css`'s static faces alone, for a surface that renders PDFs without the print scale; `font-display: swap`    |
+| `@hackersandwizards/brand/static-fonts.css`               | `print.css`'s static faces alone, for a surface that renders PDFs without the print scale                          |
 | `@hackersandwizards/brand/fonts.json`                     | the same faces as data, for your `@font-face`, in their order; a face without `unicodeRange` takes every character |
 | `@hackersandwizards/brand/night.css`                      | night for light-token surfaces, below                                                                              |
 | `@hackersandwizards/brand/stage.css`                      | the slide engine's stage scale                                                                                     |

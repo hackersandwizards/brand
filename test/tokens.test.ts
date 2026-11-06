@@ -112,22 +112,25 @@ test("print.css's latin-ext faces take fonts.css's range, at every Latin weight"
   const range = Object.fromEntries(
     fonts.faces.filter((f) => f.unicodeRange).map((f) => [f.fontFamily, f.unicodeRange!]),
   );
-  const weights = (family: string, subset: string) =>
+  const weights = (subset: string) =>
     faces
-      .filter((f) => f.fontFamily === family && new RegExp(`-${subset}-\\d+-normal`).test(f.file))
-      .map((f) => f.fontWeight);
+      .filter((f) => new RegExp(`-${subset}-\\d+-normal`).test(f.file))
+      .map((f) => `${f.fontFamily} ${f.fontWeight}`);
   for (const f of faces.filter((f) => f.file.includes("-latin-ext-")))
     expect(f.unicodeRange).toBe(range[f.fontFamily]);
-  for (const family of ["Inter Variable", "JetBrains Mono Variable"])
-    expect(weights(family, "latin-ext")).toEqual(weights(family, "latin"));
+  expect(weights("latin")).not.toEqual([]);
+  expect(weights("latin-ext")).toEqual(weights("latin"));
+});
+
+// A live page shows the fallback face meanwhile, never blank text for up to 3 s.
+test("every screen and static face is font-display: swap", () => {
+  for (const f of [...fonts.faces, ...fontFaces(print)]) expect(f.fontDisplay).toBe("swap");
 });
 
 test("static-fonts.css holds print.css's faces, each url reaching its file from generated/", () => {
   const css = readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8");
   // fontFaces throws on a src outside url("fonts/…"), so a url the generator missed fails here.
   expect(fontFaces(css.replaceAll('url("../tokens/', 'url("'))).toEqual(fontFaces(print));
-  // A live page shows the fallback face meanwhile, never blank text for up to 3 s.
-  for (const f of fontFaces(print)) expect(f.fontDisplay).toBe("swap");
   for (const [, url] of css.matchAll(/url\("([^"]+)"\)/g))
     expect(existsSync(join(ROOT, "generated", url))).toBe(true);
 });
