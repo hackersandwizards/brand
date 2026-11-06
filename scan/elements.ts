@@ -28,7 +28,7 @@
 //    unless it carries the hw-* class, its name is an exception, or its file is one an exception
 //    lists in "files" (a stylesheet of the system's own medium, such as a slide deck's).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it, its
-//    data-hw-version this package's version), each exception a tile ([data-hw-exception="<name>"])
+//    data-hw-version this package's version, which a page built from an older brand fails), each exception a tile ([data-hw-exception="<name>"])
 //    and a reason, and every hub element a page shows is listed as used.
 //
 // Usage: brand-elements [--json]. Exits 1 on any finding, and on a page with no hub element (a zero

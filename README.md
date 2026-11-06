@@ -211,6 +211,7 @@ an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed
 
 Your design-system page shows each hub element you use as a tile,
 `<div data-hw-tile="card" data-hw-version="<brand version>">` holding the element in your medium,
+the version read from `@hackersandwizards/brand/package.json` when the page is built,
 marked in the page's own language, "from brand v<version>" on an English page and "aus brand
 v<version>" on a German one, with a link to the brand catalog, and each element you keep as your own
 in full with its reason, `<section data-hw-exception="<name>">`. List both in
@@ -244,7 +245,8 @@ same scale and theme (a reference beside it styled only by this package), on a C
 callout, note; quote) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts), or a component of such a name, without the
 `hw-*` class and without an exception of that name, on a used element without a tile or with a stale version, on an exception
-without a reason or a tile, and on a page showing no element.
+without a reason or a tile, and on a page showing no element. A stale version is a page built
+before the brand you installed: a `dist/` from before `bun install`, or a server started then.
 
 ### Night for a light-token surface
 

@@ -144,6 +144,19 @@ test("an element of the catalog shell is not measured and needs no uses entry", 
   );
 }, 60_000);
 
+// A tile reads its version from the installed package at build time, so only a page built before
+// the installed brand, a stale dist or a server started before `bun install`, says another one.
+test("a page built from an older brand fails coverage; one built from the installed brand passes", async () => {
+  const built = (version: string) =>
+    only(`<div data-hw-tile="label" data-hw-version="${version}">${DEMOS.label}</div>`);
+  const fresh = await measurePage(browser, file("fresh.html", built(own.version)));
+  expect(coverage({ pages: [], uses: ["label"] }, [fresh])).toEqual([]);
+  const stale = await measurePage(browser, file("stale.html", built("1.0.0")));
+  expect(coverage({ pages: [], uses: ["label"] }, [stale])).toEqual([
+    `label: the tile says brand v1.0.0, the installed package is v${own.version}; rebuild the page`,
+  ]);
+}, 60_000);
+
 // A closed fold draws its elements once opened, so they are measured open: a focusable in a shut
 // fold takes no focus and reads as having no ring.
 test("an element in a closed details is measured open; a header's menu stays shut", async () => {
