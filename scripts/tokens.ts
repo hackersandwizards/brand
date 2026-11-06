@@ -22,6 +22,18 @@ export const parseTokens = (css: string) => {
   return tokens;
 };
 
+/** The two palettes, tables in tokens.css's comments: the neutrals (job | day | night, "-" where
+ *  one ground alone has the job) and the hues (base | text on light | night | job). */
+export const palettes = (css: string) => {
+  const rows = (cols: number) =>
+    [...css.matchAll(/^ {5}(\S.*?)\s*(?:\*\/)?$/gm)]
+      .map((m) => m[1].split("|").map((c) => c.trim()))
+      .filter((r) => r.length === cols && /^[a-z -]+$/.test(r[0]) && /^[\w-]+$/.test(r[1]));
+  const neutrals = rows(3).map(([job, day, night]) => ({ job, day, night }));
+  const hues = rows(4).map(([base, text, night, job]) => ({ base, text, night, job }));
+  return { neutrals, hues };
+};
+
 export const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const hex = (c: number[]) =>
   "#" + c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");

@@ -1,14 +1,18 @@
-/* The button on a client surface (website, certificate verifier): the brand corner, a teal hairline,
+/* The button with words on it, on a client surface (website, certificate verifier, slides): the brand corner, a teal hairline,
    weight 500 in the body role. Filled teal with white text by default, the line and fill purple on
    hover; data-variant="secondary" is the outline, teal text on no fill, purple text and line on
    hover, and with data-filled a white fill, so it stands out on a tinted ground (night: the night
    ground). From 64rem it stands 48 px tall, below 44 px. On night the outline takes white at 40 % with
    white text and a 15 % purple wash on hover. The side padding keeps its px size under enlarged
-   text, so the label keeps its width on a phone. The apps' button is expert.css's btn-primary.
+   text, so the label keeps its width on a phone. The apps' button is expert.css's btn-primary, in
+   the same brand corner.
 
    Settings:
-     --hw-button-height  the least height below 64rem
-     --hw-button-pad     block and inline padding */
+     --hw-button-height       the least height below 64rem
+     --hw-button-height-wide  the least height from 64rem
+     --hw-button-pad          block and inline padding
+     --hw-button-size         the text size
+     --hw-card-corner         the corner, the brand corner at the medium's size */
 
 @layer components {
   .hw-button {
@@ -19,10 +23,10 @@
     align-items: center;
     justify-content: center;
     border: var(--hw-hairline, 1px) solid var(--color-teal);
-    border-radius: var(--radius-brand);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: var(--hw-button-pad, 0.5rem min(1.5rem, 24px));
     font-family: var(--type-body-family);
-    font-size: var(--type-body-size);
+    font-size: var(--hw-button-size, var(--type-body-size));
     font-weight: 500;
     line-height: var(--type-body-line-height);
     text-align: center;
@@ -53,7 +57,7 @@
   }
   @media (min-width: 64rem) {
     .hw-button {
-      min-height: 3rem;
+      min-height: var(--hw-button-height-wide, 3rem);
     }
   }
   @media (prefers-reduced-motion: reduce) {

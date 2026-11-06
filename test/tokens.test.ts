@@ -1,11 +1,12 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
+import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
 
 const css = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(css);
 const colors = resolveColors(tokens);
 const alias = (k: string) => /^var\(--color-[\w-]+\)$/.test(tokens[k]);
+const { neutrals, hues } = palettes(css);
 
 const luminance = (hex: string) => {
   const [r, g, b] = rgb(hex).map((v) => {
@@ -36,9 +37,8 @@ test("holds 30 brand colours, a former name adding none", () => {
 });
 
 test("every role clears WCAG AA: text on light 4.5:1 on bg and white, night on night and night-2", () => {
-  const rows = [...css.matchAll(/^\s*([\w-]+)\s*\|\s*([\w-]+)\s*\|\s*([\w-]+)\s*(?:\*\/)?$/gm)];
-  expect(rows).toHaveLength(7);
-  for (const [, , text, night] of rows) {
+  expect(hues).toHaveLength(7);
+  for (const { text, night } of hues) {
     for (const ground of ["bg", "white"])
       expect(contrast(colors[`--color-${text}`], colors[`--color-${ground}`])).toBeGreaterThan(4.5);
     for (const ground of ["night", "night-2"])
@@ -46,6 +46,21 @@ test("every role clears WCAG AA: text on light 4.5:1 on bg and white, night on n
         4.5,
       );
   }
+});
+
+test("the two palettes hold every brand colour, and name only brand colours", () => {
+  const cells = new Set([
+    ...neutrals.flatMap((r) => [r.day, r.night]),
+    ...hues.flatMap((r) => [r.base, r.text, r.night]),
+    "teal-light",
+    "purple-light",
+  ]);
+  cells.delete("-");
+  const own = Object.keys(colors)
+    .filter((k) => !alias(k))
+    .map((k) => k.replace("--color-", ""));
+  expect([...cells].sort()).toEqual(own.sort());
+  expect(neutrals.every((r) => r.day !== "-" || r.night !== "-")).toBe(true);
 });
 
 test("every code colour clears 4.5:1 on night and night-2", () => {

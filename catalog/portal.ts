@@ -22,7 +22,7 @@ import { MARK } from "../applications/avatars/generate";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
-import { parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
+import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
 import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
 
 const source = readFileSync(SOURCE, "utf8");
@@ -80,52 +80,66 @@ const scopeIds = (svg: string, prefix: string) =>
 // The search index: what a reader types, where it leads.
 const index: { t: string; k: string; h: string; x?: string }[] = [];
 
-const family = (k: string) =>
-  /night/.test(k)
-    ? "Night"
-    : /teal|purple|ampersand/.test(k)
-      ? "Brand"
-      : /green|amber|factory|red/.test(k)
-        ? "Status"
-        : "Surface and ink";
 // A former name is a token whose value is another colour token: it resolves, but adds no colour.
 const former = Object.keys(colors).filter((k) => /^var\(--color-[\w-]+\)$/.test(tokens[k]));
-const own = Object.entries(colors).filter(([k]) => !former.includes(k));
-const FAMILY_NAMES = ["Surface and ink", "Brand", "Status", "Night"];
-const colourGroups = FAMILY_NAMES.map((g) => {
-  const list = own.filter(([k]) => family(k) === g);
-  for (const [k, hex] of list)
-    index.push({ t: k, k: "colour", h: `colours/${slug(k)}`, x: `${hex} ${g}` });
-  return `<h3 class="label" id="family-${slug(g)}">${g}</h3><div class="grid">${list
-    .map(
-      ([k, hex]) =>
-        `<button class="swatch" id="${slug(k)}" data-copy="${esc(hex)}" title="Copy ${esc(hex)}"><span style="background:var(${k})"></span><strong>${esc(hex)}</strong>${code(k)}${
-          tokens[k] !== hex ? `<small>${esc(tokens[k])}</small>` : ""
-        }</button>`,
-    )
-    .join("")}</div>`;
-});
-
-const swatchCell = (name: string) =>
-  `<span class="sw" style="background:var(--color-${name})"></span>${code(name)}`;
-const tintCell = (base: string, p: number) =>
-  `<span class="sw" style="background:color-mix(in srgb, var(--color-${base}) ${p}%, white)"></span>${p} %`;
-const hues = [...source.matchAll(/^\s*([\w-]+)\s*\|\s*([\w-]+)\s*\|\s*([\w-]+)\s*(?:\*\/)?$/gm)];
-const roleRows = hues.map(([, base, text, night]) => [
-  swatchCell(base),
-  swatchCell(text),
-  `<span class="night-cell">${swatchCell(night)}</span>`,
-  tintCell(base, 7),
-  tintCell(base, 40),
-]);
+const { neutrals, hues } = palettes(source);
 const chartKeys = Object.keys(tokens).filter((k) => k.startsWith("--chart-"));
-const chart = chartKeys.map((k) => swatchCell(tokens[k].match(/--color-([\w-]+)/)![1]));
-const rolesHtml = `<h3 class="label" id="roles">Roles</h3>
-<p>Each hue has a base, a text colour on light, one colour on night, and two tints. Text on light clears 4.5:1 on bg and white, night clears 4.5:1 on night and night-2.</p>
-${table(["Base", "Text on light", "Night", "Tint 7 %", "Tint 40 %"], roleRows)}
-<h3 class="label" id="chart">Chart order</h3>
-<p>Series take this order, ${code("--chart-1")} to ${code(`--chart-${chart.length}`)}; on night each takes its hue's night colour.</p>
-<ol class="chart">${chart.map((c) => `<li>${c}</li>`).join("")}</ol>
+// The chart series a hue gives, by its base or its text colour (amber and green chart dark).
+const chartOf = (...names: string[]) =>
+  chartKeys.find((k) => names.some((n) => tokens[k] === `var(--color-${n})`));
+// A hue's tint on white, mixed in sRGB like the browser; teal and purple carry their 40 % as -light.
+const hueTint = (base: string, p: number) =>
+  "#" +
+  rgb(colors[`--color-${base}`]!)
+    .map((c) =>
+      Math.round((c * p + 255 * (100 - p)) / 100)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("");
+// A colour cell: a button that copies the hex. A colour in a second cell (muted, a hue that is its
+// own text colour) keeps its anchor and search entry on the first.
+const anchored = new Set<string>();
+const swatch = (fill: string, hex: string, label = "", id = "") =>
+  `<button class="swatch"${id} data-copy="${esc(hex)}" title="Copy ${esc(hex)}"><span style="background:${fill}"></span>${label}<small>${esc(hex)}</small></button>`;
+const cell = (name: string, palette: string) => {
+  if (name === "-") return `<span class="meta">none</span>`;
+  const k = `--color-${name}`;
+  const first = !anchored.has(k);
+  anchored.add(k);
+  if (first)
+    index.push({ t: k, k: "colour", h: `colours/${slug(k)}`, x: `${colors[k]} ${palette}` });
+  return swatch(`var(${k})`, colors[k]!, code(name), first ? ` id="${slug(k)}"` : "");
+};
+const tintCell = (base: string, p: number) =>
+  p === 40 && ["teal", "purple"].includes(base)
+    ? cell(`${base}-light`, "Hues")
+    : swatch(`color-mix(in srgb, var(--color-${base}) ${p}%, white)`, hueTint(base, p));
+const night = (name: string, palette: string) =>
+  name === "-" ? cell(name, palette) : `<span class="night-cell">${cell(name, palette)}</span>`;
+const neutralRows = neutrals.map((r) => [
+  `<strong>${esc(r.job)}</strong>`,
+  cell(r.day, "Neutrals"),
+  night(r.night, "Neutrals"),
+]);
+const hueRows = hues.map((r) => {
+  const series = chartOf(r.base, r.text);
+  return [
+    cell(r.base, "Hues"),
+    esc(r.job),
+    cell(r.text, "Hues"),
+    night(r.night, "Hues"),
+    tintCell(r.base, 7),
+    tintCell(r.base, 40),
+    series ? `${code(series)} ${code(tokens[series]!.slice(12, -1))}` : "",
+  ];
+});
+const coloursHtml = `<p>Two palettes hold every brand colour. The neutrals build every page, by day and by night; the hues carry meaning. Copy a hex with a click.</p>
+<h3 class="label" id="neutrals">Neutrals</h3>
+${table(["Job", "Day", "Night"], neutralRows)}
+<h3 class="label" id="hues">Hues</h3>
+<p>Text on day clears 4.5:1 on bg and white, night clears 4.5:1 on night and night-2. A wash is the hue at 7 % on white, a tint at 40 %. Chart series take the hues in ${code("--chart-*")} order, each the colour named by day and its hue's night colour by night.</p>
+${table(["Hue", "Job", "Text on day", "Night", "Wash 7 %", "Tint 40 %", "Chart"], hueRows)}
 ${former.length ? `<p class="meta">Former names, resolving to their successor: ${former.map((k) => `${code(k)} → ${code(tokens[k].slice(4, -1))}`).join(", ")}.</p>` : ""}`;
 
 const roleNames = [
@@ -171,9 +185,12 @@ const tokensHtml = tokenKinds
 const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
 const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div class="rules">
-<div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}, goes on every surface large enough to show it at its full value.</p></div>
-<div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Smaller marks, a colour swatch or a list marker, are square, never a scaled corner.</p></div>
+<div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}: everything that holds content or is pressed with words on it, cards, panels, callouts, code blocks, pictures and buttons.</p></div>
+<div><p class="shape-demo"><span class="hw-label" style="border-radius:var(--radius-sm)">Part one</span> <code style="border-radius:var(--radius-sm)">bun run check</code></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments.</p></div>
+<div><p class="shape-demo"><span class="pill-demo">Remote</span> <span class="round-demo">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
+<div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Square: a mark smaller than a line, a list marker or a colour swatch.</p></div>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
+<div><div class="rule-demo"></div><p>A rule line under a title or over a block is teal; the gradient stays on the strip along the top edge.</p></div>
 </div>`;
 
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));
@@ -552,6 +569,7 @@ const ELEMENT_ORDER: [string, string, string][] = [
   ["focus-ring", "Focus ring", "focus"],
   ["icon-button", "Round icon control", "icon-button"],
   ["strip", "Gradient strip", "strip"],
+  ["rule", "Accent rule", "rule"],
   ["code", "Code block", "code"],
   ["button", "Button", "button"],
   ["arrow-link", "Arrow link", "arrow-link"],
@@ -665,29 +683,24 @@ const groups: CatalogGroup[] = [
   {
     name: "Colours",
     items: [
-      ...FAMILY_NAMES.map((g) => {
-        const list = own.filter(([k]) => family(k) === g).map(([k]) => k);
-        return {
-          name: g,
-          href: `#colours/family-${slug(g)}`,
-          note: list.map((k) => k.replace("--color-", "")).join(", "),
-          pill: `${list.length} colours`,
-          html: swatches(list),
-        };
-      }),
       {
-        name: "Roles",
-        href: "#colours/roles",
-        note: "Base, text on light, night and two tints per hue",
-        pill: `${roleRows.length} hues`,
-        html: swatches(hues.map(([, base]) => `--color-${base}`)),
+        name: "Neutrals",
+        href: "#colours/neutrals",
+        note: "Ground, raised, text, muted, lines: one row per job, by day and by night",
+        pill: `${neutrals.length} jobs`,
+        html: swatches(
+          neutrals
+            .flatMap((r) => [r.day, r.night])
+            .filter((n) => n !== "-")
+            .map((n) => `--color-${n}`),
+        ),
       },
       {
-        name: "Chart order",
-        href: "#colours/chart",
-        note: `--chart-1 to --chart-${chart.length}`,
-        pill: `${chart.length} series`,
-        html: swatches(chartKeys),
+        name: "Hues",
+        href: "#colours/hues",
+        note: "Base, text on day, night, two tints and the chart order per hue",
+        pill: `${hues.length} hues`,
+        html: swatches(hues.map((r) => `--color-${r.base}`)),
       },
     ],
   },
@@ -851,7 +864,7 @@ ${table(
 )}`;
 
 const pages: [string, string, string][] = [
-  ["colours", "Colours", colourGroups.join("") + rolesHtml],
+  ["colours", "Colours", coloursHtml],
   ["type", "Type", roles],
   ["tokens", "Spacing, radius, shadow, layout", cornersHtml + tokensHtml],
   ["elements", "Elements", elementsHtml],
@@ -939,7 +952,6 @@ const html = `<!doctype html>
     a:not(.el-cell *) { color: var(--color-teal-dark); }
     table:not(.el-cell *) { border-collapse: collapse; width: 100%; background: var(--color-white); }
     :is(th, td):not(.el-cell *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
-    .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
     .swatch { all: unset; cursor: copy; display: grid; gap: 0.15rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 0.5rem; }
     .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
     .swatch span { height: 3.5rem; border-radius: 0; border: 1px solid var(--color-border); margin-bottom: 0.3rem; }
@@ -967,7 +979,11 @@ const html = `<!doctype html>
     .rules > div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
     .rules p { margin: 0.5rem 0 0; }
     .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
-    .square-demo, .icon-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
+    .square-demo, .icon-demo, .shape-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
+    .shape-demo .hw-label, .shape-demo code { padding: 0.125rem 0.5rem; background: color-mix(in srgb, var(--color-teal) 7%, white); }
+    .pill-demo { padding: 0.125rem 0.625rem; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--color-teal) 12%, white); color: var(--color-teal-dark); font-size: var(--text-small); }
+    .round-demo { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--color-ink) 7%, transparent); }
+    .rule-demo { width: 4rem; height: 4px; margin-block: 1.375rem; background: var(--color-teal); }
     .square-demo .sw { width: 1.25rem; height: 1.25rem; background: var(--color-teal); }
     .icon-demo { color: var(--color-teal-dark); font-weight: 500; }
     .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
@@ -975,9 +991,12 @@ const html = `<!doctype html>
     #results a { display: flex; gap: 0.75rem; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); color: var(--color-ink); text-decoration: none; background: var(--color-white); }
     #results a:hover { background: var(--color-tint); }
     #results a .label { min-width: 7rem; }
-    .night-cell { display: inline-block; padding: 0.15rem 0.4rem; background: var(--color-night); color: var(--color-night-ink); border-radius: 0; }
+    .night-cell { display: inline-block; padding: 0.25rem 0.5rem; background: var(--color-night); color: var(--color-night-ink); border-radius: 0; }
+    .night-cell small { color: var(--color-night-muted); }
+    td .swatch { display: inline-grid; grid-template-columns: 1.5rem auto; column-gap: 0.5rem; align-items: center; padding: 0; border: 0; border-radius: 0; background: none; }
+    td .swatch span { grid-row: span 2; width: 1.5rem; height: 1.5rem; margin: 0; }
+    td .swatch small { grid-column: 2; }
     .night-cell code { color: inherit; }
-    .chart { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding-left: 1.25rem; }
     .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 0; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
     .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
     .products { display: grid; gap: 1rem; }

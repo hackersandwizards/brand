@@ -26,5 +26,4 @@ trainer-hub's pins are raised (slides v0.30.0, documents v0.7.1). What remains:
 5. Teach `brand-elements`' source check the new element names (button, breadcrumb, facts, ...) once
    every spoke has switched.
 6. From the spoke switches: a setting naming an undefined token falls back silently; night pills
-   lose hue distinction; a hue setting for card, label and callout; the code element against the
-   code panels; a line-height setting on the pill.
+   lose hue distinction; a hue setting for card, label and callout; a line-height setting on the pill.

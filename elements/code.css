@@ -1,23 +1,22 @@
-/* The code block: the code palette's ground (night, night-2 on a night page) and text, the small
-   corner, the code role, no ligatures (JetBrains Mono would join -> and == into glyphs a reader
+/* The code block: the code palette's ground (night, night-2 on a night page) and text, the brand
+   corner as every block that holds content (tokens.css), the code role, no ligatures (JetBrains Mono would join -> and == into glyphs a reader
    cannot type), scrolling sideways on screen. Syntax colours come from the code palette: Shiki
    with code-theme.json and the transformer codeClasses (code.ts) sets the hw-code-<role> classes
    below, which survive a surface that drops inline styles; a hand-set span takes a class too.
    data-variant="panel" is the run log beside a slide's text, or a panel with a header of its own:
-   the card corner and a hairline of white at 7 %.
+   a hairline of white at 7 %.
 
    Settings:
      --hw-code-size    the code role's size
      --hw-code-pad     the padding
-     --hw-code-corner  the corner, the small corner at the medium's size
-     --hw-card-corner  a panel's corner
+     --hw-card-corner  the corner, the brand corner at the medium's size
      --hw-hairline     a panel's line */
 
 @layer components {
   .hw-code {
     box-sizing: border-box;
     overflow-x: auto;
-    border-radius: var(--hw-code-corner, var(--radius-sm));
+    border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: var(--hw-code-pad, 1rem);
     font-family: var(--type-code-family);
     font-size: var(--hw-code-size, var(--type-code-size));
@@ -29,7 +28,6 @@
   }
   .hw-code[data-variant="panel"] {
     border: var(--hw-hairline, 1px) solid color-mix(in srgb, white 7%, transparent);
-    border-radius: var(--hw-card-corner, var(--radius-brand));
   }
   .hw-code code {
     font: inherit;

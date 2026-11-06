@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "ab73360fb2c1afe78212e7344a5a30e8632f5d49dc18a553e3bfe05f5c0ed8c2"
+      "sha256": "69cab0d523782cafb1df65d62c396abb9949e3059b6220403aa76b457ed3f9d8"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -258,7 +258,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "ae60300b06cc0681c47594924810c9cf202c5463666c094a0c0864147bf9d5a7"
+      "sha256": "bed984990110dfd72f1e7e81b7b8f84f4cdc3ed7846b99be387169f71604c008"
     },
     {
       "path": "expert/header.css",
@@ -322,7 +322,7 @@
     },
     {
       "path": "elements/code.css",
-      "sha256": "141e21ae288045e6c364c9ad0d61d1e303c282b924d60d09eb96e9dba3fa37ea"
+      "sha256": "ec0c1d8b1a864aa3da9ba7d1214a2c2e74c7832c46f25d05f2aa0140df3a9d4d"
     },
     {
       "path": "elements/code.ts",
@@ -330,7 +330,7 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "2485b8df7aebd5459e501c17d57ef7635ccb58bfcf56d975359c1e16932c0a97"
+      "sha256": "6e89f59167bc454d5641430faa0411743dae2eff1221cd94aee2fa1424c6d860"
     },
     {
       "path": "elements/focus.css",
@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "f878d06b5b2d5d069d9610a92af58fc7bf790422abe92c1683904617eab1111d"
+      "sha256": "32f39cdb8f16ea648c82a1f074a942ec2cda04972588017651a597fe112ba9a0"
     },
     {
       "path": "elements/strip.css",
@@ -394,7 +394,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "789bbb7a378d11f6edabff09e46568e250ab25e3cba76b2d502a64e4d5b148a9"
+      "sha256": "496733d7de556b8c943e6134eaac765c4553fa20ac525fecacfc6cc7d1dffc91"
     },
     {
       "path": "elements/facts.css",
@@ -421,8 +421,12 @@
       "sha256": "bcfdba944130be16b053cb7854f83e462c662cd2a137be285df31c78e4f9cea9"
     },
     {
+      "path": "elements/rule.css",
+      "sha256": "9083e995114b0dfe652be40e3a446c9103024fa53150ab95e99735fa996a4543"
+    },
+    {
       "path": "elements/segmented.css",
-      "sha256": "4d2d9625ca99f07cdc8c79d59c06cf3fd22cb08c61e8eb3e05b1b779a0471363"
+      "sha256": "031c2bbaa1f51be92946cf4dd284808985c2618eacba0201bbc6de72281b513c"
     },
     {
       "path": "elements/status.css",
@@ -442,7 +446,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "ada85ba3c45ca00c98a91aed21c7cbb1b62e3bf99134553c606fa95781f57a53"
+      "sha256": "5908b6c9b02e3ac0b22e24689f661b49680a07f71dd4160d729db04f5f0865e1"
     },
     {
       "path": "verbal/verbal.json",

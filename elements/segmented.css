@@ -1,5 +1,5 @@
 /* The segmented control: one choice of a few, each segment a link or button in one framed row (a
-   view mode, a filter category, a page's mode). The small corner, a frame 2 px around the
+   view mode, a filter category, a page's mode, a slide's stage strip). The small corner, a frame 2 px around the
    segments in the field line (the foreground at 70 % on the page, 3:1 as WCAG 1.4.11 asks of a
    control's boundary), the UI size; a segment at the foreground's 70 %, the full foreground and the
    muted fill on hover; the chosen one (aria-current, aria-pressed="true" or data-active="true")
@@ -7,6 +7,7 @@
    the expert set's night roles.
 
    Settings:
+     --hw-corner-sm     the small corner, of the frame and the segments
      --hw-segment-pad   a segment's block and inline padding
      --hw-segment-line  the frame's colour */
 
@@ -17,7 +18,7 @@
     align-items: stretch;
     border: var(--hw-hairline, 1px) solid
       var(--hw-segment-line, color-mix(in srgb, var(--color-ink) 70%, var(--color-bg)));
-    border-radius: var(--radius-sm);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
     padding: 0.125rem;
     font-size: var(--text-ui, var(--type-small-size));
     background: var(--color-bg);
@@ -26,7 +27,7 @@
     display: flex;
     align-items: center;
     border: 0;
-    border-radius: var(--radius-sm);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
     padding: var(--hw-segment-pad, 0.25rem 0.5rem);
     font: inherit;
     white-space: nowrap;

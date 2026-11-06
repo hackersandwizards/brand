@@ -63,7 +63,7 @@ const url = pathToFileURL(`${DIST}/index.html`).href;
 // The portal's own styles leave its element samples alone.
 test("the portal's samples match their rules", async () => {
   const r = await measurePage(browser, url);
-  expect(r.seen.length).toBe(21);
+  expect(r.seen.length).toBe(22);
   expect(r.findings).toEqual([]);
 }, 60_000);
 

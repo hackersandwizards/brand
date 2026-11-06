@@ -3,21 +3,60 @@ kind: work
 status: open
 priority: 1
 order: 10
-owner: a brand session (round 06.11.), then each consumer adopts
-evidence: "not established"
+owner: each consumer session, against brand v1.1.0
+evidence: "brand v1.1.0 (tokens/tokens.css radii and palettes, elements/rule.css, elements/code.css, elements/button.css, elements/scales.css, tokens/stage.css, expert/expert.css); blind panels of 06.11. below"
 ---
 
-# One shape and colour system: palettes, corners, markers, buttons, rule lines
+# One shape and colour system: what the consumers still adopt
 
-Benedikt's review round of 06.11., points 1, 2, 2b, 9, 10, 11, 12, 13 (screenshots in his message, described here):
+Brand v1.1.0 holds the rule set from Benedikt's review round of 06.11. (points 1, 2, 2b, 9 to 13).
+What remains is each consumer taking it. Each brief names the files to change.
 
-1. The brand page shows six colour palettes (surface and ink, brand, status, night, roles, chart order). "brauchen wir so viele farb paletten? kann man das nicht vereinheitlichen?"
-2. Round icon controls (`hw-icon-button`) he likes; square markers exist for bullet points. "currently its not clear when we use with. especially on the slides this is not really done well yet" (slides show square icon tiles and square number tiles in rounded brand cards).
-3. The slightly rounded segmented control he likes, "but we do have the same problem of not using that in other places einheitlich. especially the slides" (the slides stage pill: purple square highlights inside a round outline).
-4. The slides "Read more" button does not look like the brand buttons.
-5. Square "PART ONE / PART TWO" labels: slightly rounded, square, or the brand box corner?
-6. Code blocks have slightly rounded corners, not the brand corners: intentional?
-7. Headline rule lines: gradient in some documents, plain teal elsewhere. "wir sollten auch das einheitlich machen und bewerten lassen"
-8. The onepager button ("Gespräch buchen") corners: which works best?
+## The rule set (brand v1.1.0)
 
-Done means: one rule set in brand (which shape for which job, how many palettes), decided by a blind review with fitting personas, released, and every consumer (slides, documents, website, os, talks, trainer-hub, certificate-verifier, admin, scaffolding catalog) carrying it.
+- Two palettes: neutrals (job, day, night) and hues (base, text on day, night, two tints, chart
+  series), tables in `tokens/tokens.css`, shown that way on the portal.
+- Shapes, one job each: the brand corner on everything that holds content or is pressed with words
+  on it (cards, panels, callouts, code blocks, pictures, buttons); the small corner on everything
+  one text line tall that is no pill (label box, number or icon tile, inline code, segmented
+  control, slide stage strip); round for chips, badges, toggles and icon-only controls; square for
+  marks smaller than a line (list marker, swatch).
+- Rule lines are teal (`hw-rule`, its hue on a purple part); the gradient stays on the strip.
+
+## Blind panels, 06.11.
+
+Overall of 10, mean of two Claude runs and one Codex run per persona. Personas: a conference
+attendee (slides), a head of engineering reading PDFs (documents), a CTO in the browser (website),
+an account manager in the app (os), a brand designer across all four. Neutral labels, shuffled per
+reviewer, the current state scored alongside.
+
+| Panel                                     | Candidates                                                                            | Scores                | Noise |
+| ----------------------------------------- | ------------------------------------------------------------------------------------- | --------------------- | ----- |
+| Palettes (developer, designer)            | two tables / one table / six groups (current)                                         | 8.3 / 7.0 / 5.3       | 0     |
+| Rule lines (participant, buyer, designer) | teal / gradient everywhere / gradient on titles / current                             | 8.4 / 7.0 / 6.9 / 5.1 | 0.5   |
+| Shapes round 1 (5 personas)               | square small marks / small corner, small code / round buttons and selectors / current | 7.5 / 7.5 / 6.9 / 6.7 | 0.75  |
+| Shapes round 2 (5 personas)               | small corner, brand-corner code / square small marks / current                        | 7.5 / 7.3 / 7.1       | 0.7   |
+
+Round 2 is a tie inside the noise. It went to the small corner because reviewers named the square
+view selector beside brand-corner buttons as the element most out of place, in os and across all
+four surfaces. In round 1 the current state's strip slide rendered blank; round 2 re-scored slides,
+website and the cross-surface view on corrected boards.
+
+## What remains, per consumer
+
+1. slides: `--slide-radius-sm` is now the small corner, so tiles, label boxes and inline code
+   round by themselves on the pin raise. Draw "Read more" (`RegularSlide.tsx`) as `hw-button
+data-variant="secondary"` at stage scale; the stage strip (`SectionHeader.tsx`) drops
+   `md:rounded-full` for the small corner; the roadmap's part bar (`RoadmapSlide.tsx`) becomes
+   `hw-rule` (teal, the second part purple) instead of the gradient.
+2. documents: the handout's chapter bar (`handout.css` `section h1::after`) and the readout's cover
+   rule (`readout.css` `.rule`) take teal through `hw-rule`; the onepager's CTA (`onepager.css`
+   `.contact-footer a.button`) takes the print brand corner (`--print-radius`) instead of the
+   screen one; code blocks take the card corner from `scales.css`.
+3. website: code blocks (`pre.astro-code`) take the brand corner through `hw-code`; the events
+   hero's "Invite us to your stage" reads as evenly rounded in the panels and should be checked
+   against `hw-button data-variant="secondary"`.
+4. os and trainer-hub: `btn-primary` and `btn-secondary` take the brand corner from `expert.css`
+   on the pin raise; a measured before/after on a dense page.
+5. talks, certificate-verifier, admin, scaffolding catalog: raise the pin and run `brand-elements`;
+   the catalog shell's own buttons and code blocks follow the same shapes.

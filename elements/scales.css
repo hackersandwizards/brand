@@ -23,6 +23,7 @@
   --hw-card-corner: var(--radius-brand);
   --hw-callout-pad: 1.25rem;
   --hw-rule-accent: 4px;
+  --hw-rule-bar: 4rem;
   --hw-quote-rule: 2px;
   --hw-quote-gap: 1.25rem;
   --hw-cell-pad: 0.5rem 0.75rem 0.5rem 0;
@@ -33,10 +34,12 @@
   --hw-control-icon: 20px;
   --hw-strip: 3px;
   --hw-code-pad: 1rem;
-  --hw-code-corner: var(--radius-sm);
+  --hw-corner-sm: var(--radius-sm);
   --hw-frame-width: 1px;
   --hw-button-height: 2.75rem;
+  --hw-button-height-wide: 3rem;
   --hw-button-pad: 0.5rem min(1.5rem, 24px);
+  --hw-button-size: var(--type-body-size);
   --hw-arrow-link-pad: 0.75rem;
   --hw-field-height: 3rem;
   --hw-field-pad: 1rem;
@@ -60,6 +63,7 @@
   --hw-card-corner: var(--radius-brand);
   --hw-callout-pad: 0.75rem 1rem;
   --hw-rule-accent: 3px;
+  --hw-rule-bar: 3rem;
   --hw-quote-rule: 2px;
   --hw-quote-gap: 1rem;
   --hw-cell-pad: 0.375rem 0.75rem 0.375rem 0;
@@ -70,7 +74,7 @@
   --hw-control-icon: 20px;
   --hw-strip: 3px;
   --hw-code-pad: 0.75rem;
-  --hw-code-corner: var(--radius-sm);
+  --hw-corner-sm: var(--radius-sm);
   --hw-frame-width: 1px;
   --hw-kpi-size: var(--text-page, 1.5rem);
   --hw-kpi-tracking: -0.01em;
@@ -114,6 +118,7 @@
   --hw-card-corner: var(--print-radius);
   --hw-callout-pad: 14pt;
   --hw-rule-accent: 3pt;
+  --hw-rule-bar: 24mm;
   --hw-quote-rule: 3pt;
   --hw-quote-gap: 12.5pt;
   --hw-cell-pad: 5pt 7.5pt 5pt 0;
@@ -122,7 +127,7 @@
   --hw-frame-width: 1pt;
   --hw-code-pad: 14pt;
   /* The small corner at paper size, in the ratio of print.css's brand corner (16px 4px). */
-  --hw-code-corner: 4px;
+  --hw-corner-sm: 4px;
 }
 
 [data-hw-scale="stage"] {
@@ -137,6 +142,7 @@
   --hw-card-corner: 1.875rem 0.46875rem;
   --hw-callout-pad: 1.875rem;
   --hw-rule-accent: 0.375rem;
+  --hw-rule-bar: 10rem;
   --hw-quote-rule: 0.1875rem;
   --hw-quote-gap: 1.875rem;
   --hw-cell-pad: 0.75rem 1.125rem 0.75rem 0;
@@ -147,7 +153,12 @@
   --hw-control-icon: 1.875rem;
   --hw-strip: 0.75rem;
   --hw-code-pad: 1.5rem;
-  --hw-code-corner: 0.46875rem;
+  --hw-corner-sm: 0.46875rem;
+  /* The website's button times 1.5: a slide's "Read more" or call to action. */
+  --hw-button-height: 4.5rem;
+  --hw-button-height-wide: 4.5rem;
+  --hw-button-pad: 0.75rem 2.25rem;
+  --hw-button-size: 1.5rem;
   /* The slide engine's dashed frame draws 2 px at the 1440 stage; a key figure takes the readout
      deck's stat size. */
   --hw-frame-width: 0.125rem;
