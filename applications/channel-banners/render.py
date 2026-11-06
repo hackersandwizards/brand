@@ -171,6 +171,16 @@ def grid_surfaces():
         "brella-profile": grid(
             (2000, 800), 92.85, two_lines(*PROFILE_LINES, x=485, b1=0, b2=69.0, size=57.0, track=-0.050), left=485
         ),
+        # Benedikt's Facebook profile cover: Facebook Help (facebook.com/help/220070894714080, read 6.11.)
+        # asks only for at least 720 px wide; its 2.4:1 and 16:9 crops (help/125379114252045) are for
+        # Pages. Measured 6.11. on facebook.com logged out: desktop shows it whole in a 940 x 348 frame
+        # (2.70:1) at 1024, 1440 and 1920 px, the photo's circle over x 32 to 208 from row 243; a 375 px
+        # phone (m.facebook.com) whole at 375 x 139, the photo over x 12 to 108 from row 99 and the white
+        # sheet from row 120. Here: the photo below row 517 (desktop) and 528 (phone), the sheet below 640.
+        # The group at 1.15 times the Brella cover, centred in rows 0 to 640: ink x 408 to 1592, rows 166 to 474
+        "facebook-profile": grid(
+            (2000, 740), 106.8, two_lines(*PROFILE_LINES, x=423, b1=0, b2=79.4, size=65.5, track=-0.050), area=(0, 640), left=423
+        ),
         "featured": grid(
             (1200, 627),
             94,
@@ -222,6 +232,7 @@ REPO_FILES = {
     "xing-profile-cover-1312x639.png": ("xing-profile", 1),
     "sessionize-profile-cover-2000x500.png": ("sessionize-profile", 1),
     "brella-profile-cover-2000x800.png": ("brella-profile", 1),
+    "facebook-profile-cover-2000x740.png": ("facebook-profile", 1),
 }
 
 
