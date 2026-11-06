@@ -130,7 +130,10 @@ let browser: Browser;
 beforeAll(async () => {
   browser = await launch();
 });
-afterAll(() => browser?.close());
+afterAll(async () => {
+  await browser?.close();
+  rmSync(dir, { recursive: true, force: true });
+});
 
 const all = async (url: string, scale: number) => [
   ...(await measureMarkers(browser, url, { scale })),
