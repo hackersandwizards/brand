@@ -84,19 +84,33 @@
 .hw-prose ul > li {
   position: relative;
 }
-.hw-prose li.task-list-item::before {
+.hw-prose li.task-list-item::before,
+.hw-prose li.task-list-item > p:first-child::before {
   content: none;
 }
 /* Held at full opacity although GFM emits these disabled: they are readable states, not
-   controls, and the browser's grey washes them out. */
+   controls, and the browser's grey washes them out. The box's middle sits on the first line's
+   x-height middle, placed from the line box as marker.css places the list marker (its comment says
+   why): a whole number of pixels from the baseline, a transform the rest of the way. A fixed top
+   (0.375em) sat 0.87 to 2.87px off at line heights 1.25 to 2 in admin (brand-markers,
+   2026-11-06). font: inherit, which Tailwind's preflight sets too, takes em and lh from the item. */
 .hw-prose li.task-list-item input[type="checkbox"] {
+  --_hw-size: round(1em, 1px);
+  --_hw-ascent: round(0.96875em, 1px);
+  --_hw-baseline: calc(
+    round(down, round((1lh - var(--_hw-ascent) - round(0.2421875em, 1px)) / 2, 1px / 64), 1px) +
+      var(--_hw-ascent)
+  );
+  --_hw-top: calc(0.5ex + var(--_hw-size) / 2);
   position: absolute;
-  top: 0.375em;
+  top: calc(var(--_hw-baseline) - round(var(--_hw-top), 1px));
   left: var(--hw-prose-check-x, -1em);
   box-sizing: border-box;
-  width: 1em;
-  height: 1em;
+  width: var(--_hw-size);
+  height: var(--_hw-size);
   margin: 0;
+  font: inherit;
+  transform: translateY(calc(round(var(--_hw-top), 1px) - var(--_hw-top)));
   border: 1.5px solid var(--input, color-mix(in srgb, var(--color-ink) 70%, var(--color-bg)));
   border-radius: var(--radius-sm);
   background: transparent center / 0.75em 0.75em no-repeat;

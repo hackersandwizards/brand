@@ -3,7 +3,8 @@
    size, so no text on a phone is under 14 px. data-tone="muted" sets it in the muted grey (a
    callout's label), data-tone="ink" in the text colour (a field's or group's name). data-hue sets it
    in a hue's text colour where its block carries that hue (a second part or speaker in purple, a
-   meaning in amber, green or red).
+   meaning in amber, green or red, the Software Factory area in factory), from the hue table in
+   tokens.css.
 
    Settings (scales.css sets them per medium):
      --hw-label-size    the label role's size
@@ -36,6 +37,9 @@
   .hw-label[data-hue="green"] {
     color: var(--color-green-dark);
   }
+  .hw-label[data-hue="factory"] {
+    color: var(--color-factory);
+  }
   .hw-label[data-hue="red"] {
     color: var(--color-red);
   }
@@ -57,6 +61,9 @@
     }
     .hw-label[data-hue="green"] {
       color: var(--color-green);
+    }
+    .hw-label[data-hue="factory"] {
+      color: var(--color-factory-light);
     }
     .hw-label[data-hue="red"] {
       color: var(--color-red-night);

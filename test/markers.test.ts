@@ -91,6 +91,28 @@ ${Array.from({ length: 64 }, (_, k) => `<div class="slot"><ul class="hw-marker-l
 const UNROUNDED = `.hw-marker, ul > li::before {
   width: var(--hw-marker-size) !important; height: var(--hw-marker-size) !important }`;
 
+// prose.css's task checkbox at line heights 1.25 to 2, tight and loose, up to 16px text (a larger
+// box is no marker to brand-markers), against the fixed top it replaced (admin read it 0.87 to
+// 2.87px off, 2026-11-06).
+const tasks = (css: string) => `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<link rel="stylesheet" href="${brand("elements/prose.css")}">
+<style>body { margin: 40px; max-width: 360px; font-family: var(--font-sans); }
+ul { margin: 0 0 16px; padding-left: 1.625em; } ${css}</style></head><body>
+${[13, 14, 16]
+  .flatMap((size) =>
+    [1.25, 1.5, 1.75, 2].map(
+      (lh) => `<div class="hw-prose" style="font-size:${size}px;line-height:${lh}"><ul>
+<li class="task-list-item"><input type="checkbox" checked disabled> A done item that wraps onto a second line in this column</li>
+<li class="task-list-item"><p><input type="checkbox" checked disabled> A loose item</p></li></ul></div>`,
+    ),
+  )
+  .join("\n")}
+</body></html>`;
+const OLD_CHECK = `.hw-prose li.task-list-item input[type="checkbox"] { top: 0.375em; transform: none; }`;
+
 const dir = mkdtempSync(join(tmpdir(), "brand-markers-"));
 const file = (name: string, html: string) => {
   writeFileSync(join(dir, name), html);
@@ -101,6 +123,8 @@ const OLD = file("old.html", page(`${OLD_LIST}\n${OLD_ELEMENT}`));
 const NATIVE = file("disc.html", page(DISC));
 const FRACTIONAL = file("fractional.html", fractional(""));
 const PLANTED = file("unrounded.html", fractional(UNROUNDED));
+const TASKS = file("tasks.html", tasks(""));
+const OLD_TASKS = file("old-tasks.html", tasks(OLD_CHECK));
 
 let browser: Browser;
 beforeAll(async () => {
@@ -141,6 +165,21 @@ test("an unrounded side fails at some 1/64 px offset, element and list alike", a
   const rs = (await measureMarkers(browser, PLANTED, { scale: 4 })).filter(failing);
   expect(rs.some((r) => r.kind === "element")).toBe(true);
   expect(rs.some((r) => r.kind === "before")).toBe(true);
+}, 60_000);
+
+test.each([2, 4])(
+  "the prose task checkbox sits within 0.25 px at %dx, and a loose item draws no marker",
+  async (scale) => {
+    const rs = await all(TASKS, scale);
+    expect(rs.filter((r) => r.kind === "element").length).toBe(24);
+    expect(rs.filter((r) => r.kind === "before")).toEqual([]);
+    expect(show(rs.filter(failing))).toEqual([]);
+  },
+  60_000,
+);
+
+test("the old fixed checkbox top fails", async () => {
+  expect((await all(OLD_TASKS, 2)).some(failing)).toBe(true);
 }, 60_000);
 
 test("the old list marker fails: off centre at some size, first lines indented after a newline", async () => {

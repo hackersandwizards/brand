@@ -52,6 +52,7 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                |
 | `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                  |
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`               |
+| `@hackersandwizards/brand/package.json`                   | the installed brand version, `version`         |
 
 Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops

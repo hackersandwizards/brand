@@ -90,7 +90,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "c713d0a2d2bb0e0e0ea554a48d4ec2aceabf855d2c2c7bd3dab66d1963a1eda1"
+      "sha256": "5ba29440ba42a54a0af06a3e8d3e4fbe04ccec2f2bb99e66d61c32d758c51a80"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -334,7 +334,7 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "36c16e45bbdaf1732d58349a84b66ab9794da5ba3b62d318405434975bde2d1a"
+      "sha256": "86313e0c897a93b980ff647014ab94e32e71b475fc0183bbfb12a0b6b7c34138"
     },
     {
       "path": "elements/elements.css",
@@ -350,7 +350,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "65cf3905f60d6ac4aa8022a941de5e7481004c975b787b50c024b0953e5bbc54"
+      "sha256": "16be363dafbba3dc20b40385f292542b3c7fef69b2c6fbb74138704135fb6340"
     },
     {
       "path": "elements/label-box.css",
@@ -426,7 +426,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "463d816b13a063ecf7ebee8c6179cb070511b3797e8fee4acc3b360d1422d25f"
+      "sha256": "230bdac47dcdbf2b74a1d9f06e10bb2d7eef6cf41a75b1e3e6fce4bafad1d90e"
     },
     {
       "path": "elements/row.css",
