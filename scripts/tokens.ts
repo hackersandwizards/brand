@@ -238,9 +238,8 @@ const generate = () => {
     "Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file.";
   const json = JSON.stringify({ tokens, colors }, null, 2);
   return {
-    // A data-theme="light" element under night.css's night takes the day values back, as the
-    // shared elements do: the nearest data-theme wins. :where() leaves the surface's own values
-    // on that element winning.
+    // Also on a data-theme="light" element inside night.css's night, which is day again there;
+    // :where() leaves the surface's own values on that element winning.
     "tokens.root.css": `/* ${head} */\n:root,\n:where([data-hw-night] [data-theme="light"]) {\n${Object.entries(
       tokens,
     )

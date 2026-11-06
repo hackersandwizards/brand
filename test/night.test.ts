@@ -2,6 +2,7 @@ import { afterAll, beforeAll, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import type { Browser } from "puppeteer-core";
 import { ROOT } from "../scripts/git";
+import { parseTokens, SOURCE } from "../scripts/tokens";
 import { launch } from "../scan/markers";
 
 // night.css on the element that also declares the day tokens (html carrying both, as under
@@ -65,31 +66,28 @@ test("night.css after tokens.root.css turns every token on a dark html", async (
 // The expert roles night.css also sets keep expert.css's page-wide night.
 test("a data-theme=light element under a night html keeps every day token", async () => {
   const tab = await browser.newPage();
+  // Every token tokens.root.css declares, scales.css's line, and the text colour.
+  const keys = [...Object.keys(parseTokens(readFileSync(SOURCE, "utf8"))), "--hw-line"];
   const read = async (html: string, body: string) => {
     await tab.setContent(`<!doctype html><html data-hw-scale="screen" ${html}><head>
 <style>${tokens}${css("elements/scales.css")}</style>
 <style>${night} body { color: var(--color-ink) }</style></head><body>${body}</body></html>`);
-    return tab.evaluate((names) => {
+    return tab.evaluate((keys) => {
       const s = getComputedStyle(document.querySelector("main")!);
       return {
-        ...Object.fromEntries(names.map((n) => [n, s.getPropertyValue(n).trim()])),
-        line: s.getPropertyValue("--hw-line").trim(),
+        ...Object.fromEntries(keys.map((n) => [n, s.getPropertyValue(n).trim()])),
         color: s.color,
       };
-    }, names);
+    }, keys);
   };
-  const own = (o: Record<string, string>) =>
-    Object.fromEntries(
-      Object.entries(o).filter(([n]) => !n.startsWith("--") || tokens.includes(`  ${n}:`)),
-    );
-  const day = own(await read("", "<main></main>"));
+  const day = await read("", "<main></main>");
   const dark = 'data-theme="dark" data-hw-night';
   for (const body of [
     '<main data-theme="light"></main>',
     '<main data-theme="light" data-hw-night></main>',
     '<div data-theme="light"><main data-hw-night></main></div>',
   ])
-    expect([body, own(await read(dark, body))]).toEqual([body, day]);
+    expect([body, await read(dark, body)]).toEqual([body, day]);
   await tab.close();
 });
 
