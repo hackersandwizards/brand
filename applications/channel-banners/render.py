@@ -211,7 +211,7 @@ def grid_surfaces():
     }
 
 
-PROFILE_LINES = ([("Your whole company unstoppable,", 0)], [("in flow with ", 0), ("agentic engineering.", 1)])
+PROFILE_LINES = ([("Agents bring the speed.", 0)], [("Flow", 1), (" needs teams in tune.", 0)])
 PROFILE_LOGOS = [("mercedes-benz", 569, 63), ("dm", 682.5, 59), ("tchibo", 842, 47), ("vorwerk", 1025, 53), ("bonprix", 1201.5, 45)]
 FEATURED_LOGOS = [("mercedes-benz", 188, 78), ("dm", 327.5, 72), ("tchibo", 522.5, 57), ("vorwerk", 747, 64), ("bonprix", 963.5, 55)]
 
