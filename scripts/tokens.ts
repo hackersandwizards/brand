@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
 // generated/tokens.root.css (the @theme block as :root), tokens.json, tokens.ts and tokens.py, and
-// code-theme.json, the Shiki theme of the --code-* tokens and the terminal's ANSI colours.
+// code-theme.json, the Shiki theme of the --code-* tokens and the terminal's ANSI colours; and from
+// tokens/fonts.css fonts.json, its faces, for a surface that writes its own @font-face.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
@@ -199,6 +200,18 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
   };
 };
 
+/** The @font-face rules of fonts.css: family, weight range, file (under ./fonts/) and unicode-range. */
+export const fontFaces = (css: string) =>
+  [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map(([, body]) => {
+    const get = (prop: string) => body.match(new RegExp(`${prop}:\\s*([^;]+);`))![1].trim();
+    return {
+      family: get("font-family").slice(1, -1),
+      weight: get("font-weight"),
+      file: get("src").match(/fonts\/([\w-]+\.woff2)/)![1],
+      unicodeRange: get("unicode-range").replace(/\s+/g, ""),
+    };
+  });
+
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
   const tokens = parseTokens(css);
@@ -214,6 +227,12 @@ const generate = () => {
     "tokens.ts": `// ${head}\nexport const tokens = ${JSON.stringify(tokens, null, 2)} as const;\n\nexport const colors = ${JSON.stringify(colors, null, 2)} as const;\n`,
     "tokens.py": `# ${head}\nTOKENS = ${JSON.stringify(tokens, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
     "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
+    "fonts.json":
+      JSON.stringify(
+        { faces: fontFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8")) },
+        null,
+        2,
+      ) + "\n",
   };
 };
 

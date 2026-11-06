@@ -641,7 +641,11 @@ if (import.meta.main) {
     const report = skippedReport("brand-elements", tree);
     if (report) console.log(report);
     for (const f of rendered)
-      console.error(`${f.page} ${f.element} ${f.label}: ${f.prop} ${f.got}, brand ${f.want}`);
+      console.error(
+        f.got === "undefined"
+          ? `${f.page} ${f.element} ${f.label}: reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`
+          : `${f.page} ${f.element} ${f.label}: ${f.prop} ${f.got}, brand ${f.want}`,
+      );
     for (const line of [...source, ...covered]) console.error(line);
     for (const url of empty) console.error(`${url}: no shared element found`);
     const shown = new Set(results.flatMap((r) => r.seen));

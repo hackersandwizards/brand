@@ -20,6 +20,7 @@
     "./tokens": "./generated/tokens.ts",
     "./tokens.py": "./generated/tokens.py",
     "./code-theme.json": "./generated/code-theme.json",
+    "./fonts.json": "./generated/fonts.json",
     "./print.css": "./tokens/print.css",
     "./fonts.css": "./tokens/fonts.css",
     "./night.css": "./tokens/night.css",

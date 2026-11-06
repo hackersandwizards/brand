@@ -1,5 +1,7 @@
 import { expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { ROOT } from "../scripts/git";
 import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
 
 const css = readFileSync(SOURCE, "utf8");
@@ -95,4 +97,13 @@ test("print.css's page-box variables match its @page rule, which cannot read the
     `@page {\n  size: A4;\n  margin: 14mm 0 ${v("--print-margin-bottom")};\n}`,
   );
   expect(v("--print-page-height")).toBe("297mm"); // A4
+});
+
+test("fonts.json names each family tokens.css leads with, and every file it lists ships", () => {
+  const { faces } = JSON.parse(readFileSync(join(ROOT, "generated/fonts.json"), "utf8")) as {
+    faces: { family: string; file: string }[];
+  };
+  for (const stack of [tokens["--font-sans"], tokens["--font-mono"]])
+    expect(faces.map((f) => `"${f.family}"`)).toContain(stack.split(",")[0]);
+  for (const f of faces) expect(existsSync(join(ROOT, "tokens/fonts", f.file))).toBe(true);
 });
