@@ -12,16 +12,23 @@ import { ROOT } from "./git";
 
 export const SOURCE = join(ROOT, "tokens/tokens.css");
 
-/** The custom properties of tokens.css in source order, comments dropped, whitespace collapsed. */
-export const parseTokens = (css: string) => {
-  const body = css.replace(/\/\*[\s\S]*?\*\//g, "").match(/@theme\s*\{([\s\S]*)\}/)![1];
-  const tokens: Record<string, string> = {};
-  for (const decl of body.split(";")) {
-    const m = decl.match(/^\s*(--[\w-]+)\s*:\s*([\s\S]+?)\s*$/);
-    if (m) tokens[m[1]] = m[2].replace(/\s+/g, " ").replace(/\( /g, "(").replace(/ \)/g, ")");
+/** The declarations of a CSS block, comments dropped, whitespace collapsed. */
+const declarations = (body: string) => {
+  const out: Record<string, string> = {};
+  for (const decl of body.replace(/\/\*[\s\S]*?\*\//g, "").split(";")) {
+    const m = decl.match(/^\s*([\w-]+)\s*:\s*([\s\S]+?)\s*$/);
+    if (m) out[m[1]] = m[2].replace(/\s+/g, " ").replace(/\( /g, "(").replace(/ \)/g, ")");
   }
-  return tokens;
+  return out;
 };
+
+/** The custom properties of tokens.css in source order. */
+export const parseTokens = (css: string) =>
+  Object.fromEntries(
+    Object.entries(
+      declarations(css.replace(/\/\*[\s\S]*?\*\//g, "").match(/@theme\s*\{([\s\S]*)\}/)![1]),
+    ).filter(([k]) => k.startsWith("--")),
+  );
 
 /** The two palettes, tables in tokens.css's comments: the neutrals (job | day | night, "-" where
  *  one ground alone has the job) and the hues (base | text on light | night | job). */
@@ -200,16 +207,22 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
   };
 };
 
-/** The @font-face rules of fonts.css: family, weight range, file (under ./fonts/) and unicode-range. */
-export const fontFaces = (css: string) =>
+/** The @font-face rules of fonts.css, each descriptor camel-cased (fontFamily unquoted,
+ *  unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
+ *  unicodeRange takes every character. */
+const fontFaces = (css: string) =>
   [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map(([, body]) => {
-    const get = (prop: string) => body.match(new RegExp(`${prop}:\\s*([^;]+);`))![1].trim();
-    return {
-      family: get("font-family").slice(1, -1),
-      weight: get("font-weight"),
-      file: get("src").match(/fonts\/([\w-]+\.woff2)/)![1],
-      unicodeRange: get("unicode-range").replace(/\s+/g, ""),
-    };
+    const { src, ...rest } = declarations(body);
+    const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
+    const face: Record<string, string> = { file, format };
+    for (const [k, v] of Object.entries(rest))
+      face[k.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())] =
+        k === "font-family"
+          ? v.replace(/^"|"$/g, "")
+          : k === "unicode-range"
+            ? v.replace(/ /g, "")
+            : v;
+    return face;
   });
 
 const generate = () => {

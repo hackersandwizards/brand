@@ -642,9 +642,11 @@ if (import.meta.main) {
     if (report) console.log(report);
     for (const f of rendered)
       console.error(
-        f.got === "undefined"
-          ? `${f.page} ${f.element} ${f.label}: reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`
-          : `${f.page} ${f.element} ${f.label}: ${f.prop} ${f.got}, brand ${f.want}`,
+        `${f.page} ${f.element} ${f.label}: ${
+          f.got === "undefined"
+            ? `reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`
+            : `${f.prop} ${f.got}, brand ${f.want}`
+        }`,
       );
     for (const line of [...source, ...covered]) console.error(line);
     for (const url of empty) console.error(`${url}: no shared element found`);

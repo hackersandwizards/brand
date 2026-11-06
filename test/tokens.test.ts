@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import fonts from "../generated/fonts.json";
 import { ROOT } from "../scripts/git";
 import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
 
@@ -100,10 +101,7 @@ test("print.css's page-box variables match its @page rule, which cannot read the
 });
 
 test("fonts.json names each family tokens.css leads with, and every file it lists ships", () => {
-  const { faces } = JSON.parse(readFileSync(join(ROOT, "generated/fonts.json"), "utf8")) as {
-    faces: { family: string; file: string }[];
-  };
   for (const stack of [tokens["--font-sans"], tokens["--font-mono"]])
-    expect(faces.map((f) => `"${f.family}"`)).toContain(stack.split(",")[0]);
-  for (const f of faces) expect(existsSync(join(ROOT, "tokens/fonts", f.file))).toBe(true);
+    expect(fonts.faces.map((f) => `"${f.fontFamily}"`)).toContain(stack.split(",")[0]);
+  for (const f of fonts.faces) expect(existsSync(join(ROOT, "tokens/fonts", f.file))).toBe(true);
 });
