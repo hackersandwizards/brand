@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 2
-order: 1
+order: 350
 owner: each consumer session named below
 evidence: "consumers' origin/main package.json read 2026-11-06 14:40: brand v1.6.0 in slides, mail, admin; v1.5.0 in os, trainer-hub, website, documents, hycle-private; v1.4.0 in talks and certificate-verifier. os 0cc07642e carried its shape steps (header toggle hw-header-link data-icon, btn corners from expert.css, buttons under 32 px on the small corner, measured on nine pages)."
 ---
