@@ -52,8 +52,11 @@ test("the two palettes hold every brand colour, and name only brand colours", ()
   const cells = new Set([
     ...neutrals.flatMap((r) => [r.day, r.night]),
     ...hues.flatMap((r) => [r.base, r.text, r.night]),
-    "teal-light",
-    "purple-light",
+    ...hues.flatMap((r) =>
+      Object.keys(colors)
+        .filter((k) => tokens[k] === `color-mix(in srgb, var(--color-${r.base}) 40%, white)`)
+        .map((k) => k.replace("--color-", "")),
+    ),
   ]);
   cells.delete("-");
   const own = Object.keys(colors)

@@ -22,7 +22,7 @@ import { MARK } from "../applications/avatars/generate";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
-import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
+import { palettes, parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
 import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
 
 const source = readFileSync(SOURCE, "utf8");
@@ -87,22 +87,16 @@ const chartKeys = Object.keys(tokens).filter((k) => k.startsWith("--chart-"));
 // The chart series a hue gives, by its base or its text colour (amber and green chart dark).
 const chartOf = (...names: string[]) =>
   chartKeys.find((k) => names.some((n) => tokens[k] === `var(--color-${n})`));
-// A hue's tint on white, mixed in sRGB like the browser; teal and purple carry their 40 % as -light.
-const hueTint = (base: string, p: number) =>
-  "#" +
-  rgb(colors[`--color-${base}`]!)
-    .map((c) =>
-      Math.round((c * p + 255 * (100 - p)) / 100)
-        .toString(16)
-        .padStart(2, "0"),
-    )
-    .join("");
+// A hue's wash or tint on white, and the token that carries it where one does (teal-light).
+const hueMix = (base: string, p: number) => `color-mix(in srgb, var(--color-${base}) ${p}%, white)`;
+const tintToken = (base: string, p: number) =>
+  Object.keys(colors).find((k) => tokens[k] === hueMix(base, p) && !former.includes(k));
 // A colour cell: a button that copies the hex. A colour in a second cell (muted, a hue that is its
 // own text colour) keeps its anchor and search entry on the first.
 const anchored = new Set<string>();
 const swatch = (fill: string, hex: string, label = "", id = "") =>
   `<button class="swatch"${id} data-copy="${esc(hex)}" title="Copy ${esc(hex)}"><span style="background:${fill}"></span>${label}<small>${esc(hex)}</small></button>`;
-const cell = (name: string, palette: string) => {
+const colourCell = (name: string, palette: string) => {
   if (name === "-") return `<span class="meta">none</span>`;
   const k = `--color-${name}`;
   const first = !anchored.has(k);
@@ -111,27 +105,34 @@ const cell = (name: string, palette: string) => {
     index.push({ t: k, k: "colour", h: `colours/${slug(k)}`, x: `${colors[k]} ${palette}` });
   return swatch(`var(${k})`, colors[k]!, code(name), first ? ` id="${slug(k)}"` : "");
 };
-const tintCell = (base: string, p: number) =>
-  p === 40 && ["teal", "purple"].includes(base)
-    ? cell(`${base}-light`, "Hues")
-    : swatch(`color-mix(in srgb, var(--color-${base}) ${p}%, white)`, hueTint(base, p));
-const night = (name: string, palette: string) =>
-  name === "-" ? cell(name, palette) : `<span class="night-cell">${cell(name, palette)}</span>`;
+const tintCell = (base: string, p: number) => {
+  const k = tintToken(base, p);
+  return k
+    ? colourCell(k.slice("--color-".length), "Hues")
+    : swatch(
+        hueMix(base, p),
+        resolveColors({ ...tokens, "--color-mix": hueMix(base, p) })["--color-mix"]!,
+      );
+};
+const nightCell = (name: string, palette: string) =>
+  name === "-"
+    ? colourCell(name, palette)
+    : `<span class="night-cell">${colourCell(name, palette)}</span>`;
 const neutralRows = neutrals.map((r) => [
   `<strong>${esc(r.job)}</strong>`,
-  cell(r.day, "Neutrals"),
-  night(r.night, "Neutrals"),
+  colourCell(r.day, "Neutrals"),
+  nightCell(r.night, "Neutrals"),
 ]);
 const hueRows = hues.map((r) => {
   const series = chartOf(r.base, r.text);
   return [
-    cell(r.base, "Hues"),
+    colourCell(r.base, "Hues"),
     esc(r.job),
-    cell(r.text, "Hues"),
-    night(r.night, "Hues"),
+    colourCell(r.text, "Hues"),
+    nightCell(r.night, "Hues"),
     tintCell(r.base, 7),
     tintCell(r.base, 40),
-    series ? `${code(series)} ${code(tokens[series]!.slice(12, -1))}` : "",
+    series ? `${code(series)} ${code(tokens[series]!.match(/--color-([\w-]+)/)![1])}` : "",
   ];
 });
 const coloursHtml = `<p>Two palettes hold every brand colour. The neutrals build every page, by day and by night; the hues carry meaning. Copy a hex with a click.</p>
@@ -186,11 +187,11 @@ const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none
 const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div class="rules">
 <div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}: everything that holds content or is pressed with words on it, cards, panels, callouts, code blocks, pictures and buttons.</p></div>
-<div><p class="shape-demo"><span class="hw-label" style="border-radius:var(--radius-sm)">Part one</span> <code style="border-radius:var(--radius-sm)">bun run check</code></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments.</p></div>
-<div><p class="shape-demo"><span class="pill-demo">Remote</span> <span class="round-demo">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
+<div><p class="shape-demo"><span class="box"><span class="hw-label">Part one</span></span> <span class="box"><code>bun run check</code></span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments.</p></div>
+<div><p class="shape-demo"><span class="hw-pill">Remote</span> <span class="hw-icon-button">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
 <div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Square: a mark smaller than a line, a list marker or a colour swatch.</p></div>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
-<div><div class="rule-demo"></div><p>A rule line under a title or over a block is teal; the gradient stays on the strip along the top edge.</p></div>
+<div><div class="shape-demo"><hr class="hw-rule" data-variant="bar"></div><p>A rule line under a title or over a block is teal; the gradient stays on the strip along the top edge.</p></div>
 </div>`;
 
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));
@@ -952,12 +953,11 @@ const html = `<!doctype html>
     a:not(.el-cell *) { color: var(--color-teal-dark); }
     table:not(.el-cell *) { border-collapse: collapse; width: 100%; background: var(--color-white); }
     :is(th, td):not(.el-cell *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
-    .swatch { all: unset; cursor: copy; display: grid; gap: 0.15rem; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 0.5rem; }
+    .swatch { all: unset; cursor: copy; display: inline-grid; grid-template-columns: 1.5rem auto; column-gap: 0.5rem; align-items: center; }
     .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
-    .swatch span { height: 3.5rem; border-radius: 0; border: 1px solid var(--color-border); margin-bottom: 0.3rem; }
-    .swatch strong { font-family: var(--font-code); }
-    .swatch small { color: var(--color-muted); font-size: 0.7rem; }
-    .swatch.copied strong::after { content: " copied"; color: var(--color-teal); font-weight: 400; }
+    .swatch span { grid-row: span 2; width: 1.5rem; height: 1.5rem; border-radius: 0; border: 1px solid var(--color-border); }
+    .swatch small { grid-column: 2; color: var(--color-muted); font-size: 0.7rem; }
+    .swatch.copied small::after { content: " copied"; color: var(--color-teal); }
     .logos { display: grid; gap: 1rem; margin-top: 1.5rem; }
     .logo { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
     .logo h3 { margin: 0.75rem 0 0.25rem; }
@@ -980,10 +980,7 @@ const html = `<!doctype html>
     .rules p { margin: 0.5rem 0 0; }
     .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
     .square-demo, .icon-demo, .shape-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
-    .shape-demo .hw-label, .shape-demo code { padding: 0.125rem 0.5rem; background: color-mix(in srgb, var(--color-teal) 7%, white); }
-    .pill-demo { padding: 0.125rem 0.625rem; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--color-teal) 12%, white); color: var(--color-teal-dark); font-size: var(--text-small); }
-    .round-demo { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--color-ink) 7%, transparent); }
-    .rule-demo { width: 4rem; height: 4px; margin-block: 1.375rem; background: var(--color-teal); }
+    .shape-demo .box { border-radius: var(--radius-sm); padding: 0.125rem 0.5rem; background: color-mix(in srgb, var(--color-teal) 7%, white); }
     .square-demo .sw { width: 1.25rem; height: 1.25rem; background: var(--color-teal); }
     .icon-demo { color: var(--color-teal-dark); font-weight: 500; }
     .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
@@ -993,9 +990,6 @@ const html = `<!doctype html>
     #results a .label { min-width: 7rem; }
     .night-cell { display: inline-block; padding: 0.25rem 0.5rem; background: var(--color-night); color: var(--color-night-ink); border-radius: 0; }
     .night-cell small { color: var(--color-night-muted); }
-    td .swatch { display: inline-grid; grid-template-columns: 1.5rem auto; column-gap: 0.5rem; align-items: center; padding: 0; border: 0; border-radius: 0; background: none; }
-    td .swatch span { grid-row: span 2; width: 1.5rem; height: 1.5rem; margin: 0; }
-    td .swatch small { grid-column: 2; }
     .night-cell code { color: inherit; }
     .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 0; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
     .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }

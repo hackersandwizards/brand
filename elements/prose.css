@@ -9,6 +9,7 @@
    in Tailwind's utilities layer, which a layered rule would lose to.
 
    Settings:
+     --hw-corner-sm      inline code's corner, the small corner at the medium's size
      --hw-prose-check-x  the checkbox's offset from its item's start */
 
 .hw-prose {
@@ -40,7 +41,7 @@
   margin-top: 0.75em;
 }
 .hw-prose :not(pre) > code {
-  border-radius: var(--radius-sm);
+  border-radius: var(--hw-corner-sm, var(--radius-sm));
   padding: 0.125em 0.375em;
   font-size: var(--text-ui, 0.875rem);
   font-weight: 500;
