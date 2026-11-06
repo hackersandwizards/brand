@@ -611,8 +611,8 @@ if (import.meta.main) {
     process.exit(2);
   }
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
-  const browser = await launch();
   const server = config.site ? serve(config.site) : undefined;
+  const browser = await launch();
   const results: PageResult[] = [];
   try {
     for (const url of config.pages)

@@ -364,7 +364,7 @@ export const serve = (dir: string) => {
     hostname: "127.0.0.1",
     port: 0,
     fetch(request) {
-      const { pathname } = new URL(request.url);
+      const { pathname, search } = new URL(request.url);
       const file = fileIn(root, pathname);
       if (
         file &&
@@ -372,7 +372,7 @@ export const serve = (dir: string) => {
         file.endsWith("/index.html") &&
         !pathname.endsWith(".html")
       )
-        return Response.redirect(`${pathname}/`, 301);
+        return Response.redirect(`${pathname}/${search}`, 301);
       return file ? new Response(Bun.file(file)) : new Response("Not found", { status: 404 });
     },
   });
@@ -395,8 +395,8 @@ if (import.meta.main) {
     );
     process.exit(2);
   }
-  const browser = await launch();
   const server = site ? serve(site) : undefined;
+  const browser = await launch();
   const pages = named.map((a) => toUrl(a, server?.url));
   const readings: Reading[] = [];
   const empty: string[] = [];

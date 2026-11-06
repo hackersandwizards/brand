@@ -53,7 +53,7 @@ const mix = (a: string, p: number, b: string) => {
 };
 // The mixes a standalone SVG may write as hex, since it cannot name a token: every token colour on
 // white at Tailwind's opacity steps (5 % to 95 %) and at the 7 % wash tokens.css names, and each
-// hue row's text colour at 70 % with ink (tokens.css, Roles). Within 1 per channel, for rounding.
+// hue row's text colour at 70 % with ink (tokens.css, Hues). Within 1 per channel, for rounding.
 const ROWS = [
   ["teal", "teal-dark"],
   ["purple", "purple"],
@@ -322,12 +322,13 @@ export const violations = (
   ceiling: Record<string, Counts> = {},
 ) => {
   const out: string[] = [];
-  for (const [file, counts] of Object.entries(files))
+  for (const [file, counts] of Object.entries(files)) {
+    if (isPartner(file, allow[file])) continue;
     for (const k of METRICS) {
-      if (isPartner(file, allow[file])) break;
       const allowed = allow[file]?.[k] ?? 0;
       if (counts[k] > allowed) out.push(`${file}: ${k} ${counts[k]}, allowed ${allowed}`);
     }
+  }
   for (const [file, e] of Object.entries(allow)) {
     if (!e.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
     if (e.partner !== undefined && !isPartner(file, e))
