@@ -4,7 +4,9 @@
    variants data-* attributes, night the nearest data-theme being "dark" (a data-theme="light"
    inside a dark one turns its subtree back to day). The rules sit in @layer components, so a
    surface's utilities win; brand-elements measures that they still match.
-   The list marker is tokens/marker.css (export ./marker.css). */
+   card.css also gives every block inside a brand-cornered one the small corner, so a surface
+   importing single elements imports card.css. The list marker is tokens/marker.css (export
+   ./marker.css). */
 @import "./scales.css";
 @import "./label.css";
 @import "./label-box.css";

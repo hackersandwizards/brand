@@ -250,6 +250,7 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   const findings: { element: string; label: string; prop: string; got: string; want: string }[] =
     [];
   const seen: string[] = [];
+  const SKIP = "[data-hw-reference], [data-hw-exception], [data-hw-shell]";
   const missing = new Set<string>();
   const label = (el: Element) =>
     `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${(el.textContent ?? "").trim().slice(0, 30)}"`;
@@ -290,7 +291,7 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   // every pair.
   const found = Object.entries(elements).flatMap(([element, selector]) =>
     [...document.querySelectorAll(selector)]
-      .filter((el) => !el.closest("[data-hw-reference], [data-hw-exception], [data-hw-shell]"))
+      .filter((el) => !el.closest(SKIP))
       .map((el) => {
         const own = getComputedStyle(el);
         for (const t of tokens[element] ?? [])
@@ -308,27 +309,24 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
         return { element, el, set };
       }),
   );
-  // The brand corner inside a brand corner, over every element of the page, before any reference.
-  const isBrand = new Map<Element, boolean>();
-  const brand = (el: Element) => {
-    let v = isBrand.get(el);
-    if (v === undefined) {
+  // The brand corner inside a brand corner, over every element of the page (a closed panel too),
+  // before any reference.
+  const branded = new Set(
+    [...document.querySelectorAll("body *")].filter((el) => {
       const g = getComputedStyle(el);
-      const [tl, tr, br] = [
+      const [tl, tr, br, bl] = [
         g.borderTopLeftRadius,
         g.borderTopRightRadius,
         g.borderBottomRightRadius,
-      ].map(parseFloat) as [number, number, number];
-      v = tl > tr && tl === br && el.getClientRects().length > 0;
-      isBrand.set(el, v);
-    }
-    return v;
-  };
-  for (const el of document.querySelectorAll("body *")) {
-    if (!brand(el) || el.closest("[data-hw-reference], [data-hw-exception], [data-hw-shell]"))
-      continue;
+        g.borderBottomLeftRadius,
+      ].map(parseFloat);
+      return tl! > tr! && tl === br && tr === bl;
+    }),
+  );
+  for (const el of branded) {
+    if (el.closest(SKIP)) continue;
     for (let p = el.parentElement; p; p = p.parentElement)
-      if (brand(p)) {
+      if (branded.has(p)) {
         findings.push({
           element: "corner",
           label: label(el),
