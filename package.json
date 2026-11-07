@@ -82,7 +82,7 @@
     "manifest.json"
   ],
   "scripts": {
-    "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && git config core.hooksPath .githooks || true",
+    "prepare": "[ \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$(pwd -P)\" ] && { git config core.hooksPath .githooks; git -c lfs.fetchexclude= lfs pull --exclude='logos/*.tif'; } || true",
     "check": "scaffolding check",
     "fix": "bun --bun eslint --cache --concurrency=auto . --fix && bun --bun prettier --write .",
     "tokens": "bun scripts/tokens.ts",

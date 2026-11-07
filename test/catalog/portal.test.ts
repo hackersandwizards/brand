@@ -52,7 +52,7 @@ test("every link and image of the portal resolves in dist/", () => {
     .filter((r) => r && !/^(?:[a-z]+:|\/\/)/.test(r));
   expect(refs.length).toBeGreaterThan(100);
   expect([...new Set(refs)].filter((r) => !fileOf(r))).toEqual([]);
-  // A Git LFS pointer resolves too, and shows as a broken image.
+  // A Git LFS pointer resolves too and shows as a broken image: `bun install` pulls them.
   expect([...new Set(refs)].filter((r) => lfsOid(readFileSync(fileOf(r)!)))).toEqual([]);
 });
 

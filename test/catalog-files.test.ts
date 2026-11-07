@@ -13,3 +13,9 @@ test.each([
   serveFile({ url } as IncomingMessage, res as unknown as ServerResponse, () => {});
   expect(headers["Content-Type"]).toStartWith(type);
 });
+
+test("dev passes a malformed escape on", () => {
+  let passed = false;
+  serveFile({ url: "/%E0%A4%A" } as IncomingMessage, {} as ServerResponse, () => (passed = true));
+  expect(passed).toBe(true);
+});
