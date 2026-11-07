@@ -14,7 +14,9 @@
    lose to. A list marked not-prose keeps its own start.
 
    Settings:
-     --hw-prose-width  the reading width, Tailwind's 3xl container (48rem); none fills the column */
+     --hw-prose-width  the reading width, Tailwind's 3xl container (48rem); none fills the column.
+                       Set it here, not with a max-w-* utility: the rule sits in no layer, so it
+                       wins over every utility */
 @import "./check.css";
 
 .hw-prose {

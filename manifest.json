@@ -450,7 +450,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "1f0dabe45dd617dfb2e6b419956d57b8f28f120798b315c68d99801fcc6e5dc0"
+      "sha256": "e92b309a06bda6c9126e4028ade61f349babd11058f9aac9498dcc7de6ce8ad2"
     },
     {
       "path": "elements/row.css",
@@ -470,7 +470,7 @@
     },
     {
       "path": "elements/kbd.css",
-      "sha256": "2e0b5c749e876f744fdd606f424d57c8ef6bec542e4fa08be3937aeb43bf8a85"
+      "sha256": "c83f7175021410415e3d26dd13d1efb2952fce21ac8b3c817c15c00b3dfdc86e"
     },
     {
       "path": "tokens/document.css",
@@ -490,7 +490,7 @@
     },
     {
       "path": "tokens/text-base.css",
-      "sha256": "91a13686537fc0f7e43d7204b558b70fc5a4327ee88ad75766e326142af51b32"
+      "sha256": "009a3dfe0f444d6c4399e636d211849011e264f0ef866a6ec51d38b8f7fc3ca7"
     },
     {
       "path": "verbal/verbal.json",

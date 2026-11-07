@@ -1,8 +1,9 @@
 /* The keycap: a key the reader presses, in a keyboard hint beside a control or in a line of help
    text. One <kbd class="hw-kbd"> per key, the "+" or "then" between keys outside it. The code face
    on the page's ground, ink at 70 % (5.5:1 on the page), a hairline with a second one under it for
-   the key's edge, the small corner. On night the night ground, night ink at 70 % and the night
-   line.
+   the key's edge, the small corner. On night the night ground, night ink at 70 % and the line
+   the list row draws on night. Inside a prose block the key takes not-prose too, or Typography's
+   own kbd rule wins.
 
    Settings:
      --hw-kbd-size   the type size: the label step of the medium

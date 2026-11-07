@@ -315,14 +315,14 @@ export const scanSource = (raw: string, ext: string) => {
   return { counts, hexes, fonts };
 };
 
-/** Every way the counts exceed the allowlist, and every entry without a reason or grown against
- *  the committed allowlist beyond `ceiling`, this scanner's counts of the files as committed, which
- *  a pin change passes, where the list's total for that metric grew too: within the total, a value
- *  moved from one file to another. */
 /** The allowlist's sum of one metric, partner marks left out. */
 const total = (allow: Allowlist, k: (typeof METRICS)[number]) =>
   Object.entries(allow).reduce((sum, [f, e]) => sum + (isPartner(f, e) ? 0 : (e[k] ?? 0)), 0);
 
+/** Every way the counts exceed the allowlist, and every entry without a reason or grown against
+ *  the committed allowlist beyond `ceiling`, this scanner's counts of the files as committed, which
+ *  a pin change passes, where the list's total for that metric grew too: within the total, a value
+ *  moved from one file to another. */
 export const violations = (
   files: Record<string, Counts>,
   allow: Allowlist,
@@ -337,6 +337,9 @@ export const violations = (
       if (counts[k] > allowed) out.push(`${file}: ${k} ${counts[k]}, allowed ${allowed}`);
     }
   }
+  const totalGrew = Object.fromEntries(
+    METRICS.map((k) => [k, !!committed && total(allow, k) > total(committed, k)]),
+  );
   for (const [file, e] of Object.entries(allow)) {
     if (!e.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
     if (e.partner !== undefined && !isPartner(file, e))
@@ -344,8 +347,8 @@ export const violations = (
     if (committed && !isPartner(file, e))
       for (const k of METRICS)
         if (
-          (e[k] ?? 0) > Math.max(committed[file]?.[k] ?? 0, ceiling[file]?.[k] ?? 0) &&
-          total(allow, k) > total(committed, k)
+          totalGrew[k] &&
+          (e[k] ?? 0) > Math.max(committed[file]?.[k] ?? 0, ceiling[file]?.[k] ?? 0)
         )
           out.push(
             `${ALLOWLIST}: ${file} ${k} grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed`,

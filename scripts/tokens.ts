@@ -271,7 +271,15 @@ ${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(FONT_FACE)]
   .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
   .join("\n\n")}
 `,
-    "cursor.svg": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="${colors["--color-teal"]}"/><circle cx="6" cy="6" r="4" fill="${colors["--color-teal"]}" fill-opacity="0.4"/><circle cx="6" cy="6" r="5" fill="${colors["--color-teal"]}" fill-opacity="0.25"/></svg>\n`,
+    "cursor.svg": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">${(
+      [
+        [3, ""],
+        [4, ' fill-opacity="0.4"'],
+        [5, ' fill-opacity="0.25"'],
+      ] as const
+    )
+      .map(([r, o]) => `<circle cx="6" cy="6" r="${r}" fill="${colors["--color-teal"]}"${o}/>`)
+      .join("")}</svg>\n`,
   };
 };
 
