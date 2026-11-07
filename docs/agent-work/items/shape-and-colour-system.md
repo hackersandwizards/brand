@@ -4,7 +4,7 @@ status: open
 priority: 3
 order: 550
 owner: a brand session
-evidence: "consumers' origin/main read 2026-11-07: every consumer pins brand v1.19.2; no file in os, trainer-hub, website, talks, slides, documents, admin, certificate-verifier or practitioners uses hue-amber or hue-green (trainer-hub's src/styles/expert.test.ts names it only as a string the palette rule must reject); os src/config.ts keeps hue-rust for the factory category alone and renders company priority as hw-pill data-priority; admin ItemRow, trainer-hub FormatBadge, website and mail switched."
+evidence: "consumers' origin/main read 2026-11-07 (afternoon): os, trainer-hub, website, talks, slides, documents, admin, certificate-verifier and practitioners pin brand v1.28.2 (admin >=1.28.2); a grep of each for hue-amber or hue-green outside docs finds only trainer-hub's src/styles/expert.test.ts, which names it as a string the palette rule must reject; control: the same grep in brand finds expert/expert.css (3 lines). os src/config.ts keeps hue-rust for the factory category alone and renders company priority as hw-pill data-priority; admin ItemRow, trainer-hub FormatBadge, website and mail switched."
 ---
 
 # One shape and colour system: remove the hue-amber and hue-green aliases
