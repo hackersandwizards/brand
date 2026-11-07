@@ -561,7 +561,7 @@ export const rules = (css: string) => {
   return out;
 };
 
-/** A state or a pseudo-element the element leaves to the surface (card.css: hover). */
+/** A state or a pseudo-element: the elements are compared at rest, so such a rule is not read. */
 const STATE = /::?(before|after|hover|focus|focus-visible|focus-within|active|visited|marker)\b/;
 
 /** The parts of a selector split at the characters `seps`, outside any parentheses. */

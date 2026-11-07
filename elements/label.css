@@ -23,7 +23,7 @@
     text-transform: var(--type-label-case);
     color: var(--color-label-text);
   }
-  .hw-label :is(button, select) {
+  .hw-label :where(button, select) {
     font: inherit;
     letter-spacing: inherit;
     text-transform: inherit;

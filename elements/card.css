@@ -5,8 +5,9 @@
    The linked card: a card one click opens, its title link marked hw-card-link and stretched over
    the whole card, or an a.hw-card that is itself the link. Under the pointer its line turns teal
    (teal-night on night) and the arrow after the title, in teal-dark (teal-night), moves 4 px along
-   as the arrow link's does (arrow-link.css); focus.css puts the link's focus ring on the card. Any
-   other link or control inside stays clickable above the stretched one.
+   as the arrow link's does (load arrow-link.css too); focus.css puts the link's focus ring on the
+   card. Any other control inside stays clickable above the stretched link, and hovering it leaves
+   the card at rest.
 
    Markup: <li class="hw-card"><img alt=""><a class="hw-card-link" href="…">Ada Muster<span
            class="hw-arrow" aria-hidden="true">&nbsp;<span>→</span></span></a><p>Rolle</p></li>
@@ -45,7 +46,7 @@
     transition: border-color var(--motion-fast);
   }
   a.hw-card[href],
-  .hw-card-link {
+  .hw-card .hw-card-link {
     color: inherit;
     text-decoration: none;
   }
@@ -54,19 +55,23 @@
     inset: 0;
     content: "";
   }
-  .hw-card:has(.hw-card-link)
-    :is(a[href], button, input, select, summary, label):not(.hw-card-link) {
+  :where(.hw-card:has(.hw-card-link))
+    :where(a[href], button, input, select, textarea, summary, label, [tabindex]):not(
+      .hw-card-link
+    ) {
     position: relative;
     z-index: 1;
   }
-  .hw-card:is([href], :has(.hw-card-link)) .hw-arrow {
+  :is(a.hw-card[href], .hw-card-link) .hw-arrow {
     color: var(--_hw-card-arrow);
   }
-  .hw-card:is([href], :has(.hw-card-link)):is(
-      :hover,
-      :focus-visible,
-      :has(.hw-card-link:focus-visible)
-    ) {
+  /* The card whose own link is hovered or focused, not one holding that card. */
+  .hw-card:is(
+    [href]:is(:hover, :focus-visible),
+    :has(.hw-card-link:is(:hover, :focus-visible)):not(
+      :has(.hw-card .hw-card-link:is(:hover, :focus-visible))
+    )
+  ) {
     border-color: var(--_hw-card-hover);
   }
   @media (prefers-reduced-motion: reduce) {

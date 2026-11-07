@@ -12,7 +12,8 @@
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
-  .hw-focus-ring .hw-card:has(.hw-card-link:focus-visible) {
+  .hw-focus-ring
+    .hw-card:has(.hw-card-link:focus-visible):not(:has(.hw-card .hw-card-link:focus-visible)) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
@@ -26,7 +27,8 @@
     :is(
       .hw-focus-ring :focus-visible,
       .hw-focus-ring:focus-visible,
-      .hw-focus-ring .hw-card:has(.hw-card-link:focus-visible)
+      .hw-focus-ring
+        .hw-card:has(.hw-card-link:focus-visible):not(:has(.hw-card .hw-card-link:focus-visible))
     ) {
       outline-color: var(--color-purple-night);
     }

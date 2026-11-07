@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/card.css",
-      "sha256": "4cac7c0ea41c51a44e857f846f8a361ff410fd509adf38d290018b3ca22a3a0f"
+      "sha256": "ce1904bf0380f1727cfdf15f32f7a0be3dde23592063db1e80acec60ad1f2fe6"
     },
     {
       "path": "elements/code.css",
@@ -378,7 +378,7 @@
     },
     {
       "path": "elements/focus.css",
-      "sha256": "1f656c873a7d8391a68b493a65240e3221d3246bef3b908cf8bbdade9e6fc7bb"
+      "sha256": "4dc91313def85744dac4deed56f837e8ba0689d09086ec8f460d477392506917"
     },
     {
       "path": "elements/icon-button.css",
@@ -386,7 +386,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "0ed2d62791f7720b5773cec05592cdec8506514900357d39e9ae7e4dba55e5f7"
+      "sha256": "2f6759fef0bb9b4997c4b8e13fc802ca48fd14f40b7809fb330c8f319bbdbd9d"
     },
     {
       "path": "elements/label-box.css",
@@ -442,7 +442,7 @@
     },
     {
       "path": "elements/arrow-link.css",
-      "sha256": "de04048a38efc4221e6cd1adb5d56223e962dc11853a9628665a4778f7c4ec33"
+      "sha256": "216e59f086b2cfe338f08039ce37e1be14195ebd0526da6c341033c04e965474"
     },
     {
       "path": "elements/breadcrumb.css",
@@ -462,7 +462,7 @@
     },
     {
       "path": "elements/dot-list.css",
-      "sha256": "8afb89780c67d4f6df6267bc7faa563f38455a95d620926cc44f528acacbae09"
+      "sha256": "b658b3b886921f4fc720e41fec583ec7ddb1d867496537fd652784a7153df568"
     },
     {
       "path": "elements/field.css",

@@ -31,14 +31,7 @@
     display: inline-block;
     transition: translate var(--motion-fast);
   }
-  .hw-arrow-link:is(:hover, :focus-visible) .hw-arrow > span,
-  .hw-card:is([href], :has(.hw-card-link)):is(
-      :hover,
-      :focus-visible,
-      :has(.hw-card-link:focus-visible)
-    )
-    .hw-arrow
-    > span {
+  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(:hover, :focus-visible) .hw-arrow > span {
     translate: 4px 0;
   }
   /* One em tall, so the turned arrow's box stays inside the line; the margin keeps a line ending on
