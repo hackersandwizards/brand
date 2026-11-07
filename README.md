@@ -72,6 +72,7 @@ with `Script not found`.
 | `brand-scan [--tighten]`                                             | flags a fork of an expert component, below                            |
 | `brand-markers [--scale 2,4] [--site <dir>] <url, file or /path>...` | measures every list marker on your pages, below                       |
 | `brand-elements [--json]`                                            | measures the shared elements on your design-system page, below        |
+| `brand-retired <dir or file>...`                                     | fails on a retired slogan in what your build wrote, below             |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -147,8 +148,8 @@ relative path. `applications/avatars/generate.ts` builds the set beside the avat
 `verbal/verbal.json` (`@hackersandwizards/brand/verbal.json`) holds the verbal identity: the claim
 in English and German with the word a surface may highlight, mission, vision, one-line position,
 boilerplate, values, terms and the retired slogans. A surface imports the text
-(`import verbal from "@hackersandwizards/brand/verbal.json"`) and never retypes it; a test may fail
-on any `retired` line. A language the source has not set yet is `null`. The texts are set here: the
+(`import { claim } from "@hackersandwizards/brand/verbal.json"`) and never retypes it; `brand-retired`
+(below) fails on any `retired` line in its build. A language the source has not set yet is `null`. The texts are set here: the
 `~/.claude` hub sync copies the file into every repo's voice skill, which keeps tone of voice,
 banned words and the brand elements never said in copy. The portal shows the file under Words.
 
@@ -371,6 +372,19 @@ of them (`Pill`, `PageHeader`, ...): import it from the package. An exception go
 `brand-scan.json` beside your `package.json`, `{ "<lowercase name>": "<reason>" }`, and the list may
 only shrink against `HEAD`. A name matches without case and word separators: `app-header.tsx` is
 `AppHeader`, key `appheader`.
+
+### Check your build for retired lines
+
+`brand-retired` fails where a file your build wrote carries a line from `verbal.json`'s `retired`
+list. Name the folders or files it writes, such as `brand-retired dist` or a rendered signature. It
+reads every file under them and matches each line in the raw text and in the text with its tags
+stripped, with entities decoded, whitespace ignored and case folded in both, so a line a page splits
+across elements or sets in title case still counts. A binary file (a NUL byte in its first 8000) is
+skipped. It exits 2 on a missing path or a folder with no text file: run it after the build. It
+takes no exceptions. A client bundle that imports `verbal.json` whole carries the retired list and
+fails: import the fields a page shows (`import { claim } from "@hackersandwizards/brand/verbal.json"`)
+or read the file at build time only. Add it after your build step:
+`"check:retired": "brand-retired dist"`.
 
 ### List markers
 

@@ -61,7 +61,8 @@ data or secret.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
   rule being `tokens/marker.css`. `elements.ts` (`brand-elements`) measures the shared elements on
   the design-system page a consumer names in `brand-elements.json`, its element-named source and
-  that page's coverage.
+  that page's coverage. `retired.ts` (`brand-retired`) fails on a line of `verbal.json`'s `retired` list in
+  the built folders or files a consumer names.
   A skill, script or document generator takes the file from the package, never a copy.
 - `catalog/`: the catalog, one Astro app in scaffolding's catalog shell (`catalog/astro.config.ts`,
   preset `catalog()`), built to `dist/` and published by the reusable Pages workflow at
