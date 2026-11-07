@@ -110,11 +110,11 @@
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "1cc4425a5d867e5102103441ecf4f7707d901ae2e5138e8cb32003121f6735fa"
+      "sha256": "3ae690eeb6eed7c4f235ee7b2a9a6c5a2f98be3f41166a0120acab9fe1e94d8c"
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "e0ee37c9758a2fcf8cf7c3321d84d9155b1439c1a39bfb4c4fca86599b964043"
+      "sha256": "550bbfc1a9e3580390f73a43b3859120c65d62892ed32d8577ff2603698e54a6"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -282,7 +282,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "3e7aaa7547a646b6ef0b536acd86102e97e2c9d3037b3f7b0bac341f8901fd98"
+      "sha256": "3541c7fa464ba25e5584265272a7b0f63c6bc385d94f74f6911235e414f6e7c6"
     },
     {
       "path": "expert/catalogs.json",
@@ -330,7 +330,7 @@
     },
     {
       "path": "expert/components/Pill.astro",
-      "sha256": "be3902b4e2631248a2e98e7a0efc1c6dd464bcf8bbe277f835c894a9c7ab3c75"
+      "sha256": "c42c5dcd349785519db43d589c6c1d1d6b551ad15757ff216c22f948946756fe"
     },
     {
       "path": "expert/components/SpaceNav.astro",
@@ -370,7 +370,7 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "6e2b90c85f473ffa76b857695d8cecafd0a37241e7e082510772114e6482f18c"
+      "sha256": "e43f1ea11a6c03be4593369f1ba95af8fca967e408680747f7a2fab0a7f9309d"
     },
     {
       "path": "elements/elements.css",
@@ -406,7 +406,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "d374268fe34a8fe75c5da4a5d20ab8f340b113613cfb97677b4c571dd0f24487"
+      "sha256": "68d00f27e55049bbf2156416653589616b3db774bb43a798d847449b2cdb4ecc"
     },
     {
       "path": "elements/strip.css",
@@ -450,7 +450,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "975944c78c946dbadb3214f3a65e5ecec96bac06432c9e81995f4682196ba0e4"
+      "sha256": "520b8e6973de9f044b855e57af27d36aac2dd6b7cf8be8300ba55e640d2e4199"
     },
     {
       "path": "elements/check.css",
@@ -474,7 +474,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "f0bb79d3cdee785f8811d2db59eb052becb573f70cae81cc0ede24d3496c0527"
+      "sha256": "82af3e0a5104677bfb95e3bfb755c83c0e05d368519ca5e11c3f2d76a47b434c"
     },
     {
       "path": "elements/row.css",
@@ -494,11 +494,11 @@
     },
     {
       "path": "tokens/document.css",
-      "sha256": "4c3e9ae2dce20f5b0d99a932c9fbe74f9d13c0e7b82153221cd8c3008fa3b2fa"
+      "sha256": "842556313da9b2b3cdc5ec041ec1fae908e0fa3bb117316de1b5699a33689118"
     },
     {
       "path": "tokens/fonts.css",
-      "sha256": "946fc42216c8308906a993c0f8fde708ba625747a38d32edd6d8b403148563a5"
+      "sha256": "365b7fbcf04450e35d285142b4e57fef12b8b99865ebb0303306e3bcee3759fb"
     },
     {
       "path": "tokens/night.css",
@@ -506,7 +506,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "6186d0ed716ac6246673283cbd7d6c717179d89cdd684cbdd4e9a6126b399388"
+      "sha256": "19481ef85342ac30cbe978ad461eb5193551d3e55db6c1e2a54994a4482c6236"
     },
     {
       "path": "verbal/verbal.json",
