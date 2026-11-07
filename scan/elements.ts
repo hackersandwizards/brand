@@ -11,6 +11,9 @@
 //     "site": "<folder>" }                            optional: a built site, served on a free
 //                                                     port, which a page starting with / names
 //
+// --base <url> names the server a page starting with / is on, such as one the consumer's gate
+// started on a free port, instead of "site".
+//
 // 1. Rendered. Every closed <details> outside a header or nav is opened, as brand-markers does. Every
 //    hub element on the pages (an hw-* class; for the focus ring, the first focusable inside
 //    [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception], which is that
@@ -32,7 +35,7 @@
 //    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, and every hub
 //    element a page shows is listed as used.
 //
-// Usage: brand-elements [--json]. Exits 1 on any finding, and on a page with no hub element (a zero
+// Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a page with no hub element (a zero
 // proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
@@ -628,12 +631,14 @@ if (import.meta.main) {
     process.exit(2);
   }
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
+  const i = process.argv.indexOf("--base");
   const server = config.site ? serve(config.site) : undefined;
+  const base = i < 0 ? server?.url : new URL(process.argv[i + 1]!);
   const browser = await launch();
   const results: PageResult[] = [];
   try {
     for (const url of config.pages)
-      results.push(await measurePage(browser, url, "", config.lightOnly === true, server?.url));
+      results.push(await measurePage(browser, url, "", config.lightOnly === true, base));
   } finally {
     await browser.close();
     await server?.stop(true);

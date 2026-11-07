@@ -20,6 +20,7 @@
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, or a page
 // with no marker (a zero proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, statSync } from "node:fs";
+import { availableParallelism } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer, {
@@ -273,7 +274,10 @@ export async function measureMarkers(
   url: string,
   { scale = 4, width = 1280, newline = false, css = "" } = {},
 ): Promise<Reading[]> {
-  const page = await browser.newPage();
+  // A context of its own: puppeteer shoots one page of a context at a time, so runs side by side
+  // in one context would wait for each other's shots.
+  const context = await browser.createBrowserContext();
+  const page = await context.newPage();
   try {
     await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
     // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
@@ -323,7 +327,7 @@ export async function measureMarkers(
     }
     return out;
   } finally {
-    await page.close();
+    await context.close();
   }
 }
 
@@ -398,20 +402,27 @@ if (import.meta.main) {
   const server = site ? serve(site) : undefined;
   const browser = await launch();
   const pages = named.map((a) => toUrl(a, server?.url));
-  const readings: Reading[] = [];
-  const empty: string[] = [];
+  // Every page at every scale, with and without the newline, run side by side, one run per core.
+  const runs = pages.flatMap((url) =>
+    scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
+  );
+  const done: Reading[][] = [];
+  let next = 0;
   try {
-    for (const url of pages) {
-      const before = readings.length;
-      for (const scale of scales)
-        for (const newline of [false, true])
-          readings.push(...(await measureMarkers(browser, url, { scale, width, newline })));
-      if (readings.length === before) empty.push(url);
-    }
+    await Promise.all(
+      Array.from({ length: Math.min(runs.length, availableParallelism()) }, async () => {
+        for (let i = next++; i < runs.length; i = next++) {
+          const { url, ...options } = runs[i]!;
+          done[i] = await measureMarkers(browser, url, { ...options, width });
+        }
+      }),
+    );
   } finally {
     await browser.close();
     await server?.stop(true);
   }
+  const readings = done.flat();
+  const empty = pages.filter((url) => !readings.some((r) => r.page === url));
   const bad = readings.filter(failing);
   if (json) console.log(JSON.stringify(readings, null, 2));
   else {

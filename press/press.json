@@ -11,13 +11,15 @@
       "file": "benedikt-stemmildt.jpg",
       "shows": "Benedikt Stemmildt, portrait",
       "width": 2010,
-      "height": 2010
+      "height": 2010,
+      "cut": "benedikt-stemmildt-640.jpg"
     },
     {
       "file": "stefan-munz.jpg",
       "shows": "Stefan Munz, portrait",
       "width": 2290,
-      "height": 2290
+      "height": 2290,
+      "cut": "stefan-munz-640.jpg"
     }
   ]
 }

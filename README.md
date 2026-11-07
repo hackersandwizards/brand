@@ -71,7 +71,7 @@ with `Script not found`.
 | `brand-copies [--tighten]`                                           | flags a copy of a brand file in your tree, below                      |
 | `brand-scan [--tighten]`                                             | flags a fork of an expert component, below                            |
 | `brand-markers [--scale 2,4] [--site <dir>] <url, file or /path>...` | measures every list marker on your pages, below                       |
-| `brand-elements [--json]`                                            | measures the shared elements on your design-system page, below        |
+| `brand-elements [--base <url>] [--json]`                             | measures the shared elements on your design-system page, below        |
 | `brand-retired <dir or file>...`                                     | fails on a retired slogan in what your build wrote, below             |
 
 These commands and the exported files above are the whole interface: any other path in the package
@@ -232,6 +232,8 @@ in full with its reason, `<section data-hw-exception="<name>">`. List both in
 
 A system whose pages never turn to night adds `"lightOnly": true`: the tokens only an element's
 night rules read may then stay undefined there. `"site": "<dir>"` is `brand-markers --site` (below).
+A gate that starts its own server on a free port names each page as a path starting with `/` and
+runs `brand-elements --base <server url>`, so two gates at once never collide on a port.
 
 Before it measures, `brand-elements` opens every closed `<details>` outside a header or nav, since
 a focusable in a shut fold takes no focus. An element inside `[data-hw-shell]`, the scaffolding
@@ -404,7 +406,8 @@ newline follows `<li>`.
 
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting
-where the wrapped lines start, and on a page with no marker. Run it in your gate on the pages or
+where the wrapped lines start, and on a page with no marker. It measures the pages side by side,
+one run per core. Run it in your gate on the pages or
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first.
 `--site <dir>` serves a built site folder on a free port for the run, a folder answering with its
 `index.html`, and a page starting with `/` is a path on it, so pages whose links start at the root
@@ -417,7 +420,8 @@ pages as files instead.
 
 `press/` holds the photos of the press kit: `founders.jpg` (Stefan Munz and Benedikt Stemmildt in a
 skatepark bowl, 2785 px), `benedikt-stemmildt.jpg` (2010 px) and `stefan-munz.jpg` (2290 px), each
-square JPEG. Credit them "Photo: Francesca Amann"; `press.json` lists each file with what it shows,
+square JPEG without camera data. Each portrait has a 640 px cut beside it for a slide or a small
+spot, named in `press.json` as `cut` (`benedikt-stemmildt-640.jpg`, `stefan-munz-640.jpg`). Credit them "Photo: Francesca Amann"; `press.json` lists each file with what it shows,
 its size and the credit. With the logos above, they make the ZIP the website's press page offers
 (`/press/`, `/de/presse/`).
 
