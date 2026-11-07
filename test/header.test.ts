@@ -107,7 +107,7 @@ describe("expert/header.css focus", () => {
   });
 });
 
-// The header with the catalog list (catalogs.json, Mail current) at `width`: whether every link
+// The header with the catalog list (catalogs.json, Mail current on its home, Slides below it) at `width`: whether every link
 // lies inside the nav's box and the viewport, the header's height beside --spacing-app-header, and
 // the bar's colour. `nested` puts the list in a nav inside the bar's nav group, as scaffolding's
 // catalog shell does, followed by a round control. Through puppeteer, since headless Chrome's
@@ -118,7 +118,7 @@ const style = ["generated/tokens.root.css", "expert/header.css"]
 const links = catalogs
   .map(
     (c) =>
-      `<a class="hw-header-link" href="${c.href}"${c.name === "Mail" ? ' aria-current="page"' : ""}>${c.name}</a>`,
+      `<a class="hw-header-link" href="${c.href}"${c.name === "Mail" ? ' aria-current="page"' : c.name === "Slides" ? ' aria-current="true"' : ""}>${c.name}</a>`,
   )
   .join("");
 
@@ -152,6 +152,9 @@ ${nav}</div></header>
         height: document.querySelector(".hw-header")!.getBoundingClientRect().height,
         token: document.getElementById("probe")!.getBoundingClientRect().height,
         bg: getComputedStyle(document.querySelector(".hw-header")!).backgroundColor,
+        marked: [...document.querySelectorAll("[data-hw-catalogs] .hw-header-link")]
+          .filter((a) => getComputedStyle(a).fontWeight === "500")
+          .map((a) => a.textContent),
       };
     });
     await tab.close();
@@ -165,6 +168,9 @@ ${nav}</div></header>
         expect(r.inView).toBe(true);
         expect(r.height).toBe(r.token);
       });
+  it('marks the current catalog under aria-current "page" and "true" alike', async () => {
+    expect((await catalogPage(1440)).marked).toEqual(["Slides", "Mail"]);
+  });
   it("takes two rows on a phone and one on a desktop", async () => {
     expect((await catalogPage(375)).height).toBeGreaterThan((await catalogPage(1440)).height);
   });

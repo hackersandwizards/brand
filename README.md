@@ -167,11 +167,11 @@ that renders no `.astro` takes its two icons from `expert/components/theme-icons
 
 Every catalog's header links every catalog: `catalogs.json` lists them, name and address, and each
 catalog renders its nav from it (`import catalogs from "@hackersandwizards/brand/catalogs.json"`),
-the current one with `aria-current="page"`, in an element with `data-hw-catalogs`. Below 30rem that
-header puts the nav on a row of its own under the lockup, so no catalog sits off-screen, and
-`--spacing-app-header` grows by the row. A new catalog is one line in `catalogs.json`, a release,
-and a pin bump in every catalog. The products' own design systems stay in the portal's Systems
-group.
+the current one with `aria-current="page"` on its home and `aria-current="true"` on a page below
+it, in an element with `data-hw-catalogs`. Below 30rem that header puts the nav on a row of its own under
+the lockup, so no catalog sits off-screen, and `--spacing-app-header` grows by the row. A new
+catalog is one line in `catalogs.json`, a release, and a pin bump in every catalog. The products'
+own design systems stay in the portal's Systems group.
 
 ### The catalog
 

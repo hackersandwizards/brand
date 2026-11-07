@@ -29,9 +29,10 @@
    Page content takes the same width with class hw-container.
 
    A catalog's nav renders catalogs.json, one link per catalog, the current one with
-   aria-current="page", in an element carrying data-hw-catalogs (the nav itself, or a nav passed into
-   another nav group). Below 30rem such a header puts its nav on a second row under the lockup, so
-   every catalog stays in view, and --spacing-app-header grows by that row. */
+   aria-current "page" on its home and "true" on a page below it, in an element carrying
+   data-hw-catalogs (the nav itself, or a nav passed into another nav group). Below 30rem such a
+   header puts its nav on a second row under the lockup, so every catalog stays in view, and
+   --spacing-app-header grows by that row. */
 
 .hw-container {
   box-sizing: border-box;
@@ -233,6 +234,7 @@
 }
 
 .hw-header-link[aria-current="page"],
+.hw-header-link[aria-current="true"],
 .hw-header-link[aria-expanded="true"] {
   background: color-mix(in srgb, var(--hw-accent) 7%, transparent);
   color: var(--hw-accent);

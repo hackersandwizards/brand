@@ -4,7 +4,8 @@ import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import { coverage, ELEMENTS, measurePage } from "../../scan/elements";
 import { launch } from "../../scan/markers";
-import { BASE, DIST, serveSite } from "./site";
+import catalogs from "../../expert/catalogs.json";
+import { BASE, DIST, page, serveSite } from "./site";
 
 // brand-elements over every element story, as a spoke's gate runs it over its catalog: each state
 // matches the element's rule, and every element has its tile at this version.
@@ -40,3 +41,24 @@ test("every element story passes brand-elements", async () => {
   expect(results.flatMap((r) => r.findings)).toEqual([]);
   expect(coverage({ pages, uses: Object.keys(ELEMENTS) }, results)).toEqual([]);
 }, 300_000);
+
+// The catalog's header lists every catalog once, Catalog marked: "page" on the home, "true" below.
+test("the home and a story page link every catalog once, Catalog current", () => {
+  for (const [path, current] of [
+    ["catalog/index.html", "page"],
+    ["catalog/dashboard/Elements/button/dense/index.html", "true"],
+  ]) {
+    const navs = page(path).match(/<nav[^>]*data-hw-catalogs[^>]*>.*?<\/nav>/gs) ?? [];
+    expect(navs.length).toBe(1);
+    const links = [...navs[0]!.matchAll(/<a([^>]*)>([^<]*)<\/a>/g)].map(([, attrs, name]) => [
+      name,
+      attrs!.match(/aria-current="(\w+)"/)?.[1],
+    ]);
+    expect(links.map(([name]) => name)).toEqual([
+      "Brand",
+      "Catalog",
+      ...catalogs.filter((c) => c.name !== "Brand").map((c) => c.name),
+    ]);
+    expect(links.filter(([, cur]) => cur)).toEqual([["Catalog", current]]);
+  }
+});

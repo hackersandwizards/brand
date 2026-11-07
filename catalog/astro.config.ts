@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import { catalog } from "@hackersandwizards/scaffolding/catalog";
 import { files } from "./files.ts";
+import catalogs from "../expert/catalogs.json";
 
 const own = (f: string) => new URL(`../${f}`, import.meta.url).pathname;
 
@@ -21,6 +22,14 @@ export default defineConfig({
       ],
       groupOrder: ["Elements"],
       home: "./Home.astro",
+      nav: {
+        items: [
+          { name: "Brand", href: "/" },
+          { name: "Catalog", href: "/catalog/" },
+          ...catalogs.filter((c) => c.name !== "Brand"),
+        ],
+        current: "Catalog",
+      },
       head: "./Head.astro",
       header: {
         component: "../expert/components/AppHeader.astro",
