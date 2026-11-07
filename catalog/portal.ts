@@ -344,6 +344,15 @@ const FAMILIES: Family[] = [
       ["documents on GitHub", "https://github.com/hackersandwizards/documents"],
     ],
   },
+  {
+    id: "mail",
+    title: "Mail",
+    note: "Designed mails, such as the monthly customer update, come from the mail engine, the package @hackersandwizards/mail: React Email components on the brand tokens and a command that renders a mail's HTML and plain-text parts from a data file, used by Company OS. Its catalog shows every building block and every mail type with invented data. A personal mail carries the signature above.",
+    links: [
+      ["Mail catalog", "https://hackersandwizards.github.io/mail/"],
+      ["mail on GitHub", "https://github.com/hackersandwizards/mail"],
+    ],
+  },
 ];
 // Not shown: the scripts that build a family and their inputs.
 const SKIP = /\.(ts|py|css)$|^qr-/;
@@ -1051,7 +1060,8 @@ const html = `<!doctype html>
 <a class="hw-header-link" href="#overview" aria-current="page">Brand</a>
 <a class="hw-header-link" href="catalog/">Catalog</a>
 <a class="hw-header-link" href="https://hackersandwizards.github.io/slides/">Slides</a>
-<a class="hw-header-link" href="https://hackersandwizards.github.io/documents/">Dokumente</a>
+<a class="hw-header-link" href="https://hackersandwizards.github.io/documents/">Documents</a>
+<a class="hw-header-link" href="https://hackersandwizards.github.io/mail/">Mail</a>
 </nav>
 </div>
 </header>
