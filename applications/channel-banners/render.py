@@ -100,21 +100,25 @@ def line_cols(line):
     return line["x"] + f.getbbox(text[0], anchor="ls")[0], x + f.getbbox(text[-1], anchor="ls")[2]
 
 
-def lockup_cols(lh):
-    """Left and right of the lockup's ink relative to its left edge, as render() places it."""
+@cache
+def lockup_ink(lh):
+    """The lockup's ink box at height lh, in px from the resized night cut's top left."""
     u = lh / LAYOUT_BOX[3]
     lock = Image.open(LOCKUP).convert("RGBA").resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
-    a, _, b, _ = lock.getchannel("A").point(lambda v: 255 if v > INK_ALPHA else 0).getbbox()
-    shift = -(LAYOUT_BOX[0] - NIGHT_BOX[0]) * u
+    return lock.getchannel("A").point(lambda v: 255 if v > INK_ALPHA else 0).getbbox()
+
+
+def lockup_cols(lh):
+    """Left and right of the lockup's ink relative to its left edge, as render() places it."""
+    a, _, b, _ = lockup_ink(lh)
+    shift = -(LAYOUT_BOX[0] - NIGHT_BOX[0]) * lh / LAYOUT_BOX[3]
     return shift + a, shift + b
 
 
 def lockup_rows(lh):
     """Top and bottom of the lockup's ink relative to its anchor, as render() places it."""
-    u = lh / LAYOUT_BOX[3]
-    lock = Image.open(LOCKUP).convert("RGBA").resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
-    _, a, _, b = lock.getchannel("A").point(lambda v: 255 if v > INK_ALPHA else 0).getbbox()
-    top = -lh / 2 - LIFT * lh - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
+    _, a, _, b = lockup_ink(lh)
+    top = -lh / 2 - LIFT * lh - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * lh / LAYOUT_BOX[3]
     return top + a, top + b
 
 
@@ -165,9 +169,9 @@ def grid_surfaces():
         band=(480, 1330, 110, 14, [(f, cx, 54.5, h) for f, cx, h in PROFILE_LOGOS]),
         left=480,
     )
-    # slide 1 centred on its own height, its lockup on slide 2's left edge, which clears the photo; its
-    # claim in slide 2's headline size, which fills the slide more: ink x 469 to 1137, rows 86 to 311
-    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), left=480)
+    # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
+    # its claim in slide 2's headline size, which fills the slide more: ink x 469 to 1137, rows 49 to 275
+    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
         # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
@@ -188,9 +192,10 @@ def grid_surfaces():
         # The XING cover: XING crops it centred (object-fit cover) to 944 x 208 at 1024 px, 944 x 268
         # at 1440 and 375 x 188 at 375, so rows 175 to 464 show everywhere; the photo covers x < 303 below
         # row 371 on desktop and x 126 to 542 below row 431 on mobile (measured 1.11. on xing.com). The
-        # group centres on the width right of the desktop photo and above the mobile one, the claim at
-        # slide 1's size rather than a smaller one right of the mobile photo: ink x 317 to 986, rows 191 to 416
-        "xing-profile": grid((1312, 639), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(175, 431), floor=303),
+        # group sits 41 px right of the desktop photo and above the mobile one, the claim at slide 1's
+        # size rather than a smaller one right of the mobile photo: ink x 344 to 1012 (300 clear on the
+        # right), rows 191 to 416
+        "xing-profile": grid((1312, 639), 79.8, two_lines(*PROFILE_LINES, x=355, b1=0, b2=59.3, size=49.0, track=-0.050), area=(175, 431), left=355),
         # The Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
         # 832 px, 288 below 992, 400 above, centred (object-fit cover), so a 375 px phone shows x 581 to 1419
         # and a 2560 px screen rows 94 to 406; the round photo overlaps the bottom 32 px (measured 1.11. on
