@@ -1,9 +1,8 @@
 # CLAUDE.md
 
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
-static fonts, logos, the expert UI layer, and the colour, copy and component checks each consumer
-runs in its own gate. The reasoning is in os
-`docs/agent-work/2026-10-29-brand-distribution.md`.
+static fonts, logos, the expert UI layer, and the checks each consumer runs in its own gate
+(colours, copies, components, list markers, shared elements, retired lines).
 
 This repo is public on GitHub (`github.com/hackersandwizards/brand`), its history included.
 Consumers install it as a Git dependency pinned to a tag,
@@ -25,7 +24,7 @@ data or secret.
 - `press/`: the press kit's photos, the founders' portraits and their photo together, as the
   website's press page publishes them, with `press.json` naming what each shows and the credit.
   In `manifest.json`. The press kit's texts stay with their owners: the bios in the website's
-  `src/data/profiles.ts` and os `documents/people/`, the company description in the website's copy.
+  `src/data/profiles.ts` and os `src/content/documents/people/`, the company description in the website's copy.
 - `verbal/verbal.json`: the verbal identity (name, claim, the words it retires), exported as
   `./verbal.json` and in `manifest.json`; the hub sync copies it into the voice skill.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
@@ -34,7 +33,7 @@ data or secret.
   which shows every other entry. Outside `manifest.json`.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
   device and call backgrounds, channel banners, LinkedIn post images, avatars, booth banners,
-  gradients, merch print files, mail signatures. Where a script builds a family it sits beside the files and writes
+  gradients, merch print files, device stickers, mail signatures. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`, `avatars/generate.ts`,
   `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/` ships as
   three commands: `brand-linkedin-frame` (`frame.ts`) and `brand-linkedin-terminal` (`terminal.ts`)
@@ -48,7 +47,7 @@ data or secret.
   its people records. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
-- `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS, JSON, TS, Python), the Shiki theme of its code palette (`code-theme.json`),
+- `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS with the colours again for a light island inside night, JSON, TS, Python), the Shiki theme of its code palette (`code-theme.json`),
   the faces of `tokens/fonts.css` (`fonts.json`) and the `@font-face` rules of `tokens/print.css`
   alone (`static-fonts.css`). Never edit them; run `bun run tokens`.
 - `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;
@@ -68,7 +67,7 @@ data or secret.
   preset `catalog()`), built to `dist/` and published by the reusable Pages workflow at
   `https://hackersandwizards.github.io/brand/`. Its root is the brand portal, generated from this
   repo's files only by `catalog/portal.ts`, which the route `pages/index.html.ts` runs in its own
-  process, with `catalogue-assets/` (the elements as one stylesheet, the shell's stylesheet and the
+  process, with `catalogue-assets/` (the elements as one stylesheet and the
   PNGs the inlined SVGs embed) from their own route and the tracked files it links copied beside it
   (`files.ts`). The element stories sit in `catalog/stories/` at `/catalog/`. `catalogue.html`
   forwards to the root with its anchor. The tests in `test/catalog/` read `dist/` after the build.
@@ -85,9 +84,10 @@ data or secret.
   skeleton hooks). `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
-  `http://127.0.0.1:4326/brand/` (`http://brand.localhost` where Caddy proxies it); the portal reads the
-  working tree afresh on each request. `bun run build` writes `dist/`. The portal's header links the
-  slide and document catalogs on their Pages sites (`https://hackersandwizards.github.io/<repo>/`).
+  `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset
+  drops the `/brand` base in dev and redirects `/brand/...` there. The portal reads the working tree
+  afresh on each request. `bun run build` writes `dist/`. The portal's header links every catalog
+  `expert/catalogs.json` lists on its Pages site (`https://hackersandwizards.github.io/<repo>/`).
 
 ## Rules
 

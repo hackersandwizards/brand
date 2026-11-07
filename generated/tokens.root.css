@@ -1,6 +1,5 @@
 /* Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file. */
-:root,
-:where([data-hw-night] [data-theme="light"]) {
+:root {
   --radius-sm: 5px;
   --radius-brand: 20px 5px;
   --radius-pill: 9999px;
@@ -167,6 +166,56 @@
   --motion-duration-line: 650ms;
   --motion-duration-tune: 7s;
   --motion-ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+  --gradient-magic: linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%);
+  --gradient-strip: linear-gradient(to right, var(--color-teal), var(--color-purple));
+}
+:where([data-hw-night] [data-theme="light"]) {
+  --color-bg: #f7f9fa;
+  --color-white: #ffffff;
+  --color-ink: #19283a;
+  --color-muted: #545861;
+  --color-border: #d0d2d8;
+  --color-border-strong: color-mix(in srgb, var(--color-ink) 50%, white);
+  --color-tint: #eef1f4;
+  --color-teal: #1a7285;
+  --color-teal-dark: #155b6a;
+  --color-teal-light: color-mix(in srgb, var(--color-teal) 40%, white);
+  --color-purple: #9333ea;
+  --color-purple-light: color-mix(in srgb, var(--color-purple) 40%, white);
+  --color-ampersand: #7c849c;
+  --color-ampersand-light: #b0b5c4;
+  --color-green: #4ade80;
+  --color-green-dark: #15803d;
+  --color-amber: #f59e0b;
+  --color-amber-dark: #b45309;
+  --color-factory: #a3402a;
+  --color-factory-light: #f29a80;
+  --color-red: #dc2626;
+  --color-red-night: #f26969;
+  --color-night: #0b1118;
+  --color-night-2: #111a24;
+  --color-night-ink: color-mix(in srgb, white 92%, var(--color-night));
+  --color-night-muted: color-mix(in srgb, white 80%, var(--color-night));
+  --color-night-subtle: color-mix(in srgb, white 60%, var(--color-night));
+  --color-night-line: color-mix(in srgb, var(--color-night-ink) 15%, var(--color-night));
+  --color-teal-night: #47aec6;
+  --color-purple-night: #b97af1;
+  --color-label-text: var(--color-teal-dark);
+  --color-label-text-night: var(--color-teal-night);
+  --color-subtle: var(--color-muted);
+  --chart-1: var(--color-teal);
+  --chart-2: var(--color-purple);
+  --chart-3: var(--color-amber-dark);
+  --chart-4: var(--color-green-dark);
+  --chart-5: var(--color-factory);
+  --chart-6: var(--color-ampersand);
+  --code-bg: var(--color-night);
+  --code-fg: var(--color-night-ink);
+  --code-comment: var(--color-night-subtle);
+  --code-keyword: var(--color-purple-night);
+  --code-string: var(--color-teal-night);
+  --code-inserted: var(--color-green);
+  --code-deleted: var(--color-red-night);
   --gradient-magic: linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%);
   --gradient-strip: linear-gradient(to right, var(--color-teal), var(--color-purple));
 }

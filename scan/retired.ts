@@ -2,7 +2,15 @@
 // Fails where a text file a consumer's build wrote carries a line of verbal.json's `retired` list;
 // the README's "Check your build for retired lines" says how it matches.
 // Usage: brand-retired <dir or file>...
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import {
+  closeSync,
+  existsSync,
+  openSync,
+  readdirSync,
+  readFileSync,
+  readSync,
+  statSync,
+} from "node:fs";
 import { join } from "node:path";
 import verbal from "../verbal/verbal.json";
 
@@ -72,16 +80,31 @@ export const retiredIn = (text: string) => {
 
 /** A file's text, or undefined for a binary (a NUL byte in its first 8000). */
 export const textOf = (path: string) => {
-  const buf = readFileSync(path);
-  return buf.subarray(0, 8000).includes(0) ? undefined : buf.toString("utf8");
+  const fd = openSync(path, "r");
+  try {
+    const head = Buffer.alloc(8000);
+    const n = readSync(fd, head, 0, head.length, 0);
+    // A positioned read leaves the file position at 0, so readFileSync reads the whole file.
+    return head.subarray(0, n).includes(0) ? undefined : readFileSync(fd, "utf8");
+  } finally {
+    closeSync(fd);
+  }
 };
 
-// statSync follows a symlinked file, which a Dirent's isFile() does not.
+// statSync follows a symlinked file, which a Dirent's isFile() does not; a link that leads
+// nowhere, in a loop or through a file is none.
+const isFile = (f: string) => {
+  try {
+    return statSync(f).isFile();
+  } catch {
+    return false;
+  }
+};
 const filesUnder = (path: string): string[] =>
   statSync(path).isDirectory()
     ? readdirSync(path, { recursive: true, encoding: "utf8" })
         .map((f) => join(path, f))
-        .filter((f) => statSync(f).isFile())
+        .filter(isFile)
     : [path];
 
 if (import.meta.main) {
@@ -95,17 +118,25 @@ if (import.meta.main) {
     console.error(`brand-retired: ${missing.join(", ")} not found; build first`);
     process.exit(2);
   }
-  let read = 0;
   const hits = new Map<string, string[]>();
-  for (const file of new Set(paths.flatMap(filesUnder))) {
-    const text = textOf(file);
-    if (text === undefined) continue;
-    read++;
-    const lines = retiredIn(text);
-    if (lines.length) hits.set(file, lines);
+  const isText = new Map<string, boolean>();
+  const empty: string[] = [];
+  for (const path of paths) {
+    let found = false;
+    for (const file of filesUnder(path)) {
+      if (!isText.has(file)) {
+        const text = textOf(file);
+        isText.set(file, text !== undefined);
+        const lines = text === undefined ? [] : retiredIn(text);
+        if (lines.length) hits.set(file, lines);
+      }
+      found ||= isText.get(file)!;
+    }
+    if (!found) empty.push(path);
   }
-  if (!read) {
-    console.error(`brand-retired: no text file in ${paths.join(", ")}; build first`);
+  const read = [...isText.values()].filter(Boolean).length;
+  if (empty.length) {
+    console.error(`brand-retired: no text file in ${empty.join(", ")}; build first`);
     process.exit(2);
   }
   if (hits.size) {

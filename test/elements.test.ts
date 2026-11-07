@@ -609,3 +609,9 @@ test("the prose block's links and lists hold against Typography's layer", async 
     ).toContain(want);
   }
 }, 60_000);
+
+test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
+  file("brand-elements.json", '{"pages":[],"uses":[]}');
+  const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
+  expect(r.exitCode).toBe(2);
+});

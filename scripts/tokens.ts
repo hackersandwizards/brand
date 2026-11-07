@@ -229,21 +229,30 @@ export const fontFaces = (css: string) =>
     return face;
   });
 
+/** The --color-* tokens and every token whose value reads one of them, however indirectly. */
+const dayAgain = (tokens: Record<string, string>) => {
+  const out = new Set(Object.keys(tokens).filter((k) => k.startsWith("--color-")));
+  for (let size = 0; size !== out.size;) {
+    size = out.size;
+    for (const [k, v] of Object.entries(tokens))
+      if ([...v.matchAll(/var\((--[\w-]+)/g)].some((m) => out.has(m[1]!))) out.add(k);
+  }
+  return out;
+};
+
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
   const tokens = parseTokens(css);
+  const declare = (names: string[]) => names.map((k) => `  ${k}: ${tokens[k]};`).join("\n");
   const colors = resolveColors(tokens);
   const head =
     "Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file.";
   const json = JSON.stringify({ tokens, colors }, null, 2);
   return {
-    // Also on a data-theme="light" element inside night.css's night, which is day again there;
-    // :where() leaves the surface's own values on that element winning.
-    "tokens.root.css": `/* ${head} */\n:root,\n:where([data-hw-night] [data-theme="light"]) {\n${Object.entries(
-      tokens,
-    )
-      .map(([k, v]) => `  ${k}: ${v};`)
-      .join("\n")}\n}\n`,
+    // The colours and every token built from them return on a data-theme="light" element inside
+    // night.css's night, which is day again there; the rest inherit, so a scale or a corner an
+    // ancestor sets holds on it. :where() leaves the surface's own values on that element winning.
+    "tokens.root.css": `/* ${head} */\n:root {\n${declare(Object.keys(tokens))}\n}\n:where([data-hw-night] [data-theme="light"]) {\n${declare([...dayAgain(tokens)])}\n}\n`,
     "tokens.json": json + "\n",
     "tokens.ts": `// ${head}\nexport const tokens = ${JSON.stringify(tokens, null, 2)} as const;\n\nexport const colors = ${JSON.stringify(colors, null, 2)} as const;\n`,
     "tokens.py": `# ${head}\nTOKENS = ${JSON.stringify(tokens, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,

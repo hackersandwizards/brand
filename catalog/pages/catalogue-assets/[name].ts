@@ -1,5 +1,5 @@
-// The files the portal loads beside it: the elements and shell stylesheets and the PNGs its inlined
-// SVGs embed.
+// The files the portal loads beside it: the elements stylesheet its sample frames link and the PNGs
+// its inlined SVGs embed.
 import type { APIRoute } from "astro";
 import { portal } from "../../portal-run.ts";
 

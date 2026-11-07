@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
-import { readdirSync, readFileSync } from "node:fs";
+import { closeSync, openSync, readdirSync, readSync } from "node:fs";
 import { join } from "node:path";
 import { ELEMENTS, measurePage } from "../../scan/elements";
 import { lfsOid, ROOT } from "../../scripts/git";
@@ -49,11 +49,24 @@ test("every link and image of the portal resolves in dist/", () => {
   const refs = [html, ...frames]
     .flatMap((h) => [...h.matchAll(/\s(?:src|href|data-href)="([^"#]*)(?:#[^"]*)?"/g)])
     .map((m) => decode(m[1]!).split("?")[0]!)
+    // and each url() of the stylesheets the page inlines
+    .concat(
+      [...html.matchAll(/<style>([^]*?)<\/style>/g)].flatMap((s) =>
+        [...s[1]!.matchAll(/url\("([^"]+)"\)/g)].map((m) => m[1]!),
+      ),
+    )
     .filter((r) => r && !/^(?:[a-z]+:|\/\/)/.test(r));
   expect(refs.length).toBeGreaterThan(100);
   expect([...new Set(refs)].filter((r) => !fileOf(r))).toEqual([]);
   // A Git LFS pointer resolves too and shows as a broken image: `bun install` pulls them.
-  expect([...new Set(refs)].filter((r) => lfsOid(readFileSync(fileOf(r)!)))).toEqual([]);
+  const head = (f: string) => {
+    const b = Buffer.alloc(200);
+    const fd = openSync(f, "r");
+    readSync(fd, b, 0, 200, 0);
+    closeSync(fd);
+    return b;
+  };
+  expect([...new Set(refs)].filter((r) => lfsOid(head(fileOf(r)!)))).toEqual([]);
 });
 
 test("catalogue.html forwards to the portal with its anchor", () => {

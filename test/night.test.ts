@@ -59,6 +59,16 @@ test("night.css after tokens.root.css turns every token on a dark html", async (
   expect(wrong).toEqual([]);
 });
 
+// The island takes the colours and what is built from them back, nothing else: a corner or a scale
+// an ancestor sets holds on it.
+test("tokens.root.css's island block declares only the colour tokens and those reading them", () => {
+  const island = tokens.slice(tokens.indexOf(":where("));
+  expect(island).toContain("--color-bg:");
+  expect(island).toContain("--gradient-strip:");
+  expect(island).not.toContain("--radius-brand:");
+  expect(island).not.toContain("--text-meta:");
+});
+
 // A light island in that night, such as a catalog frame drawing a light-only page: the nearest
 // data-theme wins, so every token tokens.root.css declares, a derived one included, computes there
 // as on a day page, and so do its text, which body's colour would hand down in night ink, and

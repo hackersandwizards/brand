@@ -10,7 +10,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { basename, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
 import logoRules from "../logos/logos.json";
@@ -42,26 +42,22 @@ const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 // Files the page loads beside it (catalogue-assets/, served by their own route): the elements as
 // one stylesheet, so each sample frame loads one file instead of elements.css and its imports,
-// the catalog shell's stylesheet, and each PNG an inlined SVG embeds, so the HTML carries no image
+// and each PNG an inlined SVG embeds, so the HTML carries no image
 // as base64 text (the MacBook stickers' wizard was 0.95 MB of 1.28 MB).
 const ASSETS = "catalogue-assets";
 const assets: Record<string, string> = {};
 const writeAsset = (name: string, content: string | Buffer) => {
   assets[name] = Buffer.from(content).toString("base64");
 };
-writeAsset(
-  "catalog.css",
-  readFileSync(
-    createRequire(import.meta.url).resolve("@hackersandwizards/scaffolding/catalog/catalog.css"),
-  ),
+const catalogCss = readFileSync(
+  createRequire(import.meta.url).resolve("@hackersandwizards/scaffolding/catalog/catalog.css"),
+  "utf8",
 );
-writeAsset(
-  "elements.css",
-  readFileSync(join(ROOT, "elements/elements.css"), "utf8").replace(
-    /@import "\.\/([\w-]+\.css)";/g,
-    (_, file: string) => readFileSync(join(ROOT, "elements", file), "utf8"),
-  ),
+const elementsCss = readFileSync(join(ROOT, "elements/elements.css"), "utf8").replace(
+  /@import "\.\/([\w-]+\.css)";/g,
+  (_, file: string) => readFileSync(join(ROOT, "elements", file), "utf8"),
 );
+writeAsset("elements.css", elementsCss);
 const pngFiles = (svg: string) =>
   svg.replace(/href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/g, (_, data: string) => {
     const png = Buffer.from(data, "base64");
@@ -927,6 +923,27 @@ const catalogue = renderCatalog({
   'class="hw-catalogue hw-container" data-mode="overview"',
 );
 
+// The head's stylesheets are inline, so the first paint waits on no request: without their
+// comments, whose sample markup would read as the page's own, each url() made relative to the
+// page. The faces the first screen sets are preloaded: found only once print.css is parsed, their
+// swap shifts the page (CLS 0.15 on desktop).
+const inline = (css: string, from = ".") =>
+  css
+    .replace(/\/\*[^]*?\*\//g, "")
+    .replace(
+      /url\((["']?)(?!data:|https?:|\/)([^"')]+)\1\)/g,
+      (_, _q: string, url: string) => `url("${join(from, url)}")`,
+    );
+const ownCss = (path: string) => inline(readFileSync(join(ROOT, path), "utf8"), dirname(path));
+const FONTS = [
+  "inter-latin-400-normal",
+  "inter-latin-500-normal",
+  "inter-latin-600-normal",
+  "jetbrains-mono-latin-400-normal",
+  "jetbrains-mono-latin-500-normal",
+  "jetbrains-mono-latin-700-normal",
+];
+
 const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -936,12 +953,10 @@ const html = `<!doctype html>
 <meta name="description" content="${esc(LEAD)}">
 <link rel="icon" href="logos/favicon.ico" sizes="32x32">
 <link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="generated/tokens.root.css">
-<link rel="stylesheet" href="tokens/print.css">
-<link rel="stylesheet" href="tokens/marker.css">
-<link rel="stylesheet" href="expert/header.css">
-<link rel="stylesheet" href="${ASSETS}/elements.css">
-<link rel="stylesheet" href="${ASSETS}/catalog.css">
+${FONTS.map((f) => `<link rel="preload" href="tokens/fonts/${f}.woff2" as="font" type="font/woff2" crossorigin>`).join("\n")}
+<style>${["generated/tokens.root.css", "tokens/print.css", "tokens/marker.css", "expert/header.css"].map(ownCss).join("\n")}
+${inline(elementsCss)}
+${inline(catalogCss)}</style>
 <style>
   /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
@@ -1089,8 +1104,7 @@ const html = `<!doctype html>
     .portal .words-cols tr { border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
   }
 </style>
-<link rel="stylesheet" href="expert/select.css">
-<link rel="stylesheet" href="expert/disclosure.css">
+<style>${["expert/select.css", "expert/disclosure.css"].map(ownCss).join("\n")}</style>
 </head>
 <body class="hw-focus-ring">
 <header class="hw-header">

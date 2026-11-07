@@ -260,7 +260,8 @@ and every `rounded-brand` the small corner), on a CSS rule named like an element
 callout, note; quote) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts), or a component of such a name, without the
 `hw-*` class and without an exception of that name, on a used element without a tile or with a stale version, on an exception
-without a reason or a tile, and on a page showing no element. Each page's tile of a used element is
+without a reason or a tile, and on a page showing no element. A `brand-elements.json` naming no page
+exits 2, as a run measuring nothing proves nothing. Each page's tile of a used element is
 compared: a version other than the installed one means that page was not built from it, such as a
 `dist/` or a running server older than your last `bun install`.
 
@@ -271,8 +272,9 @@ A surface written in the light tokens (`bg-bg`, `text-ink`, `text-teal`) that tu
 `data-theme="dark"` on itself or an ancestor: every light token takes its hue's night column, and
 the expert roles `header.css` reads take their night values. It works on `<html>` too, beside
 `tokens.root.css`. The nearest `data-theme` wins: a `data-theme="light"` element inside that night
-is day again, its tokens (the derived ones included, from `tokens.root.css`), its text colour and
-`--hw-line`. `expert.css` turns night on `html` alone, and a `data-theme="light"` element inside
+is day again, its colour tokens (the derived ones included) from `tokens.root.css`, which such a
+surface links for that, its text colour and `--hw-line`; a token night leaves alone, such as a
+scale's size or a corner, keeps what an ancestor sets. `expert.css` turns night on `html` alone, and a `data-theme="light"` element inside
 it takes the day roles and text colour again.
 
 ### Check your colours in your gate
@@ -441,7 +443,7 @@ its size and the credit. With the logos above, they make the ZIP the website's p
 ```sh
 bun install      # also points the git hooks at .githooks/
 bun run check    # scaffolding's shared steps (admin-check among them), then the built catalog's tests and generated/
-bun run dev      # the catalog: http://127.0.0.1:4326/brand/
+bun run dev      # the catalog: http://127.0.0.1:4326/ (the base drops in dev)
 bun run build    # dist/, as the Pages workflow publishes it
 ```
 

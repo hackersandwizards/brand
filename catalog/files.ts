@@ -1,6 +1,7 @@
 // The tracked brand files, served beside the portal, which links them: in dev from the working
-// tree, in the build copied into dist/. Only the brand folders: the repo's code, tests and docs
-// stay out, as a test copied into dist/ runs again under a bare `bun test`. The print masters
+// tree, in the build copied into dist/. Only the brand folders, the scripts inside them included:
+// the repo's tests, scan/, scripts/ and docs stay out, as a test copied into dist/ runs again
+// under a bare `bun test`. The print masters
 // (logos/*.tif) stay out too, as the portal links none of them. `bun install` pulls the LFS files
 // .lfsconfig keeps from a clone, as a pointer shows as a broken image. On GitHub Actions the build
 // pulls them too and fails on any still a pointer, so the published page never shows one.

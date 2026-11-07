@@ -141,10 +141,16 @@ afterAll(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-const all = async (url: string, scale: number) => [
-  ...(await measureMarkers(browser, url, { scale })),
-  ...(await measureMarkers(browser, url, { scale, newline: true })),
-];
+// Each page and scale is measured once: two tests read NEW at 2x and two read OLD at 4x.
+const measured = new Map<string, Promise<Reading[]>>();
+const all = (url: string, scale: number) => {
+  const key = `${url} ${scale}`;
+  const run = async () => [
+    ...(await measureMarkers(browser, url, { scale })),
+    ...(await measureMarkers(browser, url, { scale, newline: true })),
+  ];
+  return measured.get(key) ?? measured.set(key, run()).get(key)!;
+};
 const show = (rs: Reading[]) =>
   rs.map((r) => `${r.label} ${r.kind} ${r.scale}x newline:${r.newline} ${r.offset.toFixed(2)}`);
 

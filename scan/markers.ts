@@ -302,7 +302,15 @@ export async function measureMarkers(
     // Each box is shot inside the viewport, scrolled to it: capturing beyond the viewport resizes it,
     // and a layout sized by the viewport's height then moves under the measured boxes.
     // The ink middles left and right of split (CSS px from the clip's left edge), in page px.
-    const read = async (clip: Box, split = clip.width) => {
+    const read = async (box: Box, split = Infinity) => {
+      // Whole px, as puppeteer would round it, so the shot starts where the offsets below count from.
+      const [x, y] = [Math.round(box.x), Math.round(box.y)];
+      const clip = {
+        x,
+        y,
+        width: Math.round(box.x + box.width) - x,
+        height: Math.round(box.y + box.height) - y,
+      };
       // Instant, whatever the page's scroll-behavior, and a frame for the paint to follow.
       const inView = await page.evaluate(
         (y, h) =>
@@ -321,9 +329,9 @@ export async function measureMarkers(
         encoding: "base64",
         captureBeyondViewport: !inView,
       });
-      const middles = await page.evaluate(inkMiddle, png, scale, split);
+      const middles = await page.evaluate(inkMiddle, png, scale, split + box.x - x);
       // No ink where the marker should be: a marker drawn elsewhere, which fails as NaN.
-      return middles.map((m) => (m < 0 ? NaN : clip.y + m));
+      return middles.map((m) => (m < 0 ? NaN : y + m));
     };
     const out: Reading[] = [];
     // A closed panel's lists are markers too.
@@ -372,8 +380,16 @@ export const fileIn = (root: string, path: string) => {
     return; // a malformed escape names no file
   }
   if (!file.startsWith(`${root}/`)) return;
-  if (statSync(file, { throwIfNoEntry: false })?.isDirectory()) file = join(file, "index.html");
-  return statSync(file, { throwIfNoEntry: false })?.isFile() ? file : undefined;
+  // A path running on past a file (ENOTDIR) or holding a NUL throws rather than naming no file.
+  const stat = (f: string) => {
+    try {
+      return statSync(f, { throwIfNoEntry: false });
+    } catch {
+      return undefined;
+    }
+  };
+  if (stat(file)?.isDirectory()) file = join(file, "index.html");
+  return stat(file)?.isFile() ? file : undefined;
 };
 
 /** A built site folder served at the root of a free local port: pages whose links start at / then

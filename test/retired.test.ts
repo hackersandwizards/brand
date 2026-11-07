@@ -140,4 +140,12 @@ test("brand-retired exits 2 on no path, a missing path and a folder without a te
   expect(run().code).toBe(2);
   expect(run(join(tmpdir(), "brand-retired-missing")).code).toBe(2);
   expect(run(built({ "a.png": new Uint8Array([0]) })).code).toBe(2);
+  // Each path needs a text file of its own: a second build that came out empty fails too.
+  expect(run(built({ "index.html": PAGE }), built({ "a.png": new Uint8Array([0]) })).code).toBe(2);
+});
+
+test("brand-retired reads past a dangling symlink", () => {
+  const dir = built({ "index.html": PAGE });
+  symlinkSync(join(dir, "gone.html"), join(dir, "latest.html"));
+  expect(run(dir).code).toBe(0);
 });
