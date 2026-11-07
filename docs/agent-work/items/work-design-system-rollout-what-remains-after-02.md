@@ -4,7 +4,7 @@ status: open
 priority: 3
 order: 560
 owner: a brand session, then each spoke drops the exception a shipped proposal makes moot
-evidence: "brand v0.29.0 to v0.34.0; os `docs/agent-work/2026-11-02-design-system-rollout.md`, `docs/agent-work/2026-11-02-design-system-phase3.md`, `docs/agent-work/2026-11-01-shared-elements.md`; checked 03.11.: os draws its list rows with brand's `hw-row`, trainer-hub pins slides v0.30.0 and documents v0.7.1"
+evidence: "brand v0.29.0 to v0.34.0; os `docs/agent-work/2026-11-02-design-system-rollout.md`, `docs/agent-work/2026-11-02-design-system-phase3.md`; brand `docs/agent-work/2026-11-01-shared-elements.md`; checked 03.11.: os draws its list rows with brand's `hw-row`, trainer-hub pins slides v0.30.0 and documents v0.7.1; points 1 to 5 re-checked 07.11. against brand main and documents origin/main: no --accent-soft token in tokens/tokens.css, row.css, facts.css and card.css still mix white at 15 or 18 %, no glow token, slides styles/tokens.css still defines the shared names, scan/elements.ts NAMED still lacks button, breadcrumb and facts"
 ---
 
 # Design system: the brand proposals and follow-ups that remain
