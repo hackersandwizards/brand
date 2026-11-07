@@ -246,7 +246,7 @@
     },
     {
       "path": "expert/disclosure.css",
-      "sha256": "96638c1520af2ca8924a26b2570ef46fce2db35927f695fd032941aad609c070"
+      "sha256": "a1e2a1188f71d65036a1070502ebd680893806f3c1dc55f061e74931e8a926a5"
     },
     {
       "path": "expert/expert.css",
@@ -470,7 +470,7 @@
     },
     {
       "path": "elements/kbd.css",
-      "sha256": "76059fee1b1237736dc483370ffec9b9a6111da1c82ad859edab88a1d5525385"
+      "sha256": "a66c20d26c0b7d9053bda8c2bea337380b399b65f82300f49b3af9960b13d8b3"
     },
     {
       "path": "tokens/document.css",

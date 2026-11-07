@@ -7,7 +7,6 @@ import type { Browser, Protocol } from "puppeteer-core";
 import { ROOT } from "../scripts/git";
 import { launch, open } from "../scan/markers";
 
-// A disclosure's summary takes focus.css's ring under hw-focus-ring, and its own 2 px ring without.
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
 const doc = (sheets: string[], body: string, cls = "") =>
   `<!doctype html><html class="${cls}"><head><meta charset="utf-8">${["generated/tokens.root.css", ...sheets, "expert/disclosure.css"].map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${body}</body></html>`;
@@ -28,6 +27,7 @@ afterAll(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+// A disclosure's summary takes focus.css's ring under hw-focus-ring, and its own 2 px ring without.
 test.each([
   ["hw-focus-ring", "3px"],
   ["", "2px"],

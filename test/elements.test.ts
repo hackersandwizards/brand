@@ -697,7 +697,7 @@ test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
   expect(r.exitCode).toBe(2);
 });
 
-test("a keycap leaves a line of UI text as high as an inline keycap does, in every scale", async () => {
+test("a keycap leaves a line of UI text as high as an inline keycap does, in the screen, dense and print scales", async () => {
   const p = await browser.newPage();
   const text = (style = "") =>
     `<p style="width:16rem;font:400 0.875rem/1.5 var(--font-sans)">Mit ${["/", "⌘", "K", "Esc"].map((k) => `<kbd class="hw-kbd"${style}>${k}</kbd>`).join(" ")} öffnen Suche und Befehle, schließen sie und springen zurück.</p>`;
