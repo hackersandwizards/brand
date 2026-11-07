@@ -1,13 +1,14 @@
-/* The button with words on it, on a client surface (website, certificate verifier, slides): the brand corner, a teal hairline,
-   weight 500 in the body role. Filled teal with white text by default, the line and fill purple on
-   hover; data-variant="secondary" is the outline, teal text on no fill, purple text and line on
-   hover, and with data-filled a white fill, so it stands out on a tinted ground (night: the night
-   ground). From 64rem it stands 48 px tall, below 44 px. On night the outline takes white at 40 % with
-   white text and a 15 % purple wash on hover. The side padding keeps its px size under enlarged
-   text, so the label keeps its width on a phone. data-hue="purple" draws it in purple where the
-   block it belongs to carries purple (a second speaker, a second part): purple where it is teal,
-   darker purple on hover, purple-night lines and text on night. The apps' button is expert.css's
-   btn-primary, in the same brand corner.
+/* The button with words on it, on a client surface (website, certificate verifier, slides,
+   documents): the brand corner, a teal hairline, weight 500 in the body role. Filled teal with
+   white text by default, the line and fill purple on hover; data-variant="secondary" is the
+   outline, teal text on no fill, purple text and line on hover, and with data-filled a white fill,
+   so it stands out on a tinted ground (night: the night ground). From 64rem it stands 48 px tall,
+   below 44 px; on paper as tall as its text and padding. On night the outline takes white at 40 %
+   with white text and a 15 % purple wash on hover. The side padding keeps its px size under
+   enlarged text, so the label keeps its width on a phone. data-hue="purple" draws it in purple
+   where the block it belongs to carries purple (a second speaker, a second part): purple where it
+   is teal, darker purple on hover, purple-night lines and text on night. The apps' button is
+   expert.css's btn-primary, in the same brand corner.
 
    Settings:
      --hw-button-height       the least height below 64rem

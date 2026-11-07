@@ -592,7 +592,8 @@ test("dense with data-hw-type=regular takes the expert set's regular text, dense
 
 test("the print button stands as tall as its text in the small corner, a carded one too on screen", async () => {
   const p = await browser.newPage();
-  await p.goto(
+  await open(
+    p,
     pathToFileURL(
       file(
         "button-print.html",
@@ -612,6 +613,8 @@ test("the print button stands as tall as its text in the small corner, a carded 
   expect(await read("paper")).toEqual(["0px", "12.6667px", "4px", "4px"]);
   expect((await read("screen"))[3]).toBe("20px");
   expect((await read("carded"))[3]).toBe("5px");
+  await p.setViewport({ width: 1280, height: 800 });
+  expect((await read("paper"))[0]).toBe("0px");
   await p.close();
 }, 60_000);
 
