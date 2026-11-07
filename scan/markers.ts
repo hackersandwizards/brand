@@ -124,10 +124,17 @@ function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anch
     }
     return contentLeft(host);
   };
-  // The browser draws its own marker on the item: a list-style type or image on a list item.
+  // The browser draws its own marker on the item: a list-style type or image on a list item whose
+  // ::marker is not emptied.
   const ownMarker = (li: Element) => {
     const s = getComputedStyle(li);
-    return s.display === "list-item" && (s.listStyleType !== "none" || s.listStyleImage !== "none");
+    const content = getComputedStyle(li, "::marker").content;
+    return (
+      s.display.includes("list-item") &&
+      (s.listStyleType !== "none" || s.listStyleImage !== "none") &&
+      content !== "none" &&
+      content !== '""'
+    );
   };
   const found: { host: Element; text: Text; kind: Kind; mark?: Element }[] = [];
   const seen = new Set<Text>();
@@ -219,16 +226,17 @@ function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anch
         start - 2 * em,
         (host.closest("ul") ?? host).getBoundingClientRect().left - 1,
       );
-    const li = kind !== "element" && host.closest("li");
+    const li = host.closest("li");
     return {
       label: label(host),
       kind,
       marker: box(left, right, t.top - 3, t.bottom + 3),
       text: box(t.left, c.right, t.top, t.bottom),
       split: c.left - t.left,
-      indent: li && host === li && kind === "before" ? start - contentLeft(host) : null,
+      indent: host === li && kind === "before" ? start - contentLeft(host) : null,
       // A marker drawn on an item the browser still gives its own: two markers on one line.
-      double: kind !== "native" && !!host.closest("li") && ownMarker(host.closest("li")!),
+      // An element marker counts only as its item's first child, not inside a row deeper in it.
+      double: kind !== "native" && !!li && (kind !== "element" || host === li) && ownMarker(li),
     };
   });
   return { probes, anchors: found.map((f) => f.mark ?? f.text.parentElement!) };
@@ -350,7 +358,13 @@ export async function measureMarkers(
         index,
       );
     // The ink middles left and right of split (CSS px from the clip's left edge), in page px.
-    const read = async (at: Awaited<ReturnType<typeof place>>, rel: Box, split = Infinity) => {
+    type At = Awaited<ReturnType<typeof place>>;
+    const inside = (at: At, rel: Box) =>
+      at.y + rel.y >= at.top &&
+      at.y + rel.y + rel.height <= at.bottom &&
+      at.x + rel.x >= at.left &&
+      at.x + rel.x + rel.width <= at.right;
+    const read = async (at: At, rel: Box, beyond: boolean, split = Infinity) => {
       const box = { ...rel, x: at.x + rel.x, y: at.y + rel.y };
       // Whole px, as puppeteer would round it, so the shot starts where the offsets below count from.
       const [x, y] = [Math.round(box.x), Math.round(box.y)];
@@ -360,17 +374,10 @@ export async function measureMarkers(
         width: Math.round(box.x + box.width) - x,
         height: Math.round(box.y + box.height) - y,
       };
-      // A page that will not scroll there (a script holding it, a page wider than the viewport
-      // that hides its overflow) is shot beyond the viewport.
-      const inside =
-        box.y >= at.top &&
-        box.y + box.height <= at.bottom &&
-        box.x >= at.left &&
-        box.x + box.width <= at.right;
       const png = await page.screenshot({
         clip,
         encoding: "base64",
-        captureBeyondViewport: !inside,
+        captureBeyondViewport: beyond,
       });
       const middles = await page.evaluate(inkMiddle, png, scale, split + box.x - x);
       // No ink where the marker should be: a marker drawn elsewhere, which fails as NaN.
@@ -382,14 +389,17 @@ export async function measureMarkers(
       // no room left of the text: it is decoration, not this line's marker.
       if (p.marker.width < 1 || p.text.width <= 0) continue;
       const at = await place(i);
-      const [x, caps] = await read(at, p.text, p.split);
+      // Where the page will not scroll a box into view (a script holding it, a page wider than the
+      // viewport), both boxes are shot beyond the viewport, so both read the same layout.
+      const beyond = !inside(at, p.text) || !inside(at, p.marker);
+      const [x, caps] = await read(at, p.text, beyond, p.split);
       out.push({
         page: url,
         label: p.label,
         kind: p.kind,
         scale,
         newline,
-        offset: (await read(at, p.marker))[0]! - (x! + CAP_SHARE * (caps! - x!)),
+        offset: (await read(at, p.marker, beyond))[0]! - (x! + CAP_SHARE * (caps! - x!)),
         indent: p.indent,
         double: p.double,
       });

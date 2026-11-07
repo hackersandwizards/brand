@@ -282,6 +282,23 @@ test("a reading with no ink on either side fails", () => {
   expect(failing(r)).toBe(true);
 });
 
+test("one marker per item: an emptied ::marker and a row deeper in a disc item are not two", async () => {
+  const page = file(
+    "one.html",
+    `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<style>body { margin: 40px; max-width: 420px; font-family: var(--font-sans); font-size: 16px; line-height: 1.6; }
+.quiet::marker { content: none; } .row { display: flex; align-items: baseline; gap: 12px; }</style>
+</head><body><ul class="hw-marker-list"><li class="quiet" style="list-style:disc">An emptied marker</li></ul>
+<ul style="list-style:disc;padding-left:1.25rem"><li><div class="row"><span class="hw-marker"></span><span>A row in a disc item</span></div></li></ul>
+<ul class="hw-marker-list"><li style="list-style:disc">The control keeps its disc</li></ul></body></html>`,
+  );
+  const rs = await measureMarkers(browser, page, { scale: 2 });
+  expect(rs.filter((r) => r.double).map((r) => r.label.includes("The control"))).toEqual([true]);
+}, 60_000);
+
 // The talks print page: 1920 px slides in a 1280 px window, a label's marker scrolled into view and
 // its text right of the viewport.
 test("a text box right of the viewport is measured", async () => {

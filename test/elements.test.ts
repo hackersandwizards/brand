@@ -498,7 +498,7 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
   const files: Record<string, string> = {
     "src/a.css": `.card:hover { border-color: teal } .card::before { background: purple } :is(.linked-card, a.tag):is(:hover, :has(:is(a, summary):focus-visible)) { border-color: teal } .card:has(:is(a, button):focus-visible) { outline: 2px solid } .side-card:not(.x) { border-color: red } .doc-tag { border-radius: 9999px } .card .meta { color: red } .card { display: grid } .note { font-size: 9pt; color: grey } .total-note { font: 9pt sans-serif }
 @media print { .callout { background: white } } .hw-card { border: 0 } .total-band { background: teal }
-.eyebrow, .title { font-size: 9pt } .text-button { min-height: 2rem } .event-facts { margin-top: 0 } .button-row { gap: 1rem }`,
+.eyebrow, .title { font-size: 9pt } .text-button { min-height: 2rem } .event-facts { margin-top: 0 } .button-row { gap: 1rem } .icon-button { width: 2rem }`,
     "src/components/Breadcrumbs.astro": `<nav/>`,
     "src/components/TrainingFacts.astro": `<dl class="hw-facts"/>`,
     "src/components/Card.astro": `<div class="card"/><style>.wrap { padding: 0 }</style>`,
@@ -518,6 +518,7 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
     'src/a.css: .eyebrow styles an element named like a shared one; use the hw-* element or list "eyebrow" as an exception',
     'src/a.css: .text-button styles an element named like a shared one; use the hw-* element or list "text-button" as an exception',
     'src/a.css: .event-facts styles an element named like a shared one; use the hw-* element or list "event-facts" as an exception',
+    'src/a.css: .icon-button styles an element named like a shared one; use the hw-* element or list "icon-button" as an exception',
     'src/components/Breadcrumbs.astro: a component named like a shared element; render the hw-* element or list "breadcrumbs" as an exception',
     'src/components/Card.astro: a component named like a shared element; render the hw-* element or list "card" as an exception',
     'src/components/Chip.astro: a component named like a shared element; render the hw-* element or list "chip" as an exception',

@@ -493,6 +493,7 @@ const WORD: Record<string, string> = {
   callout: "callout",
   note: "callout",
   quote: "quote",
+  "icon-button": "icon-button",
   button: "button",
   breadcrumb: "breadcrumb",
   fact: "facts",

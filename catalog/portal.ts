@@ -246,11 +246,12 @@ const DELIVERY: [string, string[]][] = [
   ],
   ["A square avatar upload: the same pixels as icon-maskable-512.png.", pick(/^logos\/avatar-/)],
 ];
+index.push({ t: "type-logo-short.svg", k: "logo", h: "logos/logos-delivery", x: "hw mark master" });
 for (const [use, paths] of DELIVERY)
   for (const p of paths)
     index.push({ t: p.replace(/^logos\//, ""), k: "logo", h: "logos/logos-delivery", x: use });
 const deliveryHtml = `<h3 id="logos-delivery">Delivery files</h3>
-<p>Made for one use each by <code>scripts/outline.ts</code> from the logos above, and by <code>applications/avatars/generate.ts</code> from the hw mark, its own master:</p>
+<p>Made for one use each from the logos above by <code>scripts/outline.ts</code> and <code>scripts/ampersand.ts</code>, and by <code>applications/avatars/generate.ts</code> from the hw mark, its own master:</p>
 ${dl(["logos/type-logo-short.svg"])}
 ${table(
   ["For", "Files"],
