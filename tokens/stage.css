@@ -1,9 +1,10 @@
 /* The stage scale: every length, size and step the slide engine (@hackersandwizards/slides) draws a
    slide with, at the 1440 stage whose rem is 1/90 of the slide's width. Every value comes from
    brand: the engine keeps its components and the roles it derives from these and from tokens.css
-   with var(); a value whose reason concerns one component is stated beside it here. The @theme block is the engine's Tailwind steps: import
-   this file with theme(static) after tokens.css (export ./stage.css). A plain-CSS reader, such as
-   the documents engine's readout deck, takes the :root block; a browser drops the @theme block. */
+   with var(); a value whose reason concerns one component is stated beside it here. The @theme
+   block is the engine's Tailwind steps: import this file with theme(static) after tokens.css
+   (export ./stage.css). A plain-CSS reader, such as the documents engine's readout deck, takes the
+   :root block; a browser drops the @theme block. */
 
 /* The slide scale: the website's type roles at stage size. A slide is designed at 1440x810, where
    running text is 24px against the website's 16px body, so every role is its website size times
@@ -25,9 +26,9 @@
    .slide-title   h1, slide size          3.375rem, see .slide-title
    text-5xl, -6xl, -8xl  statement steps  2, 2.5 and 4 x the slide body
 
-   text-sm and text-lg keep their sizes from before the roles: the code role at stage size
-   (1.3125rem) and h4 (1.6875rem) push hub slides under the fit guard or deeper into it, and a
-   guard that shrinks the whole body loses more than the step gains.
+   text-sm and text-lg stay off the roles: the code role at stage size (1.3125rem) and h4
+   (1.6875rem) push hub slides under the fit guard or deeper into it, and a guard that shrinks the
+   whole body loses more than the step gains.
    The statement steps carry the title, statement, closing and big-number slides. The website
    has no role for type that fills a stage (its display role at stage size, 5.25rem, sits between
    two of them), so they stay steps of the slide body. Not inline, so the utilities read the
@@ -68,11 +69,10 @@
 
    --slide-strip     the header strip: website 3px x 2 = 6px fails the thumbnail floor and reads
                      thin across a room; 0.75rem = 16px at 1920, 8px at half size, 4px at a quarter
-   --slide-hairline  every border and rule: website 1px x 2 = 2px at 1920, 1px at half size. The
-                     thumbnail floor of 4px drew cards with a heavy grey frame, where the attendee
-                     survey readout's 1.5px hairline read as the website's card. Painted as an
-                     overlay, so the box keeps its 1px layout: a real wide border shrank talks and hub
-                     slides under the fit guard
+   --slide-hairline  every border and rule: website 1px x 2 = 2px at 1920, 1px at half size, under
+                     the strip's thumbnail floor, since 4px draws a card with a heavy grey frame.
+                     Painted as an overlay, so the box keeps its 1px layout: a real wide border
+                     pushes slides under the fit guard
    --slide-radius    the brand corner: website 20px 5px x 2 = 40px 10px at 1920
    --slide-radius-sm a tile, label box, stage strip or inline code, which stands a line tall: the
                      small corner at stage size, the brand corner's small radius (tokens.css)
@@ -85,15 +85,15 @@
    --slide-footer-inset  the corner row's distance from the slide's bottom edge: 1.5rem, 32px at
                      1920
    --slide-footer-side   the corner row's distance from the slide's right edge: the content's 4.5rem
-                     side margin (.slide-titled), so the row ends where the text ends, inside the
-                     graphics-safe margin. At 1.5rem the mark read as tight to the edge and off
-                     the grid
+                     side margin (--slide-side), so the row ends where the text ends, inside the
+                     graphics-safe margin. At 1.5rem the mark reads tight to the edge and off the
+                     grid
    --slide-footer-mark   the corner row's height: 2.25rem, 48px
-   --slide-corner-wordmark the wordmark's box, 1.956rem, 42px at 1920, 1.3 times the 1.5rem typed
-                     name it replaced. The corner shows the wordmark alone, in its two colours, on
-                     every slide but the title and the closing slide, which carry the lockup: the
-                     wizard on every slide read as busy, and the wordmark in one muted colour or
-                     smaller lost attribution in photos and phone feeds
+   --slide-corner-wordmark the wordmark's box, 1.956rem, 42px at 1920. The corner shows the wordmark
+                     alone, in its two colours, on every slide but the title and the closing slide,
+                     which carry the lockup: the wizard on every slide reads as busy, and the
+                     wordmark in one muted colour or smaller loses attribution in photos and phone
+                     feeds
    --slide-corner-lockup the corner lockup's box, sized so its letters keep the wordmark's size: the
                      wordmark is 952 of the day lockup's 1489 units and of the night cut's 1640.612,
                      whose box grows round the wizard's edge, so each cut takes its own height
@@ -101,9 +101,8 @@
                      the night cut scales by 1640.612 / 1489 so its
                      letters keep that size
    --slide-footer-band   the band above the bottom edge that a slide's content never enters: the
-                     corner row plus a 2rem gap, 43px at 1920. The bottom padding of 4.25rem it
-                     replaces left 11px between content and the page counter, and timelines, card
-                     grids and closing lines read as crowded against it
+                     corner row plus a 2rem gap, 43px at 1920, so timelines, card grids and closing
+                     lines keep clear of the page counter
 
    Card padding stays each component's own (2rem, 43px at 1920, for most cards): the website's
    32px x 2 would take a fifth of a card's width at four columns and push bodies under the fit

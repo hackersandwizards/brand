@@ -202,7 +202,7 @@
   --type-small-line-height: var(--text-small--line-height);
   --type-small-tracking: 0;
   /* Eyebrows, table heads, chips, running heads, set in capitals. 14px on a
-     phone (global.css). */
+     phone (elements/label.css). */
   --type-label-family: var(--font-mono);
   --type-label-weight: 500;
   --type-label-size: var(--text-label);
@@ -215,8 +215,8 @@
   --type-stat-size: var(--text-h1);
   --type-stat-line-height: 1.1;
   --type-stat-tracking: -0.04em;
-  /* Code blocks and terminal lines at 14px; inline code is 0.9em of its
-     sentence, on a tint. */
+  /* Code blocks and terminal lines at 14px; inline code is 0.875em of its
+     sentence, on a tint (elements/inline-code.css). */
   --type-code-family: var(--font-code);
   --type-code-weight: 400;
   --type-code-size: var(--text-small);

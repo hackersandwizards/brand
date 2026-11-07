@@ -85,10 +85,9 @@
   --hw-frame-width: 1px;
   --hw-kpi-size: var(--text-page, 1.5rem);
   --hw-kpi-tracking: -0.01em;
-  /* The compact tier: the expert set's UI text at macOS's
-     13 px, its micro step at 11 px. meta repeats ui here, since a var() resolves where it is
-     declared. The heights an app's components read, at their measured values: a list row's
-     padding and a filter control's height. */
+  /* The compact tier: the expert set's UI text at macOS's 13 px, its micro step at 11 px. meta
+     repeats ui here, since a var() resolves where it is declared. The heights an app's components
+     read, at their measured values: a list row's padding and a filter control's height. */
   --text-ui: 0.8125rem;
   --text-ui--line-height: 1.45;
   --text-meta: var(--text-ui);

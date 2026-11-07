@@ -519,18 +519,18 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // the clock ends at y 470 of the file, notifications rise from the bottom. A smaller stack under
     // the clock, as wide as the clock.
     "lw-stack-up": [["k", 360, 508, 500]],
-    // Measured on the iPad, landscape: the lock screen shows the file 1.28 times enlarged
-    // with its top left at file point (91, 91), so the clock axis lies at file x 625, the clock ends at
-    // y 256 and a notification starts at y 800. The stack on that axis, a third of the way down the gap.
+    // Measured on the iPad, landscape: the lock screen shows the file 1.28 times enlarged with its
+    // top left at file point (91, 91), so the clock axis lies at file x 625, the clock ends at y 256
+    // and a notification starts at y 800. The stack on that axis, a third of the way down the gap.
     "lw-stack-axis": [["k", 360, 445, 350]],
     // 21:13, after setting lw-stack-axis: 1.146 times, horizontally centred, top at file y 153; clock
     // ends at y 337, the notifications start at y 945. iPadOS picks a new crop each time the file is
     // set, so the stack sits on the file's centre axis and inside the band both crops keep clear
     // (y 337-800).
     "lw-stack-centre": [["k", 360, 508, 440]],
-    // The one-line lockup low, bottom centre. Both measured
-    // landscape crops show rows down to 897 and 1053 and their notifications start at 800 and 945, so
-    // the ink ends at 790; the portrait crop's bottom rows never show in the landscape lock screen.
+    // The one-line lockup low, bottom centre. Both measured landscape crops show rows down to 897
+    // and 1053 and their notifications start at 800 and 945, so the ink ends at 790; the portrait
+    // crop's bottom rows never show in the landscape lock screen.
     "logo-band-low": [["l", 56, 537.8, 734]],
     "logo-c": [["l", 80, 473, 800]],
     "logo-low": [["l", 56, 538, 1200]],
@@ -547,8 +547,8 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // screen: the lowest app labels end at y 789.5, the Dock starts at 925.8. The lockup's ink
     // (841.5-875) centred between them, 52 and 51 points from each.
     "logo-gap": [["l", 36, 586.4, 838.7]],
-    // The same lockup bottom right beside the Dock, its ink
-    // (878-912) 14 points above the Dock and 80 from the right edge.
+    // The same lockup bottom right beside the Dock, its ink (878-912) 14 points above the Dock and
+    // 80 from the right edge.
     "logo-br": [["l", 36, 1092.8, 875.5]],
   },
   "ipad-home": {
@@ -562,9 +562,10 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // 21:13: rows 352-1374. The two measured crops differ by 77 points, so a smaller lockup sits
     // where it clears the app labels and the Dock under both.
     "logo-gap-r": [["l", 36, 591.4, 1153]],
-    // The third landscape screenshot with logo-gap-r set: rows 344-1376 unscaled (bottom-aligned, as
-    // the second), last app labels end at y 1143, Dock from y 1279. The lockup's centre on the
-    // band's centre (y 1211). Under the first crop (rows 275-1298) its lower half sits behind the Dock.
+    // The third landscape screenshot with logo-gap-r set: rows 344-1376 unscaled (bottom-aligned,
+    // as the second), last app labels end at y 1143, Dock from y 1279. The lockup's centre on the
+    // band's centre (y 1211). Under the first crop (rows 275-1298) its lower half sits behind the
+    // Dock.
     "logo-gap-low": [["l", 36, 591.4, 1191]],
     "logo-band-s": [["l", 44, 570, 972]],
     "logo-ll": [["l", 44, 90, 1000]],
@@ -587,16 +588,16 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // Measured on the iPhone: notifications cover y 516-727, so the stack sits under the clock.
     "lw-stack-up": [["k", 270, 85, 277]],
     "lw-stack-low": [["k", 240, 100, 777]],
-    // Measured on the iPhone: it shows the file 1.1525 times enlarged around its centre;
-    // the stack 53 pt lower, clear of the clock and still above two expanded notifications, the
-    // wizard's edge 5 pt below the widget row (y 316).
+    // Measured on the iPhone: it shows the file 1.1525 times enlarged around its centre; the stack
+    // 53 pt lower, clear of the clock and still above two expanded notifications, the wizard's edge
+    // 5 pt below the widget row (y 316).
     "lw-stack-mid": [["k", 270, 85, 330]],
     "logo-c": [["l", 44, 102, 520]],
     "logo-up": [["l", 40, 113, 360]],
     "logo-low": [["l", 40, 113, 816]],
-    // The iPhone home's lockup (40.5 pt) bottom centre. The
-    // 1.1525 enlargement around the centre puts its ink at screen y 783-830, 18 pt above the
-    // flashlight and camera row (848) and 56 pt below two notifications (to 727).
+    // The iPhone home's lockup (40.5 pt) bottom centre. The 1.1525 enlargement around the centre
+    // puts its ink at screen y 783-830, 18 pt above the flashlight and camera row (848) and 56 pt
+    // below two notifications (to 727).
     "logo-bottom": [["l", 40.5, 111, 742.9]],
     "wm-c": [["m", 34, 103, 520]],
     "wiz-low": [["w", 230, 105, 726]],

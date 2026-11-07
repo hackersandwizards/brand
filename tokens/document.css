@@ -27,8 +27,8 @@
   /* ── Rules, marks and corners ──
      The print scale, set for the two ways an A4 PDF is read, printed at arm's length and on a laptop
      at fit-width, about 70% zoom, where 1pt is about 0.93 CSS px. The floor is a rule that stays a
-     visible line at 70% on a 1x screen and in a 25% thumbnail; the website's px x 0.625 gave a 2pt
-     strip and 0.75pt hairlines, too slim to see. */
+     visible line at 70% on a 1x screen and in a 25% thumbnail; the website's px x 0.625 would give a
+     2pt strip and 0.75pt hairlines, too slim to see. */
   --strip: 6pt;
   /* From page 2 the header's strip returns as this rail on the paper edge, one gradient across the
      two top boxes. */
@@ -47,7 +47,7 @@
   --header-row: 56pt;
   --logo: 28pt;
   --logo-gap: 7pt;
-  /* The pixel wordmark's box, 1.3 times the h4 role it replaced (the letters 1.17 times), and the
+  /* The pixel wordmark's box, 1.3 times the h4 role (the letters 1.17 times), and the
      gap to text after it, 0.4 of the letters' height. */
   --wordmark: 14.3pt;
   --wordmark-gap: 5.1pt;
@@ -132,7 +132,7 @@
   --hours-section-pad: 2mm;
   /* ── Certificate ── One rhythm with the verifier's certificate page: tight inside a group of
      lines, related between the groups of the statement, section between sections. The name is the
-     one size outside the print roles: display's 26pt read too small for a name. */
+     one size outside the print roles: display's 26pt reads too small for a name. */
   --cert-tight: 3pt;
   --cert-related: 12pt;
   --cert-section: 24pt;

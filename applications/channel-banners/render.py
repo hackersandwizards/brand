@@ -70,10 +70,10 @@ def logos(band, radius, items):
     return {"band": band, "radius": radius, "items": items}
 
 
-# One grid for every banner: the lockup on top, its left edge on
-# the headline's x, the headline's ink top two units below the lockup's ink, a client band one unit
-# below the text. The unit is half the wordmark's cap height, the logo's own measure. The group is
-# centred in the area every device shows; the set reads as one when the logo sits on top everywhere.
+# One grid for every banner: the lockup on top, its left edge on the headline's x, the headline's
+# ink top two units below the lockup's ink, a client band one unit below the text. The unit is half
+# the wordmark's cap height, the logo's own measure. The group is centred in the area every device
+# shows; the set reads as one when the logo sits on top everywhere.
 LOCKUP_CAP = (79.8, 44)  # lockup height, wordmark cap height in px, measured on the profile render
 INK_ALPHA = 5  # lockup pixels up to this alpha are resampling haze above the wizard, not ink
 

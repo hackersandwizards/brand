@@ -3,8 +3,7 @@
 // measured on the pixels headless Chrome paints. A marker's middle has to sit two thirds of the way
 // from the x-height middle of the first line beside it to its cap-height middle (marker.css's
 // --hw-marker-mid; the caps' middle beside capitals), and a list item's first line has to start
-// where its wrapped lines start. Markers drifted 0.5 to 3.4px off for months on several surfaces
-// while every check passed, since only a render shows where they land.
+// where its wrapped lines start.
 //
 // Each page runs twice, as served and with a newline and an indent opening every list item, as
 // prettier-plugin-astro and hand-written HTML leave it, where an inline-block marker kept the

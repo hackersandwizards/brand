@@ -97,7 +97,7 @@ test("print.css's page-box variables match its @page rule, which cannot read the
   expect(print).toContain(
     `@page {\n  size: A4;\n  margin: 14mm 0 ${v("--print-margin-bottom")};\n}`,
   );
-  expect(v("--print-page-height")).toBe("297mm"); // A4
+  expect(v("--print-page-height")).toBe("297mm");
 });
 
 test("fonts.json names each family tokens.css leads with, and every file it lists ships", () => {

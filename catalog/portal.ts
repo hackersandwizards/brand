@@ -912,8 +912,8 @@ ${logosHtml}`,
 ];
 const LEAD =
   "Everything the hackers&wizards brand is made of: tokens, logos, the files made from them and the press kit. Each system shows its components on its own design-system page.";
-// The overview's mode in the markup: set first by show() at the end of the page, it let the quick
-// start appear above the tiles after they had painted (CLS 0.41 on Lighthouse mobile).
+// The overview's mode goes in the markup: set first by show() at the end of the page, it would
+// let the quick start appear above the tiles after they painted (CLS 0.41 on Lighthouse mobile).
 const catalogue = renderCatalog({
   title: "hackers&wizards brand",
   lead: LEAD,
@@ -1158,7 +1158,8 @@ document.addEventListener("click", (e) => {
 show();
 </script>
 <script>
-// On GitHub Pages, links to a system page with a public address leave their local addresses for the public ones; a system page without one stays as its name, marked local only.
+// On GitHub Pages, links to a system page with a public address leave their local addresses for
+// the public ones; a system page without one stays as its name, marked local only.
 const PUBLIC = ${JSON.stringify(PUBLIC)};
 if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; if (PUBLIC[a.href]) a.href = PUBLIC[a.href]; else if (a.matches(".hw-catalogue-tile")) { a.removeAttribute("href"); a.querySelector(".hw-catalogue-note").append(" (local only)"); } else a.replaceWith(a.textContent + " (local only)"); }
 </script>

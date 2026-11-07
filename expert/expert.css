@@ -71,7 +71,6 @@
   --on-accent: var(--color-white);
   /* Purple in both themes. */
   --focus: var(--color-purple);
-  /* The 7 percent ink tint on bg. */
   --muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
   --border: #d0d2d8; /* --color-border */
   /* The shared elements' muted text grey, which the @theme block below shadows with the fill. */
@@ -92,8 +91,8 @@
   /* Hue roles: categories with no status meaning (a product, a partner type, a channel), under
      the same 4.5:1 rule. A category takes teal, purple or slate (the ampersand hue's text colour)
      and leaves the rest of its set neutral; rust is the Software Factory area alone (the hue rule in tokens.css). Rust takes the
-     ink mix too: alone it is 4.2:1 on its wash over the muted fill. amber and green are former
-     category hues, now warning and success under their old names: no category takes them. */
+     ink mix too: alone it is 4.2:1 on its wash over the muted fill. hue-amber and hue-green are
+     former names of warning and success: no category takes them. */
   --hue-teal: var(--color-teal-dark);
   --hue-purple: color-mix(in srgb, var(--color-purple) 70%, var(--color-ink));
   --hue-amber: var(--warning);
@@ -201,8 +200,8 @@ html[data-theme="dark"] {
   flex-direction: column;
   gap: 0.25rem;
   margin-bottom: 1rem;
-  /* Fixed, not min-height: a growable row let an action button push the H1 down,
-     so the title jumped between routes. 12px cap around a 38px button. */
+  /* Fixed, not min-height: a growable row lets an action button push the H1 down, so the title
+     jumps between routes. 12px cap around a 38px button. */
   --page-title-row-h: 3.875rem;
   height: var(--page-title-row-h);
 }

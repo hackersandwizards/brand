@@ -1,11 +1,10 @@
 #!/usr/bin/env bun
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
 // generated/tokens.root.css (the @theme block as :root and on a light element under night),
-// tokens.json, tokens.ts and tokens.py, and
-// code-theme.json, the Shiki theme of the --code-* tokens and the terminal's ANSI colours; and from
-// tokens/fonts.css fonts.json, its faces, for a surface that writes its own @font-face; and from
-// tokens/print.css static-fonts.css, its @font-face rules alone, for a surface that needs the static
-// faces without the print scale.
+// tokens.json, tokens.ts and tokens.py, and code-theme.json, the Shiki theme of the --code-* tokens
+// and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces, for a surface
+// that writes its own @font-face; and from tokens/print.css static-fonts.css, its @font-face rules
+// alone, for a surface that needs the static faces without the print scale.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
@@ -172,7 +171,7 @@ const CODE_SCOPES: [string, string[]][] = [
 ];
 
 // A terminal's 16 ANSI colours on the code ground, each a core colour: Shiki's ansi language reads
-// them. Normal and bright differ only where the brand has a lighter step (blind panel, 2026-11-02).
+// them. Normal and bright differ only where the brand has a lighter step.
 const ANSI: [string, string][] = [
   ["Black", "night-subtle"],
   ["Red", "red-night"],

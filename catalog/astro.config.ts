@@ -1,8 +1,4 @@
-// The brand catalog (repo-uniformity-plan, hub-max): one Astro app in scaffolding's catalog shell.
-// The element stories sit in catalog/stories at /catalog/; the file catalogue, the brand portal
-// that reads this repository's files (pages/index.html.ts), is the site's root, the tracked files
-// it links beside it. `bun run build` writes dist/, which the Pages workflow publishes at
-// https://hackersandwizards.github.io/brand/, hence the base.
+// The Pages workflow publishes dist/ at https://hackersandwizards.github.io/brand/, hence the base.
 import { defineConfig } from "astro/config";
 import { catalog } from "@hackersandwizards/scaffolding/catalog";
 import { files } from "./files.ts";

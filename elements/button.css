@@ -74,7 +74,7 @@
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    /* Darker toward the night ground: night.css turns ink light, so a mix with ink lightened it. */
+    /* Darker toward the night ground: night.css turns ink light, so mixing ink would lighten it. */
     .hw-button[data-hue="purple"] {
       --_hover: color-mix(in srgb, var(--color-purple) 80%, var(--color-night));
     }

@@ -41,8 +41,7 @@
    high, which no rule from 1lh can tell apart from 9.5pt at 1.5, where it sits right. brand-markers
    reports it; choose another line height there.
 
-   Measured with brand-markers at 4x, every marker sits within 0.09px of its middle. The
-   whole-pixel lift alone sat up to 0.56px off. */
+   Measured with brand-markers at 4x, every marker sits within 0.09px of its middle. */
 
 .hw-marker-list {
   --hw-markers: on;

@@ -18,27 +18,27 @@
 //    hub element on the pages (an hw-* class; for the focus ring, the first focusable inside
 //    [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception], which is that
 //    exception's instance, nor one inside [data-hw-shell], the scaffolding catalog shell's own
-//    card and pill) is compared with a reference: the same
-//    markup in a shadow root beside it, styled only by this package's element files and inheriting
-//    the page's tokens, theme and scale. Any difference in a computed property the element sets
-//    (OWNS: its corner, fill, line, text colour, type, padding or size) fails, by more than 0.02px
-//    for a length. Each brand token an element reads must be defined where it renders; with
-//    "lightOnly" the tokens only its night rules read are left out, since a page without night
-//    never draws them. An element drawn with the brand corner (top-left and bottom-right larger
-//    than top-right) inside another so drawn fails too: the brand corner sits on the outermost
-//    block only (tokens.css).
+//    card and pill) is compared with a reference: the same markup in a shadow root beside it,
+//    styled only by this package's element files and inheriting the page's tokens, theme and scale.
+//    Any difference in a computed property the element sets (OWNS: its corner, fill, line, text
+//    colour, type, padding or size) fails, by more than 0.02px for a length. Each brand token an
+//    element reads must be defined where it renders; with "lightOnly" the tokens only its night
+//    rules read are left out, since a page without night never draws them. An element drawn with
+//    the brand corner (top-left and bottom-right larger than top-right) inside another so drawn
+//    fails too: the brand corner sits on the outermost block only (tokens.css).
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote)
-//    and sets a property that element owns (a shorthand counts for its longhands) fails, and so does a component file of such a name,
-//    unless it carries the hw-* class, its name is an exception, or its file is one an exception
-//    lists in "files" (a stylesheet of the system's own medium, such as a slide deck's).
+//    and sets a property that element owns (a shorthand counts for its longhands) fails, and so
+//    does a component file of such a name, unless it carries the hw-* class, its name is an
+//    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
+//    medium, such as a slide deck's).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it), every
 //    such tile's data-hw-version is this package's version (a page built from another brand
 //    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, and every hub
 //    element a page shows is listed as used.
 //
-// Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a page with no hub element (a zero
-// proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
+// Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a page with no hub
+// element (a zero proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";

@@ -6,10 +6,9 @@
 // The Google Workspace logo is the wide avatar: the hw centred on the same gradient, full-bleed, in
 // exactly 320 x 132, the one size Google's help names ("displayed at exactly 320 x 132 pixels"),
 // the hw 60 % of its height. Gmail shows it at 78 x 32 pt, where the lockup's letters shrank to
-// about 6 pt. The Admin
-// console's home header squashes it into 320 x 48, measured on a screenshot of 2026-11-01; no
-// 320 x 132 file escapes that. The package ships one size,
-// logos/avatar-512.png, for a consumer that uploads a square logo (os: Tally forms); the rest stay in LFS.
+// about 6 pt. The Admin console's home header squashes it into 320 x 48, measured on a screenshot
+// of 2026-11-01; no 320 x 132 file escapes that. The package ships one size, logos/avatar-512.png,
+// for a consumer that uploads a square logo (os: Tally forms); the rest stay in LFS.
 // It also ships the favicon set every site and page serves, in logos/: browser tabs and Windows
 // show favicon.svg, favicon.ico and icon-192/512 unmasked, so those carry the rounded corners
 // themselves, and the 16 and 32 px favicon keeps the hw at 73 %, since 62.5 % blurs in a tab. iOS

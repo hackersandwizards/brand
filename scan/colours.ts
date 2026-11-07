@@ -12,8 +12,9 @@
 // committed at HEAD, so a pin raise lists a newer scanner's findings in the same commit while
 // anything the consumer's own new code adds still fails. An entry on an SVG naming a `partner`, the
 // third party whose mark it is (a conference's or a client's logo), keeps that file out of the
-// counts with its reason, and may be added in any commit: its colours are its owner's. Prints every built-in exception
-// it applied with the number of files it skipped, and every partner mark it allowed.
+// counts with its reason, and may be added in any commit: its colours are its owner's. Prints every
+// built-in exception it applied with the number of files it skipped, and every partner mark it
+// allowed.
 // Usage: brand-colours [--tighten]
 //   --tighten  lowers every entry to today's count and drops entries at zero; creates the
 //              allowlist from today's counts where none exists. Raises an entry, or adds one with
