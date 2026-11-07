@@ -2,6 +2,7 @@
 // theme and the tests measure it. Words are the website's and a document's own kind of text.
 import { MOON } from "../expert/components/theme-icons";
 const play = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3v18l15-9z"/></svg>`;
+const remove = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg>`;
 const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${MOON}"/></svg>`;
 
 export const DEMOS: Record<string, string> = {
@@ -14,7 +15,7 @@ export const DEMOS: Record<string, string> = {
   table: `<table class="hw-table"><thead><tr><th>Leistung</th><th>Basis</th></tr></thead><tbody><tr><td>Training</td><td>2 Tage</td></tr><tr><td>Mentoring</td><td>8 Std.</td></tr></tbody></table>`,
   link: `<p>Dann öffnet ihr <a class="hw-link" href="#elements">localhost:3000</a>.</p>`,
   "focus-ring": `<button type="button" class="hw-pill" data-variant="outline">Tab hierher</button>`,
-  "icon-button": `<button type="button" class="hw-icon-button" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" aria-label="Thema">${moon}</button> <button type="button" class="hw-icon-button" data-on="picture" aria-label="Abspielen">${play}</button>`,
+  "icon-button": `<button type="button" class="hw-icon-button" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" aria-label="Thema">${moon}</button> <button type="button" class="hw-icon-button" data-on="picture" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" data-tone="danger" aria-label="Entfernen">${remove}</button>`,
   strip: `<div class="hw-strip"></div>`,
   rule: `<h3 style="margin:0">Wie ein Agent arbeitet</h3><hr class="hw-rule" data-variant="bar" aria-hidden="true"><p>Ein Block, über dem die Linie in voller Breite steht:</p><hr class="hw-rule"><hr class="hw-rule" data-hue="purple">`,
   code: `<pre class="hw-code"><code>$ bun run check\n<span class="hw-code-comment"># 0 findings</span></code></pre> <pre class="hw-code" data-variant="panel"><code>$ claude --continue</code></pre>`,
@@ -26,6 +27,7 @@ export const DEMOS: Record<string, string> = {
   facts: `<dl class="hw-facts" data-variant="ruled"><div><dt class="hw-label" data-tone="muted">Dauer</dt><dd>2 Tage</dd></div><div><dt class="hw-label" data-tone="muted">Format</dt><dd>Remote</dd></div></dl>`,
   "dot-list": `<p class="hw-dot-list"><span>3 Deals</span><span><strong style="font-variant-numeric: tabular-nums">€ 0,00</strong> offen</span><span>überfällig 4d</span><span class="hw-dot-list"><span>2 Trainings</span><span>1 Angebot</span></span></p>`,
   segmented: `<div class="hw-segmented" role="group" aria-label="Ansicht"><span class="hw-label" data-tone="muted">Ansicht</span><button type="button" aria-pressed="true">Liste</button><button type="button" aria-pressed="false">Gruppen</button></div>`,
+  kbd: `<p>Mit <kbd class="hw-kbd">/</kbd> springt ihr in die Suche, <kbd class="hw-kbd">⌘</kbd> + <kbd class="hw-kbd">K</kbd> öffnet die Befehle, <kbd class="hw-kbd">Esc</kbd> schließt sie.</p>`,
   row: `<div class="hw-row"><span class="hw-row-stripe" style="background: var(--color-teal)"></span><div>Musterwerk AG</div><div>2 Tage</div></div>`,
   breadcrumb: `<nav class="hw-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="#elements">Trainings</a></li><li><span aria-current="page">Foundations</span></li></ol></nav>`,
   status: `<div class="hw-status"><strong>2 Lücken</strong><br>Trainer fehlt</div><div class="hw-status" data-tone="success">Bestätigt</div><div class="hw-status" data-tone="error"><span class="hw-label" data-hue="red">Schlecht</span><br>Ohne Plan losgelegt</div><div class="hw-status" data-tone="success"><span class="hw-label" data-hue="green">Gut</span><br>Erst der Plan</div><div class="hw-status" data-tone="info"><span class="hw-label" data-hue="amber">Offen</span> <span class="hw-label" data-hue="purple">Teil zwei</span></div>`,

@@ -1,0 +1,29 @@
+/* The text base: each heading takes its level's face at weight 700 and balances its lines, so a
+   headline never leaves one word on its last line; paragraphs and list items wrap pretty, so a body
+   line does not either. A class names any other face or weight. In @layer base, so every element
+   and utility wins over it; import it after tokens.css and, in Tailwind, after "tailwindcss".
+   No selection colour: the browser's own stays, which reads on every ground. */
+
+@layer base {
+  :is(h1, h2, h3) {
+    text-wrap: balance;
+  }
+  :is(h1, h2, h3, h4) {
+    font-weight: 700;
+  }
+  h1 {
+    font-family: var(--type-h1-family);
+  }
+  h2 {
+    font-family: var(--type-h2-family);
+  }
+  h3 {
+    font-family: var(--type-h3-family);
+  }
+  h4 {
+    font-family: var(--type-h4-family);
+  }
+  :is(p, li) {
+    text-wrap: pretty;
+  }
+}

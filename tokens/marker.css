@@ -107,9 +107,16 @@
   background: var(--hw-marker-color, var(--color-teal));
 }
 
+/* Beside a label in capitals no lowercase letter sets the line: the square sits on the cap-height
+   middle. */
+.hw-label > .hw-marker {
+  --hw-marker-mid: 0.5cap;
+}
+
 /* An engine without the cap unit (Safari before 17.2) sets the square on the x-height middle. */
 @supports not (top: 1cap) {
   .hw-marker,
+  .hw-label > .hw-marker,
   ul > li::before,
   ul > li > p:first-child::before {
     --hw-marker-mid: 0.5ex;

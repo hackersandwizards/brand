@@ -244,7 +244,6 @@ const DELIVERY: [string, string[]][] = [
     "The favicon set every page serves from the package, and the web app icons.",
     pick(/^logos\/(favicon|apple-touch-icon|icon-)/),
   ],
-  ["A square avatar upload: the same pixels as icon-maskable-512.png.", pick(/^logos\/avatar-/)],
 ];
 index.push({ t: "type-logo-short.svg", k: "logo", h: "logos/logos-delivery", x: "hw mark master" });
 for (const [use, paths] of DELIVERY)
@@ -595,6 +594,7 @@ const ELEMENT_ORDER: [string, string, string][] = [
   ["rule", "Accent rule", "rule"],
   ["code", "Code block", "code"],
   ["inline-code", "Inline code", "inline-code"],
+  ["kbd", "Keycap", "kbd"],
   ["button", "Button", "button"],
   ["arrow-link", "Arrow link", "arrow-link"],
   ["field", "Field with button", "field"],

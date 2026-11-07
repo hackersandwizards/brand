@@ -65,6 +65,21 @@ test("flags a count above its entry, an unlisted file, a missing reason and a gr
   expect(violations({}, allow, { "a.css": { ...zero, hex: 1, reason: "r" } })).toHaveLength(1);
 });
 
+test("a value moved to another file moves its entry, while the list's total for that metric holds", () => {
+  const before: Allowlist = { "a.css": { ...zero, hex: 3, shadow: 1, reason: "r" } };
+  const moved: Allowlist = {
+    "a.css": { ...zero, hex: 1, shadow: 1, reason: "r" },
+    "b.css": { ...zero, hex: 2, reason: "moved from a.css" },
+  };
+  const files = { "a.css": { ...zero, hex: 1, shadow: 1 }, "b.css": { ...zero, hex: 2 } };
+  expect(violations(files, moved, before)).toEqual([]);
+  // Control: the same move with one more hex than a.css gave up.
+  const grown = { ...moved, "b.css": { ...zero, hex: 3, reason: "moved from a.css" } };
+  expect(violations({ ...files, "b.css": { ...zero, hex: 3 } }, grown, before)).toEqual([
+    "brand-colours.json: b.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+  ]);
+});
+
 test("a partner's mark may be listed against HEAD; a partner entry needs a name, a reason and an SVG", () => {
   const logo = "public/conf-logo.svg";
   const partner: Allowlist = { [logo]: { partner: "A Conference", reason: "r" } };

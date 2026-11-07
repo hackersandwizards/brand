@@ -8,9 +8,11 @@ interface Props {
   name: string;
   scale?: "screen" | "dense" | "print" | "stage";
   night?: boolean;
+  /** Element settings the surface sets, as a style attribute ("--hw-prose-width: 32rem"). */
+  settings?: string;
 }
 
-const { name, scale = "screen", night = false } = Astro.props;
+const { name, scale = "screen", night = false, settings } = Astro.props;
 ---
 
 <div
@@ -19,6 +21,7 @@ const { name, scale = "screen", night = false } = Astro.props;
   data-hw-version={pkg.version}
   data-hw-scale={scale}
   data-theme={night ? "dark" : undefined}
+  style={settings}
 >
   <Fragment set:html={DEMOS[name]} />
 </div>

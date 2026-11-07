@@ -13,7 +13,7 @@ export function containsPath(node: SpaceNode, path: string): boolean {
 
 export function navLinkClass(href: string, currentPath: string): string[] {
   return [
-    "block truncate rounded-sm px-2 py-1 text-ui transition-colors",
+    "block rounded-sm px-2 py-1 text-ui break-words transition-colors",
     href === currentPath
       ? "bg-accent/7 font-medium text-accent"
       : "text-foreground/70 hover:bg-muted/40 hover:text-foreground",

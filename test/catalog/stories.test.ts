@@ -25,7 +25,8 @@ afterAll(async () => {
 });
 
 test("every element story passes brand-elements", async () => {
-  expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5);
+  // Five per element, and two that show a setting: the prose block's reading width, the row's padding.
+  expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 2);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second; the
   // focus ring's one by one, since only the tab in front holds focus.
   const measure = (p: string) => measurePage(browser, `${server.url}${BASE.slice(1)}${p}`);

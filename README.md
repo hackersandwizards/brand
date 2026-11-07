@@ -37,21 +37,24 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                                                                                       |
 | `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`                                                                        |
 | `@hackersandwizards/brand/static-fonts.css`               | `print.css`'s static faces alone, for a surface that renders PDFs without the print scale                          |
+| `@hackersandwizards/brand/cursor.svg`                     | the slide player's pointer in teal, for `cursor: url()`, hotspot `6 6`                                             |
 | `@hackersandwizards/brand/fonts.json`                     | the same faces as data, for your `@font-face`, in their order; a face without `unicodeRange` takes every character |
 | `@hackersandwizards/brand/night.css`                      | night for light-token surfaces, below                                                                              |
 | `@hackersandwizards/brand/stage.css`                      | the slide engine's stage scale                                                                                     |
 | `@hackersandwizards/brand/document.css`                   | the document engine's scale                                                                                        |
 | `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below                                                                                  |
+| `@hackersandwizards/brand/text-base.css`                  | headings in the heading face at 700, balanced; paragraphs and list items pretty; `@layer base`                     |
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                                                                                         |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                                                                                    |
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                                                                                     |
+| `@hackersandwizards/brand/app-base.css`                   | an expert app's base layer: document scroll, body column, heading face, link accent, pointer, plain CSS            |
 | `@hackersandwizards/brand/catalogs.json`                  | every published catalog, name and address, for the header's nav                                                    |
 | `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                                                                                    |
 | `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS                                                                                  |
 | `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below                                                                         |
 | `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`                                                                                |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                                                                                               |
-| `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, avatar, `logos.json`                                                                           |
+| `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, `logos.json`                                                                                   |
 | `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                                                                                    |
 | `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                                                                                      |
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                                                                                   |
@@ -216,7 +219,7 @@ lists start at the text edge, as the marker list does everywhere.
 
 A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
 website's px), `"dense"` (the apps and the talks site; it also sets the expert set's compact type steps, UI text
-13 px and micro 11 px, and the heights `--hw-row-pad` and `--hw-control-height`; `data-hw-type="regular"` beside it keeps UI text 14 px and micro 12 px, as the trainer hub does), `"print"` (documents, pt, the type sizes
+13 px and micro 11 px, and the heights `--hw-row-pad-block`, `--hw-row-pad-inline` and `--hw-control-height`; `data-hw-type="regular"` beside it keeps UI text 14 px and micro 12 px, as the trainer hub does), `"print"` (documents, pt, the type sizes
 from `print.css`) or `"stage"` (slides on the 1440 stage) on any container. A surface may also set
 an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed in its file.
 
@@ -311,7 +314,9 @@ Add it to your gate as a `check:<what>` script that scaffolding's `scaffolding.c
 
 An exception goes in `brand-colours.json` beside your `package.json`, one entry per file with its
 counts and the reason, and the list may only shrink: the scan fails where an entry grows against
-`HEAD` or names no reason. A metric an entry leaves out allows none. `brand-colours --tighten`
+`HEAD` while the list's total for that metric grows too, or names no reason. A value you move to
+another file moves its count in the same commit: the old file's entry shrinks by what the new one
+takes. A metric an entry leaves out allows none. `brand-colours --tighten`
 lowers every entry to today's counts.
 
 A third party's mark, such as a partner conference's or a client's logo as an SVG, carries its

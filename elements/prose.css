@@ -11,10 +11,14 @@
    the hw-* elements, marked not-prose, which the block only spaces; a link that is no link in text
    (a button, an arrow link) is marked not-prose too. Unlike the other elements these rules sit in
    no layer: Typography's prose rules come in Tailwind's utilities layer, which a layered rule would
-   lose to. A list marked not-prose keeps its own start. */
+   lose to. A list marked not-prose keeps its own start.
+
+   Settings:
+     --hw-prose-width  the reading width, Tailwind's 3xl container (48rem); none fills the column */
 @import "./check.css";
 
 .hw-prose {
+  max-width: var(--hw-prose-width, var(--container-3xl, 48rem));
   overflow-wrap: break-word;
   --hw-markers: on;
   --tw-prose-headings: var(--foreground, var(--color-ink));

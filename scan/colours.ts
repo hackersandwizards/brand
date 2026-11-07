@@ -7,7 +7,9 @@
 // box shadows (`shadow`) whose value is no brand token, Tailwind's default radius and shadow
 // classes included. Compares the counts with the consumer's brand-colours.json and exits 1 on any
 // count above its entry, any unlisted file with a count, an entry without a reason, or an entry
-// that grew against HEAD: the allowlist may only shrink. Where the working tree changes the brand
+// that grew against HEAD: the allowlist may only shrink. An entry may grow, a new file's included,
+// where the allowlist's total for that metric does not grow against HEAD, so a value moved from one
+// file to another moves its entry in the same commit. Where the working tree changes the brand
 // pin package.json holds at HEAD, an entry may also grow to what this scanner finds in the file as
 // committed at HEAD, so a pin raise lists a newer scanner's findings in the same commit while
 // anything the consumer's own new code adds still fails. An entry on an SVG naming a `partner`, the
@@ -315,7 +317,12 @@ export const scanSource = (raw: string, ext: string) => {
 
 /** Every way the counts exceed the allowlist, and every entry without a reason or grown against
  *  the committed allowlist beyond `ceiling`, this scanner's counts of the files as committed, which
- *  a pin change passes. */
+ *  a pin change passes, where the list's total for that metric grew too: within the total, a value
+ *  moved from one file to another. */
+/** The allowlist's sum of one metric, partner marks left out. */
+const total = (allow: Allowlist, k: (typeof METRICS)[number]) =>
+  Object.entries(allow).reduce((sum, [f, e]) => sum + (isPartner(f, e) ? 0 : (e[k] ?? 0)), 0);
+
 export const violations = (
   files: Record<string, Counts>,
   allow: Allowlist,
@@ -336,9 +343,12 @@ export const violations = (
       out.push(`${ALLOWLIST}: ${file}: "partner" names a third party's mark, an SVG, by name`);
     if (committed && !isPartner(file, e))
       for (const k of METRICS)
-        if ((e[k] ?? 0) > Math.max(committed[file]?.[k] ?? 0, ceiling[file]?.[k] ?? 0))
+        if (
+          (e[k] ?? 0) > Math.max(committed[file]?.[k] ?? 0, ceiling[file]?.[k] ?? 0) &&
+          total(allow, k) > total(committed, k)
+        )
           out.push(
-            `${ALLOWLIST}: ${file} ${k} grew against HEAD; the allowlist may only shrink, or during a pin change grow to the count of the file as committed`,
+            `${ALLOWLIST}: ${file} ${k} grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed`,
           );
   }
   return out;

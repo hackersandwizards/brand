@@ -4,7 +4,8 @@
 // tokens.json, tokens.ts and tokens.py, and code-theme.json, the Shiki theme of the --code-* tokens
 // and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces, for a surface
 // that writes its own @font-face; and from tokens/print.css static-fonts.css, its @font-face rules
-// alone, for a surface that needs the static faces without the print scale.
+// alone, for a surface that needs the static faces without the print scale; and cursor.svg, the
+// slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
@@ -270,6 +271,7 @@ ${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(FONT_FACE)]
   .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
   .join("\n\n")}
 `,
+    "cursor.svg": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="${colors["--color-teal"]}"/><circle cx="6" cy="6" r="4" fill="${colors["--color-teal"]}" fill-opacity="0.4"/><circle cx="6" cy="6" r="5" fill="${colors["--color-teal"]}" fill-opacity="0.25"/></svg>\n`,
   };
 };
 

@@ -1,0 +1,56 @@
+/* The base layer of an expert app (Company OS, the trainer hub): the page scrolls on the document,
+   the body is a full-height column on the theme's ground, headings take the heading face, links the
+   accent, and every enabled button the pointer. Plain CSS in @layer base, after expert.css's roles:
+   import it after Tailwind and expert.css, so a utility still wins. An app's own exceptions, such as
+   the hub's accent-color on native controls, stay in its global.css. */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    overflow-y: scroll;
+    /* Stops an overflowing element from widening the document on a narrow window; clip, unlike
+       hidden, also blocks programmatic scrolling. */
+    overflow-x: clip;
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+    scrollbar-width: auto;
+    scrollbar-color: var(--muted) transparent;
+  }
+  /* On night the fill is night-2, 1.1:1 on the night ground: the thumb takes the night muted grey. */
+  html[data-theme="dark"] {
+    scrollbar-color: var(--color-night-muted) transparent;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    overflow-x: clip;
+    font-family: var(--font-sans);
+    color: var(--foreground);
+    background-color: var(--background);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+  }
+  /* Only the colours fade: a faded outline would draw the focus ring late. */
+  a {
+    color: var(--accent);
+    transition:
+      color 150ms,
+      text-decoration-color 150ms;
+  }
+  @media (hover: hover) {
+    a:hover {
+      color: var(--accent-light);
+    }
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

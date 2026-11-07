@@ -34,7 +34,7 @@ test("the portal links every logo file the package ships, a master's cut or a de
   const shipped = manifest.files
     .map((f) => f.path)
     .filter((p) => p.startsWith("logos/") && !/emoji-logo|\.tif$|\.json$/.test(p));
-  expect(shipped.length).toBe(30);
+  expect(shipped.length).toBe(29);
   expect(shipped.filter((p) => !html.includes(`href="${p}" download`))).toEqual([]);
 });
 
@@ -91,7 +91,7 @@ const url = pathToFileURL(`${DIST}/index.html`).href;
 
 test("the portal's samples match their rules", async () => {
   const r = await measurePage(browser, url);
-  expect(r.seen.length).toBe(26);
+  expect(r.seen.length).toBe(27);
   expect(r.findings).toEqual([]);
 }, 60_000);
 

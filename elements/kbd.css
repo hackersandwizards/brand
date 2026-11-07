@@ -1,0 +1,33 @@
+/* The keycap: a key the reader presses, in a keyboard hint beside a control or in a line of help
+   text. One <kbd class="hw-kbd"> per key, the "+" or "then" between keys outside it. The code face
+   on the page's ground, ink at 70 % (5.5:1 on the page), a hairline with a second one under it for
+   the key's edge, the small corner. On night the night ground, night ink at 70 % and the night
+   line.
+
+   Settings:
+     --hw-kbd-size   the type size: the label step of the medium
+     --hw-corner-sm  the corner, the small corner at the medium's size */
+
+@layer components {
+  .hw-kbd {
+    display: inline-block;
+    box-sizing: border-box;
+    border: var(--hw-hairline, 1px) solid var(--color-border);
+    border-bottom-width: calc(2 * var(--hw-hairline, 1px));
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0 0.375em;
+    font-family: var(--type-code-family);
+    font-size: var(--hw-kbd-size, 0.75rem);
+    font-weight: 400;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    background-color: var(--color-bg);
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-kbd {
+      border-color: color-mix(in srgb, white 18%, var(--color-night));
+      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
+      background-color: var(--color-night);
+    }
+  }
+}

@@ -7,11 +7,12 @@
    Markup: <div class="hw-row"><span class="hw-row-stripe"></span><div>lead</div><div>trail</div></div>
 
    Settings:
-     --hw-row-pad     block and inline padding
-     --hw-row-stripe  the stripe's width
-     --hw-row-gap     the gap between stripe, lead and trail
-     --hw-row-fill    the fill, where a state of the record (a dimmed, lost or inactive one) takes
-                      another ground: the page's ground, on night the night ground */
+     --hw-row-pad-block   the block padding
+     --hw-row-pad-inline  the inline padding, which a surface aligning a header over the rows reads
+     --hw-row-stripe      the stripe's width
+     --hw-row-gap         the gap between stripe, lead and trail
+     --hw-row-fill        the fill, where a state of the record (a dimmed, lost or inactive one)
+                          takes another ground: the page's ground, on night the night ground */
 
 @layer components {
   .hw-row {
@@ -21,7 +22,7 @@
     align-items: center;
     gap: var(--hw-row-gap, 0.75rem);
     border-bottom: var(--hw-hairline, 1px) solid var(--color-border);
-    padding: var(--hw-row-pad, 0.5rem 0.75rem);
+    padding: var(--hw-row-pad-block, 0.5rem) var(--hw-row-pad-inline, 0.75rem);
     background: var(--hw-row-fill, var(--color-bg));
     transition: background-color 0.1s;
   }
