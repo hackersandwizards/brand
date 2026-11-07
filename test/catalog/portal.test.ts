@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ELEMENTS, measurePage } from "../../scan/elements";
-import { ROOT } from "../../scripts/git";
+import { lfsOid, ROOT } from "../../scripts/git";
 import { failing, launch, measureMarkers } from "../../scan/markers";
 import { DIST, fileOf, page } from "./site";
 
@@ -52,6 +52,8 @@ test("every link and image of the portal resolves in dist/", () => {
     .filter((r) => r && !/^(?:[a-z]+:|\/\/)/.test(r));
   expect(refs.length).toBeGreaterThan(100);
   expect([...new Set(refs)].filter((r) => !fileOf(r))).toEqual([]);
+  // A Git LFS pointer resolves too, and shows as a broken image.
+  expect([...new Set(refs)].filter((r) => lfsOid(readFileSync(fileOf(r)!)))).toEqual([]);
 });
 
 test("catalogue.html forwards to the portal with its anchor", () => {
