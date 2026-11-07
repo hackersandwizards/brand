@@ -87,7 +87,7 @@ data or secret.
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset
   drops the `/brand` base in dev and redirects `/brand/...` there. The portal reads the working tree
   afresh on each request. `bun run build` writes `dist/`. The portal's header links every catalog
-  `expert/catalogs.json` lists on its Pages site (`https://hackersandwizards.github.io/<repo>/`).
+  `expert/catalogs.json` lists at its published address.
 
 ## Rules
 

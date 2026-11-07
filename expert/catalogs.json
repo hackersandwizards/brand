@@ -2,5 +2,6 @@
   { "name": "Brand", "href": "https://hackersandwizards.github.io/brand/" },
   { "name": "Slides", "href": "https://hackersandwizards.github.io/slides/" },
   { "name": "Documents", "href": "https://hackersandwizards.github.io/documents/" },
-  { "name": "Mail", "href": "https://hackersandwizards.github.io/mail/" }
+  { "name": "Mail", "href": "https://hackersandwizards.github.io/mail/" },
+  { "name": "Website", "href": "https://www.hackersandwizards.dev/catalog/" }
 ]
