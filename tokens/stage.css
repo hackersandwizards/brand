@@ -196,11 +196,6 @@
   --slide-octagon-cut: 0.9rem;
   --slide-octagon-line: 3px;
   --slide-octagon-diagonal: 1.76px;
-  /* ── Pipeline ── a pipeline whose stages wrap steps down until they hold one row. */
-  --slide-pipeline-gap: 1rem;
-  --slide-pipeline-gap-tight: 0.5rem;
-  --slide-pipeline-pad: 1.25rem;
-  --slide-pipeline-pad-tight: 0.75rem;
   /* ── Phone ── below Tailwind's md a slide is one column that scrolls, cut to fit 390px. */
   --slide-phone-padding: 4rem 1.25rem 6rem;
   --slide-phone-kicker-gap: 1rem;

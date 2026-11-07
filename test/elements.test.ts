@@ -696,3 +696,32 @@ test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
   const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
   expect(r.exitCode).toBe(2);
 });
+
+test("a keycap leaves a line of UI text as high as an inline keycap does, in every scale", async () => {
+  const p = await browser.newPage();
+  const text = (kbd: (key: string) => string) =>
+    `<p style="width:16rem;font:400 0.875rem/1.5 var(--font-sans)">Mit ${kbd("/")} springt ihr in die Suche, ${kbd("⌘")} + ${kbd("K")} öffnet die Befehle, ${kbd("Esc")} schließt sie.</p>`;
+  await p.goto(
+    pathToFileURL(
+      file(
+        "kbd-line.html",
+        only(
+          ["screen", "dense", "print"]
+            .map(
+              (scale) =>
+                `<div data-hw-scale="${scale}">${text((k) => `<kbd class="hw-kbd">${k}</kbd>`)}${text((k) => `<kbd class="hw-kbd" style="display:inline">${k}</kbd>`)}</div>`,
+            )
+            .join(""),
+        ).replace("</head>", `<link rel="stylesheet" href="${brand("tokens/fonts.css")}"></head>`),
+      ),
+    ).href,
+  );
+  await p.evaluate(() => document.fonts.ready);
+  const lines = await p.evaluate(() =>
+    [...document.querySelectorAll("div")].map((d) =>
+      [...d.querySelectorAll("p")].map((q) => q.getBoundingClientRect().height),
+    ),
+  );
+  await p.close();
+  for (const [keycap, inline] of lines) expect(keycap).toBe(inline!);
+}, 60_000);

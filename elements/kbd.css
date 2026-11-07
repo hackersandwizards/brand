@@ -2,7 +2,8 @@
    text. One <kbd class="hw-kbd"> per key, the "+" or "then" between keys outside it. The code face
    on the page's ground, ink at 70 % (5.5:1 on the page), a hairline with a second one under it for
    the key's edge, the small corner. On night the night ground, night ink at 70 % and the line
-   the list row draws on night. Inside a prose block the key takes not-prose too, or Typography's
+   the list row draws on night. A negative margin as deep as each border keeps the key's box out
+   of the line's height, so a line of UI text holding a key stands as high as one without. Inside a prose block the key takes not-prose too, or Typography's
    own kbd rule wins.
 
    Settings:
@@ -17,6 +18,7 @@
     border-bottom-width: calc(2 * var(--hw-hairline, 1px));
     border-radius: var(--hw-corner-sm, var(--radius-sm));
     padding: 0 0.375em;
+    margin-block: calc(-1 * var(--hw-hairline, 1px)) calc(-2 * var(--hw-hairline, 1px));
     font-family: var(--type-code-family);
     font-size: var(--hw-kbd-size, 0.75rem);
     font-weight: 400;

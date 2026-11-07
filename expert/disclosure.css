@@ -2,8 +2,11 @@
    browser's triangle. Plain CSS, no Tailwind, so every surface takes it: a page puts class
    hw-disclosure on its details, and expert.css imports this file.
 
-   The chevron is Lucide's chevron-right in the summary's text colour, 1em square, 0.5rem before
-   the label, and turns down (90 degrees, 150 ms) while the details is open; without motion it
+   The chevron is Lucide's chevron-right in the summary's text colour, 1em wide, 0.5rem before
+   the label, centred in a box one line high that holds a zero-width space, so it sits in the
+   middle of the label's first line whether the summary aligns its items on the centre, the start
+   or the baseline, and in the middle of a heading's line where the chevron span stands inline in
+   it. It turns down (90 degrees, 150 ms) while the details is open; without motion it
    turns at once. A summary that needs the chevron elsewhere, inside its heading for one, holds a
    <span class="hw-disclosure-chevron" aria-hidden="true"></span> there and the summary draws none
    of its own. hw-disclosure-count is the neutral count pill beside the label.
@@ -34,17 +37,20 @@
   }
   .hw-disclosure > summary::before,
   .hw-disclosure-chevron {
-    content: "";
     display: inline-block;
     flex-shrink: 0;
     width: 1em;
-    height: 1em;
+    height: 1lh;
     background-color: currentColor;
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E")
       center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E")
       center / contain no-repeat;
     transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hw-disclosure > summary::before,
+  .hw-disclosure-chevron::before {
+    content: "\200b";
   }
   .hw-disclosure > summary:has(.hw-disclosure-chevron)::before {
     content: none;

@@ -194,8 +194,9 @@ element.
 
 A native `<details>` wears the brand chevron in place of the browser's triangle: import
 `disclosure.css`, or the expert layer, which imports it, and give the details the class
-`hw-disclosure`. The chevron is Lucide's chevron-right in the summary's text colour, 1em square,
-0.5rem before the label, and turns down while open (150 ms, at once under reduced motion). Where
+`hw-disclosure`. The chevron is Lucide's chevron-right in the summary's text colour, 1em wide,
+0.5rem before the label, in the middle of the label's first line however the summary aligns its
+items, and turns down while open (150 ms, at once under reduced motion). Where
 the chevron belongs elsewhere in the summary, inside its heading for one, put
 `<span class="hw-disclosure-chevron" aria-hidden="true"></span>` there. `hw-disclosure-count` is
 the neutral count pill. The rules sit in `@layer components`, so the surface's own type, colour,

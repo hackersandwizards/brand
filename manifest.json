@@ -246,7 +246,7 @@
     },
     {
       "path": "expert/disclosure.css",
-      "sha256": "f3a5531ca8de95a9ee1d82fcb5bfeae9324ba3f2eb2abc01634d502178e79177"
+      "sha256": "bfacf83efd3edb34eeec064f0cc3d6e7a1edb9f680e6053c368e854a295aca76"
     },
     {
       "path": "expert/expert.css",
@@ -470,7 +470,7 @@
     },
     {
       "path": "elements/kbd.css",
-      "sha256": "c83f7175021410415e3d26dd13d1efb2952fce21ac8b3c817c15c00b3dfdc86e"
+      "sha256": "2894c4b91cebdae84cc00f3fb52f42585ae136b042224723d03a84893f97d44f"
     },
     {
       "path": "tokens/document.css",
@@ -486,7 +486,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "6186d0ed716ac6246673283cbd7d6c717179d89cdd684cbdd4e9a6126b399388"
+      "sha256": "a99cd3755d9b5cda9e227586faeafad9be3ed29d829c5000f03cc6aedd674fa0"
     },
     {
       "path": "tokens/text-base.css",
