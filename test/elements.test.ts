@@ -590,6 +590,31 @@ test("dense with data-hw-type=regular takes the expert set's regular text, dense
   await p.close();
 }, 60_000);
 
+test("the print button stands as tall as its text in the small corner, a carded one too on screen", async () => {
+  const p = await browser.newPage();
+  await p.goto(
+    pathToFileURL(
+      file(
+        "button-print.html",
+        only(
+          '<div data-hw-scale="print"><a class="hw-button" id="paper" href="#">Go</a></div><div data-hw-scale="screen"><a class="hw-button" id="screen" href="#">Go</a><div class="hw-card"><a class="hw-button" id="carded" href="#">Go</a></div></div>',
+          "",
+          ["tokens/print.css"],
+        ),
+      ),
+    ).href,
+  );
+  const read = (id: string) =>
+    p.$eval(`#${id}`, (e) => {
+      const s = getComputedStyle(e);
+      return [s.minHeight, s.fontSize, s.paddingTop, s.borderTopLeftRadius];
+    });
+  expect(await read("paper")).toEqual(["0px", "12.6667px", "4px", "4px"]);
+  expect((await read("screen"))[3]).toBe("20px");
+  expect((await read("carded"))[3]).toBe("5px");
+  await p.close();
+}, 60_000);
+
 test("rules resolves nested rules against the parent and keeps the parent's own properties", () => {
   expect(
     rules(".card { border-radius: 8px; &:hover { color: red } .meta, & + & { x: 1 } }"),

@@ -14,7 +14,8 @@
      --hw-button-height-wide  the least height from 64rem
      --hw-button-pad          block and inline padding
      --hw-button-size         the text size
-     --hw-card-corner         the corner, the brand corner at the medium's size */
+     --hw-button-corner       the corner: the brand corner at the medium's size, the small one
+                              on paper and inside a card */
 
 @layer components {
   .hw-button {
@@ -27,7 +28,7 @@
     align-items: center;
     justify-content: center;
     border: var(--hw-hairline, 1px) solid var(--_hue);
-    border-radius: var(--hw-card-corner, var(--radius-brand));
+    border-radius: var(--hw-button-corner, var(--radius-brand));
     padding: var(--hw-button-pad, 0.5rem min(1.5rem, 24px));
     font-family: var(--type-body-family);
     font-size: var(--hw-button-size, var(--type-body-size));

@@ -41,6 +41,7 @@
   --hw-button-height-wide: initial;
   --hw-button-pad: 0.5rem min(1.5rem, 24px);
   --hw-button-size: initial;
+  --hw-button-corner: var(--radius-brand);
   --hw-arrow-link-pad: 0.75rem;
   --hw-field-height: 3rem;
   --hw-field-pad: 1rem;
@@ -60,6 +61,7 @@
   --hw-button-height-wide: initial;
   --hw-button-pad: initial;
   --hw-button-size: initial;
+  --hw-button-corner: initial;
   --hw-label-size: 0.75rem;
   --hw-pill-size: 0.75rem;
   --hw-pill-pad: 0.0625rem 0.5rem;
@@ -117,11 +119,13 @@
 /* Paper is read printed and at about 70 % zoom on a laptop, where 1 pt is about 0.93 CSS px: lines
    take 1 pt in border-strong, the card's rule 3 pt, the strip 6 pt. */
 [data-hw-scale="print"] {
-  /* The button at its own defaults (button.css), not a surrounding scale's. */
-  --hw-button-height: initial;
-  --hw-button-height-wide: initial;
-  --hw-button-pad: initial;
-  --hw-button-size: initial;
+  /* The button on paper: as tall as its text and padding, at the small text size, in the small
+     corner. */
+  --hw-button-height: 0;
+  --hw-button-height-wide: 0;
+  --hw-button-pad: 3pt 10pt;
+  --hw-button-size: var(--type-small-size);
+  --hw-button-corner: var(--hw-corner-sm);
   --hw-label-size: var(--type-label-size);
   --hw-pill-size: var(--type-small-size);
   --hw-pill-pad: 2pt 7pt;
@@ -178,6 +182,7 @@
   --hw-button-height-wide: 4.5rem;
   --hw-button-pad: 0.75rem 2.25rem;
   --hw-button-size: 1.5rem;
+  --hw-button-corner: var(--hw-card-corner);
   /* The slide engine's dashed frame draws 2 px at the 1440 stage; a key figure takes the readout
      deck's stat size. */
   --hw-frame-width: 0.125rem;

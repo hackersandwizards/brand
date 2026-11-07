@@ -30,6 +30,7 @@
   /* The brand corner on the outermost block only (tokens.css), at the medium's small corner. */
   :where(.hw-card, .hw-callout, .hw-code, .hw-status, .hw-frame, .rounded-brand) * {
     --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
+    --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
     --radius-brand: var(--hw-corner-sm, var(--radius-sm));
     --print-radius: var(--hw-corner-sm, var(--radius-sm));
     --slide-radius: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
