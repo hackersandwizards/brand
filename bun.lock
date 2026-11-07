@@ -10,7 +10,7 @@
       "devDependencies": {
         "@eslint/js": "10.0.1",
         "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.9.0",
-        "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v2.11.6",
+        "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v2.12.0",
         "@types/bun": "1.4.4",
         "astro": "7.4.4",
         "astrobook": "0.13.3",
@@ -142,7 +142,7 @@
 
     "@hackersandwizards/admin": ["@hackersandwizards/admin@github:hackersandwizards/admin#43ba619", { "peerDependencies": { "@hackersandwizards/brand": ">=1.15.0", "@hackersandwizards/scaffolding": ">=2.3.0", "@tailwindcss/typography": "^0.5.20", "@tailwindcss/vite": "^4.3.3", "astro": "^7.4.4", "tailwindcss": "^4.3.3" }, "optionalPeers": ["@hackersandwizards/brand", "@hackersandwizards/scaffolding"], "hasInstallScript": true, "bin": { "admin-serve": "bin/admin-serve.ts", "admin-check": "bin/admin-check.ts" } }, "hackersandwizards-admin-43ba619", "sha512-21sGMZolIjrStxP7T11b1jSUyAiIqRDSqRvcaxN/kscRm2QHDp9kwv0LoVZlbDLFA7Sl6kLzBLIxeoDI1t//hg=="],
 
-    "@hackersandwizards/scaffolding": ["@hackersandwizards/scaffolding@github:hackersandwizards/scaffolding#15194f2", { "dependencies": { "@eslint/js": "10.0.1", "eslint-config-prettier": "10.1.8", "globals": "17.14.0", "postcss-html": "2.0.0", "prettier-plugin-astro": "1.1.2", "stylelint-value-no-unknown-custom-properties": "6.1.1", "typescript-eslint": "8.72.1" }, "peerDependencies": { "astro": ">=7", "astrobook": ">=0.13", "eslint": ">=10", "eslint-plugin-astro": ">=1", "prettier": ">=3", "stylelint": ">=16", "typescript": ">=5" }, "optionalPeers": ["astro", "astrobook", "eslint", "eslint-plugin-astro", "prettier", "stylelint", "typescript"], "hasInstallScript": true, "bin": { "scaffold": "bin/scaffold.ts", "check-structure": "bin/check-structure.ts", "check-confidential": "bin/check-confidential.ts", "check-staged": "bin/check-staged.ts", "scaffolding": "bin/scaffolding.ts" } }, "hackersandwizards-scaffolding-15194f2", "sha512-gawtCLtxkQUSTOByW+c8ZdTOJ3DEAg6s1h3ws9Xjsf+URO1gqQIx3fhF7knomZqfuVRa3d2cMf14GDSiQFxYsQ=="],
+    "@hackersandwizards/scaffolding": ["@hackersandwizards/scaffolding@github:hackersandwizards/scaffolding#5db0fcf", { "dependencies": { "@eslint/js": "10.0.1", "eslint-config-prettier": "10.1.8", "globals": "17.14.0", "postcss-html": "2.0.0", "prettier-plugin-astro": "1.1.2", "stylelint-value-no-unknown-custom-properties": "6.1.1", "typescript-eslint": "8.72.1" }, "peerDependencies": { "astro": ">=7", "astrobook": ">=0.13", "eslint": ">=10", "eslint-plugin-astro": ">=1", "prettier": ">=3", "stylelint": ">=16", "typescript": ">=5" }, "optionalPeers": ["astro", "astrobook", "eslint", "eslint-plugin-astro", "prettier", "stylelint", "typescript"], "hasInstallScript": true, "bin": { "scaffold": "bin/scaffold.ts", "check-structure": "bin/check-structure.ts", "check-confidential": "bin/check-confidential.ts", "check-staged": "bin/check-staged.ts", "scaffolding": "bin/scaffolding.ts" } }, "hackersandwizards-scaffolding-5db0fcf", "sha512-LSP+fI+2FGjLEfHhao5DSAhIclPnQN/7XDW5nQ5ns1iDQzPKoAXmLKn/YkWSUx1xwozz7jvjG4bSmQ2aqL65Cg=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.2", "", { "dependencies": { "@humanfs/types": "^0.15.0" } }, "sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA=="],
 

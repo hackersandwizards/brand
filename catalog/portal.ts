@@ -541,7 +541,7 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
 <div class="assets">${press.photos
   .map((p) => {
     index.push({ t: p.file, k: "press", h: `pressekit/press-${slug(p.file)}`, x: p.shows });
-    return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a></figcaption></figure>`;
+    return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${"cut" in p ? `, <a href="press/${p.cut}" download>640 px cut</a>` : ""}</figcaption></figure>`;
   })
   .join("")}</div>`;
 const dropdownOptions = ["All (116)", "Context engineering (12)", "Testing (9)"]
@@ -837,41 +837,42 @@ ${table(
 )}</div>
 </div>`;
 
-const lines = (v: { en: string | null; de: string | null }) =>
-  [v.en && `EN: ${v.en}`, v.de && `DE: ${v.de}`].filter(Boolean).join(" / ");
-const wordsHtml = `<p>The claim, mission, vision, values and terms as ${code("verbal/verbal.json")}, exported as ${code("@hackersandwizards/brand/verbal.json")}: a surface imports the text instead of retyping it. Source: ${esc(verbal.source)}</p>
-${table(
-  ["Element", "Text"],
+// The words: each text that has a German and an English version in a column per language, the
+// meta in the element's column, every cell one text, so a selection takes one line in one language.
+const PAIRS = ["claim", "mission", "vision", "position", "boilerplate"] as const;
+const { word } = verbal.claim;
+const metaOf = (k: (typeof PAIRS)[number]) =>
   [
-    [
-      "Claim",
-      esc(lines(verbal.claim)) +
-        ` (since ${verbal.claim.since}; highlight word: ${esc(verbal.claim.word.en)} / ${esc(verbal.claim.word.de)})`,
-    ],
-    ["Mission", esc(lines(verbal.mission))],
-    ["Vision", esc(lines(verbal.vision))],
-    ["Position", esc(lines(verbal.position))],
-    ["Boilerplate", esc(lines(verbal.boilerplate))],
-    [
-      "Name",
-      `${esc(verbal.name.company)}, legal ${esc(verbal.name.legal)}. ${esc(verbal.name.rule)}`,
-    ],
-    [
-      "Values",
-      verbal.values.map((v) => `<strong>${esc(v.name)}</strong>: "${esc(v.line)}"`).join("<br>"),
-    ],
-    [
-      "Terms",
-      `${esc(verbal.terms.primary)}, with its components ${esc(verbal.terms.components.join(", "))}; the anti-pattern: ${esc(verbal.terms.antiPattern)}`,
-    ],
-  ],
-)}
-<h3>Retired</h3>
-<p>No longer used anywhere; each was replaced by the claim or the mission.</p>
-${table(
-  ["Line", "Language", "Retired"],
-  verbal.retired.map((r) => [esc(r.text), r.lang, "retired" in r ? r.retired : "before the claim"]),
-)}`;
+    "since" in verbal[k] && `since ${verbal[k].since}`,
+    k === "claim" && `highlight word ${word.en === word.de ? word.en : `${word.en} / ${word.de}`}`,
+  ]
+    .filter(Boolean)
+    .map((m) => `<small class="meta">${esc(m)}</small>`)
+    .join("");
+const wordText = (v: string | null, lang: string) =>
+  v
+    ? `<p lang="${lang}">${esc(v)}</p>`
+    : `<p><span class="hw-label" data-tone="muted">No German text yet</span></p>`;
+const retiredRows = verbal.retired
+  .map(
+    (r) =>
+      `<tr><td lang="${r.lang}">${esc(r.text)}</td><td>${r.lang.toUpperCase()}</td><td>${"retired" in r ? r.retired : "before the claim"}</td></tr>`,
+  )
+  .join("");
+const wordsHtml = `<p>The claim, mission, vision, values and terms as ${code("verbal/verbal.json")}, exported as ${code("@hackersandwizards/brand/verbal.json")}: a surface imports the text instead of retyping it. Source: ${esc(verbal.source)}</p>
+<table class="hw-table words-cols"><thead><tr><th>Element</th><th>English</th><th>Deutsch</th></tr></thead><tbody>${PAIRS.map(
+  (k) =>
+    `<tr><td class="words-el"><strong>${k[0]!.toUpperCase() + k.slice(1)}</strong>${metaOf(k)}</td><td data-lang="EN">${wordText(verbal[k].en, "en")}</td><td data-lang="DE">${wordText(verbal[k].de, "de")}</td></tr>`,
+).join("")}</tbody></table>
+<h3>Name, values, terms</h3>
+<table class="hw-table"><tbody>
+<tr><td class="words-el"><strong>Name</strong></td><td><p>${esc(verbal.name.company)}, legal ${esc(verbal.name.legal)}. ${esc(verbal.name.rule)}</p></td></tr>
+<tr><td class="words-el"><strong>Values</strong></td><td>${verbal.values.map((v) => `<p><strong>${esc(v.name)}</strong>: ${esc(v.line)}</p>`).join("")}</td></tr>
+<tr><td class="words-el"><strong>Terms</strong></td><td><p>${esc(verbal.terms.primary)}, with its components ${esc(verbal.terms.components.join(", "))}; the anti-pattern: ${esc(verbal.terms.antiPattern)}</p></td></tr>
+</tbody></table>
+<details class="hw-disclosure words-fold"><summary>Retired lines <span class="hw-disclosure-count">${verbal.retired.length}</span></summary>
+<p>No longer used anywhere; each was replaced by the claim or the mission. ${code("brand-retired")} fails a build that still shows one.</p>
+<table class="hw-table"><thead><tr><th>Line</th><th>Language</th><th>Retired</th></tr></thead><tbody>${retiredRows}</tbody></table></details>`;
 
 const pages: [string, string, string][] = [
   ["colours", "Colours", coloursHtml],
@@ -933,7 +934,6 @@ const html = `<!doctype html>
   .hw-catalogue:not([data-mode="search"]) #results,
   .hw-catalogue:not([data-mode="view"]) .portal-views,
   .hw-catalogue[data-mode="view"] .hw-catalogue-main > :not(.portal) { display: none; }
-  .hw-catalogue-rail a[aria-current] { background: color-mix(in srgb, var(--color-teal) 12%, transparent); font-weight: 600; }
   .pv-colours { display: grid; grid-template-columns: repeat(8, 1fr); height: 100%; }
   .pv-type { display: block; padding: 1rem; zoom: 0.5; }
   .pv-type .label { display: none; }
@@ -949,7 +949,7 @@ const html = `<!doctype html>
     .quick ul { margin: 0; padding-left: 1.25rem; }
     .quick li + li { margin-top: 0.25rem; }
     #results { margin-top: 2rem; }
-    .label, th:not(.el-cell *) { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
+    .label, th:not(.el-cell *, .hw-table *) { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
     .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
     .input:hover { border-color: var(--color-muted); }
     .input:focus-visible { border-color: var(--color-teal); }
@@ -958,10 +958,19 @@ const html = `<!doctype html>
     .portal-views h2:not(.el-cell *) { font-size: var(--text-h2); margin: 0 0 1rem; }
     .portal-views h3:not(.el-cell *) { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
     .meta { color: var(--color-muted); }
+    /* The words view: ruled tables (hw-table) at the view's width, one paragraph per text. */
+    .portal-views .hw-table { width: 100%; }
+    .hw-table p { margin: 0; }
+    .hw-table p + p { margin-top: 0.25rem; }
+    .words-el { width: 11rem; min-width: 11rem; }
+    .words-cols td[data-lang] { width: calc(50% - 5.5rem); }
+    .words-cols .meta { display: block; margin-top: 0.125rem; font: 400 0.75rem var(--font-code); white-space: nowrap; }
+    .words-fold { margin-top: 2rem; }
+    .words-fold > summary { font-family: var(--font-mono); font-size: var(--text-h4); padding: 0.25rem 0; }
     code:not(.el-cell *) { font-family: var(--font-code); font-size: 0.9em; }
     a:not(.el-cell *) { color: var(--color-teal-dark); }
-    table:not(.el-cell *) { border-collapse: collapse; width: 100%; background: var(--color-white); }
-    :is(th, td):not(.el-cell *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
+    table:not(.el-cell *, .hw-table) { border-collapse: collapse; width: 100%; background: var(--color-white); }
+    :is(th, td):not(.el-cell *, .hw-table *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
     .swatch { all: unset; cursor: copy; display: inline-grid; grid-template-columns: 1.5rem auto; column-gap: 0.5rem; align-items: center; }
     .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
     .swatch span { grid-row: span 2; width: 1.5rem; height: 1.5rem; border-radius: 0; border: 1px solid var(--color-border); }
@@ -1047,6 +1056,14 @@ const html = `<!doctype html>
     .portal .quick { grid-template-columns: minmax(0, 1fr); }
     .portal #results a { flex-wrap: wrap; gap: 0.25rem 0.75rem; }
     .portal #results a .label { min-width: 0; flex-basis: 100%; }
+    .portal .words-cols thead { display: none; }
+    .portal .words-cols :is(tr, td) { display: block; width: auto !important; }
+    .portal .words-cols .words-el { border-bottom: 0; padding-bottom: 0.25rem; }
+    .portal .words-cols td[data-lang] { border-bottom: 0; display: grid !important; grid-template-columns: 2.5rem minmax(0, 1fr); padding-bottom: 0.25rem; }
+    .portal .words-cols td[data-lang]::before { content: attr(data-lang); font-family: var(--type-label-family); font-size: var(--hw-label-size, var(--type-label-size)); letter-spacing: var(--type-label-tracking); color: var(--color-muted); padding-top: 0.15em; }
+    .portal .words-cols tr { border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
+    .portal .words-el { width: 5.5rem; min-width: 5.5rem; }
+    .portal .words-cols .words-el { min-width: 0; }
   }
 </style>
 <link rel="stylesheet" href="expert/select.css">
@@ -1082,7 +1099,7 @@ const show = () => {
   cat.dataset.mode = searching ? "search" : view ? "view" : "overview";
   for (const s of document.querySelectorAll("section[data-page]")) s.hidden = s.dataset.page !== view;
   for (const i of document.querySelectorAll("section[data-page]:not([hidden]) image[data-href]")) i.setAttribute("href", i.dataset.href);
-  for (const a of cat.querySelectorAll(".hw-catalogue-rail a")) if (!searching && a.getAttribute("href") === "#" + view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  for (const a of cat.querySelectorAll(".hw-catalogue-rail .hw-catalogue-names a")) if (!searching && a.getAttribute("href") === "#" + view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   const el = !searching && (view ? anchor && document.getElementById(anchor) : page !== "overview" && page && document.getElementById(page));
   if (el) { el.scrollIntoView({ block: "start" }); if (view) { el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); } }
   else scrollTo(0, 0);
