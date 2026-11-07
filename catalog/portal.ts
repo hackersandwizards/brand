@@ -972,7 +972,7 @@ const html = `<!doctype html>
     .logo h3 { margin: 0.75rem 0 0.25rem; }
     .logo p { margin: 0.25rem 0; }
     .pair { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0.5rem; }
-    .pair figure { margin: 0; border-radius: var(--radius-brand); }
+    .pair figure { margin: 0; border-radius: var(--radius-sm); }
     .pair img { display: block; width: 100%; height: 7.5rem; object-fit: contain; padding: 1rem 1.25rem 0.5rem; box-sizing: border-box; }
     .pair figcaption { padding: 0 0.75rem 0.5rem; font: 0.7rem var(--font-code); color: var(--color-muted); }
     .pair .on-dark figcaption, .pair .on-gradient figcaption { color: rgb(255 255 255 / 0.8); }
@@ -986,6 +986,7 @@ const html = `<!doctype html>
     .pv.bar { height: 0.5rem; max-width: 100%; background: var(--color-teal); border: 0; }
     .rules { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-bottom: 1rem; }
     .rules > div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
+    .rules > div:has(> .corner-demo) { border-radius: var(--radius-sm); }
     .rules p { margin: 0.5rem 0 0; }
     .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
     .square-demo, .icon-demo, .shape-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
@@ -1007,7 +1008,7 @@ const html = `<!doctype html>
     .product p { margin: 0.25rem 0; }
     .mock { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, 15.5rem); }
     .mock figure.wide { grid-column: span 2; }
-    .mock figure { margin: 0; padding: 0.75rem 0.75rem 0.5rem; background: #e4e6ea; border-radius: var(--radius-brand); }
+    .mock figure { margin: 0; padding: 0.75rem 0.75rem 0.5rem; background: #e4e6ea; border-radius: var(--radius-sm); }
     .mock svg { display: block; height: 15rem; }
     .devices { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; column-gap: 2rem; }
     .devices figure { margin: 0; display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0.75rem; }

@@ -1,6 +1,6 @@
 # The brand corner on the outermost block only
 
-Shipped in v1.21.0: a block, picture, field or button inside a block with the brand corner takes
+Shipped in v1.21.0 (v1.21.1 covers closed panels and the engines' corner roles): a block, picture, field or button inside a block with the brand corner takes
 the small corner. The rule is in `tokens/tokens.css`, `elements/card.css` sets it, and
 `brand-elements` fails a brand corner inside a brand corner.
 

@@ -241,19 +241,22 @@ test("a setting the medium sets, or a property the element leaves to it, is no d
   expect(r.findings).toEqual([]);
 }, 60_000);
 
-test("inside a brand corner every block takes the small corner; a brand corner there is red", async () => {
-  const nested = `<div class="hw-card"><pre class="hw-code">x</pre><div class="hw-callout">y</div><img class="rounded-brand" style="border-radius: var(--radius-brand); width: 40px; height: 40px" alt=""></div>`;
+test("inside a brand corner every block takes the small corner; a brand corner there is red, hidden too", async () => {
+  const nested = `<div class="hw-card"><pre class="hw-code">x</pre><div class="hw-callout">y</div><img style="border-radius: var(--radius-brand); width: 40px; height: 40px" alt=""></div>`;
   const r = await measurePage(browser, file("nested.html", only(nested)));
   expect(r.findings).toEqual([]);
   const hard = await measurePage(
     browser,
     file(
       "nested-hard.html",
-      only(`<div class="hw-card"><div style="border-radius: 20px 5px; height: 40px">z</div></div>`),
+      only(
+        `<div class="hw-card"><div style="border-radius: 20px 5px; height: 40px">z</div></div><div class="hw-card" hidden><i style="border-radius: 20px 5px">h</i></div>`,
+      ),
     ),
   );
   expect(hard.findings.map((f) => [f.element, f.got])).toEqual([
     ["corner", 'the brand corner inside div.hw-card "z"'],
+    ["corner", 'the brand corner inside div.hw-card "h"'],
   ]);
 }, 60_000);
 
