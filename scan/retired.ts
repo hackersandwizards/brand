@@ -11,6 +11,7 @@ const ENTITIES: Record<string, string> = {
   nbsp: " ",
   quot: '"',
   apos: "'",
+  rsquo: "’",
   shy: "",
   auml: "ä",
   ouml: "ö",
@@ -20,36 +21,46 @@ const ENTITIES: Record<string, string> = {
   Uuml: "Ü",
   szlig: "ß",
 };
+// An escaped < or > stays escaped, so decoding never opens a tag the stripped form would remove.
 const char = (code: number, m: string) =>
-  Number.isInteger(code) && code <= 0x10ffff ? String.fromCodePoint(code) : m;
-// HTML entities and JS escapes decoded, soft hyphens and zero-width characters dropped, whitespace
-// collapsed with none before punctuation, case folded: a line set across elements, wrapped or in
-// title case still matches.
+  Number.isInteger(code) && code <= 0x10ffff && code !== 60 && code !== 62
+    ? String.fromCodePoint(code)
+    : m;
+// Whitespace collapsed, with none before punctuation: a line wrapped or set across elements matches.
+const squash = (s: string) => s.replace(/\s+/g, " ").replace(/ (?=[.,;:!?])/g, "");
+// HTML entities and JS escapes decoded, soft hyphens and zero-width characters dropped.
 const normalise = (s: string) =>
-  s
-    .replace(/&#x([\da-f]+);/gi, (m, h: string) => char(parseInt(h, 16), m))
-    .replace(/&#(\d+);/g, (m, d: string) => char(Number(d), m))
-    .replace(/&(\w+);/g, (m, e: string) => ENTITIES[e] ?? m)
-    .replace(/\\u([\da-f]{4})/gi, (m, h: string) => char(parseInt(h, 16), m))
-    .normalize("NFC")
-    .replace(/[\u00ad\u200b-\u200d\u2060\ufeff]/g, "")
-    .replace(/\s+/g, " ")
-    .replace(/ (?=[.,;:!?])/g, "")
-    .toLowerCase();
+  squash(
+    s
+      .replace(/&#x([\da-f]+);/gi, (m, h: string) => char(parseInt(h, 16), m))
+      .replace(/&#(\d+);/g, (m, d: string) => char(Number(d), m))
+      .replace(/&(\w+);/g, (m, e: string) => ENTITIES[e] ?? m)
+      .replace(/\\u([\da-f]{4})/gi, (m, h: string) => char(parseInt(h, 16), m))
+      .normalize("NFC")
+      .replace(/[\u00ad\u200b-\u200d\u2060\ufeff]/g, ""),
+  );
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-// A retired line counts as a whole: a letter or digit on either side is another word.
-const RETIRED = verbal.retired.map(
-  (r) =>
-    [
-      r.text,
-      new RegExp(`(?<![\\p{L}\\p{N}])${escape(normalise(r.text))}(?![\\p{L}\\p{N}])`, "u"),
-    ] as const,
-);
+// A retired line counts as a whole, in any case, with or without its closing stop, its last word
+// also plural or possessive; a letter, digit or hyphen on either side makes another word. A line
+// marked `capital` counts only where it opens with a capital letter, as a heading or a sentence does.
+const RETIRED = verbal.retired.map((r) => {
+  const re = new RegExp(
+    `(?<![\\p{L}\\p{N}-])${escape(normalise(r.text).replace(/[.!?]$/, ""))}[.!?]?(?:['’]s?|s)?(?![\\p{L}\\p{N}-])`,
+    "giu",
+  );
+  const capital = "capital" in r && r.capital;
+  const hit = (f: string) => {
+    for (const m of f.matchAll(re)) if (!capital || /\p{Lu}/u.test(m[0][0]!)) return true;
+    return false;
+  };
+  return [r.text, hit] as const;
+});
 
 /** The retired lines a text carries, raw or with its tags stripped. */
 export const retiredIn = (text: string) => {
-  const forms = [normalise(text), normalise(text.replace(/<[^>]*>/g, " "))];
-  return RETIRED.filter(([, re]) => forms.some((f) => re.test(f))).map(([line]) => line);
+  const raw = normalise(text);
+  const forms = [raw, squash(raw.replace(/<[^>]*>/g, " "))];
+  return RETIRED.filter(([, hit]) => forms.some(hit)).map(([line]) => line);
 };
 
 /** A file's text, or undefined for a binary (a NUL byte in its first 8000). */

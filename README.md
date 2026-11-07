@@ -379,7 +379,11 @@ only shrink against `HEAD`. A name matches without case and word separators: `ap
 list. Name the folders or files it writes, such as `brand-retired dist` or a rendered signature. It
 reads every file under them and matches each line in the raw text and in the text with its tags
 stripped, with entities decoded, whitespace ignored and case folded in both, so a line a page splits
-across elements or sets in title case still counts. A binary file (a NUL byte in its first 8000) is
+across elements or sets in title case still counts. A line counts as a whole word at each end, with
+or without its closing stop, its last word also plural or possessive. A short line marked
+`"capital": true` in the list counts only where it opens with its capital, as a heading or a
+sentence does, so prose such as "tools that elevate your team's review" passes; mark a retired line
+that way when ordinary prose uses its words. A binary file (a NUL byte in its first 8000) is
 skipped. It exits 2 on a missing path or a folder with no text file: run it after the build. It
 takes no exceptions. A client bundle that imports `verbal.json` whole carries the retired list and
 fails: import the fields a page shows (`import { claim } from "@hackersandwizards/brand/verbal.json"`)

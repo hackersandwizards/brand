@@ -27,12 +27,11 @@ const run = (...args: string[]) => {
 const PAGE = `<html><body><h1>${verbal.claim.en}</h1><p>${verbal.boilerplate.en.replaceAll("&", "&amp;")}</p></body></html>`;
 const line = verbal.retired[1].text;
 
-test("finds a retired line raw, split across elements, entity-encoded and in another case", () => {
+test("finds a retired line raw, split across elements and entity-encoded", () => {
   const [a, b, c, ...rest] = line.split(" ");
   expect(retiredIn(`x ${line} y`)).toEqual([line]);
   expect(retiredIn(`<p>${a} ${b}</p>\n<p><b>${c}</b>${rest.join(" ")}</p>`)).toEqual([line]);
   expect(retiredIn(line.replaceAll(" ", "&nbsp;"))).toEqual([line]);
-  expect(retiredIn(line.toUpperCase())).toEqual([line]);
   expect(retiredIn(JSON.stringify(verbal)).length).toBe(verbal.retired.length);
   expect(retiredIn(PAGE)).toEqual([]);
 });
@@ -42,9 +41,46 @@ test("decodes umlaut entities and JS escapes, and matches a line only as a whole
   expect(retiredIn(de.replace("ü", "&uuml;"))).toEqual([de]);
   expect(retiredIn(de.replace("ü", "\\u00fc"))).toEqual([de]);
   expect(retiredIn(de.replace("ü", "&#252;"))).toEqual([de]);
-  expect(retiredIn("We elevate your team.")).toEqual(["Elevate your team"]);
   expect(retiredIn("We elevate your teamwork.")).toEqual([]);
   expect(retiredIn("&#6a; &#99999999; &#x110000;")).toEqual([]);
+});
+
+// Every line in the forms a page sets it in must fail, and prose using the same words must pass.
+test("finds every retired line with or without its stop, plural, possessive and in any case", () => {
+  const title = (l: string) =>
+    l.replace(/(^|\s)(\p{L})/gu, (_, a: string, b: string) => a + b.toUpperCase());
+  for (const { text } of verbal.retired) {
+    const bare = text.replace(/[.!?]$/, "");
+    const words = bare.split(" ");
+    const forms = [
+      text.toUpperCase(),
+      title(text),
+      `<h2>${bare}</h2>`,
+      `"title":"${text}"`,
+      `<p>${words.slice(0, 2).join(" ")}</p> <p><b>${words[2]}</b> ${words.slice(3).join(" ")}</p>`,
+      `${bare}s`,
+      `${bare}'s`,
+      `${bare}&rsquo;s`,
+      `${bare}&#39;s`,
+      `${bare.toUpperCase()}S`,
+      `<p>a \\u003c b ${words.slice(0, 2).join(" ")}</p> <p>${words.slice(2).join(" ")}</p>`,
+    ];
+    for (const form of forms) expect([form, retiredIn(form)]).toEqual([form, [text]]);
+  }
+});
+
+test("passes prose that uses a short line's words mid-sentence", () => {
+  const prose = [
+    "tools that elevate your team's review speed",
+    "We elevate your team.",
+    "<p>The training will elevate your team&rsquo;s practice.</p>",
+    "Agents elevate your teams when they share context.",
+    "Elevated your team",
+    "Elevate your team-building day",
+    "teams thrive with AI tools",
+    `<h1>${verbal.claim.de}</h1><p>${verbal.boilerplate.de}</p><p>${verbal.position.de}</p>`,
+  ];
+  for (const p of prose) expect([p, retiredIn(p)]).toEqual([p, []]);
 });
 
 test("brand-retired fails on a built folder carrying a retired line and passes a clean one", () => {
