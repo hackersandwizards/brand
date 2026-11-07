@@ -6,11 +6,16 @@ order: 100
 area: brand
 owner: Benedikt
 multiple: true
-evidence: "Blind review 07.11., home hero in two passes (8 then 5 candidates), the claim on 11 surfaces, the 35 page headlines with c3 and k3, then alternatives for 4 pages: 6 personas, Claude and Codex, two runs each, 120 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md"
+evidence: "Blind review 07.11., round 3 (claim-round-3): a6 above the H1 against the empty slot, 48 reviewer runs. Round 2: home hero in two passes (8 then 5 candidates), the claim on 11 surfaces, the 35 page headlines with c3 and k3, then alternatives for 4 pages: 6 personas, Claude and Codex, two runs each, 120 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md"
 recommended:
-  - eyebrow-cto
+  - eyebrow-a6
   - de-zusammenspielen
 options:
+  - key: eyebrow-a6
+    label: "Above the H1: the claim a6, More code isn't faster delivery. / Mehr Code heißt nicht schneller liefern."
+    detail: "Round 3, only if claim-round-3 picks a6. Ties with the empty slot in the same test (80.9 against 79.8, noise 0.2 and 1.3) for both models; fit with k3 8.2. The slot carries the brand's own claim, no second line for the website. Scored in another test than the round 2 options below: compare it with the empty slot, not with their numbers."
+    score: 80.9
+    noise: 0.2
   - key: eyebrow-cto
     label: "Above the H1: For CTOs and their teams / Für CTOs und ihre Teams"
     detail: "Ties with the empty slot (lead 1.0 at noise 1.4). Names the buyer in one short line and repeats nothing. Reviewers: an audience line any provider could carry."
@@ -67,6 +72,11 @@ options:
     score: 77.4
     noise: 0.3
 images:
+  eyebrow-a6:
+    - src: eyebrow-a6-desktop.jpg
+      caption: "a6 above the H1: desktop 1440 px, English above German"
+    - src: eyebrow-a6-phone.jpg
+      caption: "a6 above the H1: phone 375 px, English beside German"
   eyebrow-cto:
     - src: eyebrow-cto-desktop.jpg
       caption: "For CTOs and their teams, above the H1: desktop 1440 px, English above German"
@@ -123,7 +133,9 @@ images:
 
 You asked for something above the H1 again, tested together with the headline and on every surface the claim reaches. Pick one home option and one German H1.
 
-The claim c3 does not work in the home hero, wherever it stands: 67.5 to 72.2 against 78.6 for the empty slot, because c3 and k3 both say agents and teams ("together" 5.0 to 6.6). A short line that is not the claim does work: "For CTOs and their teams" ties with the empty slot. I recommend it because it fills the slot you want filled and repeats nothing; by the scores alone, nothing above the H1 is just as good.
+Round 3 (`claim-round-3`) changes the answer. If you pick the claim a6 there, I recommend it above the H1: it ties with the empty slot for both models (80.9 against 79.8; Claude 73.5 against 71.2, Codex 88.3 against 88.5), and the slot then carries the brand's own claim rather than a line only the website has. If you keep c3 or pick a claim that repeats k3 (m01, m08, m15 score 70 to 73 there), "For CTOs and their teams" stays the recommendation, as below.
+
+c3 does not work in the home hero, wherever it stands: 67.5 to 72.2 against 78.6 for the empty slot, because c3 and k3 both say agents and teams ("together" 5.0 to 6.6). A short line that is not the claim does work: "For CTOs and their teams" ties with the empty slot.
 
 Overall is the panel mean, 0 to 100, over English and German. Noise is the difference between the panel means of the two runs. A lead inside the noise is a tie.
 
@@ -156,24 +168,7 @@ Pass 2 found no hero above pass 1's leader: a plateau, so no third pass. The two
 
 ## The claim on every other surface
 
-c3 against q6 on the same surface, unmarked, each version identical but for the claim. Images in `docs/agent-work/2026-11-07-claim-and-headline/`.
-
-| Surface                 | c3   | q6   | q6 ahead, Claude | q6 ahead, Codex |
-| ----------------------- | ---- | ---- | ---------------- | --------------- |
-| LinkedIn profile banner | 70.6 | 74.2 | 5.8              | 1.2             |
-| X header                | 70.1 | 72.3 | 5.4              | -1.0            |
-| XING cover              | 70.2 | 73.9 | 6.1              | 1.3             |
-| Sessionize cover        | 68.8 | 70.3 | 6.4              | -3.3            |
-| Brella cover            | 69.6 | 72.3 | 6.6              | -1.1            |
-| Facebook cover          | 69.9 | 72.8 | 6.0              | -0.3            |
-| YouTube banner          | 70.6 | 71.5 | 3.9              | -2.0            |
-| Deck closing slide      | 73.1 | 75.0 | 4.9              | -1.0            |
-| One-pager header        | 73.9 | 75.0 | -1.2             | 3.6             |
-| Website footer          | 73.2 | 75.0 | 3.2              | 0.4             |
-| Link preview (OG card)  | 73.1 | 76.7 | 6.3              | 0.7             |
-| All eleven              | 71.2 | 73.5 |                  |                 |
-
-Panel noise per surface 0.0 to 1.8. q6 is ahead on every surface on the panel mean, but only Claude carries the lead; Codex ties and prefers c3 on six of eleven. By the review rule that is a tie, so c3 stays as decided. The reasons are the same everywhere: c3 is calmer (9.0 against 7.5), reads better on the banners (language 8.1 against 6.9) and says less (clear 5.6 to 6.9 against 6.9 to 8.1, distinctive 4.7 against 6.2): "could sit beside any AI consultancy". c3 does best where a descriptor stands beside it, such as "Agentic Engineering Training" on the link preview.
+Round 3 measured every claim candidate, c3 and q6 included, on the seven banners, the closing slide, the one-pager, the footer and the link preview: see `claim-round-3`.
 
 ## The page headlines with c3 and k3
 
@@ -237,6 +232,7 @@ Every page, fit to c3 and k3 per language (0 to 10), how many of 24 reviewers fo
 
 ## What choosing changes
 
+- eyebrow-a6: the website's home hero takes brand's claim as its eyebrow (`src/components/templates/StartPage.astro`), once brand ships a6 and the website pins that release.
 - eyebrow-cto or another line: the website's home hero passes the line to its eyebrow (`src/components/templates/StartPage.astro`, `src/copy/start.en.ts`, `start.de.ts`). The line belongs to the website's copy, not to brand.
 - de-zusammenspielen: brand changes `headline.de` in `verbal.json` and releases; the website takes it with its next brand pin.
 - The page headlines change in the website's copy; that decision stays in the website item, which this one informs.

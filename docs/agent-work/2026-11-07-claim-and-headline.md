@@ -12,9 +12,12 @@ Teams in flow. / Agenten im Team. Teams im Flow.)" and "k3 (Your teams have agen
 step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden
 eure Releases schneller.)". Both stand in `verbal.json` since v1.29.0.
 
-A second round on 07.11. tested what stands above the home H1 with c3 and k3, the claim on every
-other surface, and the page headlines with both. Its result is in "Round 2" below and in the
-decision item `home-claim-line`.
+A second round on 07.11. tested what stands above the home H1 with c3 and k3 and the page headlines
+with both. Its result is in "Round 2" below and in the decision item `home-claim-line`. A third
+round on 07.11. scored c3 against real competitors' claims and against new candidates on every
+surface the claim reaches. c3 lost to "More code isn't faster delivery." / "Mehr Code heißt nicht
+schneller liefern." (a6), 78.5 against 66.4. Its result is in "Round 3" below and in the decision
+item `claim-round-3`; the rollout of c3 waits for that decision.
 
 ## The question
 
@@ -330,12 +333,6 @@ should be the brand claim is open in these sources; this round measured it.
   line by script in the hero's own classes: the section eyebrow (`meta-line`) above or under the
   H1, the hero footer line's style at the foot of the copy or under the desk. The price in the
   assessment link is removed from every image, since this repository is public.
-- Surfaces: the seven claim banners drawn by `applications/channel-banners/render.py` from a
-  scratch copy of `verbal.json` with c3 and with q6 (three of the c3 files compared byte for byte match the shipped ones), the photo circle laid over where the renderer's comments measured it (X, XING, Facebook)
-  and YouTube cut to its desktop strip; the deck closing slide from the slides package's built
-  print catalog; the header of the AE-LEAD one-pager (os, the version without price); the website
-  footer at 1440 and 375 px; and the link preview from the website's `scripts/og/generate.mjs`.
-  The mocks were not checked against a fresh screenshot of each platform this round.
 - Page headlines: the 35 lines of the website item `decide-page-headlines` as text, with c3 and
   k3 fixed above them. Then, for the four the reviewers would change most, the website item's
   other candidates and five new drafts of this round, each scored on its own.
@@ -343,9 +340,9 @@ should be the brand claim is open in these sources; this round measured it.
   scale-up, Chief Product Officer, Head of Engineering at an insurer, brand strategist for DACH B2B
   tech services. Claude (`claude -p --model opus`) and Codex (`gpt-6.1-sol`, high), two runs each,
   shuffled order and neutral labels per run, nothing marking a version as current or naming an
-  author: 120 reviewer runs.
+  author: 120 reviewer runs, the claim on the other surfaces included.
 - Criteria, fixed before any score. Home: together, clear, distinctive, calm, language, overall.
-  Surfaces: fit, clear, distinctive, calm, language, overall. Page set: one company (0 to 10), and
+  Page set: one company (0 to 10), and
   per headline fit, repeats and change. Alternatives: fit, clear, credible, language, overall.
 
 ### Result
@@ -358,15 +355,13 @@ The tables are in the item `home-claim-line`.
   nothing. Pass 2 found no hero above pass 1's leader: a plateau.
 - German "Wenn alle Rollen zusammenspielen" reads better than "eingespielt sind" with both models
   in both passes (language 8.5 and 8.3 against 7.2 and 7.5); it runs the desktop H1 to six lines.
-- On the other eleven surfaces q6 scores 73.5 and c3 71.2 on the panel mean. Only Claude carries
-  that lead; Codex ties and prefers c3 on six surfaces. c3 is calmer, reads better on the banners and says less (distinctive 4.7 against 6.2). The images, c3 and q6 per surface, are in `2026-11-07-claim-and-headline/`: `banners-*.jpg` (the seven banners), `slide-*.jpg`, `onepager-*.jpg`, `footer-*.jpg` and `og-*.jpg`.
+- The claim on the other surfaces, c3 and q6 included: see Round 3.
 - The website's page headlines read as one company with c3 and k3 at 7.6 of 10. Three recommended
   lines repeat k3's opening or its arc for 22 to 24 of 24 reviewers: Trainings overview, Training
   Leaders, Software Factory. With Enablement they are the four to change; the item names the line
   that fits better for each, 76.8 to 81.6 against 59.3 to 72.5.
 
-Skipped combinations: the LinkedIn company cover, the featured link and the OMR cover (they carry no
-claim), the claim banners on a phone, the trainer hub, os documents other than the one-pager.
+Skipped combinations: the trainer hub, os documents other than the one-pager.
 
 ### A reviewer prompt, verbatim (round 2, home pass 1, CTO, Codex, run 1)
 
@@ -408,3 +403,245 @@ H04
 ```
 
 Review: large, because the claim and the home headline leave the company and stand on every surface.
+
+## Round 3: a more distinctive claim
+
+Benedikt, 07.11., on learning that the round 2 reviewers found c3 interchangeable with any AI
+consultancy (relayed by Ada): "das ist nicht gut. dann sollten wir noch mal weitere varianten bauen
+und bewerten damit wir da besser werden"
+
+### What makes a claim distinctive
+
+Fetched 07.11.:
+
+- A tagline "can be merely serviceable (as opposed to strategic) when it's based in table stakes,
+  not brand differentiation"; "Strong taglines communicate how you meet stakeholders' needs in a way
+  no other partner can" (DeSantis Breindel, "B2B Taglines: The Hardest Working Words in Branding",
+  17.06.2024, first published 28.08.2021 by Hannah Foltz).
+- Screen a tagline for whether it is "too predictable or trite", whether competitors say the same,
+  and whether it is "too abstract"; abstract taglines "often fail to resonate with anybody"; "Aim
+  for a tagline that is two to five words long" (Joe Pope, Hinge, "Creating a Professional Services
+  Tagline", 13.08.2024).
+
+Both are agency texts without data. They agree on the test this round applies: distinctive means
+measured against what the neighbours actually say.
+
+### The neighbours
+
+Claims and headlines read from each homepage's markup (title, meta description, H1) on 07.11. The reviewers saw one more German consultancy, which this public file does not name:
+
+| Company        | Line                                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------- |
+| re:cinq        | "We Help Engineering Organisations Become AI Native"; title "AI Native Transformations"                    |
+| Thoughtworks   | "AI that works." (og:title); H1 "Change the economics of how your business runs and grows"                 |
+| INNOQ          | "We give technology a purpose." / "Wir geben Technologie einen Sinn."                                      |
+| Equal Experts  | "A global network of technology innovators"; "Equal Experts isn't a traditional consultancy." (about page) |
+| codecentric    | "KI-native Softwareentwicklung" (title)                                                                    |
+| Slalom Germany | "Bringen Sie KI in den Flow." (H1)                                                                         |
+| Globant        | "Our people and AI agents build together." (meta description)                                              |
+| Endava         | "Transforming businesses with intelligence"; H1 "Technology is our how. And people are our why."           |
+| DabApps        | "Building software people trust"; "Software development, with AI where it matters"                         |
+| Zühlke         | "Machen Sie Ihre Technologieinvestitionen zum Wettbewerbsvorteil"                                          |
+
+Two sit next to c3: Slalom's "in den Flow" and Globant's people and agents building together.
+Reviewers named both, unprompted, as the reason c3 scored low on "distinctive".
+
+### Candidates
+
+34 pairs along four routes (the outcome for the client, the method, the stance against the market,
+the audience or the name): 18 drafts of this run and 8 each from two fresh Claude models
+(`claude -p --model opus`) that saw only a neutral brief: the offer and facts h&w can stand behind,
+the neighbours above, and the rules (two to seven words, no figures, no hype words, no dash). They
+saw no candidate, no current or retired line and no words of Benedikt's. Codex authored none: the
+`delegation` skill keeps Codex to reviewing, so the brief's "from Claude and Codex" was applied to
+the review only. c3 and q6 went in as unmarked controls. German in the ihr-form.
+
+### Method
+
+- Prefilter: the 36 lines as text with the neighbours listed, three personas (CTO, VP of
+  Engineering, brand strategist), Claude and Codex, one run each. Criteria: distinctive (against the
+  neighbours or any AI consultancy), clear, credible, calm, language, overall.
+- Finalists: the strongest eight across routes (m12 dropped as a near twin of a7 and m01), with c3
+  and q6, drawn on every surface: the seven claim banners by `applications/channel-banners/render.py`
+  from a scratch copy with the claim swapped in (no accent word, the photo circle laid over where
+  the renderer's comments measured it, YouTube cut to its desktop strip); the deck closing slide from
+  the slides package's built print catalog with the claim line replaced (1920 x 1080); the header
+  of the AE-LEAD one-pager without price (os) with its claim line replaced; the link preview from
+  the website's `scripts/og/template.html` the way `generate.mjs` fills it; and the website, copied to
+  a scratch folder, pinned to brand v1.29.0, H1 set to k3, run with `astro dev`: the claim as the
+  eyebrow above the H1 at 1440 x 900 and at 375 px down to the tuning desk, and the footer at both
+  widths. Plus the home page with nothing above the H1. English and German throughout. The price in
+  the assessment link is removed from every image.
+- Personas: as in round 2 (CIO, CTO, VP of Engineering, CPO, Head of Engineering, brand
+  strategist). Claude and Codex, two runs each, shuffled order and neutral labels per run, nothing
+  marking a claim as current or naming an author.
+- Criteria, fixed before any score: distinctive, clear, fit with k3, calm, credible, language (0 to
+  10); per surface 0 to 100 (banners, slide, one-pager, link preview, footer, above the H1); overall
+  0 to 100. The empty slot above the H1 scored "home" on the same scale.
+- Pass 2: the reviewers' reasons on the leader a6 fell into two causes, the German "heißt nicht
+  schneller liefern" (clipped, language 6 to 7 with Claude) and a negation that names the problem but
+  not h&w. Each got a fix (a6g, a6t), scored beside the unchanged a6, the four next claims, c3 and
+  q6. a6t's first German draft, "Mehr Code ist noch kein schnelleres Release.", ran past the banner
+  edge on LinkedIn, X and XING and was shortened before review.
+- 54 reviewer runs: 6 in the prefilter, 24 in each pass.
+
+### Result
+
+- c3 is the least distinctive line of the finalists (4.2 against the neighbours) and repeats k3
+  above the H1 (fit 4.3). It scores 66.4 overall in pass 2, ahead only of q6 (56.3).
+- a6 leads both passes, 77.0 and 78.5 (panel noise 1.3 and 0.8), 12.1 ahead of c3 in pass 2 with
+  Claude (74.5 against 61.1) and Codex (82.5 against 71.6), and ahead on every surface. It is the
+  most credible line (9.1) and fits k3 (8.2).
+- Above the H1, a6 ties with the empty slot for both models (80.9 against 79.8): the claim in the
+  home hero works once it does not repeat k3. That changes the answer in `home-claim-line`.
+- m01 ties with a6 (2.0 behind, its own noise 2.2) but repeats k3 above the H1 (73.2). b4 leads
+  above the H1 and on the slide but says too little alone on banners and the link preview.
+- Neither pass 2 fix beat a6: a6g's German scored lower (70.6 against 77.2), a6t lost calm and fit.
+  A plateau, so no third pass. a6's German stays its weak point with Claude (72.5 against 76.5 for
+  its English).
+
+Per surface, pass 2, and the criteria: item `claim-round-3`. Images: `round3-linkedin-banners.jpg`
+(the LinkedIn profile banner of all twelve claims), `round3-a6-*.jpg` and `round3-c3-*.jpg` (every
+surface, English and German) in `2026-11-07-claim-and-headline/`; every claim's images in the item.
+
+Skipped combinations: the trainer hub decks, os documents other than the one-pager, the banners on
+a phone. The platform mocks were not checked against a fresh screenshot of each platform this
+round; they use the renderer's measured crops.
+
+Prefilter, text only (6 reviewer runs, one run each, so no noise measured). The a7 text here is
+"Licenses"; the finalist uses "Licences", the website's spelling:
+
+| Key | EN                                                     | DE                                                                | Origin                        | Overall | EN / DE     | Claude / Codex | Distinctive | Clear | Credible | Calm | Language |
+| --- | ------------------------------------------------------ | ----------------------------------------------------------------- | ----------------------------- | ------- | ----------- | -------------- | ----------- | ----- | -------- | ---- | -------- |
+| m08 | Every agent needs a team.                              | Jeder Agent braucht ein Team.                                     | this run, stance              | 75.8    | 76.2 / 75.5 | 69.3 / 82.3    | 6.8         | 7.3   | 8.3      | 9.5  | 9.3      |
+| b4  | Until you don't need us.                               | Bis ihr uns nicht mehr braucht.                                   | independent draft B, method   | 75.0    | 74.5 / 75.5 | 64.3 / 85.7    | 7.2         | 6.4   | 8.3      | 9.5  | 9.4      |
+| a6  | More code isn't faster delivery.                       | Mehr Code heißt nicht schneller liefern.                          | independent draft A, stance   | 73.9    | 75.8 / 72.0 | 65.8 / 82.0    | 7.0         | 8.4   | 9.3      | 8.3  | 8.1      |
+| m15 | Speed is a team skill.                                 | Tempo ist Teamarbeit.                                             | this run, stance              | 73.2    | 74.8 / 71.7 | 63.2 / 83.3    | 5.8         | 7.8   | 8.6      | 9.5  | 9.2      |
+| m01 | You buy agents. You build teams.                       | Agenten kauft ihr. Teams baut ihr auf.                            | this run, stance              | 73.1    | 72.7 / 73.5 | 61.0 / 85.2    | 6.8         | 7.4   | 8.3      | 8.5  | 8.3      |
+| a7  | Licenses are bought in a day. Practice isn't.          | Lizenzen kauft ihr an einem Tag. Praxis nicht.                    | independent draft A, stance   | 72.4    | 73.3 / 71.5 | 70.8 / 74.0    | 7.5         | 7.7   | 8.7      | 8.3  | 7.8      |
+| a4  | Faster with agents. And still fast without us.         | Schneller mit Agenten. Auch wenn wir längst weg sind.             | independent draft A, outcome  | 72.3    | 72.8 / 71.8 | 57.5 / 87.2    | 7.6         | 7.7   | 7.7      | 7.7  | 7.8      |
+| m12 | Tools are bought. Practice is built.                   | Tools kauft man. Praxis baut man auf.                             | this run, stance              | 71.7    | 74.7 / 68.7 | 67.7 / 75.7    | 6.5         | 7.2   | 9.3      | 9.5  | 7.4      |
+| m02 | The agent is the easy part.                            | Der Agent ist der leichte Teil.                                   | this run, stance              | 71.6    | 76.0 / 67.2 | 67.2 / 76.0    | 7.3         | 6.8   | 8.2      | 8.8  | 8.2      |
+| b1  | We train where you ship.                               | Wir trainieren da, wo ihr ausliefert.                             | independent draft B, method   | 71.2    | 74.5 / 67.8 | 61.7 / 80.7    | 7.2         | 7.4   | 8.5      | 9.0  | 7.7      |
+| m16 | Agents in your code. Practitioners in your team.       | Agenten im Code. Praktiker im Team.                               | this run, method              | 71.0    | 70.8 / 71.2 | 65.7 / 76.3    | 6.7         | 7.5   | 8.5      | 8.5  | 8.1      |
+| m17 | Engineering first. Agents second.                      | Erst Engineering. Dann Agenten.                                   | this run, stance              | 67.8    | 68.7 / 67.0 | 61.7 / 74.0    | 5.7         | 8.0   | 8.3      | 8.3  | 8.8      |
+| m11 | Agents write fast. Teams ship fast.                    | Agenten schreiben schnell. Teams liefern schnell.                 | this run, outcome             | 67.2    | 67.8 / 66.5 | 57.3 / 77.0    | 5.7         | 8.0   | 6.5      | 8.2  | 8.4      |
+| b5  | Less wizardry, more engineering.                       | Weniger Zauberei, mehr Engineering.                               | independent draft B, name     | 66.4    | 67.2 / 65.7 | 57.5 / 75.3    | 6.8         | 6.8   | 8.5      | 7.8  | 8.8      |
+| a1  | Agents write the code. Your teams get it to customers. | Agenten schreiben den Code. Eure Teams bringen ihn zu den Kunden. | independent draft A, outcome  | 65.3    | 67.2 / 63.5 | 56.5 / 74.2    | 6.0         | 9.0   | 7.7      | 8.7  | 8.2      |
+| b8  | Wizardry is a team sport.                              | Zaubern ist Teamsport.                                            | independent draft B, name     | 64.3    | 64.7 / 64.0 | 60.2 / 68.5    | 7.7         | 5.2   | 7.2      | 6.6  | 8.9      |
+| b7  | The magic is in the practice.                          | Der Zauber steckt in der Übung.                                   | independent draft B, name     | 63.5    | 64.2 / 62.8 | 55.8 / 71.2    | 6.2         | 5.4   | 8.1      | 8.6  | 8.5      |
+| m14 | From prompt to production, as a team.                  | Vom Prompt bis in Produktion, als Team.                           | this run, method              | 63.3    | 65.8 / 60.8 | 53.0 / 73.7    | 4.3         | 8.1   | 7.8      | 8.3  | 7.3      |
+| m10 | Speed your customers feel.                             | Tempo, das eure Kunden spüren.                                    | this run, outcome             | 62.8    | 62.0 / 63.5 | 52.5 / 73.0    | 4.2         | 6.6   | 7.0      | 8.3  | 9.0      |
+| m05 | See one. Do one. Teach one.                            | Zusehen. Mitmachen. Weitergeben.                                  | this run, method              | 62.1    | 60.2 / 64.0 | 59.7 / 64.5    | 5.2         | 5.9   | 8.3      | 9.2  | 9.2      |
+| m03 | Less vibe. More engineering.                           | Weniger Vibe. Mehr Engineering.                                   | this run, stance              | 61.8    | 63.7 / 60.0 | 60.3 / 63.3    | 5.8         | 7.5   | 7.7      | 5.7  | 7.9      |
+| a8  | Agents for the whole team, not just the developers.    | Agenten fürs ganze Team, nicht nur für die Entwicklung.           | independent draft A, audience | 61.7    | 62.5 / 60.8 | 50.0 / 73.3    | 5.7         | 8.4   | 8.2      | 8.2  | 7.8      |
+| b6  | Your agents are ready. Is your team?                   | Eure Agenten sind bereit. Euer Team auch?                         | independent draft B, audience | 59.6    | 59.8 / 59.3 | 56.2 / 63.0    | 5.2         | 8.3   | 6.3      | 5.2  | 9.1      |
+| c3  | Agents in the team. Teams in flow.                     | Agenten im Team. Teams im Flow.                                   | control (current claim)       | 59.1    | 59.8 / 58.3 | 46.2 / 72.0    | 3.8         | 7.0   | 7.0      | 7.7  | 7.6      |
+| m18 | Built by teams. Sped up by agents.                     | Von Teams gebaut. Von Agenten beschleunigt.                       | this run, outcome             | 58.1    | 59.2 / 57.0 | 47.3 / 68.8    | 3.8         | 7.5   | 7.2      | 8.3  | 7.2      |
+| m04 | Ship what your agents write.                           | Liefert, was eure Agenten schreiben.                              | this run, outcome             | 58.0    | 60.3 / 55.7 | 54.3 / 61.7    | 6.3         | 7.8   | 5.3      | 6.9  | 8.0      |
+| q6  | Agents bring the speed. Flow needs teams in tune.      | Agenten bringen das Tempo. Flow braucht eingespielte Teams.       | control (retired)             | 56.0    | 54.5 / 57.5 | 43.3 / 68.7    | 4.8         | 7.1   | 6.8      | 7.5  | 6.9      |
+| a3  | Every role in tune. Every release sooner.              | Alle Rollen eingespielt. Jedes Release früher.                    | independent draft A, outcome  | 55.3    | 55.7 / 55.0 | 50.7 / 60.0    | 5.0         | 7.2   | 4.8      | 6.9  | 7.2      |
+| m06 | Every role, one rhythm.                                | Jede Rolle, ein Takt.                                             | this run, method              | 53.2    | 53.5 / 53.0 | 50.5 / 56.0    | 4.6         | 4.5   | 8.0      | 9.3  | 7.9      |
+| m13 | For every role that builds the product.                | Für jede Rolle, die das Produkt baut.                             | this run, audience            | 51.8    | 53.3 / 50.2 | 43.7 / 59.8    | 4.2         | 5.2   | 8.8      | 9.3  | 7.2      |
+| m09 | Agentic engineering, lived.                            | Agentic Engineering, gelebt.                                      | this run, method              | 49.9    | 49.5 / 50.3 | 40.2 / 59.7    | 3.8         | 5.9   | 7.0      | 7.8  | 5.3      |
+| b3  | Agents need practice, not licences.                    | Agenten brauchen Übung, keine Lizenzen.                           | independent draft B, stance   | 49.8    | 50.3 / 49.3 | 60.0 / 39.7    | 6.7         | 5.7   | 4.8      | 7.2  | 7.9      |
+| b2  | Every role at the table.                               | Jede Rolle mit am Tisch.                                          | independent draft B, audience | 49.2    | 49.0 / 49.3 | 44.3 / 54.0    | 3.5         | 4.7   | 8.8      | 9.3  | 8.4      |
+| m07 | Make your team the wizards.                            | Macht euer Team zu Wizards.                                       | this run, name                | 48.9    | 53.2 / 44.7 | 44.7 / 53.2    | 7.1         | 5.2   | 5.4      | 4.8  | 5.9      |
+| a2  | The speed of your agents, at your customers.           | Das Tempo eurer Agenten, bei euren Kunden.                        | independent draft A, outcome  | 44.9    | 44.0 / 45.8 | 42.7 / 47.2    | 5.8         | 5.0   | 6.0      | 7.5  | 4.3      |
+| a5  | Vibe coding is the new technical debt.                 | Vibe Coding sind die neuen technischen Schulden.                  | independent draft A, stance   | 37.8    | 42.3 / 33.3 | 42.3 / 33.3    | 5.7         | 7.2   | 5.0      | 3.0  | 6.2      |
+
+Pass 1, ten claims on every surface (noise 1.3 on the panel mean, 3.9 per reviewer):
+
+| Key | EN                                                | DE                                                          | Origin                       | Overall | EN / DE     | Claude / Codex | Distinctive | Clear | Fit with k3 | Calm | Credible | Language |
+| --- | ------------------------------------------------- | ----------------------------------------------------------- | ---------------------------- | ------- | ----------- | -------------- | ----------- | ----- | ----------- | ---- | -------- | -------- |
+| a6  | More code isn't faster delivery.                  | Mehr Code heißt nicht schneller liefern.                    | independent draft A, stance  | 77.0    | 78.9 / 75.2 | 72.9 / 81.2    | 6.9         | 7.7   | 8.4         | 8.0  | 9.0      | 7.9      |
+| m01 | You buy agents. You build teams.                  | Agenten kauft ihr. Teams baut ihr auf.                      | this run, stance             | 75.8    | 76.8 / 74.8 | 69.2 / 82.4    | 7.1         | 7.3   | 6.6         | 8.4  | 8.2      | 8.2      |
+| b4  | Until you don't need us.                          | Bis ihr uns nicht mehr braucht.                             | independent draft B, method  | 75.5    | 75.0 / 76.1 | 72.1 / 79.0    | 7.2         | 5.1   | 9.3         | 9.0  | 8.3      | 9.2      |
+| m08 | Every agent needs a team.                         | Jeder Agent braucht ein Team.                               | this run, stance             | 75.5    | 75.6 / 75.4 | 74.5 / 76.5    | 5.9         | 7.4   | 6.0         | 8.9  | 7.8      | 9.4      |
+| m15 | Speed is a team skill.                            | Tempo ist Teamarbeit.                                       | this run, stance             | 74.8    | 75.2 / 74.3 | 73.3 / 76.2    | 4.9         | 7.3   | 5.0         | 9.3  | 8.4      | 9.1      |
+| m02 | The agent is the easy part.                       | Der Agent ist der leichte Teil.                             | this run, stance             | 73.6    | 77.3 / 70.0 | 74.8 / 72.5    | 7.3         | 6.4   | 8.4         | 8.0  | 7.7      | 7.8      |
+| a7  | Licenses are bought in a day. Practice isn't.     | Lizenzen kauft ihr an einem Tag. Praxis nicht.              | independent draft A, stance  | 71.3    | 71.9 / 70.8 | 67.6 / 75.0    | 7.4         | 7.4   | 8.3         | 7.0  | 8.4      | 7.4      |
+| a4  | Faster with agents. And still fast without us.    | Schneller mit Agenten. Auch wenn wir längst weg sind.       | independent draft A, outcome | 66.5    | 68.2 / 64.8 | 54.9 / 78.1    | 6.9         | 7.2   | 6.0         | 6.3  | 6.5      | 7.4      |
+| c3  | Agents in the team. Teams in flow.                | Agenten im Team. Teams im Flow.                             | control (current claim)      | 66.2    | 66.7 / 65.8 | 60.7 / 71.8    | 4.0         | 6.7   | 4.2         | 8.1  | 7.1      | 7.4      |
+| q6  | Agents bring the speed. Flow needs teams in tune. | Agenten bringen das Tempo. Flow braucht eingespielte Teams. | control (retired)            | 56.9    | 57.7 / 56.1 | 51.0 / 62.8    | 4.5         | 6.9   | 2.6         | 5.8  | 6.0      | 6.6      |
+
+Pass 1 per surface:
+
+| Key | Banners | Slide | One-pager | Link preview | Footer | Above the H1 |
+| --- | ------- | ----- | --------- | ------------ | ------ | ------------ |
+| a6  | 76.8    | 79.0  | 78.0      | 77.8         | 75.8   | 80.8         |
+| m01 | 78.7    | 79.5  | 76.5      | 79.1         | 77.8   | 72.9         |
+| b4  | 69.6    | 82.6  | 77.0      | 68.0         | 78.7   | 83.5         |
+| m08 | 79.7    | 78.4  | 77.6      | 76.9         | 79.6   | 73.0         |
+| m15 | 79.7    | 82.3  | 78.0      | 80.5         | 79.8   | 70.5         |
+| m02 | 74.9    | 74.7  | 75.2      | 74.5         | 72.8   | 78.5         |
+| a7  | 70.4    | 68.5  | 71.4      | 67.6         | 70.5   | 74.2         |
+| a4  | 67.7    | 69.5  | 66.1      | 67.6         | 69.2   | 63.7         |
+| c3  | 73.6    | 73.3  | 70.4      | 73.4         | 72.6   | 62.9         |
+| q6  | 61.2    | 62.2  | 58.0      | 61.0         | 61.2   | 49.4         |
+
+Nothing above the H1 scored 80.1 in pass 1 and 79.8 in pass 2.
+
+### A reviewer prompt, verbatim (round 3, pass 1, CTO, Codex, run 1)
+
+The list of candidates is cut after the fourth of ten, and one neighbour line is cut where marked.
+
+```text
+You are the CTO of a German Mittelstand manufacturer with 120 developers. You bought coding agents for every team and are under board pressure to show what they changed. You have seen every consulting deck.
+
+A company from Hamburg, hackers&wizards, trains and mentors engineering teams, product teams and their leaders in agentic engineering, working with AI coding agents as a team. Its buyers are CTOs, CIOs and VPs of Engineering in German-speaking Europe whose developers have coding agents while releases come no faster. German copy uses the informal plural (ihr). It is choosing its brand claim: the short tagline beside the company name wherever the brand appears. The homepage headline (H1) is fixed and stays the same in every candidate: "Your teams have agents. Once every role is in step, your releases speed up." / "Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden eure Releases schneller.".
+
+These are the claims and headlines of the companies it is compared with:
+- "We Help Engineering Organisations Become AI Native" / "AI Native Transformations" (re:cinq)
+- "AI that works." / "Change the economics of how your business runs and grows" (Thoughtworks)
+- "We give technology a purpose." / "Wir geben Technologie einen Sinn." (INNOQ)
+- "A global network of technology innovators" / "Equal Experts isn't a traditional consultancy." (Equal Experts)
+[one neighbour line cut here: its company name stays out of this public file]
+- "KI-native Softwareentwicklung" (codecentric)
+- "Bringen Sie KI in den Flow." (Slalom Germany)
+- "Our people and AI agents build together." (Globant)
+- "Transforming businesses with intelligence" / "Technology is our how. And people are our why." (Endava)
+- "Building software people trust" / "Software development, with AI where it matters" (DabApps)
+- "Machen Sie Ihre Technologieinvestitionen zum Wettbewerbsvorteil" (Zühlke)
+
+Each candidate claim is shown on every surface it reaches, everything else unchanged. Per candidate and language three images, scaled to 1000 px on the long side:
+1. banners: the social profile banners as each platform shows them, grey circles marking where the platform's profile photo covers the banner. Row 1: LinkedIn profile banner (1584 x 396), X header (1500 x 500). Row 2: XING cover, Facebook profile cover. Row 3: Sessionize cover, Brella event cover. Row 4: the strip of the YouTube channel banner every device shows.
+2. brand surfaces: the closing slide of a talk deck (1920 x 1080, the claim under the speakers), the header of a training one-pager (the claim as the small line above the title, A4) and the link preview card a shared link shows (1200 x 630).
+3. website: the homepage first screen on a 1440 px desktop with the claim as a small line above the H1, the same on a 375 px phone down to the visual, and the website footer (desktop, and the phone footer below it) with the claim under the logo.
+Real display: the banners on LinkedIn, X, XING, Facebook, Sessionize, Brella and YouTube on desktop and phone; the slide projected; the one-pager printed or as PDF; the website in a desktop browser and on a phone.
+
+Look at every image (read each file), then score every candidate on its own, for English and for German.
+
+Criteria, each 0 to 10:
+- distinctive: it could not stand just as well beside one of the companies above or any AI consultancy
+- clear: you get what the company stands for within seconds
+- fit_k3: on the homepage, the claim line and the fixed H1 each do their own job and do not repeat each other
+- calm: confident without shouting, no hype, no gimmick; visually calm, breathing room, not cramped
+- credible: you believe it; it promises nothing you would distrust
+- language: idiomatic, natural English (for en) or natural spoken German (for de); not a translation, not stilted
+Per surface, 0 to 100, how well the claim works there: banners, slide, onepager, og (the link preview), footer, home (the line above the H1).
+Then overall, 0 to 100: how well this works as the company's claim across all surfaces.
+
+Finally, the homepage without any line above the H1 (images /private/tmp/claim3-0711/r1/sheets/none-en-web.png and /private/tmp/claim3-0711/r1/sheets/none-de-web.png): score "home" 0 to 100 for English and German the same way, so it compares with each candidate's home score.
+
+Candidates:
+L01
+  en: Faster with agents. And still fast without us.
+  de: Schneller mit Agenten. Auch wenn wir längst weg sind.
+  images (English banners, brand surfaces, website; then the same in German): /private/tmp/claim3-0711/r1/sheets/a4-en-banners.png, /private/tmp/claim3-0711/r1/sheets/a4-en-brand.png, /private/tmp/claim3-0711/r1/sheets/a4-en-web.png, /private/tmp/claim3-0711/r1/sheets/a4-de-banners.png, /private/tmp/claim3-0711/r1/sheets/a4-de-brand.png, /private/tmp/claim3-0711/r1/sheets/a4-de-web.png
+L02
+  en: More code isn't faster delivery.
+  de: Mehr Code heißt nicht schneller liefern.
+  images (English banners, brand surfaces, website; then the same in German): /private/tmp/claim3-0711/r1/sheets/a6-en-banners.png, /private/tmp/claim3-0711/r1/sheets/a6-en-brand.png, /private/tmp/claim3-0711/r1/sheets/a6-en-web.png, /private/tmp/claim3-0711/r1/sheets/a6-de-banners.png, /private/tmp/claim3-0711/r1/sheets/a6-de-brand.png, /private/tmp/claim3-0711/r1/sheets/a6-de-web.png
+L03
+  en: Every agent needs a team.
+  de: Jeder Agent braucht ein Team.
+  images (English banners, brand surfaces, website; then the same in German): /private/tmp/claim3-0711/r1/sheets/m08-en-banners.png, /private/tmp/claim3-0711/r1/sheets/m08-en-brand.png, /private/tmp/claim3-0711/r1/sheets/m08-en-web.png, /private/tmp/claim3-0711/r1/sheets/m08-de-banners.png, /private/tmp/claim3-0711/r1/sheets/m08-de-brand.png, /private/tmp/claim3-0711/r1/sheets/m08-de-web.png
+L04
+  en: Speed is a team skill.
+  de: Tempo ist Teamarbeit.
+  images (English banners, brand surfaces, website; then the same in German): /private/tmp/claim3-0711/r1/sheets/m15-en-banners.png, /private/tmp/claim3-0711/r1/sheets/m15-en-brand.png, /private/tmp/claim3-0711/r1/sheets/m15-en-web.png, /private/tmp/claim3-0711/r1/sheets/m15-de-banners.png, /private/tmp/claim3-0711/r1/sheets/m15-de-brand.png, /private/tmp/claim3-0711/r1/sheets/m15-de-web.png
+...
+```
+
+Review: large, because the claim stands on every surface and leaves the company.
