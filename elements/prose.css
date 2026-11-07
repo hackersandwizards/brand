@@ -1,18 +1,19 @@
-/* The prose block: Markdown read in an app (a record's notes, a handbook page, a knowledge article),
-   on top of Tailwind Typography's prose, so a surface writes class="prose hw-prose". Headings step
-   down to the app's page, heading and subheading sizes so they nest under the page title, an h2
-   opens with a hairline, paragraphs in a list item lose their margin, every link is the link in
-   text (link.css) and inline code the inline code element (inline-code.css), each rule repeated
-   here outside any layer, list bullets are the brand marker (marker.css), and a task item's
-   checkbox is painted like a field, ticked in the accent. Lists start at the text edge, as the
-   marker list does everywhere else: a bullet or a task box stands on the paragraphs' left edge, a
-   number just inside it, a nested list under its item's text. Typography's own indent (1.625em)
-   set bullets 26px and task text 42px in from the paragraphs. Typography's colours point at the
-   theme roles, so night follows the page. Tables, code blocks and quotes are the hw-* elements,
-   marked not-prose, which the block only spaces; a link that is no link in text (a button, an
-   arrow link) is marked not-prose too. Unlike the other elements these rules sit in no layer:
-   Typography's prose rules come in Tailwind's utilities layer, which a layered rule would lose to.
-   A list marked not-prose keeps its own start. */
+/* The prose block: Markdown read in an app (a record's notes, a handbook page, a knowledge
+   article), on top of Tailwind Typography's prose, so a surface writes class="prose hw-prose".
+   Headings step down to the app's page, heading and subheading sizes so they nest under the page
+   title, an h2 opens with a hairline, paragraphs in a list item lose their margin, every link is
+   the link in text (link.css) and inline code the inline code element (inline-code.css), each rule
+   repeated here outside any layer, list bullets are the brand marker (marker.css), and a task
+   item's checkbox is the check element (check.css, imported here), placed on the line. Lists start
+   at the text edge, as the marker list does everywhere else: a bullet or a task box stands on the
+   paragraphs' left edge, a number just inside it, a nested list under its item's text. Typography's
+   own indent (1.625em) set bullets 26px and task text 42px in from the paragraphs. Typography's
+   colours point at the theme roles, so night follows the page. Tables, code blocks and quotes are
+   the hw-* elements, marked not-prose, which the block only spaces; a link that is no link in text
+   (a button, an arrow link) is marked not-prose too. Unlike the other elements these rules sit in
+   no layer: Typography's prose rules come in Tailwind's utilities layer, which a layered rule would
+   lose to. A list marked not-prose keeps its own start. */
+@import "./check.css";
 
 .hw-prose {
   overflow-wrap: break-word;
@@ -106,8 +107,8 @@
    controls, and the browser's grey washes them out. The box's middle sits on the first line's
    x-height middle, placed from the line box as marker.css places the list marker (its comment says
    why): a whole number of pixels from the baseline, a transform the rest of the way. A fixed top
-   (0.375em) sat 0.87 to 2.87px off at line heights 1.25 to 2 (brand-markers). font: inherit,
-   which Tailwind's preflight sets too, takes em and lh from the item. */
+   (0.375em) sat 0.87 to 2.87px off at line heights 1.25 to 2 (brand-markers). check.css's
+   font: inherit takes em and lh from the item. */
 .hw-prose li.task-list-item input[type="checkbox"] {
   --_hw-size: round(1em, 1px);
   --_hw-ascent: round(0.96875em, 1px);
@@ -119,32 +120,10 @@
   position: absolute;
   top: calc(var(--_hw-baseline) - round(var(--_hw-top), 1px));
   left: 0;
-  box-sizing: border-box;
-  width: var(--_hw-size);
-  height: var(--_hw-size);
   margin: 0;
-  font: inherit;
   transform: translateY(calc(round(var(--_hw-top), 1px) - var(--_hw-top)));
-  border: 1.5px solid var(--input, color-mix(in srgb, var(--color-ink) 70%, var(--color-bg)));
-  border-radius: var(--radius-sm);
-  background: transparent center / 0.75em 0.75em no-repeat;
   opacity: 1;
   cursor: default;
-  appearance: none;
-  transition:
-    background-color var(--motion-fast),
-    border-color var(--motion-fast);
-}
-.hw-prose li.task-list-item input[type="checkbox"]:checked {
-  border-color: var(--accent, var(--color-teal-dark));
-  background-color: var(--accent, var(--color-teal-dark));
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
-}
-/* Night: the accent is a light teal, so the tick turns night on it. */
-@scope ([data-theme="dark"]) to ([data-theme="light"]) {
-  .hw-prose li.task-list-item input[type="checkbox"]:checked {
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
-  }
 }
 /* The link in text, as link.css draws it, and Typography's weight (500) undone. */
 .hw-prose a:not(.not-prose, .not-prose *) {

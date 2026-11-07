@@ -9,10 +9,11 @@
             is pressed with words on it: cards, panels, callouts, code blocks, pictures, buttons
             (the onepager's call to action and a slide's "Read more" included) and the client
             surfaces' fields.
-     sm     the small corner: everything one text line tall that is no pill: a label box (PART
-            ONE), a number or icon tile, inline code, the segmented control and its segments (the
-            slide's stage strip included), the apps' fields, an app's button under 32 px tall, and
-            a picture in a mail. On paper the 28 px onepager button keeps the brand corner.
+     sm     the small corner: everything one text line tall that is no pill: a label box (PART ONE),
+            a number or icon tile, inline code, the segmented control and its segments (the slide's
+            stage strip included), the apps' fields, a checkbox (a radio is round), an app's button
+            under 32 px tall, and a picture in a mail. On paper the 28 px onepager button keeps the
+            brand corner.
      pill   round: chips, badges and toggles, and every control that holds only an icon (play,
             pause, previous, next, theme); one over a picture is solid teal with a white icon.
             In the apps a label changed where it shows takes sm, one only read stays pill.

@@ -1,0 +1,92 @@
+/* The checkbox and the radio: the native input, painted like an app's field. One em square, so it
+   takes the size of the text it labels; a 1.5px line in the field's boundary colour (--input on an
+   app, 3:1 or more, WCAG 1.4.11; ink at 70% on a client surface), the small corner on the box,
+   round on the radio. Checked, the box fills in the accent (--accent on an app, teal-dark on a
+   client surface) with a white tick, a dash when indeterminate; the radio fills the same with a
+   white dot. Hover draws the line in the text colour; disabled is half opacity. Night takes the
+   night accent with a night tick and dot. The focus ring is focus.css's, so put hw-focus-ring on
+   the page. The prose block's task box (prose.css) takes this paint too.
+
+   It stands on its label's first line, centred on the line box, in a flex row (items-start) and
+   inline alike. Set its text 0.5rem from it (a flex gap), so the focus ring clears the text.
+   Under forced colours the browser's own control returns.
+
+   Markup: <label><input type="checkbox" class="hw-check"> Erledigt</label>
+           <label><input type="radio" class="hw-check" name="…"> Behalten</label> */
+
+@layer components {
+  .hw-check,
+  .hw-prose li.task-list-item input[type="checkbox"] {
+    --_hw-line: var(--input, color-mix(in srgb, var(--color-ink) 70%, var(--color-bg)));
+    --_hw-hover: var(--foreground, var(--color-ink));
+    --_hw-fill: var(--accent, var(--color-teal-dark));
+    --_hw-mark: white;
+    --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
+    box-sizing: border-box;
+    flex: none;
+    width: round(1em, 1px);
+    height: round(1em, 1px);
+    margin: calc((1lh - round(1em, 1px)) / 2) 0 0;
+    vertical-align: top;
+    font: inherit;
+    border: 1.5px solid var(--_hw-line);
+    border-radius: var(--radius-sm);
+    background: transparent center / 0.75em 0.75em no-repeat;
+    cursor: pointer;
+    appearance: none;
+    transition:
+      background-color var(--motion-fast),
+      border-color var(--motion-fast);
+  }
+  .hw-check[type="radio"] {
+    border-radius: 50%;
+  }
+  .hw-check:not(:disabled, :checked):hover {
+    border-color: var(--_hw-hover);
+  }
+  .hw-check:checked,
+  .hw-check[type="checkbox"]:indeterminate,
+  .hw-prose li.task-list-item input[type="checkbox"]:checked {
+    border-color: var(--_hw-fill);
+    background-color: var(--_hw-fill);
+  }
+  .hw-check[type="checkbox"]:checked,
+  .hw-prose li.task-list-item input[type="checkbox"]:checked {
+    background-image: var(--_hw-tick);
+  }
+  .hw-check[type="checkbox"]:indeterminate {
+    background-image: linear-gradient(var(--_hw-mark) 0 0);
+    background-size: 0.5em 0.15625em;
+  }
+  .hw-check[type="radio"]:checked {
+    background-image: radial-gradient(circle, var(--_hw-mark) 0 30%, transparent calc(30% + 0.5px));
+    background-size: 100% 100%;
+  }
+  .hw-check:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-check,
+    .hw-prose li.task-list-item input[type="checkbox"] {
+      transition: none;
+    }
+  }
+  @media (forced-colors: active) {
+    .hw-check,
+    .hw-prose li.task-list-item input[type="checkbox"] {
+      appearance: auto;
+    }
+  }
+  /* Night: the accent is a light teal, so tick, dash and dot turn night on it. */
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-check,
+    .hw-prose li.task-list-item input[type="checkbox"] {
+      --_hw-line: var(--input, var(--color-night-muted));
+      --_hw-hover: var(--foreground, var(--color-white));
+      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-mark: var(--color-night);
+      --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
+    }
+  }
+}

@@ -583,6 +583,7 @@ const ELEMENT_ORDER: [string, string, string][] = [
   ["button", "Button", "button"],
   ["arrow-link", "Arrow link", "arrow-link"],
   ["field", "Field with button", "field"],
+  ["check", "Checkbox and radio", "check"],
   ["facts", "Facts list", "facts"],
   ["segmented", "Segmented control", "segmented"],
   ["row", "List row", "row"],
