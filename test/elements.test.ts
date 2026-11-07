@@ -109,6 +109,16 @@ test.each(Object.entries(DRIFT))(
   60_000,
 );
 
+test("a read-only check that loses its tick mask or its ring's scale is red", async () => {
+  const r = await measurePage(
+    browser,
+    file("drift-readonly.html", page(".hw-check[data-readonly] { mask: none; scale: none }")),
+  );
+  const props = r.findings.filter((f) => f.element === "check").map((f) => f.prop);
+  expect(props).toContain("mask-image");
+  expect(props).toContain("scale");
+}, 60_000);
+
 // Every instance is measured, not one per kind: one drifted pill among 2,000 is red, and only it.
 test("one drifted instance among many is red", async () => {
   const pills = Array.from({ length: 2000 }, (_, i) =>
@@ -338,7 +348,7 @@ test("every label clears 4.5:1 on every wash, light and night, at 412 px", async
   const low = await tab.evaluate(() => {
     // Computed colours read as rgb() or color(srgb …), with an alpha or without.
     const rgba = (s: string) => {
-      const n = s.match(/[\d.]+/g)!.map(Number);
+      const n = s.match(/[\d.]+(?:e[-+]?\d+)?/gi)!.map(Number);
       const [r, g, b] = s.startsWith("color(") ? n.slice(0, 3).map((v) => v * 255) : n.slice(0, 3);
       return [r!, g!, b!, n[3] ?? 1] as const;
     };

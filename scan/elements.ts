@@ -125,7 +125,7 @@ const LINK = [
   "text-decoration-thickness",
   "text-underline-offset",
 ];
-const CHECK = ["width", "height", ...CORNER, ...FILL, ...borders()];
+const CHECK = ["width", "height", "scale", "mask-image", ...CORNER, ...FILL, ...borders()];
 const OWNS: Record<string, string[]> = {
   label: [...TYPE, "color"],
   "label-box": [...CORNER, ...FILL, ...borders(), ...PAD],
