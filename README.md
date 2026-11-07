@@ -45,6 +45,7 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                                                                                         |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                                                                                    |
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                                                                                     |
+| `@hackersandwizards/brand/catalogs.json`                  | every published catalog, name and address, for the header's nav                                                    |
 | `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                                                                                    |
 | `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS                                                                                  |
 | `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below                                                                         |
@@ -163,6 +164,14 @@ the slot; a React app writes the same markup. Each product keeps its own nav ite
 takes the same width with the class `hw-container`. A control holding only an icon (theme, menu,
 search) is `hw-header-link` with `data-icon`: round, 36 px. `ThemeToggle.astro` is one; an app
 that renders no `.astro` takes its two icons from `expert/components/theme-icons.ts`.
+
+Every catalog's header links every catalog: `catalogs.json` lists them, name and address, and each
+catalog renders its nav from it (`import catalogs from "@hackersandwizards/brand/catalogs.json"`),
+the current one with `aria-current="page"`, in an element with `data-hw-catalogs`. Below 30rem that
+header puts the nav on a row of its own under the lockup, so no catalog sits off-screen, and
+`--spacing-app-header` grows by the row. A new catalog is one line in `catalogs.json`, a release,
+and a pin bump in every catalog. The products' own design systems stay in the portal's Systems
+group.
 
 ### The catalog
 

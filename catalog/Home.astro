@@ -1,12 +1,38 @@
 ---
-// The catalog's home: the shell's tiles of the element stories, with a pointer to the portal.
+// The catalog's home: the shell's tiles of the element stories, with a pointer to the portal, and
+// the catalog list in the header, as on the portal.
 import Home from "@hackersandwizards/scaffolding/catalog/Home.astro";
+import catalogs from "../expert/catalogs.json";
+
+const base = import.meta.env.BASE_URL;
 ---
 
-<Home href={import.meta.env.BASE_URL}>
+<Home href={base}>
+  <nav slot="nav" class="hw-header-nav" aria-label="Main" data-hw-catalogs>
+    {catalogs.map((c) =>
+      c.name === "Brand" ? (
+        <>
+          <a class="hw-header-link" href={base}>
+            Brand
+          </a>
+          <a
+            class="hw-header-link"
+            href={`${base.replace(/\/?$/, "/")}catalog/`}
+            aria-current="page"
+          >
+            Catalog
+          </a>
+        </>
+      ) : (
+        <a class="hw-header-link" href={c.href}>
+          {c.name}
+        </a>
+      ),
+    )}
+  </nav>
   {/* prettier-ignore */}
   <p>
     Colours, type, tokens, logos, applications and the press kit:{" "}
-    <a class="hw-link" href={import.meta.env.BASE_URL}>the brand portal</a>.
+    <a class="hw-link" href={base}>the brand portal</a>.
   </p>
 </Home>

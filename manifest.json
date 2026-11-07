@@ -285,8 +285,12 @@
       "sha256": "3541c7fa464ba25e5584265272a7b0f63c6bc385d94f74f6911235e414f6e7c6"
     },
     {
+      "path": "expert/catalogs.json",
+      "sha256": "3e59f102e577b8f36ae920a265a91f15d3c5d47f4f06f8490229b9e54fbab88f"
+    },
+    {
       "path": "expert/header.css",
-      "sha256": "546e94d6f4708d31fe7a9369ab3aecbe7cf823bea5fbcf208e6cc94b481ba66e"
+      "sha256": "4c5d6573c5ba27696a7bcc36cbfbaab58b9d8938c7ede5253f28bdef25a1768a"
     },
     {
       "path": "expert/select.css",
