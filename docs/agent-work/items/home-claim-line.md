@@ -6,7 +6,7 @@ order: 100
 area: brand
 owner: Benedikt
 multiple: true
-evidence: "Blind review 07.11., round 3 (claim-round-3): a6 above the H1 against the empty slot, 48 reviewer runs. Round 2: home hero in two passes (8 then 5 candidates), the claim on 11 surfaces, the 35 page headlines with c3 and k3, then alternatives for 4 pages: 6 personas, Claude and Codex, two runs each, 120 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md"
+evidence: "Blind review 07.11., round 4: the website's page headlines with a6 and with c3, 96 reviewer runs (website item decide-page-headlines). Round 3 (claim-round-3): a6 above the H1 against the empty slot, 48 reviewer runs. Round 2: home hero in two passes (8 then 5 candidates), the claim on 11 surfaces, the 35 page headlines with c3 and k3, then alternatives for 4 pages: 6 personas, Claude and Codex, two runs each, 120 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md"
 recommended:
   - eyebrow-a6
   - de-zusammenspielen
@@ -170,67 +170,9 @@ Pass 2 found no hero above pass 1's leader: a plateau, so no third pass. The two
 
 Round 3 measured every claim candidate, c3 and q6 included, on the seven banners, the closing slide, the one-pager, the footer and the link preview: see `claim-round-3`.
 
-## The page headlines with c3 and k3
+## The page headlines
 
-The 35 page headlines of the website item `decide-page-headlines` (its recommended set, the pages that keep theirs, Events and the second case page as they are), read with c3 and k3 as one voice. The website reads as one company: 7.6 of 10 (noise 0.1). Four headlines should change; three of them repeat the home H1 for nearly every reviewer.
-
-| Page | Recommended in the website item (score there) | Repeats k3 (of 24) | Better with c3 and k3 | Its score | Item's line here |
-| ------------------ | ----------------------------------------------------------------------------------------------- | ------------------ | --------- | ---------------- |
-| Trainings overview | Your teams already have agents. Seven trainings get every role working with them. (83.0) | 24 | Find the training for each role on your team, from developers to leaders. / Findet die Schulung für jede Rolle in eurem Team, von Entwicklung bis Führung. (new draft) | 81.6 | 62.5 |
-| Training: Leaders | Your teams work with agents. Your leaders learn what to change around them. (78.3) | 24 | Your leaders learn what changes in roles and rituals once agents write the code. / Eure Führungskräfte lernen, was sich an Rollen und Ritualen ändert, wenn Agenten den Code schreiben. (new draft); i1 of the website item scores 77.8, the lead of 1.7 comes from Claude | 79.5 | 64.0 |
-| Software Factory | Your developers code faster with agents. A Software Factory gets that code released. (r1, 81.9) | 22 to 23 | r2 of the website item: Your team builds a Software Factory that gets agent code into releases. / Euer Team baut eine Software Factory, die Code von KI-Agenten bis ins Release bringt. Ahead with Codex, a tie with Claude | 76.8 | 72.5 |
-| Enablement | Your teams keep working with AI agents long after the training ends. (kept, 71.8) | 11 | Mentoring keeps your teams improving after the training, release by release. / Mit Mentoring werden eure Teams nach der Schulung weiter besser, Release für Release. (new draft) | 80.4 | 59.3 |
-
-The scores in the last two columns come from one test with fit to c3 and k3 as a criterion (fit, clear, credible, language), so they compare with each other and not with the website item's scores. Each lead stands outside the panel noise (0.1 to 1.1 for these lines, 5.1 for the Enablement line as it is) and holds with both models, except Software Factory and Leaders as noted.
-
-Round 4 (report, section Round 4) read these headlines with a6 and with c3 and replaced the Enablement line above; the final set per claim is in the website item `decide-page-headlines`.
-
-Also raised here, settled in round 4 except the last:
-
-- German pages say "KI-Agenten", the claim and k3 say "Agenten". Several reviewers named the switch.
-- The second case page's quote headline: 16 of 24 reviewers would change it ("proves adoption, not better delivery"); the website item's candidate was not recommended for a reason of voice, and no new candidate was tested.
-- Procurement and legal reads as a label, not a voice, for the Claude reviewers (fit 6.3 Claude, 8.7 Codex).
-- Factory operating model: Codex reviewers find "agents do the work" pushes people into the approver's role (fit 6.0 Codex, 8.9 Claude).
-
-Every page, fit to c3 and k3 per language (0 to 10), how many of 24 reviewers found it repeats the claim or k3, how many would change it, and the page's score in the website item:
-
-| Page | Headline (EN) | Fit EN / DE | Repeats EN / DE | Change votes | Website item score |
-| ---------------------------------- | ------------------------------------------------------------------------------------ | ----------- | ------------ | ------------------ |
-| Trainings overview | Your teams already have agents. Seven trainings get every role working with them. | 6.6 / 6.6 | 24 / 24 | 24 | 83.0 |
-| Training: Leaders | Your teams work with agents. Your leaders learn what to change around them. | 7 / 6.8 | 24 / 24 | 24 | 78.3 |
-| Case: a mid-sized client | "Since the workshop, everyone here develops agentically." | 7 / 7 | 0 / 0 | 16 | 70.0 |
-| Enablement | Your teams keep working with AI agents long after the training ends. | 7.3 / 7.3 | 11 / 11 | 17 | 71.8 |
-| Case: DIY retailer | Four trainings in, the retailer booked three more and set up its own trainers. | 7.4 / 7.4 | 0 / 0 | 12 | 80.2 |
-| Procurement and legal | Procurement, legal and security at a glance. | 7.5 / 7.5 | 0 / 0 | 10 | 81.9 |
-| Factory operating model | Agents do the work, and your people decide what ships. | 7.5 / 7.5 | 0 / 0 | 12 | 81.3 |
-| Tool: Gemini CLI | Your team sees what Gemini CLI sends the model, and runs risky work sandboxed. | 7.7 / 7.6 | 3 / 3 | 8 | 75.1 |
-| Training: Agentic Software Factory | Your team builds its first agent pipeline and runs its backlog through it. | 7.7 / 7.6 | 3 / 3 | 9 | 80.6 |
-| Podcast | Conversations with the people building software factories today. | 7.7 / 7.7 | 0 / 0 | 4 | 78.8 |
-| Contact | Get an offer for your team. | 7.8 / 7.8 | 0 / 0 | 4 | 80.3 |
-| Training: DevOps and Platform | Agents take on your platform team's routine work. Every apply stays with your team. | 7.8 / 7.8 | 0 / 0 | 8 | 81.0 |
-| Software Factory | Your developers code faster with agents. A Software Factory gets that code released. | 8 / 7.9 | 22 / 23 | 15 | 81.9 |
-| Tool: Cursor | Your team runs Cursor's agent in a mode your security team allows. | 8.0 / 7.9 | 3 / 3 | 3 | 74.8 |
-| Press | Everything you need to introduce hackers&wizards. | 8.0 / 8.0 | 0 / 0 | 5 | 83.8 |
-| Knowledge base | What our trainers teach, open to read. | 7.8 / 8.2 | 0 / 0 | 9 | 77.3 |
-| Tool: GitHub Copilot | Your team gets agentic engineering out of the Copilot licences it already has. | 7.8 / 8.2 | 3 / 3 | 9 | 77.1 |
-| About | 20 years of large systems, agents since 2022. Your teams learn from both. | 8.1 / 8 | 1 / 1 | 5 | 81.2 |
-| Tool: Codex | Your team builds with Codex and decides what each task may touch. | 8.1 / 8.1 | 3 / 3 | 1 | 75.3 |
-| Tool: Claude Code | Your team hands Claude Code whole features, and sets the rules it works by. | 8.1 / 8.1 | 3 / 3 | 3 | 80.8 |
-| Team | Your team learns from practitioners who know your stack. | 8.1 / 8.1 | 3 / 3 | 2 | 80.2 |
-| Training: Business Teams | Your teams hand recurring tasks to AI agents and check every result. | 8.1 / 8.2 | 3 / 0 | 1 | 79.0 |
-| Training: Security | Your AI agents hunt vulnerabilities in your own code, within limits you set. | 7.8 / 8.5 | 0 / 3 | 6 | 81.4 |
-| Events | Bring your hardest question about AI agents to the founders, face to face. | 8.2 / 8.2 | 0 / 0 | 0 | 72.2 |
-| Enablement at scale | Your releases keep going out while every team learns to work with AI agents. | 8.2 / 8.2 | 6 / 6 | 4 | 81.7 |
-| Blog | What faster code generation does to your delivery, with sources. | 8.3 / 8.2 | 0 / 3 | 4 | 84.1 |
-| Factory Pilot | Decide on rollout with evidence from your own delivery. | 8.7 / 8 | 0 / 0 | 6 | 83.9 |
-| Factory Readiness Assessment | Go to your board with evidence: what limits you first, and what comes next. | 8.5 / 8.2 | 0 / 0 | 5 | 84.0 |
-| Trainings by tool | Your team learns agentic engineering in the coding agent it already uses. | 8.4 / 8.3 | 3 / 3 | 2 | 77.2 |
-| Community | After the training, your team's questions still get answers from practitioners. | 8.5 / 8.5 | 0 / 0 | 0 | 83.1 |
-| Legacy modernisation | Replace your old system. Capture its special cases as tests first. | 8.5 / 8.5 | 0 / 0 | 0 | 85.2 |
-| Self-check | Where is your team stuck with AI agents? Start with twelve questions. | 8.6 / 8.6 | 0 / 0 | 0 | 82.5 |
-| Client work | Judge us by what changed for our clients. | 8.6 / 8.6 | 0 / 0 | 1 | 82.0 |
-| Training: Developers and QA | Your team shares one way of working with agents, from setup to review. | 8.6 / 8.6 | 3 / 4 | 1 | 84.1 |
-| Training: Product Managers | Your product team tests ideas on prototypes before engineering starts. | 8.7 / 8.7 | 1 / 1 | 0 | 81.5 |
+The website's page headlines were read with c3 and k3 in round 2 and with each claim, a6 and c3, in round 4 (report, sections Round 2 and Round 4). The set fits both claims equally; the final set per claim, the lines that change and every score are in the website item `decide-page-headlines`.
 
 ## What choosing changes
 

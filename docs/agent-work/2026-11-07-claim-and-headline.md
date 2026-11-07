@@ -348,7 +348,7 @@ should be the brand claim is open in these sources; this round measured it.
 
 ### Result
 
-The tables are in the item `home-claim-line`.
+The home hero tables are in the item `home-claim-line`; the page headlines were read again with each claim in Round 4.
 
 - The claim in the home hero loses wherever it stands: 67.5 to 72.2 against 79.1 for nothing above the H1 in pass 1 (panel noise 0.2 to 2.1). c3 and k3 both say agents and teams ("together" 5.0 to 6.6).
 - A line that is not the claim ties with nothing: in pass 2 "For CTOs and their teams" 77.6,
@@ -656,7 +656,7 @@ abzuwarten so das alles zusammen passt. ich folge dann überall deinen Empfehlun
 The website's recommended page headlines fit a6 and c3 equally: as a set, 77.5 with a6 (noise 2.9)
 and 77.8 with c3 (noise 1.2). Six lines change with either claim, one line depends on the claim:
 Blog's English "What faster code generation does to your delivery, with sources." repeats a6 for
-24 of 24 reviewers and c3 for 10 of 24, so with a6 it becomes "What agents change in your releases,
+24 of 24 reviewers (with c3, 10 of 24 find it echoes k3), so with a6 it becomes "What agents change in your releases,
 and what the research shows." The final set per claim, every score and the three flags are in the
 website item `decide-page-headlines`.
 
@@ -666,41 +666,45 @@ website item `decide-page-headlines`.
   footer and the home link preview, the home H1 k3 (German with "zusammenspielen"), and the line
   above the H1 that `home-claim-line` recommends for each claim: a6 itself, or "For CTOs and their
   teams" with c3. Each of the 35 pages with its recommended H1, English and German, at 1440 x 900
-  and 375 x 812, in headless Chrome. Every element carrying a price is hidden in every image.
+  and 375 x 812, in headless Chrome. Prices are hidden in every image.
 - Pass 1, one claim per reviewer run: the home hero, footer and link preview, the 35 first screens
   four to an image at 1440 px and three to an image at 375 px, every headline also as text. Beside
   it, candidates for the three flags raised in round 2 (the second case page's quote, procurement
-  as a label, "KI-Agenten" against "Agenten"), and two of Benedikt's anchor headlines with the
-  lines that replace them.
+  as a label, "KI-Agenten" against "Agenten"), and two of Benedikt's three anchor headlines with the
+  lines that replace them; pass 2 carried all three.
 - Pass 2, for the pages pass 1 flagged (at least half the panel would change the line, or it
-  repeats the claim for nearly every reviewer): three or four candidates each in its page hero at
+  repeats the claim for nearly every reviewer; Trainings by tool and the Assessment qualified and
+  got none, since the Copilot and Pilot changes remove what they shared): three or four candidates each in its page hero at
   1440 px, the current line and one line from an independent drafter (a fresh
   `claude -p --model opus` that saw the page, its lead and the rules, never the current line)
   among them.
-- Personas as in round 3: CIO of a retail group, CTO of a Mittelstand manufacturer, VP of
-  Engineering at a scale-up, Chief Product Officer, Head of Engineering at an insurer, brand
-  strategist for DACH B2B tech services. Claude (`claude -p --model opus`) and Codex
-  (`gpt-6.1-sol`, high), two runs each, per claim: 96 reviewer runs. Each run saw one claim, in
-  its own shuffled order under neutral labels, with nothing marking a line as current.
+- Personas as in round 3. Claude (`claude -p --model opus`) and Codex (`gpt-6.1-sol`, high), two
+  runs each, per claim: 48 reviewer runs per pass, 96 in all, each in its own shuffled order under neutral labels,
+  with nothing marking a line as current.
 - Criteria, fixed before any score: voice (one voice with the claim and k3), clear, no repetition
   (of the claim, k3 or another page), language, 0 to 10; overall 0 to 100 for the set and each
   candidate. Two Claude runs scored the set criteria 0 to 100; they were divided by 10.
 
 ### Result
 
-- The set: one voice 8.1, clear 8.0 and 7.9, no repetition 6.7 and 6.9, language 7.8 with each
-  claim. Claude scores it 74.2 and 73.4, Codex 80.8 and 82.2.
-- Six lines change with either claim, each ahead outside the noise with both models: the Copilot
-  training (it and the trainings-by-tool page said the same), Enablement, Factory Pilot
-  ("Auslieferung" reads as logistics), Knowledge base, the DIY retailer case and Procurement and
-  legal. The podcast keeps its current line, one of Benedikt's anchors, which beats the
-  replacement the website item had recommended.
-- "KI-Agenten" on German pages: as recommended, German following the English, and "Agenten"
-  throughout tie (79.6 to 81.5). The lines stay as they are.
+- The set (a6 / c3): one voice 8.1 / 8.1, clear 8.0 / 7.9, no repetition 6.7 / 6.9, language
+  7.8 / 7.8. Claude scores it 74.2 / 73.4, Codex 80.8 / 82.2.
+- The six changed lines, each ahead of the line it replaces outside the noise with both models: the Copilot training (it
+  and the trainings-by-tool page said the same), Enablement, Factory Pilot ("Auslieferung" reads
+  as logistics), Knowledge base, the DIY retailer case and Procurement and legal. The podcast keeps
+  its current line, one of Benedikt's anchors: Claude prefers it over the replacement the website
+  item had recommended by more than the noise with each claim, while Codex prefers the replacement
+  in pass 1.
+- "KI-Agenten" on German pages (a6 / c3, noise in brackets): as recommended 80.8 (3.0) / 80.1
+  (1.8), "Agenten" throughout 80.6 (2.5) / 81.5 (1.1), German following the English 79.9 (0.8) /
+  79.6 (0.6). A tie, so the lines stay as they are.
 - The second case page's quote: no alternative leads outside the noise. The reviewers' objection
   (adoption, not delivery) needs a delivery fact the case does not have.
-- Benedikt's three anchors score 67 to 84 here, and no line reached the 90 the website's copy rule
-  asks for. Pass 2 stopped on a plateau, and the best lines it reached are recommended.
+- Benedikt's three anchors (a6 / c3): "Your whole team works with AI agents, all the same way."
+  69.4 / 69.4, "Your next engineering decision, from people who already made it." 83.2 / 79.3, "Go
+  to your board with evidence: what limits you first, and what comes next." 83.5 / 82.7. No line
+  reached the 90 the website's copy rule asks for. Pass 2 stopped on a plateau, and the best lines
+  it reached are recommended.
 
 Skipped combinations: the banners, the closing slide and the one-pager with the page headlines
 (round 3 scored the claim there); the pass-2 candidates at 375 px; a second set score after pass 2.
@@ -708,7 +712,7 @@ Skipped combinations: the banners, the closing slide and the one-pager with the 
 ### A reviewer prompt, verbatim (round 4, pass 1, a6, CTO, Codex, run 1)
 
 The page list is cut after the third page, and the alternatives and wording versions are cut
-where marked.
+where marked. The image paths point to the run's scratch folder.
 
 ```text
 You are the CTO of a German Mittelstand manufacturer with 120 developers. You bought coding agents for every team and are under board pressure to show what they changed. You have seen every consulting deck.
