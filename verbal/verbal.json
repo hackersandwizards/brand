@@ -25,12 +25,12 @@
     "since": "2026-09-19"
   },
   "position": {
-    "en": "We help CIOs and CTOs whose developers have coding agents and whose releases come no faster. We train their engineering and product teams in agentic engineering until every role works in tune with the others, so the speed their teams gain reaches their customers, shows in lead time and in the cost of every shipped change, and stays with their own people.",
-    "de": null
+    "en": "We help CIOs and CTOs whose developers have coding agents and whose releases come no faster. We train their engineering and product teams in agentic engineering until every role works in tune with the others. That way the speed their teams gain reaches their customers, shows in lead time and in the cost of every shipped change, and stays with their own people.",
+    "de": "Wir helfen CIOs und CTOs, deren Entwicklerteams mit Coding Agents arbeiten, ohne dass die Releases schneller kommen. Wir schulen ihre Engineering- und Produktteams in Agentic Engineering, bis alle Rollen eingespielt zusammenarbeiten. So kommt das gewonnene Tempo bei ihren Kunden an, zeigt sich in der Lead Time und in den Kosten jeder ausgelieferten Änderung und bleibt bei ihren eigenen Leuten."
   },
   "boilerplate": {
     "en": "hackers&wizards trains engineering and product teams in agentic engineering until every role works in tune with the others, so the speed their teams gain reaches their customers.",
-    "de": null
+    "de": "hackers&wizards trainiert Engineering- und Produktteams in Agentic Engineering, bis alle Rollen eingespielt zusammenarbeiten. So kommt das Tempo, das die Teams gewinnen, bei ihren Kunden an."
   },
   "values": [
     {
