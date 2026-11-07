@@ -541,7 +541,9 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
 <div class="assets">${press.photos
   .map((p) => {
     index.push({ t: p.file, k: "press", h: `pressekit/press-${slug(p.file)}`, x: p.shows });
-    return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${"cut" in p ? `, <a href="press/${p.cut}" download>${code(p.cut)}</a>` : ""}</figcaption></figure>`;
+    const cut = "cut" in p ? p.cut : undefined;
+    if (cut) index.push({ t: cut, k: "press", h: `pressekit/press-${slug(p.file)}`, x: p.shows });
+    return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${cut ? `, <a href="press/${cut}" download>${code(cut)}</a>` : ""}</figcaption></figure>`;
   })
   .join("")}</div>`;
 const dropdownOptions = ["All (116)", "Context engineering (12)", "Testing (9)"]
@@ -854,7 +856,7 @@ const tag = (lang: string) => `<span class="hw-label words-tag" data-tone="muted
 const wordText = (v: string | null, lang: string) =>
   v
     ? `<p lang="${lang}">${esc(v)}</p>`
-    : `<p><span class="hw-label" data-tone="muted">No German text yet</span></p>`;
+    : `<p><span class="hw-label" data-tone="muted">No ${lang === "de" ? "German" : "English"} text yet</span></p>`;
 const wordsHtml = `<p>The claim, mission, vision, values and terms as ${code("verbal/verbal.json")}, exported as ${code("@hackersandwizards/brand/verbal.json")}: a surface imports the text instead of retyping it. Source: ${esc(verbal.source)}</p>
 <table class="hw-table words words-cols"><thead><tr><th>Element</th><th>English</th><th>Deutsch</th></tr></thead><tbody>${PAIRS.map(
   (k) =>
@@ -1117,7 +1119,7 @@ const show = () => {
   cat.dataset.mode = searching ? "search" : view ? "view" : "overview";
   for (const s of document.querySelectorAll("section[data-page]")) s.hidden = s.dataset.page !== view;
   for (const i of document.querySelectorAll("section[data-page]:not([hidden]) image[data-href]")) i.setAttribute("href", i.dataset.href);
-  for (const a of cat.querySelectorAll(".hw-catalogue-rail .hw-catalogue-names a")) if (!searching && a.getAttribute("href") === "#" + view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  for (const a of cat.querySelectorAll(".hw-catalogue-rail .hw-catalogue-names a")) if (!searching && view && [location.hash, "#" + view].includes(a.getAttribute("href"))) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   const el = !searching && (view ? anchor && document.getElementById(anchor) : page !== "overview" && page && document.getElementById(page));
   if (el) { el.scrollIntoView({ block: "start" }); if (view) { el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); } }
   else scrollTo(0, 0);

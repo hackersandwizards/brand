@@ -665,7 +665,7 @@ if (import.meta.main) {
   }
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
   const i = process.argv.indexOf("--base");
-  if (i >= 0 && !URL.canParse(process.argv[i + 1] ?? "")) {
+  if (i >= 0 && !/^https?:$/.test(URL.parse(process.argv[i + 1] ?? "")?.protocol ?? "")) {
     console.error("usage: brand-elements [--base <url>] [--json]");
     process.exit(2);
   }

@@ -232,8 +232,8 @@ in full with its reason, `<section data-hw-exception="<name>">`. List both in
 
 A system whose pages never turn to night adds `"lightOnly": true`: the tokens only an element's
 night rules read may then stay undefined there. `"site": "<dir>"` is `brand-markers --site` (below).
-A gate that starts its own server on a free port names each page as a path starting with `/` and
-runs `brand-elements --base <server url>`, so two gates at once never collide on a port.
+A gate that starts its own server on a free port names each page as a path from the server's root,
+starting with `/`, and runs `brand-elements --base <server url>`, so two gates at once never collide on a port.
 
 Before it measures, `brand-elements` opens every closed `<details>` outside a header or nav, since
 a focusable in a shut fold takes no focus. An element inside `[data-hw-shell]`, the scaffolding

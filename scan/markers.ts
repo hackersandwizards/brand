@@ -25,6 +25,7 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer, {
   type Browser,
+  type BrowserContext,
   type HTTPRequest,
   type HTTPResponse,
   type Page,
@@ -270,14 +271,11 @@ export const launch = () =>
 /** Every marker on one page, at one device scale, how far it sits off its line and how far its
  * first line starts right of the wrapped lines, in CSS px, after `css` is added. */
 export async function measureMarkers(
-  browser: Browser,
+  browser: Browser | BrowserContext,
   url: string,
   { scale = 4, width = 1280, newline = false, css = "" } = {},
 ): Promise<Reading[]> {
-  // A context of its own: puppeteer shoots one page of a context at a time, so runs side by side
-  // in one context would wait for each other's shots.
-  const context = await browser.createBrowserContext();
-  const page = await context.newPage();
+  const page = await browser.newPage();
   try {
     await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
     // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
@@ -327,7 +325,7 @@ export async function measureMarkers(
     }
     return out;
   } finally {
-    await context.close();
+    await page.close();
   }
 }
 
@@ -411,10 +409,12 @@ if (import.meta.main) {
   let next = 0;
   try {
     await Promise.all(
+      // A context per worker: puppeteer shoots one page of a context at a time.
       Array.from({ length: Math.min(runs.length, availableParallelism(), 8) }, async () => {
+        const context = await browser.createBrowserContext();
         for (let i = next++; i < runs.length; i = next++) {
           const { url, ...options } = runs[i]!;
-          done[i] = await measureMarkers(browser, url, { ...options, width });
+          done[i] = await measureMarkers(context, url, { ...options, width });
         }
       }),
     );
