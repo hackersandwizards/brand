@@ -73,6 +73,7 @@ export const ELEMENTS: Record<string, string> = {
   button: ".hw-button",
   "arrow-link": ".hw-arrow-link",
   field: ".hw-field",
+  check: ".hw-check",
   facts: ".hw-facts",
   segmented: ".hw-segmented",
   row: ".hw-row",
@@ -118,6 +119,7 @@ const LINK = [
   "text-decoration-thickness",
   "text-underline-offset",
 ];
+const CHECK = ["width", "height", ...CORNER, ...FILL, ...borders()];
 const OWNS: Record<string, string[]> = {
   label: [...TYPE, "color"],
   "label-box": [...CORNER, ...FILL, ...borders(), ...PAD],
@@ -152,6 +154,7 @@ const OWNS: Record<string, string[]> = {
     "color",
     "min-height",
   ],
+  check: CHECK,
   facts: ["margin-top", "margin-bottom"],
   "facts div": ["display", "row-gap", ...borders(["top"]), "padding-top", "padding-bottom"],
   "facts dd": ["margin-left"],
@@ -182,6 +185,7 @@ const OWNS: Record<string, string[]> = {
   "prose a:not(.not-prose, .not-prose *)": [...LINK, "font-weight"],
   "prose ul:not(.not-prose, .not-prose *)": ["padding-left"],
   "prose ol:not(.not-prose, .not-prose *)": ["padding-left"],
+  "prose li.task-list-item input": CHECK,
 };
 
 /** The element files' rules, every @import dropped: the reference's only styles. */
