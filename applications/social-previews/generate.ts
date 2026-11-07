@@ -8,7 +8,7 @@
 // again whenever a description changes.
 // bun applications/social-previews/generate.ts [repository ...]   (needs gh, signed in)
 import { execFileSync } from "node:child_process";
-import { readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { colors } from "../../generated/tokens";
 import { brand, browser, fontFaces } from "../backgrounds/render";
@@ -53,17 +53,14 @@ const REPOSITORIES: Record<string, keyof typeof CATEGORY> = {
 };
 
 const lucideIcon = (name: string) =>
-  readFileSync(
-    join(import.meta.dir, "../../node_modules/lucide-static/icons", `${name}.svg`),
-    "utf8",
-  )
+  readFileSync(require.resolve(`lucide-static/icons/${name}.svg`), "utf8")
     .replace(/<!--.*?-->/s, "")
     .replace(/width="24"\s+height="24"/, 'width="96" height="96"');
 
-export function card(name: string, description: string, category: keyof typeof CATEGORY) {
+function card(name: string, description: string, category: keyof typeof CATEGORY) {
   const [label, iconName] = CATEGORY[category];
-  // A long name steps down so it stays on one line.
-  const nameSize = name.length > 28 ? 48 : name.length > 18 ? 64 : 88;
+  // A long name shrinks to stay on one line: JetBrains Mono advances 0.6 em per character.
+  const nameSize = Math.min(88, Math.floor(1100 / (0.6 * name.length)));
   return `<!doctype html><meta charset="utf-8"><style>${fontFaces}
 *{margin:0;box-sizing:border-box}
 body{width:${W}px;height:${H}px;overflow:hidden;color:${colors["--color-white"]};font-family:Inter;
@@ -76,7 +73,7 @@ header img{height:96px;margin-top:8px}
 main{margin-top:auto}
 .label{font:500 30px/1 "JetBrains Mono";letter-spacing:.12em;text-transform:uppercase;color:${colors["--color-teal-night"]}}
 h1{font:700 ${nameSize}px/1.1 "JetBrains Mono";margin:20px 0 22px;white-space:nowrap}
-p{font:400 32px/1.4 Inter;color:#d6dbe1;max-width:1100px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+p{font:400 32px/1.4 Inter;color:${colors["--color-night-muted"]};max-width:1100px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 </style><div class="strip"></div>
 <header><img src="${brand.lockupNight}" alt=""><div class="tile">${lucideIcon(iconName)}</div></header>
 <main><div class="label">${escHtml(label)}</div><h1>${escHtml(name)}</h1><p>${escHtml(description)}</p></main>`;
@@ -105,18 +102,26 @@ if (import.meta.main) {
   const missing = repos.filter((r) => !(r.name in REPOSITORIES)).map((r) => r.name);
   if (missing.length)
     throw new Error(`No category for ${missing.join(", ")}: add it to REPOSITORIES`);
+  const file = (name: string) => `${name.replace(/^\./, "")}.png`;
+  const files = new Set(repos.map((r) => file(r.name)));
+  const stale = readdirSync(import.meta.dir).filter((f) => f.endsWith(".png") && !files.has(f));
+  const gone = Object.keys(REPOSITORIES).filter((n) => !repos.some((r) => r.name === n));
+  if (stale.length || gone.length)
+    throw new Error(`No public repository for ${[...stale, ...gone].join(", ")}: delete them`);
   const only = process.argv.slice(2);
+  const unknown = only.filter((n) => !(n in REPOSITORIES));
+  if (unknown.length) throw new Error(`Not a listed repository: ${unknown.join(", ")}`);
   const chrome = await browser();
   try {
     for (const { name, description } of repos.filter(
       (r) => !only.length || only.includes(r.name),
     )) {
       if (!description) throw new Error(`${name} has no GitHub description`);
-      const out = join(import.meta.dir, `${name.replace(/^\./, "")}.png`);
-      await Bun.write(out, await chrome.shot(card(name, description, REPOSITORIES[name]), W, H));
-      const kb = statSync(out).size / 1024;
-      if (kb >= 1024) throw new Error(`${out} is ${kb.toFixed(0)} KB, GitHub takes under 1 MB`);
-      console.log(`${out} ${kb.toFixed(0)} KB`);
+      const png = await chrome.shot(card(name, description, REPOSITORIES[name]), W, H);
+      const kb = png.length / 1024;
+      if (kb >= 1024) throw new Error(`${name} is ${kb.toFixed(0)} KB, GitHub takes under 1 MB`);
+      await Bun.write(join(import.meta.dir, file(name)), png);
+      console.log(`${file(name)} ${kb.toFixed(0)} KB`);
     }
   } finally {
     await chrome.close();

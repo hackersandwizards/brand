@@ -90,7 +90,7 @@
 
   /* Hue roles: categories with no status meaning (a product, a partner type, a channel), under
      the same 4.5:1 rule. A category takes teal, purple or slate (the ampersand hue's text colour)
-     and leaves the rest of its set neutral; rust is the Software Factory area alone (the hue rule in tokens.css). Rust takes the
+     and leaves the rest of its set neutral; rust colours no area and no label (the hue rule in tokens.css). Rust takes the
      ink mix too: alone it is 4.2:1 on its wash over the muted fill. hue-amber and hue-green are
      former names of warning and success: no category takes them. */
   --hue-teal: var(--color-teal-dark);
