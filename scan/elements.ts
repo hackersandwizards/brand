@@ -21,7 +21,9 @@
 //    (OWNS: its corner, fill, line, text colour, type, padding or size) fails, by more than 0.02px
 //    for a length. Each brand token an element reads must be defined where it renders; with
 //    "lightOnly" the tokens only its night rules read are left out, since a page without night
-//    never draws them.
+//    never draws them. An element drawn with the brand corner (top-left and bottom-right larger
+//    than top-right) inside another so drawn fails too: the brand corner sits on the outermost
+//    block only (tokens.css).
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote)
 //    and sets a property that element owns (a shorthand counts for its longhands) fails, and so does a component file of such a name,
@@ -303,6 +305,37 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
         return { element, el, set };
       }),
   );
+  // The brand corner inside a brand corner, over every element of the page, before any reference.
+  const isBrand = new Map<Element, boolean>();
+  const brand = (el: Element) => {
+    let v = isBrand.get(el);
+    if (v === undefined) {
+      const g = getComputedStyle(el);
+      const [tl, tr, br] = [
+        g.borderTopLeftRadius,
+        g.borderTopRightRadius,
+        g.borderBottomRightRadius,
+      ].map(parseFloat) as [number, number, number];
+      v = tl > tr && tl === br && el.getClientRects().length > 0;
+      isBrand.set(el, v);
+    }
+    return v;
+  };
+  for (const el of document.querySelectorAll("body *")) {
+    if (!brand(el) || el.closest("[data-hw-reference], [data-hw-exception], [data-hw-shell]"))
+      continue;
+    for (let p = el.parentElement; p; p = p.parentElement)
+      if (brand(p)) {
+        findings.push({
+          element: "corner",
+          label: label(el),
+          prop: "border-radius",
+          got: `the brand corner inside ${label(p)}`,
+          want: "the small corner",
+        });
+        break;
+      }
+  }
   // Every clone before any reference goes in, so none holds another instance's reference.
   const clones = found.map(({ el }) => el.cloneNode(true) as HTMLElement);
   const pairs = found.map(({ element, el, set }, i) => {

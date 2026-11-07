@@ -8,7 +8,9 @@
      brand  the brand corner, large top-left and bottom-right: everything that holds content or
             is pressed with words on it: cards, panels, callouts, code blocks, pictures, buttons
             (the onepager's call to action and a slide's "Read more" included) and the client
-            surfaces' fields.
+            surfaces' fields. The outermost one only: a block, picture, field or button inside a
+            block with the brand corner takes sm (elements/card.css sets it; brand-elements fails
+            a brand corner inside a brand corner).
      sm     the small corner: everything one text line tall that is no pill: a label box (PART ONE),
             a number or icon tile, inline code, the segmented control and its segments (the slide's
             stage strip included), the apps' fields, a checkbox (a radio is round), an app's button

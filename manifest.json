@@ -114,7 +114,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "8e55d521bff440a63dc72902dbf32ecaa1f0780af41a80fe5e0894b6351052b7"
+      "sha256": "b264fb305e9a7fd6e6dfac96f592b29907763c1e409984c67f8cc485606f687f"
     },
     {
       "path": "logos/emoji-logo-long-cmyk.tif",
@@ -354,7 +354,7 @@
     },
     {
       "path": "elements/card.css",
-      "sha256": "6c343adc0419af76003ed844116aa94913cfaa4dbd12a5b1e7b27147d867f685"
+      "sha256": "718126f6a382159a1914ee4b1d0001c0b442fb00535b904460b37ed405a0674f"
     },
     {
       "path": "elements/code.css",
