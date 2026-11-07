@@ -2,6 +2,7 @@
 kind: review
 status: assumed
 priority: 3
+order: 600
 owner: Benedikt
 area: brand
 evidence: "catalog/portal.ts, the words view; blind review 07.11., two rounds"

@@ -2,6 +2,7 @@
 kind: review
 status: open
 priority: 2
+order: 4
 area: brand
 owner: Benedikt
 evidence: "Blind review 07.11.: four personas, Claude and Codex, two runs plus a second pass; scores, inventory and images in docs/agent-work/2026-11-07-corner-nesting.md."
