@@ -4,15 +4,21 @@ status: open
 priority: 3
 order: 580
 area: brand
-owner: a brand session
-evidence: "not established; 07.11. logos/ still holds type-logo-long.svg, emoji-logo-long.png and its TIF, and avatar-512.png"
+owner: os and mail sessions, then a brand session
+evidence: "07.11.: git grep on origin/main of every repo under ~/dev/hackersandwizards; avatar-512.png and icon-maskable-512.png compared pixel by pixel (1,048,576 bytes RGBA, 0 differ)"
 ---
 
-# Clean up the logo derivatives and split the Logos page into masters and delivery files
+# Retire logos/avatar-512.png once os and mail take icon-maskable-512.png
 
-Benedikt, 01.11.: „ist das die aufgabe vom brand repo hier render derivate zu halten? das muss doch eigentlich dort passieren wo man sie braucht. die logo seite sollte doch nur die logos definieren hier geht es ja nicht um die auslieferung. oder ist das fürs press kit?“ lockup-screen.svg is not for the press kit: brand's own internal header (AppHeader.astro, header.css) uses it on seven internal surfaces, and the website's own header takes it too: seven repos besides brand. The press kit takes 16 files: lockup, compact lockup and wordmark in day and night plus wordmark-white and -black, each SVG and PNG. Seven files in logos/ have no consumer (the four rasters of the outline cuts and the former type-logo, type-logo-long.svg, emoji-logo-long.png and its CMYK TIF), and avatar-512.png is pixel-identical to icon-maskable-512.png. Counts per file and costs: docs/agent-work/2026-11-01-logo-derivatives.md.
+`logos/avatar-512.png` is pixel for pixel `logos/icon-maskable-512.png`. Two repos still read it
+from the package:
 
-Assumed 02.11. (Ada; commit 7c60dee turned the decision into this item): remove the seven files
-without a consumer and the duplicate avatar, and split the Logos page into masters and delivery files
-(option a of the former decision, internal file structure). Removing a file from the package is a
-release whose commit names it.
+- os: `src/lib/tally-attendee-survey.ts` (`LOGO`, the uploaded name `avatar-512.png`) and its test
+  `src/lib/__tests__/tally-attendee-survey.test.ts`.
+- mail: `catalog/astro.config.ts` (`copy`), `catalog/mails/brief-bild.json` and
+  `catalog/stories/Parts/Image.stories.tsx`.
+
+Once both read `icon-maskable-512.png`, brand deletes `avatar-512.png`, its line in
+`applications/avatars/generate.ts`, `"logos/avatar-*.png"` in `package.json` `files`, its manifest
+entry and the avatar row of the portal's delivery files, in a release whose commit names the removed
+file.

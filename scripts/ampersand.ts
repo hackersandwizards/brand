@@ -3,7 +3,6 @@
 // row-wise gap is the same on both sides (Benedikt, 2026-10-29, os row wordmark-ampersand-spacing,
 // "B, optisch mittig"). Writes the offset into every logo carrying the one-line wordmark, renders
 // each PNG at its current width and rehashes both in manifest.json. A second run changes nothing.
-// type-logo-long.svg keeps its own layout: its & opens the second line, with no s beside it.
 // The -night, -outline, -white and -black cuts carry the same & group: run scripts/outline.ts after
 // it, which writes them from the day files.
 // Usage: bun scripts/ampersand.ts

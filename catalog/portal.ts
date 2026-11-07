@@ -189,18 +189,9 @@ const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 </div>`;
 
 const logoFiles = manifest.files.map((f) => f.path).filter((p) => p.startsWith("logos/"));
-const bases = [
-  ...new Set(
-    logoFiles.map((p) =>
-      p.replace(/^logos\//, "").replace(/(-night|-outline|-white|-black|-cmyk)?\.\w+$/, ""),
-    ),
-  ),
-];
 const LOGO_NOTES: Record<string, string> = {
   lockup: "The standard logo: the wizard beside the pixel wordmark.",
   "lockup-compact": "The wizard over the wordmark, for small spots.",
-  "lockup-screen":
-    "The lockup as a smaller file (the wizard embedded at 128 px, 15 KB instead of 50 KB), identical on screen, for a header up to 40 px tall.",
   wordmark: "The wordmark alone. Its white and black cuts carry every letter in that one colour.",
 };
 const logoRule = (base: string) => {
@@ -231,6 +222,7 @@ const logoCard = (base: string) => {
     x: `${files.join(" ")} download logo`,
   });
   return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day · on light")}${tile(night, "on-dark", "night cut · on night, also black and black textile")}${tile(outline, "on-gradient", "outline cut · on the gradient, also Purple Love and Stargazer")}${tile(white, "on-dark", "white cut · a surface in one colour, such as a white partner wall")}${tile(black, "on-light", "black cut · a surface in one colour, such as single-colour print")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p>${logoRule(base)}<p class="dl">${files
+    .filter((p) => p.endsWith(".svg"))
     .map(
       (p) =>
         `<a href="${p}" download>${esc(
@@ -242,13 +234,40 @@ const logoCard = (base: string) => {
     )
     .join("")}</p></article>`;
 };
-const order = (b: string) =>
-  ["lockup", "lockup-compact", "wordmark"].indexOf(b) + 1 || 10 + bases.indexOf(b);
-// The package still ships the former type-logo for the code that reads it; the emoji masters stay
-// in the repo for the booth and background applications. The page shows only the logos in use.
-const isLogo = (b: string) => b.startsWith("lockup") || b.startsWith("wordmark");
-const shownLogos = bases.filter(isLogo).sort((a, b) => order(a) - order(b));
-const logosHtml = `<div class="logos">${shownLogos.map(logoCard).join("")}</div>`;
+// The masters: each logo someone draws, with its cuts. Every other file in logos/ is made from them
+// for one use and listed below as a delivery file; the emoji master and its print file serve the
+// booth, background and merch applications.
+const shownLogos = ["lockup", "lockup-compact", "wordmark"];
+const dl = (paths: string[]) =>
+  `<p class="dl">${paths.map((p) => `<a href="${p}" download>${esc(p.replace(/^logos\//, ""))}</a>`).join("")}</p>`;
+const pick = (re: RegExp) => logoFiles.filter((p) => re.test(p));
+const DELIVERY: [string, string[]][] = [
+  [
+    "A screen header up to 40 px tall: the lockup with the wizard embedded at 128 px, 15 KB instead of 50 KB, identical on screen.",
+    pick(/^logos\/lockup-screen/),
+  ],
+  [
+    "A tool that cannot draw SVG, such as a PPTX export or the press kit's ZIP: each cut as a PNG.",
+    pick(/^logos\/(lockup|wordmark)[\w-]*\.png$/),
+  ],
+  [
+    "The favicon set every page serves from the package, and the web app icons.",
+    pick(/^logos\/(favicon|apple-touch-icon|icon-)/),
+  ],
+  ["A square avatar upload: the same pixels as icon-maskable-512.png.", pick(/^logos\/avatar-/)],
+];
+for (const [use, paths] of DELIVERY)
+  for (const p of paths)
+    index.push({ t: p.replace(/^logos\//, ""), k: "logo", h: "logos/logos-delivery", x: use });
+const deliveryHtml = `<h3 id="logos-delivery">Delivery files</h3>
+<p>Made for one use each by <code>scripts/outline.ts</code> from the logos above, and by <code>applications/avatars/generate.ts</code> from the hw mark, its own master:</p>
+${dl(["logos/type-logo-short.svg"])}
+${table(
+  ["For", "Files"],
+  DELIVERY.map(([use, paths]) => [esc(use), dl(paths)]),
+)}`;
+const logosHtml = `<div class="logos">${shownLogos.map(logoCard).join("")}</div>
+${deliveryHtml}`;
 const logoCount =
   ["One", "Two", "Three", "Four", "Five", "Six"][shownLogos.length - 1] ??
   String(shownLogos.length);

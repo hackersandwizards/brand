@@ -2,4 +2,4 @@
 # applications on clone.
 # Fetch them here with: git -c lfs.fetchexclude= lfs pull
 [lfs]
-	fetchexclude = logos/*.tif,logos/emoji-logo-long.png,logos/emoji-logo-short.png,applications/**
+	fetchexclude = logos/*.tif,logos/emoji-logo-short.png,applications/**

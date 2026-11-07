@@ -117,32 +117,12 @@
       "sha256": "f42dc27cb7fa2cbc0d3779dfaa9304fc7126bc2f9095dafe261ec8c3ea219ac8"
     },
     {
-      "path": "logos/emoji-logo-long-cmyk.tif",
-      "sha256": "9824ed2f3e2daa0a7e3a64b9ddda6c491d6c455b1ee4cd23db0c4b392226e0a8"
-    },
-    {
-      "path": "logos/emoji-logo-long.png",
-      "sha256": "47358449e1e89e609101a276e253a05f38a1068e20294017bda7d6c90a30bba4"
-    },
-    {
       "path": "logos/emoji-logo-short-cmyk.tif",
       "sha256": "0d2629445877009ac7c947fcbd6e40dcac652d3fabe2bd9b7f4616ad1b56b850"
     },
     {
       "path": "logos/emoji-logo-short.png",
       "sha256": "d4302a294ded586d81019000e468447d75274a4d9b9e7ef04f0e917fd7a1b547"
-    },
-    {
-      "path": "logos/type-logo-long.png",
-      "sha256": "b33f8a9ebaae5efd84254a2950b6b6251ddb336e52b7924934667c9d89706434"
-    },
-    {
-      "path": "logos/type-logo-long.svg",
-      "sha256": "31f281a5919db5fdbf09865992e0f2a77c2c9f8e776b12ad52f3a8766e315a89"
-    },
-    {
-      "path": "logos/type-logo-short.png",
-      "sha256": "226391accc1b216635cf0a7f69442906880b2c5d084e932f9fd5291304d33ff5"
     },
     {
       "path": "logos/type-logo-short.svg",
@@ -167,10 +147,6 @@
     {
       "path": "logos/wordmark-outline.svg",
       "sha256": "73b4f5695037469e95dac8becc15cd732579bc53fe966d61076fd7aa9902fde5"
-    },
-    {
-      "path": "logos/wordmark-outline.png",
-      "sha256": "e56b34aaf391aec22894d1e66096e57072f8d42711941e9b84831e98fcb228a0"
     },
     {
       "path": "logos/wordmark-white.svg",
@@ -239,10 +215,6 @@
     {
       "path": "logos/lockup-compact-outline.svg",
       "sha256": "7f14f50c9652e078fb3c74333996b2847f3d9728315e12ceb038a34409376c75"
-    },
-    {
-      "path": "logos/lockup-compact-outline.png",
-      "sha256": "18a1d8858611ab2b9bdbb272734b993f2dc9fa140135c62ff0611c7d27f378cd"
     },
     {
       "path": "logos/logos.json",

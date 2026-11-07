@@ -297,12 +297,18 @@ async function writeCut(base: string, kind: "night" | "outline" | keyof typeof M
   const svgPath = `logos/${base}-${kind}.svg`;
   const pngPath = `logos/${base}-${kind}.png`;
   writeFileSync(join(ROOT, svgPath), svg);
-  const { width } = await sharp(join(ROOT, "logos", `${base}.png`)).metadata();
-  await sharp(Buffer.from(svg))
-    .resize(Math.round((width * next[2]) / box[2]))
-    .png({ compressionLevel: 9, adaptiveFiltering: true })
-    .toFile(join(ROOT, pngPath));
-  for (const path of [svgPath, pngPath]) {
+  const paths = [svgPath];
+  // The outline cuts of the compact lockup and the wordmark ship as SVG only: no tool takes their
+  // raster.
+  if (kind !== "outline" || base === "lockup") {
+    const { width } = await sharp(join(ROOT, "logos", `${base}.png`)).metadata();
+    await sharp(Buffer.from(svg))
+      .resize(Math.round((width * next[2]) / box[2]))
+      .png({ compressionLevel: 9, adaptiveFiltering: true })
+      .toFile(join(ROOT, pngPath));
+    paths.push(pngPath);
+  }
+  for (const path of paths) {
     const entry = manifest.files.find((f) => f.path === path);
     if (!entry) throw new Error(`${path} is missing from manifest.json`);
     entry.sha256 = sha256(readFileSync(join(ROOT, path)));

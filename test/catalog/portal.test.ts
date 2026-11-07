@@ -7,6 +7,7 @@ import { ELEMENTS, measurePage } from "../../scan/elements";
 import { lfsOid, ROOT } from "../../scripts/git";
 import { failing, launch, measureMarkers } from "../../scan/markers";
 import { DIST, fileOf, page } from "./site";
+import manifest from "../../manifest.json";
 
 const html = page("index.html");
 
@@ -27,6 +28,14 @@ test("the portal counts the logos it shows", () => {
   const word = html.match(/<p>(\w+) logos, each one line\./)![1];
   const cards = html.match(/<article class="logo" /g)!.length;
   expect(["One", "Two", "Three", "Four", "Five", "Six"].indexOf(word) + 1).toBe(cards);
+});
+
+test("the portal links every logo file the package ships, a master's cut or a delivery file", () => {
+  const shipped = manifest.files
+    .map((f) => f.path)
+    .filter((p) => p.startsWith("logos/") && !/emoji-logo|\.tif$|\.json$/.test(p));
+  expect(shipped.length).toBe(30);
+  expect(shipped.filter((p) => !html.includes(`href="${p}" download`))).toEqual([]);
 });
 
 // The design guide: a colour swatch is square, never a scaled corner.

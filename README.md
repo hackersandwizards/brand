@@ -88,10 +88,10 @@ The logo is one line, with no line under it: the wizard beside the pixel wordmar
 A screen header up to 40 px tall takes `logos/lockup-screen.svg`, on night
 `logos/lockup-screen-night.svg`: the same lockup with the wizard at 128 px, sharp to 3x, 15 KB
 where the lockup weighs 50 KB. Larger, and in print, the lockup itself. Slides carry the lockup on the title and the closing slide and the wordmark alone on
-every other slide. The mail signature keeps its typed wordmark. Each has a PNG beside it, a `-night`
+every other slide. The mail signature keeps its typed wordmark. Each has a `-night`
 cut for night, black and black textile, and an `-outline` cut, a white outline round the letters,
 for Purple Love, Stargazer and the gradient. The package ships the SVGs and, for a tool that cannot
-draw SVG such as a PPTX export, a PNG of every logo except the 4096 px emoji print masters. The wordmark alone also has a `-white` and a `-black`
+draw SVG such as a PPTX export, a PNG of every cut but the outline cuts of the compact lockup and the wordmark. The wordmark alone also has a `-white` and a `-black`
 cut, every letter in that one colour, for a surface that allows one colour only, such as a partner
 wall that shows every logo in white. In the night and outline cuts, the wizard of the lockup and the compact lockup
 carries an edge of 7.6% of the letters' cap height: grey (`--color-ampersand-light`) in the night

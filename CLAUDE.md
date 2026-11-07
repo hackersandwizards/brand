@@ -122,9 +122,9 @@ data or secret.
   `@source` on `expert/components` so Tailwind sees their classes. The internal header, the one
   frame every internal system and page wears (`AppHeader.astro`), is plain CSS in
   `expert/header.css`, so a static or generated page links or inlines it.
-- Only the print masters (the two CMYK TIFFs and the two 4096 px emoji PNGs) and the PNG, PDF and
+- Only the print masters (the CMYK TIFF and the 4096 px emoji PNG) and the PNG, PDF and
   AI files under `applications/` live in Git LFS (`.gitattributes`). `.lfsconfig` keeps clones,
-  a consumer's `bun install` included, from fetching them, so the install stays small; `bun install` here fetches all but the TIFFs, as the catalog shows them, and `git -c lfs.fetchexclude= lfs pull` fetches every one. Every file the package ships is
+  a consumer's `bun install` included, from fetching them, so the install stays small; `bun install` here fetches all but the TIFF, as the catalog shows them, and `git -c lfs.fetchexclude= lfs pull` fetches every one. Every file the package ships is
   a plain Git file, and `test/package.test.ts` fails on one in LFS.
 
 ## Behavioral rules

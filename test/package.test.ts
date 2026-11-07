@@ -5,7 +5,7 @@ import { packed as listPacked, ROOT } from "../scripts/git";
 
 const SHIPPED =
   /^(package\.json|manifest\.json|README\.md|LICENSE|(tokens|generated|expert|elements|logos|clients|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(colours|copies|components|markers|elements|retired)\.ts)$/;
-const PRINT_MASTERS = /\.tif$|emoji-logo-(long|short)\.png$/;
+const PRINT_MASTERS = /\.tif$|emoji-logo-short\.png$/;
 
 const packed = listPacked();
 
