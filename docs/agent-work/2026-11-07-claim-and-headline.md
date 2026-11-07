@@ -7,8 +7,10 @@ changes for the client company. The blind review recommends "Flow is a team spor
 Teamsport." as the claim and "Your teams have agents. Once every role is in step, your releases
 speed up." / "Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden eure Releases
 schneller." as the headline. That pair scored 77.8 as one page. Today's page, q6 as the H1 with no
-claim line, scored 67.5. q6 stays live until the founders decide: decision items `claim` and
-`home-headline`.
+claim line, scored 67.5. Benedikt decided on 07.11., from the admin page: "c3 (Agents in the team.
+Teams in flow. / Agenten im Team. Teams im Flow.)" and "k3 (Your teams have agents. Once every role is in
+step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden
+eure Releases schneller.)". Both stand in `verbal.json` since v1.29.0.
 
 ## The question
 

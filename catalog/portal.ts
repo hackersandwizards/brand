@@ -839,12 +839,13 @@ ${table(
 
 // The words: each text that has a German and an English version in a column per language, the
 // meta in the element's column, every cell one text, so a selection takes one line in one language.
-const PAIRS = ["claim", "mission", "vision", "position", "boilerplate"] as const;
+const PAIRS = ["claim", "headline", "mission", "vision", "position", "boilerplate"] as const;
 const { word } = verbal.claim;
 const metaOf = (k: (typeof PAIRS)[number]) =>
   [
     "since" in verbal[k] && `since ${verbal[k].since}`,
     k === "claim" && `highlight word ${word.en === word.de ? word.en : `${word.en} / ${word.de}`}`,
+    k === "headline" && "the website's home H1",
   ]
     .filter(Boolean)
     .map((m) => `<small class="meta">${esc(m)}</small>`)

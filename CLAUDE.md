@@ -25,7 +25,7 @@ data or secret.
   website's press page publishes them, with `press.json` naming what each shows and the credit.
   In `manifest.json`. The press kit's texts stay with their owners: the bios in the website's
   `src/data/profiles.ts` and os `src/content/documents/people/`, the company description in the website's copy.
-- `verbal/verbal.json`: the verbal identity (name, claim, the words it retires), exported as
+- `verbal/verbal.json`: the verbal identity (name, claim, home headline, the words it retires), exported as
   `./verbal.json` and in `manifest.json`; the hub sync copies it into the voice skill.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
   name and mark file in display order, keeping neighbours from different industries, with the

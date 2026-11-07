@@ -24,7 +24,7 @@ const run = (...args: string[]) => {
   if (/^Bun v\d/m.test(err)) throw new Error(`brand-retired crashed:\n${err}`);
   return { code: r.exitCode, out: r.stdout.toString() + err };
 };
-const PAGE = `<html><body><h1>${verbal.claim.en}</h1><p>${verbal.boilerplate.en.replaceAll("&", "&amp;")}</p></body></html>`;
+const PAGE = `<html><body><p>${verbal.claim.en}</p><h1>${verbal.headline.en}</h1><p>${verbal.boilerplate.en.replaceAll("&", "&amp;")}</p></body></html>`;
 const line = verbal.retired[1].text;
 
 test("finds a retired line raw, split across elements and entity-encoded", () => {
@@ -108,7 +108,7 @@ test("passes prose that uses a short line's words mid-sentence", () => {
     "Elevated your team",
     "Elevate your team-building day",
     "teams thrive with AI tools",
-    `<h1>${verbal.claim.de}</h1><p>${verbal.boilerplate.de}</p><p>${verbal.position.de}</p>`,
+    `<p>${verbal.claim.de}</p><h1>${verbal.headline.de}</h1><p>${verbal.boilerplate.de}</p><p>${verbal.position.de}</p>`,
   ];
   for (const p of prose) expect([p, retiredIn(p)]).toEqual([p, []]);
 });

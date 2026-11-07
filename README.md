@@ -147,8 +147,8 @@ relative path. `applications/avatars/generate.ts` builds the set beside the avat
 ### The words
 
 `verbal/verbal.json` (`@hackersandwizards/brand/verbal.json`) holds the verbal identity: the claim
-in English and German with the word a surface may highlight, mission, vision, one-line position,
-boilerplate, values, terms and the retired slogans. A surface imports the text
+in English and German with the word a surface may highlight, the home page headline, mission,
+vision, one-line position, boilerplate, values, terms and the retired slogans. A surface imports the text
 (`import { claim } from "@hackersandwizards/brand/verbal.json"`) and never retypes it; `brand-retired`
 (below) fails on any `retired` line in its build. A language the source has not set yet is `null`. The texts are set here: the
 `~/.claude` hub sync copies the file into every repo's voice skill, which keeps tone of voice,
