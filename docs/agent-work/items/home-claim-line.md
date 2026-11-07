@@ -17,7 +17,7 @@ options:
     score: 77.6
     noise: 1.4
   - key: none
-    label: "Nothing above the H1 (what ships with v1.29.0 as planned)"
+    label: "Nothing above the H1"
     detail: "First in both passes (79.1, then 78.6), inside the noise. Codex reviewers miss no line; Claude reviewers miss a buyer cue or a brand anchor."
     score: 78.6
     noise: 1.0
@@ -158,20 +158,20 @@ Pass 2 found no hero above pass 1's leader: a plateau, so no third pass. The two
 
 c3 against q6 on the same surface, unmarked, each version identical but for the claim. Images in `docs/agent-work/2026-11-07-claim-and-headline/`.
 
-| Surface                 | c3   | q6   | Lead of q6 | Claude lead | Codex lead |
-| ----------------------- | ---- | ---- | ---------- | ----------- | ---------- |
-| LinkedIn profile banner | 70.6 | 74.2 | 3.6        | 5.8         | 1.2        |
-| X header                | 70.1 | 72.3 | 2.2        | 5.4         | -1.0       |
-| XING cover              | 70.2 | 73.9 | 3.7        | 6.1         | 1.3        |
-| Sessionize cover        | 68.8 | 70.3 | 1.5        | 6.4         | -3.3       |
-| Brella cover            | 69.6 | 72.3 | 2.7        | 6.6         | -1.1       |
-| Facebook cover          | 69.9 | 72.8 | 2.9        | 6.0         | -0.3       |
-| YouTube banner          | 70.6 | 71.5 | 0.9        | 3.9         | -2.0       |
-| Deck closing slide      | 73.1 | 75.0 | 1.9        | 4.9         | -1.0       |
-| One-pager header        | 73.9 | 75.0 | 1.1        | -1.2        | 3.6        |
-| Website footer          | 73.2 | 75.0 | 1.8        | 3.2         | 0.4        |
-| Link preview (OG card)  | 73.1 | 76.7 | 3.6        | 6.3         | 0.7        |
-| All eleven              | 71.2 | 73.5 | 2.3        |             |            |
+| Surface                 | c3   | q6   | q6 ahead, Claude | q6 ahead, Codex |
+| ----------------------- | ---- | ---- | ---------------- | --------------- |
+| LinkedIn profile banner | 70.6 | 74.2 | 5.8              | 1.2             |
+| X header                | 70.1 | 72.3 | 5.4              | -1.0            |
+| XING cover              | 70.2 | 73.9 | 6.1              | 1.3             |
+| Sessionize cover        | 68.8 | 70.3 | 6.4              | -3.3            |
+| Brella cover            | 69.6 | 72.3 | 6.6              | -1.1            |
+| Facebook cover          | 69.9 | 72.8 | 6.0              | -0.3            |
+| YouTube banner          | 70.6 | 71.5 | 3.9              | -2.0            |
+| Deck closing slide      | 73.1 | 75.0 | 4.9              | -1.0            |
+| One-pager header        | 73.9 | 75.0 | -1.2             | 3.6             |
+| Website footer          | 73.2 | 75.0 | 3.2              | 0.4             |
+| Link preview (OG card)  | 73.1 | 76.7 | 6.3              | 0.7             |
+| All eleven              | 71.2 | 73.5 |                  |                 |
 
 Panel noise per surface 0.0 to 1.8. q6 is ahead on every surface on the panel mean, but only Claude carries the lead; Codex ties and prefers c3 on six of eleven. By the review rule that is a tie, so c3 stays as decided. The reasons are the same everywhere: c3 is calmer (9.0 against 7.5), reads better on the banners (language 8.1 against 6.9) and says less (clear 5.6 to 6.9 against 6.9 to 8.1, distinctive 4.7 against 6.2): "could sit beside any AI consultancy". c3 does best where a descriptor stands beside it, such as "Agentic Engineering Training" on the link preview.
 
@@ -179,12 +179,12 @@ Panel noise per surface 0.0 to 1.8. q6 is ahead on every surface on the panel me
 
 The 35 page headlines of the website item `decide-page-headlines` (its recommended set, the pages that keep theirs, Events and the second case page as they are), read with c3 and k3 as one voice. The website reads as one company: 7.6 of 10 (noise 0.1). Four headlines should change; three of them repeat the home H1 for nearly every reviewer.
 
-| Page               | Recommended in the website item (score there)                                                   | Repeats k3 (of 24) | Better with c3 and k3                                                                                                                                                                                                                                                      | Its score | Item's line here |
-| ------------------ | ----------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ---------------- |
-| Trainings overview | Your teams already have agents. Seven trainings get every role working with them. (83.0)        | 24                 | Find the training for each role on your team, from developers to leaders. / Findet die Schulung für jede Rolle in eurem Team, von Entwicklung bis Führung. (new draft)                                                                                                     | 81.6      | 62.5             |
-| Training: Leaders  | Your teams work with agents. Your leaders learn what to change around them. (78.3)              | 24                 | Your leaders learn what changes in roles and rituals once agents write the code. / Eure Führungskräfte lernen, was sich an Rollen und Ritualen ändert, wenn Agenten den Code schreiben. (new draft); i1 of the website item scores 77.8, the lead of 1.7 comes from Claude | 79.5      | 64.0             |
-| Software Factory   | Your developers code faster with agents. A Software Factory gets that code released. (r1, 81.9) | 22 to 23           | r2 of the website item: Your team builds a Software Factory that gets agent code into releases. / Euer Team baut eine Software Factory, die Code von KI-Agenten bis ins Release bringt. Ahead with Codex, a tie with Claude                                                | 76.8      | 72.5             |
-| Enablement         | Your teams keep working with AI agents long after the training ends. (kept, 71.8)               | 11                 | Mentoring keeps your teams improving after the training, release by release. / Mit Mentoring werden eure Teams nach der Schulung weiter besser, Release für Release. (new draft)                                                                                           | 80.4      | 59.3             |
+| Page | Recommended in the website item (score there) | Repeats k3 (of 24) | Better with c3 and k3 | Its score | Item's line here |
+| ------------------ | ----------------------------------------------------------------------------------------------- | ------------------ | --------- | ---------------- |
+| Trainings overview | Your teams already have agents. Seven trainings get every role working with them. (83.0) | 24 | Find the training for each role on your team, from developers to leaders. / Findet die Schulung für jede Rolle in eurem Team, von Entwicklung bis Führung. (new draft) | 81.6 | 62.5 |
+| Training: Leaders | Your teams work with agents. Your leaders learn what to change around them. (78.3) | 24 | Your leaders learn what changes in roles and rituals once agents write the code. / Eure Führungskräfte lernen, was sich an Rollen und Ritualen ändert, wenn Agenten den Code schreiben. (new draft); i1 of the website item scores 77.8, the lead of 1.7 comes from Claude | 79.5 | 64.0 |
+| Software Factory | Your developers code faster with agents. A Software Factory gets that code released. (r1, 81.9) | 22 to 23 | r2 of the website item: Your team builds a Software Factory that gets agent code into releases. / Euer Team baut eine Software Factory, die Code von KI-Agenten bis ins Release bringt. Ahead with Codex, a tie with Claude | 76.8 | 72.5 |
+| Enablement | Your teams keep working with AI agents long after the training ends. (kept, 71.8) | 11 | Mentoring keeps your teams improving after the training, release by release. / Mit Mentoring werden eure Teams nach der Schulung weiter besser, Release für Release. (new draft) | 80.4 | 59.3 |
 
 The scores in the last two columns come from one test with fit to c3 and k3 as a criterion (fit, clear, credible, language), so they compare with each other and not with the website item's scores. Each lead stands outside the panel noise (0.1 to 1.1 for these lines, 5.1 for the Enablement line as it is) and holds with both models, except Software Factory and Leaders as noted.
 
@@ -197,43 +197,43 @@ Also raised, not changed here:
 
 Every page, fit to c3 and k3 per language (0 to 10), how many of 24 reviewers found it repeats the claim or k3, how many would change it, and the page's score in the website item:
 
-| Page                               | Headline (EN)                                                                        | Fit EN / DE | Repeats EN / DE | Change votes | Website item score |
-| ---------------------------------- | ------------------------------------------------------------------------------------ | ----------- | --------------- | ------------ | ------------------ |
-| Trainings overview                 | Your teams already have agents. Seven trainings get every role working with them.    | 6.6 / 6.6   | 24 / 24         | 24           | 83.0               |
-| Training: Leaders                  | Your teams work with agents. Your leaders learn what to change around them.          | 7 / 6.8     | 24 / 24         | 24           | 78.3               |
-| Case: a mid-sized client           | "Since the workshop, everyone here develops agentically."                            | 7 / 7       | 0 / 0           | 16           | 70.0               |
-| Enablement                         | Your teams keep working with AI agents long after the training ends.                 | 7.3 / 7.3   | 11 / 11         | 17           | 71.8               |
-| Case: DIY retailer                 | Four trainings in, the retailer booked three more and set up its own trainers.       | 7.4 / 7.4   | 0 / 0           | 12           | 80.2               |
-| Procurement and legal              | Procurement, legal and security at a glance.                                         | 7.5 / 7.5   | 0 / 0           | 10           | 81.9               |
-| Factory operating model            | Agents do the work, and your people decide what ships.                               | 7.5 / 7.5   | 0 / 0           | 12           | 81.3               |
-| Tool: Gemini CLI                   | Your team sees what Gemini CLI sends the model, and runs risky work sandboxed.       | 7.7 / 7.6   | 3 / 3           | 8            | 75.1               |
-| Training: Agentic Software Factory | Your team builds its first agent pipeline and runs its backlog through it.           | 7.7 / 7.6   | 3 / 3           | 9            | 80.6               |
-| Podcast                            | Conversations with the people building software factories today.                     | 7.7 / 7.7   | 0 / 0           | 4            | 78.8               |
-| Contact                            | Get an offer for your team.                                                          | 7.8 / 7.8   | 0 / 0           | 4            | 80.3               |
-| Training: DevOps and Platform      | Agents take on your platform team's routine work. Every apply stays with your team.  | 7.8 / 7.8   | 0 / 0           | 8            | 81.0               |
-| Software Factory                   | Your developers code faster with agents. A Software Factory gets that code released. | 8 / 7.9     | 22 / 23         | 15           | 81.9               |
-| Tool: Cursor                       | Your team runs Cursor's agent in a mode your security team allows.                   | 8.0 / 7.9   | 3 / 3           | 3            | 74.8               |
-| Press                              | Everything you need to introduce hackers&wizards.                                    | 8.0 / 8.0   | 0 / 0           | 5            | 83.8               |
-| Knowledge base                     | What our trainers teach, open to read.                                               | 7.8 / 8.2   | 0 / 0           | 9            | 77.3               |
-| Tool: GitHub Copilot               | Your team gets agentic engineering out of the Copilot licences it already has.       | 7.8 / 8.2   | 3 / 3           | 9            | 77.1               |
-| About                              | 20 years of large systems, agents since 2022. Your teams learn from both.            | 8.1 / 8     | 1 / 1           | 5            | 81.2               |
-| Tool: Codex                        | Your team builds with Codex and decides what each task may touch.                    | 8.1 / 8.1   | 3 / 3           | 1            | 75.3               |
-| Tool: Claude Code                  | Your team hands Claude Code whole features, and sets the rules it works by.          | 8.1 / 8.1   | 3 / 3           | 3            | 80.8               |
-| Team                               | Your team learns from practitioners who know your stack.                             | 8.1 / 8.1   | 3 / 3           | 2            | 80.2               |
-| Training: Business Teams           | Your teams hand recurring tasks to AI agents and check every result.                 | 8.1 / 8.2   | 3 / 0           | 1            | 79.0               |
-| Training: Security                 | Your AI agents hunt vulnerabilities in your own code, within limits you set.         | 7.8 / 8.5   | 0 / 3           | 6            | 81.4               |
-| Events                             | Bring your hardest question about AI agents to the founders, face to face.           | 8.2 / 8.2   | 0 / 0           | 0            | 72.2               |
-| Enablement at scale                | Your releases keep going out while every team learns to work with AI agents.         | 8.2 / 8.2   | 6 / 6           | 4            | 81.7               |
-| Blog                               | What faster code generation does to your delivery, with sources.                     | 8.3 / 8.2   | 0 / 3           | 4            | 84.1               |
-| Factory Pilot                      | Decide on rollout with evidence from your own delivery.                              | 8.7 / 8     | 0 / 0           | 6            | 83.9               |
-| Factory Readiness Assessment       | Go to your board with evidence: what limits you first, and what comes next.          | 8.5 / 8.2   | 0 / 0           | 5            | 84.0               |
-| Trainings by tool                  | Your team learns agentic engineering in the coding agent it already uses.            | 8.4 / 8.3   | 3 / 3           | 2            | 77.2               |
-| Community                          | After the training, your team's questions still get answers from practitioners.      | 8.5 / 8.5   | 0 / 0           | 0            | 83.1               |
-| Legacy modernisation               | Replace your old system. Capture its special cases as tests first.                   | 8.5 / 8.5   | 0 / 0           | 0            | 85.2               |
-| Self-check                         | Where is your team stuck with AI agents? Start with twelve questions.                | 8.6 / 8.6   | 0 / 0           | 0            | 82.5               |
-| Client work                        | Judge us by what changed for our clients.                                            | 8.6 / 8.6   | 0 / 0           | 1            | 82.0               |
-| Training: Developers and QA        | Your team shares one way of working with agents, from setup to review.               | 8.6 / 8.6   | 3 / 4           | 1            | 84.1               |
-| Training: Product Managers         | Your product team tests ideas on prototypes before engineering starts.               | 8.7 / 8.7   | 1 / 1           | 0            | 81.5               |
+| Page | Headline (EN) | Fit EN / DE | Repeats EN / DE | Change votes | Website item score |
+| ---------------------------------- | ------------------------------------------------------------------------------------ | ----------- | ------------ | ------------------ |
+| Trainings overview | Your teams already have agents. Seven trainings get every role working with them. | 6.6 / 6.6 | 24 / 24 | 24 | 83.0 |
+| Training: Leaders | Your teams work with agents. Your leaders learn what to change around them. | 7 / 6.8 | 24 / 24 | 24 | 78.3 |
+| Case: a mid-sized client | "Since the workshop, everyone here develops agentically." | 7 / 7 | 0 / 0 | 16 | 70.0 |
+| Enablement | Your teams keep working with AI agents long after the training ends. | 7.3 / 7.3 | 11 / 11 | 17 | 71.8 |
+| Case: DIY retailer | Four trainings in, the retailer booked three more and set up its own trainers. | 7.4 / 7.4 | 0 / 0 | 12 | 80.2 |
+| Procurement and legal | Procurement, legal and security at a glance. | 7.5 / 7.5 | 0 / 0 | 10 | 81.9 |
+| Factory operating model | Agents do the work, and your people decide what ships. | 7.5 / 7.5 | 0 / 0 | 12 | 81.3 |
+| Tool: Gemini CLI | Your team sees what Gemini CLI sends the model, and runs risky work sandboxed. | 7.7 / 7.6 | 3 / 3 | 8 | 75.1 |
+| Training: Agentic Software Factory | Your team builds its first agent pipeline and runs its backlog through it. | 7.7 / 7.6 | 3 / 3 | 9 | 80.6 |
+| Podcast | Conversations with the people building software factories today. | 7.7 / 7.7 | 0 / 0 | 4 | 78.8 |
+| Contact | Get an offer for your team. | 7.8 / 7.8 | 0 / 0 | 4 | 80.3 |
+| Training: DevOps and Platform | Agents take on your platform team's routine work. Every apply stays with your team. | 7.8 / 7.8 | 0 / 0 | 8 | 81.0 |
+| Software Factory | Your developers code faster with agents. A Software Factory gets that code released. | 8 / 7.9 | 22 / 23 | 15 | 81.9 |
+| Tool: Cursor | Your team runs Cursor's agent in a mode your security team allows. | 8.0 / 7.9 | 3 / 3 | 3 | 74.8 |
+| Press | Everything you need to introduce hackers&wizards. | 8.0 / 8.0 | 0 / 0 | 5 | 83.8 |
+| Knowledge base | What our trainers teach, open to read. | 7.8 / 8.2 | 0 / 0 | 9 | 77.3 |
+| Tool: GitHub Copilot | Your team gets agentic engineering out of the Copilot licences it already has. | 7.8 / 8.2 | 3 / 3 | 9 | 77.1 |
+| About | 20 years of large systems, agents since 2022. Your teams learn from both. | 8.1 / 8 | 1 / 1 | 5 | 81.2 |
+| Tool: Codex | Your team builds with Codex and decides what each task may touch. | 8.1 / 8.1 | 3 / 3 | 1 | 75.3 |
+| Tool: Claude Code | Your team hands Claude Code whole features, and sets the rules it works by. | 8.1 / 8.1 | 3 / 3 | 3 | 80.8 |
+| Team | Your team learns from practitioners who know your stack. | 8.1 / 8.1 | 3 / 3 | 2 | 80.2 |
+| Training: Business Teams | Your teams hand recurring tasks to AI agents and check every result. | 8.1 / 8.2 | 3 / 0 | 1 | 79.0 |
+| Training: Security | Your AI agents hunt vulnerabilities in your own code, within limits you set. | 7.8 / 8.5 | 0 / 3 | 6 | 81.4 |
+| Events | Bring your hardest question about AI agents to the founders, face to face. | 8.2 / 8.2 | 0 / 0 | 0 | 72.2 |
+| Enablement at scale | Your releases keep going out while every team learns to work with AI agents. | 8.2 / 8.2 | 6 / 6 | 4 | 81.7 |
+| Blog | What faster code generation does to your delivery, with sources. | 8.3 / 8.2 | 0 / 3 | 4 | 84.1 |
+| Factory Pilot | Decide on rollout with evidence from your own delivery. | 8.7 / 8 | 0 / 0 | 6 | 83.9 |
+| Factory Readiness Assessment | Go to your board with evidence: what limits you first, and what comes next. | 8.5 / 8.2 | 0 / 0 | 5 | 84.0 |
+| Trainings by tool | Your team learns agentic engineering in the coding agent it already uses. | 8.4 / 8.3 | 3 / 3 | 2 | 77.2 |
+| Community | After the training, your team's questions still get answers from practitioners. | 8.5 / 8.5 | 0 / 0 | 0 | 83.1 |
+| Legacy modernisation | Replace your old system. Capture its special cases as tests first. | 8.5 / 8.5 | 0 / 0 | 0 | 85.2 |
+| Self-check | Where is your team stuck with AI agents? Start with twelve questions. | 8.6 / 8.6 | 0 / 0 | 0 | 82.5 |
+| Client work | Judge us by what changed for our clients. | 8.6 / 8.6 | 0 / 0 | 1 | 82.0 |
+| Training: Developers and QA | Your team shares one way of working with agents, from setup to review. | 8.6 / 8.6 | 3 / 4 | 1 | 84.1 |
+| Training: Product Managers | Your product team tests ideas on prototypes before engineering starts. | 8.7 / 8.7 | 1 / 1 | 0 | 81.5 |
 
 ## What choosing changes
 

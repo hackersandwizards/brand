@@ -352,15 +352,14 @@ should be the brand claim is open in these sources; this round measured it.
 
 The tables are in the item `home-claim-line`.
 
-- The claim in the home hero loses wherever it stands: 67.5 to 72.2 against 79.1 for nothing above
-  the H1 (panel noise 0.2 to 2.1). c3 and k3 both say agents and teams ("together" 5.0 to 6.6).
+- The claim in the home hero loses wherever it stands: 67.5 to 72.2 against 79.1 for nothing above the H1 in pass 1 (panel noise 0.2 to 2.1). c3 and k3 both say agents and teams ("together" 5.0 to 6.6).
 - A line that is not the claim ties with nothing: in pass 2 "For CTOs and their teams" 77.6,
   nothing 78.6 (noise 1.4). Claude reviewers miss a buyer cue without a line; Codex reviewers miss
   nothing. Pass 2 found no hero above pass 1's leader: a plateau.
 - German "Wenn alle Rollen zusammenspielen" reads better than "eingespielt sind" with both models
   in both passes (language 8.5 and 8.3 against 7.2 and 7.5); it runs the desktop H1 to six lines.
 - On the other eleven surfaces q6 scores 73.5 and c3 71.2 on the panel mean. Only Claude carries
-  that lead; Codex ties and prefers c3 on six surfaces. c3 is calmer, reads better on the banners and says less (distinctive 4.7 against 6.2). The images, c3 and q6 per surface, are in `2026-11-07-claim-and-headline/`.
+  that lead; Codex ties and prefers c3 on six surfaces. c3 is calmer, reads better on the banners and says less (distinctive 4.7 against 6.2). The images, c3 and q6 per surface, are in `2026-11-07-claim-and-headline/`: `banners-*.jpg` (the seven banners), `slide-*.jpg`, `onepager-*.jpg`, `footer-*.jpg` and `og-*.jpg`.
 - The website's page headlines read as one company with c3 and k3 at 7.6 of 10. Three recommended
   lines repeat k3's opening or its arc for 22 to 24 of 24 reviewers: Trainings overview, Training
   Leaders, Software Factory. With Enablement they are the four to change; the item names the line
