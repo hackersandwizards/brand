@@ -1,7 +1,9 @@
-/* The h&w list marker: a small square, as every mark too small for the brand corner, its middle on
-   the middle of the first line's x-height, where Inter centres its own bullet glyph. Drawn, not a
-   glyph, so every face and every renderer sets it alike. One rule for every surface; the brand's
-   `brand-markers` command measures it on a consumer's pages.
+/* The h&w list marker: a small square, as every mark too small for the brand corner, its middle
+   two thirds of the way from the first line's x-height middle to its cap-height middle. There it
+   reads centred beside a line that opens with a capital and carries ascenders, as most items do,
+   and beside one that opens lowercase. Drawn, not a glyph, so every face and every renderer sets
+   it alike. One rule for every surface; the brand's `brand-markers` command measures it on a
+   consumer's pages.
 
    Two forms:
    - A list: `--hw-markers: on` on any element marks every `ul > li` inside it. `.hw-marker-list`
@@ -14,8 +16,9 @@
      --hw-marker-gap     the space from the square to the text, 0.625rem
      --hw-marker-indent  the item's start padding, size plus gap
      --hw-marker-color   the square's colour, teal
-     --hw-marker-mid     the height of the square's middle above the baseline: 0.5ex, the x-height
-                         middle; 0.5cap beside capitals
+     --hw-marker-mid     the height of the square's middle above the baseline: 1ex / 6 + 1cap / 3,
+                         two thirds of the way from the x-height middle (0.5ex) to the cap-height
+                         middle (0.5cap); 0.5cap beside a label in capitals
 
    Why it is built this way: Chrome paints boxes and text on whole CSS pixels (device pixels at a
    device scale), each rounded on its own, screen and PDF alike. A marker placed a fractional
@@ -38,8 +41,8 @@
    high, which no rule from 1lh can tell apart from 9.5pt at 1.5, where it sits right. brand-markers
    reports it; choose another line height there.
 
-   Measured with brand-markers on the documents specimen at 4x and in its PDF at 600 dpi, every
-   item within 0.21px of the x-height middle. The whole-pixel lift alone sat up to 0.56px off. */
+   Measured with brand-markers at 4x, every marker sits within 0.09px of its middle. The
+   whole-pixel lift alone sat up to 0.56px off. */
 
 .hw-marker-list {
   --hw-markers: on;
@@ -67,7 +70,7 @@
       round(down, round((1lh - var(--_hw-ascent) - round(0.2421875em, 1px)) / 2, 1px / 64), 1px) +
         var(--_hw-ascent)
     );
-    --_hw-top: calc(var(--hw-marker-mid, 0.5ex) + var(--_hw-size) / 2);
+    --_hw-top: calc(var(--hw-marker-mid, 1ex / 6 + 1cap / 3) + var(--_hw-size) / 2);
     content: "";
     float: left;
     width: var(--_hw-size);
@@ -95,7 +98,7 @@
    whole pixels and moved the rest of the way by a transform. */
 .hw-marker {
   --_hw-size: round(var(--hw-marker-size, 0.375rem), 1px);
-  --_hw-lift: calc(var(--hw-marker-mid, 0.5ex) - var(--_hw-size) / 2);
+  --_hw-lift: calc(var(--hw-marker-mid, 1ex / 6 + 1cap / 3) - var(--_hw-size) / 2);
   flex-shrink: 0;
   position: relative;
   top: calc(-1 * round(var(--_hw-lift), 1px));
@@ -103,4 +106,13 @@
   height: var(--_hw-size);
   transform: translateY(calc(round(var(--_hw-lift), 1px) - var(--_hw-lift)));
   background: var(--hw-marker-color, var(--color-teal));
+}
+
+/* An engine without the cap unit (Safari before 17.2) sets the square on the x-height middle. */
+@supports not (top: 1cap) {
+  .hw-marker,
+  ul > li::before,
+  ul > li > p:first-child::before {
+    --hw-marker-mid: 0.5ex;
+  }
 }

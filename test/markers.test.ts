@@ -59,6 +59,7 @@ ${[
 <div class="row" style="font-size:15px;line-height:1.4"><span class="hw-marker"></span>Bare text beside a marker</div>
 <div class="row" style="font-size:20px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div>
 <div class="row" style="font-size:15px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div>
+<div class="row caps" style="font-size:15px;line-height:1.4;text-transform:uppercase;--hw-marker-mid:0.5cap"><span class="hw-marker"></span><span>A label in capitals</span></div>
 </body></html>`;
 
 const OLD_LIST = `.hw-marker-list { list-style: none }
@@ -119,6 +120,11 @@ const file = (name: string, html: string) => {
   return pathToFileURL(join(dir, name)).href;
 };
 const NEW = file("new.html", page("", true));
+// marker.css with the middle on the x-height middle, which read low beside capitals and ascenders.
+const X_MIDDLE = file(
+  "x-middle.html",
+  page(".hw-marker-list, .row:not(.caps) { --hw-marker-mid: 0.5ex }", true),
+);
 const OLD = file("old.html", page(`${OLD_LIST}\n${OLD_ELEMENT}`));
 const NATIVE = file("disc.html", page(DISC));
 const FRACTIONAL = file("fractional.html", fractional(""));
@@ -147,7 +153,7 @@ test.each([2, 4])(
   async (scale) => {
     const rs = await all(NEW, scale);
     expect(rs.filter((r) => r.kind === "before").length).toBe(44);
-    expect(rs.filter((r) => r.kind === "element").length).toBe(6);
+    expect(rs.filter((r) => r.kind === "element").length).toBe(8);
     expect(show(rs.filter((r) => r.kind !== "glyph" && failing(r)))).toEqual([]);
   },
   60_000,
@@ -192,9 +198,15 @@ test("the old list marker fails: off centre at some size, first lines indented a
     expect(r.indent!).toBeGreaterThan(3);
 }, 60_000);
 
+test("the middle on the x-height middle fails, list and element alike", async () => {
+  const rs = (await all(X_MIDDLE, 4)).filter((r) => r.kind !== "glyph");
+  expect(rs.filter((r) => r.kind === "before" && failing(r)).length).toBeGreaterThan(30);
+  expect(rs.some((r) => r.kind === "element" && failing(r))).toBe(true);
+}, 60_000);
+
 test("the old element marker fails at some size", async () => {
   const rs = (await all(OLD, 4)).filter((r) => r.kind === "element");
-  expect(rs.length).toBe(6);
+  expect(rs.length).toBe(8);
   expect(rs.some(failing)).toBe(true);
 }, 60_000);
 

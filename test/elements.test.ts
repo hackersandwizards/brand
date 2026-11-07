@@ -473,6 +473,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-pill-edit-corner",
     "--hw-segment-line",
     "--hw-marker-gap",
+    "--hw-marker-mid",
     "--hw-row-fill",
     "--hw-field-family",
   ]);

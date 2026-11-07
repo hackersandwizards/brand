@@ -104,11 +104,11 @@
   content: none;
 }
 /* Held at full opacity although GFM emits these disabled: they are readable states, not
-   controls, and the browser's grey washes them out. The box's middle sits on the first line's
-   x-height middle, placed from the line box as marker.css places the list marker (its comment says
-   why): a whole number of pixels from the baseline, a transform the rest of the way. A fixed top
-   (0.375em) sat 0.87 to 2.87px off at line heights 1.25 to 2 (brand-markers). check.css's
-   font: inherit takes em and lh from the item. */
+   controls, and the browser's grey washes them out. The box's middle sits where marker.css puts
+   the list marker's (--hw-marker-mid), placed from the line box as marker.css places it (its
+   comment says why): a whole number of pixels from the baseline, a transform the rest of the way.
+   A fixed top (0.375em) sat 0.87 to 2.87px off at line heights 1.25 to 2 (brand-markers).
+   check.css's font: inherit takes em and lh from the item. */
 .hw-prose li.task-list-item input[type="checkbox"] {
   --_hw-size: round(1em, 1px);
   --_hw-ascent: round(0.96875em, 1px);
@@ -116,7 +116,7 @@
     round(down, round((1lh - var(--_hw-ascent) - round(0.2421875em, 1px)) / 2, 1px / 64), 1px) +
       var(--_hw-ascent)
   );
-  --_hw-top: calc(0.5ex + var(--_hw-size) / 2);
+  --_hw-top: calc(var(--hw-marker-mid, 1ex / 6 + 1cap / 3) + var(--_hw-size) / 2);
   position: absolute;
   top: calc(var(--_hw-baseline) - round(var(--_hw-top), 1px));
   left: 0;
@@ -124,6 +124,12 @@
   transform: translateY(calc(round(var(--_hw-top), 1px) - var(--_hw-top)));
   opacity: 1;
   cursor: default;
+}
+/* Without the cap unit (Safari before 17.2), the x-height middle, as marker.css. */
+@supports not (top: 1cap) {
+  .hw-prose li.task-list-item input[type="checkbox"] {
+    --hw-marker-mid: 0.5ex;
+  }
 }
 /* The link in text, as link.css draws it, and Typography's weight (500) undone. */
 .hw-prose a:not(.not-prose, .not-prose *) {

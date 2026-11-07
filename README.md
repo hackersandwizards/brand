@@ -396,13 +396,13 @@ build step: `"check:retired": "brand-retired dist"`.
 
 ### List markers
 
-Every list marker is `marker.css`: a small square on the middle of the first line's x-height. Set
-`--hw-markers: on` on any element to mark every `ul > li` inside it (a prose container, a document
-body), or put `.hw-marker-list` on one list; draw a marker beside text in a baseline-aligned row
-with an empty `.hw-marker` box. Size, gap, indent, colour and the middle (`0.5cap` beside capitals)
-are custom properties, listed at the top of the file. Never write your own marker: a lift rounded
-to whole pixels sits up to 0.56 px off, and an inline-block marker shifts the first line once a
-newline follows `<li>`.
+Every list marker is `marker.css`: a small square whose middle sits two thirds of the way from the
+first line's x-height middle to its cap-height middle. Set `--hw-markers: on` on any element to mark
+every `ul > li` inside it (a prose container, a document body), or put `.hw-marker-list` on one
+list; draw a marker beside text in a baseline-aligned row with an empty `.hw-marker` box. Size,
+gap, indent, colour and the middle (`0.5cap` beside capitals) are custom properties, listed at the
+top of the file. Never write your own marker: a lift rounded to whole pixels sits up to 0.56 px
+off, and an inline-block marker shifts the first line once a newline follows `<li>`.
 
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting

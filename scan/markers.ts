@@ -1,18 +1,20 @@
 #!/usr/bin/env bun
 // The marker check a consumer runs in its own gate, on pages it serves or builds: every list marker
-// measured on the pixels headless Chrome paints. A marker's middle has to sit on the middle of the
-// x-height of the first line beside it (the caps' middle beside capitals), and a list item's first
-// line has to start where its wrapped lines start. Markers drifted 0.5 to 3.4px off for months on
-// several surfaces while every check passed, since only a render shows where they land.
+// measured on the pixels headless Chrome paints. A marker's middle has to sit two thirds of the way
+// from the x-height middle of the first line beside it to its cap-height middle (marker.css's
+// --hw-marker-mid; the caps' middle beside capitals), and a list item's first line has to start
+// where its wrapped lines start. Markers drifted 0.5 to 3.4px off for months on several surfaces
+// while every check passed, since only a render shows where they land.
 //
 // Each page runs twice, as served and with a newline and an indent opening every list item, as
 // prettier-plugin-astro and hand-written HTML leave it, where an inline-block marker kept the
-// newline as a space. The words starting each marked line become "xxxx", so their ink is the
-// x-height band itself. Markers found: a square ::before (side up to 16px) on a list item or its
-// opening paragraph, an empty square element (up to 16px) followed by text in its row that is the
-// brand's .hw-marker or an item's first element, a bullet glyph as a ul item's ::before content, and
-// the browser's own marker in a ul. Not measured: a
-// heading's or link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
+// newline as a space. Each marked line opens with "xxxxHHHH", so the ink of the x's is the x-height
+// band and that of the H's the cap-height band; where text-transform sets the line in capitals,
+// both are capitals and the target is the caps' middle. Markers found: a square ::before (side up
+// to 16px) on a list item or its opening paragraph, an empty square element (up to 16px) followed
+// by text in its row that is the brand's .hw-marker or an item's first element, a bullet glyph as a
+// ul item's ::before content, and the browser's own marker in a ul. Not measured: a heading's or
+// link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--json] <url, html file or
 // site path>... --site serves a built folder on a free port, and a page starting with / is a path
@@ -31,10 +33,21 @@ import puppeteer, {
 import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
 
 export const TOLERANCE = 0.25; // CSS px
+// Where the marker's middle sits from the x-height middle (0) to the cap-height middle (1): the
+// default of --hw-marker-mid in marker.css, 1ex / 6 + 1cap / 3.
+const CAP_SHARE = 2 / 3;
 const MAX_SIDE = 16; // CSS px; a larger square is an icon or a swatch, not a marker
 
 type Box = { x: number; y: number; width: number; height: number };
-type Probe = { label: string; kind: Kind; marker: Box; text: Box; indent: number | null };
+// text spans "xxxxHHHH"; split is where the H's start, in CSS px from its left edge.
+type Probe = {
+  label: string;
+  kind: Kind;
+  marker: Box;
+  text: Box;
+  split: number;
+  indent: number | null;
+};
 export type Kind = "before" | "element" | "native" | "glyph";
 export type Reading = {
   page: string;
@@ -156,7 +169,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
     }
   }
   for (const f of found) {
-    f.text.data = "xxxx " + f.text.data.trimStart();
+    f.text.data = "xxxxHHHH " + f.text.data.trimStart();
     // An underline or a shadow (a link item) would add ink below the x-height band. A decoration
     // reaches every descendant, so it goes on each element from the text up to the item.
     for (let el = f.text.parentElement; el && el !== f.host.parentElement; el = el.parentElement) {
@@ -164,10 +177,10 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       (el as HTMLElement).style.textShadow = "none";
     }
   }
-  const rectOf = (node: Text) => {
+  const rectOf = (node: Text, start = 0) => {
     const range = document.createRange();
-    range.setStart(node, 0);
-    range.setEnd(node, 4);
+    range.setStart(node, start);
+    range.setEnd(node, start + 4);
     return range.getClientRects()[0]!;
   };
   const box = (left: number, right: number, top: number, bottom: number): Box => ({
@@ -178,6 +191,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
   });
   return found.map(({ host, text, kind, mark }) => {
     const t = rectOf(text);
+    const c = rectOf(text, 4);
     const em = parseFloat(getComputedStyle(text.parentElement!).fontSize);
     // The marker stands left of where the line starts, which is the text or an element before it,
     // such as a code chip; only its height comes from the text.
@@ -202,15 +216,17 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       label: label(host),
       kind,
       marker: box(left, right, t.top - 3, t.bottom + 3),
-      text: box(t.left, t.right, t.top, t.bottom),
+      text: box(t.left, c.right, t.top, t.bottom),
+      split: c.left - t.left,
       indent: li && host === li && kind === "before" ? start - contentLeft(host) : null,
     };
   });
 }
 
-/** Runs in the page: the y in CSS px, from the top of the shot, of its ink's middle, each pixel
- * weighted by its distance from the shot's most common colour. */
-async function inkMiddle(png: string, scale: number): Promise<number> {
+/** Runs in the page: the y in CSS px, from the top of the shot, of the ink's middle left of `split`
+ * (CSS px from the shot's left edge) and right of it, each pixel weighted by its distance from the
+ * shot's most common colour. */
+async function inkMiddle(png: string, scale: number, split: number): Promise<[number, number]> {
   const img = new Image();
   img.src = `data:image/png;base64,${png}`;
   await img.decode();
@@ -223,8 +239,8 @@ async function inkMiddle(png: string, scale: number): Promise<number> {
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   const bg = [...counts].sort((a, b) => b[1] - a[1])[0]![0];
-  let total = 0;
-  let sum = 0;
+  const total = [0, 0];
+  const sum = [0, 0];
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
@@ -233,12 +249,13 @@ async function inkMiddle(png: string, scale: number): Promise<number> {
         data[i + 1]! - ((bg >> 8) & 255),
         data[i + 2]! - (bg & 255),
       );
-      total += ink;
-      sum += ink * (y + 0.5);
+      const side = x + 0.5 < split * scale ? 0 : 1;
+      total[side]! += ink;
+      sum[side]! += ink * (y + 0.5);
     }
-  // No ink where the marker should be: a marker drawn elsewhere, which fails as infinitely off.
-  if (!total) return Infinity;
-  return sum / total / scale;
+  // -1 for no ink, as NaN and Infinity leave the page as null.
+  const middle = (side: number) => (total[side] ? sum[side]! / total[side]! / scale : -1);
+  return [middle(0), middle(1)];
 }
 
 /** Opens `url` and throws where a stylesheet of its own (its origin's or a file) fails to load: an
@@ -283,7 +300,8 @@ export async function measureMarkers(
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     // Each box is shot inside the viewport, scrolled to it: capturing beyond the viewport resizes it,
     // and a layout sized by the viewport's height then moves under the measured boxes.
-    const read = async (clip: Box) => {
+    // The ink middles left and right of split (CSS px from the clip's left edge), in page px.
+    const read = async (clip: Box, split = clip.width) => {
       // Instant, whatever the page's scroll-behavior, and a frame for the paint to follow.
       const inView = await page.evaluate(
         (y, h) =>
@@ -302,7 +320,9 @@ export async function measureMarkers(
         encoding: "base64",
         captureBeyondViewport: !inView,
       });
-      return clip.y + (await page.evaluate(inkMiddle, png, scale));
+      const middles = await page.evaluate(inkMiddle, png, scale, split);
+      // No ink where the marker should be: a marker drawn elsewhere, which fails as NaN.
+      return middles.map((m) => (m < 0 ? NaN : clip.y + m));
     };
     const out: Reading[] = [];
     // A closed panel's lists are markers too.
@@ -311,13 +331,14 @@ export async function measureMarkers(
       // A square ::before that is not beside its first line (an absolute dot above the item) leaves
       // no room left of the text: it is decoration, not this line's marker.
       if (p.marker.width < 1 || p.text.width <= 0) continue;
+      const [x, caps] = await read(p.text, p.split);
       out.push({
         page: url,
         label: p.label,
         kind: p.kind,
         scale,
         newline,
-        offset: (await read(p.marker)) - (await read(p.text)),
+        offset: (await read(p.marker))[0]! - (x! + CAP_SHARE * (caps! - x!)),
         indent: p.indent,
       });
     }
