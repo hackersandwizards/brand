@@ -245,7 +245,9 @@ from the source check.
 
 Run `brand-elements` in your gate as a script such as `"check:elements": "brand-elements"`. It fails on an element on the pages whose
 computed corner, fill, line, text colour, type, padding or size differs from the brand rule at the
-same scale and theme (a reference beside it styled only by this package), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
+same scale and theme (a reference beside it styled only by this package), on any element drawn
+with the brand corner inside another so drawn (inside one, `elements/card.css` gives every element
+and every `rounded-brand` the small corner), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
 callout, note; quote) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts), or a component of such a name, without the
 `hw-*` class and without an exception of that name, on a used element without a tile or with a stale version, on an exception

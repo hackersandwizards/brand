@@ -17,6 +17,12 @@
     padding: var(--hw-card-pad, var(--spacing-card));
     background: var(--color-white);
   }
+  /* The brand corner on the outermost block only (tokens.css): inside a block that has it, every
+     element and every rounded-brand utility reads the small corner at the medium's size. */
+  :where(.hw-card, .hw-callout, .hw-code, .hw-status, .hw-frame, .rounded-brand) * {
+    --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
+    --radius-brand: var(--hw-corner-sm, var(--radius-sm));
+  }
   .hw-card[data-variant="tint"] {
     border-color: color-mix(in srgb, var(--color-teal) 40%, white);
     background: color-mix(in srgb, var(--color-teal) 7%, white);
