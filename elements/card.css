@@ -36,8 +36,8 @@
     --deck-corner: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
   }
   .hw-card[data-variant="tint"] {
-    border-color: color-mix(in srgb, var(--color-teal) 40%, white);
-    background: color-mix(in srgb, var(--color-teal) 7%, white);
+    border-color: var(--color-teal-light);
+    background: var(--color-teal-soft);
   }
   .hw-card:is([href], :has(.hw-card-link)) {
     --_hw-card-hover: var(--color-teal);

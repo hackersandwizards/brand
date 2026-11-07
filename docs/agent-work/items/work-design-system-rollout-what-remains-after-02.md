@@ -3,26 +3,27 @@ kind: work
 status: open
 priority: 3
 order: 560
-owner: a brand session, then each spoke drops the exception a shipped proposal makes moot
-evidence: "brand v0.29.0 to v0.34.0; os `docs/agent-work/2026-11-02-design-system-rollout.md`, `docs/agent-work/2026-11-02-design-system-phase3.md`; brand `docs/agent-work/2026-11-01-shared-elements.md`; checked 03.11.: os draws its list rows with brand's `hw-row`, trainer-hub pins slides v0.30.0 and documents v0.7.1; points 1 to 5 re-checked 07.11. against brand main and documents origin/main: no --accent-soft token in tokens/tokens.css, row.css, facts.css and card.css still mix white at 15 or 18 %, no glow token, slides styles/tokens.css still defines the shared names, scan/elements.ts NAMED still lacks button, breadcrumb and facts"
+owner: a brand session (points 1, 2, 4); slides (point 3)
+evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, teal 7 % on white) and brand-elements' source check learned button, breadcrumb and fact, read 0 findings on slides, documents and talks origin/main (the control, website, reads 10); measurements below from tokens/tokens.css and applications/channel-banners/render.py"
 ---
 
-# Design system: the brand proposals and follow-ups that remain
+# Design system: the brand proposals that remain
 
-Done since phase 2: os draws its list rows with brand's `hw-row` (os `src/styles/global.css`), and
-trainer-hub's pins are raised (slides v0.30.0, documents v0.7.1). What remains:
-
-1. documents' soft accent (`tokens.css` `--accent-soft`, teal at 7 % on white, drawn in
-   `document.css`, `handout.css` and `onepager.css`) has no brand token yet. Its own night line and
-   `--result-soft` went in documents 99b73f5 (no reader).
-2. The elements' own night rules (`row.css`, `facts.css`, `card.css` and others) still mix white at
-   15 or 18 %; whether they take `--color-night-line` needs a review on os and trainer-hub night.
-3. Hero corner-glow values (website PageHero: 21/42 % and 13/26 %, 320x360 and 620x420 px) match the
-   channel-banner glows in `applications/channel-banners/render.py`: candidate tokens.
-4. slides still defines names brand's `expert.css`/`tokens.css` also define (`--background`,
-   `--foreground`, `--color-accent`, `--font-heading` and others, `styles/tokens.css`). Renaming
-   changes deck utility names: a slides release.
-5. Teach `brand-elements`' source check the new element names (button, breadcrumb, facts, ...) once
-   every spoke has switched.
-6. From the spoke switches: a setting naming an undefined token falls back silently; night pills
-   lose hue distinction; a hue setting for card, label and callout; a line-height setting on the pill.
+1. **Night lines.** `facts.css`, `table.css` and `card.css` draw night lines as white at 15 %
+   (transparent), `row.css` and `frame.css` as white at 18 % over night;
+   `--color-night-line` is night ink at 15 % over night, opaque. Measured ΔE76 against
+   `--color-night-line`: white 15 % on night 1.3, white 18 % on night 4.6, white 15 % on night-2 5.0,
+   white 15 % on a night card (white 7 % over night) 7.7. Switching is a visible change on raised
+   grounds: render the elements' night stories both ways and run a blind review before switching.
+2. **Hero corner glows.** The banners' glow deltas in `render.py` (`TEAL_GLOW` (7, 41, 46),
+   `PURPLE_GLOW` (35, 9, 54)) are teal at 42 % and purple at 26 % over night within one RGB level,
+   the website PageHero's xl strengths, which it retypes from `render.py`. Tokens for the two
+   strengths make `render.py` derive its deltas from them, which moves one channel by one level, so
+   every channel banner is re-rendered (`uv run`) in the same commit; the website then reads the
+   tokens.
+3. **slides' shared names.** slides' `styles/tokens.css` still defines `--background`,
+   `--foreground`, `--color-accent`, `--font-heading` and other names `expert.css` and `tokens.css`
+   define. Renaming changes deck utility names: a slides release, done in slides.
+4. **From the spoke switches**, not yet measured: a setting naming an undefined token falls back
+   silently; night pills lose hue distinction; a hue setting for card, label and callout; a
+   line-height setting on the pill.

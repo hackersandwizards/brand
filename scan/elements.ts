@@ -27,8 +27,8 @@
 //    the brand corner (top-left and bottom-right larger than top-right) inside another so drawn
 //    fails too: the brand corner sits on the outermost block only (tokens.css).
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
-//    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote)
-//    and sets a property that element owns (a shorthand counts for its longhands) fails, and so
+//    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
+//    button; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its longhands) fails, and so
 //    does a component file of such a name, unless it carries the hw-* class, its name is an
 //    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
 //    medium, such as a slide deck's).
@@ -481,7 +481,8 @@ export async function measurePage(
   }
 }
 
-const NAMED = /(^|-)(card|chip|pill|tag|badge|eyebrow|kicker|label|callout|note|quote)s?($|-)/;
+const NAMED =
+  /(^|-)(card|chip|pill|tag|badge|eyebrow|kicker|label|callout|note|quote|button|breadcrumb|fact)s?($|-)/;
 const WORD: Record<string, string> = {
   card: "card",
   chip: "pill",
@@ -494,6 +495,9 @@ const WORD: Record<string, string> = {
   callout: "callout",
   note: "callout",
   quote: "quote",
+  button: "button",
+  breadcrumb: "breadcrumb",
+  fact: "facts",
 };
 /** A name in kebab case, so ProjectCard and projectCard read as project-card. */
 const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
