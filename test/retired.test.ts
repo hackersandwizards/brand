@@ -69,6 +69,36 @@ test("finds every retired line with or without its stop, plural, possessive and 
   }
 });
 
+// Speaker notes reach a build as JSON-serialised island props, their line breaks escaped.
+test("reads \\n, \\r and \\t escapes as whitespace, never an escaped backslash", () => {
+  const [a, ...rest] = line.split(" ");
+  const tail = rest.join(" ");
+  const props = (notes: string) =>
+    `<astro-island props="${JSON.stringify({ notes }).replaceAll('"', "&quot;")}">`;
+  for (const ws of ["\n", "\r\n", "\t", "\f", "\b"]) {
+    const form = props(`${a}${ws}${tail}`);
+    expect([form, retiredIn(form)]).toEqual([form, [line]]);
+  }
+  expect(retiredIn(`${a}\\\\n${tail}`)).toEqual([]);
+  expect(retiredIn(`${a}&#92;n${tail}`)).toEqual([]);
+});
+
+test("strips markdown emphasis inside and around a line", () => {
+  const [a, b, ...rest] = line.split(" ");
+  const tail = rest.join(" ");
+  const forms = [
+    `**${line}**`,
+    `${a} **${b}** ${tail}`,
+    `*${a} ${b}* ${tail}`,
+    `__${a}__ ${b} _${tail}_`,
+    JSON.stringify({ notes: `- **${a}**\n  ${b} ${tail}` }),
+  ];
+  for (const form of forms) expect([form, retiredIn(form)]).toEqual([form, [line]]);
+  expect(retiredIn("We *elevate your team* with agents.")).toEqual([]);
+  for (const glue of ["_", "__", "**"]) expect(retiredIn(`${a}${glue}${b} ${tail}`)).toEqual([]);
+  expect(retiredIn(`if (x < y) {} **${a}** ${b} ${tail} <b>`)).toEqual([line]);
+});
+
 test("passes prose that uses a short line's words mid-sentence", () => {
   const prose = [
     "tools that elevate your team's review speed",

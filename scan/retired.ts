@@ -28,16 +28,23 @@ const char = (code: number, m: string) =>
     : m;
 // Whitespace collapsed, with none before punctuation: a line wrapped or set across elements matches.
 const squash = (s: string) => s.replace(/\s+/g, " ").replace(/ (?=[.,;:!?])/g, "");
-// HTML entities and JS escapes decoded, soft hyphens and zero-width characters dropped.
+// A run of `*` or `_` at a word's edge is markdown emphasis; inside a word, as in snake_case, it stays.
+const EMPHASIS = /(?<![\p{L}\p{N}*_])[*_]+|[*_]+(?![\p{L}\p{N}*_])/gu;
+// JS and JSON escapes decoded first (`\b`, `\f`, `\n`, `\r` and `\t` as whitespace), then HTML
+// entities; soft hyphens, zero-width characters and markdown emphasis dropped.
 const normalise = (s: string) =>
   squash(
     s
+      .replace(
+        /\\(?:u([\da-fA-F]{4})|([bfnrt])|(["/\\]))/g,
+        (m, h?: string, ws?: string, c?: string) => (h ? char(parseInt(h, 16), m) : ws ? " " : c!),
+      )
       .replace(/&#x([\da-f]+);/gi, (m, h: string) => char(parseInt(h, 16), m))
       .replace(/&#(\d+);/g, (m, d: string) => char(Number(d), m))
       .replace(/&(\w+);/g, (m, e: string) => ENTITIES[e] ?? m)
-      .replace(/\\u([\da-f]{4})/gi, (m, h: string) => char(parseInt(h, 16), m))
       .normalize("NFC")
-      .replace(/[\u00ad\u200b-\u200d\u2060\ufeff]/g, ""),
+      .replace(/[\u00ad\u200b-\u200d\u2060\ufeff]/g, "")
+      .replace(EMPHASIS, ""),
   );
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // A retired line counts as a whole, in any case, with or without its closing stop, its last word
