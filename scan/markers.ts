@@ -124,6 +124,11 @@ function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anch
     }
     return contentLeft(host);
   };
+  // The browser draws its own marker on the item: a list-style type or image on a list item.
+  const ownMarker = (li: Element) => {
+    const s = getComputedStyle(li);
+    return s.display === "list-item" && (s.listStyleType !== "none" || s.listStyleImage !== "none");
+  };
   const found: { host: Element; text: Text; kind: Kind; mark?: Element }[] = [];
   const seen = new Set<Text>();
   const add = (host: Element, text: Text | null, kind: Kind, mark?: Element) => {
@@ -146,12 +151,7 @@ function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anch
       side <= maxSide
     )
       add(host, firstText(host), "before");
-    else if (
-      host.tagName === "LI" &&
-      host.parentElement?.tagName === "UL" &&
-      getComputedStyle(host).display === "list-item" &&
-      getComputedStyle(host).listStyleType !== "none"
-    )
+    else if (host.tagName === "LI" && host.parentElement?.tagName === "UL" && ownMarker(host))
       add(host, firstText(host), "native");
     else if (
       host.tagName === "LI" &&
@@ -227,13 +227,8 @@ function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anch
       text: box(t.left, c.right, t.top, t.bottom),
       split: c.left - t.left,
       indent: li && host === li && kind === "before" ? start - contentLeft(host) : null,
-      // A square drawn on an item the browser still gives its own marker: two markers on one line.
-      double:
-        kind !== "native" &&
-        !!li &&
-        getComputedStyle(li).display === "list-item" &&
-        (getComputedStyle(li).listStyleType !== "none" ||
-          getComputedStyle(li).listStyleImage !== "none"),
+      // A marker drawn on an item the browser still gives its own: two markers on one line.
+      double: kind !== "native" && !!host.closest("li") && ownMarker(host.closest("li")!),
     };
   });
   return { probes, anchors: found.map((f) => f.mark ?? f.text.parentElement!) };

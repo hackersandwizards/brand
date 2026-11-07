@@ -183,13 +183,12 @@ test.each([2, 4])(
     expect(rs.filter((r) => r.kind === "element").length).toBe(8);
     expect(show(rs.filter((r) => r.kind !== "glyph" && !r.double && failing(r)))).toEqual([]);
     // The square sits right, but the item keeps the disc: it fails, and only it.
-    expect(rs.filter((r) => r.double).map((r) => r.label.includes("An item that keeps"))).toEqual([
-      true,
-      true,
-    ]);
-    expect(rs.filter((r) => r.double).every((r) => Math.abs(r.offset) <= 0.25 && failing(r))).toBe(
-      true,
-    );
+    const double = rs.filter((r) => r.double);
+    expect(
+      double.map(
+        (r) => r.label.includes("An item that keeps") && Math.abs(r.offset) <= 0.25 && failing(r),
+      ),
+    ).toEqual([true, true]);
   },
   60_000,
 );

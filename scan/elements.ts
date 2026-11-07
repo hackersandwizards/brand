@@ -481,8 +481,6 @@ export async function measurePage(
   }
 }
 
-const NAMED =
-  /(^|-)(card|chip|pill|tag|badge|eyebrow|kicker|label|callout|note|quote|button|breadcrumb|fact)s?($|-)/;
 const WORD: Record<string, string> = {
   card: "card",
   chip: "pill",
@@ -499,6 +497,7 @@ const WORD: Record<string, string> = {
   breadcrumb: "breadcrumb",
   fact: "facts",
 };
+const NAMED = new RegExp(`(^|-)(${Object.keys(WORD).join("|")})s?($|-)`);
 /** A name in kebab case, so ProjectCard and projectCard read as project-card. */
 const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 /** The element a class is named like. */

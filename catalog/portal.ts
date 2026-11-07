@@ -202,11 +202,14 @@ const logoRule = (base: string) => {
     ? `<p>Clear space: the height of the h in the name, on every side. Minimum width: ${rule.minWidthPx} px on screen, ${rule.minWidthMm} mm in print.</p>`
     : "";
 };
+/** Download links, each labelled with its file name below logos/ unless `label` says otherwise. */
+const dl = (paths: string[], label = (p: string) => p.replace(/^logos\//, "")) =>
+  `<p class="dl">${paths.map((p) => `<a href="${p}" download>${esc(label(p))}</a>`).join("")}</p>`;
 const logoCard = (base: string) => {
   const files = logoFiles.filter((p) =>
-    new RegExp(`^logos/${base}(-night|-outline|-white|-black|-cmyk)?\\.\\w+$`).test(p),
+    new RegExp(`^logos/${base}(-night|-outline|-white|-black)?\\.svg$`).test(p),
   );
-  const show = files.find((p) => p.endsWith(`${base}.svg`)) ?? files.find((p) => /png$/.test(p));
+  const show = files.find((p) => p.endsWith(`${base}.svg`));
   const night = files.find((p) => p.endsWith(`${base}-night.svg`)) ?? show;
   const outline = files.find((p) => p.endsWith(`${base}-outline.svg`));
   const white = files.find((p) => p.endsWith(`${base}-white.svg`));
@@ -221,25 +224,12 @@ const logoCard = (base: string) => {
     h: `logos/logo-${base}`,
     x: `${files.join(" ")} download logo`,
   });
-  return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day · on light")}${tile(night, "on-dark", "night cut · on night, also black and black textile")}${tile(outline, "on-gradient", "outline cut · on the gradient, also Purple Love and Stargazer")}${tile(white, "on-dark", "white cut · a surface in one colour, such as a white partner wall")}${tile(black, "on-light", "black cut · a surface in one colour, such as single-colour print")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p>${logoRule(base)}<p class="dl">${files
-    .filter((p) => p.endsWith(".svg"))
-    .map(
-      (p) =>
-        `<a href="${p}" download>${esc(
-          p
-            .replace(/^logos\//, "")
-            .replace(`${base}`, "")
-            .replace(/^-/, "") || p.split(".").pop(),
-        )}</a>`,
-    )
-    .join("")}</p></article>`;
+  return `<article class="logo" id="logo-${base}"><div class="pair">${tile(show, "on-light", "day · on light")}${tile(night, "on-dark", "night cut · on night, also black and black textile")}${tile(outline, "on-gradient", "outline cut · on the gradient, also Purple Love and Stargazer")}${tile(white, "on-dark", "white cut · a surface in one colour, such as a white partner wall")}${tile(black, "on-light", "black cut · a surface in one colour, such as single-colour print")}</div><h3>${esc(base)}</h3><p>${esc(LOGO_NOTES[base] ?? "")}</p>${logoRule(base)}${dl(files, (p) => p.replace(`logos/${base}`, "").replace(/^-/, ""))}</article>`;
 };
 // The masters: each logo someone draws, with its cuts. Every other file in logos/ is made from them
 // for one use and listed below as a delivery file; the emoji master and its print file serve the
 // booth, background and merch applications.
 const shownLogos = ["lockup", "lockup-compact", "wordmark"];
-const dl = (paths: string[]) =>
-  `<p class="dl">${paths.map((p) => `<a href="${p}" download>${esc(p.replace(/^logos\//, ""))}</a>`).join("")}</p>`;
 const pick = (re: RegExp) => logoFiles.filter((p) => re.test(p));
 const DELIVERY: [string, string[]][] = [
   [

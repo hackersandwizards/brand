@@ -298,9 +298,8 @@ async function writeCut(base: string, kind: "night" | "outline" | keyof typeof M
   const pngPath = `logos/${base}-${kind}.png`;
   writeFileSync(join(ROOT, svgPath), svg);
   const paths = [svgPath];
-  // The outline cuts of the compact lockup and the wordmark ship as SVG only: no tool takes their
-  // raster.
-  if (kind !== "outline" || base === "lockup") {
+  // A cut has a PNG where manifest.json lists one.
+  if (manifest.files.some((f) => f.path === pngPath)) {
     const { width } = await sharp(join(ROOT, "logos", `${base}.png`)).metadata();
     await sharp(Buffer.from(svg))
       .resize(Math.round((width * next[2]) / box[2]))
