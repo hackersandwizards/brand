@@ -320,7 +320,7 @@ test("a brand token the surface never defines is red", async () => {
 // 4.5:1 or more. The plain hue on a status wash is drift.
 test("every label clears 4.5:1 on every wash, light and night, at 412 px", async () => {
   const labels = ["", 'data-tone="muted"', 'data-tone="ink"']
-    .concat(["purple", "amber", "green", "factory", "red"].map((h) => `data-hue="${h}"`))
+    .concat(["purple", "amber", "green", "red"].map((h) => `data-hue="${h}"`))
     .map((a) => `<span class="hw-label" ${a}>Label</span>`)
     .join(" ");
   const washes = ["warning", "error", "success", "info"]

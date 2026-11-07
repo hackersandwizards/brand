@@ -48,7 +48,8 @@
   --color-green-dark: #15803d;
   --color-amber: #f59e0b;
   --color-amber-dark: #b45309;
-  /* Software Factory area hue: 6:1 on bg and white, light 8.8:1 on night. */
+  /* Rust: the fifth chart series and the expert systems' rust category, 6:1 on bg and white,
+     light 8.8:1 on night. Never a label, an area or a section colour. */
   --color-factory: #a3402a;
   --color-factory-light: #f29a80;
   /* Error, warning and anti-pattern marks in documents, the expert systems and slides. */
@@ -89,14 +90,14 @@
      purple    | purple     | purple-night    | the brand's second hue: hover, emphasis
      amber     | amber-dark | amber           | warning
      green     | green-dark | green           | success
-     factory   | factory    | factory-light   | the Software Factory area
+     factory   | factory    | factory-light   | chart series 5, the expert systems' rust category
      red       | red        | red-night       | error, anti-pattern
      ampersand | muted      | ampersand-light | the quiet hue: a label without its own colour
 
      A category (a type, a format, a group) takes teal, purple or ampersand, in that order, and a
      set with more values leaves the rest neutral. Amber, green and red only ever mean their state,
-     and factory only the Software Factory area: its 15 % wash is ΔE 4.1 from amber's and 4.9 from
-     red's (teal to purple 16.2). A priority is a state too (elements/pill.css, data-priority). */
+     and factory colours no label and no area: the Software Factory area takes teal labels like
+     every other. A priority is a state too (elements/pill.css, data-priority). */
 
   /* The label's colour (elements/label.css), day and night: an eyebrow, kicker, fact name or
      table head. A surface that cannot load the element, such as a mail, reads these. Never

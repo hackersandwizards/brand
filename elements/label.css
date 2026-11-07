@@ -3,7 +3,7 @@
    small role's size, so no text on a phone is under 14 px. data-tone="muted" sets it in the muted
    grey (a callout's label), data-tone="ink" in the text colour (a field's or group's name).
    data-hue sets it in a hue's text colour where its block carries that hue (a second part or speaker in purple, a
-   meaning in amber, green or red, the Software Factory area in factory), from the hue table in
+   meaning in amber, green or red), from the hue table in
    tokens.css. On a 7 % wash (a status box, a callout, a tinted card) amber, green and red take
    their text colour mixed 70 % with ink, as the hue table says, so they clear 4.5:1 there. A button or select inside the label (a sortable column head) keeps the label role,
    which a CSS reset drops on controls.
@@ -45,9 +45,6 @@
   .hw-label[data-hue="green"] {
     color: var(--color-green-dark);
   }
-  .hw-label[data-hue="factory"] {
-    color: var(--color-factory);
-  }
   .hw-label[data-hue="red"] {
     color: var(--color-red);
   }
@@ -78,9 +75,6 @@
     }
     .hw-label[data-hue="green"] {
       color: var(--color-green);
-    }
-    .hw-label[data-hue="factory"] {
-      color: var(--color-factory-light);
     }
     .hw-label[data-hue="red"] {
       color: var(--color-red-night);

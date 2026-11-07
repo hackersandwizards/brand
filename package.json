@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the verbal identity (claim, home headline, mission, vision, values, terms, retired slogans), the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component, list-marker, element and retired-line checks a consumer runs in its gate, the list marker rule and the shared elements.",
   "keywords": [
@@ -108,6 +108,7 @@
     "astrobook": "0.13.3",
     "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
+    "lucide-static": "1.70.0",
     "prettier": "3.9.10",
     "sharp": "0.35.5",
     "stylelint": "18.0.0",

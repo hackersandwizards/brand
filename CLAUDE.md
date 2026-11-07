@@ -32,9 +32,9 @@ data or secret.
   mark's source where known. `"onepager": false` keeps a mark off the os onepagers' client row,
   which shows every other entry. Outside `manifest.json`.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
-  device and call backgrounds, channel banners, LinkedIn post images, avatars, booth banners,
+  device and call backgrounds, channel banners, LinkedIn post images, avatars, GitHub social previews, booth banners,
   gradients, merch print files, device stickers, mail signatures. Where a script builds a family it sits beside the files and writes
-  there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`, `avatars/generate.ts`,
+  there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`, `avatars/generate.ts`, `social-previews/generate.ts` (reads `gh`),
   `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/` ships as
   three commands: `brand-linkedin-frame` (`frame.ts`) and `brand-linkedin-terminal` (`terminal.ts`)
   write a post's image to the path the caller names, `brand-linkedin-sketch-prompt` prints

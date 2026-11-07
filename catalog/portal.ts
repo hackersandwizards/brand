@@ -306,6 +306,12 @@ const FAMILIES: Family[] = [
     dir: "applications/avatars",
   },
   {
+    id: "social-previews",
+    title: "GitHub social previews",
+    note: "One 1280 x 640 card per public repository, the image a shared link shows: the night lockup, a teal tile with the category's Lucide icon, the category, the repository name and its GitHub description. generate.ts renders them from the current descriptions; each is uploaded by hand under the repository's Settings, Social preview, since GitHub has no API for it.",
+    dir: "applications/social-previews",
+  },
+  {
     id: "gradients",
     title: "Gradients",
     note: "Linear, mesh and radial brand gradients, with the Illustrator source.",
