@@ -11,7 +11,8 @@ Run from the brand repo root:
 The banners with client logos (profile slide 2, the Featured link) take their marks from clients/.
 The profile banners take the claim from verbal/verbal.json, one sentence per line: after a claim
 change, run this and read each of them for the safe area.
-Layout values are measured from the airy set as shipped.
+Layout values are measured from the airy set as shipped; an ink box in a comment is this render's
+pixels brighter than 70 of 255, a few px narrower than the alpha box the grid centres.
 """
 
 import argparse
@@ -86,6 +87,28 @@ def ink_rows(parts, size, font=MONO):
     return top, bottom
 
 
+def line_cols(line):
+    """Left and right of a line's ink, as draw_line sets it."""
+    f = ImageFont.truetype(BytesIO(sfnt(line["font"][0])), line["size"])
+    f.set_variation_by_axes([line["font"][1]])
+    text = "".join(t for t, _ in line["parts"])
+    if not line["track"]:
+        a, _, b, _ = f.getbbox(text, anchor="ls")
+        return line["x"] + a, line["x"] + b
+    step = line["track"] * line["size"]
+    x = line["x"] + sum(f.getlength(ch) + step for ch in text[:-1])
+    return line["x"] + f.getbbox(text[0], anchor="ls")[0], x + f.getbbox(text[-1], anchor="ls")[2]
+
+
+def lockup_cols(lh):
+    """Left and right of the lockup's ink relative to its left edge, as render() places it."""
+    u = lh / LAYOUT_BOX[3]
+    lock = Image.open(LOCKUP).convert("RGBA").resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
+    a, _, b, _ = lock.getchannel("A").point(lambda v: 255 if v > INK_ALPHA else 0).getbbox()
+    shift = -(LAYOUT_BOX[0] - NIGHT_BOX[0]) * u
+    return shift + a, shift + b
+
+
 def lockup_rows(lh):
     """Top and bottom of the lockup's ink relative to its anchor, as render() places it."""
     u = lh / LAYOUT_BOX[3]
@@ -95,11 +118,12 @@ def lockup_rows(lh):
     return top + a, top + b
 
 
-def grid(size, lh, lines, area=None, band=None, top=None, left=None, glows=None):
+def grid(size, lh, lines, area=None, band=None, top=None, left=None, glows=None, floor=None):
     """A surface on the grid. lines: headline dicts, baselines relative to the first line's; band:
     (x0, x1, height, radius, [(file, cx, cy below the band top, h)]); area: the rows every device
     shows, the whole height by default; top fixes the lockup's ink top instead of centring; left
-    fixes the lockup's left edge instead of the first line's x."""
+    fixes the lockup's left edge instead of the first line's x; floor centres the group's ink on
+    the width instead, its left edge at floor or right of it (where a profile photo ends)."""
     unit = LOCKUP_CAP[1] * lh / LOCKUP_CAP[0] / 2
     lt, lb = lockup_rows(lh)
     t1, _ = ink_rows(lines[0]["parts"], lines[0]["size"], lines[0]["font"])
@@ -110,6 +134,14 @@ def grid(size, lh, lines, area=None, band=None, top=None, left=None, glows=None)
     if top is None:
         top = (a0 + a1 - head - body) / 2  # the lockup's ink top
     b1 = top + head - t1
+    if floor is not None:
+        lx = lines[0]["x"] if left is None else left
+        l0, l1 = lockup_cols(lh)
+        cols = [line_cols(ln) for ln in lines] + [(lx + l0, lx + l1)]
+        x0, x1 = min(c[0] for c in cols), max(c[1] for c in cols)
+        dx = max((size[0] - x1 - x0) / 2, floor - x0)
+        lines = [{**ln, "x": ln["x"] + dx} for ln in lines]
+        left = lx + dx
     s = {
         "size": size,
         "lines": [{**ln, "baseline": b1 + ln["baseline"]} for ln in lines],
@@ -133,9 +165,9 @@ def grid_surfaces():
         band=(480, 1330, 110, 14, [(f, cx, 54.5, h) for f, cx, h in PROFILE_LOGOS]),
         left=480,
     )
-    # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
-    # its claim in slide 2's headline size, which fills the slide more
-    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
+    # slide 1 centred on its own height, its lockup on slide 2's left edge, which clears the photo; its
+    # claim in slide 2's headline size, which fills the slide more: ink x 469 to 1137, rows 86 to 311
+    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), left=480)
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
         # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
@@ -150,27 +182,28 @@ def grid_surfaces():
         # The X header: profile slide 1 at its own size, centred in rows 60 to 440, which X Help
         # says every screen shows (60 px may be cropped top and bottom); the profile photo's circle
         # covers the lower left, centre x 210 to 234, y 500, radius 170 to 174 at 1440, 390 and 440 px
-        # (measured 1.11. on x.com logged out)
-        "x-profile": grid((1500, 500), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(60, 440), left=480),
+        # (measured 1.11. on x.com logged out), so the group centres on the width right of x 384:
+        # ink x 411 to 1080, rows 138 to 363
+        "x-profile": grid((1500, 500), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(60, 440), floor=384),
         # The XING cover: XING crops it centred (object-fit cover) to 944 x 208 at 1024 px, 944 x 268
         # at 1440 and 375 x 188 at 375, so rows 175 to 464 show everywhere; the photo covers x < 303 below
         # row 371 on desktop and x 126 to 542 below row 431 on mobile (measured 1.11. on xing.com). The
-        # group sits right of the desktop photo and above the mobile one, the claim at
-        # slide 1's size rather than a smaller one right of the mobile photo
-        "xing-profile": grid((1312, 639), 79.8, two_lines(*PROFILE_LINES, x=355, b1=0, b2=59.3, size=49.0, track=-0.050), area=(175, 431), left=355),
+        # group centres on the width right of the desktop photo and above the mobile one, the claim at
+        # slide 1's size rather than a smaller one right of the mobile photo: ink x 317 to 986, rows 191 to 416
+        "xing-profile": grid((1312, 639), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(175, 431), floor=303),
         # The Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
         # 832 px, 288 below 992, 400 above, centred (object-fit cover), so a 375 px phone shows x 581 to 1419
         # and a 2560 px screen rows 94 to 406; the round photo overlaps the bottom 32 px (measured 1.11. on
         # sessionize.com). The group centred in that box, with margins on the phone rather than the claim at
-        # 43 px filling the phone's width
+        # 43 px filling the phone's width: ink x 731 to 1262, rows 163 to 337
         "sessionize-profile": grid(
-            (2000, 500), 61.9, two_lines(*PROFILE_LINES, x=651, b1=0, b2=46.0, size=38.0, track=-0.050), area=(94, 406), left=651
+            (2000, 500), 61.9, two_lines(*PROFILE_LINES, b1=0, b2=46.0, size=38.0, track=-0.050), area=(94, 406), floor=0
         ),
         # The Brella cover (Digitale Leute Summit 2026): Brella asks for 2000 x 800; how much of it
         # Brella shows on desktop and phone is not measured yet, so the group sits centred in the full
-        # frame at 1.5 times the Sessionize cover, about 485 px clear left and right and 265 above and below
+        # frame at 1.5 times the Sessionize cover: ink x 603 to 1386, rows 270 to 531
         "brella-profile": grid(
-            (2000, 800), 92.85, two_lines(*PROFILE_LINES, x=485, b1=0, b2=69.0, size=57.0, track=-0.050), left=485
+            (2000, 800), 92.85, two_lines(*PROFILE_LINES, b1=0, b2=69.0, size=57.0, track=-0.050), floor=0
         ),
         # The Facebook profile cover: Facebook Help (facebook.com/help/220070894714080, read 6.11.)
         # asks only for at least 720 px wide; its 2.4:1 and 16:9 crops (help/125379114252045) are for
@@ -178,9 +211,10 @@ def grid_surfaces():
         # (2.70:1) at 1024, 1440 and 1920 px, the photo's circle over x 32 to 208 from row 243; a 375 px
         # phone (m.facebook.com) whole at 375 x 139, the photo over x 12 to 108 from row 99 and the white
         # sheet from row 120. Here: the photo below row 517 (desktop) and 528 (phone), the sheet below 640.
-        # The group at 1.15 times the Brella cover, centred in rows 0 to 640: ink x 408 to 1592, rows 166 to 474
+        # The group at 1.15 times the Brella cover, centred on the width and in rows 0 to 640: ink x 544
+        # to 1443, rows 170 to 470
         "facebook-profile": grid(
-            (2000, 740), 106.8, two_lines(*PROFILE_LINES, x=423, b1=0, b2=79.4, size=65.5, track=-0.050), area=(0, 640), left=423
+            (2000, 740), 106.8, two_lines(*PROFILE_LINES, b1=0, b2=79.4, size=65.5, track=-0.050), area=(0, 640), floor=0
         ),
         "featured": grid(
             (1200, 627),
@@ -197,12 +231,14 @@ def grid_surfaces():
                 headline(151, 238, 47.5, 0, ("200+ Teams", 1), (" und 1.000+ Entwickler:innen trainiert.", 2), font=MONO_SUB),
             ],
         ),
-        # the group centred in the 2560 x 423 strip every device shows; glows on that strip's
+        # the group centred in the 2560 x 423 strip every device shows, on the width too (ink x 786 to
+        # 1759, rows 589 to 852); glows on that strip's
         # corners, plus weaker canvas corners
         "youtube": grid(
             (2560, 1440),
             81.6,
-            two_lines(*PROFILE_LINES, x=619, b1=0, b2=77, size=71.4, track=-0.057),
+            two_lines(*PROFILE_LINES, b1=0, b2=77, size=71.4, track=-0.057),
+            floor=0,
             area=(508.5, 931.5),
             glows=[
                 (0, 515, 560, 285, TEAL_GLOW, 1),
