@@ -36,7 +36,7 @@ import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render
 export const TOLERANCE = 0.25; // CSS px
 // Where the marker's middle sits from the x-height middle (0) to the cap-height middle (1): the
 // default of --hw-marker-mid in marker.css, 1ex / 6 + 1cap / 3.
-const CAP_SHARE = 2 / 3;
+export const CAP_SHARE = 2 / 3;
 const MAX_SIDE = 16; // CSS px; a larger square is an icon or a swatch, not a marker
 
 type Box = { x: number; y: number; width: number; height: number };

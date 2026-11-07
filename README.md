@@ -427,7 +427,9 @@ specimen that show your lists. It opens every closed `<details>` outside a heade
 load as published: `brand-markers --site dist /catalog/ /verify/`. Both measuring scans fail on a
 page whose stylesheet does not load, such as a build linking `file://` stylesheets served with
 `--site`: unstyled, the page shows the browser's own markers and spacing. Name such a build's
-pages as files instead.
+pages as files instead. A test of your own that measures markers brand-markers leaves out takes its
+target and tolerance from the package: `import { CAP_SHARE, TOLERANCE } from
+"@hackersandwizards/brand/markers"`.
 
 ## Press kit
 

@@ -11,7 +11,7 @@
 
    Each dot takes 1 em between two items.
 
-   Markup: <p class="hw-dot-list"><span>3 Deals</span><span>€ 2.7M</span><span>überfällig 4d</span></p> */
+   Markup: <p class="hw-dot-list"><span>3 Deals</span><span>€ 0,00</span><span>überfällig 4d</span></p> */
 
 @layer components {
   .hw-dot-list {

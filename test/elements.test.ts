@@ -306,6 +306,70 @@ test("a brand token the surface never defines is red", async () => {
   expect(r.findings.some((f) => f.prop === "--type-small-family")).toBe(true);
 }, 60_000);
 
+// Every label, toned or hued, on every 7 % wash, on each ground of its theme, at a phone's 412 px:
+// 4.5:1 or more. The plain hue on a status wash is drift.
+test("every label clears 4.5:1 on every wash, light and night, at 412 px", async () => {
+  const labels = ["", 'data-tone="muted"', 'data-tone="ink"']
+    .concat(["purple", "amber", "green", "factory", "red"].map((h) => `data-hue="${h}"`))
+    .map((a) => `<span class="hw-label" ${a}>Label</span>`)
+    .join(" ");
+  const washes = ["warning", "error", "success", "info"]
+    .map((t) => `<div class="hw-status" data-tone="${t}">${labels}</div>`)
+    .concat(
+      `<div class="hw-callout">${labels}</div>`,
+      `<div class="hw-callout" data-hue="purple">${labels}</div>`,
+      `<div class="hw-card" data-variant="tint">${labels}</div>`,
+    )
+    .join("");
+  const grounds = [
+    ["light", "--color-bg"],
+    ["light", "--color-white"],
+    ["dark", "--color-night"],
+    ["dark", "--color-night-2"],
+  ]
+    .map(
+      ([t, g]) =>
+        `<div data-theme="${t}" style="background: var(${g}); padding: 1px">${washes}</div>`,
+    )
+    .join("");
+  const tab = await browser.newPage();
+  await tab.setViewport({ width: 412, height: 900 });
+  await tab.goto(pathToFileURL(file("wash.html", only(grounds))).href);
+  const low = await tab.evaluate(() => {
+    // Computed colours read as rgb() or color(srgb …), with an alpha or without.
+    const rgba = (s: string) => {
+      const n = s.match(/[\d.]+/g)!.map(Number);
+      const [r, g, b] = s.startsWith("color(") ? n.slice(0, 3).map((v) => v * 255) : n.slice(0, 3);
+      return [r!, g!, b!, n[3] ?? 1] as const;
+    };
+    const lum = (c: readonly number[]) =>
+      [0.2126, 0.7152, 0.0722].reduce((sum, w, i) => {
+        const v = c[i]! / 255;
+        return sum + w * (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+      }, 0);
+    return [...document.querySelectorAll<HTMLElement>(".hw-label")].flatMap((el) => {
+      const box = el.parentElement!;
+      const ground = rgba(getComputedStyle(box.parentElement!).backgroundColor);
+      const wash = rgba(getComputedStyle(box).backgroundColor);
+      const under = ground.slice(0, 3).map((g, i) => wash[i]! * wash[3] + g * (1 - wash[3]));
+      const [x, y] = [lum(rgba(getComputedStyle(el).color)), lum(under)].sort((p, q) => q - p);
+      const ratio = (x! + 0.05) / (y! + 0.05);
+      const name = `${box.closest("[data-theme]")!.getAttribute("style")} ${box.className}[${box.dataset.tone ?? box.dataset.hue ?? box.dataset.variant ?? ""}] ${el.dataset.hue ?? el.dataset.tone ?? "label"}`;
+      return ratio < 4.5 ? [`${name} ${ratio.toFixed(2)}`] : [];
+    });
+  });
+  await tab.close();
+  expect(low).toEqual([]);
+  const plain = await measurePage(
+    browser,
+    file(
+      "wash-drift.html",
+      page('.hw-status .hw-label[data-hue="red"] { color: var(--color-red) }'),
+    ),
+  );
+  expect(plain.findings.some((f) => f.element === "label" && f.prop === "color")).toBe(true);
+}, 60_000);
+
 // The nearest theme decides: a light slide inside a dark page draws its elements by day.
 test("a light subtree inside a dark one draws the day rule", async () => {
   const r = await measurePage(

@@ -363,6 +363,18 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       wrap.append(inner);
       inner = wrap;
     }
+    // A label on a wash takes the wash's hue colours (label.css): the reference sits in a copy of
+    // that box.
+    const wash =
+      element === "label" &&
+      el.parentElement?.closest('.hw-status, .hw-callout, .hw-card[data-variant="tint"]');
+    if (wash) {
+      const wrap = wash.cloneNode(false) as HTMLElement;
+      wrap.removeAttribute("id");
+      wrap.removeAttribute("style");
+      wrap.append(inner);
+      inner = wrap;
+    }
     if (element === "focus-ring") {
       const wrap = document.createElement("div");
       wrap.className = "hw-focus-ring";
