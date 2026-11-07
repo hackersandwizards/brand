@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 1
 order: 1
 area: copy
@@ -33,6 +33,9 @@ images:
   c3: [c3-en.jpg, page-c3-k3.jpg]
   r3: r3-en.jpg
   q6: q6-en.jpg
+decision: c3
+by: Benedikt
+quote: "c3 (Agents in the team. Teams in flow. / Agenten im Team. Teams im Flow.)"
 ---
 
 # Which line is the claim, now that the home headline is its own line?

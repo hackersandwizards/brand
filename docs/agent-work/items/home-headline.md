@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 1
 order: 2
 area: copy
@@ -39,6 +39,9 @@ images:
   h2: h2-desktop.jpg
   k4: k4-desktop.jpg
   q6: q6-desktop.jpg
+decision: k3
+by: Benedikt
+quote: "k3 (Your teams have agents. Once every role is in step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden eure Releases schneller.)"
 ---
 
 # Which line is the home headline, the H1 that says what changes for the client company?
