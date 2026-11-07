@@ -14,6 +14,8 @@
                             neutral, 3 and 4 the neutral fill fading (ink at 4 % and 2 %, their
                             text ink at 66 %, 4.8:1), so no set priority looks like the outline's
                             "no value" (the hue rule in tokens.css)
+     data-state="draft"     a draft, not yet released: a dashed amber-dark line on no fill, its
+                            text amber-dark mixed 75 % into ink; on night amber
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
    changes the value) and hw-pill-remove (a button: removes the value). A leading icon is an svg
    child. With any of them the pill lays its children out in a row, 0.25em apart.
@@ -94,6 +96,12 @@
     border-color: var(--color-border-strong);
     color: var(--hw-muted, var(--color-muted));
   }
+  .hw-pill[data-state="draft"] {
+    border-style: dashed;
+    border-color: var(--color-amber-dark);
+    color: color-mix(in srgb, var(--color-amber-dark) 75%, var(--color-ink));
+    background: transparent;
+  }
   .hw-pill[data-editable] {
     border-radius: var(--hw-pill-edit-corner, var(--radius-pill));
   }
@@ -148,6 +156,11 @@
     .hw-pill[data-variant="add"] {
       border-color: color-mix(in srgb, white 40%, transparent);
       color: var(--color-night-muted);
+    }
+    .hw-pill[data-state="draft"] {
+      border-color: color-mix(in srgb, var(--color-amber) 70%, transparent);
+      color: color-mix(in srgb, var(--color-amber) 70%, var(--color-night-ink));
+      background: transparent;
     }
   }
 }

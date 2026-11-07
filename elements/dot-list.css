@@ -1,0 +1,40 @@
+/* The dot list: a line of facts, each item set apart by a middle dot (a record's meta line, a stats
+   line). An item moves to the next line whole; an item longer than a line wraps under its own text.
+   The dot hangs in the item's left margin, inside the item's text, in the text colour at 40 %; the
+   list's clip hides it on an item that starts a line, so no dot ever opens or ends a line. Keep the
+   dot in the text: drawn outside it, WebKit measures a bold item with tabular figures narrower
+   than its text and breaks its last word.
+
+   An item with data-dot="none" takes no dot (an icon link closing the line). A dot list as an item
+   of another joins its line: its items take the dots, it adds none of its own.
+
+   Each dot takes 1 em between two items.
+
+   Markup: <p class="hw-dot-list"><span>3 Deals</span><span>€ 2.7M</span><span>überfällig 4d</span></p> */
+
+@layer components {
+  .hw-dot-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    margin-left: -1em;
+    clip-path: inset(-0.5em -0.5em -0.5em 1em);
+  }
+  .hw-dot-list > :not(.hw-dot-list) {
+    margin-left: 1em;
+  }
+  .hw-dot-list > :not(.hw-dot-list)::before {
+    content: "·";
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    text-align: center;
+    color: color-mix(in srgb, currentColor 40%, transparent);
+  }
+  .hw-dot-list > [data-dot="none"]::before {
+    content: none;
+  }
+  .hw-dot-list > .hw-dot-list {
+    display: contents;
+  }
+}

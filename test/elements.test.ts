@@ -90,6 +90,7 @@ const DRIFT: Record<string, string> = {
   field: ".hw-field { border-color: var(--color-border) }",
   check: ".hw-check { border-width: 2px }",
   facts: ".hw-facts > div { row-gap: 8px }",
+  "dot-list": ".hw-dot-list { align-items: center }",
   segmented: ".hw-segmented { padding: 4px }",
   row: ".hw-row { padding: 12px }",
   breadcrumb: ".hw-breadcrumb a { color: var(--color-purple) }",
@@ -412,7 +413,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   expect(out).toEqual([
     `card: the tile on b.html says brand v0.1.0, the installed package is v${own.version}; rebuild that page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, button, arrow-link, field, check, facts, segmented, row, breadcrumb, status, frame, kpi, prose)',
+    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, button, arrow-link, field, check, facts, dot-list, segmented, row, breadcrumb, status, frame, kpi, prose)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',

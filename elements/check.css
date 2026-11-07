@@ -3,7 +3,9 @@
    app, 3:1 or more, WCAG 1.4.11; ink at 70% on a client surface), the small corner on the box,
    round on the radio. Checked, the box fills in the accent (--accent on an app, teal-dark on a
    client surface) with a white tick, a dash when indeterminate; the radio fills the same with a
-   white dot. Hover draws the line in the text colour; disabled is half opacity. Night takes the
+   white dot. Hover draws the line in the text colour; disabled is half opacity. data-readonly marks a
+   box that shows a state nobody changes here (a Markdown task list's done step, rendered disabled):
+   full opacity, the normal cursor, no hover. Night takes the
    night accent with a night tick and dot. The focus ring is focus.css's, so put hw-focus-ring on
    the page. The prose block's task box (prose.css) takes this paint too.
 
@@ -41,7 +43,7 @@
   .hw-check[type="radio"] {
     border-radius: 50%;
   }
-  .hw-check:not(:disabled, :checked):hover {
+  .hw-check:not(:disabled, :checked, [data-readonly]):hover {
     border-color: var(--_hw-hover);
   }
   .hw-check:checked,
@@ -65,6 +67,10 @@
   .hw-check:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+  .hw-check[data-readonly] {
+    opacity: 1;
+    cursor: default;
   }
   @media (prefers-reduced-motion: reduce) {
     .hw-check,

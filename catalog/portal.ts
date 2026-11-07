@@ -588,6 +588,7 @@ const ELEMENT_ORDER: [string, string, string][] = [
   ["field", "Field with button", "field"],
   ["check", "Checkbox and radio", "check"],
   ["facts", "Facts list", "facts"],
+  ["dot-list", "Dot list", "dot-list"],
   ["segmented", "Segmented control", "segmented"],
   ["row", "List row", "row"],
   ["breadcrumb", "Breadcrumb", "breadcrumb"],
