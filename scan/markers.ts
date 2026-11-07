@@ -40,7 +40,9 @@ export const CAP_SHARE = 2 / 3;
 const MAX_SIDE = 16; // CSS px; a larger square is an icon or a swatch, not a marker
 
 type Box = { x: number; y: number; width: number; height: number };
-// text spans "xxxxHHHH"; split is where the H's start, in CSS px from its left edge.
+// text spans "xxxxHHHH"; split is where the H's start, in CSS px from its left edge. The boxes are
+// in CSS px from the top left of the element nearest the line (the marker element, else the text's
+// parent), which the read scrolls into view.
 type Probe = {
   label: string;
   kind: Kind;
@@ -67,8 +69,9 @@ export function openFolds() {
     (d as HTMLDetailsElement).open = true;
 }
 
-/** Runs in the page: rewrites the line beside each marker and returns the boxes to read. */
-function collect([newline, maxSide]: [boolean, number]): Probe[] {
+/** Runs in the page: rewrites the line beside each marker and returns the boxes to read, with the
+ * element each probe of the same index scrolls into view. */
+function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anchors: Element[] } {
   if (newline)
     for (const li of document.querySelectorAll("li"))
       li.insertBefore(document.createTextNode("\n      "), li.firstChild);
@@ -184,13 +187,14 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
     range.setEnd(node, start + 4);
     return range.getClientRects()[0]!;
   };
-  const box = (left: number, right: number, top: number, bottom: number): Box => ({
-    x: left + scrollX,
-    y: top + scrollY,
-    width: right - left,
-    height: bottom - top,
-  });
-  return found.map(({ host, text, kind, mark }) => {
+  const probes = found.map(({ host, text, kind, mark }): Probe => {
+    const at = (mark ?? text.parentElement!).getBoundingClientRect();
+    const box = (left: number, right: number, top: number, bottom: number): Box => ({
+      x: left - at.left,
+      y: top - at.top,
+      width: right - left,
+      height: bottom - top,
+    });
     const t = rectOf(text);
     const c = rectOf(text, 4);
     const em = parseFloat(getComputedStyle(text.parentElement!).fontSize);
@@ -222,6 +226,7 @@ function collect([newline, maxSide]: [boolean, number]): Probe[] {
       indent: li && host === li && kind === "before" ? start - contentLeft(host) : null,
     };
   });
+  return { probes, anchors: found.map((f) => f.mark ?? f.text.parentElement!) };
 }
 
 /** Runs in the page: the y in CSS px, from the top of the shot, of the ink's middle left of `split`
@@ -299,10 +304,35 @@ export async function measureMarkers(
     await open(page, url);
     if (css) await page.addStyleTag({ content: css });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
-    // Each box is shot inside the viewport, scrolled to it: capturing beyond the viewport resizes it,
-    // and a layout sized by the viewport's height then moves under the measured boxes.
+    // A closed panel's lists are markers too.
+    await page.evaluate(openFolds);
+    const found = await page.evaluateHandle(collect, [newline, MAX_SIDE] as [boolean, number]);
+    // Each box is shot inside the viewport, its host scrolled into view in every scroll container
+    // it sits in, the window or an element such as a catalog's main: capturing beyond the viewport
+    // resizes it, and a layout sized by the viewport's height then moves under the measured boxes.
+    // Instant, whatever the page's scroll-behavior, 200px below the top as a sticky header may
+    // cover it, and a frame for the paint to follow. The anchor's top left and the viewport's top
+    // and bottom, in page px.
+    const place = (index: number) =>
+      found.evaluate(
+        ({ anchors }, i) =>
+          new Promise<{ x: number; y: number; top: number; bottom: number }>((done) => {
+            const anchor = anchors[i] as HTMLElement;
+            anchor.style.scrollMarginTop = "200px";
+            anchor.scrollIntoView({ block: "start", inline: "nearest", behavior: "instant" });
+            requestAnimationFrame(() =>
+              requestAnimationFrame(() => {
+                const r = anchor.getBoundingClientRect();
+                const [x, y] = [r.left + scrollX, r.top + scrollY];
+                done({ x, y, top: scrollY, bottom: scrollY + innerHeight });
+              }),
+            );
+          }),
+        index,
+      );
     // The ink middles left and right of split (CSS px from the clip's left edge), in page px.
-    const read = async (box: Box, split = Infinity) => {
+    const read = async (at: Awaited<ReturnType<typeof place>>, rel: Box, split = Infinity) => {
+      const box = { ...rel, x: at.x + rel.x, y: at.y + rel.y };
       // Whole px, as puppeteer would round it, so the shot starts where the offsets below count from.
       const [x, y] = [Math.round(box.x), Math.round(box.y)];
       const clip = {
@@ -311,43 +341,30 @@ export async function measureMarkers(
         width: Math.round(box.x + box.width) - x,
         height: Math.round(box.y + box.height) - y,
       };
-      // Instant, whatever the page's scroll-behavior, and a frame for the paint to follow.
-      const inView = await page.evaluate(
-        (y, h) =>
-          new Promise<boolean>((done) => {
-            scrollTo({ top: Math.max(0, y - 200), behavior: "instant" });
-            requestAnimationFrame(() =>
-              requestAnimationFrame(() => done(y >= scrollY && y + h <= scrollY + innerHeight)),
-            );
-          }),
-        clip.y,
-        clip.height,
-      );
       // A page that will not scroll there (a script holding it) is shot beyond the viewport.
       const png = await page.screenshot({
         clip,
         encoding: "base64",
-        captureBeyondViewport: !inView,
+        captureBeyondViewport: !(box.y >= at.top && box.y + box.height <= at.bottom),
       });
       const middles = await page.evaluate(inkMiddle, png, scale, split + box.x - x);
       // No ink where the marker should be: a marker drawn elsewhere, which fails as NaN.
       return middles.map((m) => (m < 0 ? NaN : y + m));
     };
     const out: Reading[] = [];
-    // A closed panel's lists are markers too.
-    await page.evaluate(openFolds);
-    for (const p of await page.evaluate(collect, [newline, MAX_SIDE] as [boolean, number])) {
+    for (const [i, p] of (await found.evaluate((f) => f.probes)).entries()) {
       // A square ::before that is not beside its first line (an absolute dot above the item) leaves
       // no room left of the text: it is decoration, not this line's marker.
       if (p.marker.width < 1 || p.text.width <= 0) continue;
-      const [x, caps] = await read(p.text, p.split);
+      const at = await place(i);
+      const [x, caps] = await read(at, p.text, p.split);
       out.push({
         page: url,
         label: p.label,
         kind: p.kind,
         scale,
         newline,
-        offset: (await read(p.marker))[0]! - (x! + CAP_SHARE * (caps! - x!)),
+        offset: (await read(at, p.marker))[0]! - (x! + CAP_SHARE * (caps! - x!)),
         indent: p.indent,
       });
     }

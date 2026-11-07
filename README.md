@@ -421,7 +421,9 @@ off, and an inline-block marker shifts the first line once a newline follows `<l
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting
 where the wrapped lines start, and on a page with no marker. It measures the pages side by side,
 one run per core, at most 8. Run it in your gate on the pages or
-specimen that show your lists. It opens every closed `<details>` outside a header or nav first.
+specimen that show your lists. It opens every closed `<details>` outside a header or nav first,
+and scrolls each list into view in every container that scrolls it, the window or an element such
+as a catalog's `main`.
 `--site <dir>` serves a built site folder on a free port for the run, a folder answering with its
 `index.html`, and a page starting with `/` is a path on it, so pages whose links start at the root
 load as published: `brand-markers --site dist /catalog/ /verify/`. Both measuring scans fail on a

@@ -116,6 +116,18 @@ ${[13, 14, 16]
 </body></html>`;
 const OLD_CHECK = `.hw-prose li.task-list-item input[type="checkbox"] { top: 0.375em; transform: none; }`;
 
+// A page that scrolls inside an element, as an Astrobook catalog does: html holds the window still
+// and main scrolls, with the list below its first screen.
+const inner = `<!doctype html><html style="overflow:hidden;height:100%"><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<style>body { margin: 0; height: 100%; font-family: var(--font-sans); }
+main { height: 100%; overflow: auto; padding: 0 40px; } ul { margin: 0; padding: 0; }</style>
+</head><body><main><div style="height:3000px"></div>
+<ul class="hw-marker-list" style="font-size:16px;line-height:1.6">${[0, 1, 2].map((i) => `<li>${item(i)}</li>`).join("")}</ul>
+<div style="height:3000px"></div></main></body></html>`;
+
 const dir = mkdtempSync(join(tmpdir(), "brand-markers-"));
 const file = (name: string, html: string) => {
   writeFileSync(join(dir, name), html);
@@ -131,6 +143,7 @@ const OLD = file("old.html", page(`${OLD_LIST}\n${OLD_ELEMENT}`));
 const NATIVE = file("disc.html", page(DISC));
 const FRACTIONAL = file("fractional.html", fractional(""));
 const PLANTED = file("unrounded.html", fractional(UNROUNDED));
+const INNER = file("inner.html", inner);
 const TASKS = file("tasks.html", tasks(""));
 const OLD_TASKS = file("old-tasks.html", tasks(OLD_CHECK));
 // The read-only tick masked with the box's own path, as v1.27.0 drew it.
@@ -199,6 +212,12 @@ test.each([2, 4])(
   },
   60_000,
 );
+
+test("a list below the first screen of an inner scroller is measured", async () => {
+  const rs = await all(INNER, 2);
+  expect(rs.length).toBe(6);
+  expect(show(rs.filter(failing))).toEqual([]);
+}, 60_000);
 
 test("the old fixed checkbox top fails", async () => {
   expect((await all(OLD_TASKS, 2)).some(failing)).toBe(true);
