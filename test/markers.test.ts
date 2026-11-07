@@ -92,9 +92,10 @@ ${Array.from({ length: 64 }, (_, k) => `<div class="slot"><ul class="hw-marker-l
 const UNROUNDED = `.hw-marker, ul > li::before {
   width: var(--hw-marker-size) !important; height: var(--hw-marker-size) !important }`;
 
-// prose.css's task checkbox at line heights 1.25 to 2, tight and loose, up to 16px text (a larger
-// box is no marker to brand-markers), against the fixed top it replaced (admin read it 0.87 to
-// 2.87px off, 2026-11-06).
+// prose.css's task checkbox, boxed and read-only (the tick alone), at line heights 1.25 to 2,
+// tight and loose, up to 16px text (a larger box is no marker to brand-markers), against the fixed
+// top it replaced (admin read it 0.87 to 2.87px off, 2026-11-06). The read-only tick drawn from the
+// box's own path read 0.63 to 0.79px low (2026-11-07).
 const tasks = (css: string) => `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
 <link rel="stylesheet" href="${brand("tokens/print.css")}">
@@ -107,6 +108,7 @@ ${[13, 14, 16]
     [1.25, 1.5, 1.75, 2].map(
       (lh) => `<div class="hw-prose" style="font-size:${size}px;line-height:${lh}"><ul>
 <li class="task-list-item"><input type="checkbox" checked disabled> A done item that wraps onto a second line in this column</li>
+<li class="task-list-item"><input type="checkbox" checked disabled data-readonly> A read-only done step, the tick alone</li>
 <li class="task-list-item"><p><input type="checkbox" checked disabled> A loose item</p></li></ul></div>`,
     ),
   )
@@ -131,6 +133,11 @@ const FRACTIONAL = file("fractional.html", fractional(""));
 const PLANTED = file("unrounded.html", fractional(UNROUNDED));
 const TASKS = file("tasks.html", tasks(""));
 const OLD_TASKS = file("old-tasks.html", tasks(OLD_CHECK));
+// The read-only tick masked with the box's own path, as v1.27.0 drew it.
+const BOX_TICK = file(
+  "box-tick.html",
+  tasks(".hw-prose li.task-list-item input[data-readonly]:checked { mask-image: var(--_hw-tick) }"),
+);
 
 let browser: Browser;
 beforeAll(async () => {
@@ -186,7 +193,7 @@ test.each([2, 4])(
   "the prose task checkbox sits within 0.25 px at %dx, and a loose item draws no marker",
   async (scale) => {
     const rs = await all(TASKS, scale);
-    expect(rs.filter((r) => r.kind === "element").length).toBe(24);
+    expect(rs.filter((r) => r.kind === "element").length).toBe(48);
     expect(rs.filter((r) => r.kind === "before")).toEqual([]);
     expect(show(rs.filter(failing))).toEqual([]);
   },
@@ -195,6 +202,11 @@ test.each([2, 4])(
 
 test("the old fixed checkbox top fails", async () => {
   expect((await all(OLD_TASKS, 2)).some(failing)).toBe(true);
+}, 60_000);
+
+test("the read-only tick on the box's own path fails", async () => {
+  const rs = await measureMarkers(browser, BOX_TICK, { scale: 2 });
+  expect(rs.filter((r) => r.label.includes("read-only") && failing(r)).length).toBe(12);
 }, 60_000);
 
 test("the old list marker fails: off centre at some size, first lines indented after a newline", async () => {

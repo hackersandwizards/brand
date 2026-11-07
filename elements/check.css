@@ -73,11 +73,14 @@
     cursor: default;
   }
   /* A read-only checkbox drops the box, so it never reads as the control beside it: done is the
-     tick alone in the accent, open a small ring in the line colour. */
+     tick alone in the accent, open a small ring in the line colour. The tick alone is the box's
+     tick lifted 0.75 of its 16 units, so the middle of its ink, which the long low stroke pulls
+     down, sits where the box's middle would. */
   @media (forced-colors: none) {
     :is(.hw-check, .hw-prose li.task-list-item input)[type="checkbox"][data-readonly]:checked {
       background-image: none;
-      mask: var(--_hw-tick) center / 100% 100% no-repeat;
+      mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7.75 L7 11.25 L13 3.75'/%3E%3C/svg%3E")
+        center / 100% 100% no-repeat;
     }
     :is(.hw-check, .hw-prose li.task-list-item input)[type="checkbox"][data-readonly]:not(
         :checked
