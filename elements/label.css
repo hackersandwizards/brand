@@ -4,7 +4,8 @@
    grey (a callout's label), data-tone="ink" in the text colour (a field's or group's name).
    data-hue sets it in a hue's text colour where its block carries that hue (a second part or speaker in purple, a
    meaning in amber, green or red, the Software Factory area in factory), from the hue table in
-   tokens.css.
+   tokens.css. A button or select inside the label (a sortable column head) keeps the label role,
+   which a CSS reset drops on controls.
 
    Settings (scales.css sets them per medium):
      --hw-label-size    the label role's size
@@ -21,6 +22,12 @@
     letter-spacing: var(--type-label-tracking);
     text-transform: var(--type-label-case);
     color: var(--color-label-text);
+  }
+  .hw-label :where(button, select) {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: inherit;
   }
   .hw-label[data-tone="muted"] {
     color: var(--hw-muted, var(--color-muted));

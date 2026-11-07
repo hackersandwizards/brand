@@ -69,7 +69,7 @@ const url = pathToFileURL(`${DIST}/index.html`).href;
 
 test("the portal's samples match their rules", async () => {
   const r = await measurePage(browser, url);
-  expect(r.seen.length).toBe(25);
+  expect(r.seen.length).toBe(26);
   expect(r.findings).toEqual([]);
 }, 60_000);
 

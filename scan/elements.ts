@@ -80,6 +80,7 @@ export const ELEMENTS: Record<string, string> = {
   field: ".hw-field",
   check: ".hw-check",
   facts: ".hw-facts",
+  "dot-list": ".hw-dot-list",
   segmented: ".hw-segmented",
   row: ".hw-row",
   breadcrumb: ".hw-breadcrumb",
@@ -161,6 +162,7 @@ const OWNS: Record<string, string[]> = {
   ],
   check: CHECK,
   facts: ["margin-top", "margin-bottom"],
+  "dot-list": ["flex-wrap", "align-items", "margin-left"],
   "facts div": ["display", "row-gap", ...borders(["top"]), "padding-top", "padding-bottom"],
   "facts dd": ["margin-left"],
   segmented: [...CORNER, ...FILL, ...borders(), ...PAD, "font-size"],
@@ -559,7 +561,7 @@ export const rules = (css: string) => {
   return out;
 };
 
-/** A state or a pseudo-element the element leaves to the surface (card.css: hover). */
+/** A state or a pseudo-element: the elements are compared at rest, so such a rule is not read. */
 const STATE = /::?(before|after|hover|focus|focus-visible|focus-within|active|visited|marker)\b/;
 
 /** The parts of a selector split at the characters `seps`, outside any parentheses. */

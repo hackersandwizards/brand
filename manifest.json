@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/card.css",
-      "sha256": "3615a5fa1851447e3583ccee034f833bb9e5489d36e4dfd9d3bcf08cc24fcce0"
+      "sha256": "ce1904bf0380f1727cfdf15f32f7a0be3dde23592063db1e80acec60ad1f2fe6"
     },
     {
       "path": "elements/code.css",
@@ -374,11 +374,11 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "a19389915ccd270352bc842c53b9baef7f338e110d77392c4bf6b8bf5c92202c"
+      "sha256": "f2281eece2d5781d3f8c3e0d503a77e051fdd84075a2c3d812f687761e1108c8"
     },
     {
       "path": "elements/focus.css",
-      "sha256": "0bdc1ce9f6d24ce98c081ffd528b7cecf5807825701e40fa38ed1f9147aee207"
+      "sha256": "4dc91313def85744dac4deed56f837e8ba0689d09086ec8f460d477392506917"
     },
     {
       "path": "elements/icon-button.css",
@@ -386,7 +386,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "375615db5d65373d70b31ceb506394382b6257b04486a97253966d3cc3770a8c"
+      "sha256": "2f6759fef0bb9b4997c4b8e13fc802ca48fd14f40b7809fb330c8f319bbdbd9d"
     },
     {
       "path": "elements/label-box.css",
@@ -398,7 +398,7 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "ad38b4e9cb22192d25ca95654223966d5bc56581d411d0cc6c27b1b76d8731db"
+      "sha256": "0cbd573d30728be29f671d50e6fc8e6e2fb2c321de3c5615743e0f7d76914bb0"
     },
     {
       "path": "elements/quote.css",
@@ -442,7 +442,7 @@
     },
     {
       "path": "elements/arrow-link.css",
-      "sha256": "1042a45d42fcbf38d4ee30cb0254c081f4dee8d33dd439bd54d5256e601249e2"
+      "sha256": "216e59f086b2cfe338f08039ce37e1be14195ebd0526da6c341033c04e965474"
     },
     {
       "path": "elements/breadcrumb.css",
@@ -454,11 +454,15 @@
     },
     {
       "path": "elements/check.css",
-      "sha256": "d6b35f2e8d3c0353608b4dfb911f8e4234b6ff8e2ce6fe567f30e35c04bf863b"
+      "sha256": "1d1774401ad0cc1da18eb8c5778cc2c940db596ecfdbd60c1a0361ab8293cb3f"
     },
     {
       "path": "elements/facts.css",
       "sha256": "be90fe498e46c1d1051173cd81e32168a575cad543754f01e0689b24628af11e"
+    },
+    {
+      "path": "elements/dot-list.css",
+      "sha256": "b658b3b886921f4fc720e41fec583ec7ddb1d867496537fd652784a7153df568"
     },
     {
       "path": "elements/field.css",
