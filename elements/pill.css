@@ -97,9 +97,11 @@
     color: var(--hw-muted, var(--color-muted));
   }
   .hw-pill[data-state="draft"] {
+    --hw-pill-hue: var(--color-amber-dark);
+    --hw-pill-hue-night: var(--color-amber);
     border-style: dashed;
-    border-color: var(--color-amber-dark);
-    color: color-mix(in srgb, var(--color-amber-dark) 75%, var(--color-ink));
+    border-color: var(--hw-pill-hue);
+    color: color-mix(in srgb, var(--hw-pill-hue) 75%, var(--color-ink));
     background: transparent;
   }
   .hw-pill[data-editable] {
@@ -158,9 +160,8 @@
       color: var(--color-night-muted);
     }
     .hw-pill[data-state="draft"] {
-      border-color: color-mix(in srgb, var(--color-amber) 70%, transparent);
-      color: color-mix(in srgb, var(--color-amber) 70%, var(--color-night-ink));
-      background: transparent;
+      border-color: color-mix(in srgb, var(--hw-pill-hue-night) 70%, transparent);
+      color: color-mix(in srgb, var(--hw-pill-hue-night) 70%, var(--color-night-ink));
     }
   }
 }

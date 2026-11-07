@@ -4,10 +4,9 @@
 
    The linked card: a card one click opens, its title link marked hw-card-link and stretched over
    the whole card, or an a.hw-card that is itself the link. Under the pointer its line turns teal
-   (teal-night on night) and the arrow after the title moves 4 px along (an hw-arrow, as the arrow
-   link draws it, so load arrow-link.css too); the link's focus ring sits on the card. Any other
-   link or control inside stays clickable above the stretched one. Hover only where a pointer
-   hovers; no motion under reduced motion.
+   (teal-night on night) and the arrow after the title, in teal-dark (teal-night), moves 4 px along
+   as the arrow link's does (arrow-link.css); focus.css puts the link's focus ring on the card. Any
+   other link or control inside stays clickable above the stretched one.
 
    Markup: <li class="hw-card"><img alt=""><a class="hw-card-link" href="…">Ada Muster<span
            class="hw-arrow" aria-hidden="true">&nbsp;<span>→</span></span></a><p>Rolle</p></li>
@@ -39,13 +38,13 @@
     border-color: color-mix(in srgb, var(--color-teal) 40%, white);
     background: color-mix(in srgb, var(--color-teal) 7%, white);
   }
-  .hw-card:has(.hw-card-link),
-  a.hw-card[href] {
+  .hw-card:is([href], :has(.hw-card-link)) {
+    --_hw-card-hover: var(--color-teal);
+    --_hw-card-arrow: var(--color-teal-dark);
     position: relative;
-    color: inherit;
-    text-decoration: none;
     transition: border-color var(--motion-fast);
   }
+  a.hw-card[href],
   .hw-card-link {
     color: inherit;
     text-decoration: none;
@@ -60,58 +59,29 @@
     position: relative;
     z-index: 1;
   }
-  :is(.hw-card:has(.hw-card-link), a.hw-card[href]) .hw-arrow {
-    color: var(--color-teal-dark);
+  .hw-card:is([href], :has(.hw-card-link)) .hw-arrow {
+    color: var(--_hw-card-arrow);
   }
-  .hw-card .hw-card-link:focus-visible {
-    outline: none;
-  }
-  .hw-card:has(.hw-card-link:focus-visible) {
-    outline: var(--hw-focus-width, 3px) solid var(--color-purple);
-    outline-offset: var(--hw-focus-offset, 2px);
-  }
-  .hw-card:has(.hw-card-link:focus-visible),
-  a.hw-card[href]:focus-visible {
-    border-color: var(--color-teal);
-  }
-  :is(.hw-card:has(.hw-card-link:focus-visible), a.hw-card[href]:focus-visible) .hw-arrow > span {
-    translate: 4px 0;
-  }
-  @media (hover: hover) {
-    :is(.hw-card:has(.hw-card-link), a.hw-card[href]):hover {
-      border-color: var(--color-teal);
-    }
-    :is(.hw-card:has(.hw-card-link), a.hw-card[href]):hover .hw-arrow > span {
-      translate: 4px 0;
-    }
+  .hw-card:is([href], :has(.hw-card-link)):is(
+      :hover,
+      :focus-visible,
+      :has(.hw-card-link:focus-visible)
+    ) {
+    border-color: var(--_hw-card-hover);
   }
   @media (prefers-reduced-motion: reduce) {
-    .hw-card:has(.hw-card-link),
-    a.hw-card[href] {
+    .hw-card:is([href], :has(.hw-card-link)) {
       transition: none;
-    }
-  }
-  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    :is(.hw-card:has(.hw-card-link), a.hw-card[href]) .hw-arrow {
-      color: var(--color-teal-night);
-    }
-    .hw-card:has(.hw-card-link:focus-visible) {
-      outline-color: var(--color-purple-night);
-    }
-    .hw-card:has(.hw-card-link:focus-visible),
-    a.hw-card[href]:focus-visible {
-      border-color: var(--color-teal-night);
-    }
-    @media (hover: hover) {
-      :is(.hw-card:has(.hw-card-link), a.hw-card[href]):hover {
-        border-color: var(--color-teal-night);
-      }
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-card {
       border-color: color-mix(in srgb, white 15%, transparent);
       background: color-mix(in srgb, white 7%, transparent);
+    }
+    .hw-card:is([href], :has(.hw-card-link)) {
+      --_hw-card-hover: var(--color-teal-night);
+      --_hw-card-arrow: var(--color-teal-night);
     }
     .hw-card[data-variant="tint"] {
       border-color: color-mix(in srgb, var(--color-teal-night) 40%, transparent);

@@ -43,7 +43,7 @@
   .hw-check[type="radio"] {
     border-radius: 50%;
   }
-  .hw-check:not(:disabled, :checked, [data-readonly]):hover {
+  .hw-check:not(:disabled, :checked):hover {
     border-color: var(--_hw-hover);
   }
   .hw-check:checked,
@@ -64,12 +64,11 @@
     background-image: radial-gradient(circle, var(--_hw-mark) 0 30%, transparent calc(30% + 0.5px));
     background-size: 100% 100%;
   }
-  .hw-check:disabled {
+  .hw-check:disabled:not([data-readonly]) {
     opacity: 0.5;
     cursor: not-allowed;
   }
   .hw-check[data-readonly] {
-    opacity: 1;
     cursor: default;
   }
   @media (prefers-reduced-motion: reduce) {

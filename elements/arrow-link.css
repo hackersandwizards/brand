@@ -1,5 +1,5 @@
 /* The arrow link: a link that is an item in a list or the way on ("Verify another certificate →"),
-   never underlined. teal-dark, ink on hover, its arrow moving 4 px along; data-tone="muted" sets it
+   never underlined. teal-dark, ink on hover, its arrow moving 4 px along (a linked card's too); data-tone="muted" sets it
    in the muted grey. The arrow is a span hw-arrow after the label's last word and a no-break space,
    holding the glyph in a span of its own; on a link to another site the glyph turns up and right
    (data-external on hw-arrow), since Inter's subset has no ↗. Display and spacing between links
@@ -31,7 +31,14 @@
     display: inline-block;
     transition: translate var(--motion-fast);
   }
-  .hw-arrow-link:is(:hover, :focus-visible) .hw-arrow > span {
+  .hw-arrow-link:is(:hover, :focus-visible) .hw-arrow > span,
+  .hw-card:is([href], :has(.hw-card-link)):is(
+      :hover,
+      :focus-visible,
+      :has(.hw-card-link:focus-visible)
+    )
+    .hw-arrow
+    > span {
     translate: 4px 0;
   }
   /* One em tall, so the turned arrow's box stays inside the line; the margin keeps a line ending on
