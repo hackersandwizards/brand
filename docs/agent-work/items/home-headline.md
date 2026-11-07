@@ -2,7 +2,7 @@
 kind: decision
 status: open
 priority: 1
-order: 17
+order: 2
 area: copy
 owner: Benedikt
 evidence: "Blind review 07.11., pass 2 of the home headline test: each candidate as the H1 of the live home page at 1440 and 375 px, EN and DE, tuning desk lined up; six personas, Claude and Codex, two runs each. Every candidate's scores in docs/agent-work/2026-11-07-claim-and-headline.md."

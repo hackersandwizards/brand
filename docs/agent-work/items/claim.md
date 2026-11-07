@@ -2,7 +2,7 @@
 kind: decision
 status: open
 priority: 1
-order: 16
+order: 1
 area: copy
 owner: Benedikt
 evidence: "Blind review 07.11., two passes plus a pairing pass, six to seven personas, Claude and Codex, two runs each; every candidate's scores in docs/agent-work/2026-11-07-claim-and-headline.md. Score: mean of the claim test (pass 2, closing slide, one-pager header and profile banner, EN and DE) and the home page with the headline k3 (pairing pass, EN and DE); for q6 today's page."
