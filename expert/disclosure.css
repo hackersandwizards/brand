@@ -3,11 +3,9 @@
    hw-disclosure on its details, and expert.css imports this file.
 
    The chevron is Lucide's chevron-right in the summary's text colour, 1em wide, 0.5rem before
-   the label, centred in a box one line high that holds a zero-width space, so it sits in the
-   middle of the label's first line whether the summary aligns its items on the centre, the start
-   or the baseline, and in the middle of a heading's line where the chevron span stands inline in
-   it. It turns down (90 degrees, 150 ms) while the details is open; without motion it
-   turns at once. A summary that needs the chevron elsewhere, inside its heading for one, holds a
+   the label, centred in a one-line-high box holding a zero-width space, so it sits in the middle
+   of the label's first line however the summary aligns. It turns down (90 degrees, 150 ms) while
+   the details is open; without motion it turns at once. A summary that needs the chevron elsewhere, inside its heading for one, holds a
    <span class="hw-disclosure-chevron" aria-hidden="true"></span> there and the summary draws none
    of its own. hw-disclosure-count is the neutral count pill beside the label.
 

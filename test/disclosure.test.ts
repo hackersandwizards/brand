@@ -3,17 +3,20 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import type { Browser } from "puppeteer-core";
+import type { Browser, Protocol } from "puppeteer-core";
 import { ROOT } from "../scripts/git";
-import { launch } from "../scan/markers";
+import { launch, open } from "../scan/markers";
 
 // A disclosure's summary takes focus.css's ring under hw-focus-ring, and its own 2 px ring without.
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
-const page = (cls: string) => `<!doctype html><html class="${cls}"><head><meta charset="utf-8">
-<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
-<link rel="stylesheet" href="${brand("elements/focus.css")}">
-<link rel="stylesheet" href="${brand("expert/disclosure.css")}">
-</head><body><details class="hw-disclosure"><summary>Panel</summary><p>Body</p></details></body></html>`;
+const doc = (sheets: string[], body: string, cls = "") =>
+  `<!doctype html><html class="${cls}"><head><meta charset="utf-8">${["generated/tokens.root.css", ...sheets, "expert/disclosure.css"].map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${body}</body></html>`;
+const page = (cls: string) =>
+  doc(
+    ["elements/focus.css"],
+    `<details class="hw-disclosure"><summary>Panel</summary><p>Body</p></details>`,
+    cls,
+  );
 
 let browser: Browser;
 beforeAll(async () => {
@@ -34,7 +37,7 @@ test.each([
     const file = join(dir, `page-${width}.html`);
     writeFileSync(file, page(cls));
     const tab = await browser.newPage();
-    await tab.goto(pathToFileURL(file).href);
+    await open(tab, pathToFileURL(file).href);
     await tab.keyboard.press("Tab");
     const measured = await tab.evaluate(() => {
       const s = document.querySelector("summary")!;
@@ -52,28 +55,30 @@ test.each([
 // inline in a heading.
 const summary = (align: string, label: string) =>
   `<details class="hw-disclosure"><summary style="width:11rem;align-items:${align}"><span class="l">${label}</span></summary></details>`;
-const chevronPage = `<!doctype html><html><head><meta charset="utf-8">
-<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
-<link rel="stylesheet" href="${brand("tokens/fonts.css")}">
-<link rel="stylesheet" href="${brand("expert/disclosure.css")}">
-<style>body { font: 500 0.875rem/1.5 var(--font-sans) } h2 { font: 700 1.25rem/1.4 var(--font-sans) }</style>
-</head><body>${["baseline", "flex-start"]
-  .flatMap((a) => [summary(a, "Agents"), summary(a, "Agentic engineering for platform teams")])
-  .join(
-    "",
-  )}${summary("center", "Agents")}<details class="hw-disclosure"><summary><h2><span class="hw-disclosure-chevron" aria-hidden="true"></span><span class="l">Delivery check-ins</span></h2></summary></details></body></html>`;
+const chevronBody = [
+  ...["baseline", "flex-start"].flatMap((a) => [
+    summary(a, "Agents"),
+    summary(a, "Agentic engineering for platform teams"),
+  ]),
+  summary("center", "Agents"),
+  `<details class="hw-disclosure"><summary><h2><span class="hw-disclosure-chevron" aria-hidden="true"></span><span class="l">Delivery check-ins</span></h2></summary></details>`,
+].join("");
+const chevronPage = doc(
+  ["tokens/fonts.css"],
+  `<style>body { font: 500 0.875rem/1.5 var(--font-sans) } h2 { font: 700 1.25rem/1.4 var(--font-sans) }</style>${chevronBody}`,
+);
 
 test("the chevron sits in the middle of the label's first line", async () => {
   const file = join(dir, "chevron.html");
   writeFileSync(file, chevronPage);
   const tab = await browser.newPage();
-  await tab.goto(pathToFileURL(file).href);
+  await open(tab, pathToFileURL(file).href);
   await tab.evaluate(() => document.fonts.ready);
   // A summary's chevron is its ::before, which only the DevTools protocol measures.
   const cdp = await tab.createCDPSession();
   const { root } = await cdp.send("DOM.getDocument", { depth: -1 });
   const pseudos: number[] = [];
-  const walk = (n: (typeof root)["children"] extends (infer T)[] | undefined ? T : never) => {
+  const walk = (n: Protocol.DOM.Node) => {
     const before = n.pseudoElements?.find((p) => p.pseudoType === "before");
     if (n.nodeName === "SUMMARY" && before) pseudos.push(before.nodeId);
     n.children?.forEach(walk);

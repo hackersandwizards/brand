@@ -15,7 +15,7 @@ import {
   sourceFindings,
   type Config,
 } from "../scan/elements";
-import { launch } from "../scan/markers";
+import { launch, open } from "../scan/markers";
 import { DEMOS } from "../scripts/element-demos";
 import { tokens } from "../generated/tokens";
 import { ROOT } from "../scripts/git";
@@ -45,9 +45,9 @@ ${["screen", "dense", "print", "stage"]
 <div data-hw-exception="total-band"><table class="hw-table"><tr><td>Sum</td></tr></table></div>
 </body></html>`;
 
-/** A page holding only `body`, on the tokens and the elements. */
-const only = (body: string, bodyClass = "") =>
-  `<!doctype html><html><head><link rel="stylesheet" href="${brand("generated/tokens.root.css")}"><link rel="stylesheet" href="${brand("elements/elements.css")}"></head><body class="${bodyClass}">${body}</body></html>`;
+/** A page holding only `body`, on the tokens, the elements and any further brand `sheets`. */
+const only = (body: string, bodyClass = "", sheets: string[] = []) =>
+  `<!doctype html><html><head>${["generated/tokens.root.css", "elements/elements.css", ...sheets].map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body class="${bodyClass}">${body}</body></html>`;
 
 const dir = mkdtempSync(join(tmpdir(), "brand-elements-"));
 const file = (name: string, html: string) => {
@@ -699,23 +699,14 @@ test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
 
 test("a keycap leaves a line of UI text as high as an inline keycap does, in every scale", async () => {
   const p = await browser.newPage();
-  const text = (kbd: (key: string) => string) =>
-    `<p style="width:16rem;font:400 0.875rem/1.5 var(--font-sans)">Mit ${kbd("/")} springt ihr in die Suche, ${kbd("⌘")} + ${kbd("K")} öffnet die Befehle, ${kbd("Esc")} schließt sie.</p>`;
-  await p.goto(
-    pathToFileURL(
-      file(
-        "kbd-line.html",
-        only(
-          ["screen", "dense", "print"]
-            .map(
-              (scale) =>
-                `<div data-hw-scale="${scale}">${text((k) => `<kbd class="hw-kbd">${k}</kbd>`)}${text((k) => `<kbd class="hw-kbd" style="display:inline">${k}</kbd>`)}</div>`,
-            )
-            .join(""),
-        ).replace("</head>", `<link rel="stylesheet" href="${brand("tokens/fonts.css")}"></head>`),
-      ),
-    ).href,
-  );
+  const text = (style = "") =>
+    `<p style="width:16rem;font:400 0.875rem/1.5 var(--font-sans)">Mit ${["/", "⌘", "K", "Esc"].map((k) => `<kbd class="hw-kbd"${style}>${k}</kbd>`).join(" ")} öffnen Suche und Befehle, schließen sie und springen zurück.</p>`;
+  const body = ["screen", "dense", "print"]
+    .map(
+      (scale) => `<div data-hw-scale="${scale}">${text()}${text(' style="display:inline"')}</div>`,
+    )
+    .join("");
+  await open(p, pathToFileURL(file("kbd-line.html", only(body, "", ["tokens/fonts.css"]))).href);
   await p.evaluate(() => document.fonts.ready);
   const lines = await p.evaluate(() =>
     [...document.querySelectorAll("div")].map((d) =>

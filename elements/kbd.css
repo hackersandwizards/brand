@@ -2,9 +2,9 @@
    text. One <kbd class="hw-kbd"> per key, the "+" or "then" between keys outside it. The code face
    on the page's ground, ink at 70 % (5.5:1 on the page), a hairline with a second one under it for
    the key's edge, the small corner. On night the night ground, night ink at 70 % and the line
-   the list row draws on night. A negative margin as deep as each border keeps the key's box out
-   of the line's height, so a line of UI text holding a key stands as high as one without. Inside a prose block the key takes not-prose too, or Typography's
-   own kbd rule wins.
+   the list row draws on night. A negative block margin as deep as each border keeps the key from
+   heightening its line. Inside a prose block the key takes not-prose too, or Typography's own
+   kbd rule wins.
 
    Settings:
      --hw-kbd-size   the type size: the label step of the medium
