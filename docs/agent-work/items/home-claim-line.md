@@ -183,7 +183,9 @@ The 35 page headlines of the website item `decide-page-headlines` (its recommend
 
 The scores in the last two columns come from one test with fit to c3 and k3 as a criterion (fit, clear, credible, language), so they compare with each other and not with the website item's scores. Each lead stands outside the panel noise (0.1 to 1.1 for these lines, 5.1 for the Enablement line as it is) and holds with both models, except Software Factory and Leaders as noted.
 
-Also raised, not changed here:
+Round 4 (report, section Round 4) read these headlines with a6 and with c3 and replaced the Enablement line above; the final set per claim is in the website item `decide-page-headlines`.
+
+Also raised here, settled in round 4 except the last:
 
 - German pages say "KI-Agenten", the claim and k3 say "Agenten". Several reviewers named the switch.
 - The second case page's quote headline: 16 of 24 reviewers would change it ("proves adoption, not better delivery"); the website item's candidate was not recommended for a reason of voice, and no new candidate was tested.

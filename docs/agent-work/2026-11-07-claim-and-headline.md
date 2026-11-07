@@ -17,7 +17,8 @@ with both. Its result is in "Round 2" below and in the decision item `home-claim
 round on 07.11. scored c3 against real competitors' claims and against new candidates on every
 surface the claim reaches. c3 lost to "More code isn't faster delivery." / "Mehr Code heißt nicht
 schneller liefern." (a6), 78.5 against 66.4. Its result is in "Round 3" below and in the decision
-item `claim-round-3`; the rollout of c3 waits for that decision.
+item `claim-round-3`; the rollout of c3 waits for that decision. A fourth round read the
+website's page headlines with each claim: "Round 4" below.
 
 ## The question
 
@@ -645,3 +646,111 @@ L04
 ```
 
 Review: large, because the claim stands on every surface and leaves the company.
+
+## Round 4: the page headlines with each claim
+
+Benedikt, 07.11., on the website item `decide-page-headlines`: "alle bitte anhand deiner
+recommendation aber denk dran auch noch den test mit claim und home headline und allen Bannern
+abzuwarten so das alles zusammen passt. ich folge dann überall deinen Empfehlungen"
+
+The website's recommended page headlines fit a6 and c3 equally: as a set, 77.5 with a6 (noise 2.9)
+and 77.8 with c3 (noise 1.2). Six lines change with either claim, one line depends on the claim:
+Blog's English "What faster code generation does to your delivery, with sources." repeats a6 for
+24 of 24 reviewers and c3 for 10 of 24, so with a6 it becomes "What agents change in your releases,
+and what the research shows." The final set per claim, every score and the three flags are in the
+website item `decide-page-headlines`.
+
+### Method
+
+- Website at commit e370f70b in a scratch folder, run with `astro dev`: the claim set in the
+  footer and the home link preview, the home H1 k3 (German with "zusammenspielen"), and the line
+  above the H1 that `home-claim-line` recommends for each claim: a6 itself, or "For CTOs and their
+  teams" with c3. Each of the 35 pages with its recommended H1, English and German, at 1440 x 900
+  and 375 x 812, in headless Chrome. Every element carrying a price is hidden in every image.
+- Pass 1, one claim per reviewer run: the home hero, footer and link preview, the 35 first screens
+  four to an image at 1440 px and three to an image at 375 px, every headline also as text. Beside
+  it, candidates for the three flags raised in round 2 (the second case page's quote, procurement
+  as a label, "KI-Agenten" against "Agenten"), and two of Benedikt's anchor headlines with the
+  lines that replace them.
+- Pass 2, for the pages pass 1 flagged (at least half the panel would change the line, or it
+  repeats the claim for nearly every reviewer): three or four candidates each in its page hero at
+  1440 px, the current line and one line from an independent drafter (a fresh
+  `claude -p --model opus` that saw the page, its lead and the rules, never the current line)
+  among them.
+- Personas as in round 3: CIO of a retail group, CTO of a Mittelstand manufacturer, VP of
+  Engineering at a scale-up, Chief Product Officer, Head of Engineering at an insurer, brand
+  strategist for DACH B2B tech services. Claude (`claude -p --model opus`) and Codex
+  (`gpt-6.1-sol`, high), two runs each, per claim: 96 reviewer runs. Each run saw one claim, in
+  its own shuffled order under neutral labels, with nothing marking a line as current.
+- Criteria, fixed before any score: voice (one voice with the claim and k3), clear, no repetition
+  (of the claim, k3 or another page), language, 0 to 10; overall 0 to 100 for the set and each
+  candidate. Two Claude runs scored the set criteria 0 to 100; they were divided by 10.
+
+### Result
+
+- The set: one voice 8.1, clear 8.0 and 7.9, no repetition 6.7 and 6.9, language 7.8 with each
+  claim. Claude scores it 74.2 and 73.4, Codex 80.8 and 82.2.
+- Six lines change with either claim, each ahead outside the noise with both models: the Copilot
+  training (it and the trainings-by-tool page said the same), Enablement, Factory Pilot
+  ("Auslieferung" reads as logistics), Knowledge base, the DIY retailer case and Procurement and
+  legal. The podcast keeps its current line, one of Benedikt's anchors, which beats the
+  replacement the website item had recommended.
+- "KI-Agenten" on German pages: as recommended, German following the English, and "Agenten"
+  throughout tie (79.6 to 81.5). The lines stay as they are.
+- The second case page's quote: no alternative leads outside the noise. The reviewers' objection
+  (adoption, not delivery) needs a delivery fact the case does not have.
+- Benedikt's three anchors score 67 to 84 here, and no line reached the 90 the website's copy rule
+  asks for. Pass 2 stopped on a plateau, and the best lines it reached are recommended.
+
+Skipped combinations: the banners, the closing slide and the one-pager with the page headlines
+(round 3 scored the claim there); the pass-2 candidates at 375 px; a second set score after pass 2.
+
+### A reviewer prompt, verbatim (round 4, pass 1, a6, CTO, Codex, run 1)
+
+The page list is cut after the third page, and the alternatives and wording versions are cut
+where marked.
+
+```text
+You are the CTO of a German Mittelstand manufacturer with 120 developers. You bought coding agents for every team and are under board pressure to show what they changed. You have seen every consulting deck.
+
+A company from Hamburg, hackers&wizards, trains and mentors engineering teams, product teams and their leaders in agentic engineering, working with AI coding agents as a team, and helps companies build Software Factories. Its buyers are CTOs, CIOs and VPs of Engineering in German-speaking Europe whose developers have coding agents while releases come no faster. German copy uses the informal plural (ihr). It is checking whether the H1 headlines of its website pages, English and German, read as one voice with its brand claim and its homepage headline.
+
+The brand claim, the short tagline beside the company name: "More code isn't faster delivery." / "Mehr Code heißt nicht schneller liefern.". It stands in the website footer under the logo and on the link preview card a shared link of the homepage shows.
+The homepage headline (H1): "Your teams have agents. Once every role is in step, your releases speed up." / "Eure Teams haben Agenten. Wenn alle Rollen zusammenspielen, werden eure Releases schneller.". In the homepage hero the claim stands as the small line above the H1.
+
+Real display: a 1440 px desktop browser and a 375 px phone; the link preview in a chat or social feed. Images are scaled to 1000 px on the long side. Look at every image (read each file):
+- /private/tmp/hlclaim-0711/review/a6/home-desktop.jpg: the homepage first screen, 1440 px, English above German
+- /private/tmp/hlclaim-0711/review/a6/home-phone.jpg: the homepage on a 375 px phone down to the visual, English left, German right
+- /private/tmp/hlclaim-0711/review/a6/footer-desktop.jpg, /private/tmp/hlclaim-0711/review/a6/footer-phone.jpg: the website footer, desktop and phone, English and German
+- /private/tmp/hlclaim-0711/review/a6/og-home.jpg: the link preview card of the homepage, English above German
+- the first screen of every page below with its H1, 1440 px, four pages per image, each labelled: /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-07.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-09.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-03.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-02.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-02.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-06.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-07.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-06.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-05.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-08.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-01.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-05.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-en-04.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-09.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-01.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-03.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-04.jpg, /private/tmp/hlclaim-0711/review/a6/pages-desktop-de-08.jpg
+- the same pages on a 375 px phone, three pages per image, English row above German row, each labelled: /private/tmp/hlclaim-0711/review/a6/pages-phone-09.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-05.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-12.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-01.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-07.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-11.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-06.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-04.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-08.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-10.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-02.jpg, /private/tmp/hlclaim-0711/review/a6/pages-phone-03.jpg
+
+The pages and their H1, in English and German:
+P04 (podcast)
+  en: Conversations with the people building software factories today.
+  de: Gespräche mit den Leuten, die heute Software Factories bauen.
+P30 (training in Cursor)
+  en: Your team runs Cursor's agent in a mode your security team allows.
+  de: Euer Team nutzt den Agenten von Cursor in einem Modus, den eure Security erlaubt.
+P18 (index of seven trainings)
+  en: Find the training for each role on your team, from developers to leaders.
+  de: Findet die Schulung für jede Rolle in eurem Team, von Entwicklung bis Führung.
+[cut here: the other 32 pages]
+
+[cut here: the alternatives for four pages and the three wording versions, each with its images]
+
+Criteria, each 0 to 10:
+- voice: it reads as the same company as the claim and the homepage headline, one voice
+- clear: within seconds you understand what changes for your company or team
+- no_repetition: it does not repeat the claim, the homepage headline or another page's headline (10 = repeats nothing)
+- language: idiomatic, natural English (for en) or natural spoken German (for de); not a translation, not stilted
+For the whole set of pages: one_voice instead of voice, and overall 0 to 100: how well the site's headlines work together with the claim and the homepage headline. For each alternative and each wording version: overall 0 to 100.
+
+Answer with JSON only, no prose before or after, in this shape:
+{"set": {"en": {"one_voice": 0, "clear": 0, "no_repetition": 0, "language": 0, "overall": 0, "below_max": "what keeps the set from full marks, at most 25 words"}, "de": {...}}, "pages": {"P01": {"en": {"voice": 0, "clear": 0, "no_repetition": 0, "language": 0, "repeats": "what it repeats, or empty", "change": false, "why": "if change, at most 15 words"}, "de": {...}}, ...}, "alternatives": {"G1-A": {"en": {"voice": 0, "clear": 0, "no_repetition": 0, "language": 0, "overall": 0, "below_max": "at most 15 words"}, "de": {...}}, ...}, "wording": {"V1": {"en": {"voice": 0, "clear": 0, "no_repetition": 0, "language": 0, "overall": 0, "below_max": "at most 15 words"}, "de": {...}}, ...}}
+covering every page P01 to P35, every alternative label and V1 to V3.
+```
+
+Review: large, because the headlines of every page change in one decision and stand beside the
+claim.
