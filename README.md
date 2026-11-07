@@ -409,7 +409,7 @@ newline follows `<li>`.
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting
 where the wrapped lines start, and on a page with no marker. It measures the pages side by side,
-one run per core. Run it in your gate on the pages or
+one run per core, at most 8. Run it in your gate on the pages or
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first.
 `--site <dir>` serves a built site folder on a free port for the run, a folder answering with its
 `index.html`, and a page starting with `/` is a path on it, so pages whose links start at the root

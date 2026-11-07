@@ -665,7 +665,11 @@ if (import.meta.main) {
   }
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
   const i = process.argv.indexOf("--base");
-  const server = config.site ? serve(config.site) : undefined;
+  if (i >= 0 && !URL.canParse(process.argv[i + 1] ?? "")) {
+    console.error("usage: brand-elements [--base <url>] [--json]");
+    process.exit(2);
+  }
+  const server = i < 0 && config.site ? serve(config.site) : undefined;
   const base = i < 0 ? server?.url : new URL(process.argv[i + 1]!);
   const browser = await launch();
   const results: PageResult[] = [];

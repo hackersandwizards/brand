@@ -33,8 +33,8 @@ const esc = (s: unknown) =>
     /[&<>"]/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!,
   );
-const table = (head: string[], rows: unknown[][]) =>
-  `<table><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows
+const table = (head: string[], rows: unknown[][], cls?: string) =>
+  `<table${cls ? ` class="${cls}"` : ""}>${head.length ? `<thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>` : ""}<tbody>${rows
     .map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`)
     .join("")}</tbody></table>`;
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
@@ -541,7 +541,7 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
 <div class="assets">${press.photos
   .map((p) => {
     index.push({ t: p.file, k: "press", h: `pressekit/press-${slug(p.file)}`, x: p.shows });
-    return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${"cut" in p ? `, <a href="press/${p.cut}" download>640 px cut</a>` : ""}</figcaption></figure>`;
+    return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${"cut" in p ? `, <a href="press/${p.cut}" download>${code(p.cut)}</a>` : ""}</figcaption></figure>`;
   })
   .join("")}</div>`;
 const dropdownOptions = ["All (116)", "Context engineering (12)", "Testing (9)"]
@@ -849,30 +849,47 @@ const metaOf = (k: (typeof PAIRS)[number]) =>
     .filter(Boolean)
     .map((m) => `<small class="meta">${esc(m)}</small>`)
     .join("");
+// The language tag shows where the columns stack, on a phone.
+const tag = (lang: string) => `<span class="hw-label words-tag" data-tone="muted">${lang}</span>`;
 const wordText = (v: string | null, lang: string) =>
   v
     ? `<p lang="${lang}">${esc(v)}</p>`
     : `<p><span class="hw-label" data-tone="muted">No German text yet</span></p>`;
-const retiredRows = verbal.retired
-  .map(
-    (r) =>
-      `<tr><td lang="${r.lang}">${esc(r.text)}</td><td>${r.lang.toUpperCase()}</td><td>${"retired" in r ? r.retired : "before the claim"}</td></tr>`,
-  )
-  .join("");
 const wordsHtml = `<p>The claim, mission, vision, values and terms as ${code("verbal/verbal.json")}, exported as ${code("@hackersandwizards/brand/verbal.json")}: a surface imports the text instead of retyping it. Source: ${esc(verbal.source)}</p>
-<table class="hw-table words-cols"><thead><tr><th>Element</th><th>English</th><th>Deutsch</th></tr></thead><tbody>${PAIRS.map(
+<table class="hw-table words words-cols"><thead><tr><th>Element</th><th>English</th><th>Deutsch</th></tr></thead><tbody>${PAIRS.map(
   (k) =>
-    `<tr><td class="words-el"><strong>${k[0]!.toUpperCase() + k.slice(1)}</strong>${metaOf(k)}</td><td data-lang="EN">${wordText(verbal[k].en, "en")}</td><td data-lang="DE">${wordText(verbal[k].de, "de")}</td></tr>`,
+    `<tr><td><strong>${k[0]!.toUpperCase() + k.slice(1)}</strong>${metaOf(k)}</td><td data-lang>${tag("EN")}${wordText(verbal[k].en, "en")}</td><td data-lang>${tag("DE")}${wordText(verbal[k].de, "de")}</td></tr>`,
 ).join("")}</tbody></table>
 <h3>Name, values, terms</h3>
-<table class="hw-table"><tbody>
-<tr><td class="words-el"><strong>Name</strong></td><td><p>${esc(verbal.name.company)}, legal ${esc(verbal.name.legal)}. ${esc(verbal.name.rule)}</p></td></tr>
-<tr><td class="words-el"><strong>Values</strong></td><td>${verbal.values.map((v) => `<p><strong>${esc(v.name)}</strong>: ${esc(v.line)}</p>`).join("")}</td></tr>
-<tr><td class="words-el"><strong>Terms</strong></td><td><p>${esc(verbal.terms.primary)}, with its components ${esc(verbal.terms.components.join(", "))}; the anti-pattern: ${esc(verbal.terms.antiPattern)}</p></td></tr>
-</tbody></table>
+${table(
+  [],
+  [
+    [
+      "<strong>Name</strong>",
+      `<p>${esc(verbal.name.company)}, legal ${esc(verbal.name.legal)}. ${esc(verbal.name.rule)}</p>`,
+    ],
+    [
+      "<strong>Values</strong>",
+      verbal.values.map((v) => `<p><strong>${esc(v.name)}</strong>: ${esc(v.line)}</p>`).join(""),
+    ],
+    [
+      "<strong>Terms</strong>",
+      `<p>${esc(verbal.terms.primary)}, with its components ${esc(verbal.terms.components.join(", "))}; the anti-pattern: ${esc(verbal.terms.antiPattern)}</p>`,
+    ],
+  ],
+  "hw-table words",
+)}
 <details class="hw-disclosure words-fold"><summary>Retired lines <span class="hw-disclosure-count">${verbal.retired.length}</span></summary>
 <p>No longer used anywhere; each was replaced by the claim or the mission. ${code("brand-retired")} fails a build that still shows one.</p>
-<table class="hw-table"><thead><tr><th>Line</th><th>Language</th><th>Retired</th></tr></thead><tbody>${retiredRows}</tbody></table></details>`;
+${table(
+  ["Line", "Language", "Retired"],
+  verbal.retired.map((r) => [
+    `<span lang="${r.lang}">${esc(r.text)}</span>`,
+    r.lang.toUpperCase(),
+    "retired" in r ? r.retired : "before the claim",
+  ]),
+  "hw-table",
+)}</details>`;
 
 const pages: [string, string, string][] = [
   ["colours", "Colours", coloursHtml],
@@ -960,10 +977,12 @@ const html = `<!doctype html>
     .meta { color: var(--color-muted); }
     /* The words view: ruled tables (hw-table) at the view's width, one paragraph per text. */
     .portal-views .hw-table { width: 100%; }
-    .hw-table p { margin: 0; }
-    .hw-table p + p { margin-top: 0.25rem; }
-    .words-el { width: 11rem; min-width: 11rem; }
-    .words-cols td[data-lang] { width: calc(50% - 5.5rem); }
+    .portal-views .hw-table p { margin: 0; }
+    .portal-views .hw-table p + p { margin-top: 0.25rem; }
+    .words { --words-el: 11rem; }
+    .words td:first-child { width: var(--words-el); min-width: var(--words-el); }
+    .words-cols td[data-lang] { width: calc(50% - var(--words-el) / 2); }
+    .words-tag { display: none; }
     .words-cols .meta { display: block; margin-top: 0.125rem; font: 400 0.75rem var(--font-code); white-space: nowrap; }
     .words-fold { margin-top: 2rem; }
     .words-fold > summary { font-family: var(--font-mono); font-size: var(--text-h4); padding: 0.25rem 0; }
@@ -1056,14 +1075,13 @@ const html = `<!doctype html>
     .portal .quick { grid-template-columns: minmax(0, 1fr); }
     .portal #results a { flex-wrap: wrap; gap: 0.25rem 0.75rem; }
     .portal #results a .label { min-width: 0; flex-basis: 100%; }
+    .portal .words { --words-el: 5.5rem; }
     .portal .words-cols thead { display: none; }
-    .portal .words-cols :is(tr, td) { display: block; width: auto !important; }
-    .portal .words-cols .words-el { border-bottom: 0; padding-bottom: 0.25rem; }
-    .portal .words-cols td[data-lang] { border-bottom: 0; display: grid !important; grid-template-columns: 2.5rem minmax(0, 1fr); padding-bottom: 0.25rem; }
-    .portal .words-cols td[data-lang]::before { content: attr(data-lang); font-family: var(--type-label-family); font-size: var(--hw-label-size, var(--type-label-size)); letter-spacing: var(--type-label-tracking); color: var(--color-muted); padding-top: 0.15em; }
+    .portal .words-cols :is(tr, td) { display: block; }
+    .portal .words-cols :is(td, td:first-child) { width: auto; min-width: 0; border-bottom: 0; padding-bottom: 0.25rem; }
+    .portal .words-cols td[data-lang] { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); }
+    .portal .words-cols .words-tag { display: block; padding-top: 0.15em; }
     .portal .words-cols tr { border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
-    .portal .words-el { width: 5.5rem; min-width: 5.5rem; }
-    .portal .words-cols .words-el { min-width: 0; }
   }
 </style>
 <link rel="stylesheet" href="expert/select.css">

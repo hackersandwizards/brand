@@ -402,7 +402,8 @@ if (import.meta.main) {
   const server = site ? serve(site) : undefined;
   const browser = await launch();
   const pages = named.map((a) => toUrl(a, server?.url));
-  // Every page at every scale, with and without the newline, run side by side, one run per core.
+  // Every page at every scale, with and without the newline, run side by side: one run per core, at
+  // most 8, as a run at 4x holds a 5120 x 3600 surface.
   const runs = pages.flatMap((url) =>
     scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
   );
@@ -410,7 +411,7 @@ if (import.meta.main) {
   let next = 0;
   try {
     await Promise.all(
-      Array.from({ length: Math.min(runs.length, availableParallelism()) }, async () => {
+      Array.from({ length: Math.min(runs.length, availableParallelism(), 8) }, async () => {
         for (let i = next++; i < runs.length; i = next++) {
           const { url, ...options } = runs[i]!;
           done[i] = await measureMarkers(browser, url, { ...options, width });
