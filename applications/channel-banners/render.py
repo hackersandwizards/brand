@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pillow>=11", "fonttools>=4", "brotli>=1"]
+# dependencies = ["pillow>=11", "fonttools>=4", "brotli>=1", "resvg-py>=0.2"]
 # ///
 """Render every channel banner into this folder from this repo's lockup and fonts.
 
@@ -26,6 +26,7 @@ from runpy import run_path
 from fontTools.ttLib import TTFont
 
 from PIL import Image, ImageChops, ImageDraw, ImageFont
+from resvg_py import svg_to_bytes
 
 HERE = Path(__file__).resolve().parent
 DOCS = HERE
@@ -268,8 +269,8 @@ def claim_lines():
 
 
 PROFILE_LINES = claim_lines()
-PROFILE_LOGOS = [("mercedes-benz", 569, 63), ("dm", 682.5, 59), ("tchibo", 842, 47), ("vorwerk", 1025, 53), ("bonprix", 1201.5, 45)]
-FEATURED_LOGOS = [("mercedes-benz", 188, 78), ("dm", 327.5, 72), ("tchibo", 522.5, 57), ("vorwerk", 747, 64), ("bonprix", 963.5, 55)]
+PROFILE_LOGOS = [("mercedes-benz.webp", 569, 63), ("dm.svg", 682.5, 59), ("tchibo.svg", 842, 47), ("vorwerk.svg", 1025, 53), ("bonprix.webp", 1201.5, 45)]
+FEATURED_LOGOS = [("mercedes-benz.webp", 188, 78), ("dm.svg", 327.5, 72), ("tchibo.svg", 522.5, 57), ("vorwerk.svg", 747, 64), ("bonprix.webp", 963.5, 55)]
 
 
 # file name -> (surface, scale)
@@ -361,7 +362,10 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
         x0, x1 = x0 + round(margin * k), x1 + round(margin * k)
         band = Image.new("RGB", (x1 - x0, y1 - y0), (255, 255, 255))
         for file, cx, cy, lh in s["logos"]["items"]:
-            src = Image.open(CLIENTS / f"{file}.webp").convert("RGB")
+            path = CLIENTS / file
+            if path.suffix == ".svg":
+                path = BytesIO(svg_to_bytes(svg_path=str(path), height=round(lh * k * 4), background="white"))
+            src = Image.open(path).convert("RGB")
             lw = lh * src.width / src.height
             src = src.resize((round(lw * k), round(lh * k)), Image.LANCZOS)
             band.paste(src, (round((cx + margin - lw / 2) * k) - x0, round((cy - lh / 2) * k) - y0))

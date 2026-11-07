@@ -1,11 +1,13 @@
 [
   {
     "name": "Tchibo",
-    "file": "tchibo.webp"
+    "file": "tchibo.svg",
+    "source": "Symbol svg of https://www.tchibo.de/static/svgs/tchibo.svg, the site's header logo; viewBox cropped to the drawn mark"
   },
   {
     "name": "SIGNAL IDUNA",
-    "file": "signal-iduna.webp"
+    "file": "signal-iduna.svg",
+    "source": "Header logo signal-iduna-logo.svg on https://www.signal-iduna.de/; viewBox cropped to the drawn mark"
   },
   {
     "name": "IONOS",
@@ -13,7 +15,8 @@
   },
   {
     "name": "Krombacher",
-    "file": "krombacher.webp"
+    "file": "krombacher.svg",
+    "source": "https://www.krombacher.de/static/img/whitelabel/krombacher-reloaded/logo.svg; viewBox cropped to the drawn mark"
   },
   {
     "name": "Mercedes-Benz",
@@ -25,7 +28,8 @@
   },
   {
     "name": "blau direkt",
-    "file": "blau-direkt.webp"
+    "file": "blau-direkt.svg",
+    "source": "https://www.blaudirekt.de/wp-content/uploads/2024/06/bd-logo.svg on https://www.blaudirekt.de/pressebereich/; viewBox cropped to the drawn mark"
   },
   {
     "name": "Picnic",
@@ -43,7 +47,8 @@
   },
   {
     "name": "Vorwerk",
-    "file": "vorwerk.webp"
+    "file": "vorwerk.svg",
+    "source": "https://www.vorwerk-group.com/shared/assets/logos/Vorwerk_Logo.svg; viewBox cropped to the drawn mark"
   },
   {
     "name": "Moonfare",
@@ -51,11 +56,13 @@
   },
   {
     "name": "LichtBlick",
-    "file": "lichtblick.webp"
+    "file": "lichtblick.svg",
+    "source": "Inline header SVG on https://www.lichtblick.de/; viewBox cropped to the drawn mark"
   },
   {
     "name": "dm",
-    "file": "dm.webp"
+    "file": "dm.svg",
+    "source": "First-paint logo, an SVG data URI, on https://www.dm.de/; viewBox cropped to the drawn mark"
   },
   {
     "name": "EGYM",
@@ -68,7 +75,8 @@
   },
   {
     "name": "EUROGATE",
-    "file": "eurogate.webp"
+    "file": "eurogate.svg",
+    "source": "https://www1.eurogate.de/wp-content/themes/eurogate/img/logo.svg; viewBox cropped to the drawn mark"
   },
   {
     "name": "bonprix",
@@ -80,7 +88,8 @@
   },
   {
     "name": "1GLOBAL",
-    "file": "1global.webp"
+    "file": "1global.svg",
+    "source": "https://docs.things.1global.com/img/logo.svg on 1GLOBAL's partner logo guidelines; viewBox cropped to the drawn mark"
   },
   {
     "name": "OMR",

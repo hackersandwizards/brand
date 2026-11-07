@@ -233,7 +233,7 @@ const shownLogos = ["lockup", "lockup-compact", "wordmark"];
 const pick = (re: RegExp) => logoFiles.filter((p) => re.test(p));
 const DELIVERY: [string, string[]][] = [
   [
-    "A screen header up to 40 px tall: the lockup with the wizard embedded at 128 px, 15 KB instead of 50 KB, identical on screen.",
+    "A header up to 40 px tall, on screen or in print: the lockup with the wizard embedded at 256 px, 25 KB instead of 50 KB, alike at that size.",
     pick(/^logos\/lockup-screen/),
   ],
   [

@@ -319,10 +319,11 @@ for (const base of Object.keys(LIFT))
   for (const kind of ["night", "outline"] as const) await writeCut(base, kind);
 for (const kind of ["white", "black"] as const) await writeCut("wordmark", kind);
 
-// The screen cuts of the lockup, for a header up to 40 px tall: lockup-screen and
-// lockup-screen-night carry every embedded raster at a quarter of its pixels, the wizard at 128 px,
-// sharp to 3x at 40 px. Same geometry and colours, so a page needs no rebuild of its own.
-const SCREEN = 4;
+// The small cuts of the lockup, for a header up to 40 px tall on screen or in print: lockup-screen
+// and lockup-screen-night carry every embedded raster at half its pixels, the wizard at 256 px,
+// sharp to 6x at 40 px, past 384 dpi in a PDF. Same geometry and colours, so a page needs no
+// rebuild of its own.
+const SCREEN = 2;
 for (const [from, to] of [
   ["lockup", "lockup-screen"],
   ["lockup-night", "lockup-screen-night"],
