@@ -12,6 +12,10 @@ Teams in flow. / Agenten im Team. Teams im Flow.)" and "k3 (Your teams have agen
 step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden
 eure Releases schneller.)". Both stand in `verbal.json` since v1.29.0.
 
+A second round on 07.11. tested what stands above the home H1 with c3 and k3, the claim on every
+other surface, and the page headlines with both. Its result is in "Round 2" below and in the
+decision item `home-claim-line`.
+
 ## The question
 
 Benedikt, 07.11. (relayed by Ada): "das ist ok aber ich finde der claim ist noch nich 100% da wo er sein sollte.
@@ -291,6 +295,117 @@ L12
 Answer with JSON only, no prose before or after, in this shape:
 {"L01": {"en": {"clear": 0, "relevant": 0, "credible": 0, "distinctive": 0, "fit_hero": 0, "language": 0, "overall": 0, "below_max": "what keeps this from full marks, at most 20 words"}, "de": {...}}, ...}
 covering every label from L01 to L12.
+```
+
+## Round 2: the line above the home H1, the claim on every surface, the page headlines
+
+Benedikt, 07.11., on learning that with c3 the home page would carry no small claim line above the
+H1: "das ist ungünstig ich denke da sollte wieder was stehen. bitte variationen erzeugen und
+reviewen lassen. auch in der combination überschrift und claim und auch dort wo die banner benutzt
+werden ob das da gut abschneidet. wir sollten das sauber und ganzheitlich betrachten und auswerten
+und nicht isoliert." And: "was sagen die reviewer eigentlich zu den anderen headlines? da habe ich
+noch gar nichts gesehen bisher"
+
+### Sources on a line above the headline
+
+Fetched 07.11.:
+
+- "include a concise tagline on your homepage to communicate who you are and what you do"; "Your
+  tagline should be immediately visible on your homepage" (Huei-Hsin Wang, Nielsen Norman Group,
+  "Homepage Design: 5 Fundamental Principles", 15.03.2024).
+- "Keep the header short and sweet." "Avoid lengthy copy and focus on the value you're offering"
+  (Ben Holness, Articulate Marketing, "12 top tips for B2B tech homepages", undated).
+- The searches for eyebrow practice turned up design-system pages and vendor blogs without data.
+  They agree that an eyebrow is a short label for context (a category, an audience) and is
+  redundant where the headline already carries it. None compares a hero with and without one.
+
+So a short line that says who the company is or whom it serves is common practice. Whether it
+should be the brand claim is open in these sources; this round measured it.
+
+### Method
+
+- Home: the website at commit 6823935c, copied to a scratch folder, pinned to brand v1.29.0, the
+  H1 set to `headline` (k3), run with `astro dev` and shot in headless Chrome at 1440 x 900 and at
+  375 px from the top to the tuning desk, English and German, the desk lined up. Variants set the
+  line by script in the hero's own classes: the section eyebrow (`meta-line`) above or under the
+  H1, the hero footer line's style at the foot of the copy or under the desk. The price in the
+  assessment link is removed from every image, since this repository is public.
+- Surfaces: the seven claim banners drawn by `applications/channel-banners/render.py` from a
+  scratch copy of `verbal.json` with c3 and with q6 (three of the c3 files compared byte for byte match the shipped ones), the photo circle laid over where the renderer's comments measured it (X, XING, Facebook)
+  and YouTube cut to its desktop strip; the deck closing slide from the slides package's built
+  print catalog; the header of the AE-LEAD one-pager (os, the version without price); the website
+  footer at 1440 and 375 px; and the link preview from the website's `scripts/og/generate.mjs`.
+  The mocks were not checked against a fresh screenshot of each platform this round.
+- Page headlines: the 35 lines of the website item `decide-page-headlines` as text, with c3 and
+  k3 fixed above them. Then, for the four the reviewers would change most, the website item's
+  other candidates and five new drafts of this round, each scored on its own.
+- Personas: CIO of a retail group, CTO of a Mittelstand manufacturer, VP of Engineering at a
+  scale-up, Chief Product Officer, Head of Engineering at an insurer, brand strategist for DACH B2B
+  tech services. Claude (`claude -p --model opus`) and Codex (`gpt-6.1-sol`, high), two runs each,
+  shuffled order and neutral labels per run, nothing marking a version as current or naming an
+  author: 120 reviewer runs.
+- Criteria, fixed before any score. Home: together, clear, distinctive, calm, language, overall.
+  Surfaces: fit, clear, distinctive, calm, language, overall. Page set: one company (0 to 10), and
+  per headline fit, repeats and change. Alternatives: fit, clear, credible, language, overall.
+
+### Result
+
+The tables are in the item `home-claim-line`.
+
+- The claim in the home hero loses wherever it stands: 67.5 to 72.2 against 79.1 for nothing above
+  the H1 (panel noise 0.2 to 2.1). c3 and k3 both say agents and teams ("together" 5.0 to 6.6).
+- A line that is not the claim ties with nothing: in pass 2 "For CTOs and their teams" 77.6,
+  nothing 78.6 (noise 1.4). Claude reviewers miss a buyer cue without a line; Codex reviewers miss
+  nothing. Pass 2 found no hero above pass 1's leader: a plateau.
+- German "Wenn alle Rollen zusammenspielen" reads better than "eingespielt sind" with both models
+  in both passes (language 8.5 and 8.3 against 7.2 and 7.5); it runs the desktop H1 to six lines.
+- On the other eleven surfaces q6 scores 73.5 and c3 71.2 on the panel mean. Only Claude carries
+  that lead; Codex ties and prefers c3 on six surfaces. c3 is calmer, reads better on the banners and says less (distinctive 4.7 against 6.2). The images, c3 and q6 per surface, are in `2026-11-07-claim-and-headline/`.
+- The website's page headlines read as one company with c3 and k3 at 7.6 of 10. Three recommended
+  lines repeat k3's opening or its arc for 22 to 24 of 24 reviewers: Trainings overview, Training
+  Leaders, Software Factory. With Enablement they are the four to change; the item names the line
+  that fits better for each, 76.8 to 81.6 against 59.3 to 72.5.
+
+Skipped combinations: the LinkedIn company cover, the featured link and the OMR cover (they carry no
+claim), the claim banners on a phone, the trainer hub, os documents other than the one-pager.
+
+### A reviewer prompt, verbatim (round 2, home pass 1, CTO, Codex, run 1)
+
+The list of candidates is cut after the fourth of eight.
+
+```text
+You are the CTO of a German Mittelstand manufacturer with 120 developers. You bought coding agents for every team and are under board pressure to show what they changed. You have seen every consulting deck.
+
+A company from Hamburg, hackers&wizards, trains and mentors engineering teams, product teams and their leaders in working with AI coding agents (agentic engineering). Its buyers are CTOs, CIOs and VPs of Engineering whose developers have coding agents while releases come no faster. German copy uses the informal plural (ihr). It is deciding what stands in the hero of its homepage around the H1. The H1 is the same in every candidate except where the candidate text says otherwise; the candidates differ in whether a short line stands near the H1, what it says and where it sits. The brand also uses a short claim on decks, banners and in the footer.
+
+Each candidate is shown on the real homepage, unchanged otherwise: the lead sentence under the H1, the buttons, a link to an assessment, and beside it a visual of a tuning desk where five role sliders (Leadership, Product, Engineering, QA, DevOps) move from "ad hoc" to "team standard"; once they line up, the delivery waveform plays and the caption reads "in flow". Real display: a 1440 px desktop browser and a 375 px phone. Images are scaled to 1000 px on the long side. Look at every image (read each file), then score every candidate on its own, for English and for German.
+
+Criteria, each 0 to 10:
+- together: the short line (where there is one) and the H1 each do their own job, neither repeats the other, and the hero reads as one message; with no short line, judge whether the hero misses one
+- clear: within seconds you understand who this company is and what changes for your company
+- distinctive: it could not stand just as well on a competitor's homepage
+- calm: visual and verbal calm, breathing room, the hero not cramped or busy
+- language: idiomatic, natural English (for en) or natural spoken German (for de); not a translation, not stilted
+Then overall, 0 to 100: how well this hero works as the first screen of the homepage.
+
+Candidates:
+H01
+  H1: Your teams have agents. Once every role is in step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden eure Releases schneller.
+  short line above the H1: Agents in the team. Teams in flow. / Agenten im Team. Teams im Flow.
+  images (desktop English, desktop German, phone English left and German right): /private/tmp/claimline-0711/img/r-home-eyebrow-c3-desktop-en.png, /private/tmp/claimline-0711/img/r-home-eyebrow-c3-desktop-de.png, /private/tmp/claimline-0711/img/r-home-eyebrow-c3-phone.png
+H02
+  H1: Your teams have agents. Once every role is in step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden eure Releases schneller.
+  short line above the H1: For CTOs, CIOs and engineering leaders / Für CTOs, CIOs und Engineering-Leitungen
+  images (desktop English, desktop German, phone English left and German right): /private/tmp/claimline-0711/img/r-home-eyebrow-audience-desktop-en.png, /private/tmp/claimline-0711/img/r-home-eyebrow-audience-desktop-de.png, /private/tmp/claimline-0711/img/r-home-eyebrow-audience-phone.png
+H03
+  H1: Your teams have agents. Once every role is in step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden eure Releases schneller.
+  short line under the tuning desk: Agents in the team. Teams in flow. / Agenten im Team. Teams im Flow.
+  images (desktop English, desktop German, phone English left and German right): /private/tmp/claimline-0711/img/r-home-desk-c3-desktop-en.png, /private/tmp/claimline-0711/img/r-home-desk-c3-desktop-de.png, /private/tmp/claimline-0711/img/r-home-desk-c3-phone.png
+H04
+  H1: Your teams have agents. Once every role is in step, your releases speed up. / Eure Teams haben Agenten. Wenn alle Rollen zusammenspielen, werden eure Releases schneller.
+  no short line
+  images (desktop English, desktop German, phone English left and German right): /private/tmp/claimline-0711/img/r-home-none-z-desktop-en.png, /private/tmp/claimline-0711/img/r-home-none-z-desktop-de.png, /private/tmp/claimline-0711/img/r-home-none-z-phone.png
+...
 ```
 
 Review: large, because the claim and the home headline leave the company and stand on every surface.
