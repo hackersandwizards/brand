@@ -12,14 +12,15 @@
 // both are capitals and the target is the caps' middle. Markers found: a square ::before (side up
 // to 16px) on a list item or its opening paragraph, an empty square element (up to 16px) followed
 // by text in its row that is the brand's .hw-marker or an item's first element, a bullet glyph as a
-// ul item's ::before content, and the browser's own marker in a ul. Not measured: a heading's or
+// ul item's ::before content, and the browser's own marker in a ul. A drawn marker on an item that
+// also keeps the browser's own fails, whatever its offset. Not measured: a heading's or
 // link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--json] <url, html file or
 // site path>... --site serves a built folder on a free port, and a page starting with / is a path
 // on it.
-// Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, or a page
-// with no marker (a zero proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
+// Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
+// two markers, or a page with no marker (a zero proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, statSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import { join, resolve } from "node:path";
@@ -50,6 +51,7 @@ type Probe = {
   text: Box;
   split: number;
   indent: number | null;
+  double: boolean;
 };
 export type Kind = "before" | "element" | "native" | "glyph";
 export type Reading = {
@@ -60,6 +62,7 @@ export type Reading = {
   newline: boolean;
   offset: number;
   indent: number | null;
+  double: boolean;
 };
 
 /** Runs in the page: opens every closed <details>, whose contents are drawn only once it opens. Not
@@ -224,6 +227,13 @@ function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anch
       text: box(t.left, c.right, t.top, t.bottom),
       split: c.left - t.left,
       indent: li && host === li && kind === "before" ? start - contentLeft(host) : null,
+      // A square drawn on an item the browser still gives its own marker: two markers on one line.
+      double:
+        kind !== "native" &&
+        !!li &&
+        getComputedStyle(li).display === "list-item" &&
+        (getComputedStyle(li).listStyleType !== "none" ||
+          getComputedStyle(li).listStyleImage !== "none"),
     };
   });
   return { probes, anchors: found.map((f) => f.mark ?? f.text.parentElement!) };
@@ -311,12 +321,19 @@ export async function measureMarkers(
     // it sits in, the window or an element such as a catalog's main: capturing beyond the viewport
     // resizes it, and a layout sized by the viewport's height then moves under the measured boxes.
     // Instant, whatever the page's scroll-behavior, 200px below the top as a sticky header may
-    // cover it, and a frame for the paint to follow. The anchor's top left and the viewport's top
-    // and bottom, in page px.
+    // cover it, and a frame for the paint to follow. The anchor's top left and the viewport's four
+    // edges, in page px.
     const place = (index: number) =>
       found.evaluate(
         ({ anchors }, i) =>
-          new Promise<{ x: number; y: number; top: number; bottom: number }>((done) => {
+          new Promise<{
+            x: number;
+            y: number;
+            top: number;
+            bottom: number;
+            left: number;
+            right: number;
+          }>((done) => {
             const anchor = anchors[i] as HTMLElement;
             anchor.style.scrollMarginTop = "200px";
             anchor.scrollIntoView({ block: "start", inline: "nearest", behavior: "instant" });
@@ -324,7 +341,14 @@ export async function measureMarkers(
               requestAnimationFrame(() => {
                 const r = anchor.getBoundingClientRect();
                 const [x, y] = [r.left + scrollX, r.top + scrollY];
-                done({ x, y, top: scrollY, bottom: scrollY + innerHeight });
+                done({
+                  x,
+                  y,
+                  top: scrollY,
+                  bottom: scrollY + innerHeight,
+                  left: scrollX,
+                  right: scrollX + innerWidth,
+                });
               }),
             );
           }),
@@ -341,11 +365,17 @@ export async function measureMarkers(
         width: Math.round(box.x + box.width) - x,
         height: Math.round(box.y + box.height) - y,
       };
-      // A page that will not scroll there (a script holding it) is shot beyond the viewport.
+      // A page that will not scroll there (a script holding it, a page wider than the viewport
+      // that hides its overflow) is shot beyond the viewport.
+      const inside =
+        box.y >= at.top &&
+        box.y + box.height <= at.bottom &&
+        box.x >= at.left &&
+        box.x + box.width <= at.right;
       const png = await page.screenshot({
         clip,
         encoding: "base64",
-        captureBeyondViewport: !(box.y >= at.top && box.y + box.height <= at.bottom),
+        captureBeyondViewport: !inside,
       });
       const middles = await page.evaluate(inkMiddle, png, scale, split + box.x - x);
       // No ink where the marker should be: a marker drawn elsewhere, which fails as NaN.
@@ -366,6 +396,7 @@ export async function measureMarkers(
         newline,
         offset: (await read(at, p.marker))[0]! - (x! + CAP_SHARE * (caps! - x!)),
         indent: p.indent,
+        double: p.double,
       });
     }
     return out;
@@ -376,7 +407,9 @@ export async function measureMarkers(
 
 // Written as "not within" so a NaN offset, from a marker and a text that both show no ink, fails.
 export const failing = (r: Reading) =>
-  !(Math.abs(r.offset) <= TOLERANCE) || (r.indent !== null && !(Math.abs(r.indent) <= TOLERANCE));
+  r.double ||
+  !(Math.abs(r.offset) <= TOLERANCE) ||
+  (r.indent !== null && !(Math.abs(r.indent) <= TOLERANCE));
 
 /** A page argument as a URL: a URL as it is, a path starting with / on the served site `site`, else
  * a file. */
@@ -483,7 +516,8 @@ if (import.meta.main) {
     for (const r of bad)
       console.error(
         `${r.page} ${r.label} (${r.kind}, ${r.scale}x${r.newline ? ", newline after <li>" : ""}): ` +
-          `${r.offset.toFixed(2)} px off${r.indent === null ? "" : `, first line ${r.indent.toFixed(2)} px in`}`,
+          `${r.offset.toFixed(2)} px off${r.indent === null ? "" : `, first line ${r.indent.toFixed(2)} px in`}` +
+          (r.double ? ", and the browser's own marker beside it" : ""),
       );
     for (const url of empty) console.error(`${url}: no marker found`);
     console.log(

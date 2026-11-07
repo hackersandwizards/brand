@@ -56,6 +56,7 @@ ${[
 <ul class="hw-marker-list" style="font-size:16px;line-height:1.6"><li><code style="font-family:var(--font-code);font-size:0.8125em;padding:0.125em 0.375em;background:var(--color-bg)">git status</code> is clean, an item opening with a code chip</li></ul>
 <ul class="hw-marker-list" style="font-size:14px;line-height:1.5;padding-left:1.625em"><li style="padding-left:0.375em">An item padded less than the marker indent, as Tailwind prose pads it</li></ul>
 <ul class="glyphs"><li>An item behind a bullet glyph drawn as content</li></ul>
+<ul class="hw-marker-list" style="font-size:16px;line-height:1.6"><li style="list-style:disc">An item that keeps the browser's disc beside the square</li></ul>
 <div class="row" style="font-size:15px;line-height:1.4"><span class="hw-marker"></span>Bare text beside a marker</div>
 <div class="row" style="font-size:20px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div>
 <div class="row" style="font-size:15px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div>
@@ -178,9 +179,17 @@ test.each([2, 4])(
   "marker.css sits within 0.25 px at %dx, with and without a newline after <li>",
   async (scale) => {
     const rs = await all(NEW, scale);
-    expect(rs.filter((r) => r.kind === "before").length).toBe(44);
+    expect(rs.filter((r) => r.kind === "before").length).toBe(46);
     expect(rs.filter((r) => r.kind === "element").length).toBe(8);
-    expect(show(rs.filter((r) => r.kind !== "glyph" && failing(r)))).toEqual([]);
+    expect(show(rs.filter((r) => r.kind !== "glyph" && !r.double && failing(r)))).toEqual([]);
+    // The square sits right, but the item keeps the disc: it fails, and only it.
+    expect(rs.filter((r) => r.double).map((r) => r.label.includes("An item that keeps"))).toEqual([
+      true,
+      true,
+    ]);
+    expect(rs.filter((r) => r.double).every((r) => Math.abs(r.offset) <= 0.25 && failing(r))).toBe(
+      true,
+    );
   },
   60_000,
 );
@@ -249,8 +258,9 @@ test("the old element marker fails at some size", async () => {
 
 test("the browser's disc is found and fails", async () => {
   const rs = (await all(NATIVE, 2)).filter((r) => r.kind === "native");
-  expect(rs.length).toBe(44);
+  expect(rs.length).toBe(46);
   expect(rs.some(failing)).toBe(true);
+  expect(rs.some((r) => r.double)).toBe(false);
 }, 60_000);
 
 test("a bullet glyph drawn as ::before content is found", async () => {
@@ -268,9 +278,28 @@ test("a reading with no ink on either side fails", () => {
     newline: false,
     offset: NaN,
     indent: null,
+    double: false,
   };
   expect(failing(r)).toBe(true);
 });
+
+// The talks print page: 1920 px slides in a 1280 px window, a label's marker scrolled into view and
+// its text right of the viewport.
+test("a text box right of the viewport is measured", async () => {
+  const wide = file(
+    "wide.html",
+    `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<style>body { margin: 40px; width: 1800px; font-family: var(--font-sans); }
+.row { display: flex; align-items: baseline; gap: 40px; margin-left: 1220px; }</style>
+</head><body><div class="row" style="font-size:16px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div></body></html>`,
+  );
+  const rs = await measureMarkers(browser, wide, { scale: 2, width: 1280 });
+  expect(rs.length).toBe(1);
+  expect(show(rs.filter(failing))).toEqual([]);
+}, 60_000);
 
 test("--site serves a built folder: a page path starting with / is on it, nothing outside it", async () => {
   const base = mkdtempSync(join(tmpdir(), "brand-site-"));
