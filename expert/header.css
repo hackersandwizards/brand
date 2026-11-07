@@ -129,20 +129,22 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  html[data-theme="auto"] .hw-header {
-    --hw-bg: var(--background, var(--color-night));
-    --hw-fg: var(--foreground, var(--color-night-ink));
-    --hw-accent: var(--accent, var(--color-teal-night));
-    --hw-line: var(--border, var(--color-night-line));
-    --hw-muted: var(--muted, var(--color-night-2));
-  }
+  @scope (html[data-theme="auto"]) to ([data-theme="light"]) {
+    :scope .hw-header {
+      --hw-bg: var(--background, var(--color-night));
+      --hw-fg: var(--foreground, var(--color-night-ink));
+      --hw-accent: var(--accent, var(--color-teal-night));
+      --hw-line: var(--border, var(--color-night-line));
+      --hw-muted: var(--muted, var(--color-night-2));
+    }
 
-  html[data-theme="auto"] .hw-header-logo {
-    display: none;
-  }
+    :scope .hw-header-logo {
+      display: none;
+    }
 
-  html[data-theme="auto"] .hw-header-logo-night {
-    display: block;
+    :scope .hw-header-logo-night {
+      display: block;
+    }
   }
 }
 
@@ -263,23 +265,32 @@
   }
 }
 
-/* The catalog list on a phone: lockup row and nav row, 3rem and 2.5rem, the nav's first label under
-   the lockup's left edge. */
+/* The catalog list on a phone: a lockup row of 3rem, holding any other control of the bar, and the
+   nav on a row of 2.5rem below it, its first label under the lockup's left edge. The nav carries
+   data-hw-catalogs, or holds the element that does. */
 @media (max-width: 29.99rem) {
-  :root:has(.hw-header [data-hw-catalogs]) {
-    --spacing-app-header: calc(var(--spacing-strip) + 5.5rem + 1px + env(safe-area-inset-top));
+  :root:has(
+      .hw-header-row > .hw-header-nav[data-hw-catalogs],
+      .hw-header-row > .hw-header-nav > [data-hw-catalogs]
+    ) {
+    --spacing-app-header: calc(
+      var(--spacing-strip) + 3rem + 2.5rem + 1px + env(safe-area-inset-top)
+    );
   }
-  .hw-header-row:has([data-hw-catalogs]) {
+  .hw-header-row:has(> .hw-header-nav[data-hw-catalogs], > .hw-header-nav > [data-hw-catalogs]) {
     height: auto;
     flex-wrap: wrap;
-  }
-  .hw-header-row:has([data-hw-catalogs]) > .hw-header-brand {
-    height: 3rem;
-  }
-  .hw-header-row:has([data-hw-catalogs]) > .hw-header-nav {
-    height: 2.5rem;
-    flex-basis: 100%;
-    margin-inline: -0.375rem;
+
+    & > .hw-header-brand {
+      height: 3rem;
+    }
+
+    & > .hw-header-nav:is([data-hw-catalogs], :has(> [data-hw-catalogs])) {
+      order: 1;
+      height: 2.5rem;
+      flex-basis: 100%;
+      margin-inline: -0.375rem;
+    }
   }
 }
 
