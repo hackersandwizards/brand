@@ -1,6 +1,9 @@
 ---
 kind: decision
-status: open
+status: decided
+decision: all
+by: Benedikt
+quote: "bitte unbedingt alle und dann auch prüfen ob wir davon elemente schon in den spokes lokal haben und dann hiermit ins brand repo also den hub ziehen können aus dem spoke raus. zB toasts fallen mir ein aber da sind bestimmt noch andere weitere elemente die wir schon irgendwo nutzen und mir grad nicht einfallen. aber bitte daran denken, dass wir unterschiedliche nutzergruppen haben und daher die elemente ggf etwas unterschiedlich sind. interne experten systene, öffentliche nicht experten systeme und öffentliche experten systeme und das die auch unterschiedliche primäre medien/endgeräte/screen-sizes haben"
 priority: 2
 owner: Benedikt
 area: brand
