@@ -1,17 +1,26 @@
 /* The field with its button: an input and the button that sends it, on a client surface. The field
-   is white with a border-strong hairline (3:1, WCAG 1.4.11), ink on hover, amber-dark when
-   aria-invalid; the brand corner; 48 px tall; its text in the body role, its placeholder muted.
+   is white with a border-strong hairline (3:1, WCAG 1.4.11), ink on hover; the brand corner; 48 px
+   tall; its text in the body role, its placeholder muted. aria-invalid="true" draws the line twice
+   as thick in the error red (an app's --error where it has one); disabled is half opacity, as on
+   hw-check. The same class frames a <textarea>, its text inset as on one line, and a <select>
+   with hw-select (select.css), which adds the chevron. The label, hint and error message round
+   it are form-field.css.
    data-joined on hw-field-row sets field and button in one framed row, the button a teal-dark
    square holding an icon (the website's search), both 44 px tall; without it the button is an
    hw-button beside the field, 0.75rem apart, stacking under 40rem (the verifier's lookup). On night
-   the field is night-2 with a night-muted line and white text, white on hover, amber when
+   the field is night-2 with a night-muted line and white text, white on hover, red-night when
    aria-invalid; the joined row night-2 with a night line.
 
    Markup: <div class="hw-field-row"><input class="hw-field"><button class="hw-button">…</button></div>
+           <textarea class="hw-field"></textarea>
+           <select class="hw-field hw-select">…</select>
 
    Settings:
+     --hw-card-corner   the corner of the field, or of the joined row around it, the brand
+                        corner at the medium's size
      --hw-field-height  the field's least height
      --hw-field-pad     its inline padding
+     --hw-field-size    its text size, and a form label's (form-field.css)
      --hw-field-family  its family: the body role, or mono where a reader compares the value
                         character by character (an ID)
      --hw-muted         the muted grey, where a surface's --color-muted means something else */
@@ -23,14 +32,15 @@
     gap: 0.75rem;
   }
   .hw-field {
+    --_hw-error: var(--error, var(--color-red));
     box-sizing: border-box;
     width: 100%;
     min-height: var(--hw-field-height, 3rem);
     border: var(--hw-hairline, 1px) solid var(--color-border-strong);
-    border-radius: var(--radius-brand);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: 0 var(--hw-field-pad, 1rem);
     font-family: var(--hw-field-family, var(--type-body-family));
-    font-size: var(--type-body-size);
+    font-size: var(--hw-field-size, var(--type-body-size));
     line-height: var(--type-body-line-height);
     color: var(--color-ink);
     background: var(--color-white);
@@ -40,18 +50,28 @@
     color: var(--hw-muted, var(--color-muted));
     opacity: 1;
   }
-  .hw-field:hover {
+  textarea.hw-field {
+    display: block;
+    padding-block: calc((var(--hw-field-height, 3rem) - 1lh) / 2);
+    resize: vertical;
+  }
+  .hw-field:not(:disabled):hover {
     border-color: var(--color-ink);
   }
   .hw-field[aria-invalid="true"] {
-    border-color: var(--color-amber-dark);
+    border-color: var(--_hw-error);
+    box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-error);
+  }
+  .hw-field:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   .hw-field-row[data-joined] {
     display: flex;
     gap: 0;
     overflow: hidden;
     border: var(--hw-hairline, 1px) solid var(--color-border);
-    border-radius: var(--radius-brand);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
     background: var(--color-white);
   }
   /* The ring goes round the row: neither part draws its own. */
@@ -98,6 +118,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-field {
+      --_hw-error: var(--error, var(--color-red-night));
       border-color: var(--color-night-muted);
       color: var(--color-white);
       background: var(--color-night-2);
@@ -105,11 +126,11 @@
     .hw-field::placeholder {
       color: var(--color-night-muted);
     }
-    .hw-field:hover {
+    .hw-field:not(:disabled):hover {
       border-color: var(--color-white);
     }
     .hw-field[aria-invalid="true"] {
-      border-color: var(--color-amber);
+      border-color: var(--_hw-error);
     }
     .hw-field-row[data-joined] {
       border-color: var(--color-night-line);

@@ -5,7 +5,7 @@
    Anything one app alone needs stays in that app's global.css. */
 
 /* The dropdown chevron for select.form-input, shared with surfaces outside the expert set. */
-@import "./select.css";
+@import "../elements/select.css";
 /* The disclosure chevron for details.hw-disclosure, shared the same way. */
 @import "./disclosure.css";
 
@@ -298,6 +298,16 @@ html[data-theme="dark"] {
 .form-input {
   @apply rounded-sm border border-input bg-background px-3 py-2 text-ui text-foreground focus:ring-2 focus:ring-focus/40 focus:outline-none;
   min-height: 2.5rem;
+}
+/* The field's states (elements/field.css): an invalid value's line twice as thick in the error red,
+   disabled at half opacity. The label, hint and message round it are hw-form-* (form-field.css). */
+.form-input[aria-invalid="true"] {
+  border-color: var(--error);
+  box-shadow: inset 0 0 0 1px var(--error);
+}
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* The components in expert/components need these two rules. */

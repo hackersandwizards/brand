@@ -192,11 +192,12 @@ and `elements.css`; its default header is this package's `AppHeader.astro` and `
 
 ### The dropdown
 
-A native `<select>` wears the brand chevron in place of the system's arrow: import `select.css`
-and give the select the class `hw-select`, or `form-input` under the expert layer, which imports
-it. The file draws only the arrow and the room for it; corner, border, height and focus stay the
-surface's. The night chevron follows `data-theme="dark"` on `html`, up to a `data-theme="light"`
-element.
+A native `<select>` wears the brand chevron in place of the system's arrow: the brand dropdown is
+`<select class="hw-field hw-select">`, framed and sized by the field at every scale, its chevron at
+the field's padding and night with the field. `select.css` (in `elements.css`) alone draws only
+the arrow and its room for a select the surface frames itself (`hw-select`), or `form-input` under
+the expert layer, which imports it; that night chevron follows `data-theme="dark"` on `html`, up to
+a `data-theme="light"` element.
 
 ### The disclosure
 
@@ -216,8 +217,9 @@ padding and Tailwind utilities win.
 
 Every element two or more systems show lives in `elements/`, one plain-CSS file each: label, label box,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
-strip, accent rule, code block (and its panel), inline code, button, arrow link, field with button, checkbox and radio, facts list, dot list, segmented
-control, list row, breadcrumb, status box, dashed frame, key figure, prose block. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
+strip, accent rule, code block (and its panel), inline code, button, arrow link, field (text field, field with button, textarea, select), checkbox and radio, form field (label, optional mark, hint, error message, fieldset), facts list, dot list, segmented
+control, list row, breadcrumb, status box, dashed frame, key figure, prose block. The catalog groups them in sections as mature UI
+libraries do: Forms, Actions, Navigation, Feedback, Data display, Typography, Containers, Utilities. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
 `elements/scales.css`, after `tokens.css` (and `print.css` on paper). The rules sit in

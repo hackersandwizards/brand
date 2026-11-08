@@ -9,9 +9,13 @@ import { BASE, DIST, page, serveSite } from "./site";
 
 // brand-elements over every element story, as a spoke's gate runs it over its catalog: each state
 // matches the element's rule, and every element has its tile at this version.
-const STORIES = join(DIST, "catalog/stories/Elements");
-const pages = readdirSync(STORIES).flatMap((el) =>
-  readdirSync(join(STORIES, el)).map((state) => `catalog/stories/Elements/${el}/${state}/`),
+const STORIES = join(DIST, "catalog/stories");
+const pages = readdirSync(STORIES).flatMap((section) =>
+  readdirSync(join(STORIES, section)).flatMap((el) =>
+    readdirSync(join(STORIES, section, el)).map(
+      (state) => `catalog/stories/${encodeURI(section)}/${el}/${state}/`,
+    ),
+  ),
 );
 let browser: Browser;
 let server: ReturnType<typeof serveSite>;
@@ -47,7 +51,7 @@ test("every element story passes brand-elements", async () => {
 test("the home and a story page link every catalog once, Catalog current", () => {
   for (const [path, current] of [
     ["catalog/index.html", "page"],
-    ["catalog/dashboard/Elements/button/dense/index.html", "true"],
+    ["catalog/dashboard/Actions/button/dense/index.html", "true"],
   ]) {
     const navs = page(path).match(/<nav[^>]*data-hw-catalogs[^>]*>.*?<\/nav>/gs) ?? [];
     expect(navs.length).toBe(1);

@@ -49,7 +49,7 @@ test("every light and dark role resolves to a colour", () => {
 });
 
 test("the select chevron is border-strong on light and night-muted on night", () => {
-  const select = readFileSync(join(ROOT, "expert/select.css"), "utf8").replace(
+  const select = readFileSync(join(ROOT, "elements/select.css"), "utf8").replace(
     /\/\*[\s\S]*?\*\//g,
     "",
   );
@@ -78,7 +78,7 @@ afterAll(() => browser?.close());
 // from tokens.root.css, select.css and expert.css as written (the browser skips @theme).
 test("a data-theme=light element under a night html takes the light roles", async () => {
   const tab = await browser.newPage();
-  const sheet = ["generated/tokens.root.css", "expert/select.css"]
+  const sheet = ["generated/tokens.root.css", "elements/select.css"]
     .map((f) => readFileSync(join(ROOT, f), "utf8"))
     .join("");
   const read = async (outer: string, inner: string) => {

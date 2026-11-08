@@ -15,5 +15,3 @@ Software Factory area alone. Every consumer has switched, so what remains is in 
 
 1. Remove `--hue-amber`, `--hue-green`, `--color-hue-amber` and `--color-hue-green` from
    `expert/expert.css` in a major release whose commit names the removal.
-2. Verify on trainer-hub's `origin/main` that its buttons under 32 px take `--radius-sm` (brand
-   v1.3.0); not yet checked.

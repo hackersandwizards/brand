@@ -20,7 +20,16 @@ export default defineConfig({
         own("tokens/marker.css"),
         own("elements/elements.css"),
       ],
-      groupOrder: ["Elements"],
+      groupOrder: [
+        "Forms",
+        "Actions",
+        "Navigation",
+        "Feedback",
+        "Data display",
+        "Typography",
+        "Containers",
+        "Utilities",
+      ],
       home: "./Home.astro",
       nav: {
         items: [
