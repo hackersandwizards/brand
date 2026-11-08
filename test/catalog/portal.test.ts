@@ -61,7 +61,11 @@ test("every link and image of the portal resolves in dist/", () => {
       /&(quot|lt|gt|amp);/g,
       (_, e: string) => ({ quot: '"', lt: "<", gt: ">", amp: "&" })[e]!,
     );
-  const frames = [...html.matchAll(/\ssrcdoc="([^"]*)"/g)].map((m) => decode(m[1]!));
+  // A frame's document resolves its links against the page, through <base href="../">.
+  const frames = [...html.matchAll(/<iframe src="(catalogue-assets\/[^"]+\.html)"/g)].map((m) =>
+    page(m[1]!).replace('<base href="../">', ""),
+  );
+  expect(frames.length).toBeGreaterThan(30);
   const refs = [html, ...frames]
     .flatMap((h) => [...h.matchAll(/\s(?:src|href|data-href)="([^"#]*)(?:#[^"]*)?"/g)])
     .map((m) => decode(m[1]!).split("?")[0]!)

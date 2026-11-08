@@ -44,8 +44,8 @@ const table = (head: string[], rows: unknown[][], cls?: string) =>
     .join("")}</tbody></table>`;
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-// Files the page loads beside it (catalogue-assets/, served by their own route): the elements as
-// one stylesheet, so each sample frame loads one file instead of elements.css and its imports,
+// Files the page loads beside it (catalogue-assets/, served by their own route): its frames'
+// documents, the elements as one stylesheet, so each sample frame loads one file instead of elements.css and its imports,
 // and each PNG an inlined SVG embeds, so the HTML carries no image
 // as base64 text (the MacBook stickers' wizard was 0.95 MB of 1.28 MB).
 const ASSETS = "catalogue-assets";
@@ -69,6 +69,20 @@ const pngFiles = (svg: string) =>
     writeAsset(name, png);
     return `href="${ASSETS}/${name}"`;
   });
+
+// A frame's document is a file beside the page too: Chrome loads a srcdoc frame at once, below the
+// fold or in a hidden view, where an src frame waits for loading="lazy" (FCP 4.4 s to 1 s on
+// Lighthouse mobile). Its links stay relative to the page through <base>.
+const frame = (doc: string, attrs: string) => {
+  const file = `${createHash("sha256").update(doc).digest("hex").slice(0, 16)}.html`;
+  writeAsset(
+    file,
+    doc.includes("<head>")
+      ? doc.replace("<head>", '<head><base href="../">')
+      : `<!doctype html>${doc}`,
+  );
+  return `<iframe src="${ASSETS}/${file}" ${attrs} loading="lazy"></iframe>`;
+};
 
 // An SVG <image> loads even inside a hidden section, so the merch and device mockups (1.9 MB of
 // print files) name theirs in data-href, and show() sets href once their section opens.
@@ -534,7 +548,7 @@ index.push({
   h: "applications/mail-signature",
   x: "mail signature template",
 });
-const signatureHtml = `<div class="assets"><figure class="asset" id="mail-signature"><div class="views"><iframe srcdoc="${esc(fillSignature(signatureTemplate, EXAMPLE, "html"))}" title="mail signature" loading="lazy"></iframe></div><figcaption>the filled template</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
+const signatureHtml = `<div class="assets"><figure class="asset" id="mail-signature"><div class="views">${frame(fillSignature(signatureTemplate, EXAMPLE, "html"), 'title="mail signature"')}</div><figcaption>the filled template</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
 const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],
@@ -665,10 +679,10 @@ ${sharedHtml}
 <p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), shown on each app's design-system page, and the plain-CSS parts below, which any surface may take.</p>
 <h3 id="dropdown">Dropdown</h3>
 <p>A native ${code("<select>")} with the brand chevron in place of the system's arrow: border-strong on light, night-muted on night. ${code('@import "@hackersandwizards/brand/select.css";')} and the class ${code("hw-select")}, or ${code("form-input")} under the expert layer. The file draws the arrow and its room only; corner, border, height and focus stay the surface's, here the website's field.</p>
-<div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDropdown)}" title="dropdown on night" loading="lazy"></iframe></figure></div>
+<div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span>${frame(nightDropdown, 'title="dropdown on night"')}</figure></div>
 <h3 id="disclosure">Disclosure</h3>
 <p>A native ${code("<details>")} with the brand chevron in place of the browser's triangle: Lucide's chevron-right in the summary's text colour, turned down while open. ${code('@import "@hackersandwizards/brand/disclosure.css";')} and the class ${code("hw-disclosure")}, or the expert layer, which imports it. ${code("hw-disclosure-chevron")} places the chevron inside the summary instead, ${code("hw-disclosure-count")} is the count pill. Type, colour and padding stay the surface's.</p>
-<div class="dropdowns disclosures"><figure><span class="label">Light</span><div class="disclosure-demo">${disclosureDemo}</div></figure><figure><span class="label">Night</span><iframe srcdoc="${esc(nightDisclosure)}" title="disclosure on night" loading="lazy"></iframe></figure></div>`;
+<div class="dropdowns disclosures"><figure><span class="label">Light</span><div class="disclosure-demo">${disclosureDemo}</div></figure><figure><span class="label">Night</span>${frame(nightDisclosure, 'title="disclosure on night"')}</figure></div>`;
 
 // Each system's own design-system page, served by its dev server, and the public address its owner
 // publishes, which the Pages copy links instead; a system without a page is not listed.
@@ -687,7 +701,10 @@ const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub])
 
 // A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
 const sampleFrame = (body: string, css = "") =>
-  `<iframe srcdoc="${esc(`<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><link rel="stylesheet" href="expert/select.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`)}" loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>`;
+  frame(
+    `<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><link rel="stylesheet" href="expert/select.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`,
+    'tabindex="-1" aria-hidden="true" title=""',
+  );
 // An image under applications/ is in Git LFS and a pointer in a checkout without it: the preview
 // leaves the tile rather than show a broken image.
 const lfsImage = (src: string) =>
