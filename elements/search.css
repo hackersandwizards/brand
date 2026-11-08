@@ -1,0 +1,40 @@
+/* The search field: an hw-field of type search with a magnifier at its start, drawn in the
+   foreground's 70 % (night: night-muted). The field takes the scale's field height, padding and
+   text (field.css); the icon sits inside the start padding, which it widens (--hw-field-pad-start). A submit button, where the search
+   needs one (a page without JavaScript), sits beside it in an hw-field-row.
+
+   Markup: <div class="hw-search"><input class="hw-field" type="search" name="q" aria-label="…"></div>
+
+   Settings:
+     --hw-field-pad   the field's inline padding, the icon's inset
+     --hw-search-icon the icon's side */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-search {
+    --hw-field-pad-start: calc(var(--hw-field-pad, 1rem) + var(--hw-search-icon, 1rem) + 0.5rem);
+    position: relative;
+    display: block;
+    min-width: 0;
+  }
+  .hw-search::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: var(--hw-field-pad, 1rem);
+    width: var(--hw-search-icon, 1rem);
+    height: var(--hw-search-icon, 1rem);
+    translate: 0 -50%;
+    background-color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    pointer-events: none;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-search::before {
+      background-color: var(--color-night-muted);
+    }
+  }
+}

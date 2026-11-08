@@ -18,8 +18,9 @@
                             text amber-dark mixed 75 % into ink; on night amber
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
    changes the value) and hw-pill-remove (a button, or a link to the list without the value: removes
-   the value). A leading icon is an svg child, or an emoji in a span hw-pill-icon. With any of them
-   the pill lays its children out in a row, 0.25em apart. A pill that is a button shows the pointer.
+   the value), the icon 1em, its target 24 px square (WCAG 2.5.8) reaching into the pill's padding
+   without moving its text. A leading icon is an svg child, or an emoji in a span hw-pill-icon.
+   With any of them the pill lays its children out in a row, 0.25em apart. A pill that is a button shows the pointer.
 
    Settings:
      --hw-pill-hue         the hue (a brand hue token; teal unless the surface groups by hue). A
@@ -140,9 +141,23 @@
   .hw-pill-chevron {
     --_hw-pill-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   }
+  /* The remove target: 24 px square around the 1em icon, its overhang taken back by a negative
+     margin, so the pill keeps its height; at its start only the gap, so it never covers the words. */
   .hw-pill-remove {
+    display: grid;
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    margin: calc((1em - 24px) / 2);
+    margin-inline-start: -0.25em;
+    place-items: center;
+    border-radius: var(--radius-pill);
     --_hw-pill-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
     cursor: pointer;
+  }
+  .hw-pill-remove::before {
+    width: 1em;
+    height: 1em;
   }
   .hw-pill-remove:hover::before {
     opacity: 1;

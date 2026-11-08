@@ -4,7 +4,10 @@
    The icon is its svg child, sized here; the target keeps its size when text is enlarged, since the
    settings are px on screen. data-tone="danger" is a control that removes or deletes: under the
    pointer and on keyboard focus the icon takes the error red on its 15 % wash, on night the night
-   red.
+   red. A toggle (aria-pressed) draws its pressed state as the segmented control's chosen segment:
+   teal-dark with a white icon, on night teal-night with a night icon. data-variant="quiet" is a
+   control in a dense toolbar or row: no fill at rest, the icon in ink at 70 %, the 7 % fill on
+   hover.
 
    Settings:
      --hw-control-size  the circle's diameter
@@ -42,6 +45,19 @@
   .hw-icon-button[data-on="picture"]:hover {
     background: var(--color-teal-dark);
   }
+  .hw-icon-button[data-variant="quiet"] {
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    background: transparent;
+  }
+  .hw-icon-button[data-variant="quiet"]:hover {
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+  }
+  .hw-icon-button[aria-pressed="true"],
+  .hw-icon-button[aria-pressed="true"]:hover {
+    color: var(--color-white);
+    background: var(--color-teal-dark);
+  }
   .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible) {
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
     color: var(--_hw-danger);
@@ -54,6 +70,19 @@
     }
     .hw-icon-button:not([data-on="picture"]):hover {
       background: color-mix(in srgb, white 25%, transparent);
+    }
+    .hw-icon-button[data-variant="quiet"] {
+      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
+      background: transparent;
+    }
+    .hw-icon-button[data-variant="quiet"]:hover {
+      color: var(--color-night-ink);
+      background: color-mix(in srgb, white 15%, transparent);
+    }
+    .hw-icon-button[aria-pressed="true"],
+    .hw-icon-button[aria-pressed="true"]:hover {
+      color: var(--color-night);
+      background: var(--color-teal-night);
     }
     .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible) {
       --_hw-danger: var(--color-red-night);

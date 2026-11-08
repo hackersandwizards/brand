@@ -20,6 +20,16 @@ const props: Record<string, Record<string, unknown>> = {
   AppHeader: { product: P },
   FilterChip: { label: P, removeHref: "/" },
   FilterChipBar: { show: true, clearHref: "/" },
+  ListFilter: {
+    id: "f",
+    action: "/",
+    label: P,
+    items: [],
+    state: { q: "", facets: {} },
+    facet: { param: "t", legend: P, options: [] },
+    count: "{shown}",
+  },
+  ListRow: { stripeColor: "bg-teal" },
   PageHeader: { title: P },
   Pill: { label: P },
   SpaceNav: { label: P, base: "/space", nodes: [node], currentPath: "/space", pageCount: 1 },
@@ -57,7 +67,7 @@ test.each(components)(
     const container = await experimental_AstroContainer.create();
     const html: string = await container.renderToString(component, {
       props: props[name],
-      slots: { default: `<p>${P}</p>`, aside: `<p>${P}</p>` },
+      slots: { default: `<p>${P}</p>`, aside: `<p>${P}</p>`, lead: `<p>${P}</p>` },
     });
     expect(html).toContain(name === "ThemeToggle" ? 'id="theme-toggle"' : P);
   },

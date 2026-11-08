@@ -1,0 +1,196 @@
+---
+/** Search, one facet as choices and an optional second facet as a select, over a list the page
+ *  renders in full in the default slot: a GET form to its own page, so the server applies the
+ *  URL's state and a shared link and a browser without JavaScript show the same rows: each row
+ *  sets `hidden` where `matches(item, state)` is false. The browser side and the rows' attributes
+ *  are elements/list-filter.ts's; the look is the shared elements
+ *  (hw-search, hw-choice, hw-field, hw-button) placed by elements/list-filter.css, sized by the
+ *  page's data-hw-scale. `browse="active"` shows the list only while a filter is set, in place of
+ *  the element `overview` names. Copy is a prop, so a page in another language passes its own. */
+import {
+  countLine,
+  fullTextUrl,
+  isActive,
+  matches,
+  tally,
+  type CountCopy,
+  type FilterItem,
+  type FilterState,
+} from "../../elements/list-filter";
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Facet {
+  param: string;
+  legend: string;
+  options: Option[];
+}
+
+interface Props {
+  id: string;
+  /** The page itself, where the form sends its query. */
+  action: string;
+  /** The search field's accessible name and placeholder. */
+  label: string;
+  items: FilterItem[];
+  state: FilterState;
+  /** Shown as choices, "All" first. */
+  facet: Facet;
+  /** Shown as a select, for a facet with too many values for choices. */
+  select?: Facet;
+  /** The count line, with {shown} and {total}, or one for a single match and one for any other. */
+  count: CountCopy;
+  /** "always" (default) lists every row until a filter narrows them; "active" only while one is set. */
+  browse?: "always" | "active";
+  /** The id of the page's overview, hidden while a filter is set. */
+  overview?: string;
+  /** A fuller search the query can continue in; `?q=` is appended. */
+  fullText?: { href: string; label: string };
+  copy?: { all: string; clear: string; empty: string; submit: string; filters: string };
+}
+
+const {
+  id,
+  action,
+  label,
+  items,
+  state,
+  facet,
+  select,
+  count,
+  browse = "always",
+  overview,
+  fullText,
+  copy = {
+    all: "All",
+    clear: "Clear all",
+    empty: "Nothing matches. Try a shorter word or another topic.",
+    submit: "Search",
+    filters: "Filters",
+  },
+} = Astro.props;
+
+const active = isActive(state);
+const listed = browse === "always" || active;
+const shown = items.filter((item) => matches(item, state)).length;
+const countText = listed ? countLine(count, shown, items.length) : "";
+const choiceCounts = tally(items, state, facet.param);
+const selectCounts = select ? tally(items, state, select.param) : new Map<string, number>();
+const faceted = Object.values(state.facets).some(Boolean);
+---
+
+<div
+  class="hw-list-filter"
+  data-list-filter={browse}
+  data-count={JSON.stringify(count)}
+  data-overview={overview}
+>
+  <form role="search" action={action}>
+    <div class="hw-list-filter-search">
+      <div class="hw-search">
+        <input
+          id={id}
+          class="hw-field"
+          type="search"
+          name="q"
+          value={state.q}
+          placeholder={label}
+          aria-label={label}
+          autocomplete="off"
+          enterkeyhint="search"
+        />
+      </div>
+      <button type="submit" class="hw-button" data-variant="secondary" data-filter-submit>
+        {copy.submit}
+      </button>
+      <button
+        type="button"
+        class="hw-button"
+        data-variant={faceted ? undefined : "secondary"}
+        aria-expanded="false"
+        aria-controls={`${id}-facets`}
+        data-filter-toggle
+      >
+        {copy.filters}
+      </button>
+    </div>
+    <div id={`${id}-facets`} data-filter-panel>
+      <fieldset class="hw-form-field">
+        <legend class="hw-form-label">{facet.legend}</legend>
+        <div class="hw-choices">
+          {[{ value: "", label: copy.all }, ...facet.options].map((option) => (
+            <label class="hw-choice">
+              <input
+                type="radio"
+                name={facet.param}
+                value={option.value}
+                checked={(state.facets[facet.param] ?? "") === option.value}
+              />
+              {option.label}
+              <span class="hw-choice-count" data-facet-count={option.value}>
+                {choiceCounts.get(option.value) ?? 0}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      {select && (
+        <label class="hw-form-field">
+          <span class="hw-form-label">{select.legend}</span>
+          <select name={select.param} class="hw-field hw-select">
+            {[{ value: "", label: copy.all }, ...select.options].map((option) => (
+              <option
+                value={option.value}
+                selected={state.facets[select.param] === option.value}
+                data-label={option.label}
+              >
+                {`${option.label} (${selectCounts.get(option.value) ?? 0})`}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+    </div>
+    <p class="hw-list-filter-status">
+      <span aria-live="polite" data-filter-count>{countText}</span>
+      <a href={action} class="hw-link" data-filter-clear hidden={!active || shown === 0}>
+        {copy.clear}
+      </a>
+      {fullText && (
+        <a
+          href={fullTextUrl(fullText.href, state.q)}
+          class="hw-link"
+          data-filter-fulltext={fullText.href}
+          hidden={!state.q}
+        >
+          {fullText.label}
+        </a>
+      )}
+    </p>
+  </form>
+  <div data-filter-list hidden={!listed || shown === 0}>
+    <slot />
+  </div>
+  <div data-filter-empty hidden={!listed || shown > 0}>
+    <p>{copy.empty}</p>
+    <a href={action} class="hw-link" data-filter-clear>{copy.clear}</a>
+  </div>
+</div>
+{/* Before first paint: the phone's facets start closed once the script can open them. */}
+<script is:inline>
+  {
+    const root = document.currentScript.previousElementSibling;
+    root.dataset.js = "";
+    root.dataset.closed = "";
+  }
+</script>
+
+<script>
+  import { initListFilter } from "../../elements/list-filter";
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-list-filter]"))
+    initListFilter(root);
+</script>

@@ -2,9 +2,13 @@
    (title and chips) shrinking with an ellipsis, the trail (figures, dates) keeping its width. The
    page's ground, a hairline under each row, the muted fill at 70 % on hover. The stripe is a span
    hw-row-stripe, its colour a background the surface sets; corner clipping belongs to the frame
-   round the list. On night the expert set's night roles.
+   round the list. The current record (aria-current, as a list beside its open record marks it)
+   takes the accent's 7 % tint. hw-row-lead lays out the title and chips in a row that clips;
+   hw-row-trail the figures in the UI step at the foreground's 70 %, tabular, unwrapped. On night
+   the expert set's night roles.
 
-   Markup: <div class="hw-row"><span class="hw-row-stripe"></span><div>lead</div><div>trail</div></div>
+   Markup: <div class="hw-row"><span class="hw-row-stripe"></span>
+             <div class="hw-row-lead">lead</div><div class="hw-row-trail">trail</div></div>
 
    Settings:
      --hw-row-pad-block   the block padding
@@ -38,6 +42,29 @@
     align-self: stretch;
     border-radius: 0;
   }
+  .hw-row:is(
+    [aria-current]:not([aria-current="false"]),
+    [aria-current]:not([aria-current="false"]):hover
+  ) {
+    background: color-mix(in srgb, var(--color-teal) 7%, var(--color-bg));
+  }
+  .hw-row-lead,
+  .hw-row-trail {
+    display: flex;
+    align-items: center;
+    gap: var(--hw-row-gap, 0.75rem);
+  }
+  .hw-row-lead {
+    min-width: 0;
+    overflow: hidden;
+  }
+  .hw-row-trail {
+    flex: none;
+    font-size: var(--text-ui, var(--type-small-size));
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-row {
       border-bottom-color: color-mix(in srgb, white 18%, var(--color-night));
@@ -45,6 +72,15 @@
     }
     .hw-row:hover {
       background: color-mix(in srgb, var(--color-night-2) 70%, transparent);
+    }
+    .hw-row:is(
+      [aria-current]:not([aria-current="false"]),
+      [aria-current]:not([aria-current="false"]):hover
+    ) {
+      background: color-mix(in srgb, var(--color-teal-night) 12%, var(--color-night));
+    }
+    .hw-row-trail {
+      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
     }
   }
 }

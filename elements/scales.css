@@ -57,13 +57,18 @@
   --hw-kpi-size: var(--type-stat-size);
   --hw-kpi-tracking: var(--type-stat-tracking);
   --hw-kbd-size: var(--text-label);
+  --hw-choice-height: 44px;
+  --hw-choice-pad: 0.875rem;
+  --hw-nav-pad: 0.375rem 0.75rem;
+  --hw-search-icon: 1.25rem;
 }
 
 [data-hw-scale="dense"] {
-  /* The button at the apps' size: 38 px tall in the ui step (--text-ui, below) at every width. */
+  /* The button at the apps' size: 38 px tall in the ui step (--text-ui, below) at every width, the
+     block padding small enough that the line and the hairlines stay inside the height. */
   --hw-button-height: 2.375rem;
   --hw-button-height-wide: 2.375rem;
-  --hw-button-pad: 0.5rem 1rem;
+  --hw-button-pad: 0.25rem 1rem;
   --hw-button-size: var(--text-ui);
   --hw-label-size: 0.75rem;
   --hw-pill-size: 0.75rem;
@@ -113,6 +118,12 @@
   --hw-check-target: 32px;
   --hw-check-target-touch: 44px;
   --hw-kbd-size: var(--text-micro);
+  /* A filter value and a navigation item at the apps' size: a choice 32 px tall, past WCAG 2.5.8's
+     24 px. */
+  --hw-choice-height: 2rem;
+  --hw-choice-pad: 0.5rem;
+  --hw-nav-pad: 0.25rem 0.5rem;
+  --hw-search-icon: 1rem;
 }
 
 /* The dense tier at the expert set's regular text: UI text 14 px, micro 12 px, every other dense
@@ -168,6 +179,10 @@
   --hw-form-small: var(--type-small-size);
   --hw-check-target: 0px;
   --hw-check-target-touch: 0px;
+  --hw-choice-height: 0;
+  --hw-choice-pad: 6pt;
+  --hw-nav-pad: 2pt 6pt;
+  --hw-search-icon: 10pt;
 }
 
 [data-hw-scale="stage"] {
@@ -217,4 +232,8 @@
      --slide-marker and --slide-marker-gap. */
   --hw-marker-size: var(--slide-marker, 0.375em);
   --hw-marker-gap: var(--slide-marker-gap, 0.625em);
+  --hw-choice-height: 4.125rem;
+  --hw-choice-pad: 1.3125rem;
+  --hw-nav-pad: 0.5625rem 1.125rem;
+  --hw-search-icon: 1.875rem;
 }

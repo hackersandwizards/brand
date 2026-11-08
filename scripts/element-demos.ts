@@ -3,6 +3,8 @@
 import { MOON } from "../expert/components/theme-icons";
 const play = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3v18l15-9z"/></svg>`;
 const remove = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg>`;
+const list = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`;
+const board = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>`;
 const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${MOON}"/></svg>`;
 
 export const DEMOS: Record<string, string> = {
@@ -15,7 +17,7 @@ export const DEMOS: Record<string, string> = {
   table: `<table class="hw-table"><thead><tr><th aria-sort="ascending"><button type="button">Leistung ↑</button></th><th>Basis</th></tr></thead><tbody><tr><td>Training</td><td>2 Tage</td></tr><tr><td>Mentoring</td><td>8 Std.</td></tr></tbody></table>`,
   link: `<p>Dann öffnet ihr <a class="hw-link" href="#elements">localhost:3000</a>.</p>`,
   "focus-ring": `<button type="button" class="hw-pill" data-variant="outline">Tab hierher</button>`,
-  "icon-button": `<button type="button" class="hw-icon-button" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" aria-label="Thema">${moon}</button> <button type="button" class="hw-icon-button" data-on="picture" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" data-tone="danger" aria-label="Entfernen">${remove}</button>`,
+  "icon-button": `<button type="button" class="hw-icon-button" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" aria-label="Thema">${moon}</button> <button type="button" class="hw-icon-button" data-on="picture" aria-label="Abspielen">${play}</button> <button type="button" class="hw-icon-button" data-tone="danger" aria-label="Entfernen">${remove}</button> <button type="button" class="hw-icon-button" aria-pressed="true" aria-label="Als Liste">${list}</button> <button type="button" class="hw-icon-button" aria-pressed="false" aria-label="Als Tafel">${board}</button> <button type="button" class="hw-icon-button" data-variant="quiet" aria-label="Entfernen">${remove}</button>`,
   strip: `<div class="hw-strip"></div>`,
   rule: `<h3 style="margin:0">Wie ein Agent arbeitet</h3><hr class="hw-rule" data-variant="bar" aria-hidden="true"><p>Ein Block, über dem die Linie in voller Breite steht:</p><hr class="hw-rule"><hr class="hw-rule" data-hue="purple">`,
   code: `<pre class="hw-code"><code>$ bun run check\n<span class="hw-code-comment"># 0 findings</span></code></pre> <pre class="hw-code" data-variant="panel"><code>$ claude --continue</code></pre>`,
@@ -30,9 +32,12 @@ export const DEMOS: Record<string, string> = {
   check: `<label><input type="checkbox" class="hw-check" checked> Bericht geschrieben</label><br><label><input type="checkbox" class="hw-check"> Termin bestätigt</label><br><label><input type="radio" class="hw-check" checked> Remote</label><br><label><input type="radio" class="hw-check"> Vor Ort</label><br><label><input type="checkbox" class="hw-check" checked disabled> Gesperrt</label><br><label><input type="checkbox" class="hw-check" checked disabled data-readonly> Erledigt</label><br><label><input type="checkbox" class="hw-check" disabled data-readonly> Offen</label><br><label class="hw-check-target"><input type="checkbox" class="hw-check" aria-label="Erledigt: Begrüßung"></label>`,
   facts: `<dl class="hw-facts" data-variant="ruled"><div><dt class="hw-label" data-tone="muted">Dauer</dt><dd>2 Tage</dd></div><div><dt class="hw-label" data-tone="muted">Format</dt><dd>Remote</dd></div></dl>`,
   "dot-list": `<p class="hw-dot-list"><span>3 Deals</span><span><strong style="font-variant-numeric: tabular-nums">€ 0,00</strong> offen</span><span>überfällig 4d</span><span class="hw-dot-list"><span>2 Trainings</span><span>1 Angebot</span></span></p>`,
-  segmented: `<div class="hw-segmented" role="group" aria-label="Ansicht"><span class="hw-label" data-tone="muted">Ansicht</span><button type="button" aria-pressed="true">Liste</button><button type="button" aria-pressed="false">Gruppen</button></div>`,
+  segmented: `<div class="hw-segmented" role="group" aria-label="Ansicht"><span class="hw-label" data-tone="muted">Ansicht</span><button type="button" aria-pressed="true">Liste</button><button type="button" aria-pressed="false">Gruppen</button></div> <div class="hw-segmented" role="group" aria-label="Darstellung"><button type="button" aria-pressed="true" aria-label="Als Liste">${list}</button><button type="button" aria-pressed="false" aria-label="Als Tafel">${board}</button></div>`,
   kbd: `<p>Mit <kbd class="hw-kbd">/</kbd> springt ihr in die Suche, <kbd class="hw-kbd">⌘</kbd> + <kbd class="hw-kbd">K</kbd> öffnet die Befehle, <kbd class="hw-kbd">Esc</kbd> schließt sie.</p>`,
-  row: `<div class="hw-row"><span class="hw-row-stripe" style="background: var(--color-teal)"></span><div>Musterwerk AG</div><div>2 Tage</div></div>`,
+  row: `<div class="hw-row"><span class="hw-row-stripe" style="background: var(--color-teal)"></span><div class="hw-row-lead">Musterwerk AG <span class="hw-pill" data-tone="neutral">Remote</span></div><div class="hw-row-trail">2 Tage</div></div><div class="hw-row" aria-current="true"><span class="hw-row-stripe" style="background: var(--color-purple)"></span><div class="hw-row-lead">Beispiel GmbH</div><div class="hw-row-trail">12.11.</div></div>`,
+  nav: `<nav class="hw-nav" aria-label="Handbuch"><p class="hw-label hw-nav-group" data-tone="muted">Handbuch</p><ul><li><a href="#elements">Start</a></li><li><a href="#elements" aria-current="page">Vertrieb<span class="hw-nav-count">12</span></a></li><li><details class="hw-disclosure" open><summary>Lieferung</summary><ul><li><a href="#elements">Überblick</a></li><li><a href="#elements">Vorbereitung<span class="hw-nav-count">4</span></a></li></ul></details></li></ul></nav>`,
+  choice: `<div class="hw-choices" role="radiogroup" aria-label="Thema"><label class="hw-choice"><input type="radio" name="demo-topic" value="" checked>Alle<span class="hw-choice-count">24</span></label><label class="hw-choice"><input type="radio" name="demo-topic" value="tools">Werkzeuge<span class="hw-choice-count">9</span></label><label class="hw-choice"><input type="radio" name="demo-topic" value="evidence">Belege<span class="hw-choice-count">6</span></label></div><div class="hw-choices"><a class="hw-choice" href="#elements" aria-current="true">Remote<span class="hw-choice-count">4</span></a><button type="button" class="hw-choice" aria-pressed="false">Vor Ort<span class="hw-choice-count">2</span></button></div>`,
+  search: `<div class="hw-search"><input class="hw-field" type="search" aria-label="Suchen" placeholder="Einheiten suchen"></div><div class="hw-field-row"><div class="hw-search"><input class="hw-field" type="search" aria-label="Trainings suchen" value="context"></div><button type="submit" class="hw-button" data-variant="secondary">Suchen</button></div>`,
   breadcrumb: `<nav class="hw-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="#elements">Trainings</a></li><li><span aria-current="page">Foundations</span></li></ol></nav>`,
   status: `<div class="hw-status"><strong>2 Lücken</strong><br>Trainer fehlt</div><div class="hw-status" data-tone="success">Bestätigt</div><div class="hw-status" data-tone="error"><span class="hw-label" data-hue="red">Schlecht</span><br>Ohne Plan losgelegt</div><div class="hw-status" data-tone="success"><span class="hw-label" data-hue="green">Gut</span><br>Erst der Plan</div><div class="hw-status" data-tone="info"><span class="hw-label" data-hue="amber">Offen</span> <span class="hw-label" data-hue="purple">Teil zwei</span></div>`,
   frame: `<div class="hw-frame" style="padding: 1rem">Noch kein Eintrag</div>`,
@@ -54,6 +59,8 @@ export const SECTIONS: [string, [string, string, string][]][] = [
       ["switch", "Switch", "switch"],
       ["range", "Range", "range"],
       ["error-summary", "Error summary", "error-summary"],
+      ["search", "Search field", "search"],
+      ["choice", "Filter value", "choice"],
     ],
   ],
   [
@@ -70,6 +77,7 @@ export const SECTIONS: [string, [string, string, string][]][] = [
     [
       ["link", "Link in text", "link"],
       ["breadcrumb", "Breadcrumb", "breadcrumb"],
+      ["nav", "Navigation list", "nav"],
     ],
   ],
   [

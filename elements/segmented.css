@@ -3,7 +3,8 @@
    segments in the field line (the foreground at 70 % on the page, 3:1 as WCAG 1.4.11 asks of a
    control's boundary), the UI size; a segment at the foreground's 70 %, the full foreground and the
    muted fill on hover; the chosen one (aria-current, aria-pressed="true" or data-active="true")
-   filled with the accent and its on-accent text. A leading hw-label names the category. On night
+   filled with the accent and its on-accent text. A leading hw-label names the category. A segment
+   holding only an icon (an svg child, 1.25em wide and a line high, so it stands as tall as a word) names itself with aria-label. On night
    the expert set's night roles.
 
    Settings:
@@ -36,6 +37,11 @@
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
     background: transparent;
     cursor: pointer;
+  }
+  .hw-segmented > :is(a, button) > svg {
+    flex: none;
+    width: 1.25em;
+    height: 1lh;
   }
   .hw-segmented > :is(a, button):hover {
     color: var(--color-ink);
