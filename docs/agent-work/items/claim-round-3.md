@@ -103,6 +103,8 @@ images:
 
 # Which claim replaces c3?
 
+Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterieren ich habe noch einige ideen im chat". n02 is his preferred line, a hypothesis for the next round, not yet the decision. The next round scores his ideas blind beside n02; it waits for him to share them.
+
 I recommend n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure Leute.", with
 the line "Training and mentoring in agentic engineering" under it on the banners. Round 4's m08k
 loses the recommendation, because without the descriptor it reads as an AI tool vendor.
