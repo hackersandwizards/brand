@@ -29,8 +29,8 @@
 //    files and inheriting the page's tokens, theme and scale. An instance holding the page's focus
 //    (a story's focused state) is read focused, and its reference too.
 //    Any difference in a computed property the element sets (OWNS: its corner, fill, line, text
-//    colour, type, padding or size) fails, by more than 0.02px for a length, an underline's offset
-//    compared in em of the element's own font size. Each brand token an
+//    colour, type, padding or size) fails, by more than 0.02px for a length, a link's underline
+//    offset, gap and icon size compared in em of its own font size. Each brand token an
 //    element reads must be defined where it renders; with "lightOnly" the tokens only its night
 //    rules read are left out, since a page without night never draws them. An element drawn with
 //    the brand corner (top-left and bottom-right larger than top-right) inside another so drawn
@@ -204,14 +204,15 @@ const INLINE_CODE = [
   "font-weight",
   "font-variant-ligatures",
 ];
+// A length marked ":em" compares in em of the element's own font size, which the element leaves to
+// its surface.
 const LINK = [
-  "display",
   "align-items",
-  "column-gap",
+  "column-gap:em",
   "color",
   "text-decoration-line",
   "text-decoration-thickness",
-  "text-underline-offset",
+  "text-underline-offset:em",
 ];
 const CHECK = ["width", "height", "scale", "mask-image", ...CORNER, ...FILL, ...borders()];
 const OWNS: Record<string, string[]> = {
@@ -227,7 +228,7 @@ const OWNS: Record<string, string[]> = {
   "table th": [...borders(["bottom"]), ...PAD, ...TYPE, "color", "text-align", "vertical-align"],
   "table td": [...borders(["bottom"]), ...PAD, "text-align", "vertical-align"],
   link: LINK,
-  "link :scope > svg": ["width", "height", "align-self"],
+  "link :scope > svg": ["width:em", "height:em", "align-self"],
   "focus-ring": ["outline-style", "outline-width", "outline-color", "outline-offset"],
   "icon-button": ["width", "height", ...CORNER, ...FILL, ...PAD, "color"],
   "icon-button svg": ["width", "height"],
@@ -415,6 +416,8 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   const label = (el: Element) =>
     `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${(el.textContent ?? "").trim().slice(0, 30)}"`;
   const num = (v: string) => (/^-?[\d.]+px$/.test(v) ? parseFloat(v) : null);
+  // A length in em compares within the tolerance at 16 px.
+  const em = (v: string) => (/^-?[\d.]+em$/.test(v) ? parseFloat(v) * 16 : null);
   // One colour, one text: a build that rewrites color-mix() (Lightning CSS) leaves rgba() where the
   // reference computes color(srgb ...), so each colour reads as rgba() of whole channels.
   const colour = (v: string) =>
@@ -429,20 +432,20 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       return `rgba(${r}, ${g}, ${b}, ${Math.round((n[3] ?? 1) * 100) / 100})`;
     });
   const same = (got: string, want: string) => {
-    const [x, y] = [num(got), num(want)];
+    const [x, y] = [num(got) ?? em(got), num(want) ?? em(want)];
     return x !== null && y !== null ? Math.abs(x - y) <= tolerance : colour(got) === colour(want);
   };
   const sideOf = (prop: string) => /^(border-[a-z]+)-(style|color)$/.exec(prop)?.[1];
-  /** The computed values of `list` on `x`, with the width of each border side it names. An
-   *  underline's offset reads in em of the element's own font size, which the element leaves to
-   *  its surface. */
+  /** The computed values of `list` on `x`, with the width of each border side it names; a
+   *  property marked ":em" in em of x's font size. */
   const snap = (x: Element, list: string[]) => {
     const g = getComputedStyle(x);
     const props = list.flatMap((p) => (sideOf(p) ? [p, `${sideOf(p)}-width`] : [p]));
     const read = (p: string) => {
-      const v = g.getPropertyValue(p);
-      return p === "text-underline-offset" && num(v) !== null
-        ? `${(num(v)! / parseFloat(g.fontSize)).toFixed(3)}em`
+      const v = g.getPropertyValue(p.replace(/:em$/, ""));
+      const px = num(v);
+      return p.endsWith(":em") && px !== null
+        ? `${+(px / parseFloat(g.fontSize)).toFixed(4)}em`
         : v;
     };
     return Object.fromEntries(props.map((p) => [p, read(p)]));
@@ -455,7 +458,13 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       const side = sideOf(prop);
       if (side && got[`${side}-width`] === "0px" && want[`${side}-width`] === "0px") continue;
       if (!same(got[prop]!, want[prop]!))
-        findings.push({ element, label: name, prop, got: got[prop]!, want: want[prop]! });
+        findings.push({
+          element,
+          label: name,
+          prop: prop.replace(/:em$/, ""),
+          got: got[prop]!,
+          want: want[prop]!,
+        });
     }
   };
   // The element the page focused (a story's focused state): an instance holding it is read, and
@@ -766,7 +775,7 @@ const physical = (prop: string) => {
 /** Whether a declared property, a shorthand or logical one included, sets one the element owns. */
 export const setsOwned = (element: string, declared: string) =>
   physical(declared).some((prop) =>
-    OWNS[element]!.some(
+    OWNS[element]!.map((q) => q.replace(/:em$/, "")).some(
       (q) =>
         q === prop ||
         q.startsWith(`${prop}-`) ||

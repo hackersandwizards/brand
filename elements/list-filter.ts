@@ -129,7 +129,7 @@ export function highlight(text: string, words: string[]): string {
 /** The browser side of ListFilter.astro, over its markup (root [data-list-filter], its value
  *  "always" or "active"): typing (200 ms debounce), each facet's choice or select filter in place, the
  *  state lives in `?q=` and each facet's parameter, Back and Forward restore it, and the counts
- *  follow the search. One search is one history entry, arrowing across the choices is one too.
+ *  follow the search. One search is one history entry, arrowing across one facet's choices is one too.
  *  Rows in a template[data-filter-rows] enter the list; with data-source on the root, the rows of
  *  that page load on first use, and until they do the form's submit goes there. Once wired the
  *  root carries data-ready. */
@@ -148,21 +148,24 @@ export function initListFilter(root: HTMLElement) {
   const overview = root.dataset.overview ? document.getElementById(root.dataset.overview) : null;
   const browseAlways = root.dataset.listFilter !== "active";
   const copy: CountCopy = JSON.parse(root.dataset.count!);
-  // The facets in the form's order: a fieldset of radios sharing its parameter, or a select.
-  const fields = [...form.querySelectorAll<HTMLElement>("fieldset, select")].flatMap((el) => {
-    const own = radios.filter((radio) => el.contains(radio));
-    if (el instanceof HTMLSelectElement) return [{ el, param: el.name, radios: own }];
-    return own[0] ? [{ el, param: own[0].name, radios: own }] : [];
-  });
-  const choiceSets = fields.filter((field) => field.radios.length);
-  const value = ({ el, radios: own }: (typeof fields)[number]) =>
-    el instanceof HTMLSelectElement ? el.value : (own.find((radio) => radio.checked)?.value ?? "");
+  // Each facet's values in the form's order: a fieldset of radios sharing its name, or a select.
   const options: Record<string, string[]> = {};
-  for (const { el, param, radios: own } of fields)
-    options[param] =
-      el instanceof HTMLSelectElement
+  for (const el of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+    'input[type="radio"], select',
+  ))
+    (options[el.name] ??= []).push(
+      ...(el instanceof HTMLSelectElement
         ? [...el.options].map((option) => option.value)
-        : own.map((radio) => radio.value);
+        : [el.value]),
+    );
+  const value = (param: string) =>
+    selects.find((select) => select.name === param)?.value ??
+    radios.find((radio) => radio.name === param && radio.checked)?.value ??
+    "";
+  const choiceSets = [...form.querySelectorAll("fieldset")].flatMap((set) => {
+    const param = set.querySelector<HTMLInputElement>('input[type="radio"]')?.name;
+    return param ? [{ set, param }] : [];
+  });
   form.hidden = false;
   const template = list.querySelector<HTMLTemplateElement>("template[data-filter-rows]");
   template?.replaceWith(template.content);
@@ -224,7 +227,7 @@ export function initListFilter(root: HTMLElement) {
 
   const state = (): FilterState => {
     const facets: Record<string, string> = {};
-    for (const field of fields) facets[field.param] = value(field);
+    for (const param in options) facets[param] = value(param);
     return { q: input.value.trim(), facets };
   };
 
@@ -264,9 +267,9 @@ export function initListFilter(root: HTMLElement) {
       link.href = fullTextUrl(link.dataset.filterFulltext!, current.q);
       link.hidden = !current.q;
     }
-    for (const { el, param } of choiceSets) {
+    for (const { set, param } of choiceSets) {
       const chips = tally(items, current, param);
-      for (const each of el.querySelectorAll<HTMLElement>("[data-facet-count]"))
+      for (const each of set.querySelectorAll<HTMLElement>("[data-facet-count]"))
         each.textContent = String(chips.get(each.dataset.facetCount!) ?? 0);
     }
     for (const select of selects) {
@@ -288,8 +291,9 @@ export function initListFilter(root: HTMLElement) {
   };
 
   let timer = 0;
-  let session: "typing" | "picking" | "" = "";
-  const record = (kind: typeof session) => {
+  // "typing", or "picking" and the facet's parameter: arrowing across one facet's choices.
+  let session = "";
+  const record = (kind: string) => {
     const next = stateUrl(location.href, state());
     if (next === location.href) return;
     if (session === kind) history.replaceState(history.state, "", next);
@@ -297,7 +301,7 @@ export function initListFilter(root: HTMLElement) {
     session = kind;
   };
   /** A change that is its own history entry. */
-  const once = (kind: typeof session) => {
+  const once = (kind: string) => {
     session = "";
     apply();
     record(kind);
@@ -314,7 +318,7 @@ export function initListFilter(root: HTMLElement) {
   for (const radio of radios)
     radio.addEventListener("change", () => {
       apply();
-      record("picking");
+      record(`picking ${radio.name}`);
     });
   for (const select of selects) select.addEventListener("change", () => once("picking"));
   if (source) form.addEventListener("focusin", () => void load());
@@ -329,7 +333,7 @@ export function initListFilter(root: HTMLElement) {
     clear.addEventListener("click", (event) => {
       event.preventDefault();
       input.value = "";
-      for (const { radios: own } of choiceSets) own[0]!.checked = true;
+      for (const radio of radios) radio.checked = radio.value === "";
       for (const select of selects) select.value = "";
       once("typing");
       input.focus();

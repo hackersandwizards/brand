@@ -687,16 +687,17 @@
     text-decoration-thickness: var(--hw-underline, 1px);
     text-underline-offset: 0.2em;
   }
-  :is(.hw-link, .hw-links a):has(> svg) {
+  :is(.hw-link, .hw-links a, .hw-prose a):has(> svg) {
     display: inline-flex;
     align-items: baseline;
     column-gap: 0.3em;
   }
-  :is(.hw-link, .hw-links a) > svg {
+  :is(.hw-link, .hw-links a, .hw-prose a) > svg {
     flex: none;
-    align-self: center;
+    align-self: flex-start;
     width: 1em;
     height: 1em;
+    margin-top: calc((1lh - 1em) / 2);
   }
   :is(.hw-link, .hw-links a):hover {
     color: var(--color-ink);
@@ -2396,6 +2397,9 @@ select.form-input {
     .hw-list-filter[data-inline] [data-filter-panel] > label.hw-form-field:first-of-type {
       grid-row: 1;
       grid-column: 2;
+    }
+    .hw-list-filter[data-inline] [data-filter-panel] > label.hw-form-field:not(:first-of-type) {
+      grid-column: 1 / -1;
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {

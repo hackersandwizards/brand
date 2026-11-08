@@ -35,10 +35,11 @@ and shuffled for each reviewer. Overall scores out of 10:
 
 m leads with every reviewer. Noise was not measured (one run each). Reviewers named the jump above
 the baseline for k and the colour-only cue for r. m ships in `elements/link.css`: an `<svg>` as a
-direct child turns it on. `brand-elements` now compares the link's display, alignment, gap and
-icon size, and compares its underline offset in em of the link's own font size, so a link a
-surface sizes itself (`text-ui`) passes. With that, a row of smaller links needs no setting of its
-own: the row's font size is enough.
+direct child turns it on, in `hw-prose` too. A wrapped label keeps its icon on the first line, and
+the link moves to the next line whole. `brand-elements` now compares the link's alignment, and its
+gap, icon size and underline offset in em of the link's own font size. A link that a surface sizes
+itself (`text-ui`) passes, and so does one in a flex row. With that, a row of smaller links needs
+no setting of its own: the row's font size is enough.
 
 ## The dialog draws no ring without hw-focus-ring
 

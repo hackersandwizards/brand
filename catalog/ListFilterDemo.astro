@@ -48,24 +48,16 @@ const items = rows.map((r) => ({
   text: r.title.toLowerCase(),
   facets: both ? { topic: [r.topic], days: [r.days[0]!] } : { topic: [r.topic] },
 }));
-const facets =
-  mode === "none"
-    ? []
-    : [
-        { param: "topic", legend: "Thema", options: facetOptions },
-        ...(both
-          ? [
-              {
-                param: "days",
-                legend: "Dauer",
-                options: [
-                  { value: "1", label: "1 Tag" },
-                  { value: "2", label: "2 Tage" },
-                ],
-              },
-            ]
-          : []),
-      ];
+const topic = { param: "topic", legend: "Thema", options: facetOptions };
+const days = {
+  param: "days",
+  legend: "Dauer",
+  options: [
+    { value: "1", label: "1 Tag" },
+    { value: "2", label: "2 Tage" },
+  ],
+};
+const facets = mode === "none" ? [] : both ? [topic, days] : [topic];
 ---
 
 <div class="demo hw-focus-ring" data-hw-scale={scale} data-theme={night ? "dark" : undefined}>

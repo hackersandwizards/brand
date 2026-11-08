@@ -231,6 +231,22 @@ test("two facets as choices filter together, each counting under the other", asy
   await p.close();
 }, 60_000);
 
+test("arrowing through one facet is one history entry, the next facet another", async () => {
+  const p = await browser.newPage();
+  await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
+  await p.focus('input[name="topic"][value=""]');
+  await p.keyboard.press("ArrowRight");
+  await p.keyboard.press("ArrowRight");
+  await p.focus('input[name="days"]:checked');
+  await p.keyboard.press("ArrowLeft");
+  expect(new URL(p.url()).search).toBe("?topic=evidence&days=1");
+  await p.goBack();
+  expect(new URL(p.url()).search).toBe("?topic=evidence&days=2");
+  await p.goBack();
+  expect(new URL(p.url()).search).toBe("?days=2");
+  await p.close();
+}, 60_000);
+
 test("no facet shows the search alone, with no fieldset and no Filters button", async () => {
   const p = await browser.newPage();
   await p.setViewport({ width: 390, height: 800 });

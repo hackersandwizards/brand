@@ -566,19 +566,22 @@ test("a link in a smaller table cell is measured at the cell's size", async () =
   expect(r.findings).toEqual([]);
 }, 60_000);
 
-// A link a surface sizes itself keeps its 0.2em offset: the offset compares in em of each one's size.
+// A link a surface sizes itself, in a flex row, an icon link too, keeps its em lengths: they compare
+// in em of each one's size, and a flex item's blockified display is the surface's.
 test("a link sized by its own class is measured in em of that size", async () => {
+  const icon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/></svg>';
   const row = (offset = "") =>
-    `<style>.own-size { font-size: 13px; ${offset} }</style><p><a class="hw-link own-size" href="#y">Profil</a></p></body>`;
+    `<style>.own-size { font-size: 13px; ${offset} }</style><p style="display:flex"><a class="hw-link own-size" href="#y">Profil</a><a class="hw-link own-size" href="#z">${icon}Ada</a></p></body>`;
   const r = await measurePage(browser, file("sized-link.html", page().replace("</body>", row())));
   expect(r.findings).toEqual([]);
-  // Control: the same link drawn 0.3em below the baseline fails.
+  // Control: the same links drawn 0.3em below the baseline fail.
   const drift = await measurePage(
     browser,
     file("sized-link-drift.html", page().replace("</body>", row("text-underline-offset: 0.3em;"))),
   );
   expect(drift.findings.map((f) => [f.prop, f.got, f.want])).toEqual([
-    ["text-underline-offset", "0.300em", "0.200em"],
+    ["text-underline-offset", "0.3em", "0.2em"],
+    ["text-underline-offset", "0.3em", "0.2em"],
   ]);
 }, 60_000);
 

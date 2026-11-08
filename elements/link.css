@@ -1,9 +1,10 @@
 /* The link in running text: teal-dark, underlined 0.2em below the baseline, ink on hover; on night
    teal-night, white on hover. hw-link on the link, or hw-links on a prose column to mark every link
    in it. A link that is a row or a button is not this element. A link opening with an icon, such as
-   a person's name after their mark, takes the icon as a direct <svg> child: 1em, centred on the
-   line, 0.3em before the label, the label on the line's baseline and alone underlined. The link
-   takes its size from where it stands: a row of smaller links sets the row's font size.
+   a person's name after their mark, takes the icon as a direct <svg> child (in hw-prose too): 1em,
+   centred on the label's first line, 0.3em before it, the label on the line's baseline and alone
+   underlined. Such a link moves to the next line whole, so its label stays short. The link takes
+   its size from where it stands: a row of smaller links sets the row's font size.
 
    Settings:
      --hw-underline  the underline's thickness */
@@ -16,16 +17,17 @@
     text-decoration-thickness: var(--hw-underline, 1px);
     text-underline-offset: 0.2em;
   }
-  :is(.hw-link, .hw-links a):has(> svg) {
+  :is(.hw-link, .hw-links a, .hw-prose a):has(> svg) {
     display: inline-flex;
     align-items: baseline;
     column-gap: 0.3em;
   }
-  :is(.hw-link, .hw-links a) > svg {
+  :is(.hw-link, .hw-links a, .hw-prose a) > svg {
     flex: none;
-    align-self: center;
+    align-self: flex-start;
     width: 1em;
     height: 1em;
+    margin-top: calc((1lh - 1em) / 2);
   }
   :is(.hw-link, .hw-links a):hover {
     color: var(--color-ink);

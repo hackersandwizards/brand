@@ -4,7 +4,7 @@
    hw-choice, hw-button, hw-form-field); this file only places them, in the scale's form gap, and
    marks the matched words in the accent's 20 % tint. Below 48rem, once the script runs, the facets
    fold behind the Filters button and the submit button goes, as Enter submits. data-inline on the
-   root sets the select beside the search from 64rem, for a shorter block. */
+   root sets the first select beside the search from 64rem, for a shorter block. */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
@@ -88,6 +88,9 @@
     .hw-list-filter[data-inline] [data-filter-panel] > label.hw-form-field:first-of-type {
       grid-row: 1;
       grid-column: 2;
+    }
+    .hw-list-filter[data-inline] [data-filter-panel] > label.hw-form-field:not(:first-of-type) {
+      grid-column: 1 / -1;
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
