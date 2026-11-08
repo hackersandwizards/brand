@@ -138,6 +138,9 @@
   --hw-code-size: var(--type-code-size);
   --hw-hairline: 1pt;
   --hw-line: var(--color-border-strong);
+  /* The list marker on paper, document.css's --bullet and --list-marker-gap. */
+  --hw-marker-size: var(--bullet, 0.5em);
+  --hw-marker-gap: var(--list-marker-gap, 0.625em);
   --hw-card-pad: 14pt;
   --hw-card-corner: var(--print-radius);
   --hw-callout-pad: 14pt;

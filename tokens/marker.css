@@ -26,7 +26,7 @@
    sits a whole number of pixels from the first line's baseline, which rounds it with the text, and
    a transform, which Chrome does not round, moves it the rest of the way. The square's side is
    rounded to the pixel too: Chrome rounds a box's top and bottom edges each on its own, so a side
-   just under a whole pixel (0.5625rem on the slide's 21.33px rem, 11.98px) painted a pixel short
+   just under a whole pixel (11.98px) painted a pixel short
    where its top fell within 1/64px from a half pixel on, its middle 0.55 to 0.63px off.
 
    The list marker floats, so the whitespace a newline after <li> leaves (prettier-plugin-astro
@@ -56,7 +56,7 @@
   ul > li {
     padding-inline-start: var(
       --hw-marker-indent,
-      calc(var(--hw-marker-size, 0.375rem) + var(--hw-marker-gap, 0.625rem))
+      calc(round(var(--hw-marker-size, 0.375rem), 1px) + var(--hw-marker-gap, 0.625rem))
     );
   }
 
