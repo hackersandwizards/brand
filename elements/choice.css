@@ -3,9 +3,9 @@
    aria-current to the list filtered by it, or a button with aria-pressed. The small corner, a
    hairline in the field line, the UI text at the foreground's 70 %, the muted fill on hover; the
    chosen one (a checked input, aria-current, aria-pressed="true") filled with the accent and its
-   on-accent text, as the segmented control's. hw-choice-count is the count, tabular figures. A
-   row of choices sits in hw-choices, wrapping, 0.375rem apart. Its target is the medium's control
-   height: 44 px on a client screen, the apps' choice height in dense. On night the expert set's
+   on-accent text, as the segmented control's. hw-choice-count is the count, in the choice's
+   colour, tabular figures. A row of choices sits in hw-choices, wrapping, 0.375rem apart. Its
+   target is the medium's control height: 44 px on a client screen, the apps' choice height in dense. On night the expert set's
    night roles.
 
    Markup: <div class="hw-choices" role="group" aria-label="…">
@@ -59,7 +59,6 @@
   }
   .hw-choice-count {
     font-variant-numeric: tabular-nums;
-    opacity: 0.8;
   }
   .hw-choice:is(
     :has(> input:checked),

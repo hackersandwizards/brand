@@ -74,6 +74,17 @@ test.each(components)(
   30_000,
 );
 
+test("SpaceNav's home link takes hw-nav's weight: no weight class on its list", async () => {
+  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+  const component = (await server.ssrLoadModule("/expert/components/SpaceNav.astro")).default;
+  const container = await experimental_AstroContainer.create();
+  const html: string = await container.renderToString(component, { props: props.SpaceNav });
+  const beforeHome = html.slice(0, html.indexOf(`>${P} home<`));
+  const list = beforeHome.slice(beforeHome.lastIndexOf("<ul"));
+  expect(list).toStartWith("<ul");
+  expect(list).not.toMatch(/font-(medium|semibold|bold)/);
+});
+
 test("SpaceNav takes its words from labels, English by default", async () => {
   const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
   const component = (await server.ssrLoadModule("/expert/components/SpaceNav.astro")).default;

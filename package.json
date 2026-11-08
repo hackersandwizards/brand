@@ -109,6 +109,7 @@
     "@typescript/native": "npm:typescript@7.0.2",
     "astro": "7.4.7",
     "astrobook": "0.13.3",
+    "axe-core": "4.14.0",
     "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "lucide-static": "1.70.0",

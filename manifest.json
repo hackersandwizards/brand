@@ -310,7 +310,7 @@
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "092562cbfb38efe04da74a127015e4eb0949fe3ecd0ab87c6d36687ea7378b81"
+      "sha256": "752c6859d5e29fdad11901a3cc5d73023a6d03f2c6badcf9a1f74010c11fa8bf"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
@@ -538,7 +538,7 @@
     },
     {
       "path": "elements/choice.css",
-      "sha256": "8a1325a76f93b8f501a24bda0d55fe881174212a76e986276982880db620773e"
+      "sha256": "72f5004924ff8505a2453d1db38c2667da2adbd1cd112c8f1cf4d411b5c781ce"
     },
     {
       "path": "expert/components/ListRow.astro",
