@@ -105,7 +105,7 @@ data or secret.
 - Nothing about another repo goes on the portal: each system shows its components on its own
   design-system page, whose URL `catalog/portal.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
-  their OFL texts, small logos,
+  their OFL texts, the area marks with their Lucide licence, small logos,
   the client marks, the press photos, `verbal/`, `manifest.json`, the LinkedIn post renderers and prompts
   `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core`, and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`

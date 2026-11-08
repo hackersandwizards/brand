@@ -136,3 +136,106 @@
     --hw-marker-mid: 0.5ex;
   }
 }
+
+/* The area mark: one icon per area of h&w, in the area's colour, beside a link into the area and
+   before the H1 of a page in it, so a reader who follows the link finds the same mark on arrival.
+   An empty element: <span class="hw-mark" data-mark="blog" aria-hidden="true"></span>. Its box is
+   the icon's 24-unit grid, the stroke drawn inside the middle 20 units, and its middle sits on the
+   cap-height middle of the text beside it, whole pixels rounded with the text as .hw-marker does.
+
+   Areas, in this order, each with its icon (Lucide, ISC licence: tokens/LICENSE-Lucide.txt) and
+   its category colour from tokens.css:
+     trainings   graduation cap  teal
+     factory     factory         teal
+     blog        newspaper       purple
+     knowledge   open book       purple
+     podcast     microphone      purple
+     other       building        ampersand: every page outside the five areas
+
+   Sizes, each on the mark or any element it inherits from:
+     beside a line   1.15em of the line's text, 1.3em in a .hw-label: the default
+     beside an H1    data-size="heading": 0.5em of the heading, the stroke 0.42em
+     --hw-mark-size  any other size
+     --hw-mark-color another colour, such as one a surface maps its own areas to
+   On night (data-theme="dark") each takes its colour's night variant. The mark carries no
+   meaning alone: a link keeps its words and a page its H1. */
+.hw-mark {
+  --_hw-px: calc(1px / var(--hw-zoom, 1));
+  --_hw-size: round(var(--hw-mark-size, 1.15em), var(--_hw-px));
+  --_hw-lift: calc(0.5cap - var(--_hw-size) / 2);
+  --_hw-mark-color: var(--color-ampersand);
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+  top: calc(-1 * round(var(--_hw-lift), var(--_hw-px)));
+  width: var(--_hw-size);
+  height: var(--_hw-size);
+  vertical-align: baseline;
+  transform: translateY(calc(round(var(--_hw-lift), var(--_hw-px)) - var(--_hw-lift)));
+  background: var(--hw-mark-color, var(--_hw-mark-color));
+  mask: var(--_hw-mark) center / contain no-repeat;
+}
+
+.hw-label > .hw-mark {
+  --hw-mark-size: 1.3em;
+}
+
+.hw-mark[data-size="heading"] {
+  --hw-mark-size: 0.5em;
+}
+
+.hw-mark:is([data-mark="trainings"], [data-mark="factory"]) {
+  --_hw-mark-color: var(--color-teal);
+}
+
+.hw-mark:is([data-mark="blog"], [data-mark="knowledge"], [data-mark="podcast"]) {
+  --_hw-mark-color: var(--color-purple);
+}
+
+@scope ([data-theme="dark"]) to ([data-theme="light"]) {
+  .hw-mark {
+    --_hw-mark-color: var(--color-ampersand-light);
+  }
+
+  .hw-mark:is([data-mark="trainings"], [data-mark="factory"]) {
+    --_hw-mark-color: var(--color-teal-night);
+  }
+
+  .hw-mark:is([data-mark="blog"], [data-mark="knowledge"], [data-mark="podcast"]) {
+    --_hw-mark-color: var(--color-purple-night);
+  }
+}
+
+/* Forced colours replace the background with the canvas: the mark keeps the text colour. */
+@media (forced-colors: active) {
+  .hw-mark {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}
+
+/* An engine without the cap unit (Safari before 17.2) centres the mark on the x-height. */
+@supports not (top: 1cap) {
+  .hw-mark {
+    --_hw-lift: calc(0.5ex - var(--_hw-size) / 2);
+  }
+}
+
+.hw-mark[data-mark="trainings"] {
+  --_hw-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z'/%3E%3Cpath d='M22 10v6'/%3E%3Cpath d='M6 12.5V16a6 3 0 0 0 12 0v-3.5'/%3E%3C/svg%3E");
+}
+.hw-mark[data-mark="factory"] {
+  --_hw-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16h.01'/%3E%3Cpath d='M16 16h.01'/%3E%3Cpath d='M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z'/%3E%3Cpath d='M8 16h.01'/%3E%3C/svg%3E");
+}
+.hw-mark[data-mark="blog"] {
+  --_hw-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 18h-5'/%3E%3Cpath d='M18 14h-8'/%3E%3Cpath d='M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2'/%3E%3Crect width='8' height='4' x='10' y='6' rx='1'/%3E%3C/svg%3E");
+}
+.hw-mark[data-mark="knowledge"] {
+  --_hw-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v16'/%3E%3Cpath d='M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z'/%3E%3C/svg%3E");
+}
+.hw-mark[data-mark="podcast"] {
+  --_hw-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 19v3'/%3E%3Cpath d='M19 10v2a7 7 0 0 1-14 0v-2'/%3E%3Crect x='9' y='2' width='6' height='13' rx='3'/%3E%3C/svg%3E");
+}
+.hw-mark[data-mark="other"] {
+  --_hw-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 12h4'/%3E%3Cpath d='M10 8h4'/%3E%3Cpath d='M14 21v-3a2 2 0 0 0-4 0v3'/%3E%3Cpath d='M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2'/%3E%3Cpath d='M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16'/%3E%3C/svg%3E");
+}

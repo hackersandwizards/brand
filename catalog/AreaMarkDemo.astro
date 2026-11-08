@@ -1,0 +1,66 @@
+---
+// The area marks (tokens/marker.css, .hw-mark) in their order, each in its area's colour, at both
+// sizes: beside a label and a link line, and before an H1. On light or night.
+interface Props {
+  night?: boolean;
+}
+
+const { night = false } = Astro.props;
+const areas = [
+  ["trainings", "Trainings", "Agentic Engineering für Teams"],
+  ["factory", "Software Factory", "So läuft die Fabrik"],
+  ["blog", "Blog", "Agenten in der Merge-Queue"],
+  ["knowledge", "Knowledge base", "Kontextfenster"],
+  ["podcast", "Podcast", "Rethink Engineering"],
+  ["other", "About", "Wer wir sind"],
+];
+---
+
+<div class="demo" data-theme={night ? "dark" : undefined}>
+  {areas.map(([mark, area, title]) => (
+    <div class="area">
+      <p class="hw-label" data-tone="muted">
+        <span class="hw-mark" data-mark={mark} aria-hidden="true" />
+        {area}
+      </p>
+      <p class="line">
+        <span class="hw-mark" data-mark={mark} aria-hidden="true" />
+        {title}
+      </p>
+      <p class="h1">
+        <span class="hw-mark" data-mark={mark} data-size="heading" aria-hidden="true" />
+        {title}
+      </p>
+    </div>
+  ))}
+</div>
+
+<style>
+  .demo {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--color-white);
+    color: var(--color-ink);
+  }
+  .demo[data-theme="dark"] {
+    background: var(--color-night);
+    color: var(--color-night-ink);
+  }
+  .area > * {
+    margin: 0 0 0.5rem;
+  }
+  .hw-mark {
+    margin-inline-end: 0.5em;
+  }
+  .h1 .hw-mark {
+    margin-inline-end: 0.3em;
+  }
+  .h1 {
+    font-family: var(--font-mono);
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    letter-spacing: var(--text-h1--letter-spacing);
+    font-weight: 700;
+  }
+</style>

@@ -9,6 +9,10 @@
       "sha256": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d"
     },
     {
+      "path": "tokens/LICENSE-Lucide.txt",
+      "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+    },
+    {
       "path": "tokens/fonts/inter-arrows-400-normal.woff2",
       "sha256": "eb83d7eef643d1a6c9a944417428c74dc6654e820175022a9693e4ae8e4c4de8"
     },
@@ -114,11 +118,11 @@
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "d9aafb077ddb0b827ef12912db1cb7bd9bee7d735f99ac2d6d2884182b2f732b"
+      "sha256": "d38db4db5d22cb8c6a5accc43db135b8ee461fb99815971878135c32ba51aa41"
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "268835aa568cda1de74fcf31c919d6d9dd98b6c2cb2d182adcadb6f3bc2abf16"
+      "sha256": "a1a342b0999014a68a20c3be1127c389ca837852892df04418b6613826161493"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",

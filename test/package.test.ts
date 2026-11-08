@@ -17,6 +17,7 @@ test("the package ships only the core", () => {
       "LICENSE",
       "tokens/fonts/OFL-Inter.txt",
       "tokens/fonts/OFL-JetBrainsMono.txt",
+      "tokens/LICENSE-Lucide.txt",
     ]),
   );
 });

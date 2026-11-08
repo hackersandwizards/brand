@@ -14,7 +14,7 @@
 // by text in its row that is the brand's .hw-marker or an item's first element, a bullet glyph as a
 // ul item's ::before content, and the browser's own marker in a ul. A drawn marker on an item that
 // also keeps the browser's own fails, whatever its offset. Not measured: a heading's or
-// link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
+// link's swatch outside a list, an area mark (.hw-mark), and ol numerals, whose digits stand on the baseline.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder>
 // [--catalog-at <page>]] [--json] <url, html file or site path>... --site serves a built folder on a
@@ -191,6 +191,7 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
     const r = host.getBoundingClientRect();
     if (
       !host.childNodes.length &&
+      !host.classList.contains("hw-mark") &&
       (host.classList.contains("hw-marker") ||
         (host.parentElement?.tagName === "LI" && host.parentElement.firstElementChild === host)) &&
       Math.abs(r.width - r.height) < 0.01 &&
