@@ -1,0 +1,131 @@
+/* The command palette: search and run from one field, for people who work by keyboard. It is an
+   hw-dialog with data-variant="command", held near the top of the window so the list has room below;
+   the field is a combobox, the results a listbox, and focus stays in the field while the arrow keys
+   move the highlight. Enter runs the highlighted entry. hw-command-group heads a group, an entry's
+   hw-command-meta sits at its end and hw-command-empty says nothing matched. Put both an hw-kbd and an
+   hw-icon-button in the field: a mouse sees Esc, a touch screen the close button. On a phone the panel
+   starts at the top, so the on-screen keyboard does not cover the list.
+
+   elements/behaviour.ts wires the keys and the filter over the option text; data-hw-remote on the
+   list leaves the results to the page, and data-hw-shortcut="k" opens it with Cmd or Ctrl and that
+   key.
+
+   Markup: <dialog class="hw-dialog" data-variant="command" id="c" aria-label="Befehle" data-hw-shortcut="k"><div class="hw-command-field"><input role="combobox" aria-controls="c-list" aria-expanded="true" aria-autocomplete="list" placeholder="Suchen"><kbd class="hw-kbd">Esc</kbd></div><div class="hw-command-list" id="c-list" role="listbox" aria-label="Ergebnisse"><p class="hw-command-group">Aktionen</p><a role="option" class="hw-command-option" href="…">Neuer Deal<span class="hw-command-meta">Anlegen</span></a></div></dialog>
+
+   Settings:
+     --hw-item-height         a result's height under a mouse
+     --hw-check-target-touch  its least height on a touch screen
+     --hw-field-size          the text size
+     --hw-corner-sm           a result's corner */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-dialog[data-variant="command"] {
+    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-accent: var(--accent, var(--color-teal-dark));
+    --_hw-target: var(--hw-item-height, 2.75rem);
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-sel: 7%;
+    margin: 15vh auto auto;
+    padding: 0;
+    overflow: hidden;
+    font-size: var(--hw-field-size, var(--type-body-size));
+  }
+  .hw-dialog[data-variant="command"][open]:not(:modal) {
+    margin: 0;
+  }
+  .hw-command-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: var(--hw-hairline, 1px) solid var(--_hw-line);
+    padding: 0.75rem 1rem;
+  }
+  .hw-command-field > input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+  }
+  .hw-command-field > input:focus-visible {
+    outline: 0;
+  }
+  .hw-command-field > .hw-icon-button {
+    display: none;
+  }
+  .hw-command-field > input::placeholder {
+    color: var(--_hw-quiet);
+  }
+  .hw-command-list {
+    max-height: 50dvh;
+    overflow-y: auto;
+    padding: 0.5rem;
+  }
+  .hw-command-group {
+    margin: 0;
+    padding: 0.5rem 0.625rem 0.25rem;
+    color: var(--_hw-quiet);
+    font-size: 0.85em;
+    font-weight: 600;
+  }
+  .hw-command-option[hidden] {
+    display: none;
+  }
+  .hw-command-option:not([hidden]) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    min-height: var(--_hw-target);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0.25rem 0.625rem;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .hw-command-option:hover {
+    background: color-mix(in srgb, currentColor 7%, transparent);
+  }
+  .hw-command-option[aria-selected="true"] {
+    color: var(--_hw-accent);
+    background: color-mix(in srgb, var(--_hw-accent) var(--_hw-sel), transparent);
+  }
+  .hw-command-meta {
+    margin-inline-start: auto;
+    color: var(--_hw-quiet);
+    font-size: 0.9em;
+  }
+  .hw-command-empty {
+    margin: 0;
+    padding: 2rem 0.75rem;
+    color: var(--_hw-quiet);
+    text-align: center;
+  }
+  @media (any-pointer: coarse) {
+    .hw-dialog[data-variant="command"] {
+      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
+    }
+    .hw-command-field > .hw-kbd {
+      display: none;
+    }
+    .hw-command-field > .hw-icon-button {
+      display: inline-flex;
+    }
+  }
+  @media (max-width: 40rem) {
+    .hw-dialog[data-variant="command"]:modal {
+      margin: 0.5rem auto auto;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-dialog[data-variant="command"] {
+      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-sel: 15%;
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+    }
+  }
+}

@@ -631,6 +631,24 @@ const KEYWORDS: Record<string, string> = {
   switch: "toggle on off setting",
   range: "slider",
   "error-summary": "validation errors form submit",
+  dialog: "modal confirm alertdialog",
+  drawer: "sheet offcanvas side panel",
+  menu: "dropdown context right click actions",
+  command: "cmd k search palette spotlight",
+  tooltip: "hint title hover",
+  popover: "click reveal glossary",
+  toast: "notification snackbar",
+  tabs: "tablist panels",
+  progress: "loading bar",
+  spinner: "loading",
+  skeleton: "placeholder loading",
+  empty: "blank state nothing yet",
+  accordion: "faq collapse details",
+  avatar: "person initials portrait",
+  pagination: "pages prev next sequence",
+  stepper: "steps wizard progress indicator",
+  tree: "hierarchy folders treeitem",
+  carousel: "slider swipe scroller",
 };
 const elementHtml = ({ name, title, file }: { name: string; title: string; file: string }) => {
   const { words, names } = elementDoc(file);
@@ -642,7 +660,7 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
   });
   // A sample's ids, and the for and aria-describedby naming them, stay unique across the cells.
   const cell = (scale: string, night: boolean) =>
-    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ (id|for|list|aria-describedby|aria-controls|aria-labelledby|data-for)="([^"]*)"/g, (_, attr: string, ids: string) => ` ${attr}="${ids.replace(/\S+/g, (id) => `${id}-${scale}${night ? "-night" : ""}`)}"`)}</div></div>`;
+    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ (id|for|list|aria-describedby|aria-controls|aria-labelledby|data-for|popovertarget|data-hw-open|name)="([^"]*)"/g, (_, attr: string, ids: string) => ` ${attr}="${ids.replace(/\S+/g, (id) => `${id}-${scale}${night ? "-night" : ""}`)}"`)}</div></div>`;
   const row = (night: boolean) =>
     `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
   return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
@@ -651,11 +669,17 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
 <div class="el-matrix"><span></span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>`).join("")}${row(false)}${row(true)}</div>
 <p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
 };
+// The element samples' script, unminified so its export `enhance` keeps that name.
+const BEHAVIOUR = spawnSync(
+  process.execPath,
+  ["build", join(ROOT, "elements/behaviour.ts"), "--format=esm"],
+  { encoding: "utf8" },
+).stdout.replace(/<\/script/g, "<\\/script");
 const EXPERT_COMPONENTS = readdirSync(join(ROOT, "expert/components"))
   .sort()
   .flatMap((f) => f.match(/^(\w+)\.astro$/)?.[1] ?? []);
 const sharedIntro = `<p>Every element two or more systems show lives here once: one CSS file, shown live in light and night at each of the four scales. A system sets the scale, never a colour or a shape, and shows its exceptions in full on its own design-system page, beside a tile per hub element it uses. ${code('@import "@hackersandwizards/brand/elements.css";')} takes them all, ${code("elements/<name>.css")} with ${code("elements/scales.css")} one each; the scale is ${code('data-hw-scale="screen | dense | print | stage"')} on any container. ${code("brand-elements")} measures each element on the system's own page against this rule, in that system's gate.</p>
-<p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, tooltip, chart bars, slide table, header bars, ghost button. The slide engine's number tile, a step's number on a square, is a slide part.</p>`;
+<p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, chart bars, slide table, header bars, ghost button. The slide engine's number tile, a step's number on a square, is a slide part.</p>`;
 // The disclosure is the expert layer's plain CSS, which any surface may take, shown in Navigation.
 const disclosureHtml = `<h4 id="disclosure">Disclosure <code>.hw-disclosure</code></h4>
 <p class="meta">${code("expert/disclosure.css")} · brand v${pkg.version}</p>
@@ -1191,6 +1215,10 @@ document.addEventListener("click", (e) => {
   if (b) navigator.clipboard?.writeText(b.dataset.copy).then(() => { b.classList.add("copied"); setTimeout(() => b.classList.remove("copied"), 1200); });
 });
 show();
+</script>
+<script type="module">
+${BEHAVIOUR}
+enhance();
 </script>
 <script>
 // On GitHub Pages, links to a system page with a public address leave their local addresses for

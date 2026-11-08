@@ -1,0 +1,51 @@
+/* The skeleton: the shape of content that is about to load, so the page keeps its layout. A block
+   in the text colour at 10 %, the small corner, with a soft sweep of light; under reduced motion it
+   rests. data-shape="text" is a line of text, "circle" an avatar, unset a block the surface sizes.
+   Mark it aria-hidden and set aria-busy="true" on the region that waits.
+
+   Markup: <div aria-busy="true"><span class="hw-skeleton" data-shape="text" aria-hidden="true"></span></div>
+
+   Settings:
+     --hw-corner-sm  the corner */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-skeleton {
+    display: block;
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    min-height: 1em;
+    background:
+      linear-gradient(
+          90deg,
+          transparent,
+          color-mix(in srgb, currentColor 7%, transparent),
+          transparent
+        )
+        0 0 / 200% 100% no-repeat,
+      color-mix(in srgb, currentColor 10%, transparent);
+    animation: hw-skeleton-sweep 1.6s ease-in-out infinite;
+  }
+  .hw-skeleton[data-shape="text"] {
+    height: 0.75em;
+    min-height: 0;
+    margin-block: 0.4em;
+  }
+  .hw-skeleton[data-shape="circle"] {
+    width: 2.5em;
+    height: 2.5em;
+    border-radius: var(--radius-pill);
+  }
+  @keyframes hw-skeleton-sweep {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-skeleton {
+      animation: none;
+    }
+  }
+}

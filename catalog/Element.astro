@@ -1,7 +1,7 @@
 ---
 // One shared element's sample (scripts/element-demos.ts) at one scale, on light or night, in the
 // tile brand-elements counts (data-hw-tile, data-hw-version), with the focus ring turned on and the
-// form elements' behaviour (elements/form.ts) wired.
+// behaviour the elements need (elements/form.ts, elements/behaviour.ts) wired.
 import pkg from "../package.json";
 import { DEMOS } from "../scripts/element-demos";
 
@@ -29,7 +29,9 @@ const { name, scale = "screen", night = false, settings } = Astro.props;
 
 <script>
   import { enhanceForms } from "../elements/form";
+  import { enhance } from "../elements/behaviour";
   enhanceForms();
+  enhance();
 </script>
 
 <style>

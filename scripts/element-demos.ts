@@ -43,10 +43,28 @@ export const DEMOS: Record<string, string> = {
   frame: `<div class="hw-frame" style="padding: 1rem">Noch kein Eintrag</div>`,
   kpi: `<div class="hw-kpi"><span class="hw-label" data-tone="muted">Pipeline</span><span class="hw-kpi-value">12</span></div>`,
   prose: `<div class="hw-prose"><h2>Ablauf</h2><p>Erst der Plan, dann <code>bun run check</code>, wie im <a href="#elements">Runbook</a>.</p><h3>Tag 1</h3><ul><li>Gate einrichten</li><li>Cache behalten</li></ul><ol><li>Holen</li><li>Prüfen</li></ol><ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked disabled> Bericht</li><li class="task-list-item"><input type="checkbox" disabled> Review</li></ul></div>`,
+  dialog: `<dialog open class="hw-dialog" aria-labelledby="dl-t"><button type="button" class="hw-icon-button hw-dialog-close" data-hw-close aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg></button><h2 class="hw-dialog-title" id="dl-t">Deal anlegen</h2><div class="hw-dialog-body"><div class="hw-form-field"><label class="hw-form-label" for="dl-n">Name</label><input class="hw-field" id="dl-n" value="Musterwerk Training"></div></div><div class="hw-dialog-actions"><button type="button" class="hw-button" data-variant="secondary">Abbrechen</button><button type="button" class="hw-button">Anlegen</button></div></dialog><button type="button" class="hw-button" data-variant="secondary" data-hw-open="dl-live">Dialog öffnen</button><dialog class="hw-dialog" id="dl-live" data-size="small" aria-label="Löschen"><h2 class="hw-dialog-title">Deal löschen?</h2><div class="hw-dialog-body">Das lässt sich nicht rückgängig machen.</div><div class="hw-dialog-actions"><button type="button" class="hw-button" data-variant="secondary" data-hw-close>Abbrechen</button><button type="button" class="hw-button" data-hw-close>Löschen</button></div></dialog>`,
+  drawer: `<dialog open class="hw-dialog" data-variant="drawer" aria-label="Filter"><button type="button" class="hw-icon-button hw-dialog-close" data-hw-close aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg></button><h2 class="hw-dialog-title">Filter</h2><div class="hw-dialog-body"><fieldset class="hw-form-field" style="border:0;margin:0;padding:0"><legend class="hw-form-label">Format</legend><label><input type="checkbox" class="hw-check" checked> Remote</label><label><input type="checkbox" class="hw-check"> Vor Ort</label></fieldset></div><div class="hw-dialog-actions"><button type="button" class="hw-button">Anwenden</button></div></dialog><button type="button" class="hw-button" data-variant="secondary" data-hw-open="dr-live">Drawer öffnen</button><dialog class="hw-dialog" id="dr-live" data-variant="drawer" aria-label="Menü"><h2 class="hw-dialog-title">Menü</h2><div class="hw-dialog-body">Trainings, Mentoring, Über uns.</div><div class="hw-dialog-actions"><button type="button" class="hw-button" data-hw-close>Schließen</button></div></dialog>`,
+  menu: `<div class="hw-menu" role="menu" aria-label="Aktionen"><button type="button" role="menuitem" class="hw-menu-item">Bearbeiten<span class="hw-menu-meta">E</span></button><button type="button" role="menuitem" class="hw-menu-item">Duplizieren</button><p class="hw-menu-label">Status</p><button type="button" role="menuitemradio" aria-checked="true" class="hw-menu-item">Aktiv</button><div role="separator" class="hw-menu-sep"></div><button type="button" role="menuitem" class="hw-menu-item" data-tone="danger">Löschen</button></div><button type="button" class="hw-button" data-variant="secondary" popovertarget="mn-live" aria-haspopup="menu" aria-expanded="false">Aktionen</button><div popover id="mn-live" role="menu" class="hw-menu" aria-label="Aktionen"><button type="button" role="menuitem" class="hw-menu-item">Bearbeiten</button><button type="button" role="menuitem" class="hw-menu-item">Archivieren</button></div>`,
+  popover: `<div class="hw-popover" role="dialog" aria-label="Erklärung"><p class="hw-popover-title">Gate</p>Die Prüfung, die jede Änderung bestehen muss. <a class="hw-link" href="#elements">Mehr dazu</a></div><button type="button" class="hw-button" data-variant="secondary" popovertarget="pv-live" aria-expanded="false" aria-controls="pv-live">Was heißt Gate?</button><div popover id="pv-live" class="hw-popover" role="dialog" aria-label="Erklärung">Die Prüfung, die jede Änderung bestehen muss.</div>`,
+  tooltip: `<span class="hw-tooltip" role="tooltip">Archiviert den Deal</span><button type="button" class="hw-button" data-variant="secondary" aria-describedby="tt-live">Archivieren</button><span id="tt-live" role="tooltip" popover="manual" class="hw-tooltip">Archiviert den Deal</span>`,
+  command: `<dialog open class="hw-dialog" data-variant="command" aria-label="Befehle"><div class="hw-command-field"><input role="combobox" aria-label="Suchen" aria-controls="cm-list" aria-expanded="true" aria-autocomplete="list" placeholder="Suchen…" value="dea"><kbd class="hw-kbd">Esc</kbd><button type="button" class="hw-icon-button" data-hw-close aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 18 18 6M6 6l12 12"/></svg></button></div><div class="hw-command-list" id="cm-list" role="listbox" aria-label="Ergebnisse"><p class="hw-command-group">Aktionen</p><a role="option" aria-selected="true" class="hw-command-option" href="#elements">Neuer Deal<span class="hw-command-meta">Anlegen</span></a><a role="option" aria-selected="false" class="hw-command-option" href="#elements">Deals ansehen<span class="hw-command-meta">Seite</span></a><p class="hw-command-empty" hidden>Kein Treffer</p></div></dialog>`,
+  toast: `<div style="display: grid; gap: 0.5rem"><div class="hw-toast" data-tone="success"><span class="hw-toast-text">Gespeichert</span><button type="button" class="hw-toast-action">Rückgängig</button><button type="button" class="hw-toast-close" aria-label="Schließen"></button></div><div class="hw-toast" data-tone="error"><span class="hw-toast-text">Konnte nicht speichern. Bitte erneut versuchen.</span><button type="button" class="hw-toast-close" aria-label="Schließen"></button></div><div class="hw-toast" data-tone="warning"><span class="hw-toast-text">Trainer fehlt</span><button type="button" class="hw-toast-close" aria-label="Schließen"></button></div><div class="hw-toast"><span class="hw-toast-text">Export läuft</span><button type="button" class="hw-toast-close" aria-label="Schließen"></button></div></div>`,
+  tabs: `<div style="display: grid; gap: 1.5rem"><div class="hw-tabs" role="tablist" aria-label="Deal"><button type="button" role="tab" class="hw-tab" id="tb-1" aria-selected="true" aria-controls="tb-p1">Überblick</button><button type="button" role="tab" class="hw-tab" id="tb-2" aria-selected="false" aria-controls="tb-p2" tabindex="-1">Aktivität</button><button type="button" role="tab" class="hw-tab" id="tb-3" aria-selected="false" aria-controls="tb-p3" tabindex="-1">Dokumente</button></div><div class="hw-tab-panel" id="tb-p1" role="tabpanel" aria-labelledby="tb-1" tabindex="0">Der Deal im Überblick.</div><div class="hw-tab-panel" id="tb-p2" role="tabpanel" aria-labelledby="tb-2" tabindex="0" hidden>Letzte Aktivität.</div><div class="hw-tab-panel" id="tb-p3" role="tabpanel" aria-labelledby="tb-3" tabindex="0" hidden>Angebote.</div><nav class="hw-tabs" aria-label="Bereiche"><a class="hw-tab" href="#elements" aria-current="page">Trainings</a><a class="hw-tab" href="#elements">Mentoring</a></nav></div>`,
+  progress: `<div style="display: grid; gap: 1rem"><label style="display: grid; gap: 0.25rem">Upload, 40 %<progress class="hw-progress" value="40" max="100"></progress></label><label style="display: grid; gap: 0.25rem">Export läuft<progress class="hw-progress"></progress></label></div>`,
+  spinner: `<div style="display: flex; gap: 1rem; align-items: center"><span style="display: inline-flex; gap: 0.5em; align-items: center"><span class="hw-spinner" role="status" aria-label="Lädt"></span>Lädt…</span><button type="button" class="hw-button" aria-busy="true"><span class="hw-spinner" aria-hidden="true"></span> Speichert</button></div>`,
+  skeleton: `<div aria-busy="true"><span class="hw-skeleton" data-shape="circle" aria-hidden="true"></span><span class="hw-skeleton" data-shape="text" aria-hidden="true"></span><span class="hw-skeleton" data-shape="text" style="width: 60%" aria-hidden="true"></span><span class="hw-skeleton" style="height: 4rem" aria-hidden="true"></span></div>`,
+  empty: `<div style="display: grid; gap: 1rem"><div class="hw-empty"><p class="hw-empty-title">Noch keine Deals</p><p>Legt den ersten an, dann steht er hier.</p><button type="button" class="hw-button" data-variant="secondary">Deal anlegen</button></div><div class="hw-empty" data-variant="plain"><p>Kein Treffer für diesen Filter.</p><button type="button" class="hw-button" data-variant="secondary">Filter zurücksetzen</button></div><button type="button" class="hw-empty">+ Ersten Deal anlegen</button></div>`,
+  accordion: `<div class="hw-accordion"><details name="dm-faq" open><summary>Wie lange dauert es?</summary><div class="hw-accordion-body">Zwei Tage vor Ort oder remote.</div></details><details name="dm-faq"><summary>Für wen ist das?</summary><div class="hw-accordion-body">Für Teams, die mit Agenten arbeiten.</div></details></div>`,
+  avatar: `<span class="hw-avatar" role="img" aria-label="Ada Muster">AM</span> <span class="hw-avatar" data-size="small" role="img" aria-label="Ben Beispiel">BB</span> <span class="hw-avatar" data-size="large" role="img" aria-label="Chris Probe" style="--hw-avatar-hue: var(--color-factory)">CP</span> <span class="hw-avatar-group"><span class="hw-avatar" role="img" aria-label="Ada Muster">AM</span><span class="hw-avatar" role="img" aria-label="Ben Beispiel" style="--hw-avatar-hue: var(--color-factory)">BB</span><span class="hw-avatar hw-avatar-more" role="img" aria-label="3 weitere">+3</span></span>`,
+  pagination: `<div style="display: grid; gap: 1.5rem"><nav class="hw-pagination" aria-label="Seiten"><ul><li><a href="#elements" rel="prev">← Zurück</a></li><li class="hw-pagination-page"><a href="#elements">1</a></li><li class="hw-pagination-gap" aria-hidden="true">…</li><li class="hw-pagination-page"><a href="#elements">7</a></li><li class="hw-pagination-page"><a href="#elements" aria-current="page">8</a></li><li class="hw-pagination-page"><a href="#elements">9</a></li><li class="hw-pagination-gap" aria-hidden="true">…</li><li class="hw-pagination-page"><a href="#elements">12</a></li><li class="hw-pagination-count">Seite 8 von 12</li><li><a href="#elements" rel="next">Weiter →</a></li></ul></nav><nav class="hw-pagination" data-variant="sequence" aria-label="Lektion"><ul><li><a href="#elements" rel="prev">← Vorige Lektion</a></li><li><a href="#elements" rel="next">Nächste Lektion →</a></li></ul></nav></div>`,
+  stepper: `<div style="display: grid; gap: 1.5rem"><ol class="hw-stepper"><li data-state="done"><span class="hw-step-name">Über euch</span></li><li aria-current="step"><span class="hw-step-name">Fragen</span><span class="hw-step-hint">Frage 2 von 6</span></li><li><span class="hw-step-name">Ergebnis</span></li></ol><ol class="hw-stepper" data-orientation="vertical"><li data-state="done"><span class="hw-step-name">Plan</span></li><li aria-current="step"><span class="hw-step-name">Umsetzung</span></li></ol></div>`,
+  tree: `<ul class="hw-tree" role="tree" aria-label="Dokumente"><li role="treeitem" aria-expanded="true" tabindex="0"><span class="hw-tree-row">Verträge</span><ul role="group"><li role="treeitem" aria-selected="true" tabindex="-1"><span class="hw-tree-row">Rahmenvertrag</span></li><li role="treeitem" tabindex="-1"><span class="hw-tree-row">Nachtrag</span></li></ul></li><li role="treeitem" aria-expanded="false" tabindex="-1"><span class="hw-tree-row">Angebote</span><ul role="group"><li role="treeitem" tabindex="-1"><span class="hw-tree-row">2026</span></li></ul></li></ul>`,
+  carousel: `<div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li class="hw-card">Erste Stimme</li><li class="hw-card">Zweite Stimme</li><li class="hw-card">Dritte Stimme</li></ul><div class="hw-carousel-controls"><div class="hw-carousel-tray"><button type="button" data-hw-step="-1" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><span data-hw-position><button type="button" class="hw-carousel-dot" aria-label="1 von 3" aria-current="true"><span></span></button><button type="button" class="hw-carousel-dot" aria-label="2 von 3"><span></span></button><button type="button" class="hw-carousel-dot" aria-label="3 von 3"><span></span></button></span><button type="button" data-hw-step="1" aria-label="Weiter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div><p class="hw-sr-status" aria-live="polite"></p></div></div>`,
 };
 
 // The elements in sections, as mature UI libraries group theirs: forms, actions, navigation,
-// feedback, data display, typography, containers, and the utilities every element shares. Each is
+// feedback, overlays, data display, typography, containers, and the utilities every element shares. Each is
 // [name, title, file]; the portal draws the sections, and the catalog's story folders and their
 // order follow them.
 export const SECTIONS: [string, [string, string, string][]][] = [
@@ -78,6 +96,11 @@ export const SECTIONS: [string, [string, string, string][]][] = [
       ["link", "Link in text", "link"],
       ["breadcrumb", "Breadcrumb", "breadcrumb"],
       ["nav", "Navigation list", "nav"],
+      ["tabs", "Tabs", "tabs"],
+      ["pagination", "Pagination", "pagination"],
+      ["stepper", "Stepper", "stepper"],
+      ["tree", "Tree view", "tree"],
+      ["accordion", "Accordion", "accordion"],
     ],
   ],
   [
@@ -85,6 +108,22 @@ export const SECTIONS: [string, [string, string, string][]][] = [
     [
       ["status", "Status box", "status"],
       ["callout", "Callout", "callout"],
+      ["toast", "Toast", "toast"],
+      ["progress", "Progress bar", "progress"],
+      ["spinner", "Spinner", "spinner"],
+      ["skeleton", "Skeleton", "skeleton"],
+      ["empty", "Empty state", "empty"],
+    ],
+  ],
+  [
+    "Overlays",
+    [
+      ["dialog", "Dialog", "dialog"],
+      ["drawer", "Drawer", "dialog"],
+      ["menu", "Menu", "menu"],
+      ["popover", "Popover", "popover"],
+      ["tooltip", "Tooltip", "tooltip"],
+      ["command", "Command palette", "command"],
     ],
   ],
   [
@@ -97,6 +136,7 @@ export const SECTIONS: [string, [string, string, string][]][] = [
       ["dot-list", "Dot list", "dot-list"],
       ["pill", "Pill", "pill"],
       ["label-box", "Label box", "label-box"],
+      ["avatar", "Avatar", "avatar"],
     ],
   ],
   [
@@ -115,6 +155,7 @@ export const SECTIONS: [string, [string, string, string][]][] = [
     [
       ["card", "Card", "card"],
       ["frame", "Dashed frame", "frame"],
+      ["carousel", "Carousel", "carousel"],
     ],
   ],
   [

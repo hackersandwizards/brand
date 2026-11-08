@@ -1,0 +1,121 @@
+/* The menu: a list of commands opened from a button or from a right click on a row. The native
+   popover attribute shows it above the page and closes it on Escape and outside clicks; role="menu"
+   and elements/behaviour.ts give it the arrow keys, Home, End, type-ahead, a place beside its
+   trigger and a return of focus. The list is the overlay surface in the small corner.
+
+   Each entry is <button role="menuitem" class="hw-menu-item">, as tall as --hw-item-height under a
+   mouse and at least 44 px on a touch screen: dense in the apps, roomy on the public site.
+   hw-menu-sub adds a muted second word, hw-menu-meta a right-aligned hint such as a shortcut.
+   hw-menu-label heads a group, <div role="separator" class="hw-menu-sep"> divides groups.
+   data-tone="danger" is an entry that removes something, in the error red. A role="menuitemradio"
+   or "menuitemcheckbox" with aria-checked="true" draws a tick; disabled dims.
+
+   Markup: <button class="hw-button" popovertarget="m" aria-haspopup="menu" aria-expanded="false">Aktionen</button><div id="m" popover role="menu" class="hw-menu" aria-label="Aktionen"><button role="menuitem" class="hw-menu-item">Bearbeiten</button></div>
+   A right-click opener takes data-hw-context="<menu id>" and no popovertarget.
+
+   Settings:
+     --hw-item-height         an entry's height under a mouse
+     --hw-check-target-touch  its least height on a touch screen
+     --hw-field-size          the text size
+     --hw-corner-sm           the list's and each entry's corner
+     --hw-hairline            the line's width */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-menu {
+    --_hw-ground: var(--background, var(--color-white));
+    --_hw-text: var(--foreground, var(--color-ink));
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
+    --_hw-target: var(--hw-item-height, 2.75rem);
+    box-sizing: border-box;
+    min-width: 10rem;
+    max-width: min(22rem, 100vw - 1rem);
+    width: fit-content;
+    max-height: min(24rem, 100dvh - 1rem);
+    overflow: auto;
+    border: var(--hw-hairline, 1px) solid var(--_hw-line);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0.25rem;
+    color: var(--_hw-text);
+    background: var(--_hw-ground);
+    box-shadow: var(--shadow-overlay);
+    font-size: var(--hw-field-size, var(--type-body-size));
+    line-height: var(--type-small-line-height);
+  }
+  .hw-menu[data-hw-placed] {
+    position: fixed;
+    margin: 0;
+  }
+  .hw-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: var(--_hw-target);
+    border: 0;
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0.25rem 0.625rem;
+    color: inherit;
+    background: none;
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .hw-menu-item:is(:hover, :focus-visible):not(:disabled, [aria-disabled="true"]) {
+    background: color-mix(in srgb, currentColor 7%, transparent);
+  }
+  .hw-menu-item:is(:disabled, [aria-disabled="true"]) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .hw-menu-item[data-tone="danger"] {
+    color: var(--_hw-danger);
+  }
+  .hw-menu-item[aria-checked="true"]::after {
+    margin-inline-start: auto;
+    width: 1em;
+    height: 1em;
+    background: currentColor;
+    content: "";
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  .hw-menu-sub {
+    color: var(--_hw-quiet);
+  }
+  .hw-menu-meta {
+    margin-inline-start: auto;
+    padding-inline-start: 1rem;
+    color: var(--_hw-quiet);
+    font-size: 0.9em;
+  }
+  .hw-menu-label {
+    margin: 0;
+    padding: 0.25rem 0.625rem 0.125rem;
+    color: var(--_hw-quiet);
+    font-size: 0.85em;
+    font-weight: 600;
+  }
+  .hw-menu-sep {
+    margin: 0.25rem;
+    border-top: var(--hw-hairline, 1px) solid var(--_hw-line);
+  }
+  @media (any-pointer: coarse) {
+    .hw-menu {
+      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-menu {
+      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-danger: var(--color-red-night);
+    }
+  }
+}

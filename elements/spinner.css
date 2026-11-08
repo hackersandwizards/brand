@@ -1,0 +1,35 @@
+/* The spinner: work under way whose length nobody knows, for a moment inside a control or a small
+   area. It is an em wide, so it takes the size and colour of the text beside it, and turns a
+   three-quarter ring. Under reduced motion the ring stands still, dotted. Text stays beside it, or
+   it carries role="status" and aria-label; for a whole page's content, prefer hw-skeleton.
+
+   Markup: <span class="hw-spinner" role="status" aria-label="Lädt"></span> */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-spinner {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    border: 0.15em solid currentColor;
+    border-bottom-color: transparent;
+    border-radius: var(--radius-pill);
+    vertical-align: -0.125em;
+    animation: hw-spinner-turn 0.8s linear infinite;
+  }
+  .hw-button > .hw-spinner {
+    margin-inline-end: 0.5em;
+  }
+  @keyframes hw-spinner-turn {
+    to {
+      rotate: 1turn;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-spinner {
+      border-style: dotted;
+      animation: none;
+    }
+  }
+}

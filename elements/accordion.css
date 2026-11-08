@@ -1,0 +1,73 @@
+/* The accordion: a stack of questions, one row each, for an FAQ or for sections a reader opens one
+   by one. Each row is a native <details> in hw-accordion, ruled between rows, its label left and
+   the chevron at the end turning when open. Giving the rows one name makes them exclusive
+   natively; no script. Rows are as tall as --hw-item-height, at least 44 px on a touch screen.
+   A single row is hw-disclosure (expert/disclosure.css).
+
+   Markup: <div class="hw-accordion"><details name="faq"><summary>Wie lange dauert es?</summary><div class="hw-accordion-body">Zwei Tage.</div></details></div>
+
+   Settings:
+     --hw-item-height         a row's height under a mouse
+     --hw-check-target-touch  its least height on a touch screen
+     --hw-field-size          the text size
+     --hw-hairline            the line's width */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-accordion {
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-target: var(--hw-item-height, 2.75rem);
+    border-top: var(--hw-hairline, 1px) solid var(--_hw-line);
+    font-size: var(--hw-field-size, var(--type-body-size));
+    line-height: var(--type-body-line-height);
+  }
+  .hw-accordion > details {
+    border-bottom: var(--hw-hairline, 1px) solid var(--_hw-line);
+  }
+  .hw-accordion summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-sizing: border-box;
+    min-height: var(--_hw-target);
+    padding-block: 0.5rem;
+    font-weight: 500;
+    list-style: none;
+    cursor: pointer;
+  }
+  .hw-accordion summary::-webkit-details-marker {
+    display: none;
+  }
+  .hw-accordion summary::after {
+    flex: none;
+    width: 1em;
+    height: 1em;
+    background: currentColor;
+    content: "";
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    transition: rotate var(--motion-fast);
+  }
+  .hw-accordion details[open] > summary::after {
+    rotate: 180deg;
+  }
+  .hw-accordion-body {
+    padding-bottom: 1rem;
+  }
+  @media (any-pointer: coarse) {
+    .hw-accordion {
+      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-accordion summary::after {
+      transition: none;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-accordion {
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+    }
+  }
+}

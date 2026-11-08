@@ -1,0 +1,80 @@
+/* The tabs: panels of one subject, only one in view. Tab-switches on the same page are
+   role="tablist"; a row of links to separate pages is <nav class="hw-tabs"> with aria-current, no
+   script. The row sits on a hairline, each tab as tall as --hw-item-height (44 px or more on a
+   touch screen), muted, the current one in the ink with a 2 px bar in the accent. On a narrow
+   screen the row scrolls sideways and the current tab comes into view, so tabs never wrap.
+   elements/behaviour.ts gives role="tablist" the arrow keys, Home and End and shows a panel as its
+   tab receives focus. hw-tab-panel is the panel below.
+
+   Markup: <div class="hw-tabs" role="tablist" aria-label="Deal"><button role="tab" class="hw-tab" id="t1" aria-selected="true" aria-controls="p1">Überblick</button><button role="tab" class="hw-tab" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1">Aktivität</button></div><div class="hw-tab-panel" id="p1" role="tabpanel" aria-labelledby="t1" tabindex="0">…</div>
+
+   Settings:
+     --hw-item-height         a tab's height under a mouse
+     --hw-check-target-touch  its least height on a touch screen
+     --hw-field-size          the text size
+     --hw-hairline            the line's width */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-tabs {
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-text: var(--foreground, var(--color-ink));
+    --_hw-accent: var(--accent, var(--color-teal-dark));
+    --_hw-target: var(--hw-item-height, 2.75rem);
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    border-bottom: var(--hw-hairline, 1px) solid var(--_hw-line);
+    scrollbar-width: none;
+  }
+  .hw-tab {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: var(--_hw-target);
+    margin-bottom: calc(var(--hw-hairline, 1px) * -1);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 0.25rem 0.75rem;
+    color: var(--_hw-quiet);
+    background: none;
+    font: inherit;
+    font-size: var(--hw-field-size, var(--type-body-size));
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--motion-fast);
+  }
+  .hw-tab:hover {
+    color: var(--_hw-text);
+  }
+  .hw-tab:is([aria-selected="true"], [aria-current]) {
+    border-bottom-color: var(--_hw-accent);
+    color: var(--_hw-text);
+    font-weight: 600;
+  }
+  .hw-tab-panel {
+    padding-top: 1rem;
+  }
+  @media (any-pointer: coarse) {
+    .hw-tabs {
+      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-tab {
+      transition: none;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-tabs {
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-accent: var(--accent, var(--color-teal-night));
+    }
+  }
+}

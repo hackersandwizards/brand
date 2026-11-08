@@ -1,0 +1,116 @@
+/* Pagination: the way through a long list by pages, links first, so it works without script and a
+   page can be linked. Each number is as tall as --hw-item-height, square, the current one filled in
+   the accent. Page numbers are hw-pagination-page; on a phone they give way to hw-pagination-count,
+   which says where the reader stands, between previous and next. data-variant="sequence"
+   is the two-link way to the neighbouring page of a sequence: previous at the left edge, next at
+   the right.
+
+   Markup: <nav class="hw-pagination" aria-label="Seiten"><ul><li><a href="…" rel="prev">Zurück</a></li><li class="hw-pagination-page"><a href="…" aria-current="page">3</a></li><li class="hw-pagination-count">Seite 3 von 12</li><li><a href="…" rel="next">Weiter</a></li></ul></nav>
+
+   Settings:
+     --hw-item-height         a page link's height under a mouse
+     --hw-check-target-touch  its least height on a touch screen
+     --hw-field-size          the text size
+     --hw-corner-sm           a page link's corner
+     --hw-hairline            the line's width in the sequence */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-pagination {
+    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-text: var(--foreground, var(--color-ink));
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-accent: var(--accent, var(--color-teal-dark));
+    --_hw-on-accent: var(--accent-foreground, var(--color-white));
+    --_hw-target: var(--hw-item-height, 2.75rem);
+    font-size: var(--hw-field-size, var(--type-body-size));
+  }
+  .hw-pagination ul {
+    --hw-markers: off;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hw-pagination li {
+    margin: 0;
+  }
+  .hw-pagination a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: var(--_hw-target);
+    min-height: var(--_hw-target);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0 0.5rem;
+    color: var(--_hw-text);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .hw-pagination a[rel] {
+    background: color-mix(in srgb, currentColor 7%, transparent);
+  }
+  .hw-pagination[data-variant="sequence"] a[rel] {
+    background: none;
+  }
+  .hw-pagination a:hover {
+    background: color-mix(in srgb, currentColor 7%, transparent);
+  }
+  .hw-pagination a[aria-current] {
+    color: var(--_hw-on-accent);
+    background: var(--_hw-accent);
+    font-weight: 600;
+  }
+  .hw-pagination a[aria-disabled="true"] {
+    color: var(--_hw-quiet);
+    pointer-events: none;
+  }
+  .hw-pagination-count {
+    display: none;
+    padding-inline: 0.5rem;
+    color: var(--_hw-quiet);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .hw-pagination-gap {
+    padding-inline: 0.25rem;
+    color: var(--_hw-quiet);
+  }
+  .hw-pagination[data-variant="sequence"] {
+    border-top: var(--hw-hairline, 1px) solid var(--_hw-line);
+    padding-top: 1rem;
+  }
+  .hw-pagination[data-variant="sequence"] ul {
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  @media (any-pointer: coarse) {
+    .hw-pagination {
+      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
+    }
+  }
+  @media (max-width: 40rem) {
+    .hw-pagination:not([data-variant="sequence"]) .hw-pagination-page,
+    .hw-pagination:not([data-variant="sequence"]) .hw-pagination-gap {
+      display: none;
+    }
+    .hw-pagination:not([data-variant="sequence"]) .hw-pagination-count {
+      display: block;
+    }
+    .hw-pagination:not([data-variant="sequence"]) ul {
+      justify-content: space-between;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-pagination {
+      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-on-accent: var(--accent-foreground, var(--color-night));
+    }
+  }
+}

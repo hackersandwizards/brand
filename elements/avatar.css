@@ -1,0 +1,69 @@
+/* The avatar: a round mark for a person, their photo or, without one, their initials on a solid
+   hue (--hw-avatar-hue, teal-dark unless the surface names a person's colour). data-size="small"
+   is 3/4 of the scale's size, "large" 3/2. hw-avatar-group overlaps several just enough to read as a group,
+   each cut clear of the next with a ring in the ground, and hw-avatar-more counts the rest. A photo carries alt text;
+   initials carry role="img" and aria-label.
+
+   Markup: <span class="hw-avatar" role="img" aria-label="Ada Muster">AM</span>
+
+   Settings:
+     --hw-avatar-size  the diameter at the scale
+     --hw-avatar-hue   the initials' ground, a person's colour */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-avatar {
+    --_hw-size: var(--hw-avatar-size, 2.5rem);
+    --_hw-ring: var(--background, var(--color-white));
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--_hw-size);
+    height: var(--_hw-size);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    color: var(--color-white);
+    background: var(--hw-avatar-hue, var(--color-teal-dark));
+    font-family: var(--font-mono);
+    font-size: calc(var(--_hw-size) * 0.4);
+    font-weight: 600;
+    line-height: 1;
+    user-select: none;
+  }
+  .hw-avatar[data-size="small"] {
+    --_hw-size: calc(var(--hw-avatar-size, 2.5rem) * 0.75);
+  }
+  .hw-avatar[data-size="large"] {
+    --_hw-size: calc(var(--hw-avatar-size, 2.5rem) * 1.5);
+  }
+  .hw-avatar > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+  .hw-avatar-group {
+    display: inline-flex;
+  }
+  .hw-avatar-group > .hw-avatar {
+    box-shadow: 0 0 0 2px var(--_hw-ring);
+  }
+  .hw-avatar-group > .hw-avatar + .hw-avatar {
+    margin-inline-start: calc(var(--_hw-size) * -0.08);
+  }
+  .hw-avatar-more {
+    color: var(--foreground, var(--color-ink));
+    background: var(--muted, var(--color-tint));
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-avatar {
+      --_hw-ring: var(--background, var(--color-night));
+    }
+    .hw-avatar-more {
+      color: var(--foreground, var(--color-night-ink));
+      background: var(--muted, color-mix(in srgb, white 15%, var(--color-night)));
+    }
+  }
+}

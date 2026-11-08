@@ -119,7 +119,27 @@ export const ELEMENTS: Record<string, string> = {
   frame: ".hw-frame",
   kpi: ".hw-kpi",
   prose: ".hw-prose",
+  dialog: '.hw-dialog:not([data-variant="drawer"], [data-variant="command"])',
+  drawer: '.hw-dialog[data-variant="drawer"]',
+  menu: ".hw-menu",
+  popover: ".hw-popover",
+  tooltip: ".hw-tooltip",
+  command: '.hw-dialog[data-variant="command"]',
+  toast: ".hw-toast",
+  tabs: ".hw-tabs",
+  progress: ".hw-progress",
+  spinner: ".hw-spinner",
+  skeleton: ".hw-skeleton",
+  empty: ".hw-empty",
+  accordion: ".hw-accordion",
+  avatar: ".hw-avatar",
+  pagination: ".hw-pagination",
+  stepper: ".hw-stepper",
+  tree: ".hw-tree",
+  carousel: ".hw-carousel",
 };
+/** The elements a file of another name holds. */
+const FILE_OF: Record<string, string> = { "focus-ring": "focus", drawer: "dialog" };
 /** Every class other than an hw-* one that brand's stylesheets define or once defined: a page
  * using one, or an hw-* class, that no loaded stylesheet defines shows it unstyled. */
 export const BRAND_CLASSES = [
@@ -248,6 +268,33 @@ const OWNS: Record<string, string[]> = {
   "error-summary": [...CORNER, ...borders(), ...PAD, "font-size", "line-height"],
   "error-summary .hw-error-summary-title": ["font-weight"],
   "error-summary a": ["color", "font-weight", "text-decoration-line"],
+  dialog: [...CORNER, ...borders(), ...PAD, ...FILL],
+  drawer: [...CORNER, ...borders(), ...PAD, ...FILL],
+  menu: [...CORNER, ...borders(), ...FILL, "font-size"],
+  "menu .hw-menu-item": ["min-height", ...CORNER, "font-size"],
+  popover: [...CORNER, ...borders(), ...PAD, ...FILL, "font-size"],
+  tooltip: [...CORNER, ...PAD, ...FILL, "color", "font-size"],
+  command: [...CORNER, ...borders(), ...FILL],
+  "command .hw-command-option": ["min-height", ...CORNER],
+  toast: [...CORNER, ...borders(), ...FILL, ...PAD, "font-size", "font-weight"],
+  tabs: [...borders(["bottom"])],
+  "tabs .hw-tab": ["min-height", "font-size", "font-weight", ...borders(["bottom"])],
+  progress: ["height", ...CORNER],
+  spinner: ["width", "height", ...CORNER, ...borders()],
+  skeleton: [...CORNER],
+  empty: [...CORNER, ...borders(), ...PAD],
+  "empty .hw-empty-title": ["font-size", "font-weight"],
+  accordion: [...borders(["top"]), "font-size"],
+  "accordion summary": ["min-height", "font-weight"],
+  avatar: ["width", "height", ...CORNER, "font-family", "font-weight"],
+  pagination: ["font-size"],
+  "pagination a": ["min-height", ...CORNER, "color"],
+  stepper: ["font-size"],
+  tree: ["font-size"],
+  "tree .hw-tree-row": ["min-height", ...CORNER],
+  carousel: ["display"],
+  "carousel .hw-carousel-track": ["overflow-x", "scroll-snap-type"],
+  "carousel .hw-carousel-tray": [...CORNER, ...FILL],
   facts: ["margin-top", "margin-bottom"],
   "dot-list": ["flex-wrap", "align-items", "margin-left"],
   "facts div": ["display", "row-gap", ...borders(["top"]), "padding-top", "padding-bottom"],
@@ -314,7 +361,7 @@ export const SETTINGS = [...new Set(ELEMENT_CSS.match(/(?<=var\()--hw-[\w-]+/g))
 const tokensOf = (day: boolean) =>
   Object.fromEntries(
     Object.keys(ELEMENTS).map((name) => {
-      const file = join(DIR, `${name === "focus-ring" ? "focus" : name}.css`);
+      const file = join(DIR, `${FILE_OF[name] ?? name}.css`);
       let css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
       if (day) css = withoutNight(css);
       return [name, [...new Set(css.match(/(?<=var\()--(?!hw-|_)[\w-]+(?=\))/g))]];

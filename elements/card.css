@@ -29,7 +29,17 @@
     background: var(--color-white);
   }
   /* The brand corner on the outermost block only (tokens.css), at the medium's small corner. */
-  :where(.hw-card, .hw-callout, .hw-code, .hw-status, .hw-frame, .rounded-brand) * {
+  :where(
+      .hw-card,
+      .hw-callout,
+      .hw-code,
+      .hw-status,
+      .hw-frame,
+      .hw-dialog,
+      .hw-empty,
+      .rounded-brand
+    )
+    * {
     --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
     --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
     --radius-brand: var(--hw-corner-sm, var(--radius-sm));

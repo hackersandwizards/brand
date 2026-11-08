@@ -1,0 +1,118 @@
+/* The carousel: a row of items a reader swipes through on a phone, one item in view at a time and
+   the next peeking at the edge. It is native scrolling with scroll snap, so swipe and keyboard
+   scrolling work without script. hw-carousel-controls holds previous, next and the position in one
+   pill: one dot per item up to five, more as a count. elements/behaviour.ts wires the controls
+   and the live status. data-hw-autoplay advances every six seconds with a pause button; hover,
+   focus, a hidden tab or a row off screen hold it, and under reduced motion it never starts.
+
+   Markup: <div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li>…</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" aria-label="Zurück"></button><span data-hw-position></span><button data-hw-step="1" aria-label="Weiter"></button><p class="hw-sr-status" aria-live="polite"></p></div></div>
+
+   Settings:
+     --hw-control-size  a control's side
+     --hw-control-icon  the control's arrow */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-carousel {
+    --_hw-tray: color-mix(in srgb, var(--color-ink) 7%, transparent);
+    --_hw-tray-hover: color-mix(in srgb, var(--color-ink) 15%, transparent);
+    --_hw-text: var(--foreground, var(--color-ink));
+    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+  }
+  .hw-carousel-track {
+    --hw-markers: off;
+    display: flex;
+    gap: var(--spacing-grid, 1rem);
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    list-style: none;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+  .hw-carousel-track > * {
+    flex: 0 0 min(85%, 22rem);
+    scroll-snap-align: start;
+  }
+  .hw-carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    color: var(--_hw-text);
+  }
+  .hw-carousel-tray {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-pill);
+    background: var(--_hw-tray);
+  }
+  .hw-carousel-controls button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--hw-control-size, 44px);
+    height: var(--hw-control-size, 44px);
+    border: 0;
+    border-radius: var(--radius-pill);
+    padding: 0;
+    color: inherit;
+    background: none;
+    cursor: pointer;
+  }
+  .hw-carousel-controls button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .hw-carousel-controls button:hover:not(:disabled) {
+    background: var(--_hw-tray-hover);
+  }
+  .hw-carousel-controls svg {
+    width: var(--hw-control-icon, 20px);
+    height: var(--hw-control-icon, 20px);
+  }
+  .hw-carousel-dot > span {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-pill);
+    background: currentColor;
+    opacity: 0.25;
+  }
+  .hw-carousel-dot[aria-current="true"] > span {
+    width: 24px;
+    opacity: 1;
+  }
+  .hw-carousel-count {
+    min-width: 3.5rem;
+    color: var(--_hw-quiet);
+    font-size: var(--hw-form-small, var(--type-small-size));
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+  .hw-sr-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-carousel-track {
+      scroll-behavior: auto;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-carousel {
+      --_hw-tray: color-mix(in srgb, white 15%, transparent);
+      --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
+      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+    }
+  }
+}

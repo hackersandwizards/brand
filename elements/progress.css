@@ -1,0 +1,63 @@
+/* The progress bar: the native <progress>, a round bar as thick as the accent rule, filled in the
+   accent up to its value. Without a value it is indeterminate: a short bar slides along it, and
+   under reduced motion stands still at the start. Name it with a label or aria-label, and give
+   the number beside it where a reader needs it.
+
+   Markup: <progress class="hw-progress" value="40" max="100" aria-label="Upload"></progress>
+
+   Settings:
+     --hw-rule-accent  the bar's thickness */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-progress {
+    --_hw-track: color-mix(in srgb, var(--foreground, var(--color-ink)) 15%, transparent);
+    --_hw-fill: var(--accent, var(--color-teal-dark));
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--hw-rule-accent, 4px);
+    border: 0;
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    color: var(--_hw-fill);
+    background: var(--_hw-track);
+    appearance: none;
+  }
+  .hw-progress::-webkit-progress-bar {
+    background: transparent;
+  }
+  .hw-progress::-webkit-progress-value {
+    border-radius: var(--radius-pill);
+    background: var(--_hw-fill);
+  }
+  .hw-progress::-moz-progress-bar {
+    border-radius: var(--radius-pill);
+    background: var(--_hw-fill);
+  }
+  .hw-progress:indeterminate {
+    background:
+      linear-gradient(var(--_hw-fill), var(--_hw-fill)) 0 0 / 30% 100% no-repeat,
+      var(--_hw-track);
+    animation: hw-progress-slide 1.4s ease-in-out infinite;
+  }
+  @keyframes hw-progress-slide {
+    from {
+      background-position: -40% 0;
+    }
+    to {
+      background-position: 140% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-progress:indeterminate {
+      animation: none;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-progress {
+      --_hw-track: color-mix(in srgb, var(--foreground, white) 15%, transparent);
+      --_hw-fill: var(--accent, var(--color-teal-night));
+    }
+  }
+}

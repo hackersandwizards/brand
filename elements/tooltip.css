@@ -1,0 +1,39 @@
+/* The tooltip: one short text naming a control or an abbreviation, shown on keyboard focus and on
+   mouse hover, never holding a link or a button (that is hw-popover). A touch screen shows no
+   tooltip, so anything a phone reader needs stands in the page or in a popover. elements/behaviour.ts
+   shows it after 400 ms under the mouse and at once on focus, keeps it while the pointer is on it,
+   and closes it on Escape.
+
+   Markup: <button class="hw-icon-button" aria-label="Archivieren" aria-describedby="t">…</button><span id="t" role="tooltip" popover="manual" class="hw-tooltip">Archiviert den Deal</span>
+
+   Settings:
+     --hw-form-small  the text size
+     --hw-corner-sm   the corner */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-tooltip {
+    --_hw-ground: var(--foreground, var(--color-ink));
+    --_hw-text: var(--background, var(--color-white));
+    box-sizing: border-box;
+    max-width: min(20rem, 100vw - 1rem);
+    width: fit-content;
+    border: 0;
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0.25rem 0.5rem;
+    color: var(--_hw-text);
+    background: var(--_hw-ground);
+    font-size: var(--hw-form-small, var(--type-small-size));
+    line-height: var(--type-small-line-height);
+  }
+  .hw-tooltip[data-hw-placed] {
+    position: fixed;
+    margin: 0;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-tooltip {
+      --_hw-ground: var(--foreground, var(--color-night-ink));
+      --_hw-text: var(--background, var(--color-night));
+    }
+  }
+}

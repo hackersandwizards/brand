@@ -35,6 +35,7 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)                                                                                                       |
 | `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes                                                                                                      |
 | `@hackersandwizards/brand/elements/form.ts`               | `enhanceForms`, the character count, password show button and range fill                                                                            |
+| `@hackersandwizards/brand/elements/behaviour.ts`          | `enhance`, `openDialog` and `toast`: keys, focus and placement for dialog, drawer, menu, popover, tooltip, tabs, tree, command palette and carousel |
 | `@hackersandwizards/brand/print.css`                      | print scale and static fonts                                                                                                                        |
 | `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`                                                                                                         |
 | `@hackersandwizards/brand/static-fonts.css`               | `print.css`'s static faces alone, for a surface that renders PDFs without the print scale                                                           |
@@ -254,8 +255,8 @@ padding and Tailwind utilities win.
 Every element two or more systems show lives in `elements/`, one plain-CSS file each: label, label box,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
 strip, accent rule, code block (and its panel), inline code, button, arrow link, field (text field, field with button, textarea, select, combobox, date, file, password, read-only, warning and success, sizes), checkbox and radio, form field (label, optional mark, hint, error, warning and success message, character count, floating label, fieldset), switch, range, error summary, facts list, dot list, segmented
-control, list row, breadcrumb, navigation list, filter value, search field, status box, dashed frame, key figure, prose block. The catalog groups them in sections as mature UI
-libraries do: Forms, Actions, Navigation, Feedback, Data display, Typography, Containers, Utilities. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
+control, list row, breadcrumb, navigation list, filter value, search field, status box, dashed frame, key figure, prose block, dialog, drawer, menu, popover, tooltip, command palette, toast, tabs, progress bar, spinner, skeleton, empty state, accordion, avatar, pagination, stepper, tree view, carousel. The catalog groups them in sections as mature UI
+libraries do: Forms, Actions, Navigation, Feedback, Overlays, Data display, Typography, Containers, Utilities. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
 `elements/scales.css`, after `tokens.css` (and `print.css` on paper). The rules sit in
@@ -267,6 +268,15 @@ layer. A `<code>` in running text takes `class="hw-inline-code"`; inside the pro
 inline `<code>` is that element already, and every link the link in text: mark tables, code blocks,
 quotes and any link that is a button or an arrow link `not-prose`, nothing else. The prose block's
 lists start at the text edge, as the marker list does everywhere.
+
+Three kinds of reader meet these elements, and two settings cover them without a mechanism of their
+own. `data-hw-scale` sets density: `dense` for internal expert systems (os, the admin hub, the trainer
+hub: dense, desktop, keyboard) and the talks catalogue, `screen` for public readers. `any-pointer:
+coarse` sets the touch target: every row, tab and page link reaches 44 px on a touch screen at any
+scale, while a mouse keeps `--hw-item-height`. A phone layout stands in the element itself where the
+narrow screen needs another shape (a dialog docks to the bottom, a stepper stacks, pagination keeps
+the current page), so a public non-expert reader gets the phone form and a public expert reading on
+a phone gets the same.
 
 A medium sets the scale, never a colour or a shape: `data-hw-scale="screen"` (the default, the
 website's px), `"dense"` (the apps and the talks site; it also sets the expert set's compact type steps, UI text

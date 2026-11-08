@@ -1,0 +1,94 @@
+/* The tree view: a hierarchy a reader expands, selects in and moves through by key, for a folder
+   tree in an expert tool. It is role="tree"; site navigation that merely nests stays links and
+   hw-disclosure. Each node is <li role="treeitem"> with a hw-tree-row holding its name, a parent
+   carrying aria-expanded and a role="group" list of its children, indented on a hairline. A row is
+   as tall as --hw-item-height, 44 px or more on a touch screen, a selected one (aria-selected on the node)
+   tinted in the accent. elements/behaviour.ts gives the arrow keys, Home, End, Enter and type-ahead.
+
+   Markup: <ul class="hw-tree" role="tree" aria-label="Dokumente"><li role="treeitem" aria-expanded="true" tabindex="0"><span class="hw-tree-row">Verträge</span><ul role="group"><li role="treeitem" aria-selected="true" tabindex="-1"><span class="hw-tree-row">Rahmen</span></li></ul></li></ul>
+
+   Settings:
+     --hw-item-height         a row's height under a mouse
+     --hw-check-target-touch  its least height on a touch screen
+     --hw-field-size          the text size
+     --hw-corner-sm           a row's corner
+     --hw-hairline            the indent line's width */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-tree {
+    --hw-markers: off;
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-accent: var(--accent, var(--color-teal-dark));
+    --_hw-target: var(--hw-item-height, 2.75rem);
+    --_hw-sel: 7%;
+    margin: 0;
+    padding: 0;
+    font-size: var(--hw-field-size, var(--type-body-size));
+    list-style: none;
+  }
+  .hw-tree [role="group"] {
+    margin: 0 0 0 0.75rem;
+    border-left: var(--hw-hairline, 1px) solid var(--_hw-line);
+    padding: 0 0 0 0.5rem;
+    list-style: none;
+  }
+  .hw-tree [role="treeitem"][aria-expanded="false"] > [role="group"] {
+    display: none;
+  }
+  .hw-tree [role="treeitem"] {
+    outline: 0;
+  }
+  .hw-tree-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    box-sizing: border-box;
+    min-height: var(--_hw-target);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0.125rem 0.5rem;
+    cursor: pointer;
+  }
+  .hw-tree-row:hover {
+    background: color-mix(in srgb, currentColor 7%, transparent);
+  }
+  .hw-tree [role="treeitem"]:focus-visible > .hw-tree-row {
+    outline: var(--hw-focus-width, 3px) solid var(--focus, var(--color-purple));
+    outline-offset: -2px;
+  }
+  .hw-tree [aria-expanded] > .hw-tree-row::before {
+    flex: none;
+    width: 1em;
+    height: 1em;
+    background: currentColor;
+    content: "";
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    transition: rotate var(--motion-fast);
+  }
+  .hw-tree [aria-expanded="true"] > .hw-tree-row::before {
+    rotate: 90deg;
+  }
+  .hw-tree [aria-selected="true"] > .hw-tree-row {
+    color: var(--_hw-accent);
+    background: color-mix(in srgb, var(--_hw-accent) var(--_hw-sel), transparent);
+    font-weight: 500;
+  }
+  @media (any-pointer: coarse) {
+    .hw-tree {
+      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-tree [aria-expanded] > .hw-tree-row::before {
+      transition: none;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-tree {
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-sel: 15%;
+    }
+  }
+}

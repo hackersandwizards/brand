@@ -111,6 +111,24 @@ const DRIFT: Record<string, string> = {
   nav: ".hw-nav a { padding: 9px }",
   choice: ".hw-choice { border-radius: 999px }",
   search: ".hw-search { position: static }",
+  dialog: ".hw-dialog { border-radius: 0 }",
+  drawer: '.hw-dialog[data-variant="drawer"] { border-radius: 0 }',
+  menu: ".hw-menu { border-width: 2px }",
+  popover: ".hw-popover { padding: 2px }",
+  tooltip: ".hw-tooltip { border-radius: 0 }",
+  command: '.hw-dialog[data-variant="command"] { border-width: 2px }',
+  toast: ".hw-toast { border-radius: 0 }",
+  tabs: ".hw-tabs { border-bottom-width: 3px }",
+  progress: ".hw-progress { height: 20px }",
+  spinner: ".hw-spinner { border-radius: 0 }",
+  skeleton: ".hw-skeleton { border-radius: 0 }",
+  empty: ".hw-empty { border-style: solid }",
+  accordion: ".hw-accordion { border-top-width: 3px }",
+  avatar: ".hw-avatar { border-radius: 0 }",
+  pagination: ".hw-pagination a { border-radius: 0 }",
+  stepper: ".hw-stepper { font-size: 30px }",
+  tree: ".hw-tree-row { border-radius: 0 }",
+  carousel: ".hw-carousel-track { overflow-x: hidden }",
 };
 test("every element has its drift", () => {
   expect(Object.keys(DRIFT).sort()).toEqual(Object.keys(ELEMENTS).sort());
@@ -590,7 +608,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   expect(out).toEqual([
     `card: the tile on b.html says brand v0.1.0, the installed package is v${own.version}; rebuild that page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, kbd, button, arrow-link, field, check, form-field, switch, range, error-summary, facts, dot-list, segmented, row, breadcrumb, nav, choice, search, status, frame, kpi, prose)',
+    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, kbd, button, arrow-link, field, check, form-field, switch, range, error-summary, facts, dot-list, segmented, row, breadcrumb, nav, choice, search, status, frame, kpi, prose, dialog, drawer, menu, popover, tooltip, command, toast, tabs, progress, spinner, skeleton, empty, accordion, avatar, pagination, stepper, tree, carousel)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',
@@ -664,6 +682,8 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-button-corner",
     "--hw-range-fill",
     "--hw-field-pad-start",
+    "--hw-toast-offset",
+    "--hw-avatar-hue",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });

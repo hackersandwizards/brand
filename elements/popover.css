@@ -1,0 +1,47 @@
+/* The popover: a small panel of content anchored to what opened it, the native popover attribute on
+   a click, which on a phone is the way to reveal more where a tooltip cannot appear. It may hold
+   links and controls. Escape and an outside click close it. The panel is the overlay surface in
+   the small corner; elements/behaviour.ts places it under its trigger and flips it where the
+   window ends.
+
+   Markup: <button popovertarget="p" aria-expanded="false" aria-controls="p">Was heißt das?</button><div id="p" popover class="hw-popover" role="dialog" aria-label="Erklärung"><p class="hw-popover-title">Gate</p>…</div>
+
+   Settings:
+     --hw-form-small  the text size
+     --hw-corner-sm   the corner
+     --hw-hairline    the line's width */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-popover {
+    --_hw-ground: var(--background, var(--color-white));
+    --_hw-text: var(--foreground, var(--color-ink));
+    --_hw-line: var(--border, var(--color-border));
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: min(22rem, 100vw - 1rem);
+    border: var(--hw-hairline, 1px) solid var(--_hw-line);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0.75rem 1rem;
+    color: var(--_hw-text);
+    background: var(--_hw-ground);
+    box-shadow: var(--shadow-overlay);
+    font-size: var(--hw-form-small, var(--type-small-size));
+    line-height: var(--type-small-line-height);
+  }
+  .hw-popover[data-hw-placed] {
+    position: fixed;
+    margin: 0;
+  }
+  .hw-popover-title {
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-popover {
+      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+    }
+  }
+}

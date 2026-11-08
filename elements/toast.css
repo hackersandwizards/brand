@@ -1,0 +1,151 @@
+/* The toast: a short notice of what just happened, away from the place the reader is working.
+   Never the only place an error is named on a form: the message stands at the field. The toast is
+   the overlay surface with a status icon in the tone (data-tone="success", "error", "warning",
+   unset for info), so the state never rests on colour alone; an error also washes the ground in
+   its red. hw-toast-action is a text button such as Undo.
+
+   Toasts stack in one hw-toasts region, top right on a wide screen and along the bottom on a phone,
+   within reach of a thumb and clear of the safe area; data-place="top" holds it at the top for an
+   app whose phone screen has a bottom navigation, and --hw-toast-offset lifts it clear of a bar.
+   toast() in elements/behaviour.ts creates both, announces politely (an error interrupts), keeps
+   an error until it is closed, closes others after 4 s, and pauses while the pointer or focus is
+   on one. It raises the region inside an open modal, since the rest of the page is inert.
+
+   Markup: <div class="hw-toasts" role="status" aria-live="polite"><div class="hw-toast" data-tone="success"><span class="hw-toast-text">Gespeichert</span><button class="hw-toast-close" aria-label="Schließen"></button></div></div>
+
+   Settings:
+     --hw-form-small    the text size
+     --hw-corner-sm     the corner
+     --hw-hairline      the line's width
+     --hw-toast-offset  how far a surface's fixed bar lifts the stack */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-toasts {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: min(26rem, 100vw - 2rem);
+  }
+  .hw-toast {
+    --_hw-ground: var(--background, var(--color-white));
+    --_hw-text: var(--foreground, var(--color-ink));
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-tone: var(--color-teal-dark);
+    --_hw-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4M12 8h.01'/%3E%3C/svg%3E");
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0 0.5rem;
+    box-sizing: border-box;
+    border: var(--hw-hairline, 1px) solid var(--_hw-line);
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: 0.625rem 0.5rem 0.625rem 0.75rem;
+    color: var(--_hw-text);
+    background: var(--_hw-ground);
+    box-shadow: var(--shadow-overlay);
+    font-size: var(--hw-form-small, var(--type-small-size));
+    font-weight: 500;
+    line-height: var(--type-small-line-height);
+    overflow-wrap: anywhere;
+    transition: opacity var(--motion-fast);
+  }
+  .hw-toast::before {
+    width: 1.25em;
+    height: 1lh;
+    background: var(--_hw-tone);
+    content: "";
+    mask: var(--_hw-icon) center / 1.125em no-repeat;
+  }
+  .hw-toast[data-tone="success"] {
+    --_hw-tone: color-mix(in srgb, var(--color-green-dark) 70%, var(--color-ink));
+    --_hw-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E");
+  }
+  .hw-toast[data-tone="warning"] {
+    --_hw-tone: color-mix(in srgb, var(--color-amber-dark) 70%, var(--color-ink));
+    --_hw-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z'/%3E%3Cpath d='M12 9v4M12 17h.01'/%3E%3C/svg%3E");
+  }
+  .hw-toast[data-tone="error"] {
+    --_hw-tone: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
+    --_hw-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 8v4M12 16h.01'/%3E%3C/svg%3E");
+    border-color: color-mix(in srgb, var(--_hw-tone) 70%, transparent);
+    background: color-mix(in srgb, var(--_hw-tone) 7%, var(--_hw-ground));
+  }
+  .hw-toast-action {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 0.25rem;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .hw-toast-close {
+    position: relative;
+    grid-column: 3;
+    grid-row: 1;
+    width: 1.5em;
+    height: 1lh;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    background: currentColor;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")
+      center / 1em no-repeat;
+  }
+  .hw-toast-close::before {
+    position: absolute;
+    inset: -0.75rem;
+    content: "";
+  }
+  .hw-toast-close:hover {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hw-toast {
+      animation: hw-toast-in var(--motion-fast);
+    }
+  }
+  @keyframes hw-toast-in {
+    from {
+      opacity: 0;
+      translate: 0 -0.5rem;
+    }
+  }
+  @media (max-width: 40rem) {
+    .hw-toasts:not([data-place="top"]) {
+      top: auto;
+      right: 1rem;
+      bottom: calc(1rem + env(safe-area-inset-bottom) + var(--hw-toast-offset, 0px));
+      flex-direction: column-reverse;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-toast {
+      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-tone: var(--color-teal-night);
+    }
+    .hw-toast[data-tone="success"] {
+      --_hw-tone: var(--color-green);
+    }
+    .hw-toast[data-tone="warning"] {
+      --_hw-tone: var(--color-amber);
+    }
+    .hw-toast[data-tone="error"] {
+      --_hw-tone: var(--color-red-night);
+    }
+  }
+}

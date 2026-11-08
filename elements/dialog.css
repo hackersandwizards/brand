@@ -1,0 +1,193 @@
+/* The dialog and the drawer: a modal over the page, the native <dialog> opened with showModal(), so
+   the browser holds focus inside, closes on Escape and returns focus to the opener. The panel is
+   the overlay surface: white or the app's background, on night the night ground lifted 7 %, a
+   hairline, the brand corner, the overlay shadow; the page behind dims. A dialog that is open but
+   not modal stands in the flow, as a sample does.
+
+   A dialog asks one thing and waits: hw-dialog-title, hw-dialog-body, hw-dialog-actions with the
+   main button last. data-size="small" is 24rem wide, unset 32rem, "large" 48rem, "full" fills the
+   screen for a picture or a long document. On a phone a dialog docks to the bottom edge, in reach
+   of a thumb, and its actions stack, the main button on top. data-variant="drawer" slides in a
+   panel for supporting content the reader keeps working beside: data-side="end" (default),
+   "start" or "bottom", floating 0.75rem off the edges on a wide screen and filling the screen on
+   a phone. hw-dialog-close puts a round close control in the corner; a role="alertdialog" keeps
+   its opener's question, and only its own buttons close it (data-hw-dismiss="none").
+
+   Open with data-hw-open="<id>" on a button, close with data-hw-close or <form method="dialog">;
+   elements/behaviour.ts wires both, a click on the backdrop and the scroll lock on a phone. Motion
+   is a short fade and slide, none under reduced motion.
+
+   Markup: <dialog class="hw-dialog" id="d" aria-labelledby="d-t"><h2 class="hw-dialog-title" id="d-t">Deal anlegen</h2><div class="hw-dialog-body">…</div><div class="hw-dialog-actions"><button class="hw-button" data-variant="secondary" data-hw-close>Abbrechen</button><button class="hw-button">Anlegen</button></div></dialog>
+
+   Settings:
+     --hw-card-pad     the padding
+     --hw-card-corner  the corner, the brand corner at the medium's size
+     --hw-hairline     the line's width */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-dialog {
+    --_hw-ground: var(--background, var(--color-white));
+    --_hw-text: var(--foreground, var(--color-ink));
+    --_hw-line: var(--border, var(--color-border));
+    --_hw-dialog-width: 32rem;
+    --_hw-off: 0, 0.5rem;
+    position: fixed;
+    inset: 0;
+    box-sizing: border-box;
+    width: min(var(--_hw-dialog-width), 100vw - 2rem);
+    max-width: none;
+    max-height: calc(100dvh - 2rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    margin: auto;
+    border: var(--hw-hairline, 1px) solid var(--_hw-line);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
+    padding: var(--hw-card-pad, var(--spacing-card));
+    color: var(--_hw-text);
+    background: var(--_hw-ground);
+    box-shadow: var(--shadow-overlay);
+    transition:
+      opacity var(--motion-fast),
+      translate var(--motion-fast),
+      overlay var(--motion-fast) allow-discrete,
+      display var(--motion-fast) allow-discrete;
+  }
+  .hw-dialog[open]:not(:modal) {
+    position: relative;
+    inset: auto;
+    margin: 0;
+    box-shadow: none;
+  }
+  .hw-dialog[data-size="small"] {
+    --_hw-dialog-width: 24rem;
+  }
+  .hw-dialog[data-size="large"] {
+    --_hw-dialog-width: 48rem;
+  }
+  .hw-dialog[data-size="full"] {
+    width: 100vw;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+  .hw-dialog:not([open]) {
+    opacity: 0;
+    translate: var(--_hw-off);
+  }
+  @starting-style {
+    .hw-dialog[open] {
+      opacity: 0;
+      translate: var(--_hw-off);
+    }
+  }
+  .hw-dialog::backdrop {
+    background: color-mix(in srgb, var(--color-night) 40%, transparent);
+  }
+  html:has(.hw-dialog:modal) {
+    overflow: hidden;
+  }
+  .hw-dialog-title {
+    margin: 0 2.5rem 0.75rem 0;
+    font-family: var(--font-sans);
+    font-size: calc(var(--hw-field-size, var(--type-body-size)) * 1.25);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .hw-dialog-body {
+    font-size: var(--hw-field-size, var(--type-body-size));
+    line-height: var(--type-body-line-height);
+  }
+  .hw-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+  .hw-dialog-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+  .hw-dialog:has(.hw-dialog-close) > .hw-dialog-title {
+    margin-right: var(--hw-control-size, 44px);
+  }
+  .hw-dialog[data-variant="drawer"] {
+    --_hw-off: 1.5rem, 0;
+    margin: 0.75rem 0.75rem 0.75rem auto;
+    width: min(26rem, 100vw - 1.5rem);
+    height: calc(100dvh - 1.5rem);
+    max-height: none;
+  }
+  .hw-dialog[data-variant="drawer"][open] {
+    display: flex;
+    flex-direction: column;
+  }
+  .hw-dialog[data-variant="drawer"] > .hw-dialog-actions {
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+  .hw-dialog[data-variant="drawer"][data-side="start"] {
+    --_hw-off: -1.5rem, 0;
+    margin: 0.75rem auto 0.75rem 0.75rem;
+  }
+  .hw-dialog[data-variant="drawer"][data-side="bottom"] {
+    --_hw-off: 0, 1.5rem;
+    margin: auto 0.75rem 0.75rem;
+    width: calc(100vw - 1.5rem);
+    height: fit-content;
+    max-height: 70dvh;
+  }
+  .hw-dialog[data-variant="drawer"][open]:not(:modal) {
+    margin: 0;
+    width: auto;
+    height: auto;
+  }
+  @media (max-width: 40rem) {
+    .hw-dialog:modal:not([data-size="full"], [data-variant="drawer"], [data-variant="command"]) {
+      --_hw-off: 0, 1.5rem;
+      margin: auto 0 0;
+      width: 100vw;
+      max-height: 90dvh;
+      border-width: var(--hw-hairline, 1px) 0 0;
+      border-radius: var(--hw-card-corner, var(--radius-brand))
+        var(--hw-card-corner, var(--radius-brand)) 0 0;
+      padding-bottom: calc(var(--hw-card-pad, var(--spacing-card)) + env(safe-area-inset-bottom));
+    }
+    .hw-dialog:modal .hw-dialog-actions {
+      flex-direction: column-reverse;
+    }
+    .hw-dialog:modal .hw-dialog-actions > * {
+      width: 100%;
+    }
+    .hw-dialog[data-variant="drawer"]:modal {
+      margin: 0;
+      width: 100vw;
+      height: 100dvh;
+      max-height: none;
+      border: 0;
+      border-radius: 0;
+      padding-bottom: calc(var(--hw-card-pad, var(--spacing-card)) + env(safe-area-inset-bottom));
+    }
+    .hw-dialog[data-variant="drawer"][data-side="bottom"]:modal {
+      margin: auto 0 0;
+      height: fit-content;
+      max-height: 90dvh;
+      border-width: var(--hw-hairline, 1px) 0 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-dialog {
+      transition: none;
+      translate: none;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-dialog {
+      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+    }
+  }
+}

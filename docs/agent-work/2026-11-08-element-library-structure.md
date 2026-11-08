@@ -324,3 +324,131 @@ need keyboard handling beyond the native elements, so they would land as small s
 `form.ts` or in the expert components.
 
 The decision is `decide-common-elements-ahead`.
+
+## 9. All common elements, built (decision `decide-common-elements-ahead`, option all)
+
+Every element section 8 lists as missing now lives in `elements/`, with stories in the catalog,
+`brand-elements` parts and a drift test: dialog and drawer (`dialog.css`), menu, popover, tooltip,
+command palette, toast, tabs, progress bar, spinner, skeleton, empty state, accordion, avatar,
+pagination, stepper, tree view and carousel. Script lives once in `elements/behaviour.ts`
+(`enhance`, `openDialog`, `toast`), covered by `test/behaviour.test.ts` in a real browser.
+
+**Who reads what.** Three reader groups, served by the existing mechanisms:
+
+| Group              | Surfaces                                               | Primary device            | Mechanism                                                  |
+| ------------------ | ------------------------------------------------------ | ------------------------- | ---------------------------------------------------------- |
+| Internal experts   | os, admin, trainer hub                                 | desktop, keyboard         | `data-hw-scale="dense"`; `--hw-item-height` 2rem           |
+| Public non-experts | website, personal site, certificate verifier           | phone first, touch        | `screen`; 44 px targets; phone layouts inside each element |
+| Public experts     | talks and slide catalogs, documentation, practitioners | desktop and phone readers | `dense` or `screen`, with the same phone layouts           |
+
+No element adds a mechanism of its own: density is the scale, the touch target is `any-pointer:
+coarse`, and a narrow screen's other shape stands in the element (`max-width: 40rem`: dialog docks
+at the bottom, drawer fills, pagination gives way to a count, stepper stacks, toasts move to the
+bottom edge). Motion stops under `prefers-reduced-motion` in every element that moves.
+
+**Native first.** Dialog and drawer are `<dialog>` with `showModal()`, which holds focus and closes
+on Escape; popover and menu sit on the `popover` attribute with `popovertarget`; accordion is
+`<details name>`, exclusive with no script; progress is `<progress>`. Script adds what HTML has not:
+the openers, menu arrows and type-ahead (APG menu button), tab roving, tree keys (APG tree view),
+the combobox highlight, placement next to the trigger and a tooltip's timing. `commandfor` invokers
+stay out while the web-features explorer lists them as limited availability for Safari.
+
+Not built: a multi-select listbox, a date picker of our own, a data table with virtualisation (the
+natives or a component per system cover them); os's pinned detail pane, which is non-modal and stays
+in os.
+
+### Blind review of the common elements
+
+Review: medium, because these elements reach every surface, can be changed in one release and were scored against the local version wherever one exists. Three rounds, on the group's primary device, day and night on one sheet. Reviewers: an internal day-long user and a developer on desktop, a public buyer and a mobile designer on a phone, each run with Claude and Codex (8 per round). Shuffled sheets, neutral letters, no version named.
+
+Scores of round 3, overall 1 to 10, in the order Claude, Codex for the first persona, then Claude, Codex for the second.
+
+Desktop (internal user, developer):
+
+| Element              | Local version | New        |
+| -------------------- | ------------- | ---------- |
+| Dialog               | 5, 6, 5, 6    | 8, 9, 7, 8 |
+| Menu                 | 6, 6, 5, 6    | 8, 8, 8, 9 |
+| Command              | 7, 7, 7, 8    | 9, 8, 7, 8 |
+| Toast, success       | 8, 9, 8, 9    | 8, 8, 7, 8 |
+| Toast, error         | 8, 7, 8, 7    | 7, 7, 7, 7 |
+| Popover              | none          | 9, 9, 9, 9 |
+| Tooltip              | none          | 8, 9, 9, 9 |
+| Tabs                 | none          | 8, 9, 8, 9 |
+| Stepper, horizontal  | none          | 8, 9, 8, 9 |
+| Stepper, vertical    | none          | 8, 9, 7, 9 |
+| Tree                 | none          | 8, 8, 8, 8 |
+| Accordion            | none          | 9, 9, 9, 9 |
+| Skeleton             | none          | 7, 8, 8, 8 |
+| Pagination           | none          | 6, 9, 7, 9 |
+| Pagination, sequence | none          | 7, 8, 7, 8 |
+| Spinner              | none          | 7, 9, 6, 8 |
+| Avatar               | none          | 6, 7, 6, 7 |
+| Carousel             | none          | 5, 7, 6, 8 |
+| Progress             | none          | 6, 6, 6, 6 |
+| Drawer, in context   | none          | 5, 4, 5, 7 |
+
+Phone (buyer, mobile designer), new elements only:
+
+| Element              | Score      |
+| -------------------- | ---------- |
+| Accordion            | 9, 9, 9, 9 |
+| Tabs                 | 8, 9, 9, 9 |
+| Stepper              | 8, 8, 8, 9 |
+| Filter sheet         | 7, 9, 8, 9 |
+| Dialog, bottom sheet | 7, 8, 8, 8 |
+| Toast, error         | 8, 7, 8, 7 |
+| Avatar               | 7, 8, 7, 8 |
+| Command              | 7, 7, 8, 8 |
+| Menu                 | 6, 9, 6, 8 |
+| Empty                | 6, 7, 7, 9 |
+| Carousel             | 6, 7, 6, 7 |
+| Progress             | 6, 6, 6, 7 |
+| Pagination           | 5, 9, 5, 8 |
+
+Noise: the spread between rounds 2 and 3 on unchanged elements (skeleton, tooltip, popover, tree, accordion) was at most 1. The dialog, menu and command leads over the local version stand outside it with both models; the toast is a tie within it, so the new one stays because it is the one with variants and a phone placement.
+
+Round 1 chose on a phone: the bottom sheet over the centred dialog (8, 9, 8, 9 against 7, 8, 6, 8), the bottom toast (about 8 against 3 to 6), and a sans dialog title over mono (phone 8, 9, 8, 9 against 5, 7, 5, 7; desktop 8, 8, 8, 8 against 6, 7, 6, 7). The local dialog score of round 2 is invalid: a reset in the harness broke the baseline buttons. Round 3 is the valid comparison.
+
+Fixed after round 3 and checked in renders, not scored again, since the round ended on a plateau with no element failing: drawer actions pinned to the bottom, close button moved clear of the edge, toast close centred on its line, progress track drawn once, link tabs centred like button tabs, vertical stepper connector, filter reset in the empty demo, pagination demo spaced from the rule. The drawer's score predates the pinned actions.
+
+Not taken: the purple focus ring and the leaf corner, both brand rules that the reviewers scored as off; the dark scrim, which cannot dim a page already at night; the size of the close button, which is the shared icon button. Copy the reviewers flagged (du and Sie, "Deal") is demo text.
+
+Prompt of the internal user, verbatim, image paths shortened:
+
+> You spend your whole working day in an internal business tool of a small consultancy (customers, deals, invoices), on a laptop and desktop monitor, by mouse and keyboard. You want dense, quiet, fast screens.
+>
+> You are reviewing a small company's shared interface library: overlays, feedback, navigation elements. Nothing else about the work is known to you; judge only what you see. Medium: a desktop web app seen at desk distance; each sheet shows a light page (left) and a dark page (right), each about 620 CSS px wide, rendered at 2x device pixels. Audience: the people who will use these screens as described above.
+>
+> Images, read each: sheet-A.png sheet-B.png sheet-C.png sheet-D.png sheet-E.png sheet-F.png
+>
+> The sheets named by letter show complete screens or element sets; where two sheets show one dialog in different type, say which you would ship. Each image is captioned with small grey labels naming the elements it shows. Two images may show the same element name in different treatments; score each one separately and refer to them by file name.
+>
+> For every element in every image, score 1 to 10 overall, against these criteria: (1) Its state or purpose reads at a glance, with and without full colour vision; (2) It is consistent with the other elements on the sheet; (3) Visual calm; (4) Breathing room, not cramped (on a phone also: controls large enough for a thumb; on desktop also: appropriately dense for working all day); (5) Legibility of the text; (6) The dark version works as well as the light one.
+>
+> Return only: a compact table with columns image file, element, overall (1-10), and one short clause naming what keeps it below 10 (what you, in your role, would notice). Then a list of at most five concrete defects you would fix first, each naming image and element. No preamble.
+
+### Local implementations a spoke can replace
+
+Read on each repo's `origin/main` on 08.11. Trainer hub, admin, talks, slides, practitioners, mail,
+documents and hycle-private build none of these beyond the items named.
+
+| Spoke                        | Local implementation                                                                                                                                                                                    | Becomes                                                                                     |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| os                           | `src/styles/dialog.css:1`, dialogs at `DealDialog.astro:22`, `AssignmentDialog.astro:27`, `KeyboardHelp.astro:5`, `companies/index.astro:335`, `people/index.astro:233`, `assignments/[slug].astro:451` | `hw-dialog`                                                                                 |
+| os                           | `src/lib/popup-menu.ts:67`, `popup-menu.css:3`, `ContextMenu.astro`, `Header.astro:65`, `InlineEditPill.astro:74`, `RelationPicker.astro:46`, `capacity.astro:402`, `people/[...slug].astro:523`        | `hw-menu`, `data-hw-context`                                                                |
+| os                           | `src/components/CommandPalette.astro:1`                                                                                                                                                                 | `data-variant="command"`, `data-hw-remote` for its own search                               |
+| os                           | `src/layouts/Layout.astro:182` region, `:190` `showToast`, `:274` styles                                                                                                                                | `toast()` and `hw-toast`; `showToast` can wrap it during the move                           |
+| os                           | `WarningBadge.astro:35` tip; `title=` on `PipelineCard`, `NextColumns`, `CompanyListRow`, `DashboardBoards`                                                                                             | `hw-tooltip`                                                                                |
+| os                           | `AssigneeBubble.astro`                                                                                                                                                                                  | `hw-avatar` with `--hw-avatar-hue`                                                          |
+| os                           | `EmptyStateButton.astro`, `<p id="empty-state">` in `assignments`, `companies`, `deals`, `deliverables`, `invoices`, `people` index pages                                                               | `hw-empty`, `data-variant="plain"` for the filtered list                                    |
+| website                      | `ui/ImageZoom.astro:28`                                                                                                                                                                                 | `hw-dialog data-size="full"`; zoom and touch logic stay in the component                    |
+| website                      | `ui/Disclosure.astro:43` variant `item` only                                                                                                                                                            | `hw-accordion`; variants `section` and `more` stay                                          |
+| website                      | `blocks/GlossaryText.astro:36`                                                                                                                                                                          | `hw-popover`                                                                                |
+| website                      | `ui/ScrollerControls.astro:35`                                                                                                                                                                          | `hw-carousel` with `data-autoplay`                                                          |
+| website                      | `blocks/Byline.astro:44`, `:72`, `blocks/TrainingList.astro:143`, `:147`, `sections/DirectorySections.astro:163`, `:168`                                                                                | `hw-avatar`                                                                                 |
+| website                      | `templates/SelfCheckPage.astro:197` step rail                                                                                                                                                           | `hw-stepper`                                                                                |
+| website                      | `chrome/Nav.astro:238` mobile navigation                                                                                                                                                                | `hw-dialog data-variant="drawer"` where it adds focus and scroll lock                       |
+| personal site                | `public/assets/css/site.css:543`, `src/pages/index.astro:769`, `src/pages/de/index.astro:771`                                                                                                           | `hw-toast` in `hw-toasts`                                                                   |
+| trainer hub                  | `components/PrevNext.astro`, used in `facilitation/[slug].astro`, `units/[slug].astro`                                                                                                                  | `hw-pagination data-variant="sequence"`                                                     |
+| trainer hub, admin, verifier | `onboarding/brand.astro:182`, `[...slug].astro:89`, `src/worker.ts:701` (copied state in `role="status"`)                                                                                               | `toast()` or a form-field message; keep the inline line where nothing else names the result |
