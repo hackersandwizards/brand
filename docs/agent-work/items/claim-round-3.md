@@ -10,7 +10,7 @@ recommended: n02
 options:
   - key: n02
     label: "Every agent needs your people. / Jeder KI-Agent braucht eure Leute. On the banners with the line: Training and mentoring in agentic engineering / Training und Mentoring in Agentic Engineering"
-    detail: "Read as people by 32 of 32 cold readers. Alone, every buyer persona names training (EN 12 of 16, the 4 vendor guesses all from the reader outside tech; DE 16 of 16). Second on the panel, 1.4 behind m08k in both runs with both models. Reviewers: training still rests on the descriptor; 'your people' reads to some as flattery; the link preview orphans 'people.'."
+    detail: "Read as people by 32 of 32 cold readers. Alone, every buyer persona names training (EN 12 of 16, the 4 vendor guesses all from the reader outside tech; DE 16 of 16). Second on the panel, 1.4 behind m08k (2.2 and 0.7 per run, 0.9 with Claude, 2.0 with Codex). Reviewers: training still rests on the descriptor; 'your people' reads to some as flattery; the link preview orphans 'people.'."
     score: 75.2
     noise: 0.6
   - key: m08k
@@ -28,6 +28,11 @@ options:
     detail: "m08k's English, so the same vendor reading. German alone: 9 of 16 guess a vendor, 6 of 16 cannot say what the team is."
     score: 74.6
     noise: 0.2
+  - key: n10
+    label: "Your people lead. Agents follow. / Eure Leute führen. KI-Agenten folgen. With the descriptor line on the banners"
+    detail: "Third on the panel, but alone it reads as software sold to staff: 7 of 16 guess a tool vendor in English, 10 of 16 in German, though all 32 read the people as humans."
+    score: 73.2
+    noise: 1.8
   - key: n04
     label: "Behind every agent, your people. / Hinter jedem KI-Agenten stehen eure Leute. With the descriptor line on the banners"
     detail: "The same readings as n02 (people 32 of 32; vendor only from the reader outside tech, 4 of 16 in English), 4.1 lower on the panel."
@@ -111,14 +116,14 @@ loses the recommendation, because without the descriptor it reads as an AI tool 
   claim itself.
 - n02 keeps m08k's sentence and makes the team the reader's own people: 32 of 32 read it as people,
   and every buyer persona names training even without the descriptor. On the panel it comes
-  second, 75.2 (noise 0.6), 1.4 behind m08k with both models in both runs. It ties a6 (74.4,
-  Claude prefers n02, Codex a6), and wins the tie as a positive line: a6 is a negation.
+  second, 75.2 (noise 0.6), 1.4 behind m08k (2.2 and 0.7 per run, 0.9 with Claude, 2.0 with
+  Codex). It ties a6 (74.4: Claude prefers n02, Codex a6), and wins the tie as a positive line: a6 is a negation.
 - Still owed before it goes out: a trademark clearance in DPMA, EUIPO and USPTO (only a web search
   ran), and n02 on the one-pager, footer and remaining banners, which this round did not draw.
 
-Overall is the panel mean, 0 to 100, over English and German and over banners, closing slide and
-link preview. Noise is the difference between the panel means of the two runs. A lead inside the
-noise is a tie.
+Overall is the mean of each reviewer's own overall score, 0 to 100, over English and German, not
+the mean of the surface scores. Noise is the difference between the panel means of the two runs.
+A lead counts only outside the noise and in both runs with both models; otherwise it is a tie.
 
 ## Cold reads, banner alone (16 per cell)
 
@@ -156,5 +161,5 @@ language 8.5. Round 4's images of m08k, m08, a6, d01k, e01 and c3 stay in this f
 - With n02, the website's link preview needs a balanced wrap, or "people." stands alone on its
   line.
 - `home-claim-line`: n02 above the home H1 is untested; with m08k or m08 the slot stays empty, as
-  round 4 found.
+  round 3 measured (m08 there 72.0 against 79.8 for the empty slot).
 - c3: nothing changes.

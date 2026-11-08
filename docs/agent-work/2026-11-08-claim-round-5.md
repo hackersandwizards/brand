@@ -3,11 +3,14 @@
 Round 4 recommended m08k, "Every agent needs a team." / "Jeder KI-Agent braucht ein Team.", with
 the line "Training and mentoring in agentic engineering" under it on the banners (item
 `claim-round-3`). It did not test whether readers take the team for people or for more agents,
-or whether the line sounds like an AI tool vendor. This round tests both.
+or whether the line sounds like an AI tool vendor. This round tests the hypothesis that readers
+take the team for AI agents and that a tool vendor could say the line. The rule for the decision,
+set before any read: m08k loses its recommendation if most readers take its team for agents, or
+if more readers place it with an AI tool vendor than with a training company.
 
-The hypothesis holds. Shown alone, the English m08k makes 16 of 16 cold readers guess an AI tool
+The hypothesis holds in English. Shown alone, the English m08k makes 16 of 16 cold readers guess an AI tool
 vendor, across all four personas and both models. The German makes 7 of 16 guess one. With the
-descriptor line, all 16 name training. The line stands alone on the closing slide and in the link
+descriptor line, all 32 reads in both languages name training. The line stands alone on the closing slide and in the link
 preview, so m08k loses its recommendation.
 
 The recommendation now is n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure
@@ -59,8 +62,8 @@ EUIPO or USPTO, so a clearance in those registers is still owed before the claim
   in the ihr-form, "KI-Agent" over "Agent"). One line was in both sets, so ten new lines in all.
 - Prefilter: the ten lines plus m08k as text, as round 4 ran it (CTO, conference organiser, brand
   strategist; Claude and Codex; one run each; round 4's six criteria and overall). The six best
-  went on: n02, n04, n10, n08, n03 and n09 (62.5; n03 62.8 and n05 62.2 sit inside the same
-  spread). m08k scored 71.4, ahead of every new line.
+  went on: n02, n04, n10, n08, n03 and n09 (62.5). The next, n05 at 62.2, sits 0.3 below
+  n09; the prefilter ran once per reviewer, so that gap is not measured against noise. m08k scored 71.4, ahead of every new line.
 
 | Key | EN                                | DE                                               | Origin      | Prefilter |
 | --- | --------------------------------- | ------------------------------------------------ | ----------- | --------- |
@@ -105,9 +108,11 @@ reviewers, and "Team aus Menschen" reads "umständlich" in German.
   engineer looking for a job, brand strategist. Claude and Codex, two runs each, so 20 runs, each
   with its own shuffled order under neutral labels. The six criteria of round 4 and three surfaces,
   0 to 100: banners (with the descriptor; d01k alone, as round 4 preferred it), the closing slide
-  and the link preview. Then overall.
+  and the link preview. Then overall, the reviewer's own score for the claim across all surfaces,
+  not the mean of the three.
 - Noise: for the cold reads, the gap in a share between run 1 and run 2; for the panel, the gap
-  between the two runs' panel means. A lead inside the noise is a tie.
+  between the two runs' panel means. A lead counts only where it stands outside the noise and holds
+  in both runs with both models; otherwise it is a tie.
 - 971 reviewer runs: 1 drafting run, 6 prefilter runs, 944 cold reads and 20 panel runs.
 
 ## Result
@@ -152,7 +157,7 @@ Noise: 0.12 for m08k in both languages, 0.25 for m08, 0.12 for n09 in English, 0
 For m08k in English, Codex read agents in 5 of 8 runs ("I read 'team' as other AI agents working
 alongside the coding agent"). Claude answered unclear in all 8 and named the multi-agent reading
 each time: "in today's coding-agent talk, 'agent teams' also means several". The English m08k is
-not read as agents by most, but no reader is sure it means people. The German reads as people.
+not read as agents by most, but only 3 of 16 read people. The German reads as people.
 
 Reading and attribution part ways for n10 and n09. Readers know the people are humans, yet "Your
 people lead. Agents follow." still reads like software sold to staff, and "colleagues" in English
@@ -184,8 +189,8 @@ banners with the descriptor, where every reader names training. It scored slide 
 on looks and words, not on who the reader takes the sender to be. The cold reads measure that.
 
 n02 against a6: n02 leads with Claude (73.6 to 71.3) and in both runs (74.8 to 74.4, 75.5 to
-74.3), a6 leads with Codex (77.4 to 76.7). That is a tie, since the lead does not hold with both
-models. The cold reads do not split them either: no buyer persona guesses a vendor for a6 or for
+74.3), a6 leads with Codex (77.4 to 76.7). The lead stands outside the noise but does not hold
+with both models, so it is a tie. The cold reads do not split them either: no buyer persona guesses a vendor for a6 or for
 n02. n02 wins the tie on form: a6 is a negation, the form this round set out to avoid.
 
 What keeps n02 below the maximum, in the reviewers' words: the training offer stays with the
@@ -196,13 +201,15 @@ link preview breaks "Every agent needs your" / "people.", leaving "people." alon
 
 ## Decision
 
-By the rule of the brief, m08k loses its recommendation: alone, the English line goes to a tool
+By the rule set before the reads, m08k loses its recommendation: alone, the English line goes to a tool
 vendor 16 to 0. Its readings are not mostly "agents" (5 of 16), but 13 of 16 do not read people.
 
-n02 takes it: second on the panel, 1.4 behind m08k; read as people by 32 of 32; named as training
+n02 takes it: second on the panel, 1.4 behind m08k (2.2 and 0.7 per run, 0.9 with Claude and 2.0
+with Codex); read as people by 32 of 32; named as training
 by every buyer persona in both languages. It keeps m08k's sentence and its German fix, "KI-Agent",
 and swaps the open "a team" for the reader's own people. The descriptor line stays on the banners:
-alone, n02 does not say training either (sure at 5.7 and 6.0 of 10).
+alone, readers name training for n02 at 5.7 and 6.0 of 10 for how sure they are, with the line at
+9.2, and the reader from outside tech guesses a vendor in all four English runs.
 
 Stopped after one pass. Fixing n02's causes would mean a new wording or a fix outside this repo,
 and the brief asks for a decision by these scores.
