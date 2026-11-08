@@ -5,8 +5,9 @@
    data-hue sets it in a hue's text colour where its block carries that hue (a second part or speaker in purple, a
    meaning in amber, green or red), from the hue table in
    tokens.css. On a 7 % wash (a status box, a callout, a tinted card) amber, green and red take
-   their text colour mixed 70 % with ink, as the hue table says, so they clear 4.5:1 there. A button or select inside the label (a sortable column head) keeps the label role,
-   which a CSS reset drops on controls.
+   their text colour mixed 70 % with ink, as the hue table says, so they clear 4.5:1 there. A button
+   or select inside the label (a sortable column head) keeps the label role and its colour, with no
+   fill, border or padding of its own; a button turns ink on hover, white on night.
 
    Settings (scales.css sets them per medium):
      --hw-label-size    the label role's size
@@ -29,6 +30,13 @@
     letter-spacing: inherit;
     text-transform: inherit;
     color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  .hw-label button:hover {
+    color: var(--color-ink);
   }
   .hw-label[data-tone="muted"] {
     color: var(--hw-muted, var(--color-muted));
@@ -58,6 +66,9 @@
     color: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-label button:hover {
+      color: var(--color-white);
+    }
     .hw-label {
       color: var(--color-label-text-night);
     }

@@ -380,6 +380,84 @@ test("every label clears 4.5:1 on every wash, light and night, at 412 px", async
   expect(plain.findings.some((f) => f.element === "label" && f.prop === "color")).toBe(true);
 }, 60_000);
 
+// Every text of every sample, in every scale and theme, against the fills behind it: 4.5:1, 3:1 at
+// large size (24 px, or 18.66 px bold). A control's own fill counts, the browser's included, so a
+// control inside an element that keeps the UA's face fails here. A disabled control is exempt.
+test("every text in every sample clears WCAG AA in every scale, day and night", async () => {
+  const grounds =
+    '[data-theme="light"] { background: var(--color-white); color: var(--color-ink) } [data-theme="dark"] { background: var(--color-night); color: var(--color-night-ink) }';
+  const tab = await browser.newPage();
+  await tab.goto(pathToFileURL(file("contrast.html", page(grounds))).href);
+  const low = await tab.evaluate(() => {
+    const rgba = (s: string) => {
+      const n = s.match(/[\d.]+(?:e[-+]?\d+)?/gi)!.map(Number);
+      const [r, g, b] = s.startsWith("color(") ? n.slice(0, 3).map((v) => v * 255) : n.slice(0, 3);
+      return [r!, g!, b!, n[3] ?? 1] as const;
+    };
+    const lum = (c: readonly number[]) =>
+      [0.2126, 0.7152, 0.0722].reduce((sum, w, i) => {
+        const v = c[i]! / 255;
+        return sum + w * (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+      }, 0);
+    const over = (top: readonly number[], under: number[]) =>
+      under.map((u, i) => top[i]! * top[3]! + u * (1 - top[3]!));
+    // The fills from the theme section down to el, composited in order.
+    const behind = (el: Element) => {
+      const chain: Element[] = [];
+      for (let e: Element | null = el; e; e = e.parentElement) {
+        chain.unshift(e);
+        if (e.hasAttribute("data-theme")) break;
+      }
+      return chain.reduce(
+        (c, e) => over(rgba(getComputedStyle(e).backgroundColor), c),
+        [255, 255, 255],
+      );
+    };
+    const tiles = document.querySelectorAll(
+      "[data-hw-scale] > :is([data-hw-tile], [data-hw-sample])",
+    );
+    return [...tiles].flatMap((tile) =>
+      [tile, ...tile.querySelectorAll("*")].flatMap((el) => {
+        const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
+        if (!own || el.closest(":disabled") || el.closest("[aria-hidden]")) return [];
+        const s = getComputedStyle(el);
+        if (s.visibility === "hidden" || s.display === "none") return [];
+        const [x, y] = [lum(over(rgba(s.color), behind(el))), lum(behind(el))].sort(
+          (p, q) => q - p,
+        );
+        const ratio = (x! + 0.05) / (y! + 0.05);
+        const px = parseFloat(s.fontSize);
+        const large = px >= 24 || (px >= 18.66 && Number(s.fontWeight) >= 700);
+        if (ratio >= (large ? 3 : 4.5)) return [];
+        const section = tile.parentElement!;
+        const name = tile.getAttribute("data-hw-tile") ?? tile.getAttribute("data-hw-sample");
+        return [
+          `${section.dataset.hwScale} ${section.dataset.theme} ${name} ${el.tagName.toLowerCase()} "${el.textContent!.trim().slice(0, 20)}" ${ratio.toFixed(2)}`,
+        ];
+      }),
+    );
+  });
+  // A button or select in a label or a table head takes the role it sits in: its colour, no face.
+  const faced = await tab.evaluate(() =>
+    [
+      ...document.querySelectorAll(
+        "[data-hw-scale] :is(.hw-label, .hw-table th) :is(button, select)",
+      ),
+    ].flatMap((el) => {
+      const s = getComputedStyle(el);
+      const ok =
+        s.color === getComputedStyle(el.parentElement!).color &&
+        s.backgroundColor === "rgba(0, 0, 0, 0)" &&
+        s.borderTopWidth === "0px";
+      const where = el.closest<HTMLElement>("[data-hw-scale]")!.dataset;
+      return ok ? [] : [`${where.hwScale} ${where.theme} ${el.textContent!.trim()}`];
+    }),
+  );
+  await tab.close();
+  expect(low).toEqual([]);
+  expect(faced).toEqual([]);
+}, 60_000);
+
 // The nearest theme decides: a light slide inside a dark page draws its elements by day.
 test("a light subtree inside a dark one draws the day rule", async () => {
   const r = await measurePage(
