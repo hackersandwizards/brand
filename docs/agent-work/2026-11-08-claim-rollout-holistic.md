@@ -1,6 +1,6 @@
 # Claim rollout, holistic: profile texts and banners in context
 
-Pasting the claim onto a profile loses everywhere. On every surface and in both languages, the claim line added to the current text scores below the current text itself: 4 to 15 points in the blind reviews, outside the noise. The texts that win make the claim concrete where a reader looks for it and leave the sentence itself to the banner.
+Pasting the claim onto a profile loses everywhere. On every surface and in both languages, the claim line added to the current text scores below the current text itself: 4 to 15 points in the blind reviews, outside the noise. The texts that win make the claim concrete where a reader looks for it. Where a banner above already says the sentence, the text leaves it to the banner; the company page, whose cover carries no claim, says it in the About.
 
 Benedikt's texts take these forms:
 
@@ -13,13 +13,13 @@ Benedikt's texts take these forms:
 
 Each lead over the current text is outside the noise in both runs and with both models. The texts are in item `work-update-external-profiles-after-claim`, old against new. The practitioners bio is a brief below: that repository changes it in its own run. Live state of each field: Sessionize read live 08.11.; LinkedIn is blocked for an automated read, so its texts come from the 31.10. record (Company OS `docs/agent-work/2026-11-01-profile-texts.md`, sections 9, 11 and 12), confirmed against the 31.10. screenshots of the opening lines.
 
-Open: `decide-claim-tune`, created after this run started, recommends changing the claim to "in tune". Every text here carries u1. If the claim changes, the banners are re-rendered and these texts are rewritten and scored again the same way. The item waits on that decision.
+Open: `decide-claim-tune`, created after this run started, recommends changing the claim to "in tune". Every text here carries u1; the item and every review of copy around the claim wait on that decision. If the claim changes, the banners are re-rendered, and one round scores the winners with the new line against the current text and a paste; a field that carries no claim keeps its text.
 
 The brief's premise was out of date on one point: since 31.10. the company page tagline and the LinkedIn About carry the offer rather than a claim, so "the current text with the claim merely swapped" means the claim pasted onto them. It was scored as that, beside the unchanged live text.
 
 ## Scores
 
-Scale 0 to 100. Noise is the gap between the means of run 1 and run 2 of the same panel. Scores compare only within one round, so each row of a table stands alone. Keys: L current live text, S the claim pasted onto it, A, B, C, Y, Z drafts, X the independent counter-draft.
+Scale 0 to 100. Noise is the gap between the means of run 1 and run 2 of the same panel. Scores compare only within one round, so each row of a table stands alone. Keys: L current text (live, except the German Sessionize bio and tagline, which were written 31.10. and never entered), S the claim pasted onto it, A, B, C, Y, Z drafts, X the independent counter-draft.
 
 **Round 1: every candidate.** 20 runs per candidate (5 personas, Claude and Codex, two runs).
 
@@ -96,11 +96,11 @@ The LinkedIn mock (`app` and `desktop`) is built from the 31.10. real screenshot
 
 Not re-run: round 1 and 2 reviewers read the home headline "Once every role is in step, your releases speed up." as the step after the page; v1.57.0 changes it to "in tune" after the rounds ran. One word of the step-after context, not re-scored.
 
-Skipped and named: the German Sessionize bio is entered for the first time, the live page has no German text today. OMR, XING, X, YouTube, Brella and Facebook text fields stay "not read", and Stefan's LinkedIn About was not rewritten. The Featured link title stays as the claim, not scored in context.
+Skipped and named: OMR, XING, X, YouTube, Brella and Facebook text fields stay "not read", and Stefan's LinkedIn About was not rewritten. The Featured link title stays as the claim, not scored in context.
 
 ## Brief for the practitioners repository
 
-Change Benedikt's short bio to the text below, then `bun run export` and name the entry's `entry.json` in the commit. Scored in context as C. The bio changes only with his yes; his file is `status: draft`.
+Wait for `decide-claim-tune`: this bio carries u1. Change Benedikt's short bio to the text below, then `bun run export` and name the entry's `entry.json` in the commit. Scored in context as C. The bio changes only with his yes; his file is `status: draft`. In place: [English](2026-11-08-claim-rollout-holistic/practitioners-en-new.jpg), [German](2026-11-08-claim-rollout-holistic/practitioners-de-new.jpg).
 
 Benedikt's short bio, EN and DE, exact new text:
 
@@ -114,7 +114,7 @@ Benedikt Stemmildt ist Gründer und Co-CEO von hackers&wizards in Hamburg. Die F
 
 ## Consumers, for the stage-2 briefs
 
-Each brief carries the rule that a surface's copy around the claim or the headline is rewritten to fit it and blind-reviewed in that surface's context against the current copy, aiming at the highest score. What the copy around the claim needs, per repository:
+Pin raises and H1 work can start. Each review of copy around the claim waits on `decide-claim-tune`, since a changed claim redoes it. Each brief carries the rule that a surface's copy around the claim or the headline is rewritten to fit it and blind-reviewed in that surface's context against the current copy, aiming at the highest score. What the copy around the claim needs, per repository:
 
 - **website**: home hero, lead and footer around the claim and H1 (v1.57.0 headline): `claimLines` splits at ". " and leaves an empty first line with a one-sentence claim, so the footer needs writing around one sentence. The lead and social cards need checking against the claim as one sentence.
 - **os**: the onepager header reads the claim as a one-liner under the title, so its own descriptor line around it needs a review; handbook `business-foundation.md` lines 152 and 313 and `linkedin/profile-and-page-drafts-2026-09.md` follow the texts in the profiles item, not a claim swap.

@@ -117,6 +117,8 @@ Answer as JSON only: {"sets": {"<letter>": {"criteria": {"<criterion>": <0-10>, 
 
 ## Consumers
 
+What the copy around the claim needs per repository, and the hold on those reviews: [holistic report](2026-11-08-claim-rollout-holistic.md).
+
 Found by searching every repository under `~/dev/hackersandwizards` (without `node_modules` and
 `docs/agent-work`) for the claim, the headline, `verbal.json` and `channel-banners`. Every
 repository that runs `brand-retired` fails once it raises its pin while a build still shows the old
@@ -134,8 +136,8 @@ claim. Each brief is for a session in that repository, and each carries one rule
   lines 152 and 313 explain the claim through "flow" ("Always connect speed to teams in flow"):
   rewrite them for a claim about people shipping together. `src/content/documents/marketing/brand-message-2026-09.md`
   M3 and `linkedin/profile-and-page-drafts-2026-09.md` (P2 headline, P3 Featured title, P4 slide 1,
-  C1 and C9 taglines, D3) state the old claim as text: set them to the new one, as in brand's item
-  `work-update-external-profiles-after-claim`. The handbook pages that embed `verbal.json#claim.*`
+  C1 and C9 taglines, D3) state the old claim as text: take the texts of brand's item
+  `work-update-external-profiles-after-claim`, not the claim pasted in. The handbook pages that embed `verbal.json#claim.*`
   follow the pin. `src/lib/__tests__/remark-brand-verbal.test.ts:44` plants the retired "in step"
   line as its copy: plant the current `headline.en` instead.
 - **slides** (pin v1.52.0): pin raise only. `claimParts` accents "together" / "gemeinsam" on the
