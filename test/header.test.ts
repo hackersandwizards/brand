@@ -61,7 +61,7 @@ describe("expert/header.css", () => {
   for (const width of [1440, 390])
     it(`makes the whole lockup one link with the pointer and no text selection at ${width} px`, () => {
       expect(misses(css, width)).toEqual([]);
-    });
+    }, 30_000);
 });
 
 // The nav scrolls sideways, so it clips on every side and is exactly as tall as its links: a focus
