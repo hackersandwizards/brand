@@ -2,16 +2,16 @@
 
 The recommendation stays n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure
 Leute.". f6, "Every agent needs a team in tune." / "Jeder KI-Agent braucht ein eingespieltes
-Team.", ties it again: on the banners, slide and link preview (80.2 against 81.2) and as a whole
-set with the home hero, the 24 page headlines and the profile texts (78.1 against 76.9). Both
-leads lie inside the noise. Alone on a banner, though, f6 is the weaker line: 7 of 16 English
-readers take it for an AI tool vendor (n02: 2), and 15 of 16 cannot say whether its team is
-people or agents (n02: 0). The tie goes to n02, which needs no change to the German home H1.
+Team.", ties it again: overall on the banners, slide and link preview (80.2 against 81.2) and as
+a whole set with the home hero, the 24 page headlines and the profile texts (78.1 against 76.9).
+Both leads lie inside the noise. Alone on a banner, though, 15 of 16 readers cannot say whether
+f6's team is people or agents, with both models and in both languages; for n02 all 32 name
+people. The tie goes to n02, which needs no change to the German home H1.
 
-No extension of f6 holds. Every line that adds the company or flow to "a team in tune" scores
+No extension of f6 holds. The five extensions on the panel from this run and a fresh model score
 17.0 to 28.6 points lower than n02, in both runs and with both models. Benedikt's line, "Every
-company in flow needs agents with a team in tune.", comes last, 36.5 points behind. Its short
-form comes 25.0 points behind.
+company in flow needs agents with a team in tune.", comes last, 36.5 points behind; its short
+form 25.0 behind.
 
 ## Question
 
@@ -41,13 +41,14 @@ and his liking of f6 went into the test as hypotheses, scored blind.
 
 - The fresh model (`claude -p --model opus`) got the offer, the belief behind it, the task (keep
   "a team in tune", add a whole company in flow) and round 6's word rules. It saw no candidate,
-  no current or retired line and no words of Benedikt's. Three of its six lines went on. They
-  are close to two retired lines ("Your whole company, in tune with agentic engineering.", "Your
-  whole company unstoppable, in flow with agentic engineering."), so none could ship as written.
+  no current or retired line and no words of Benedikt's. Three of its six lines went into the
+  prefilter. d1 and d2 come close to two retired lines ("Your whole company, in tune with agentic
+  engineering.", "Your whole company unstoppable, in flow with agentic engineering.").
 - Prefilter: text only, CTO, conference organiser and brand strategist, Claude and Codex, one run
-  each (6 runs, no noise measured). Against B3 all six named the same cause: the nested chain
-  ("a company in flow needs agents with a team") must be read twice, "every company needs agents"
-  sounds like a sales doctrine, and "agents with a team" turns round who serves whom. B3k keeps
+  each (6 runs, no noise measured). Against B3, ten of the twelve reasons (six reviewers, two
+  languages) name the nested chain, which must be read twice ("Convoluted chain of nested ideas;
+  reads like a thesis statement, not a claim."); five doubt that every company needs agents, and
+  one says "agents with teams reverses the intuitive relationship". B3k keeps
   its three ideas and drops the nesting and the "every". The panel took the five best extensions,
   B3, B3k and the three controls; d2, g5, g1 and g6 were cut.
 
@@ -126,7 +127,7 @@ The gap to n02, per run and per model:
 | g2  | -28.6 | -28.6 | -28.4 | -34.7  | -22.4 | sinks            |
 | B3  | -36.5 | -35.7 | -37.3 | -39.9  | -33.2 | sinks, massively |
 
-Against f6 every extension sinks too, by 16.1 (d3) to 35.6 (B3), in both runs and with both
+Against f6 every extension sinks too, by 16.1 (d3) to 35.6 (B3), and by at least 13.1 in every run and with each
 models. Codex prefers f6 to n02 in both runs, Claude n02, as in round 6. What keeps the lines
 below the maximum, in the reviewers' words:
 
@@ -172,12 +173,12 @@ is not the agent's own (n02, d3, d1, B3k) read as people 16 of 16. The flow exte
 
 - f6 leads n02 by 1.2: in run 1 by 0.2, inside n02's noise of 1.8, in run 2 by 2.2, with Claude
   by 0.4 and with Codex by 2.1. A tie. f6 reads as one idea with the home hero and the tuning
-  desk (together 8.3 against 7.2), and repeats them for the same reason: "'In tune', 'every role
-  is in step' and the tuning desk repeat the same metaphor." n02 fits the profiles better (80.1
+  desk (together 8.3 against 7.2), and repeats them for the same reason: "'In tune', 'in step'
+  and the tuning desk repeat the same metaphor." n02 fits the profiles better (80.1
   against 75.9) and is calmer (8.7 against 7.7); its one repetition is the Factory operating
   model headline ("Agents do the work, and your people decide what ships.").
 - d3 sinks by 8.1, in both runs (8.4 and 7.8) and with both models (7.8 and 8.4). Every reviewer
-  named its "in flow" five times over: the tuning desk's output, the "In flow" paragraph of the
+  named its "in flow" four times over: the tuning desk's output, the "In flow" paragraph of the
   LinkedIn About, the short bio's "developers in flow" and the Sessionize bio's "into flow".
   Readers asked: "How does training one team get my whole company into flow?"
 - The question every set leaves open after the path from profile to website: what the training
@@ -189,7 +190,8 @@ is not the agent's own (n02, d3, d1, B3k) read as people 16 of 16. The flow exte
   profile photo covers the first two or three letters of the claim's lines and of the descriptor
   ("ery agent needs a team in tune.", "der KI-Agent braucht"). The shipped banner shows the same
   in that screenshot ("our whole company unstoppable,"). It is a defect of `profile-1` in
-  `render.py` (the group starts at x 480 of 1584), independent of the claim.
+  `render.py` (the group starts at x 480 of 1584), independent of the claim; item
+  `work-banner-photo-overlap`.
 - XING on a phone: the photo covers the start of the descriptor line, which the shipped banner
   does not carry. Whichever claim is chosen, the descriptor needs its own safe-area check on XING
   mobile and on LinkedIn's narrow layout before it ships.
@@ -202,8 +204,10 @@ English and German), `r7-set-phone-de.jpg` (XING and Sessionize on a phone, Germ
 ## Decision
 
 n02 stays the recommendation. It ties f6 on the panel and in the set and leads it in the cold
-reads by more than the noise: 2 against 7 English vendor guesses, people 16 against 1 of 16 in
-English and 16 against 2 in German. f6 also needs the German home H1 changed to
+reads on whom the line means: people 16 against 1 of 16 in English and 16 against 2 in German,
+with both models (for f6, Claude answered "unclear" 13 of 16 times, Codex 16 of 16). The vendor
+count (2 against 7 in English) is no lead by the rule: 6 of f6's 7 come from Codex, and with
+Claude n02 draws 2, f6 1. f6 also needs the German home H1 changed to
 "zusammenspielen"; n02 needs nothing.
 
 f6 remains open to Benedikt, as in round 6: its score does not sink on the panel or in the set,
@@ -212,8 +216,8 @@ both models") it does not drop. Choosing it means choosing `de-zusammenspielen` 
 `home-claim-line` too, and accepting a banner on which, read alone, most readers cannot tell whose
 team it means.
 
-Extending f6 does not hold. Every extension scores lower than f6 and n02 by more than 16 points,
-in both runs and with both models; Benedikt's line as stated comes last.
+Extending f6 does not hold. Every extension scores lower than n02 by 17.0 or more and lower than
+f6 by at least 13.1, in every run and with each model; Benedikt's line as stated comes last.
 
 ## Skipped and owed
 

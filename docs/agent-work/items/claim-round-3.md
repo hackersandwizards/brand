@@ -5,7 +5,7 @@ priority: 1
 order: 20
 area: brand
 owner: Benedikt
-evidence: "Blind review 08.11., round 7: 13 lines extending f6 with the company or flow (Benedikt's line as stated and shortened, six of this run's, three from a fresh model) beside f6, n02 and c3; prefilter 6 runs; 10 lines on banners, closing slide and link preview, 20 runs; 576 cold reads of the LinkedIn banner alone; f6, d3 and n02 as whole sets, every banner in place on real LinkedIn and YouTube screenshots and the live XING and Sessionize pages, with the home hero, the 24 decided page headlines and Benedikt's profile texts, 16 runs. Report: docs/agent-work/2026-11-08-claim-round-7.md. Round 6: 13 lines carrying flow or tune (Benedikt's two ideas as stated and shortened, five of this run's, two from a fresh model, two older lines) beside n02 and c3; prefilter 6 runs; 576 cold reads of one LinkedIn banner (what kind of company, who the team or the people are); 10 lines on banners, closing slide and link preview by round 5's panel, 20 runs; the best two against the home H1 k3, the tuning desk and the website's decided page headlines (24: one blog line of two), 24 runs. Round 5 before it: 971 runs, round 4: 304. Reports: docs/agent-work/2026-11-08-claim-round-6.md, docs/agent-work/2026-11-08-claim-round-5.md"
+evidence: "Blind review 08.11., round 7: 11 lines extending f6 with the company or flow (Benedikt's line as stated and shortened, six of this run's, three from a fresh model) beside f6, n02 and c3; prefilter 6 runs; 10 lines on banners, closing slide and link preview, 20 runs; 576 cold reads of the LinkedIn banner alone; f6, d3 and n02 as whole sets, every banner in place on real LinkedIn and YouTube screenshots and the live XING and Sessionize pages, with the home hero, the 24 decided page headlines and Benedikt's profile texts, 16 runs. Report: docs/agent-work/2026-11-08-claim-round-7.md. Round 6: 13 lines carrying flow or tune (Benedikt's two ideas as stated and shortened, five of this run's, two from a fresh model, two older lines) beside n02 and c3; prefilter 6 runs; 576 cold reads of one LinkedIn banner (what kind of company, who the team or the people are); 10 lines on banners, closing slide and link preview by round 5's panel, 20 runs; the best two against the home H1 k3, the tuning desk and the website's decided page headlines (24: one blog line of two), 24 runs. Round 5 before it: 971 runs, round 4: 304. Reports: docs/agent-work/2026-11-08-claim-round-6.md, docs/agent-work/2026-11-08-claim-round-5.md"
 recommended: n02
 options:
   - key: n02
@@ -15,7 +15,7 @@ options:
     noise: 1.2
   - key: f6
     label: "Every agent needs a team in tune. / Jeder KI-Agent braucht ein eingespieltes Team. With the descriptor line on the banners"
-    detail: "Round 7: ties n02 on the panel (80.2 against 81.2; Codex 83.8 against 80.4, Claude 76.8 against 82.0) and as a whole set with the German H1 'zusammenspielen' (78.1 against 76.9, inside n02's noise of 1.8): most of one piece with the home hero (together 8.3), but 'in tune' repeats 'in step' and the tuning desk (repetition 5.2 / 5.1). Alone on a banner it trails n02 beyond the noise: tool vendor EN 7 of 16 (n02 2); asked whether the team is people or agents, 15 of 16 English and 14 of 16 German readers cannot tell. Choosing f6 means choosing de-zusammenspielen. Round 6: 78.6."
+    detail: "Round 7: ties n02 on the panel (80.2 against 81.2; Codex 83.8 against 80.4, Claude 76.8 against 82.0) and as a whole set with the German H1 'zusammenspielen' (78.1 against 76.9, inside n02's noise of 1.8): most of one piece with the home hero (together 8.3), but 'in tune' repeats 'in step' and the tuning desk (repetition 5.2 / 5.1). Alone on a banner, asked whether the team is people or agents, 15 of 16 English and 14 of 16 German readers cannot tell, with both models (n02: people 32 of 32); tool vendor EN 7 of 16 (n02 2), 6 of the 7 from Codex. Choosing f6 means choosing de-zusammenspielen. Round 6: 78.6."
     score: 80.2
     noise: 0.1
   - key: d3
@@ -25,7 +25,7 @@ options:
     noise: 2.1
   - key: B3
     label: "Every company in flow needs agents with a team in tune. / Jedes Unternehmen im Flow braucht KI-Agenten mit einem eingespielten Team. As Benedikt put it, translated"
-    detail: "Round 7: last of ten, 36.5 behind n02 in both runs and with both models. Reviewers: a nested chain to read twice, 'every company needs agents' sounds like a sales doctrine, 'agents with a team' turns round who serves whom. Alone: tool vendor EN 5, DE 7 of 16; the team unclear for 26 of 32. Shortened to B3k, 'A company in flow: agents and a team in tune.', 56.2 (25.0 behind)."
+    detail: "Round 7: last of ten, 36.5 behind n02 in both runs and with both models. Reviewers: 'Convoluted chain: company needs agents with a team; logic is backwards and heavy.', 'I hear a sales doctrine, not recognition of my problem.' Alone: tool vendor EN 5, DE 7 of 16; the team unclear for 26 of 32. Shortened to B3k, 'A company in flow: agents and a team in tune.', 56.2 (25.0 behind)."
     score: 44.7
     noise: 0.4
   - key: B1k
@@ -85,9 +85,9 @@ options:
     noise: 1.9
   - key: c3
     label: "Agents in the team. Teams in flow. / Agenten im Team. Teams im Flow. (in verbal.json since v1.29.0)"
-    detail: "Unmarked control. Round 6: 77.0, tied with n02 on the panel (Codex 79.5 against 79.2), 12.0 above its round 5 score (65.0, noise 3.8). Earlier rounds: alone, 0 of 12 cold readers named training (round 4); on the home page it repeats the H1 k3 (together 6.2, round 1)."
-    score: 77.0
-    noise: 0.4
+    detail: "Unmarked control. Round 7: 76.5, 4.7 behind n02, a tie by the rule only because Codex puts it 0.8 behind. Round 6: 77.0, round 5: 65.0. Earlier rounds: alone, 0 of 12 cold readers named training (round 4); on the home page it repeats the H1 k3 (together 6.2, round 1)."
+    score: 76.5
+    noise: 1.0
 images:
   d3:
     - src: r7-set-linkedin.jpg
@@ -171,17 +171,18 @@ Blocks the brand raise on the website, the 25 page headlines, the bio rewrite an
 Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterieren ich habe noch einige ideen im chat", then: "das wort flow oder tune finde ich schon noch wichtig. außer der score sinkt dann massiv.", and after round 6: "\"„Every agent needs a team in tune.“\" finde ich stark. man könnte das noch irgendwie erweitern \"Every company in flow needs agents with a team in tune\"? sowas vllt? teste noch mal ein paar weitere variationen bitte und dann natürlich auch alle headlines und bio und banner dazu. banner auch dort wo sie eingesetzt sind." Rounds 6 and 7 tested his ideas blind; his preferences stay hypotheses, not scores.
 
 I recommend n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure Leute.", with
-the line "Training and mentoring in agentic engineering" under it on the banners. It ties f6 on
-the banners, slide and link preview (81.2 against 80.2) and as a whole set with the website and
-your profile texts (76.9 against 78.1), and it leads f6 when the banner stands alone: 2 against 7
-of 16 English readers take f6 for an AI tool vendor, and 15 of 16 cannot tell whether f6's team
-is people or agents. n02 needs no other change.
+the line "Training and mentoring in agentic engineering" under it on the banners. It ties f6
+overall on the banners, slide and link preview (81.2 against 80.2) and as a whole set with the website and
+your profile texts (76.9 against 78.1), and it leads f6 when the banner stands alone: 15 of 16 readers
+cannot tell whether f6's team is people or agents, with both models and in both languages, while
+all 32 read n02's as people. n02 needs no other change.
 
 If "tune" matters to you, f6 still holds: by the rule below its score does not sink. Pick it
 together with `de-zusammenspielen` in `home-claim-line`, since its German repeats "eingespielt"
 from the home H1 otherwise (round 6).
 
-- Extending f6 does not hold. Each of the five extensions on the panel scores 17.0 to 28.6 points
+- Extending f6 does not hold. Each of the five extensions on the panel from this run and a fresh
+  model scores 17.0 to 28.6 points
   below n02, in both runs and with both models. Your line as stated, "Every company in flow needs
   agents with a team in tune.", comes last at 36.5 behind; shortened to "A company in flow: agents
   and a team in tune." 25.0 behind. The best extension, "From a team in tune to a company in
@@ -189,7 +190,7 @@ from the home H1 otherwise (round 6).
   LinkedIn About and two bios (8.1 behind n02).
 - Seen in place, every claim has the same defect: on LinkedIn's narrow layout your profile photo
   covers the first letters of the claim (image `r7-set-linkedin.jpg`). The shipped banner has it
-  too; it is fixed in the banner's layout, independent of the claim.
+  too; `work-banner-photo-overlap` fixes it in the banner's layout, independent of the claim.
 - A score sinks, by the rule set before any score, where n02 leads by more than the noise in both
   runs and with both models.
 - c3, the current claim, trails n02 by 4.7, a tie by the rule only because Codex puts it 0.8
@@ -251,6 +252,5 @@ flow" and the About's "In flow" repeat d3.
 - `home-claim-line`: n02 or f6 above the home H1 is untested; with m08k or m08 the slot stays empty, as
   round 3 measured (m08 there 72.0 against 79.8 for the empty slot).
 - c3: nothing changes.
-- Whichever line: `profile-1` in `render.py` starts the group at x 480, and on LinkedIn's narrow
-  layout the photo covers the claim's first letters; the descriptor needs the same check on XING
-  mobile, where the photo covers its start (round 7 report, "Seen in place").
+- Whichever line: `work-banner-photo-overlap` keeps the claim and the descriptor clear of the
+  profile photo on LinkedIn's narrow layout and on XING mobile.
