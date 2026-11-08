@@ -5,176 +5,132 @@ priority: 1
 order: 90
 area: brand
 owner: Benedikt
-evidence: "Blind review 07.11., round 3: 34 drafts prefiltered on text by 6 reviewer runs, then 10 and 9 claims on 11 surfaces in two passes, 6 personas, Claude and Codex, two runs each, 48 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md, section Round 3"
-recommended: a6
+evidence: "Blind review 08.11., round 4: 21 lines prefiltered on text by 6 reviewer runs; 264 cold reads of one LinkedIn banner each (11 claims, alone and with a descriptor line, English and German, 3 personas, Claude and Codex), graded blind by Claude and Codex (258 of 264 grades agree); then 11 and 6 claims on 11 surfaces in two passes, 5 personas, Claude and Codex, two runs each, 40 reviewer runs. Round 3 before it: 54 reviewer runs. Report: docs/agent-work/2026-11-08-claim-round-4.md"
+recommended: m08k
 options:
-  - key: a6
-    label: "More code isn't faster delivery. / Mehr Code heißt nicht schneller liefern."
-    detail: "First in both passes, ahead of c3 by 12.1 with both models and on every surface. Most credible (9.1) and fits k3 (8.2). Above the H1 it ties with the empty slot. Against it: it names the buyer's problem, not what h&w does; Claude reviewers find the German clipped (language 6 to 7)."
-    score: 78.5
-    noise: 0.4
-  - key: m01
-    label: "You buy agents. You build teams. / Agenten kauft ihr. Teams baut ihr auf."
-    detail: "Ties with a6 (2.0 behind, noise 2.2). Repeats agents and teams with k3 (fit 6.9): above the H1 it loses to the empty slot (73.2 against 79.8), so the home page would need an exception."
-    score: 76.5
-    noise: 2.2
+  - key: m08k
+    label: "Every agent needs a team. / Jeder KI-Agent braucht ein Team. On the banners with the line: Training and mentoring in agentic engineering / Training und Mentoring in Agentic Engineering"
+    detail: "First in pass 2, ahead of every other claim in both runs with both models (Claude 77.5, Codex 81.5). Calm (8.6), natural (language 8.9), credible (8.3). 'KI-Agent' removes the spy reading of 'Agent' that cost m08 in German (78.8 against 75.5); reviewers find it a little heavier. Training stays implicit without the descriptor line. Above the home H1, m08 scored 72.0 against 79.8 for the empty slot in round 3, so with it the home hero keeps nothing above the H1."
+    score: 79.5
+    noise: 0.1
   - key: m08
-    label: "Every agent needs a team. / Jeder Agent braucht ein Team."
-    detail: "Calmest German (language 9.4), but 'could almost be a Globant line' (distinctive 6.1) and repeats k3 above the H1 (fit 6.0). Its lead over c3 holds with both models; behind a6 with Codex only."
-    score: 75.6
-    noise: 1.4
-  - key: b4
-    label: "Until you don't need us. / Bis ihr uns nicht mehr braucht."
-    detail: "Best above the H1 (82.6) and on the slide (83.9), weakest alone: on banners and the link preview it does not say what the company does (clear 5.3, banners 69.7, link preview 67.1)."
-    score: 75.5
+    label: "Every agent needs a team. / Jeder Agent braucht ein Team. With the same descriptor line on the banners"
+    detail: "m08k's English with the German as in round 3. First in pass 1 (79.9, noise 0.6). In German, 11 of 20 pass-1 reviewers name 'Agent' as reading like a spy, a sales agent or call-centre staff."
+    score: 77.8
     noise: 0.2
-  - key: a6g
-    label: "a6 with the German fix: Mehr Code ist noch kein schnelleres Release."
-    detail: "Pass 2 fix for a6's German. English as a6. The German scored lower than a6's (70.6 against 77.2)."
-    score: 75.2
-    noise: 0.7
-  - key: m15
-    label: "Speed is a team skill. / Tempo ist Teamarbeit."
-    detail: "Calm and clean, but generic (distinctive 4.7) and repeats k3 above the H1 (fit 5.2)."
-    score: 73.8
-    noise: 0.7
-  - key: m02
-    label: "The agent is the easy part. / Der Agent ist der leichte Teil."
-    detail: "Pass 1 only. Distinctive (7.3), but the German reads translated (pass 1, EN 77.3, DE 70.0)."
-    score: 73.6
-    noise: 0.6
-  - key: a7
-    label: "Licences are bought in a day. Practice isn't. / Lizenzen kauft ihr an einem Tag. Praxis nicht."
-    detail: "Pass 1 only. Distinctive (7.4), but long and lecturing on the slide and the link preview."
-    score: 71.3
-    noise: 1.7
-  - key: a6t
-    label: "a6 with a second sentence: More code isn't faster delivery. That takes a team. / Mehr Code ist noch kein Release. Dafür braucht es ein Team."
-    detail: "Pass 2 fix for 'says only the problem'. Clearer (8.3), but loses calm (6.4) and fit with k3 (5.8): k3 already says the team part."
-    score: 70.6
+  - key: a6
+    label: "More code isn't faster delivery. / Mehr Code heißt nicht schneller liefern. With the descriptor line on the banners"
+    detail: "Round 3's lead, here 6.5 behind m08k with both models. Most credible (8.9). Reviewers call it a thesis or talk title, not a claim, and the German clumsy. The weakest footer (64.2). Keeps the home H1 line it won in round 3 (see home-claim-line)."
+    score: 73.0
     noise: 1.5
-  - key: a4
-    label: "Faster with agents. And still fast without us. / Schneller mit Agenten. Auch wenn wir längst weg sind."
-    detail: "Pass 1 only. Codex 78.1, Claude 54.9: reads as a speed promise."
-    score: 66.5
+  - key: d01k
+    label: "We teach teams to ship with agents. / Wir machen eure Teams fit für Agenten. On the banners alone"
+    detail: "The best descriptive claim: says what h&w does, so the banners need no second line (12 of 12 cold readers named training). Codex likes it (80.5), Claude does not (64.5): 'clear but forgettable, any AI training company could say it' (distinctive 4.9, emotional 4.9)."
+    score: 72.5
+    noise: 0.2
+  - key: e01
+    label: "Proud of every release. / Stolz auf jedes Release. With the descriptor line on the banners"
+    detail: "The best emotional claim of 12 drafted: most emotional (8.0) and calmest (9.1), best on the closing slide (80.4). Alone it says nothing of agents or training (clear 4.5), weakest on the link preview (66.8), where no descriptor stands."
+    score: 70.2
     noise: 2.0
   - key: c3
     label: "Agents in the team. Teams in flow. / Agenten im Team. Teams im Flow. (in verbal.json since v1.29.0)"
-    detail: "Unmarked control. Least distinctive of the field (4.2): 'Flow' sits next to Slalom's 'Bringen Sie KI in den Flow.', agents in the team next to Globant's 'Our people and AI agents build together.' Repeats k3 above the H1 (fit 4.3, home 62.2)."
-    score: 66.4
-    noise: 0.0
-  - key: q6
-    label: "Agents bring the speed. Flow needs teams in tune. / Agenten bringen das Tempo. Flow braucht eingespielte Teams. (retired)"
-    detail: "Unmarked control. Last on every surface."
-    score: 56.3
+    detail: "Unmarked control. Last in pass 2. Least distinctive (4.4): reviewers place 'Flow' beside Slalom's German claim."
+    score: 69.2
     noise: 0.1
 images:
-  a6:
-    - src: a6-surfaces.jpg
-      caption: "a6: the seven banners, closing slide, one-pager header and link preview, English above German"
-    - src: a6-website.jpg
-      caption: "a6: home hero (desktop and phone) and footer, English beside German"
-  m01:
-    - src: m01-surfaces.jpg
-      caption: "m01: banners, slide, one-pager, link preview, English above German"
-    - src: m01-website.jpg
-      caption: "m01: home hero and footer, English beside German"
+  m08k:
+    - src: r4-m08k-banners.jpg
+      caption: "m08k: LinkedIn profile, X, XING, Sessionize, LinkedIn page and YouTube banners with the descriptor line, English above German"
+    - src: r4-m08k-surfaces.jpg
+      caption: "m08k: closing slide, link preview, one-pager header and phone footer, English above German"
+    - src: r4-banner-alone-and-descriptor.jpg
+      caption: "The LinkedIn profile banner of m08, a6, c3, e01 and d01, the claim alone on the left, with the descriptor line on the right"
   m08:
-    - src: m08-surfaces.jpg
-      caption: "m08: banners, slide, one-pager, link preview, English above German"
+    - src: r4-m08-banners.jpg
+      caption: "m08: banners with the descriptor line, English above German"
+    - src: r4-m08-surfaces.jpg
+      caption: "m08: slide, link preview, one-pager, footer, English above German"
     - src: m08-website.jpg
-      caption: "m08: home hero and footer, English beside German"
-  b4:
-    - src: b4-surfaces.jpg
-      caption: "b4: banners, slide, one-pager, link preview, English above German"
-    - src: b4-website.jpg
-      caption: "b4: home hero and footer, English beside German"
-  a6g:
-    - src: a6g-surfaces.jpg
-      caption: "a6g: banners, slide, one-pager, link preview, English above German"
-    - src: a6g-website.jpg
-      caption: "a6g: home hero and footer, English beside German"
-  m15:
-    - src: m15-surfaces.jpg
-      caption: "m15: banners, slide, one-pager, link preview, English above German"
-    - src: m15-website.jpg
-      caption: "m15: home hero and footer, English beside German"
-  m02:
-    - src: m02-surfaces.jpg
-      caption: "m02: banners, slide, one-pager, link preview, English above German"
-    - src: m02-website.jpg
-      caption: "m02: home hero and footer, English beside German"
-  a7:
-    - src: a7-surfaces.jpg
-      caption: "a7: banners, slide, one-pager, link preview, English above German"
-    - src: a7-website.jpg
-      caption: "a7: home hero and footer, English beside German"
-  a6t:
-    - src: a6t-surfaces.jpg
-      caption: "a6t: banners, slide, one-pager, link preview, English above German"
-    - src: a6t-website.jpg
-      caption: "a6t: home hero and footer, English beside German"
-  a4:
-    - src: a4-surfaces.jpg
-      caption: "a4: banners, slide, one-pager, link preview, English above German"
-    - src: a4-website.jpg
-      caption: "a4: home hero and footer, English beside German"
+      caption: "Round 3, m08: home hero (desktop and phone) and footer"
+  a6:
+    - src: r4-a6-banners.jpg
+      caption: "a6: banners with the descriptor line, English above German"
+    - src: r4-a6-surfaces.jpg
+      caption: "a6: slide, link preview, one-pager, footer, English above German"
+    - src: a6-website.jpg
+      caption: "Round 3, a6: home hero (desktop and phone) and footer"
+  d01k:
+    - src: r4-d01k-banners.jpg
+      caption: "d01k: banners with the claim alone, English above German"
+    - src: r4-d01k-surfaces.jpg
+      caption: "d01k: slide, link preview, one-pager, footer, English above German"
+  e01:
+    - src: r4-e01-banners.jpg
+      caption: "e01: banners with the descriptor line, English above German"
+    - src: r4-e01-surfaces.jpg
+      caption: "e01: slide, link preview, one-pager, footer, English above German"
   c3:
-    - src: c3-surfaces.jpg
-      caption: "c3: banners, slide, one-pager, link preview, English above German"
+    - src: r4-c3-banners.jpg
+      caption: "c3: banners with the descriptor line, English above German"
+    - src: r4-c3-surfaces.jpg
+      caption: "c3: slide, link preview, one-pager, footer, English above German"
     - src: c3-website.jpg
-      caption: "c3: home hero and footer, English beside German"
-  q6:
-    - src: q6-surfaces.jpg
-      caption: "q6: banners, slide, one-pager, link preview, English above German"
-    - src: q6-website.jpg
-      caption: "q6: home hero and footer, English beside German"
+      caption: "Round 3, c3: home hero (desktop and phone) and footer"
 ---
 
 # Which claim replaces c3?
 
-c3 loses to a new line on every surface. "More code isn't faster delivery." / "Mehr Code heißt nicht schneller liefern." (a6) led both passes: 78.5 against 66.4 for c3, with both models, outside the noise (0.8 on the panel mean). I recommend it. Pick one claim; the home headline k3 stays.
+No short claim works alone on a banner: shown alone on a LinkedIn banner, a6, m08, c3 and the four
+emotional claims each got 0 of 12 cold readers to say that h&w trains people in working with AI
+agents, while with the line "Training and mentoring in agentic engineering" under them all 12 did,
+and the panel scored the banners 6 to 16 points higher (m08 73.8 to 83.4, a6 70.2 to 80.2). So the banner is a claim plus
+a descriptor line, and the claim can stay short. "Think different" ran beside a name every reader
+knew; hackers&wizards names no offer, so the descriptor line has to say it.
 
-Why c3 loses: next to the claims of the neighbours it reads as theirs. Reviewers placed "in flow" beside Slalom Germany's "Bringen Sie KI in den Flow." and "agents in the team" beside Globant's "Our people and AI agents build together." (distinctive 4.2 of 10). And above the home H1 it repeats k3 (fit 4.3).
+I recommend m08k, "Every agent needs a team." / "Jeder KI-Agent braucht ein Team.", with that
+line on the banners: first in pass 2 (79.5, noise 0.1), ahead in both runs with both models.
 
-What holds a6 back, from every reviewer group: it names the buyer's problem, not what h&w does, and Claude reviewers find the German clipped. Pass 2 tested a fix for each: a better German line (a6g) and a second sentence naming the team (a6t). Both scored lower than a6 itself, so this round ends on a plateau.
+The other questions of this round:
 
-m01 ties with a6 (2.0 behind, noise 2.2). The tie goes to a6, because m01 needs an exception: above the home H1 it repeats k3 and loses to the empty slot, a6 does not.
+- A descriptive claim does not beat a short claim with a descriptor. The best one, d01k, scores
+  72.5: clear, but "any AI training company could say it". The retired line ("Your whole company
+  unstoppable, …") scored 31.9, last on every surface: "unstoppable" reads as hype, the line runs
+  long, and alone it names agentic engineering but not that h&w trains (0 of 12).
+- Emotional claims: 12 drafted from the research, positive and short. The best, "Proud of every
+  release." (e01), is the most emotional line of the field (8.0) and scores 70.2. The emotion
+  holds, the line says nothing about agents, and the link preview and slide carry no descriptor.
+  m08k sits between the two: a stance with feeling (7.1) that still names agents.
+- a6 drops to third. Reviewers call the negation a thesis or a talk title rather than a claim.
 
-Overall is the panel mean, 0 to 100, over English and German and over all surfaces. Noise is the difference between the panel means of the two runs. A lead inside the noise is a tie.
+Overall is the panel mean, 0 to 100, over English and German and over all surfaces. Noise is the
+difference between the panel means of the two runs. A lead inside the noise is a tie.
 
 ## Per surface, pass 2
 
-| Surface                       | a6   | m01  | m08  | b4   | a6g  | m15  | a6t  | c3   | q6   | a6 ahead of c3, Claude / Codex |
-| ----------------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ------------------------------ |
-| Seven banners                 | 79.1 | 79.7 | 80.2 | 69.7 | 76.0 | 79.1 | 69.8 | 73.5 | 60.5 | 7.0 / 4.3                      |
-| Deck closing slide            | 79.9 | 80.1 | 78.5 | 83.9 | 76.9 | 80.5 | 70.5 | 73.1 | 61.3 | 7.0 / 6.6                      |
-| One-pager header              | 79.6 | 76.4 | 77.6 | 78.1 | 76.2 | 77.8 | 66.2 | 70.3 | 56.3 | 8.1 / 10.6                     |
-| Link preview (OG card)        | 79.9 | 79.9 | 76.5 | 67.1 | 76.8 | 79.3 | 70.7 | 72.7 | 61.0 | 8.6 / 5.9                      |
-| Website footer                | 77.9 | 77.7 | 79.2 | 79.9 | 74.9 | 79.4 | 70.5 | 71.8 | 60.2 | 6.4 / 5.7                      |
-| Above the home H1             | 80.9 | 73.2 | 72.0 | 82.6 | 77.3 | 70.2 | 65.7 | 62.2 | 49.2 | 16.8 / 20.7                    |
-| Overall, across every surface | 78.5 | 76.5 | 75.6 | 75.5 | 75.2 | 73.8 | 70.6 | 66.4 | 56.3 |                                |
+| Surface          | m08k        | m08         | a6          | d01k        | e01         | c3          |
+| ---------------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| Six banners      | 81.6        | 80.2        | 77.6        | 76.4        | 75.0        | 74.3        |
+| Closing slide    | 80.1        | 79.5        | 74.6        | 70.0        | 80.4        | 76.4        |
+| Link preview     | 78.0        | 74.8        | 76.2        | 76.2        | 66.8        | 73.0        |
+| One-pager header | 78.8        | 77.9        | 74.1        | 74.9        | 72.0        | 71.6        |
+| Footer (phone)   | 78.3        | 76.1        | 64.2        | 77.4        | 68.9        | 70.2        |
+| Overall          | 79.5        | 77.8        | 73.0        | 72.5        | 70.2        | 69.2        |
+| Claude / Codex   | 77.5 / 81.5 | 76.8 / 78.8 | 69.7 / 76.2 | 64.5 / 80.5 | 70.9 / 69.5 | 65.7 / 72.6 |
+| EN / DE          | 80.2 / 78.8 | 80.2 / 75.5 | 74.4 / 71.5 | 76.6 / 68.3 | 71.2 / 69.2 | 70.1 / 68.2 |
 
-Panel noise per surface and claim 0.0 to 4.2 (m01 above the H1), most under 1.5. The home page with nothing above the H1 scored 79.8: a6 above the H1 ties with it for both models (Claude 73.5 against 71.2, Codex 88.3 against 88.5). b4's lead there (82.6) comes from Claude alone.
-
-## Criteria, pass 2 (0 to 10, mean over both languages)
-
-| Claim | Distinctive | Clear | Fit with k3 | Calm | Credible | Language | EN / DE     | Claude / Codex |
-| ----- | ----------- | ----- | ----------- | ---- | -------- | -------- | ----------- | -------------- |
-| a6    | 7.2         | 7.8   | 8.2         | 8.3  | 9.1      | 8.2      | 79.8 / 77.2 | 74.5 / 82.5    |
-| m01   | 7.5         | 7.4   | 6.9         | 8.0  | 8.0      | 8.1      | 78.1 / 75.0 | 71.8 / 81.3    |
-| m08   | 6.1         | 7.3   | 6.0         | 9.0  | 7.7      | 9.4      | 75.8 / 75.4 | 74.2 / 77.1    |
-| b4    | 7.2         | 5.3   | 9.2         | 9.1  | 8.2      | 9.1      | 74.7 / 76.2 | 72.0 / 79.0    |
-| a6g   | 7.1         | 7.5   | 7.9         | 8.0  | 8.9      | 7.3      | 79.8 / 70.6 | 70.7 / 79.7    |
-| m15   | 4.7         | 7.2   | 5.2         | 9.2  | 8.1      | 8.9      | 74.3 / 73.2 | 71.2 / 76.3    |
-| a6t   | 7.1         | 8.3   | 5.8         | 6.4  | 8.6      | 8.3      | 71.5 / 69.7 | 63.1 / 78.1    |
-| c3    | 4.2         | 6.5   | 4.3         | 8.1  | 7.0      | 7.3      | 66.7 / 66.0 | 61.1 / 71.6    |
-| q6    | 4.9         | 6.8   | 2.8         | 5.6  | 5.9      | 6.5      | 57.0 / 55.6 | 50.8 / 61.8    |
-
-m02, a7 and a4 were in pass 1 only (pass 1 table in the report).
+Criteria (0 to 10): m08k distinctive 7.4, clear 7.2, emotional 7.1, credible 8.3, calm 8.6,
+language 8.9. The rest is in the report.
 
 ## What choosing changes
 
-- Any claim but c3: brand changes `claim` in `verbal/verbal.json`, retires c3 there, and releases. `claim.word` (the word the banners set in the accent) names "flow" today; a6 holds no such word, so it gets a new word or the banners draw the claim without an accent. The release redraws the seven claim banners (`applications/channel-banners/render.py`). The consumers read the claim from their brand pin: the website's footer (`src/copy/ui.ts`, which splits after the first sentence and takes a one-sentence claim whole) and link preview, the slides closing slide, the os one-pagers, and three trainer hub decks (`src/slides/data/`).
-- With a6, `home-claim-line` changes: the claim above the H1 then ties with the empty slot, see that item.
-- c3: nothing changes; the rollout on hold resumes.
+- Any claim but c3: brand changes `claim` in `verbal/verbal.json`, retires c3 there, and releases.
+  `claim.word` (the accent word on the banners) names "flow" today; m08k holds no such word, so
+  the banners draw it without an accent or with a new word. The banners gain the descriptor line:
+  `applications/channel-banners/render.py` sets it under the claim (Mono 500, 0.62 of the claim
+  size, as tested), and `verbal.json` holds its text so the banners and other consumers read it
+  from one place. The consumers read the claim from their brand pin: the website's footer and
+  link preview, the slides closing slide, the os one-pagers, three trainer hub decks.
+- With m08k or m08: `home-claim-line` keeps nothing above the H1 (m08 there 72.0 against 79.8 for
+  the empty slot in round 3); its option eyebrow-a6 holds only for a6.
+- c3: nothing changes.
