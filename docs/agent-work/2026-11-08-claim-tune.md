@@ -1,6 +1,6 @@
 # Claim tune: claims with "in tune" against u1, paired with both home H1s, 08.11.2026
 
-"Agents pay off when your people are in tune." with the H1 "Once all roles are in tune" scores above the current pair u1 with the same H1. On the rendered panel it leads u1 by 6.7 (81.7 against 75.0), outside the noise in both runs and with both models. In the reader's path it leads by 5.5 (78.0 against 72.5), positive in all four cells, though two cells fall inside u1's own noise of 4.8, so by the rule that part is a tie. Cold readers restate a result for the company for it, as for u1, 16 of 16 in English and in German. It is the only claim that clears every test, so it is the recommendation. "Agents write code. People in tune ship faster." is the strongest pair in the reader's path (81.2) but sixth of seven on the panel; Claude puts it 6.9 behind u1. The decision is the item `decide-claim-tune`.
+"Agents pay off when your people are in tune." with the H1 "Once all roles are in tune" scores above the current pair, u1 with the same H1. On the rendered panel it leads u1 by 6.7 (81.7 against 75.0), outside the noise in both runs and with both models. In the reader's path it leads by 5.5 (78.0 against 72.5), positive in all four cells; two of those fall inside the 4.8 run gap of u1 itself, so by the larger-noise reading used here they are ties. Cold readers restate a result for the company 16 of 16 times in English and in German, as they do for u1. That makes it the recommendation, on one clear lead and no loss. It misses round 10's German requirement by 0.2 (see below). "Agents pay off when your teams are in tune." ties it on the panel and in the path. "Agents write code. People in tune ship faster." is the strongest pair in the reader's path (81.2) but sixth of seven on the panel, where Claude puts it 6.9 behind u1. The decision is the item `decide-claim-tune`.
 
 Benedikt's reservation about "pay off" stayed out of every prompt and is no score. u1 and the recommended line both carry "pay off" / "lohnen sich"; of the lines measured here only the three drafted ones (d2, d3, d8) do not.
 
@@ -22,7 +22,7 @@ Each claim stands with H1 tune ("Your teams have agents. Once all roles are in t
 
 German: two native drafts per line, the better one chosen by a small Codex review (copy editor, one run). Codex chose eingespielt without aufeinander for people and teams and with aufeinander for roles, since "wenn eure Rollen eingespielt sind" read as unnatural.
 
-The drafter wrote eight lines that all carry a form of "tune". Screened drafted lines: d1 "Agents speed code. People in tune speed releases.", d4 "Every role in tune. Every agent worth its cost.", d5 "Tune your roles to each other. Releases speed up.", d6 "Agents pay off once your people are in tune.", d7 "Your agents pay off when every role is in tune.", plus the three above. d6 and d7 are this round's only drafts within a word of a line of Benedikt's (d6 and tpe differ by once/when, d7 and tro by every role/your roles); fixed before any score, they do not take one of the three drafted slots.
+The drafter wrote eight lines that all carry a form of "tune". Screened drafted lines: d1 "Agents speed code. People in tune speed releases.", d4 "Every role in tune. Every agent worth its cost.", d5 "Tune your roles to each other. Releases speed up.", d6 "Agents pay off once your people are in tune.", d7 "Your agents pay off when every role is in tune.", plus the three above. d6 is tpe with "once" for "when", and d7 is a close variant of tro ("your agents", "every role is"). Before any score, I excluded both from the three drafted slots; they were still read.
 
 ## Screening: cold reads of the banner alone, English, 16 readers per line
 
@@ -34,7 +34,7 @@ Each reader saw one banner, with the photo over it, in the LinkedIn iPhone app o
 | d3                                            | 16     | 15                     | 15          |
 | f6 (control, round 10's low line)             | 16     | 9                      | 9           |
 
-The control fell as in round 10 (13 of 32 there), so the classifier finds a miss where one exists. Nothing above the control separates the lines. To pick three drafted lines from the tie, eight reviewers (CTO, VP of Engineering, brand strategist, native copy editor; both models) scored the six eligible drafted banners on clear, result, natural, distinctive and fit: d8 78.9, d2 74.5, d3 70.0, d1 67.1, d4 65.6, d5 57.0. d5 lost on natural language (4.4), d1 on "speed" as a verb (5.2).
+The control f6 scored 9 of 16 here (round 10's English cell: 6 of 16; not comparable across rounds, and the rise is not yet explained); it is the one line that falls short, so the classifier finds a miss where one exists. Nothing above the control separates the lines. To pick three drafted lines from the tie, eight reviewers (CTO, VP of Engineering, brand strategist, native copy editor; both models) scored the six eligible drafted banners on clear, result, natural, distinctive and fit: d8 78.9, d2 74.5, d3 70.0, d1 67.1, d4 65.6, d5 57.0. d5 lost on natural language (4.4), d1 on "speed" as a verb (5.2).
 
 The drafted lines d2, d3 and d8 went into the full measurement.
 
@@ -123,29 +123,32 @@ With every claim, H1 tune scores above H1 step, with both models and in both run
 
 The reviewer prompts do not name a word recurring across steps. The set's "notice" and "open question" fields were classified afterwards by a blind classifier that saw only the remarks: positive, negative or not about a recurring word; three shuffled passes, majority. A control of four planted remarks (two positive or negative recurrence, two none) came back correct in every pass. Counted per pair (16 reviews each) in the tables above.
 
-- With H1 tune, "in tune" recurring across banner, H1 and desk draws more positive remarks than negative on the lines that carry it: tpe 9 positive to 3 negative, d8 7 to 1, d3 13 to 1. d2, tte and tro are even: 4 to 4, 6 to 6, 7 to 6.
+- With H1 tune, the six "in tune" claims draw 46 remarks that "in tune" recurring across banner, H1 and desk helps and 21 that it hurts: tpe 9 to 3, d8 7 to 1, d3 13 to 1, tro 7 to 6, tte 6 to 6, d2 4 to 4. d3 alone supplies 12 of the net 25, so the balance is not uniform across lines.
 - With H1 step, nearly no remark names recurrence (tte 0 / 2, tro 0 / 2, others 0 / 0). u1 draws none with either H1.
 - German tro draws 15 negative remarks to 0: its "alle Rollen" stands in both the claim and the H1 "Wenn alle Rollen zusammenspielen".
 
 ## Requirements, from round 10
 
-Round 10's (a) to (f), applied to the seven finalists:
+Round 10's (a), (d), (e) and (f). (b) and (c) compared with f6, which is on neither this panel nor this path, so they drop out.
 
-- (a) Cold read: every line but d3 in German (13 of 16) restates a result.
-- (d) Together on the panel at least f6's minus 1 (f6 7.4 in round 10): d8 misses at 6.0; the rest clear 6.4.
-- (f) German as strong as English on the panel: tte, tpe, u1 and d2 pass (differences -0.4, -0.6, -0.6, +0.2), d3 and tro pass with their German ahead (+4.0, +8.5); d8 (-6.5) misses.
+- (a) Cold read (bar 24 of 32 core across both languages): all pass; d3 is 28 of 32 (15 English, 13 German), the rest 32 of 32.
+- (d) Together on the panel at least f6's minus 1. f6 scored 7.4 in round 10 and scores compare within one round only, so this reads as indicative: d8 at 6.0 is this round's lowest, 2.9 below u1. The rest are 6.8 or higher.
+- (e) Clear of the photo: the claim's ink starts at x 480 on the banner on every finalist, right of round 10's measured photo edges (x 427 in the app, x 336 on the laptop); the longest German row ends at x 1438 of 1584.
+- (f) German overall within the noise of the English (the candidate's own panel noise): tte (-0.4 at 0.7), u1 (-0.6 at 1.3) and d2 (+0.2 at 1.2) pass; tpe misses by 0.2 (-0.6 at 0.4); d3 and tro have their German ahead (+4.0, +8.5); d8 (-6.5 at 0.1) misses.
 
-tpe clears (a), (d) and (f). d8 misses (d) and (f), the same shape round 10 rejected for m3.
+tpe clears (a), (d) and (e) and misses (f) by 0.2. tte clears all four. d8 misses (d) and (f); round 10 set m3 aside for (d) alone.
 
 ## Decision
 
-Recommendation: tpe + tune. Panel: leads u1 by 6.7, outside the noise in both runs and with both models. Reader path: leads u1 + tune by 5.5, all four cells positive, two of them inside u1's noise of 4.8, a tie there by the rule. Cold reads: 16 of 16 in both languages. No test goes against it. d8 + tune is the strongest pair in the reader's path, and leads tpe + tune there by 3.2 outside the noise, but Claude puts d8 6.9 behind u1 on the panel, Codex 0.9 ahead (a tie across models), and it misses (d) and (f). tte + tune ties tpe on the panel and sits below it in the path (Claude 66.2 against 72.1). The brief gives a tie to the current pair u1 + tune; I read that as a tie across the whole measurement. tpe + tune has one clear lead (the panel) and no loss, so it is not a tie; if the set's two first-run cells inside u1's noise count as a tie for the whole, the current pair stays.
+Recommendation: tpe + tune, on the reading that a clear panel lead with no loss elsewhere is not a tie. The noise of a comparison here is the larger of the two candidates' run gaps; with tpe's own 0.5 instead of u1's 4.8, no path cell is a tie. If the two first-run cells inside 4.8 count as a tie for the whole measurement, the tie rule of the brief keeps u1 + tune. u1's noise of 4.8 is not yet explained.
+
+d8 + tune is the strongest pair in the path, 3.2 ahead of tpe + tune outside the noise in all four cells, but Claude puts d8 6.9 behind u1 on the panel, Codex 0.9 ahead, and it misses (d) and (f). tte + tune ties tpe: panel +1.4 for tpe (Claude tpe +4.3, Codex tte +1.6), path +2.4 for tpe (Claude tpe +5.9, Codex tte +1.1). The tie between them goes to tpe on people, where the panel gives tpe 9.8 and tte 8.0: "teams" may mean single teams.
 
 ## Skipped and owed
 
 - Hero and footer screenshots are the live site with the H1 and the footer's slogan set in the browser, the price in the assessment link removed; the banner in the path is the rendered banner in the real screenshot of the LinkedIn app and laptop, the photo over it. The H1 for every pair is shown on the live home page's layout.
 - Round 10's separate team question was dropped: the classifier's "people" over the free text covers it, and no reader took the people for agents.
-- The 24 decided page headlines round 10 showed beside the set were not shown: the set is now the path. The X header, Sessionize cover and closing slide appear on the panel only.
+- The 24 decided page headlines round 10 showed beside the set were not shown: this round the set is the reader's path. The X header, Sessionize cover and closing slide appear on the panel only.
 - The German sheets keep the LinkedIn profile's English screenshot (About line and labels) under the German banner; a few reviewers noted the switch of language.
 - Trademark for the recommended line is not queried in DPMA, EUIPO and USPTO.
 - Profile texts in the set open with the claim line as round 10 did; a switch rewrites them around the new line, scored in `work-claim-rollout-holistic`, not here.
@@ -191,7 +194,7 @@ Answer with JSON only: {"<label>": {"distinctive":0,"clear":0,"emotional":0,"cre
 
 ## Images
 
-`2026-11-08-claim-tune/<key>-en.jpg` and `<key>-de.jpg` per finalist key: the panel sheet of each claim in each language. The path sheets of the options sit in the item.
+`2026-11-08-claim-tune/<key>-en.jpg` and `<key>-de.jpg` per finalist key: the panel sheet of each claim in each language. The path sheets of the options sit beside them as `<option>-path.jpg`; the item carries its own copies.
 
 Runs: 320 cold reads, 8 screen scores, 40 panel, 16 set, 9 classifier, 2 German picks, 1 drafter: 396.
 
