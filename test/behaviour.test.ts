@@ -156,19 +156,31 @@ const fits = (p: Page, sel: string) =>
   p.$eval(sel, (d) => {
     const r = d.getBoundingClientRect();
     const box = d.matches(":modal") ? innerWidth : d.parentElement!.clientWidth;
-    return { width: r.width <= box, scroll: d.scrollWidth <= d.clientWidth };
+    const lines = (e: Element) => {
+      const range = document.createRange();
+      range.selectNodeContents(e);
+      return new Set([...range.getClientRects()].map((l) => Math.round(l.top))).size;
+    };
+    return {
+      width: r.width <= box,
+      scroll: d.scrollWidth <= d.clientWidth,
+      whole: [...d.querySelectorAll(".hw-button, .hw-kbd")].every((e) => lines(e) === 1),
+    };
   });
+const FITS = { width: true, scroll: true, whole: true };
+const ACTIONS = `<div class="hw-dialog-actions">${["Abbrechen", "Entwurf speichern", "Veröffentlichen"].map((b) => `<button class="hw-button">${b}</button>`).join("")}</div>`;
 
 test("a dialog fits its container in the flow and a phone when modal, its content wrapping", async () => {
   const p = await page(
-    `<div style="width:357px"><dialog open class="hw-dialog" data-size="small" id="f"><h2 class="hw-dialog-title">Deal anlegen</h2><div class="hw-dialog-body">${LONG}</div></dialog></div>
-<div class="hw-focus-ring"><dialog class="hw-dialog" data-size="large" id="m" aria-label="Tasten">${KEYS}</dialog></div>`,
+    `<div style="width:357px"><dialog open class="hw-dialog" data-size="small" id="f"><h2 class="hw-dialog-title">${LONG}</h2><div class="hw-dialog-body">${LONG}<p style="width:2rem"><kbd class="hw-kbd">PageDown</kbd></p></div>${ACTIONS}</dialog></div>
+<div class="hw-focus-ring"><dialog class="hw-dialog" data-size="large" id="m" aria-label="Tasten"><div class="hw-dialog-body">${KEYS}</div></dialog></div>`,
   );
+  await p.setViewport({ width: 1280, height: 800 });
+  expect(await fits(p, "#f")).toEqual(FITS);
   await p.setViewport({ width: 390, height: 800 });
-  expect(await fits(p, "#f")).toEqual({ width: true, scroll: true });
   await p.keyboard.press("Tab");
   await p.$eval("#m", (d) => (d as HTMLDialogElement).showModal());
-  expect(await fits(p, "#m")).toEqual({ width: true, scroll: true });
+  expect(await fits(p, "#m")).toEqual(FITS);
   // A dialog holding no control takes the focus itself and draws no ring round the panel.
   expect(
     await p.$eval("#m", (d) => [d.matches(":focus-visible"), getComputedStyle(d).outlineStyle]),
