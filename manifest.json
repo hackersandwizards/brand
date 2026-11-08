@@ -434,23 +434,23 @@
     },
     {
       "path": "elements/form-field.css",
-      "sha256": "31ef75bf6753b59ea9a5c36e02f9e04901f789f9f67dbd6b312e71efe61b3a7d"
+      "sha256": "9d0ca43676b2c4d52659a84cceef15f4d00797377e741d9b9682719918d83853"
     },
     {
       "path": "elements/switch.css",
-      "sha256": "345bbe48b1841e0873bb057f46cfaf1baface5c49f0e214c7a3264f8ffff36e2"
+      "sha256": "471877e67ee1d5db8e43bbff3364a4cc7ef9f559c694b477a1dc0b8898d6c924"
     },
     {
       "path": "elements/range.css",
-      "sha256": "eff8e91562348bc6f0ce032139a7e1c1551249c11453103ffa083eeab6d609e3"
+      "sha256": "a8ae8b42fdb8e4ef005bd63cb16d032b478be5cddb124c34103854783e2ee9db"
     },
     {
       "path": "elements/error-summary.css",
-      "sha256": "c4c28b4ce335a8c47bc0b0bb3ac1cf8b68c4a645d405138238192df94c006c7c"
+      "sha256": "9b28a58cc04ae3f8e92b38e25caf73f631b3b1425c099bd605283704ee6e21ff"
     },
     {
       "path": "elements/form.ts",
-      "sha256": "6a73074418397cfd67814504bbb7913bd3e51bc6b3a540af5b83afcc40ccb894"
+      "sha256": "049b04051d9c3eedfb07e546881e62252830c9bde439f80379aeb7cab07a06e3"
     },
     {
       "path": "elements/facts.css",
@@ -462,7 +462,7 @@
     },
     {
       "path": "elements/field.css",
-      "sha256": "9842dc7d9a4665cd21033cd1b28fcdb59f5a3885729caefaa1fc4961fcdf2196"
+      "sha256": "aa957399341a616513a9845e5979b52a83d6dabb6e53e85beb8eb4eba9074ac5"
     },
     {
       "path": "elements/frame.css",

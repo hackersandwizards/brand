@@ -41,17 +41,17 @@
   }
   .hw-range::-webkit-slider-runnable-track {
     height: 0.25em;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--_hw-track);
   }
   .hw-range::-moz-range-track {
     height: 0.25em;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--_hw-line);
   }
   .hw-range::-moz-range-progress {
     height: 0.25em;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--_hw-fill);
   }
   .hw-range::-webkit-slider-thumb {

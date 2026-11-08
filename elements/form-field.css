@@ -23,7 +23,8 @@
    hw-form-count under a textarea counts its characters: muted; with data-over it reads as an
    error message, red behind the circled mark. form.ts fills it from data-max and its two texts, data-left and data-over,
    where {n} stands for the number, and sets aria-invalid on the field while it is over (name it
-   in the field's aria-describedby). Without the script it states the limit.
+   in the field's aria-describedby). It announces the count to a screen reader once typing pauses
+   for a second, not at every key. Without the script it states the limit.
    hw-form-float holds a field and its label after it: the label, muted at regular weight like a
    placeholder, sits in the field and moves to the field's top edge, at the small size, once the field has focus or
    a value. The field needs placeholder=" " and stands 7/6 of the scale's height. Prefer the
@@ -38,7 +39,7 @@
            <fieldset class="hw-form-field"><legend class="hw-form-label">…</legend>
              <label><input type="checkbox" class="hw-check"> …</label> …</fieldset>
            <p class="hw-form-count" id="n-count" data-for="n" data-max="200"
-             data-left="Noch {n} Zeichen" data-over="{n} Zeichen zu viel" aria-live="polite">…</p>
+             data-left="Noch {n} Zeichen" data-over="{n} Zeichen zu viel">…</p>
            <div class="hw-form-float"><input class="hw-field" id="c" placeholder=" ">
              <label class="hw-form-label" for="c">Stadt</label></div>
 

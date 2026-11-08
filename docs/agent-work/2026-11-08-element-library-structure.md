@@ -187,7 +187,8 @@ in `/catalog/`, a tile on the portal and a part in `brand-elements`:
   own icons, `hw-form-count` (an error message once over the limit), `hw-form-float` for a
   floating label, and the muted text of a disabled option.
 - **Behaviour** (`form.ts`, export `./elements/form.ts`): `enhanceForms()` wires the character
-  count, the password toggle and the range fill. Everything else is CSS on native controls.
+  count (announced once typing pauses), the password toggle (hidden until the script runs) and
+  the range fill, each also after a form reset. Everything else is CSS on native controls.
 - **Check**: `brand-elements` compares a field under a floating label against a reference in a
   floating-label box, as it does for a joined row.
 

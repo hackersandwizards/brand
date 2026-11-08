@@ -68,10 +68,12 @@
     color-scheme: light;
     transition: border-color var(--motion-fast);
   }
-  .hw-field[data-state="warning"] {
+  .hw-field[data-state="warning"],
+  .hw-field-row:has(> .hw-field[data-state="warning"]) {
     --_hw-state: var(--color-amber-dark);
   }
-  .hw-field[data-state="success"] {
+  .hw-field[data-state="success"],
+  .hw-field-row:has(> .hw-field[data-state="success"]) {
     --_hw-state: var(--color-green-dark);
   }
   .hw-field::placeholder {
@@ -139,7 +141,7 @@
     color: var(--color-ink);
     background: transparent;
   }
-  .hw-field-toggle[hidden] {
+  .hw-field-row > .hw-field-toggle[hidden] {
     display: none;
   }
   .hw-field-toggle::before {
@@ -183,7 +185,11 @@
     background: transparent;
     box-shadow: none;
   }
-  /* An invalid field in the joined row: the row draws the error line. */
+  /* A field's state in the joined row: the row draws the line. */
+  .hw-field-row[data-joined]:has(> .hw-field[data-state]:not([aria-invalid="true"])) {
+    border-color: var(--_hw-state);
+    box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-state);
+  }
   .hw-field-row[data-joined]:has(> .hw-field[aria-invalid="true"]) {
     border-color: var(--_hw-error);
     box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-error);
@@ -233,17 +239,13 @@
       background: var(--color-night-2);
       color-scheme: dark;
     }
-    .hw-field[data-state="warning"] {
+    .hw-field[data-state="warning"],
+    .hw-field-row:has(> .hw-field[data-state="warning"]) {
       --_hw-state: var(--color-amber);
     }
-    .hw-field[data-state="success"] {
+    .hw-field[data-state="success"],
+    .hw-field-row:has(> .hw-field[data-state="success"]) {
       --_hw-state: var(--color-green);
-    }
-    .hw-field[data-state]:not([aria-invalid="true"]) {
-      border-color: var(--_hw-state);
-    }
-    .hw-field[readonly] {
-      background: transparent;
     }
     .hw-field[type="file"]::file-selector-button {
       border-right-color: var(--color-night-line);

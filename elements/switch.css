@@ -30,7 +30,7 @@
     vertical-align: top;
     font: inherit;
     border: 1.5px solid var(--_hw-line);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: radial-gradient(circle closest-side, var(--_hw-knob) 0 96%, transparent 100%) left
       2px center / calc(var(--_hw-h) - 7px) calc(var(--_hw-h) - 7px) no-repeat;
     cursor: pointer;

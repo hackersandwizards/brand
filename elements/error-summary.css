@@ -4,10 +4,10 @@
    padding; the title in the body role at weight 600 behind the error message's circled mark in red; each link in the error red at medium weight,
    underlined, its text the field's error message. Night takes red-night.
 
-   Show it only after a submit with errors, move focus to it (tabindex="-1"), and keep each
-   field's own message too. Each link's href is its field's id.
+   Show it only after a submit with errors and move focus to it (tabindex="-1"; no role="alert",
+   which would read it twice), and keep each field's own message too. Each link's href is its field's id.
 
-   Markup: <div class="hw-error-summary" role="alert" tabindex="-1" aria-labelledby="s-title">
+   Markup: <div class="hw-error-summary" tabindex="-1" aria-labelledby="s-title">
              <p class="hw-error-summary-title" id="s-title">Bitte prüft 2 Angaben</p>
              <ul><li><a href="#mail">E-Mail: gebt eine Adresse mit Domain an.</a></li> …</ul>
            </div>
