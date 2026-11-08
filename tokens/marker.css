@@ -19,6 +19,9 @@
      --hw-marker-mid     the height of the square's middle above the baseline: 1ex / 6 + 1cap / 3,
                          two thirds of the way from the x-height middle (0.5ex) to the cap-height
                          middle (0.5cap); 0.5cap beside a label in capitals
+     --hw-zoom           the CSS zoom the marker sits under, default 1: a number, such as 0.97, not a
+                         percentage, and under nested zooms their product. Set it on the zoomed
+                         element beside the zoom, so that every rounding step stays one real pixel
 
    Why it is built this way: Chrome paints boxes and text on whole CSS pixels (device pixels at a
    device scale), each rounded on its own, screen and PDF alike. A marker placed a fractional
@@ -54,19 +57,20 @@
   }
 
   ul > li {
+    --_hw-px: calc(1px / var(--hw-zoom, 1));
     padding-inline-start: var(
       --hw-marker-indent,
-      calc(round(var(--hw-marker-size, 0.375rem), 1px) + var(--hw-marker-gap, 0.625rem))
+      calc(round(var(--hw-marker-size, 0.375rem), var(--_hw-px)) + var(--hw-marker-gap, 0.625rem))
     );
   }
 
   ul > li::before,
   ul > li > p:first-child::before {
-    --_hw-size: round(var(--hw-marker-size, 0.375rem), 1px);
+    --_hw-size: round(var(--hw-marker-size, 0.375rem), var(--_hw-px));
     --_hw-gap: var(--hw-marker-gap, 0.625rem);
-    --_hw-ascent: round(0.96875em, 1px);
+    --_hw-ascent: round(0.96875em, var(--_hw-px));
     --_hw-baseline: calc(
-      round(down, round((1lh - var(--_hw-ascent) - round(0.2421875em, 1px)) / 2, 1px / 64), 1px) +
+      round(down, round((1lh - var(--_hw-ascent) - round(0.2421875em, var(--_hw-px))) / 2, var(--_hw-px) / 64), var(--_hw-px)) +
         var(--_hw-ascent)
     );
     --_hw-top: calc(var(--hw-marker-mid, 1ex / 6 + 1cap / 3) + var(--_hw-size) / 2);
@@ -74,9 +78,9 @@
     float: left;
     width: var(--_hw-size);
     height: var(--_hw-size);
-    margin: calc(var(--_hw-baseline) - round(var(--_hw-top), 1px)) var(--_hw-gap) 0
+    margin: calc(var(--_hw-baseline) - round(var(--_hw-top), var(--_hw-px))) var(--_hw-gap) 0
       calc(-1 * (var(--_hw-size) + var(--_hw-gap)));
-    transform: translateY(calc(round(var(--_hw-top), 1px) - var(--_hw-top)));
+    transform: translateY(calc(round(var(--_hw-top), var(--_hw-px)) - var(--_hw-top)));
     background: var(--hw-marker-color, var(--color-teal));
   }
 
@@ -96,14 +100,15 @@
 /* In a baseline-aligned row the box's bottom sits on the first line's baseline; it is lifted by
    whole pixels and moved the rest of the way by a transform. */
 .hw-marker {
-  --_hw-size: round(var(--hw-marker-size, 0.375rem), 1px);
+  --_hw-px: calc(1px / var(--hw-zoom, 1));
+  --_hw-size: round(var(--hw-marker-size, 0.375rem), var(--_hw-px));
   --_hw-lift: calc(var(--hw-marker-mid, 1ex / 6 + 1cap / 3) - var(--_hw-size) / 2);
   flex-shrink: 0;
   position: relative;
-  top: calc(-1 * round(var(--_hw-lift), 1px));
+  top: calc(-1 * round(var(--_hw-lift), var(--_hw-px)));
   width: var(--_hw-size);
   height: var(--_hw-size);
-  transform: translateY(calc(round(var(--_hw-lift), 1px) - var(--_hw-lift)));
+  transform: translateY(calc(round(var(--_hw-lift), var(--_hw-px)) - var(--_hw-lift)));
   background: var(--hw-marker-color, var(--color-teal));
 }
 

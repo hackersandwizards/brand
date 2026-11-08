@@ -1101,7 +1101,7 @@ ${inline(catalogCss)}</style>
     .el-cell[data-theme="dark"] { border-color: var(--color-night); background: var(--color-night); color: var(--color-night-ink); }
     .el-cell[data-hw-scale="dense"] { font-size: 0.875rem; line-height: 1.5; }
     .el-cell[data-hw-scale="print"] { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
-    .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
+    .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; --hw-zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
     .el-inner > * + * { margin-top: 0.5em; }
     .el-inner :is(p, blockquote, pre) { margin-block: 0; }
     .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }

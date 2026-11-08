@@ -122,8 +122,10 @@ function collect([newline, maxSide, count]: [boolean, number, boolean?]):
     `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${el.textContent!.trim().slice(0, 30)}"`;
   const contentLeft = (el: Element) => {
     const s = getComputedStyle(el);
+    // Under a CSS zoom a rect is in zoomed px and a computed length is not.
     return (
-      el.getBoundingClientRect().left + parseFloat(s.borderLeftWidth) + parseFloat(s.paddingLeft)
+      el.getBoundingClientRect().left +
+      (parseFloat(s.borderLeftWidth) + parseFloat(s.paddingLeft)) * el.currentCSSZoom
     );
   };
   // Where the item's first line starts: its first content, text or an element such as a code chip.

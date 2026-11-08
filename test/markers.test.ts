@@ -124,6 +124,31 @@ ${[13, 14, 16]
   )
   .join("\n")}
 </body></html>`;
+// A body shrunk with CSS zoom, as a slide's fit guard does it. `setting` is what the page declares
+// on the zoomed element beside the zoom.
+const ZOOM = 0.96897;
+const zoomed = (setting: string) => `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<style>body { margin: 40px; max-width: 420px; font-family: var(--font-sans); }
+ul { margin: 0; padding: 0; } .row { display: flex; align-items: baseline; gap: 12px; }</style>
+</head><body><div style="zoom: ${ZOOM}; ${setting}">
+${[
+  [14, 1.5],
+  [16, 1.6],
+  [18, 1.45],
+  [22, 1.35],
+  [24, 1.4],
+]
+  .map(
+    ([size, lh]) =>
+      `<ul class="hw-marker-list" style="font-size:${size}px;line-height:${lh}"><li>${item(1)}</li></ul>
+<div class="row" style="font-size:${size}px;line-height:${lh}"><span class="hw-marker"></span><span>Row text</span></div>`,
+  )
+  .join("\n")}
+</div></body></html>`;
+
 const OLD_CHECK = `.hw-prose li.task-list-item input[type="checkbox"] { top: 0.375em; transform: none; }`;
 
 // A page that scrolls inside an element, as an Astrobook catalog does: html holds the window still
@@ -152,6 +177,8 @@ const X_MIDDLE = file(
 const OLD = file("old.html", page(`${OLD_LIST}\n${OLD_ELEMENT}`));
 const NATIVE = file("disc.html", page(DISC));
 const FRACTIONAL = file("fractional.html", fractional(""));
+const ZOOMED = file("zoomed.html", zoomed(`--hw-zoom: ${ZOOM}`));
+const ZOOMED_UNSET = file("zoomed-unset.html", zoomed(""));
 const PLANTED = file("unrounded.html", fractional(UNROUNDED));
 const INNER = file("inner.html", inner);
 const TASKS = file("tasks.html", tasks(""));
@@ -212,6 +239,20 @@ test("the first pass finds a page with a marker and passes over one without", as
     false,
   ]);
 }, 30_000);
+
+test.each([2, 4])(
+  "under a CSS zoom of 0.96897, --hw-zoom holds marker.css within 0.25 px at %dx, and leaving it out fails",
+  async (scale) => {
+    const rs = await all(ZOOMED, scale);
+    expect(rs.filter((r) => r.kind === "before").length).toBe(10);
+    expect(rs.filter((r) => r.kind === "element").length).toBe(10);
+    expect(show(rs.filter(failing))).toEqual([]);
+    const unset = (await all(ZOOMED_UNSET, scale)).filter(failing);
+    expect(unset.some((r) => r.kind === "before")).toBe(true);
+    expect(unset.some((r) => r.kind === "element")).toBe(true);
+  },
+  60_000,
+);
 
 test.each([2, 4])(
   "marker.css sits within 0.25 px at every 1/64 px offset at %dx",
