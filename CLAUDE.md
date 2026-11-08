@@ -125,8 +125,8 @@ data or secret.
   `expert/header.css`, so a static or generated page links or inlines it.
 - Only the print masters (the CMYK TIFF and the 4096 px emoji PNG) and the PNG, PDF and
   AI files under `applications/` live in Git LFS (`.gitattributes`). `.lfsconfig` keeps clones
-  from fetching them; a consumer's `bun install` takes GitHub's tarball, where they are pointers. `bun install` here fetches all but the TIFF, as the catalog shows them, and `git -c lfs.fetchexclude= lfs pull` fetches every one. Every file the package ships is
-  a plain Git file, and `test/package.test.ts` fails on one in LFS.
+  from fetching them; a consumer's `bun install` takes GitHub's tarball, `git archive` of the tag, which `export-ignore` in `.gitattributes` keeps free of them and of the sources no export or `bin` reads. `bun install` here fetches all but the TIFF, as the catalog shows them, and `git -c lfs.fetchexclude= lfs pull` fetches every one. Every file the package ships is
+  a plain Git file, and `test/package.test.ts` fails on one in LFS or missing from the archive, and on an LFS file in it.
 
 ## Behavioral rules
 

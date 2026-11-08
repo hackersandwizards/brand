@@ -41,6 +41,23 @@ test("no shipped file is tracked by Git LFS", () => {
   expect(attrs).toEqual([]);
 });
 
+// A tag install is GitHub's tarball of the tag, which `git archive` builds and bun unpacks whole,
+// `files` unread: `export-ignore` alone keeps an LFS pointer out of it.
+test("the tag archive holds every shipped file and no Git LFS file", () => {
+  const archived = Bun.spawnSync(["sh", "-c", "git archive --worktree-attributes HEAD | tar -t"], {
+    cwd: ROOT,
+  })
+    .stdout.toString()
+    .split("\n")
+    .filter((f) => f && !f.endsWith("/"));
+  expect(packed.filter((f) => !archived.includes(f))).toEqual([]);
+  const lfs = Bun.spawnSync(["git", "check-attr", "filter", "--", ...archived], { cwd: ROOT })
+    .stdout.toString()
+    .split("\n")
+    .filter((line) => line.endsWith(": filter: lfs"));
+  expect(lfs).toEqual([]);
+});
+
 // A consumer runs these by name (`bun run <bin>`): a bin whose file moved or lost its shebang fails
 // only there.
 test("every bin is a shipped script with a bun shebang", () => {
