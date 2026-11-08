@@ -1,8 +1,9 @@
 ---
 kind: work
 status: open
-priority: 1
+priority: 2
 owner: Ada
+order: 310
 ---
 
 # The checks miss removed classes; brand-markers is slow; the portal has no published address

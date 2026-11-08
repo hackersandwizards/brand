@@ -2,7 +2,7 @@
 kind: decision
 status: open
 priority: 1
-order: 90
+order: 20
 area: brand
 owner: Benedikt
 evidence: "Blind review 08.11., round 5: the vendors' own lines fetched (Paperclip: 'A team of agents for every person.'); 944 cold reads of one LinkedIn banner each (11 claims, alone and with the descriptor line, English and German, CTO, VP Engineering, engineering lead and a LinkedIn reader from outside tech, Claude and Codex, two runs), asking what the team is and which kind of company would say the line; 12 claims on banners, closing slide and link preview by round 4's panel, 20 reviewer runs. Round 4 before it: 304 reviewer runs, round 3: 54. Report: docs/agent-work/2026-11-08-claim-round-5.md"
@@ -102,6 +102,8 @@ images:
 ---
 
 # Which claim replaces c3?
+
+Blocks the brand raise on the website, the 25 page headlines, the bio rewrite and the banners. Nothing of these ships until you pick.
 
 Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterieren ich habe noch einige ideen im chat". n02 is his preferred line, a hypothesis for the next round, not yet the decision. The next round scores his ideas blind beside n02; it waits for him to share them.
 

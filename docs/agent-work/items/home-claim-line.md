@@ -2,13 +2,13 @@
 kind: decision
 status: open
 priority: 1
-order: 100
+order: 40
 area: brand
 owner: Benedikt
 multiple: true
 evidence: "Blind review 07.11., round 4: the website's page headlines with a6 and with c3, 96 reviewer runs (website item work-ship-decided-page-headlines). Round 3 (claim-round-3): a6 above the H1 against the empty slot, 48 reviewer runs. Round 2: home hero in two passes (8 then 5 candidates), the claim on 11 surfaces, the 35 page headlines with c3 and k3, then alternatives for 4 pages: 6 personas, Claude and Codex, two runs each, 120 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md"
 recommended:
-  - eyebrow-a6
+  - none
   - de-zusammenspielen
 options:
   - key: eyebrow-a6
@@ -130,6 +130,10 @@ images:
 ---
 
 # What stands above the home H1?
+
+Blocks the German home H1, which ships with the new claim.
+
+**Read this with `claim-round-3` and the website's `decide-eyebrow-concept`.** Since this item was written, the claim recommendation moved to n02 and the whole-site review recommends no line above any H1, so the recommendation here is now nothing above the home H1. What stays yours alone is the German H1.
 
 You asked for something above the H1 again, tested together with the headline and on every surface the claim reaches. Pick one home option and one German H1.
 

@@ -2,7 +2,7 @@
 kind: decision
 status: open
 priority: 2
-order: 200
+order: 410
 area: brand
 owner: Benedikt
 evidence: "Blind review 08.11., round 3 (16 look and glance runs, 16 continuity runs) and round 4 (16 look runs), on the website's origin/main d4dc0734 with its brand pin v1.28.5, each variant injected as CSS into a throwaway clone; method, scores and the reviewer prompt in the body. Round 2's scores: this item's history (1b2eb0f)."
@@ -80,6 +80,8 @@ images:
 ---
 
 # Does the area cue carry from the link to the page it opens?
+
+Blocks the mark before each H1 and on links. Nothing is built until you pick.
 
 Only if the page shows the link's mark again. Round 2's shapes lived on links alone, so a reader
 who followed a diamond found no diamond on arrival. Put the same mark before the page's H1 and a

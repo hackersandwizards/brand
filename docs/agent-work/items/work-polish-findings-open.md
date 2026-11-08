@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 840
+order: 1480
 owner: a brand session
 evidence: "polish run 08.11. (v1.37.0): review findings left unfixed, each measured or read in that run"
 ---
