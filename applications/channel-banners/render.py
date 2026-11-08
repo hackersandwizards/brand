@@ -182,6 +182,9 @@ def grid_surfaces():
             68,
             [headline(510.5, 0, 40.0, -0.042, ("Agentic engineering", 0)), headline(511.5, 43, 40.0, -0.05, ("training and mentoring.", 1))],
         ),
+        # LinkedIn's profile banner is judged in the iPhone app and the desktop site on a laptop, where
+        # the photo ends left of x 427 and x 336 (measured on real screenshots); LinkedIn's mobile
+        # browser layout, whose photo covers the line's start, is not a target
         "profile-1": s1,
         "profile-2": s2,
         # The X header: profile slide 1 at its own size, centred in rows 60 to 440, which X Help
