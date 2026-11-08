@@ -71,8 +71,7 @@ As round 5, so that the scores compare:
   other; the first two reversed in run 2), what it does, how sure. Reading, in its own run: "What
   is the 'team' in this line: other AI agents, people, or both?", or for lines without "team"
   "Who does this line say the agents need or work with?", classes reversed in run 2. Nine lines
-  (c3 skipped, as in round 5), 576 runs. The run with the descriptor was not repeated: in round 5
-  every line reached 32 of 32 there.
+  576 runs.
 - Panel, round 5's: CTO, VP of Engineering, conference organiser, senior engineer looking for a
   job, brand strategist; Claude (`claude -p --model opus`) and Codex (`gpt-6.1-sol`, high), two
   runs each, 20 runs, each its own shuffled order under neutral labels. Round 4's six criteria,

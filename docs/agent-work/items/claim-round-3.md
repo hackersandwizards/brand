@@ -172,8 +172,7 @@ f6 together with `de-zusammenspielen`, or n02 alone.
   chosen line on the one-pager, footer and remaining banners.
 
 Overall is the mean of each reviewer's own overall score, 0 to 100, over English and German.
-Noise is the difference between the panel means of the two runs. Scores compare within one round
-only: n02, f6, B1k, f2, B1, B2 and c3 carry round 6's, the other options round 5's.
+Noise is the difference between the panel means of the two runs. Scores compare within one round only.
 
 ## Round 6, per surface
 
@@ -188,14 +187,14 @@ only: n02, f6, B1k, f2, B1, B2 and c3 carry round 6's, the other options round 5
 
 ## Cold reads, banner alone (16 per cell)
 
-| Key  | EN: tool vendor | DE: tool vendor | EN: read as people | DE: read as people |
-| ---- | --------------- | --------------- | ------------------ | ------------------ |
-| n02  | 4               | 1               | 16                 | 16                 |
-| f6   | 4               | 3               | 13                 | 16                 |
-| B1k  | 6               | 3               | 15                 | 16                 |
-| B1   | 16              | 14              | 6                  | 9                  |
-| B2   | 16              | 7               | 16                 | 16                 |
-| m08k | 16 (round 5)    | 7 (round 5)     | 3 (round 5)        | 15 (round 5)       |
+| Key            | EN: tool vendor | DE: tool vendor | EN: read as people | DE: read as people |
+| -------------- | --------------- | --------------- | ------------------ | ------------------ |
+| n02            | 4               | 1               | 16                 | 16                 |
+| f6             | 4               | 3               | 13                 | 16                 |
+| B1k            | 6               | 3               | 15                 | 16                 |
+| B1             | 16              | 14              | 6                  | 9                  |
+| B2             | 16              | 7               | 16                 | 16                 |
+| m08k (round 5) | 16              | 7               | 3                  | 15                 |
 
 ## In the site: the home H1, the tuning desk and the decided page headlines (24, one blog line)
 
