@@ -4,85 +4,74 @@ status: open
 priority: 2
 area: brand
 owner: Benedikt
-evidence: "Blind review 08.11.: five wordings of the home H1 on the rendered home hero (desktop 1440, phone 390), after the link preview carrying c3 and, in a second pass, f6; CTO, VP of Engineering, brand strategist, native English copy editor; Claude and Codex; two runs each; 32 reviewer runs. Report: docs/agent-work/2026-11-08-headline-wording.md"
+evidence: "Two blind panels 08.11. on the rendered home hero (desktop 1440, phone 390), after the link preview carrying c3 and, in a second pass, f6; CTO, VP of Engineering, brand strategist, native English copy editor; Claude and Codex; two runs each; 32 reviewer runs per round. Round 1: five wordings (in step, in tune, in flow). Round 2: the two completed forms of 'in step' against 'in step' and 'all roles are in tune'. Report: docs/agent-work/2026-11-08-headline-wording.md"
 recommended: step-every
 options:
   - key: step-every
     label: "Keep: Your teams have agents. Once every role is in step, your releases speed up."
-    detail: "First with both claims: 79.3 with c3, 80.6 with f6. Repeats neither claim (together 8.6 and 8.7) and reads as the most natural phrase for roles (idiom 7.8). Reviewers: 'in step' lacks its 'with each other', can sound like marching, and ties to the tuning desk less than 'in tune'. German 'zusammenspielen' fits (8.5). No change anywhere."
-    score: 79.9
-    noise: 1.4
+    detail: "First in round 2 (78.3; 78.4 with c3, 78.1 with f6) as in round 1. Five lines on desktop and phone, repeats neither claim (together 8.4). Its one recurring flaw: 24 of 32 reviews ask 'in step with what?'. Neither completed form fixes that at a gain: both answer the question and score lower. German 'zusammenspielen' fits (7.9). No change anywhere."
+    score: 78.3
+    noise: 2.7
   - key: tune-all
     label: "Your teams have agents. Once all roles are in tune, your releases speed up."
-    detail: "Ties step-every while c3 stays the claim (79.5 against 79.3, noise 1.4); best fit with the tuning desk (9.0). With f6 it trails by 3.2, 7.0 with Claude (Codex +0.6): it repeats f6's 'in tune' (together 6.6). 'All roles are' reads flatter to Claude reviewers, and 'roles in tune' strains English for job functions. German fits (8.7)."
-    score: 78.4
+    detail: "1.3 behind in round 2. Ties step-every while c3 stays the claim (+1.0, noise 1.3; +3.5 with Claude, -1.5 with Codex), trails by 3.5 with f6 with both models: it repeats f6's 'in tune' (together 5.8, 16 of 16 f6 reviews name the repetition). Best fit with the tuning desk (9.3); 'roles in tune' reads soft for job functions (idiom 6.6). Round 1, as context: 78.4, same pattern. German fits (8.4)."
+    score: 77.0
+    noise: 1.3
+  - key: step-each-all
+    label: "Your teams have agents. Once all roles are in step with each other, your releases speed up."
+    detail: "1.9 behind (3.0 with c3, 0.8 with f6, inside the noise there). Answers 'in step with what?': clearest (8.3) and the best carrier of the German 'zusammenspielen' (8.9). It runs to six lines on desktop and phone, which pushes the buttons down; 28 of 32 reviews name the length (fit with the hero 7.3 against 8.5). Both models put it behind."
+    score: 76.4
+    noise: 0.4
+  - key: step-others-every
+    label: "Your teams have agents. Once every role is in step with the others, your releases speed up."
+    detail: "Last in round 2, 3.0 behind with both models and in both passes. Stays at five lines, but 27 of 32 reviews call 'every role ... with the others' clunky or laboured (language 7.0 against 8.1); two Claude reviews read it as translated."
+    score: 75.3
     noise: 0.3
-  - key: tune-every
-    label: "Your teams have agents. Once every role is in tune, your releases speed up."
-    detail: "1.3 behind step-every with c3 (inside the noise), 5.4 behind with f6 (outside it, both models). 'A single role in tune' needs a partner (idiom 6.6); repeats f6's 'in tune'."
-    score: 76.6
-    noise: 1.8
-  - key: flow-all
-    label: "Your teams have agents. Once all roles are in flow, your releases speed up."
-    detail: "13.0 behind step-every, with both models and in both passes. 'In flow' describes a person's focus, not roles working together (idiom 5.1); repeats c3's 'flow' and the desk's 'in flow' caption (together 5.0 with c3). German 'zusammenspielen' no longer carries it (6.3): this option would need a German change."
-    score: 66.9
-    noise: 0.3
-  - key: flow-every
-    label: "Your teams have agents. Once every role is in flow, your releases speed up."
-    detail: "Last: 14.1 behind step-every, with both models and in both passes. Same reasons as flow-all (idiom 4.6). Would need a German change."
-    score: 65.8
-    noise: 0.7
 images:
   step-every:
     - src: step-every-desktop.jpg
-      caption: "in step, every role: desktop 1440 px"
+      caption: "in step, every role: desktop 1440 px, five lines"
     - src: step-every-phone.jpg
-      caption: "in step, every role: phone 390 px"
+      caption: "in step, every role: phone 390 px, five lines"
     - src: preview-c3.jpg
       caption: "Link preview with c3, the step before the page"
     - src: preview-f6.jpg
       caption: "Link preview with f6, the step before the page"
   tune-all:
     - src: tune-all-desktop.jpg
-      caption: "in tune, all roles: desktop 1440 px"
+      caption: "in tune, all roles: desktop 1440 px, five lines"
     - src: tune-all-phone.jpg
-      caption: "in tune, all roles: phone 390 px"
-  tune-every:
-    - src: tune-every-desktop.jpg
-      caption: "in tune, every role: desktop 1440 px"
-    - src: tune-every-phone.jpg
-      caption: "in tune, every role: phone 390 px"
-  flow-all:
-    - src: flow-all-desktop.jpg
-      caption: "in flow, all roles: desktop 1440 px"
-    - src: flow-all-phone.jpg
-      caption: "in flow, all roles: phone 390 px"
-  flow-every:
-    - src: flow-every-desktop.jpg
-      caption: "in flow, every role: desktop 1440 px"
-    - src: flow-every-phone.jpg
-      caption: "in flow, every role: phone 390 px"
+      caption: "in tune, all roles: phone 390 px, five lines"
+  step-each-all:
+    - src: step-each-all-desktop.jpg
+      caption: "in step with each other, all roles: desktop 1440 px, six lines"
+    - src: step-each-all-phone.jpg
+      caption: "in step with each other, all roles: phone 390 px, six lines"
+  step-others-every:
+    - src: step-others-every-desktop.jpg
+      caption: "in step with the others, every role: desktop 1440 px, five lines"
+    - src: step-others-every-phone.jpg
+      caption: "in step with the others, every role: phone 390 px, five lines"
 ---
 
 # Which wording for the home H1?
 
-Keep "in step". It is first whichever claim stands on the link preview, and it repeats neither claim.
+Keep "in step". Completing it does not pay: "with each other" answers "in step with what?" but adds a sixth line on desktop and phone, and "with the others" reads clunky. Both score below the short line with both models.
 
-"All roles are in tune" ties it only while c3 stays the claim. With f6 ("Every agent needs a team in tune.") the headline repeats "in tune" right after the preview, and it falls 3.2 behind (7.0 with Claude). Both "in flow" wordings lose by 13 to 14 points with both models: reviewers read "in flow" as one person's focus, not as roles working together, and it repeats c3 and the desk's "in flow" caption.
+"All roles are in tune" ties "in step" only while c3 stays the claim; after f6 ("Every agent needs a team in tune.") it repeats "in tune" and falls behind. Round 1 ruled out "every role is in tune" and both "in flow" wordings (report).
 
-Overall is the panel mean over both claim passes, 0 to 100. Noise is the gap between the two runs' panel means. A lead inside the noise is a tie.
+Overall is the round 2 panel mean over both claim passes, 0 to 100. Noise is the gap between the two runs' panel means; a lead inside it is a tie. Scores compare within one round only: the round 1 figures in the details are context, not a fifth column.
 
-| Option     | Overall | With c3 | With f6 | Claude / Codex | Idiom | Together c3 / f6 | German fit |
-| ---------- | ------- | ------- | ------- | -------------- | ----- | ---------------- | ---------- |
-| step-every | 79.9    | 79.3    | 80.6    | 76.6 / 83.3    | 7.8   | 8.6 / 8.7        | 8.5        |
-| tune-all   | 78.4    | 79.5    | 77.4    | 73.4 / 83.4    | 7.2   | 8.5 / 6.6        | 8.7        |
-| tune-every | 76.6    | 78.1    | 75.2    | 73.2 / 80.1    | 6.6   | 8.5 / 6.5        | 8.3        |
-| flow-all   | 66.9    | 64.6    | 69.2    | 62.1 / 71.8    | 5.1   | 5.0 / 7.8        | 6.3        |
-| flow-every | 65.8    | 63.4    | 68.3    | 62.5 / 69.2    | 4.6   | 5.0 / 7.8        | 6.3        |
+| Option            | Overall | With c3 | With f6 | Claude / Codex | Lines | Clear | Fit hero | Language | Idiom | Together c3 / f6 | German fit |
+| ----------------- | ------- | ------- | ------- | -------------- | ----- | ----- | -------- | -------- | ----- | ---------------- | ---------- |
+| step-every        | 78.3    | 78.4    | 78.1    | 72.7 / 83.9    | 5     | 7.7   | 8.5      | 8.1      | 7.2   | 8.3 / 8.5        | 7.9        |
+| tune-all          | 77.0    | 79.4    | 74.6    | 72.6 / 81.4    | 5     | 7.7   | 9.3      | 7.7      | 6.6   | 8.4 / 5.8        | 8.4        |
+| step-each-all     | 76.4    | 75.4    | 77.3    | 71.3 / 81.4    | 6     | 8.3   | 7.3      | 7.6      | 7.6   | 8.0 / 8.6        | 8.9        |
+| step-others-every | 75.3    | 74.9    | 75.7    | 68.9 / 81.7    | 5     | 8.3   | 7.7      | 7.0      | 7.1   | 8.0 / 8.5        | 8.4        |
 
-The German H1 ("Wenn alle Rollen zusammenspielen") fits the three "step" and "tune" wordings and needs no change. Only an "in flow" wording would.
+The German H1 ("Wenn alle Rollen zusammenspielen") fits every option and needs no change.
 
 ## What choosing changes
 
 - step-every: nothing. `verbal.json` keeps `headline.en`.
-- Any other option: brand changes `headline.en` in `verbal.json` and releases; the website takes it with its next brand pin. A flow option also needs a new `headline.de`.
+- Any other option: brand changes `headline.en` in `verbal.json` and releases; the website takes it with its next brand pin. step-each-all also makes the home H1 six lines on desktop and phone.
