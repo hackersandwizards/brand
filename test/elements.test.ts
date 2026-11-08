@@ -684,6 +684,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-field-pad-start",
     "--hw-toast-offset",
     "--hw-avatar-hue",
+    "--hw-zoom",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });

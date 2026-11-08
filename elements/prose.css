@@ -111,21 +111,29 @@
 /* Held at full opacity although GFM emits these disabled: they are readable states, not
    controls, and the browser's grey washes them out. The box's middle sits where marker.css puts
    the list marker's (--hw-marker-mid), placed from the line box as marker.css places it (its
-   comment says why): a whole number of pixels from the baseline, a transform the rest of the way.
-   check.css's font: inherit takes em and lh from the item. */
+   comment says why): a whole number of pixels from the baseline, a transform the rest of the way,
+   each pixel a real one under --hw-zoom. check.css's font: inherit takes em and lh from the item. */
 .hw-prose li.task-list-item input[type="checkbox"] {
-  --_hw-size: round(1em, 1px);
-  --_hw-ascent: round(0.96875em, 1px);
+  --_hw-size: round(1em, var(--_hw-px));
+  --_hw-ascent: round(0.96875em, var(--_hw-px));
   --_hw-baseline: calc(
-    round(down, round((1lh - var(--_hw-ascent) - round(0.2421875em, 1px)) / 2, 1px / 64), 1px) +
+    round(
+        down,
+        round(
+            (1lh - var(--_hw-ascent) - round(0.2412109375em, var(--_hw-px))) / 2,
+            var(--_hw-px) / 64
+          ) +
+          var(--_hw-px) / 128,
+        var(--_hw-px)
+      ) +
       var(--_hw-ascent)
   );
   --_hw-top: calc(var(--hw-marker-mid, 1ex / 6 + 1cap / 3) + var(--_hw-size) / 2);
   position: absolute;
-  top: calc(var(--_hw-baseline) - round(var(--_hw-top), 1px));
+  top: calc(var(--_hw-baseline) - round(var(--_hw-top), var(--_hw-px)));
   left: 0;
   margin: 0;
-  transform: translateY(calc(round(var(--_hw-top), 1px) - var(--_hw-top)));
+  transform: translateY(calc(round(var(--_hw-top), var(--_hw-px)) - var(--_hw-top)));
   opacity: 1;
   cursor: default;
 }

@@ -24,6 +24,9 @@
    slide):
      --hw-check-target        the target's side under a mouse
      --hw-check-target-touch  the target's side on a touch screen (any-pointer: coarse)
+   Under a CSS zoom, set --hw-zoom beside it as for marker.css, so the box's side is whole real
+   pixels. The read-only tick still sits up to 0.5px off there: Chrome draws its mask larger than
+   the box under a zoom.
 
    Markup: <label><input type="checkbox" class="hw-check"> Erledigt</label>
            <label><input type="radio" class="hw-check" name="…"> Behalten</label> */
@@ -40,9 +43,10 @@
     --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
     box-sizing: border-box;
     flex: none;
-    width: round(1em, 1px);
-    height: round(1em, 1px);
-    margin: calc((1lh - round(1em, 1px)) / 2) 0 0;
+    --_hw-px: calc(1px / var(--hw-zoom, 1));
+    width: round(1em, var(--_hw-px));
+    height: round(1em, var(--_hw-px));
+    margin: calc((1lh - round(1em, var(--_hw-px))) / 2) 0 0;
     vertical-align: top;
     font: inherit;
     border: 1.5px solid var(--_hw-line);

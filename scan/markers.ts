@@ -87,9 +87,12 @@ export function openFolds() {
 
 /** Runs in the page: rewrites the line beside each marker and returns the boxes to read, with the
  * element each probe of the same index scrolls into view; with `count`, only how many markers it
- * finds, the page's lines left as they are but for the newline. */
-function collect([newline, maxSide, count]: [boolean, number, boolean?]):
-  { probes: Probe[]; anchors: Element[] } | number {
+ * finds, the page's lines left as they are but for the newline. The boxes are read two frames after
+ * the rewrite, once a script that refits the page to its longer lines (a slide's fit guard, run by
+ * a ResizeObserver) has done so. */
+async function collect([newline, maxSide, count]: [boolean, number, boolean?]): Promise<
+  { probes: Probe[]; anchors: Element[] } | number
+> {
   if (newline)
     for (const li of document.querySelectorAll("li"))
       li.insertBefore(document.createTextNode("\n      "), li.firstChild);
@@ -209,6 +212,7 @@ function collect([newline, maxSide, count]: [boolean, number, boolean?]):
       (el as HTMLElement).style.textShadow = "none";
     }
   }
+  await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
   const rectOf = (node: Text, start = 0) => {
     const range = document.createRange();
     range.setStart(node, start);

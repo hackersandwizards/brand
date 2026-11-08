@@ -110,7 +110,7 @@
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "9dd1c9a27ddfeec53d43e03ae4dc1cd9a07477043e4a068b82ec94caa09cc552"
+      "sha256": "004870a56efc2269c76fafa1ab6d510f4f7c3e6c30a98e2d099b54f3810be4e8"
     },
     {
       "path": "tokens/tokens.css",
@@ -430,7 +430,7 @@
     },
     {
       "path": "elements/check.css",
-      "sha256": "e37eccc1243748e5310ad4844181ae3515bf53f9d2aa597c19aa569989679ac7"
+      "sha256": "5154988c787237f082418e1f09987d40dbd244e665d829bff084c5d3ddd8980f"
     },
     {
       "path": "elements/form-field.css",
@@ -474,7 +474,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "e92b309a06bda6c9126e4028ade61f349babd11058f9aac9498dcc7de6ce8ad2"
+      "sha256": "95d8474634ed1aafd7b76bf0c5459f4f272287fef39fcf9f2037c429ff20f2c2"
     },
     {
       "path": "elements/row.css",

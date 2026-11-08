@@ -149,6 +149,48 @@ ${[
   .join("\n")}
 </div></body></html>`;
 
+// The sizes that sat 0.83 to 0.91 px high on a sweep of 11 to 36 px text at line heights 1.35 to
+// 1.6: at 31 px unzoomed and 32 px at 0.96897 from a descent of 0.2421875em where Chrome takes
+// Inter's 494/2048, at 0.92 from a half-leading of a whole real pixel landing just under it.
+const SWEEP: [number, [number, number][]][] = [
+  [
+    1,
+    [
+      [31, 1.35],
+      [31, 1.6],
+    ],
+  ],
+  [
+    ZOOM,
+    [
+      [32, 1.35],
+      [32, 1.6],
+    ],
+  ],
+  [
+    0.92,
+    [
+      [17, 1.6],
+      [24, 1.45],
+      [27, 1.45],
+      [30, 1.45],
+      [34, 1.6],
+    ],
+  ],
+];
+const swept = `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<style>body { margin: 40px; max-width: 900px; font-family: var(--font-sans); } ul { margin: 0; padding: 0; }</style>
+</head><body>${SWEEP.map(
+  ([zoom, cases]) =>
+    `<div style="zoom: ${zoom}; --hw-zoom: ${zoom}">${cases.map(([size, lh]) => `<ul class="hw-marker-list" style="font-size:${size}px;line-height:${lh}"><li>Item ${size}/${lh}</li></ul>`).join("")}</div>`,
+).join("\n")}</body></html>`;
+
+// The prose task box under a zoom, with --hw-zoom set beside it.
+const zoomedTasks = tasks(`body > .hw-prose { zoom: ${ZOOM}; --hw-zoom: ${ZOOM} }`);
+
 const OLD_CHECK = `.hw-prose li.task-list-item input[type="checkbox"] { top: 0.375em; transform: none; }`;
 
 // A page that scrolls inside an element, as an Astrobook catalog does: html holds the window still
@@ -162,6 +204,29 @@ main { height: 100%; overflow: auto; padding: 0 40px; } ul { margin: 0; padding:
 </head><body><main><div style="height:3000px"></div>
 <ul class="hw-marker-list" style="font-size:16px;line-height:1.6">${[0, 1, 2].map((i) => `<li>${item(i)}</li>`).join("")}</ul>
 <div style="height:3000px"></div></main></body></html>`;
+
+// A page that refits itself to its content, as a slide's fit guard does it: a ResizeObserver
+// shrinks the box with CSS zoom and sets --hw-zoom. The longer lines brand-markers writes wrap and
+// shrink it from 1 to about 0.6; boxes read before that refit sat 6 to 7 px off.
+const refit = `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
+<link rel="stylesheet" href="${brand("tokens/print.css")}">
+<link rel="stylesheet" href="${brand("tokens/marker.css")}">
+<style>body { margin: 40px; font-family: var(--font-sans); }
+.fit { width: 360px; height: 140px; overflow: hidden; } .fit > div { width: 360px; }
+ul { margin: 0; padding: 0; } .row { display: flex; align-items: baseline; gap: 12px; }</style>
+</head><body><div class="fit"><div>
+<ul class="hw-marker-list" style="font-size:24px;line-height:1.4"><li>One item that fills a line</li><li>Another item that fills one</li><li>A third item filling a line</li></ul>
+<div class="row" style="font-size:24px;line-height:1.4"><span class="hw-marker"></span><span>A row filling one line</span></div>
+</div></div><script>
+const box = document.querySelector(".fit > div");
+new ResizeObserver(() => {
+  box.style.zoom = 1;
+  const zoom = Math.min(1, 140 / box.scrollHeight);
+  box.style.zoom = zoom;
+  box.style.setProperty("--hw-zoom", zoom);
+}).observe(box);
+</script></body></html>`;
 
 const dir = mkdtempSync(join(tmpdir(), "brand-markers-"));
 const file = (name: string, html: string) => {
@@ -181,6 +246,9 @@ const ZOOMED = file("zoomed.html", zoomed(`--hw-zoom: ${ZOOM}`));
 const ZOOMED_UNSET = file("zoomed-unset.html", zoomed(""));
 const PLANTED = file("unrounded.html", fractional(UNROUNDED));
 const INNER = file("inner.html", inner);
+const REFIT = file("refit.html", refit);
+const SWEPT = file("swept.html", swept);
+const ZOOMED_TASKS = file("zoomed-tasks.html", zoomedTasks);
 const TASKS = file("tasks.html", tasks(""));
 const OLD_TASKS = file("old-tasks.html", tasks(OLD_CHECK));
 // The read-only tick masked with the box's own path, the rule it replaced.
@@ -282,9 +350,33 @@ test.each([2, 4])(
   60_000,
 );
 
+test.each([2, 4])(
+  "marker.css holds the sizes a sweep found off, unzoomed and zoomed, at %dx",
+  async (scale) => {
+    const rs = await all(SWEPT, scale);
+    expect(rs.length).toBe(18);
+    expect(show(rs.filter(failing))).toEqual([]);
+  },
+  60_000,
+);
+
+// The read-only tick is left out: under a zoom Chrome draws its mask larger than the box (43 rows
+// of ink against 40 at 4x), 0.4 to 0.5 px off.
+test("the prose task box sits within 0.25 px under a zoom of 0.96897 with --hw-zoom", async () => {
+  const rs = (await all(ZOOMED_TASKS, 2)).filter((r) => !r.label.includes("read-only"));
+  expect(rs.length).toBe(24);
+  expect(show(rs.filter(failing))).toEqual([]);
+}, 60_000);
+
 test("a list below the first screen of an inner scroller is measured", async () => {
   const rs = await all(INNER, 2);
   expect(rs.length).toBe(6);
+  expect(show(rs.filter(failing))).toEqual([]);
+}, 60_000);
+
+test("a page that refits itself after the lines are rewritten is measured once it settles", async () => {
+  const rs = await all(REFIT, 2);
+  expect(rs.length).toBe(8);
   expect(show(rs.filter(failing))).toEqual([]);
 }, 60_000);
 

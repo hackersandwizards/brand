@@ -522,7 +522,7 @@ every `ul > li` inside it (a prose container, a document body), or put `.hw-mark
 list; draw a marker beside text in a baseline-aligned row with an empty `.hw-marker` box. Size,
 gap, indent, colour and the middle (`0.5cap` beside capitals) are custom properties, listed at the
 top of the file. A marker under CSS `zoom` needs `--hw-zoom` set to the same factor on the zoomed
-element, or it sits off its line. Never write your own marker: a lift rounded to whole pixels sits up to 0.56 px
+element, or it sits off its line; the prose task box and `hw-check` take it too. Never write your own marker: a lift rounded to whole pixels sits up to 0.56 px
 off, and an inline-block marker shifts the first line once a newline follows `<li>`.
 
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening

@@ -36,13 +36,16 @@
    writes one) starts the line and drops out; an inline-block kept it as a space and started the
    first line 3.5 to 4.5px right of the wrapped ones. Its margins add up to no width, so no line
    beside it is shortened. A float starts at the top of the line box, and --_hw-baseline is where
-   Chrome sets that line's baseline for the brand's Inter (ascent 0.96875em, descent 0.2421875em):
+   Chrome sets that line's baseline for the brand's Inter (ascent 0.96875em, descent 494/2048 em):
    ascent and descent each rounded to the pixel, half the leading in Chrome's 1/64px layout units,
-   rounded down, above them. Another face needs its own two metrics. Where the font size times the
+   rounded down, above them. Under a zoom a half-leading of a whole real pixel computes just under
+   it, so 1/128 of a pixel is added before rounding down. Another face needs its own two metrics. Where the font size times the
    line height is a whole number of pixels, Chrome's single-precision line height can land just
    under it while CSS sees the same value as 1lh: 10pt at 1.35 and at 1.5 put the marker 1.07px
    high, which no rule from 1lh can tell apart from 9.5pt at 1.5, where it sits right. brand-markers
-   reports it; choose another line height there.
+   reports it; choose another line height there. Under a zoom 1lh can land the other way, under
+   Chrome's line box (18px at 1.45 under 0.92, 20px at 1.5 under 0.8: 0.9px high), and so can a
+   line height of 1.25 at a zoom of 0.92 or less.
 
    Measured with brand-markers at 4x, every marker sits within 0.09px of its middle. */
 
@@ -70,8 +73,12 @@
     --_hw-gap: var(--hw-marker-gap, 0.625rem);
     --_hw-ascent: round(0.96875em, var(--_hw-px));
     --_hw-baseline: calc(
-      round(down, round((1lh - var(--_hw-ascent) - round(0.2421875em, var(--_hw-px))) / 2, var(--_hw-px) / 64), var(--_hw-px)) +
-        var(--_hw-ascent)
+      round(
+          down,
+          round((1lh - var(--_hw-ascent) - round(0.2412109375em, var(--_hw-px))) / 2, var(--_hw-px) / 64) +
+            var(--_hw-px) / 128,
+          var(--_hw-px)
+        ) + var(--_hw-ascent)
     );
     --_hw-top: calc(var(--hw-marker-mid, 1ex / 6 + 1cap / 3) + var(--_hw-size) / 2);
     content: "";
