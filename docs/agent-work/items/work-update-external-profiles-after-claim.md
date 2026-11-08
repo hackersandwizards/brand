@@ -16,6 +16,8 @@ wenn eure Leute gemeinsam liefern." (brand v1.56.0). The files are in
 every row below is uploaded or changed and no profile shows "Agents in the team. Teams in flow." or
 "Agenten im Team. Teams im Flow.".
 
+Hold until `decide-claim-tune` is decided: it may change the claim, which re-renders the banners and redoes these texts with the same review. On `u1-tune` (keep), the upload and the texts below go ahead as written.
+
 The texts around the claim were rewritten and scored blind on the page a visitor sees, against the
 current text and against the current text with the claim pasted on top
 ([report](../2026-11-08-claim-rollout-holistic.md)). Pasting the claim scored lowest or near lowest

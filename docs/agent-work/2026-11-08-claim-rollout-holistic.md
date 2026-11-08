@@ -13,6 +13,8 @@ Benedikt's texts take these forms:
 
 Each lead over the current text is outside the noise in both runs and with both models. The texts are in item `work-update-external-profiles-after-claim`, old against new. The practitioners bio is a brief below: that repository changes it in its own run. Live state of each field: Sessionize read live 08.11.; LinkedIn is blocked for an automated read, so its texts come from the 31.10. record (Company OS `docs/agent-work/2026-11-01-profile-texts.md`, sections 9, 11 and 12), confirmed against the 31.10. screenshots of the opening lines.
 
+Open: `decide-claim-tune`, created after this run started, recommends changing the claim to "in tune". Every text here carries u1. If the claim changes, the banners are re-rendered and these texts are rewritten and scored again the same way. The item waits on that decision.
+
 The brief's premise was out of date on one point: since 31.10. the company page tagline and the LinkedIn About carry the offer rather than a claim, so "the current text with the claim merely swapped" means the claim pasted onto them. It was scored as that, beside the unchanged live text.
 
 ## Scores
