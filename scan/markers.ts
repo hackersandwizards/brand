@@ -36,6 +36,7 @@ import puppeteer, {
   type BrowserContext,
   type HTTPRequest,
   type HTTPResponse,
+  type JSHandle,
   type Page,
 } from "puppeteer-core";
 import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
@@ -79,8 +80,10 @@ export function openFolds() {
 }
 
 /** Runs in the page: rewrites the line beside each marker and returns the boxes to read, with the
- * element each probe of the same index scrolls into view. */
-function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anchors: Element[] } {
+ * element each probe of the same index scrolls into view; with `count`, only how many markers it
+ * finds, the page's lines left as they are but for the newline. */
+function collect([newline, maxSide, count]: [boolean, number, boolean?]):
+  { probes: Probe[]; anchors: Element[] } | number {
   if (newline)
     for (const li of document.querySelectorAll("li"))
       li.insertBefore(document.createTextNode("\n      "), li.firstChild);
@@ -188,6 +191,7 @@ function collect([newline, maxSide]: [boolean, number]): { probes: Probe[]; anch
       if (next) add(host.parentElement!, firstText(next), "element", host);
     }
   }
+  if (count) return found.length;
   for (const f of found) {
     f.text.data = "xxxxHHHH " + f.text.data.trimStart();
     // An underline or a shadow (a link item) would add ink below the x-height band. A decoration
@@ -327,7 +331,10 @@ export async function measureMarkers(
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     // A closed panel's lists are markers too.
     await page.evaluate(openFolds);
-    const found = await page.evaluateHandle(collect, [newline, MAX_SIDE] as [boolean, number]);
+    const found = (await page.evaluateHandle(collect, [newline, MAX_SIDE] as [
+      boolean,
+      number,
+    ])) as JSHandle<{ probes: Probe[]; anchors: Element[] }>;
     // Each box is shot inside the viewport, its host scrolled into view in every scroll container
     // it sits in, the window or an element such as a catalog's main: capturing beyond the viewport
     // resizes it, and a layout sized by the viewport's height then moves under the measured boxes.
@@ -413,6 +420,27 @@ export async function measureMarkers(
       });
     }
     return out;
+  } finally {
+    await page.close();
+  }
+}
+
+/** Whether a page shows a marker brand-markers would measure, as served or with the newline: one
+ * load at 1x, where measureMarkers takes one per scale and newline. A superset of the pages that
+ * give a reading, as a found marker may still be skipped as decoration. */
+export async function hasMarkers(browser: Browser | BrowserContext, url: string, width = 1280) {
+  const page = await browser.newPage();
+  try {
+    await page.setViewport({ width, height: 900 });
+    await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+    await open(page, url);
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    await page.evaluate(openFolds);
+    // The newline only adds blank text, so the second count runs on the same page.
+    for (const newline of [false, true])
+      if (await page.evaluate(collect, [newline, MAX_SIDE, true] as [boolean, number, boolean]))
+        return true;
+    return false;
   } finally {
     await page.close();
   }
@@ -599,8 +627,8 @@ if (import.meta.main) {
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, base));
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
-  // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass at the first scale finds the
-  // pages with a marker, most stories having none; only those take the other runs.
+  // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass, one load per page at 1x,
+  // finds the pages with a marker, most stories having none; only those take the measured runs.
   const workers = Math.min(availableParallelism(), 8, pages.length);
   let readings: Reading[];
   try {
@@ -608,29 +636,21 @@ if (import.meta.main) {
     const contexts = await Promise.all(
       Array.from({ length: workers }, () => browser.createBrowserContext()),
     );
-    type Run = { url: string; scale: number; newline: boolean };
-    const measure = (runs: Run[]) =>
-      pool(runs, workers, ({ url, ...options }, w) =>
-        measureMarkers(contexts[w]!, url, { ...options, width }),
+    // Mostly a wait for the network to go quiet at 1x, so four tabs per worker.
+    const marked = await pool(pages, 4 * workers, (url, w) =>
+      hasMarkers(contexts[w % workers]!, url, width),
+    );
+    const runs = pages
+      .filter((_, i) => marked[i])
+      .flatMap((url) =>
+        scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
       );
-    const [first, ...rest] = scales;
-    // Both newline runs at the first scale, as the newline may change which items read.
-    const firstRuns = pages.flatMap((url) =>
-      [false, true].map((newline) => ({ url, scale: first!, newline })),
-    );
-    const found = await measure(firstRuns);
-    const read = new Set(firstRuns.filter((_, i) => found[i]!.length).map((r) => r.url));
-    const more = await measure(
-      pages
-        .filter((url) => read.has(url))
-        .flatMap((url) =>
-          rest.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
-        ),
-    );
     // Grouped by page, in the order named, as --json printed them before.
-    readings = [...found, ...more]
-      .flat()
-      .sort((a, b) => pages.indexOf(a.page) - pages.indexOf(b.page));
+    readings = (
+      await pool(runs, workers, ({ url, ...options }, w) =>
+        measureMarkers(contexts[w]!, url, { ...options, width }),
+      )
+    ).flat();
   } finally {
     await browser.close();
     await server?.stop(true);

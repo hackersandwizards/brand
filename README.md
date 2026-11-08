@@ -457,8 +457,8 @@ off, and an inline-block marker shifts the first line once a newline follows `<l
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting
 where the wrapped lines start, on an item that draws the square and keeps the browser's own marker,
-and on a page with no marker. It measures the pages side by side,
-one run per core, at most 8. Run it in your gate on the pages or
+and on a page with no marker. A first pass loads each page once at 1x to find those showing a
+marker, and only they take the measured runs, side by side, one per core, at most 8. Run it in your gate on the pages or
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first,
 and scrolls each list into view in every container that scrolls it, the window or an element such
 as a catalog's `main`.

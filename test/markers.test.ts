@@ -5,7 +5,15 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import { ROOT } from "../scripts/git";
-import { failing, launch, measureMarkers, serve, toUrl, type Reading } from "../scan/markers";
+import {
+  failing,
+  hasMarkers,
+  launch,
+  measureMarkers,
+  serve,
+  toUrl,
+  type Reading,
+} from "../scan/markers";
 
 // marker.css on lists at five text sizes, wrapped and not, and on element markers in baseline rows,
 // against the rules it replaced: the inline-block list marker lifted by whole pixels (the website's
@@ -192,6 +200,14 @@ test.each([2, 4])(
   },
   60_000,
 );
+
+test("the first pass finds a page with a marker and passes over one without", async () => {
+  const none = file(
+    "none.html",
+    `<!doctype html><ol><li>A numbered item</li></ol><p><span style="display:inline-block;width:10px;height:10px;background:teal"></span> A swatch outside a list</p>`,
+  );
+  expect([await hasMarkers(browser, NEW), await hasMarkers(browser, none)]).toEqual([true, false]);
+});
 
 test.each([2, 4])(
   "marker.css sits within 0.25 px at every 1/64 px offset at %dx",
