@@ -200,13 +200,12 @@ A native `<details>` wears the brand chevron in place of the browser's triangle:
 `disclosure.css`, or the expert layer, which imports it, and give the details the class
 `hw-disclosure`. The chevron is Lucide's chevron-right in the summary's text colour, 1em wide,
 0.5rem before the label, in the middle of its first line where the summary aligns on the baseline
-or the start, in a box one line of its own type high, and turns down while open (150 ms, at once under reduced motion). Where
+or the start, and turns down while open (150 ms, at once under reduced motion). Where
 the chevron belongs elsewhere in the summary, inside its heading for one, put
-`<span class="hw-disclosure-chevron" aria-hidden="true"></span>` there. A span beside a heading
-whose line is shorter than the summary's makes a centred row as tall as the summary's line: give
-the span the heading's type (`text-lg` beside a `text-lg` heading) to keep the heading's height.
-`hw-disclosure-count` is
-the neutral count pill. The rules sit in `@layer components`, so the surface's own type, colour,
+`<span class="hw-disclosure-chevron" aria-hidden="true"></span>` there: its box is one line of
+the type around it high, so beside a heading with a shorter line it makes a centred row as tall
+as the summary's line; inside the heading, or given the heading's type, it keeps the heading's. `hw-disclosure-count` is the
+neutral count pill. The rules sit in `@layer components`, so the surface's own type, colour,
 padding and Tailwind utilities win.
 
 ### The shared elements
