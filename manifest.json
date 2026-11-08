@@ -490,7 +490,7 @@
     },
     {
       "path": "elements/segmented.css",
-      "sha256": "a41f5e362661e1d0f29fd8b1fd58bedd536d0764202ed9fa80ac5df66a6a26da"
+      "sha256": "9643f62cfa737cdf7af70c0a9adf74daecf4bfe04aacaba3b07590df0f4272eb"
     },
     {
       "path": "elements/status.css",
@@ -562,7 +562,7 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "35bd5c563530c8a9163813e5816f75f6342689b519d60288818339505890c395"
+      "sha256": "6baae7414b498482cdf3464e243037d2094e71021a79596ae14a3ea3fb89cd3d"
     },
     {
       "path": "elements/carousel.css",
@@ -571,6 +571,10 @@
     {
       "path": "elements/command.css",
       "sha256": "28512dd2328c17cd9efabb42a43c2e39be3f98869ccb9382c2410c06c36c7b0f"
+    },
+    {
+      "path": "elements/copy.ts",
+      "sha256": "3e35d8f4550ee0ab770a146a15f15db2f459836180494497b2fd94817943baa6"
     },
     {
       "path": "elements/dialog.css",

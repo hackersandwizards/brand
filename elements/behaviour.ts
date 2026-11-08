@@ -1,16 +1,18 @@
 // The script the common elements need where HTML alone cannot do it: dialog and drawer openers,
 // menu, popover and tooltip placement and keys, tabs, tree, command palette, carousel, toasts,
-// copy buttons.
+// copy buttons (copy.ts, which a page needing only those imports alone).
 // Call enhance() once the page is parsed, or enhance(root) after adding markup; listeners on the
 // document are installed once, per-element state is set up per call.
+import { copyButtons, german, modalOrBody } from "./copy.ts";
 import { searchWords } from "./list-filter.ts";
+
+export { copyButton } from "./copy.ts";
 
 const placed = ".hw-menu,.hw-popover,.hw-tooltip";
 const GAP = 4;
 const MARGIN = 8;
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const byId = (id: string | null) => (id ? document.getElementById(id) : null);
-const german = () => (document.documentElement.lang || "de").startsWith("de");
 
 /** Calls `hold(by, true)` while the pointer or the focus is inside `el`, and `false` as it leaves. */
 function holdWhileUsed(el: HTMLElement, hold: (by: string, on: boolean) => void) {
@@ -430,8 +432,7 @@ function region() {
     box.setAttribute("role", "status");
     box.setAttribute("aria-live", "polite");
   }
-  const host = document.querySelector("dialog:modal") ?? document.body;
-  if (box.parentElement !== host) host.append(box);
+  if (box.parentElement !== modalOrBody()) modalOrBody().append(box);
   return box;
 }
 export type Toast = {
@@ -496,40 +497,6 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
   holdWhileUsed(el, hold);
   timer = window.setTimeout(fade, left);
   return el;
-}
-
-// A copy button says its result on itself, where the eye already is, and the toast region
-// announces it. One button at a time reads as copied: only that one says what the clipboard holds.
-const copyLabels = new WeakMap<HTMLElement, Node[]>();
-let copiedButton: HTMLElement | undefined;
-let presses = 0;
-/** Wires a button that copies its data-hw-copy text and shows it was copied, or how it failed, on
- *  itself in words, its own content coming back once another copy button is pressed. A button that
- *  starts hidden shows once wired, so a page without script never offers it. */
-export function copyButton(button: HTMLElement) {
-  if (copyLabels.has(button)) return;
-  copyLabels.set(button, [...button.childNodes]);
-  button.hidden = false;
-  button.addEventListener("click", async () => {
-    const press = ++presses;
-    const de = german();
-    let said = de ? "Kopiert" : "Copied";
-    try {
-      await navigator.clipboard.writeText(button.dataset.hwCopy ?? "");
-    } catch {
-      said = de ? "Kopieren fehlgeschlagen: Text markieren" : "Copy failed: select the text";
-    }
-    if (press !== presses) return;
-    if (copiedButton && copiedButton !== button)
-      copiedButton.replaceChildren(...copyLabels.get(copiedButton)!);
-    copiedButton = button;
-    button.textContent = said;
-    const note = document.createElement("span");
-    note.className = "hw-sr-only";
-    note.textContent = said;
-    region().append(note);
-    setTimeout(() => note.remove(), 1000);
-  });
 }
 
 const wiredCarousels = new WeakSet<Element>();
@@ -638,5 +605,5 @@ export function enhance(root: ParentNode = document) {
   }
   for (const carousel of root.querySelectorAll<HTMLElement>(".hw-carousel"))
     enhanceCarousel(carousel);
-  for (const button of root.querySelectorAll<HTMLElement>("[data-hw-copy]")) copyButton(button);
+  copyButtons(root);
 }

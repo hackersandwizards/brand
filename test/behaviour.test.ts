@@ -17,6 +17,12 @@ writeFileSync(
 );
 const js = await Bun.build({ entrypoints: [join(dir, "entry.ts")], format: "iife" });
 writeFileSync(join(dir, "b.js"), await js.outputs[0]!.text());
+writeFileSync(
+  join(dir, "copy-entry.ts"),
+  `import * as HWCopy from ${JSON.stringify(join(ROOT, "elements/copy.ts"))}; Object.assign(window, { HWCopy });`,
+);
+const copyJs = await Bun.build({ entrypoints: [join(dir, "copy-entry.ts")], format: "iife" });
+writeFileSync(join(dir, "copy.js"), await copyJs.outputs[0]!.text());
 const css = ["generated/tokens.root.css", "elements/elements.css"]
   .map((f) => `<link rel="stylesheet" href="${brand(f)}">`)
   .join("");
@@ -383,43 +389,189 @@ test("an autoplaying carousel advances each tick, holds under the pointer and st
   await p.close();
 }, 30_000);
 
-test("a copy button shows once wired, copies its text and says so on itself, one at a time", async () => {
-  const p = await page(
-    `<button id="a" data-hw-copy="https://example.org/a" hidden>Copy link</button><button id="b" data-hw-copy="b@example.org" hidden>Copy address</button>`,
-    "en",
-  );
-  await p.evaluate(() => {
-    const w = window as unknown as { copied: string[]; fail: boolean };
-    w.copied = [];
-    Object.defineProperty(navigator, "clipboard", {
-      value: {
-        writeText: async (t: string) => {
-          if (w.fail) throw new Error("denied");
-          w.copied.push(t);
-        },
+// The clipboard as a page sees it: each text copies or fails after its own delay, the hidden
+// field's execCommand answers `exec`, and every hw-copy event is logged.
+const CLIPBOARD = () => {
+  const w = window as unknown as {
+    copied: string[];
+    events: [string, boolean][];
+    plan: Record<string, { fail?: boolean; ms?: number }>;
+    exec: boolean;
+  };
+  Object.assign(w, { copied: [], events: [], plan: {}, exec: false });
+  Object.defineProperty(navigator, "clipboard", {
+    value: {
+      writeText: async (t: string) => {
+        const { fail, ms = 0 } = w.plan[t] ?? {};
+        await new Promise((r) => setTimeout(r, ms));
+        if (fail) throw new Error("denied");
+        w.copied.push(t);
       },
-    });
+    },
   });
+  document.execCommand = () => w.exec;
+  document.addEventListener("hw-copy", (e) =>
+    w.events.push([(e.target as HTMLElement).id, (e as CustomEvent<{ ok: boolean }>).detail.ok]),
+  );
+};
+type Clip = { copied: string[]; events: [string, boolean][] };
+const text = (p: Page, sel: string) => p.$eval(sel, (b) => b.textContent);
+const settled = (p: Page, n: number) =>
+  p.waitForFunction((k) => (window as unknown as Clip).events.length === k, {}, n);
+const TWO = `<button id="a" data-hw-copy="https://example.org/a" hidden>Copy link</button><button id="b" data-hw-copy="b@example.org" hidden>Copy address</button>`;
+
+test("a copy button shows once wired, copies its text, says so on itself one at a time, and tells the page", async () => {
+  const p = await page(TWO, "en");
+  await p.evaluate(CLIPBOARD);
   expect(await p.$eval("#a", (b) => (b as HTMLElement).hidden)).toBe(false);
   await p.click("#a");
-  await p.waitForFunction(() => document.querySelector("#a")!.textContent === "Copied");
-  expect(await p.$eval(".hw-toasts .hw-sr-only", (n) => n.textContent)).toBe("Copied");
+  await settled(p, 1);
+  expect(await text(p, "#a")).toBe("Copied");
+  expect(await p.$eval("[data-hw-copy-status]", (n) => n.textContent)).toBe("Copied");
   await p.click("#b");
-  await p.waitForFunction(() => document.querySelector("#b")!.textContent === "Copied");
-  expect(await p.$eval("#a", (b) => b.textContent)).toBe("Copy link");
-  expect(await p.evaluate(() => (window as unknown as { copied: string[] }).copied)).toEqual([
+  await settled(p, 2);
+  expect(await text(p, "#b")).toBe("Copied");
+  expect(await text(p, "#a")).toBe("Copy link");
+  expect(await p.evaluate(() => (window as unknown as Clip).copied)).toEqual([
     "https://example.org/a",
     "b@example.org",
   ]);
-  await p.evaluate(() => ((window as unknown as { fail: boolean }).fail = true));
-  await p.click("#a");
-  await p.waitForFunction(() => document.querySelector("#a")!.textContent !== "Copy link");
-  expect(await p.$eval("#a", (b) => b.textContent)).toBe("Copy failed: select the text");
+  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([
+    ["a", true],
+    ["b", true],
+  ]);
   await p.close();
 }, 30_000);
 
-test("the behaviour file holds no markup built from strings it did not create", () => {
-  expect(readFileSync(join(ROOT, "elements/behaviour.ts"), "utf8")).not.toMatch(
-    /innerHTML|insertAdjacentHTML/,
+test("a refused copy falls back to a hidden field, and fails only where that fails too", async () => {
+  const p = await page(`<p>b@example.org</p>${TWO}`, "en");
+  await p.evaluate(CLIPBOARD);
+  await p.evaluate(() => {
+    const w = window as unknown as { plan: object; exec: boolean };
+    w.plan = { "https://example.org/a": { fail: true }, "b@example.org": { fail: true } };
+    w.exec = true;
+  });
+  await p.click("#a");
+  await settled(p, 1);
+  expect(await text(p, "#a")).toBe("Copied");
+  expect(await p.$$eval("textarea", (t) => t.length)).toBe(0);
+  expect(await p.evaluate(() => document.activeElement?.id)).toBe("a");
+  await p.evaluate(() => ((window as unknown as { exec: boolean }).exec = false));
+  // The address stands on the page, the link does not: only the first failure points at the text.
+  await p.click("#b");
+  await settled(p, 2);
+  expect(await text(p, "#b")).toBe("Copy failed: select the text");
+  await p.click("#a");
+  await settled(p, 3);
+  expect(await text(p, "#a")).toBe("Copy failed");
+  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([
+    ["a", true],
+    ["b", false],
+    ["a", false],
+  ]);
+  await p.close();
+}, 30_000);
+
+test("a failed copy leaves the button that still holds the clipboard reading Copied", async () => {
+  const p = await page(TWO, "en");
+  await p.evaluate(CLIPBOARD);
+  await p.evaluate(() => {
+    (window as unknown as { plan: object }).plan = { "b@example.org": { fail: true } };
+  });
+  await p.click("#a");
+  await settled(p, 1);
+  await p.click("#b");
+  await settled(p, 2);
+  expect(await text(p, "#a")).toBe("Copied");
+  expect(await text(p, "#b")).toBe("Copy failed");
+  await p.close();
+}, 30_000);
+
+test("a failure that arrives after a later press still shows on its button", async () => {
+  const p = await page(TWO, "en");
+  await p.evaluate(CLIPBOARD);
+  await p.evaluate(() => {
+    (window as unknown as { plan: object }).plan = {
+      "https://example.org/a": { fail: true, ms: 300 },
+    };
+  });
+  await p.click("#a");
+  await p.click("#b");
+  await settled(p, 2);
+  expect(await text(p, "#b")).toBe("Copied");
+  expect(await text(p, "#a")).toBe("Copy failed");
+  await p.close();
+}, 30_000);
+
+test("a newer press of the same button decides what it says, whichever answers last", async () => {
+  const p = await page(TWO, "en");
+  await p.evaluate(CLIPBOARD);
+  await p.evaluate(() => {
+    (window as unknown as { plan: object }).plan = {
+      "https://example.org/a": { fail: true, ms: 300 },
+    };
+  });
+  await p.click("#a");
+  await p.evaluate(() => {
+    (window as unknown as { plan: object }).plan = {};
+  });
+  await p.click("#a");
+  await settled(p, 2);
+  expect(await text(p, "#a")).toBe("Copied");
+  await p.close();
+}, 30_000);
+
+test("a failure points at the text only where it stands outside the copy button", async () => {
+  const p = await page(
+    `<button id="a" data-hw-copy="b@example.org" hidden>b@example.org</button><p hidden>b@example.org</p>`,
+    "en",
   );
+  await p.evaluate(CLIPBOARD);
+  await p.evaluate(() => {
+    (window as unknown as { plan: object }).plan = { "b@example.org": { fail: true } };
+  });
+  await p.click("#a");
+  await settled(p, 1);
+  expect(await text(p, "#a")).toBe("Copy failed");
+  await p.close();
+}, 30_000);
+
+test("copy.ts alone wires copy buttons with sr-only.css as its only stylesheet", async () => {
+  const p = await browser.newPage();
+  const f = join(dir, "copy-only.html");
+  writeFileSync(
+    f,
+    `<!doctype html><html lang="de"><head><link rel="stylesheet" href="${brand("elements/sr-only.css")}"></head><body>${TWO}<script src="copy.js"></script><script>HWCopy.copyButtons();</script></body></html>`,
+  );
+  await open(p, pathToFileURL(f).href);
+  await p.evaluate(CLIPBOARD);
+  await p.click("#a");
+  await settled(p, 1);
+  expect(await text(p, "#a")).toBe("Kopiert");
+  expect(await p.$$eval(".hw-toasts", (t) => t.length)).toBe(0);
+  const region = await p.$eval("[data-hw-copy-status]", (r) => [
+    r.className,
+    r.getBoundingClientRect().width,
+  ]);
+  expect(region).toEqual(["hw-sr-only", 1]);
+  await p.close();
+}, 30_000);
+
+test("a segment takes the control's letter case and tracking, a button's included", async () => {
+  const p = await page(
+    `<div class="hw-segmented" style="text-transform: uppercase; letter-spacing: 2px"><a href="#">Ansicht</a><button>Liste</button></div>`,
+  );
+  const style = await p.$$eval(".hw-segmented > *", (els) =>
+    els.map((e) => [getComputedStyle(e).textTransform, getComputedStyle(e).letterSpacing]),
+  );
+  expect(style).toEqual([
+    ["uppercase", "2px"],
+    ["uppercase", "2px"],
+  ]);
+  await p.close();
+}, 30_000);
+
+test("the behaviour files hold no markup built from strings they did not create", () => {
+  for (const f of ["elements/behaviour.ts", "elements/copy.ts"])
+    expect(readFileSync(join(ROOT, f), "utf8")).not.toMatch(/innerHTML|insertAdjacentHTML/);
 });

@@ -33,6 +33,8 @@
     border-radius: var(--hw-corner-sm, var(--radius-sm));
     padding: var(--hw-segment-pad, 0.25rem 0.5rem);
     font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
     white-space: nowrap;
     text-decoration: none;
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
