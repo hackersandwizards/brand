@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 1490
+order: 2020
 owner: a brand session
 evidence: "brand-markers sweep 08.11.: 11 to 36 px text, line heights 1.25 to 1.6, zooms 1, 0.96897, 0.92, 0.85, 0.8, 0.75, at 2x and 4x, with and without a newline after <li>; one-factor controls per cause"
 ---

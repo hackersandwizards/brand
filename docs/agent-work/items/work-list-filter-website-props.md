@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 1530
+order: 2040
 area: brand
 owner: a website session
 evidence: "brand v1.51.0 ships source, listed, inline and the label budget in expert/components/ListFilter.astro, with their cases in test/catalog/list-filter.test.ts (docs/agent-work/2026-11-08-brand-followups.md, section 7)."

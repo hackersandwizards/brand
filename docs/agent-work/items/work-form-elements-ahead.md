@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 1520
+order: 2030
 area: brand
 owner: a brand session
 evidence: "Decision decide-form-elements-ahead, Benedikt 08.11., all-listed: „doch bitte machen. gibt es noch andere elemnte die solche bootstrap/typscript systeme normalerweise mitbringen, die wir schon mal designen könnten?“ Comparison table: docs/agent-work/2026-11-08-element-library-structure.md, section 1. elements/ at origin/main v1.44.0 holds none of them."

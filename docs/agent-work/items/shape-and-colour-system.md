@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 1430
+order: 1990
 owner: a brand session
 evidence: "consumers' origin/main read 2026-11-07 (afternoon): os, trainer-hub, website, talks, slides, documents, admin, certificate-verifier and practitioners pin brand v1.28.2 (admin >=1.28.2); a grep of each for hue-amber or hue-green outside docs finds only trainer-hub's src/styles/expert.test.ts, which names it as a string the palette rule must reject; control: the same grep in brand finds expert/expert.css (3 lines). os src/config.ts keeps hue-rust for the factory category alone and renders company priority as hw-pill data-priority; admin ItemRow, trainer-hub FormatBadge, website and mail switched."
 ---

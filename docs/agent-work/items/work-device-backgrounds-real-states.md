@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 300
+order: 1780
 area: brand
 owner: a brand session
 evidence: "Benedikt's iPhone lock screen screenshots of 08.11. (18:52, 19:13, 19:14): Now Playing panel, a Live Activity (flight) and widgets. Earlier placement: os docs/agent-work/2026-10-30-lock-screen-position.md. The screenshots reached the chat only, not disk: ask him for the files (or AirDrop to ~/Downloads) before measuring."
