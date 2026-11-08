@@ -894,3 +894,43 @@ test("a keycap leaves a line of UI text as high as an inline keycap does, in the
   await p.close();
   for (const [keycap, inline] of lines) expect(keycap).toBe(inline!);
 }, 60_000);
+
+// On a phone the unjoined row stacks; inside a form field its button goes under the error message,
+// which stays next to the field it is about. Outside a form field, and on a desktop, the row keeps
+// field and button together.
+test("a stacked field row in a form field puts the error between field and button, 0.75rem from each part", async () => {
+  const p = await browser.newPage();
+  const row = (id: string) =>
+    `<div class="hw-field-row"><input class="hw-field" id="${id}-in" aria-invalid="true"><button class="hw-button" id="${id}-btn" type="submit">Prüfen</button></div>`;
+  await open(
+    p,
+    pathToFileURL(
+      file(
+        "field-row-error.html",
+        only(
+          `<div data-hw-scale="screen"><div class="hw-form-field">${row("ff")}<p class="hw-form-error" id="ff-err">Gebt eine ID ein.</p></div>${row("bare")}</div>`,
+        ),
+      ),
+    ).href,
+  );
+  const tops = () =>
+    p.evaluate(() =>
+      Object.fromEntries(
+        ["ff-in", "ff-err", "ff-btn", "bare-in", "bare-btn"].map((id) => {
+          const b = document.getElementById(id)!.getBoundingClientRect();
+          return [id, { top: b.top, bottom: b.bottom, left: b.left }];
+        }),
+      ),
+    );
+  await p.setViewport({ width: 390, height: 800 });
+  const phone = await tops();
+  expect(phone["ff-in"]!.bottom < phone["ff-err"]!.top).toBe(true);
+  expect(phone["ff-err"]!.bottom < phone["ff-btn"]!.top).toBe(true);
+  expect(phone["ff-btn"]!.top - phone["ff-err"]!.bottom).toBeCloseTo(12, 1);
+  expect(phone["bare-btn"]!.top - phone["bare-in"]!.bottom).toBeCloseTo(12, 1);
+  await p.setViewport({ width: 1280, height: 800 });
+  const desk = await tops();
+  expect(desk["ff-btn"]!.top).toBe(desk["ff-in"]!.top);
+  expect(desk["ff-err"]!.top > desk["ff-btn"]!.bottom).toBe(true);
+  await p.close();
+}, 60_000);

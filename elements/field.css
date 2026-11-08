@@ -7,7 +7,8 @@
    it are form-field.css.
    data-joined on hw-field-row sets field and button in one framed row, the button a teal-dark
    square holding an icon (the website's search), both 44 px tall; without it the button is an
-   hw-button beside the field, 0.75rem apart, stacking under 40rem (the verifier's lookup). On night
+   hw-button beside the field, 0.75rem apart, stacking under 40rem (the verifier's lookup), where
+   in an hw-form-field the button goes under the field's error message. On night
    the field is night-2 with a night-muted line and white text, white on hover, red-night when
    aria-invalid; the joined row night-2 with a night line.
 
@@ -118,6 +119,15 @@
   @media (max-width: 40rem) {
     .hw-field-row:not([data-joined]) {
       grid-template-columns: minmax(0, 1fr);
+    }
+    /* In a form field the stacked button goes last, so the error message sits under the field it
+       is about, still 0.75rem above the button. */
+    .hw-form-field > .hw-field-row:not([data-joined]) {
+      display: contents;
+    }
+    .hw-form-field > .hw-field-row:not([data-joined]) > :is(button, .hw-button) {
+      order: 1;
+      margin-top: calc(0.75rem - var(--hw-form-gap, 0.375rem));
     }
   }
   @media (prefers-reduced-motion: reduce) {
