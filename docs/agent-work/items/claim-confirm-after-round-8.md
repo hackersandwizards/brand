@@ -5,58 +5,95 @@ priority: 1
 order: 10
 area: brand
 owner: Benedikt
-evidence: "Round 9, 08.11.: seven rounds, 954 reviewer runs, 53 lines and short/long pairs against six requirements fixed before any score; report docs/agent-work/2026-11-08-claim-round-9.md. Round 8: docs/agent-work/2026-11-08-claim-round-8.md."
-recommended: s4p
+evidence: "Round 10, 08.11.: the twelve lines and pairs of rounds 8 and 9 re-measured with LinkedIn in the iPhone app and on the laptop, 722 reviewer runs (640 cold reads, 40 panel, 16 set); report docs/agent-work/2026-11-08-claim-round-10.md. Rounds 8 and 9: docs/agent-work/2026-11-08-claim-round-8.md, -round-9.md; every candidate: docs/agent-work/2026-11-08-claim-all-candidates.md."
+recommended: u1
 options:
-  - key: s4p
-    label: "Switch to the pair s4p. Banners: Agents pay off when your people ship as a team. / KI-Agenten lohnen sich, wenn eure Leute als Team liefern. Slide, link preview, one-pager, About and bios: the same plus Your customers notice. / Eure Kunden merken es. (German H1 'zusammenspielen' stays)"
-    detail: "Alone on the LinkedIn banner, photo over it: people 32 of 32, core thought 31 of 32. Rendered panel overall 12.0 ahead of f6 in both runs and with both models; per surface: banners a tie (-0.5; Codex 2.7 behind), slide +2.2, link preview +3.0. Whole set with site and profiles: 78.6 against f6's 79.0, a tie. Together 7.3 (f6 6.5). Misses German in part: German 3.0 below its English, German banners 3.3 below f6's, 'als Team liefern' slightly translated; still the best of four German wordings. Reviewers' open question: what exactly do customers notice?"
-    score: 77.1
+  - key: u1
+    label: "Switch to u1, one line everywhere: Agents pay off when your people ship together. / KI-Agenten lohnen sich, wenn eure Leute gemeinsam liefern. (German H1 'zusammenspielen' stays)"
+    detail: "First with the site and your profile texts (83.2): ahead of f6 by 4.6, of s4p by 7.6 and of u1p by 11.8, in both runs and with both models; level with s4 and m3 (Claude ahead, Codex level). Rendered panel 79.3, level with s4p, u1p and s4. Alone on the banner: people 32 of 32, core thought 16 of 16 in the app and 16 of 16 on the laptop. Clear of the photo in both layouts. Misses German: 4.4 below its English (noise 1.7); 'gemeinsam liefern' reads less natural than 'ship together'. Open question readers ask: what does shipping together look like, and what changes?"
+    score: 83.2
+    noise: 0.4
+  - key: s4
+    label: "Switch to s4, one line everywhere: Agents pay off when your people ship as a team. / KI-Agenten lohnen sich, wenn eure Leute als Team liefern."
+    detail: "Third with the site and the profile texts (81.2): level with f6, m3 and u1 (Claude has u1 ahead by 3.8 and 4.0), 5.7 ahead of s4p with both models. Panel 79.6, level with the top four. Cold read core 16 of 16 in each layout. 'Team' piles onto the H1 and a dozen headlines that open with 'Your team'. German 2.2 below its English (noise 1.7)."
+    score: 81.2
     noise: 0.8
-  - key: u1p
-    label: "Switch to the pair u1p: Agents pay off when your people ship together. / KI-Agenten lohnen sich, wenn eure Leute gemeinsam liefern. Long line adds: Your customers see it in your releases. / Eure Kunden merken es an euren Releases."
-    detail: "Ties s4p on the panel (75.9, 10.8 ahead of f6) and passes the banner cold read (people 32, core 31 of 32). Banners 3.5 behind f6, outside the noise ('ship together' reads as jargon); as a whole set 1.9 behind f6, a tie; least calm (6.2)."
-    score: 75.9
-    noise: 1.7
-  - key: f6
-    label: "Keep f6: Every agent needs a team in tune. / Jeder KI-Agent braucht ein eingespieltes Team."
-    detail: "Your decision of 08.11. Best as a whole set (79.0, together 9.1) and in German (language 9.3). Alone on a banner 14 of 32 readers read its team as people, 12 of 32 the core thought; rendered panel overall 12.0 behind s4p, level on the banners."
-    score: 65.1
-    noise: 1.9
+  - key: s4p
+    label: "Switch to the pair s4p: s4 on the banners; slide, link preview, one-pager, About and bios add Your customers notice. / Eure Kunden merken es."
+    detail: "Panel first (81.7), 8.6 ahead of f6 with both models, ahead of s4, u1 and u1p with Claude only. With the site and the profile texts 75.6: Claude puts it 8.8 behind f6, both models behind s4 and u1. Reviewers: the second sentence repeats the bios' customer clause, leaves open what customers notice, and makes two lengths of one claim. German 2.0 below its English (noise 1.4)."
+    score: 81.7
+    noise: 0.5
   - key: m3
     label: "Switch to m3: Agents write code. Your team ships products. / KI-Agenten schreiben Code. Euer Team liefert Produkte."
-    detail: "Strongest on the banners (73.4) and calmest; alone people 32 of 32, core 25 of 32. Loses the working together in every round (together 3.1); as a whole set 6.9 behind f6 with Claude: 'My team already ships products, so what does your training change?'"
-    score: 70.7
-    noise: 0.1
+    detail: "Strongest banners (83.0) and the strongest German. With the site and the profile texts 82.1, level with u1 and f6 (Codex ahead, Claude level). Cold read core 15 of 16 in the app, 16 of 16 on the laptop. Misses working together, as in every round (together 5.2 against f6's 7.4); readers ask: 'If my team already ships products today, what does this training change?'"
+    score: 82.1
+    noise: 0.0
+  - key: f6
+    label: "Keep f6: Every agent needs a team in tune. / Jeder KI-Agent braucht ein eingespieltes Team."
+    detail: "Your decision of 08.11. Calm and strong in German, banners level with the leaders (80.0). Alone on the banner, 7 of 16 readers in the app and 6 of 16 on the laptop restate the core thought: they read people but no result. Panel 73.2, ninth of twelve; with the site and the profile texts 78.6, 4.6 behind u1."
+    score: 78.6
+    noise: 1.4
 images:
+  u1:
+    - src: docs/agent-work/2026-11-08-claim-round-10/linkedin-en.jpg
+      caption: "LinkedIn in the iPhone app (left) and on the laptop (right), real screenshots with the photo restored: u1, s4 and s4p, m3, f6, c3 from the top, English"
+    - src: docs/agent-work/2026-11-08-claim-round-10/linkedin-de.jpg
+      caption: "The same, German"
+    - src: docs/agent-work/2026-11-08-claim-round-10/u1-en.jpg
+      caption: "u1 on every surface, English"
+    - src: docs/agent-work/2026-11-08-claim-round-10/u1-de.jpg
+      caption: "u1 on every surface, German"
+  s4:
+    - src: docs/agent-work/2026-11-08-claim-round-10/s4-en.jpg
+      caption: "s4 on every surface, English"
+    - src: docs/agent-work/2026-11-08-claim-round-10/s4-de.jpg
+      caption: "s4 on every surface, German"
   s4p:
-    - src: r9-linkedin.jpg
-      caption: "LinkedIn's narrow layout, the real photo over the banner: f6, m3, u1p, s4p from the top, English left, German right"
-    - src: r9-s4p-en.jpg
-      caption: "s4p in place, English: LinkedIn narrow layout, X header, Sessionize cover, closing slide, link preview"
-    - src: r9-s4p-de.jpg
-      caption: "s4p in place, German"
-  u1p:
-    - src: r9-linkedin.jpg
-      caption: "LinkedIn's narrow layout: f6, m3, u1p, s4p from the top, English left, German right"
-  f6:
-    - src: r9-linkedin.jpg
-      caption: "LinkedIn's narrow layout: f6, m3, u1p, s4p from the top, English left, German right"
+    - src: docs/agent-work/2026-11-08-claim-round-10/s4p-en.jpg
+      caption: "s4p on every surface, English"
+    - src: docs/agent-work/2026-11-08-claim-round-10/s4p-de.jpg
+      caption: "s4p on every surface, German"
   m3:
-    - src: r9-linkedin.jpg
-      caption: "LinkedIn's narrow layout: f6, m3, u1p, s4p from the top, English left, German right"
+    - src: docs/agent-work/2026-11-08-claim-round-10/m3-en.jpg
+      caption: "m3 on every surface, English"
+    - src: docs/agent-work/2026-11-08-claim-round-10/m3-de.jpg
+      caption: "m3 on every surface, German"
+  f6:
+    - src: docs/agent-work/2026-11-08-claim-round-10/f6-en.jpg
+      caption: "f6 on every surface, English"
+    - src: docs/agent-work/2026-11-08-claim-round-10/f6-de.jpg
+      caption: "f6 on every surface, German"
 ---
 
-# Switch to a short/long pair that carries the core thought?
+# Which claim: u1, s4, s4p, m3, or keep f6?
 
-The LinkedIn banner scores below were taken in the mobile-browser layout, which nobody in the audience uses. They are being re-measured in the app and on the laptop; wait for that before you pick.
+LinkedIn is now measured in the app and on the laptop. The mobile-browser layout of rounds 7 to 9
+is gone from every score, and the photo stays clear of every line in both layouts.
 
-You found s4p less beautiful than earlier candidates (08.11.). The overview `docs/agent-work/2026-11-08-claim-all-candidates.md` lists every candidate of every round with its scores: name the one you want, or several for a further round.
+u1 is the strongest line with the whole brand in view: the site, your profile texts and every
+banner. It also works without the second sentence: alone on a banner, every reader in both layouts
+names people and a result for the company. On the rendered panel the top four (s4p, u1p, s4, u1)
+lie within 2.4 points, a tie. With the site in view, the long lines fall back because their second
+sentence repeats the bios. Against its pair u1p, u1 is level on the panel and 11.8 ahead with the
+site. s4 against s4p: level on the panel, 5.7 ahead with the site.
 
-You asked whether one combination meets every requirement. The pair s4p comes closest. On the banners: "Agents pay off when your people ship as a team." Everywhere else it adds: "Your customers notice."
+You found s4p less beautiful than earlier candidates (08.11.). That stayed out of every reviewer
+prompt.
 
-Alone on a banner, readers name people and the core thought; for f6, 14 and 12 of 32 did. Reviewers score it 12.0 above f6 overall with the banners, slide and link preview in view; on the banners alone the two are level, though one of the two reviewer models puts it 2.7 behind. With the site and your profile texts it ties f6. Its weak spot is German: "als Team liefern" scores 3.0 below the English, and three other German wordings scored lower still. "Im Einklang" lost in all ten lines it was tested in.
+What u1 misses: its German. "Gemeinsam liefern" scores 4.4 below the English. s4 and s4p miss the
+same, by 2.2 and 2.0.
 
-Overall is the panel mean, 0 to 100, over English and German, from round 6 (round 9's last rendered round with both languages); scores compare within one round only. Noise is the gap between the two runs' means.
+| Key | Set with site and profiles | Panel      | Cold read core, app / laptop | Together | Misses           |
+| --- | -------------------------- | ---------- | ---------------------------- | -------- | ---------------- |
+| u1  | 83.2 (0.4)                 | 79.3 (1.5) | 16 / 16                      | 7.9      | German           |
+| s4  | 81.2 (0.8)                 | 79.6 (1.7) | 16 / 16                      | 8.1      | German           |
+| s4p | 75.6 (0.9)                 | 81.7 (0.5) | 16 / 16                      | 8.0      | German           |
+| m3  | 82.1 (0.0)                 | 77.2 (0.2) | 15 / 16                      | 5.2      | working together |
+| f6  | 78.6 (1.4)                 | 73.2 (0.4) | 7 / 6                        | 7.4      | the core thought |
 
-The rollout (banners, closing slide, link preview, one-pager header, profiles) waits on this answer. With s4p, `verbal.json` gains a long form of the claim beside the short one, released as a new exported field.
+Scores are 0 to 100 means over English and German, noise in brackets (the gap between two runs).
+The option score is the set's. Cold read: 16 readers per layout, English and German together.
+
+The rollout (banners, closing slide, link preview, one-pager header, profiles) waits on this
+answer. u1 or s4 keeps `verbal.json`'s claim a single line, released as a new value; s4p adds a
+long form beside it.
