@@ -120,7 +120,7 @@ Answer as JSON only: {"sets": {"<letter>": {"criteria": {"<criterion>": <0-10>, 
 Found by searching every repository under `~/dev/hackersandwizards` (without `node_modules` and
 `docs/agent-work`) for the claim, the headline, `verbal.json` and `channel-banners`. Every
 repository that runs `brand-retired` fails once it raises its pin while a build still shows the old
-claim. Each brief is for a session in that repository, and each carries one rule (item `work-claim-rollout-holistic`): the copy around the claim or the headline on a surface is rewritten to fit it and blind-reviewed in that surface's context against the current copy, aiming at the highest score, never only the claim line swapped. That item also holds every consumer run until the profile texts and the banners are tuned as a whole.
+claim. Each brief is for a session in that repository, and each carries one rule: the copy around the claim or the headline on a surface is rewritten to fit it and blind-reviewed in that surface's context against the current copy, aiming at the highest score, never only the claim line swapped ([holistic report](2026-11-08-claim-rollout-holistic.md)).
 
 - **website** (pin v1.28.5): raise to v1.57.0. The home hero's title is `claim` today
   (`src/copy/start.en.ts:58`, `start.de.ts:33`); the decision makes it `headline.en` / `headline.de`
