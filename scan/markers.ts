@@ -311,8 +311,14 @@ export async function open(page: Page, url: string) {
   if (missing.length) throw new Error(`${url}: stylesheet not loaded: ${missing.join(", ")}`);
 }
 
+/** Headless Chrome for Testing; a page opened as a file may read its sheets' rules, which
+ * brand-elements reads for the classes they define. */
 export const launch = () =>
-  puppeteer.launch({ executablePath: findChrome(), headless: true, args: NO_KEYCHAIN });
+  puppeteer.launch({
+    executablePath: findChrome(),
+    headless: true,
+    args: [...NO_KEYCHAIN, "--allow-file-access-from-files"],
+  });
 
 /** Every marker on one page, at one device scale, how far it sits off its line and how far its
  * first line starts right of the wrapped lines, in CSS px, after `css` is added. */

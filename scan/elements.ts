@@ -33,7 +33,9 @@
 //    element reads must be defined where it renders; with "lightOnly" the tokens only its night
 //    rules read are left out, since a page without night never draws them. An element drawn with
 //    the brand corner (top-left and bottom-right larger than top-right) inside another so drawn
-//    fails too: the brand corner sits on the outermost block only (tokens.css).
+//    fails too: the brand corner sits on the outermost block only (tokens.css). So does an element
+//    carrying an hw-* class, or one of BRAND_CLASSES, that no rule of a loaded stylesheet names: it
+//    draws unstyled.
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
 //    button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
@@ -112,6 +114,24 @@ export const ELEMENTS: Record<string, string> = {
   kpi: ".hw-kpi",
   prose: ".hw-prose",
 };
+/** Every class other than an hw-* one that brand's stylesheets define or once defined: a page
+ * using one, or an hw-* class, that no loaded stylesheet defines shows it unstyled. */
+export const BRAND_CLASSES = [
+  "btn-primary",
+  "btn-secondary",
+  "chip-link",
+  "chip-link-muted",
+  "chip-remove",
+  "filter-chip",
+  "form-input",
+  "page-subtitle",
+  "page-title",
+  "page-title-action",
+  "page-title-lead",
+  "page-title-row",
+  "rounded-brand",
+  "theme-switching",
+];
 // What each element (and each part, "<element> <part>") sets, and so what is compared: a property
 // the element leaves to its surroundings, such as a card's text size, stays the surface's.
 const CORNER = [
@@ -283,10 +303,11 @@ type Args = [
   string[],
   number,
   Record<string, string[]>,
+  string[],
 ];
 
 /** Runs in the page: each hub element against its reference, as findings plus the tiles found. */
-function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
+function compare([css, elements, owns, settings, tolerance, tokens, brandClasses]: Args) {
   const findings: { element: string; label: string; prop: string; got: string; want: string }[] =
     [];
   const seen: string[] = [];
@@ -294,6 +315,43 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   const missing = new Set<string>();
   const label = (el: Element) =>
     `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${(el.textContent ?? "").trim().slice(0, 30)}"`;
+  // A brand class (an hw-* one or one brand once defined) that no rule of a loaded sheet names: the
+  // element draws unstyled. A sheet the page may not read (another origin's) names none.
+  const defined = new Set<string>();
+  const names = (list: CSSRuleList) => {
+    for (const r of list) {
+      if (r instanceof CSSStyleRule)
+        for (const m of r.selectorText.matchAll(/\.((?:\\.|[\w-])+)/g))
+          defined.add(m[1]!.replace(/\\(.)/g, "$1"));
+      if (r instanceof CSSImportRule && r.styleSheet) read(r.styleSheet);
+      if ("cssRules" in r) names((r as CSSGroupingRule).cssRules);
+    }
+  };
+  const read = (sheet: CSSStyleSheet) => {
+    try {
+      names(sheet.cssRules);
+    } catch {
+      // another origin's sheet
+    }
+  };
+  for (const sheet of [...document.styleSheets, ...document.adoptedStyleSheets]) read(sheet);
+  const unstyled = new Set<string>();
+  for (const el of document.querySelectorAll("[class]"))
+    for (const c of el.classList)
+      if (
+        (c.startsWith("hw-") || brandClasses.includes(c)) &&
+        !defined.has(c) &&
+        !unstyled.has(c)
+      ) {
+        unstyled.add(c);
+        findings.push({
+          element: "class",
+          label: label(el),
+          prop: "class",
+          got: c,
+          want: "a rule",
+        });
+      }
   const num = (v: string) => (/^-?[\d.]+px$/.test(v) ? parseFloat(v) : null);
   // One colour, one text: a build that rewrites color-mix() (Lightning CSS) leaves rgba() where the
   // reference computes color(srgb ...), so each colour reads as rgba() of whole channels.
@@ -551,6 +609,7 @@ export async function measurePage(
       SETTINGS,
       TOLERANCE,
       lightOnly ? DAY_TOKENS : TOKENS,
+      BRAND_CLASSES,
     ] as Args);
     return { ...out, page: url, findings: out.findings.map((f) => ({ page: url, ...f })) };
   } finally {
@@ -861,7 +920,9 @@ if (import.meta.main) {
         `${f.page} ${f.element} ${f.label}: ${
           f.got === "undefined"
             ? `reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`
-            : `${f.prop} ${f.got}, brand ${f.want}`
+            : f.element === "class"
+              ? `carries .${f.got}, which no stylesheet on the page defines, so it draws unstyled: take the hw-* element brand defines now, or define the class in your own CSS`
+              : `${f.prop} ${f.got}, brand ${f.want}`
         }`,
       );
     for (const line of [...source, ...covered]) console.error(line);

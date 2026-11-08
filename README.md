@@ -293,7 +293,10 @@ with the brand corner inside another so drawn (inside one, `elements/card.css` g
 and every `rounded-brand` the small corner), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
 callout, note; quote; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), or a component of such a name, without the
-`hw-*` class and without an exception of that name, on a used element without a tile or with a stale version, on an exception
+`hw-*` class and without an exception of that name, on an element carrying an `hw-*` class or
+one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`, removed in
+v1.43.0) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
+or a class of your own passes, and so does such a class your own CSS defines), on a used element without a tile or with a stale version, on an exception
 without a reason or a tile, and on a page showing no element. A `brand-elements.json` naming no page
 exits 2, as a run measuring nothing proves nothing. Each page's tile of a used element is
 compared: a version other than the installed one means that page was not built from it, such as a

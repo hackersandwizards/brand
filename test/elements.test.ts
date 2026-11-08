@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -6,6 +7,7 @@ import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import {
+  BRAND_CLASSES,
   coverage,
   ELEMENTS,
   measurePage,
@@ -1147,3 +1149,44 @@ test("a focused node after an element in the same parent is read at its own plac
     ),
   ).toEqual(["width", "height"]);
 }, 60_000);
+
+// admin, 08.11.: brand v1.43.0 removed .btn-primary and .btn-secondary, and three buttons lost
+// their styling under a green gate.
+test("a class brand once defined, or an hw-* class, that no loaded sheet defines is red", async () => {
+  const buttons = `<button class="hw-button">Copy answers</button><button class="pick btn-secondary">Pick recommended</button><button class="btn-primary">Copy answers</button><span class="hw-buton">x</span><p class="flex mt-2 own">Utility and own classes</p>`;
+  const r = await measurePage(browser, file("removed.html", only(buttons)));
+  expect(r.findings.filter((f) => f.element === "class").map((f) => f.got)).toEqual([
+    "btn-secondary",
+    "btn-primary",
+    "hw-buton",
+  ]);
+  // Control: the shared element and a consumer's own rule for the old name pass.
+  const own = await measurePage(
+    browser,
+    file(
+      "own.html",
+      only(`${buttons}<style>.btn-primary, .btn-secondary, .hw-buton { color: red }</style>`),
+    ),
+  );
+  expect(own.findings.filter((f) => f.element === "class")).toEqual([]);
+}, 30_000);
+
+test("every class brand's stylesheets define is listed as one brand defines", () => {
+  const defined = execSync("git ls-files tokens elements expert generated", { cwd: ROOT })
+    .toString()
+    .split("\n")
+    .filter((f) => f.endsWith(".css"))
+    .flatMap((f) =>
+      rules(readFileSync(join(ROOT, f), "utf8")).flatMap((r) =>
+        r.selectors.flatMap((s) => [...s.matchAll(/\.([a-zA-Z_][\w-]*)/g)].map((m) => m[1]!)),
+      ),
+    );
+  // Names another tool emits, which brand's rules only read: Typography's opt-out, a Markdown
+  // renderer's task item, Tailwind's colour utility.
+  const read = ["not-prose", "task-list-item", "text-foreground"];
+  expect(
+    [...new Set(defined)].filter(
+      (c) => !c.startsWith("hw-") && !BRAND_CLASSES.includes(c) && !read.includes(c),
+    ),
+  ).toEqual([]);
+});
