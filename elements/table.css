@@ -1,8 +1,9 @@
 /* The ruled table: hairlines under every row, no fill, no frame; column heads in the label role in
    the muted grey; cells in the small role, top-aligned, the last column without right padding. On
-   night the line is white at 15 %. A button or select in a head (a sortable column) takes the
-   head's role and colour with no fill, border or padding of its own; a button turns ink on hover,
-   white on night. Scrolling, stacking on a phone and column widths stay the surface's.
+   night the line is white at 15 %. A button or select without a class in a head (a sortable
+   column) takes the head's role and colour with no fill, border or padding of its own; an enabled
+   button turns ink on hover, white on night. Scrolling, stacking on a phone and column widths stay
+   the surface's.
 
    Settings:
      --hw-table-size    the cells' size, the small role
@@ -37,7 +38,7 @@
     text-transform: var(--type-label-case);
     color: var(--hw-muted, var(--color-muted));
   }
-  .hw-table th :where(button, select) {
+  .hw-table th :where(button, select):not([class]) {
     font: inherit;
     letter-spacing: inherit;
     text-transform: inherit;
@@ -45,13 +46,15 @@
     background: none;
     border: 0;
     padding: 0;
+  }
+  .hw-table th button:not([class], :disabled) {
     cursor: pointer;
   }
-  .hw-table th button:hover {
+  .hw-table th button:not([class], :disabled):hover {
     color: var(--color-ink);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    .hw-table th button:hover {
+    .hw-table th button:not([class], :disabled):hover {
       color: var(--color-white);
     }
     .hw-table :is(th, td) {

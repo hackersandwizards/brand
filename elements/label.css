@@ -6,8 +6,9 @@
    meaning in amber, green or red), from the hue table in
    tokens.css. On a 7 % wash (a status box, a callout, a tinted card) amber, green and red take
    their text colour mixed 70 % with ink, as the hue table says, so they clear 4.5:1 there. A button
-   or select inside the label (a sortable column head) keeps the label role and its colour, with no
-   fill, border or padding of its own; a button turns ink on hover, white on night.
+   or select without a class inside the label (a sortable column head) keeps the label role and its
+   colour, with no fill, border or padding of its own; an enabled button turns ink on hover, white
+   on night. A classed control (hw-button, hw-icon-button) keeps its own face.
 
    Settings (scales.css sets them per medium):
      --hw-label-size    the label role's size
@@ -25,7 +26,7 @@
     text-transform: var(--type-label-case);
     color: var(--color-label-text);
   }
-  .hw-label :where(button, select) {
+  .hw-label :where(button, select):not([class]) {
     font: inherit;
     letter-spacing: inherit;
     text-transform: inherit;
@@ -33,9 +34,11 @@
     background: none;
     border: 0;
     padding: 0;
+  }
+  .hw-label button:not([class], :disabled) {
     cursor: pointer;
   }
-  .hw-label button:hover {
+  .hw-label button:not([class], :disabled):hover {
     color: var(--color-ink);
   }
   .hw-label[data-tone="muted"] {
@@ -66,7 +69,7 @@
     color: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    .hw-label button:hover {
+    .hw-label button:not([class], :disabled):hover {
       color: var(--color-white);
     }
     .hw-label {
