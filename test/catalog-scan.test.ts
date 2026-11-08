@@ -1,0 +1,145 @@
+import { afterAll, expect, test } from "bun:test";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import own from "../package.json";
+import { elementCss, sourceFindings } from "../scan/elements";
+import { ROOT } from "../scripts/git";
+
+// A built catalog as scaffolding writes it: a home that frames its stories, and one folder per
+// story state under stories/. The planted fork (corner 2px, padding 3px) and the lifted list (7px)
+// sit in story pages only, so a run over the home alone reads neither.
+const css = ["generated/tokens.root.css", "tokens/marker.css"]
+  .map((f) => readFileSync(join(ROOT, f), "utf8"))
+  .concat(elementCss())
+  .join("\n");
+const html = (body: string, style = "") =>
+  `<!doctype html><html><head><meta charset="utf-8"><style>${css}
+body { font-family: var(--font-sans); font-size: 16px; } ${style}</style></head><body>${body}</body></html>`;
+const list = (lift: number) =>
+  `<ul class="hw-marker-list"><li><span style="position:relative;top:${lift}px">One</span></li><li>Two</li></ul>`;
+const dir = mkdtempSync(join(tmpdir(), "brand-catalog-scan-"));
+const write = (path: string, body: string) => {
+  mkdirSync(dirname(join(dir, path)), { recursive: true });
+  writeFileSync(join(dir, path), body);
+};
+const STORIES = {
+  "Cards/Fork/default": html(
+    `<div class="hw-card">Forked</div>`,
+    ".hw-card { border-radius: 2px !important; padding: 3px !important }",
+  ),
+  "Text/Plain/default": html("<p>No element here.</p>"),
+  "Lists/Lifted/default": html(list(-7)),
+};
+write(
+  "site/catalog/index.html",
+  html(
+    `<div data-hw-tile="card" data-hw-version="${own.version}"><div class="hw-card">${list(0)}</div></div>` +
+      Object.keys(STORIES)
+        .map((s) => `<iframe src="stories/${s}/index.html"></iframe>`)
+        .join(""),
+  ),
+);
+for (const [s, body] of Object.entries(STORIES))
+  write(`site/catalog/stories/${s}/index.html`, body);
+write("empty/catalog/index.html", html("<p>No stories.</p>"));
+// brand-elements reads its source half from a Git checkout.
+Bun.spawnSync(["git", "init", "-q"], { cwd: dir });
+afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+const run = (script: string, args: string[] = []) => {
+  const r = Bun.spawnSync(["bun", join(ROOT, "scan", script), ...args], { cwd: dir });
+  return { code: r.exitCode, out: r.stdout.toString(), err: r.stderr.toString() };
+};
+const elements = (config: object, args: string[] = []) => {
+  write("brand-elements.json", JSON.stringify({ uses: ["card"], ...config }));
+  const r = run("elements.ts", ["--json", ...args]);
+  return { ...r, json: r.out ? JSON.parse(r.out) : undefined };
+};
+const forkPages = (rendered: { page: string }[]) => [...new Set(rendered.map((f) => f.page))];
+
+test("brand-elements: the home alone misses a story's fork, the catalog key finds it", () => {
+  const home = elements({ pages: ["site/catalog/index.html"] });
+  expect([home.code, home.json.rendered.length]).toEqual([0, 0]);
+  const all = elements({ pages: ["site/catalog/index.html"], catalog: "site/catalog" });
+  expect(all.code).toBe(1);
+  expect(all.json.rendered.length).toBeGreaterThan(0);
+  // A story without a shared element is no empty page: most stories show none.
+  expect(all.json.empty).toEqual([]);
+  expect(forkPages(all.json.rendered)).toEqual([
+    "site/catalog/stories/Cards/Fork/default/index.html",
+  ]);
+}, 60_000);
+
+test("brand-elements: on a served site a story is a path below the catalog's, or below its at", () => {
+  for (const catalog of ["site/catalog", { dir: "site/catalog", at: "/catalog/" }]) {
+    const r = elements({ site: "site", pages: ["/catalog/"], catalog });
+    expect(r.code).toBe(1);
+    expect(forkPages(r.json.rendered)).toEqual(["/catalog/stories/Cards/Fork/default/"]);
+  }
+}, 60_000);
+
+test("brand-elements: a catalog folder without a story is a usage error, not a pass", () => {
+  expect(elements({ pages: [], catalog: "empty/catalog" }).code).toBe(2);
+  expect(elements({ pages: [], catalog: "missing" }).code).toBe(2);
+});
+
+test("brand-markers: the home alone misses a story's lifted list, --catalog reads it", () => {
+  const off = (out: string) =>
+    (JSON.parse(out) as { page: string; offset: number }[]).filter(
+      (r) => !(Math.abs(r.offset) <= 0.25),
+    );
+  const home = run("markers.ts", ["--scale", "2", "--json", "site/catalog/index.html"]);
+  expect([home.code, off(home.out)]).toEqual([0, []]);
+  const all = run("markers.ts", [
+    "--scale",
+    "2",
+    "--catalog",
+    "site/catalog",
+    "--json",
+    "site/catalog/index.html",
+  ]);
+  expect(all.code).toBe(1);
+  expect([...new Set(off(all.out).map((r) => r.page))]).toEqual([
+    expect.stringContaining("/stories/Lists/Lifted/default/index.html"),
+  ]);
+  expect(run("markers.ts", ["--catalog", "empty/catalog"]).code).toBe(2);
+}, 60_000);
+
+test("source: an @apply sets the properties its utilities stand for; btn names a button", () => {
+  const files: Record<string, string> = {
+    "src/a.css": `.my-card { @apply rounded-brand p-4 bg-muted; }
+.btn-primary { border-radius: 3px; }
+.state-card { @apply hover:bg-muted focus:ring-2; }
+.layout-card { @apply grid gap-4 md:grid-cols-2; }
+.wide-card { @apply md:px-6; }`,
+  };
+  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+    'src/a.css: .my-card styles an element named like a shared one; use the hw-* element or list "my-card" as an exception',
+    'src/a.css: .btn-primary styles an element named like a shared one; use the hw-* element or list "btn-primary" as an exception',
+    'src/a.css: .wide-card styles an element named like a shared one; use the hw-* element or list "wide-card" as an exception',
+  ]);
+});
+
+// brand's own expert layer meets the fork rule a consumer's gate applies. Each name below is a
+// fork recorded in item work-checks-see-stories; a new one fails here, and a fixed one fails until
+// its line goes.
+const KNOWN = [
+  "expert/components/FilterChip.astro:",
+  "expert/components/FilterChipBar.astro:",
+  "expert/components/Pill.astro:",
+  "expert/expert.css: .btn-primary",
+  "expert/expert.css: .btn-secondary",
+  "expert/expert.css: .chip-link",
+  "expert/expert.css: .chip-link-muted",
+  "expert/expert.css: .filter-chip",
+  "expert/expert.css: .filter-chip .chip-remove",
+];
+test("the fork rule over expert/ finds only the recorded forks", () => {
+  const paths = Bun.spawnSync(["git", "ls-files", "expert"], { cwd: ROOT })
+    .stdout.toString()
+    .trim()
+    .split("\n");
+  const out = sourceFindings(paths, (p) => readFileSync(join(ROOT, p), "utf8"), {});
+  expect(out.map((f) => f.replace(/ (styles an|a component named) .*/, ""))).toEqual(KNOWN);
+});

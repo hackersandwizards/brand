@@ -16,14 +16,17 @@
 // also keeps the browser's own fails, whatever its offset. Not measured: a heading's or
 // link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
-// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--json] <url, html file or
-// site path>... --site serves a built folder on a free port, and a page starting with / is a path
-// on it.
+// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--catalog <folder>
+// [--catalog-at <page>]] [--json] <url, html file or site path>... --site serves a built folder on a
+// free port, and a page starting with / is a path on it. --catalog adds every story page of a built
+// catalog folder (catalogPages), each named below --catalog-at, by default the folder itself, or
+// its path on --site.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
-// two markers, or a page with no marker (a zero proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
-import { existsSync, statSync } from "node:fs";
+// two markers, or a named page with no marker (a zero proves nothing; a story page may show none).
+// Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { availableParallelism } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer, {
   type Browser,
@@ -471,6 +474,24 @@ export const serve = (dir: string) => {
   });
 };
 
+/** Every story state page of a built catalog folder `dir`, as scaffolding writes it
+ * (stories/<group>/<story>/<state>/index.html), named below `at` the way a page is: a URL or a path
+ * on the served site ends in the state's folder, URL-encoded, a file names its index.html. `at` defaults to the
+ * folder's path on the served `site`, else the folder. Throws on a folder without a story page. */
+export const catalogPages = (dir: string, at?: string, site?: string) => {
+  const stories = join(dir, "stories");
+  const states = existsSync(stories)
+    ? readdirSync(stories, { recursive: true, encoding: "utf8" })
+        .filter((f) => f === "index.html" || f.endsWith("/index.html"))
+        .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
+        .sort()
+    : [];
+  if (!states.length) throw new Error(`no story page under ${stories}; build the catalog first`);
+  const root = at ?? (site ? `/${relative(site, dir)}` : dir);
+  const file = !/^[a-z]+:\/\//.test(root) && !(site && root.startsWith("/"));
+  return states.map((s) => `${root.replace(/\/?$/, "/")}${file ? `${s}index.html` : encodeURI(s)}`);
+};
+
 if (import.meta.main) {
   const args = process.argv.slice(2);
   const opt = (name: string, fallback: string) => {
@@ -480,17 +501,26 @@ if (import.meta.main) {
   const scales = opt("--scale", "2,4").split(",").map(Number);
   const width = Number(opt("--width", "1280"));
   const site = opt("--site", "");
+  const catalog = opt("--catalog", "");
+  const at = opt("--catalog-at", "");
   const json = args.includes("--json");
   const named = args.filter((a) => a !== "--json");
-  if (!named.length) {
+  let stories: string[] = [];
+  try {
+    if (catalog) stories = catalogPages(catalog, at || undefined, site || undefined);
+  } catch (e) {
+    console.error(`brand-markers: ${(e as Error).message}`);
+    process.exit(2);
+  }
+  if (!named.length && !stories.length) {
     console.error(
-      "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--json] <url, html file or site path>...",
+      "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--catalog <folder> [--catalog-at <page>]] [--json] <url, html file or site path>...",
     );
     process.exit(2);
   }
   const server = site ? serve(site) : undefined;
   const browser = await launch();
-  const pages = named.map((a) => toUrl(a, server?.url));
+  const pages = [...named, ...stories].map((a) => toUrl(a, server?.url));
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
   // most 8, as a run at 4x holds a 5120 x 3600 surface.
   const runs = pages.flatMap((url) =>
@@ -514,7 +544,7 @@ if (import.meta.main) {
     await server?.stop(true);
   }
   const readings = done.flat();
-  const empty = pages.filter((url) => !readings.some((r) => r.page === url));
+  const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
   const bad = readings.filter(failing);
   if (json) console.log(JSON.stringify(readings, null, 2));
   else {
