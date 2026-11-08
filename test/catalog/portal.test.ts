@@ -99,10 +99,14 @@ beforeAll(async () => {
 afterAll(() => browser?.close());
 const url = pathToFileURL(`${DIST}/index.html`).href;
 
+// Each view is hidden until its link opens it, and brand-elements skips what is hidden: every view
+// is measured open, and the overview, all views hidden, as a control.
 test("the portal's samples match their rules", async () => {
-  const r = await measurePage(browser, url);
-  expect(r.seen.length).toBe(28);
-  expect(r.findings).toEqual([]);
+  const views = [...new Set(page("index.html").match(/(?<=data-page=")[a-z-]+/g))];
+  const rs = await Promise.all(views.map((v) => measurePage(browser, `${url}#${v}`)));
+  expect(new Set(rs.flatMap((r) => r.seen)).size).toBe(28);
+  expect(rs.flatMap((r) => r.findings)).toEqual([]);
+  expect((await measurePage(browser, url)).seen).toEqual([]);
 }, 60_000);
 
 // The portal's own lists take the rule; with the browser's disc they read 0.56 to 0.61 px off.
