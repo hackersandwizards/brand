@@ -251,16 +251,30 @@ const dayAgain = (tokens: Record<string, string>) => {
   return out;
 };
 
-/** A stylesheet with its relative @imports replaced by the files, recursively, each where the
- *  browser applies it. */
-const flat = (path: string): string =>
-  readFileSync(path, "utf8").replace(/^@import "(\.\.?\/[\w./-]+\.css)";\n/gm, (_, f: string) =>
-    flat(join(path, "..", f)),
+const LAYER_ORDER = readFileSync(join(ROOT, "tokens/layers.css"), "utf8").trim();
+
+const imported = (path: string): string =>
+  readFileSync(path, "utf8").replace(/^@import "(\.\.?\/[\w./-]+\.css)";$/gm, (_, f: string) =>
+    imported(join(path, "..", f)),
   );
 
-const FLAT = (
-  source: string,
-) => `/* Generated from ${source} by scripts/tokens.ts. Edit the source, never this file.
+/** A stylesheet with its relative @imports replaced by the files, recursively, each where the
+ *  browser applies it, its comments dropped and the layer order stated once, at the top. Throws on
+ *  an @import of another form and on a relative url(), which would resolve against the flat file's
+ *  folder. */
+export const flat = (path: string): string => {
+  const css = imported(path).replace(/\/\*[^]*?\*\//g, "");
+  const bad = /@import\b[^;]*;?|url\(\s*(["']?)(?!data:|https?:|\/\/|#)[^"')]+\1\s*\)/.exec(css);
+  if (bad) throw new Error(`${path}: ${bad[0]} cannot be resolved in place`);
+  let first = true;
+  return `${css
+    .replaceAll(LAYER_ORDER, () => (first ? ((first = false), LAYER_ORDER) : ""))
+    .replace(/\n\s*\n/g, "\n")
+    .trim()}\n`;
+};
+
+const FLAT = (source: string) =>
+  `/* Generated from ${source} by scripts/tokens.ts. Edit the source, never this file.
    The source with every @import resolved in place: a page that links the stylesheet links this
    one instead, so its first paint waits on one request. */
 ${flat(join(ROOT, source))}`;

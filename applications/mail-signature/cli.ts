@@ -12,30 +12,40 @@ client that takes plain text only. Without --out it prints the plain text.
   bun run brand-mail-signature --name "Kim Beispiel" --role "Freie Trainerin" \\
     [--phone "+49 40 1234 5678"] [--linkedin <url>] [--out <path without extension>]`;
 
-const { values: a } = parseArgs({
-  options: {
-    name: { type: "string" },
-    role: { type: "string" },
-    phone: { type: "string" },
-    linkedin: { type: "string" },
-    out: { type: "string" },
-    help: { type: "boolean", short: "h" },
-  },
-});
+const options = {
+  name: { type: "string" },
+  role: { type: "string" },
+  phone: { type: "string" },
+  linkedin: { type: "string" },
+  out: { type: "string" },
+  help: { type: "boolean", short: "h" },
+} as const;
+const fail = (message: string) => {
+  console.error(`brand-mail-signature: ${message}\n\n${USAGE}`);
+  process.exit(1);
+};
+let a: ReturnType<typeof parseArgs<{ options: typeof options }>>["values"] = {};
+try {
+  a = parseArgs({ options }).values;
+} catch (e) {
+  fail((e as Error).message);
+}
 if (a.help) {
   console.log(USAGE);
   process.exit(0);
 }
-if (!a.name || !a.role) {
-  console.error(`brand-mail-signature: --name and --role are required\n\n${USAGE}`);
-  process.exit(1);
-}
-const fields = { ...a, name: a.name, role: a.role };
+const { name, role, phone, linkedin, out } = a;
+if (!name || !role) fail("--name and --role are required");
+const fields = { name: name!, role: role!, phone, linkedin };
 const template = (ext: string) => readFileSync(join(import.meta.dir, `template.${ext}`), "utf-8");
-const text = fillSignature(template("txt"), fields, "text");
-if (!a.out) console.log(text);
-else {
-  writeFileSync(`${a.out}.html`, fillSignature(template("html"), fields, "html"));
-  writeFileSync(`${a.out}.txt`, text);
-  console.log(`${a.out}.html\n${a.out}.txt`);
+try {
+  const text = fillSignature(template("txt"), fields, "text");
+  if (!out) console.log(text);
+  else {
+    writeFileSync(`${out}.html`, fillSignature(template("html"), fields, "html"));
+    writeFileSync(`${out}.txt`, text);
+    console.log(`${out}.html\n${out}.txt`);
+  }
+} catch (e) {
+  fail((e as Error).message);
 }

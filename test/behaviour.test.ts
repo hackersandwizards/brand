@@ -207,6 +207,23 @@ test("a ruled facts list in columns leaves its whole first row open and rules ev
   expect(new Set(grid!.slice(0, 3).map(([t]) => t)).size).toBe(1);
   expect(grid![3]![0]).toBe(grid![4]![0]);
   expect(stack!.map(([, b]) => b)).toEqual(["0px", "1px", "1px", "1px", "1px"]);
+  // Unruled, the rows keep the columns' gap apart.
+  await p.$eval("dl", (dl) => dl.removeAttribute("data-variant"));
+  expect(await p.$eval("dl", (dl) => getComputedStyle(dl).rowGap)).toBe("16px");
+  // In a narrow column a long value wraps rather than drawing over its neighbour.
+  await p.$eval("dl", (dl) => {
+    dl.parentElement!.style.width = "240px";
+    dl.dataset.columns = "4";
+    dl.querySelector("dd")!.textContent = "Präsenztraining";
+  });
+  expect(
+    await p.$eval("dl", (dl) => {
+      const [a, b] = [...dl.children].map((d) => d.getBoundingClientRect());
+      const text = document.createRange();
+      text.selectNodeContents(dl.querySelector("dd")!);
+      return text.getBoundingClientRect().right <= Math.min(a!.right, b!.left);
+    }),
+  ).toBe(true);
   await p.close();
 }, 30_000);
 

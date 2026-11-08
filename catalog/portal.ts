@@ -27,6 +27,7 @@ import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch
 import {
   aliases,
   colorValue,
+  flat,
   palettes,
   parseTokens,
   resolveColors,
@@ -57,10 +58,7 @@ const catalogCss = readFileSync(
   createRequire(import.meta.url).resolve("@hackersandwizards/scaffolding/catalog/catalog.css"),
   "utf8",
 );
-const elementsCss = readFileSync(join(ROOT, "elements/elements.css"), "utf8").replace(
-  /@import "(\.\.?\/[\w/-]+\.css)";/g,
-  (_, file: string) => readFileSync(join(ROOT, "elements", file), "utf8"),
-);
+const elementsCss = flat(join(ROOT, "elements/elements.css"));
 writeAsset("elements.css", elementsCss);
 // An asset named by its content's hash; returns its path from the page.
 const hashedAsset = (content: string | Buffer, ext: string) => {
@@ -965,17 +963,17 @@ const LEAD =
   "Everything the hackers&wizards brand is made of: tokens, logos, the files made from them and the press kit. Each system shows its components on its own design-system page.";
 // The overview's mode goes in the markup: set first by show() at the end of the page, it would
 // let the quick start appear above the tiles after they painted (CLS 0.41 on Lighthouse mobile).
-const catalogPage = renderCatalog({
+const ROOT_DIV = 'class="hw-catalog hw-container"';
+const rendered = renderCatalog({
   title: "hackers&wizards brand",
   lead: LEAD,
   provenance: `brand v${pkg.version} · tokens/tokens.css, manifest.json, applications/, press/ · ${entries} entries`,
   labels: { search: "Search  /" },
   groups,
   intro: `<div class="portal">${quick}<div id="results"></div><div class="portal-views">${pages.map(([id, title, body]) => `<section id="view-${id}" data-page="${id}" hidden><h2>${esc(title)}</h2>${body}</section>`).join("\n")}</div></div>`,
-}).replace(
-  'class="hw-catalog hw-container"',
-  'class="hw-catalog hw-container" data-mode="overview"',
-);
+});
+if (!rendered.includes(ROOT_DIV)) throw new Error(`renderCatalog wrote no ${ROOT_DIV}`);
+const catalogPage = rendered.replace(ROOT_DIV, `${ROOT_DIV} data-mode="overview"`);
 
 // The head's stylesheets are inline, so the first paint waits on no request: without their
 // comments, whose sample markup would read as the page's own, each url() made relative to the

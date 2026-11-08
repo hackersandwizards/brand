@@ -87,7 +87,9 @@ test("every link and image of the portal resolves in dist/", () => {
     page(m[1]!).replace('<base href="../">', ""),
   );
   expect(frames.length).toBeGreaterThan(30);
+  // A script's string literals are no links; its src stays checked.
   const refs = [html, ...frames]
+    .map((h) => h.replace(/(<script\b[^>]*>)[^]*?(<\/script>)/g, "$1$2"))
     .flatMap((h) => [...h.matchAll(/\s(?:src|href|data-href)="([^"#]*)(?:#[^"]*)?"/g)])
     .map((m) => decode(m[1]!).split("?")[0]!)
     .concat(

@@ -173,8 +173,3 @@ test("no theme namespace pair a Tailwind utility reads shares a name", () => {
     .join("\n");
   expect(collisions(source)).toEqual([]);
 });
-
-test("the flat builds hold no @import: each source file sits in place", () => {
-  for (const f of ["elements.css", "document.css"])
-    expect(readFileSync(join(ROOT, "generated", f), "utf8")).not.toMatch(/^@import/m);
-});
