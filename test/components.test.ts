@@ -26,7 +26,7 @@ const props: Record<string, Record<string, unknown>> = {
     label: P,
     items: [],
     state: { q: "", facets: {} },
-    facet: { param: "t", legend: P, options: [] },
+    facets: [{ param: "t", legend: P, options: [] }],
     count: "{shown}",
   },
   ListRow: { stripeColor: "bg-teal" },

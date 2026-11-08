@@ -197,7 +197,12 @@ html[data-theme="dark"] {
   }
 }
 
-/* Shared by overview and detail pages, so body content lands at the same Y on every route. */
+/* Shared by overview and detail pages, so body content lands at the same Y on every route.
+   --page-title-row-h is the row's height, readable anywhere, such as by a detail header of the
+   same height. */
+:root {
+  --page-title-row-h: 3.875rem;
+}
 .page-title-row {
   display: flex;
   flex-direction: column;
@@ -205,7 +210,6 @@ html[data-theme="dark"] {
   margin-bottom: 1rem;
   /* Fixed, not min-height: a growable row lets an action button push the H1 down, so the title
      jumps between routes. 12px cap around a 38px button. */
-  --page-title-row-h: 3.875rem;
   height: var(--page-title-row-h);
 }
 @media (min-width: 640px) {

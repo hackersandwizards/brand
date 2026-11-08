@@ -478,11 +478,13 @@ targets on `screen`). Its browser side is `initListFilter` in `elements/list-fil
 page without Astro runs over the same markup; each row carries `data-filter-item`, its lowercase
 text in `data-filter-text`, its facet values as JSON in `data-filter-facets`
 (`{"topic":["tools"]}`), its place in `data-filter-order`; a `[data-filter-title]` gets the matches
-marked and a `[data-filter-group]` hides while none of its rows shows. A facet whose labels sum past
-`budget` characters (160) shows as a select. `browse="active"` lists rows only while a filter is
+marked and a `[data-filter-group]` hides while none of its rows shows. `facets` lists any number of
+facets in order, each shown as choices unless its labels sum past `budget` characters (160), then as
+a select; an empty list shows the search alone, without the phone's Filters button. Pass only the
+facets that split the rows. `browse="active"` lists rows only while a filter is
 set; on a static page its rows then wait in a template without JavaScript, or load on first use from
-the page `source` names, or stay in the page with `listed`. `inline` sets the select beside the
-search from 64rem. Should the script fail, the phone's facets and the search button stay usable. A row is `expert/components/ListRow.astro` on `hw-row`
+the page `source` names, or stay in the page with `listed`. `inline` sets the first select beside
+the search from 64rem. Should the script fail, the phone's facets and the search button stay usable. A row is `expert/components/ListRow.astro` on `hw-row`
 (`stripeColor`, the slots `lead` and `trail`, every further attribute passed to the row, `current`
 for the record open beside the list).
 

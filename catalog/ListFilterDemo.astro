@@ -2,18 +2,20 @@
 // The list filter (expert/components/ListFilter.astro) over list rows (ListRow.astro), at one scale,
 // on light or night, as an app's or the website's list page renders it. `mode` shows the ways a
 // static page keeps its rows under an overview: in a template, listed, or loaded from a source page
-// (the dense story); "many" gives the facet more labels than its budget holds.
+// (the dense story); "listed" adds a second facet as choices, "many" gives the topic more labels
+// than its budget holds, so it shows as a select beside the search, and "none" passes no facet.
 import ListFilter from "../expert/components/ListFilter.astro";
 import ListRow from "../expert/components/ListRow.astro";
 
 interface Props {
   scale?: "screen" | "dense";
   night?: boolean;
-  mode?: "inert" | "listed" | "source" | "many";
+  mode?: "inert" | "listed" | "source" | "many" | "none";
 }
 
 const { scale = "dense", night = false, mode } = Astro.props;
-const overview = mode && mode !== "many" ? `overview-${mode}` : undefined;
+const overview =
+  mode && ["inert", "listed", "source"].includes(mode) ? `overview-${mode}` : undefined;
 const topics = [
   { value: "tools", label: "Werkzeuge" },
   { value: "evidence", label: "Belege" },
@@ -41,10 +43,29 @@ const rows = [
   { title: "Messbare Produktivität", topic: "evidence", days: "1 Tag", hue: "purple" },
   { title: "Agenten im Team", topic: "practice", days: "2 Tage", hue: "amber" },
 ];
+const both = mode === "listed" || mode === "many";
 const items = rows.map((r) => ({
   text: r.title.toLowerCase(),
-  facets: mode === "listed" ? { topic: [r.topic], days: [r.days[0]!] } : { topic: [r.topic] },
+  facets: both ? { topic: [r.topic], days: [r.days[0]!] } : { topic: [r.topic] },
 }));
+const facets =
+  mode === "none"
+    ? []
+    : [
+        { param: "topic", legend: "Thema", options: facetOptions },
+        ...(both
+          ? [
+              {
+                param: "days",
+                legend: "Dauer",
+                options: [
+                  { value: "1", label: "1 Tag" },
+                  { value: "2", label: "2 Tage" },
+                ],
+              },
+            ]
+          : []),
+      ];
 ---
 
 <div class="demo hw-focus-ring" data-hw-scale={scale} data-theme={night ? "dark" : undefined}>
@@ -53,25 +74,13 @@ const items = rows.map((r) => ({
     action="#"
     label="Einheiten suchen"
     items={items}
-    state={{ q: "", facets: mode === "listed" ? { topic: "", days: "" } : { topic: "" } }}
-    facet={{ param: "topic", legend: "Thema", options: facetOptions }}
-    select={
-      mode === "listed"
-        ? {
-            param: "days",
-            legend: "Dauer",
-            options: [
-              { value: "1", label: "1 Tag" },
-              { value: "2", label: "2 Tage" },
-            ],
-          }
-        : undefined
-    }
+    state={{ q: "", facets: Object.fromEntries(facets.map((f) => [f.param, ""])) }}
+    facets={facets}
     browse={overview ? "active" : "always"}
     overview={overview}
     source={mode === "source" ? "../dense/" : undefined}
     listed={mode === "listed"}
-    inline={mode === "listed"}
+    inline={mode === "many"}
     count={{ one: "1 Einheit", other: "{shown} von {total} Einheiten" }}
     copy={{
       all: "Alle",

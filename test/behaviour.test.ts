@@ -194,6 +194,20 @@ test("a dialog fits its container in the flow and a phone when modal, its conten
   await p.close();
 }, 30_000);
 
+test("a dialog holding no control draws no ring outside hw-focus-ring too", async () => {
+  const p = await page(
+    `<button id="b">Öffnen</button><dialog class="hw-dialog" id="n" aria-label="Tasten"><div class="hw-dialog-body">${KEYS}</div></dialog>`,
+  );
+  await p.keyboard.press("Tab");
+  // Control: outside hw-focus-ring the browser draws its own ring on a focused control.
+  expect(await p.$eval("#b", (b) => getComputedStyle(b).outlineStyle)).not.toBe("none");
+  await p.$eval("#n", (d) => (d as HTMLDialogElement).showModal());
+  expect(
+    await p.$eval("#n", (d) => [d.matches(":focus-visible"), getComputedStyle(d).outlineStyle]),
+  ).toEqual([true, "none"]);
+  await p.close();
+}, 30_000);
+
 test("a ruled facts list in columns leaves its whole first row open and rules every later row", async () => {
   const fact = (i: number) =>
     `<div><dt class="hw-label" data-tone="muted">F${i}</dt><dd>${i}</dd></div>`;

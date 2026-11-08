@@ -687,6 +687,17 @@
     text-decoration-thickness: var(--hw-underline, 1px);
     text-underline-offset: 0.2em;
   }
+  :is(.hw-link, .hw-links a):has(> svg) {
+    display: inline-flex;
+    align-items: baseline;
+    column-gap: 0.3em;
+  }
+  :is(.hw-link, .hw-links a) > svg {
+    flex: none;
+    align-self: center;
+    width: 1em;
+    height: 1em;
+  }
   :is(.hw-link, .hw-links a):hover {
     color: var(--color-ink);
   }
@@ -2753,6 +2764,9 @@ select.form-input {
       translate var(--motion-fast),
       overlay var(--motion-fast) allow-discrete,
       display var(--motion-fast) allow-discrete;
+  }
+  .hw-dialog:focus-visible {
+    outline: none;
   }
   .hw-dialog[open]:not(:modal) {
     position: relative;

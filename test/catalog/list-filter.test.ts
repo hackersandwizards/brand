@@ -181,34 +181,67 @@ test("a source page's rows load on first use; should they fail, the search goes 
 test("inline sets the select beside the search from 64rem; a select filters with the choices", async () => {
   const p = await browser.newPage();
   await p.setViewport({ width: 1280, height: 900 });
-  await p.goto(`${story("listed")}?days=1`, { waitUntil: "networkidle0" });
+  await p.goto(`${story("many")}?days=1`, { waitUntil: "networkidle0" });
   const box = (sel: string) =>
     p.$eval(sel, (e) => {
       const r = e.getBoundingClientRect();
       return { left: r.left, right: r.right, bottom: r.bottom };
     });
-  const [search, select] = [await box(".hw-search"), await box('select[name="days"]')];
+  const [search, select] = [await box(".hw-search"), await box('select[name="topic"]')];
   expect(Math.abs(search.bottom - select.bottom)).toBeLessThan(1);
   expect(select.left).toBeGreaterThan(search.right);
   expect((await shown(p)).length).toBe(2);
-  await p.click('label.hw-choice:has(input[value="tools"])');
+  await p.select('select[name="topic"]', "tools");
   expect(await shown(p)).toEqual(["Spec-driven Development"]);
   expect(new URL(p.url()).search).toBe("?topic=tools&days=1");
   // Control: at 1000 px the select stacks below the search.
   await p.setViewport({ width: 1000, height: 900 });
-  expect((await box('select[name="days"]')).left).toBeLessThan(search.right);
+  expect((await box('select[name="topic"]')).left).toBeLessThan(search.right);
   await p.close();
 }, 60_000);
 
 test("a facet past its label budget shows as a select and filters", async () => {
   const p = await browser.newPage();
   await p.goto(story("many"), { waitUntil: "networkidle0" });
-  expect(await p.$$eval('input[type="radio"]', (r) => r.length)).toBe(0);
+  expect(await p.$$eval('input[name="topic"]', (r) => r.length)).toBe(0);
   await p.select('select[name="topic"]', "evidence");
   expect(await shown(p)).toEqual(["Messbare Produktivität"]);
   expect(new URL(p.url()).searchParams.get("topic")).toBe("evidence");
   // Control: the story with three topics keeps its choices.
   await p.goto(story("dense"), { waitUntil: "networkidle0" });
-  expect(await p.$$eval('input[type="radio"]', (r) => r.length)).toBe(4);
+  expect(await p.$$eval('input[name="topic"]', (r) => r.length)).toBe(4);
+  await p.close();
+}, 60_000);
+
+test("two facets as choices filter together, each counting under the other", async () => {
+  const p = await browser.newPage();
+  await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
+  expect(await p.$$eval("fieldset", (f) => f.length)).toBe(2);
+  expect(await shown(p)).toEqual(["Context Engineering", "Agenten im Team"]);
+  expect(await text(p, 'fieldset:first-of-type [data-facet-count="tools"]')).toBe("1");
+  await p.click('label.hw-choice:has(input[name="topic"][value="practice"])');
+  expect(await shown(p)).toEqual(["Agenten im Team"]);
+  expect(new URL(p.url()).search).toBe("?topic=practice&days=2");
+  expect(await text(p, 'fieldset:last-of-type [data-facet-count="1"]')).toBe("0");
+  // Clear resets both.
+  await p.click("form [data-filter-clear]");
+  expect(
+    await p.$$eval("input:checked", (r) => r.map((x) => (x as HTMLInputElement).value)),
+  ).toEqual(["", ""]);
+  await p.close();
+}, 60_000);
+
+test("no facet shows the search alone, with no fieldset and no Filters button", async () => {
+  const p = await browser.newPage();
+  await p.setViewport({ width: 390, height: 800 });
+  await p.goto(story("none"), { waitUntil: "networkidle0" });
+  expect(await p.$$eval("fieldset, select", (f) => f.length)).toBe(0);
+  expect(await p.$("[data-filter-toggle]")).toBeNull();
+  await p.type('input[name="q"]', "agenten");
+  await settle();
+  expect(await shown(p)).toEqual(["Agenten im Team"]);
+  // Control: the screen story on a phone has its Filters button.
+  await p.goto(story("screen"), { waitUntil: "networkidle0" });
+  expect(await p.$("[data-filter-toggle]")).not.toBeNull();
   await p.close();
 }, 60_000);

@@ -1,11 +1,12 @@
 ---
-/** Search, one facet as choices and an optional second facet as a select, over a list the page
+/** Search and any number of facets, each as choices or a select, over a list the page
  *  renders in full in the default slot: a GET form to its own page, so the server applies the
  *  URL's state and a shared link and a browser without JavaScript show the same rows: each row
  *  sets `hidden` where `matches(item, state)` is false. The browser side and the rows' attributes
  *  are elements/list-filter.ts's; the look is the shared elements
  *  (hw-search, hw-choice, hw-field, hw-button) placed by elements/list-filter.css, sized by the
- *  page's data-hw-scale. A facet whose labels run past `budget` characters shows as a select.
+ *  page's data-hw-scale. Each facet shows as choices, "All" first, unless its labels run past
+ *  `budget` characters, then as a select; no facet shows the search alone, without Filters button.
  *  `browse="active"` shows the list only while a filter is set, in place of the element `overview`
  *  names. Under it a static page keeps its rows out of the page without JavaScript: in an inert
  *  template, the form showing only once the script runs; `source` names a page listing every row,
@@ -41,11 +42,9 @@ interface Props {
   label: string;
   items: FilterItem[];
   state: FilterState;
-  /** Shown as choices, "All" first. */
-  facet: Facet;
-  /** Shown as a select, for a facet with too many values for choices. */
-  select?: Facet;
-  /** The summed label length, "All" included, past which `facet` shows as a select too. */
+  /** In order: each as choices, or as a select past `budget`. Pass only facets that split the rows. */
+  facets: Facet[];
+  /** The summed label length of one facet, "All" included, past which it shows as a select. */
   budget?: number;
   /** The count line, with {shown} and {total}, or one for a single match and one for any other. */
   count: CountCopy;
@@ -59,7 +58,7 @@ interface Props {
   source?: string;
   /** Under `browse="active"`, the rows stay in the page without JavaScript. */
   listed?: boolean;
-  /** From 64rem, the select sits beside the search. */
+  /** From 64rem, the first select sits beside the search. */
   inline?: boolean;
   copy?: { all: string; clear: string; empty: string; submit: string; filters: string };
 }
@@ -70,8 +69,7 @@ const {
   label,
   items,
   state,
-  facet,
-  select,
+  facets,
   count,
   browse = "always",
   overview,
@@ -93,12 +91,10 @@ const active = isActive(state);
 const listed = browse === "always" || active || keep;
 // Under an overview with nowhere else to send the query, the rows wait in a template.
 const inert = browse === "active" && !source && !keep && !active;
-const asChoices =
+const asChoices = (facet: Facet) =>
   [copy.all, ...facet.options.map((option) => option.label)].join("").length <= budget;
-const selects = [...(asChoices ? [] : [facet]), ...(select ? [select] : [])];
 const shown = items.filter((item) => matches(item, state)).length;
 const countText = listed ? countLine(count, shown, items.length) : "";
-const choiceCounts = tally(items, state, facet.param);
 
 const faceted = Object.values(state.facets).some(Boolean);
 ---
@@ -130,49 +126,52 @@ const faceted = Object.values(state.facets).some(Boolean);
       <button type="submit" class="hw-button" data-variant="secondary" data-filter-submit>
         {copy.submit}
       </button>
-      <button
-        type="button"
-        class="hw-button"
-        data-variant={faceted ? undefined : "secondary"}
-        aria-expanded="false"
-        aria-controls={`${id}-facets`}
-        data-filter-toggle
-      >
-        {copy.filters}
-      </button>
-    </div>
-    <div id={`${id}-facets`} data-filter-panel>
-      {asChoices && (
-        <fieldset class="hw-form-field">
-          <legend class="hw-form-label">{facet.legend}</legend>
-          <div class="hw-choices">
-            {[{ value: "", label: copy.all }, ...facet.options].map((option) => (
-              <label class="hw-choice">
-                <input
-                  type="radio"
-                  name={facet.param}
-                  value={option.value}
-                  checked={(state.facets[facet.param] ?? "") === option.value}
-                />
-                {option.label}
-                <span class="hw-choice-count" data-facet-count={option.value}>
-                  {choiceCounts.get(option.value) ?? 0}
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+      {facets.length > 0 && (
+        <button
+          type="button"
+          class="hw-button"
+          data-variant={faceted ? undefined : "secondary"}
+          aria-expanded="false"
+          aria-controls={`${id}-facets`}
+          data-filter-toggle
+        >
+          {copy.filters}
+        </button>
       )}
-      {selects.map((each) => {
-        const counts = tally(items, state, each.param);
-        return (
+    </div>
+    <div id={`${id}-facets`} data-filter-panel hidden={facets.length === 0}>
+      {facets.map((facet) => {
+        const counts = tally(items, state, facet.param);
+        const options = [{ value: "", label: copy.all }, ...facet.options];
+        const chosen = state.facets[facet.param] ?? "";
+        return asChoices(facet) ? (
+          <fieldset class="hw-form-field">
+            <legend class="hw-form-label">{facet.legend}</legend>
+            <div class="hw-choices">
+              {options.map((option) => (
+                <label class="hw-choice">
+                  <input
+                    type="radio"
+                    name={facet.param}
+                    value={option.value}
+                    checked={chosen === option.value}
+                  />
+                  {option.label}
+                  <span class="hw-choice-count" data-facet-count={option.value}>
+                    {counts.get(option.value) ?? 0}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : (
           <label class="hw-form-field">
-            <span class="hw-form-label">{each.legend}</span>
-            <select name={each.param} class="hw-field hw-select">
-              {[{ value: "", label: copy.all }, ...each.options].map((option) => (
+            <span class="hw-form-label">{facet.legend}</span>
+            <select name={facet.param} class="hw-field hw-select">
+              {options.map((option) => (
                 <option
                   value={option.value}
-                  selected={(state.facets[each.param] ?? "") === option.value}
+                  selected={chosen === option.value}
                   data-label={option.label}
                 >
                   {`${option.label} (${counts.get(option.value) ?? 0})`}

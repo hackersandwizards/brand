@@ -127,7 +127,7 @@ export function highlight(text: string, words: string[]): string {
 }
 
 /** The browser side of ListFilter.astro, over its markup (root [data-list-filter], its value
- *  "always" or "active"): typing (200 ms debounce), a choice and each select filter in place, the
+ *  "always" or "active"): typing (200 ms debounce), each facet's choice or select filter in place, the
  *  state lives in `?q=` and each facet's parameter, Back and Forward restore it, and the counts
  *  follow the search. One search is one history entry, arrowing across the choices is one too.
  *  Rows in a template[data-filter-rows] enter the list; with data-source on the root, the rows of
@@ -148,11 +148,21 @@ export function initListFilter(root: HTMLElement) {
   const overview = root.dataset.overview ? document.getElementById(root.dataset.overview) : null;
   const browseAlways = root.dataset.listFilter !== "active";
   const copy: CountCopy = JSON.parse(root.dataset.count!);
-  const chipParam = radios[0]?.name;
+  // The facets in the form's order: a fieldset of radios sharing its parameter, or a select.
+  const fields = [...form.querySelectorAll<HTMLElement>("fieldset, select")].flatMap((el) => {
+    const own = radios.filter((radio) => el.contains(radio));
+    if (el instanceof HTMLSelectElement) return [{ el, param: el.name, radios: own }];
+    return own[0] ? [{ el, param: own[0].name, radios: own }] : [];
+  });
+  const choiceSets = fields.filter((field) => field.radios.length);
+  const value = ({ el, radios: own }: (typeof fields)[number]) =>
+    el instanceof HTMLSelectElement ? el.value : (own.find((radio) => radio.checked)?.value ?? "");
   const options: Record<string, string[]> = {};
-  if (chipParam) options[chipParam] = radios.map((radio) => radio.value);
-  for (const select of selects)
-    options[select.name] = [...select.options].map((option) => option.value);
+  for (const { el, param, radios: own } of fields)
+    options[param] =
+      el instanceof HTMLSelectElement
+        ? [...el.options].map((option) => option.value)
+        : own.map((radio) => radio.value);
   form.hidden = false;
   const template = list.querySelector<HTMLTemplateElement>("template[data-filter-rows]");
   template?.replaceWith(template.content);
@@ -214,8 +224,7 @@ export function initListFilter(root: HTMLElement) {
 
   const state = (): FilterState => {
     const facets: Record<string, string> = {};
-    if (chipParam) facets[chipParam] = radios.find((radio) => radio.checked)?.value ?? "";
-    for (const select of selects) facets[select.name] = select.value;
+    for (const field of fields) facets[field.param] = value(field);
     return { q: input.value.trim(), facets };
   };
 
@@ -255,9 +264,9 @@ export function initListFilter(root: HTMLElement) {
       link.href = fullTextUrl(link.dataset.filterFulltext!, current.q);
       link.hidden = !current.q;
     }
-    if (chipParam) {
-      const chips = tally(items, current, chipParam);
-      for (const each of form.querySelectorAll<HTMLElement>("[data-facet-count]"))
+    for (const { el, param } of choiceSets) {
+      const chips = tally(items, current, param);
+      for (const each of el.querySelectorAll<HTMLElement>("[data-facet-count]"))
         each.textContent = String(chips.get(each.dataset.facetCount!) ?? 0);
     }
     for (const select of selects) {
@@ -273,7 +282,7 @@ export function initListFilter(root: HTMLElement) {
   const restore = () => {
     const { q, facets } = readState(new URLSearchParams(location.search), options);
     input.value = q;
-    for (const radio of radios) radio.checked = radio.value === facets[chipParam!];
+    for (const radio of radios) radio.checked = radio.value === (facets[radio.name] ?? "");
     for (const select of selects) select.value = facets[select.name] ?? "";
     apply();
   };
@@ -320,7 +329,7 @@ export function initListFilter(root: HTMLElement) {
     clear.addEventListener("click", (event) => {
       event.preventDefault();
       input.value = "";
-      if (radios[0]) radios[0].checked = true;
+      for (const { radios: own } of choiceSets) own[0]!.checked = true;
       for (const select of selects) select.value = "";
       once("typing");
       input.focus();

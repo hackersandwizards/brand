@@ -29,7 +29,8 @@
 //    files and inheriting the page's tokens, theme and scale. An instance holding the page's focus
 //    (a story's focused state) is read focused, and its reference too.
 //    Any difference in a computed property the element sets (OWNS: its corner, fill, line, text
-//    colour, type, padding or size) fails, by more than 0.02px for a length. Each brand token an
+//    colour, type, padding or size) fails, by more than 0.02px for a length, an underline's offset
+//    compared in em of the element's own font size. Each brand token an
 //    element reads must be defined where it renders; with "lightOnly" the tokens only its night
 //    rules read are left out, since a page without night never draws them. An element drawn with
 //    the brand corner (top-left and bottom-right larger than top-right) inside another so drawn
@@ -204,6 +205,9 @@ const INLINE_CODE = [
   "font-variant-ligatures",
 ];
 const LINK = [
+  "display",
+  "align-items",
+  "column-gap",
   "color",
   "text-decoration-line",
   "text-decoration-thickness",
@@ -223,6 +227,7 @@ const OWNS: Record<string, string[]> = {
   "table th": [...borders(["bottom"]), ...PAD, ...TYPE, "color", "text-align", "vertical-align"],
   "table td": [...borders(["bottom"]), ...PAD, "text-align", "vertical-align"],
   link: LINK,
+  "link :scope > svg": ["width", "height", "align-self"],
   "focus-ring": ["outline-style", "outline-width", "outline-color", "outline-offset"],
   "icon-button": ["width", "height", ...CORNER, ...FILL, ...PAD, "color"],
   "icon-button svg": ["width", "height"],
@@ -428,11 +433,19 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
     return x !== null && y !== null ? Math.abs(x - y) <= tolerance : colour(got) === colour(want);
   };
   const sideOf = (prop: string) => /^(border-[a-z]+)-(style|color)$/.exec(prop)?.[1];
-  /** The computed values of `list` on `x`, with the width of each border side it names. */
+  /** The computed values of `list` on `x`, with the width of each border side it names. An
+   *  underline's offset reads in em of the element's own font size, which the element leaves to
+   *  its surface. */
   const snap = (x: Element, list: string[]) => {
     const g = getComputedStyle(x);
     const props = list.flatMap((p) => (sideOf(p) ? [p, `${sideOf(p)}-width`] : [p]));
-    return Object.fromEntries(props.map((p) => [p, g.getPropertyValue(p)]));
+    const read = (p: string) => {
+      const v = g.getPropertyValue(p);
+      return p === "text-underline-offset" && num(v) !== null
+        ? `${(num(v)! / parseFloat(g.fontSize)).toFixed(3)}em`
+        : v;
+    };
+    return Object.fromEntries(props.map((p) => [p, read(p)]));
   };
   type Snap = ReturnType<typeof snap>;
   const diff = (element: string, name: string, got: Snap, want: Snap, list: string[]) => {
