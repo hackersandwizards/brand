@@ -1,6 +1,9 @@
 ---
 kind: decision
-status: open
+status: decided
+decision: tune-all
+by: Benedikt
+quote: "„all roles are in tune“ perfect."
 priority: 1
 order: 30
 area: brand
