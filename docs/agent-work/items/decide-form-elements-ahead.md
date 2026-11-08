@@ -1,6 +1,9 @@
 ---
 kind: decision
-status: open
+status: decided
+decision: all-listed
+by: Benedikt
+quote: "doch bitte machen. gibt es noch andere elemnte die solche bootstrap/typscript systeme normalerweise mitbringen, die wir schon mal designen könnten?"
 priority: 3
 area: brand
 owner: Benedikt
