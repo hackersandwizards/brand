@@ -2,7 +2,10 @@
    the browser holds focus inside, closes on Escape and returns focus to the opener. The panel is
    the overlay surface: white or the app's background, on night the night ground lifted 7 %, a
    hairline, the brand corner, the overlay shadow; the page behind dims. A dialog that is open but
-   not modal stands in the flow, as a sample does.
+   not modal stands in the flow, as a sample does, no wider than its container. Text hyphenates
+   in the page's language and breaks inside a word rather than run past the panel; a row of keys
+   or buttons wraps only where it sets flex-wrap. A dialog holding no control takes the focus
+   itself and draws no ring.
 
    A dialog asks one thing and waits: hw-dialog-title, hw-dialog-body, hw-dialog-actions with the
    main button last. data-size="small" is 24rem wide, unset 32rem, "large" 48rem, "full" fills the
@@ -40,6 +43,8 @@
     max-height: calc(100dvh - 2rem);
     overflow: auto;
     overscroll-behavior: contain;
+    overflow-wrap: anywhere;
+    hyphens: auto;
     margin: auto;
     border: var(--hw-hairline, 1px) solid var(--_hw-line);
     border-radius: var(--hw-card-corner, var(--radius-brand));
@@ -56,6 +61,7 @@
   .hw-dialog[open]:not(:modal) {
     position: relative;
     inset: auto;
+    max-width: 100%;
     margin: 0;
     box-shadow: none;
   }

@@ -24,6 +24,8 @@
     font-size: var(--hw-kbd-size, 0.75rem);
     font-weight: 400;
     line-height: 1.4;
+    overflow-wrap: normal;
+    hyphens: manual;
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
     background-color: var(--color-bg);
   }

@@ -109,6 +109,10 @@
       "sha256": "7d3916a93ae35b48fbba13e6ad00d6d815729d30168283f44764b56477d7981f"
     },
     {
+      "path": "tokens/layers.css",
+      "sha256": "62cb054106ddf362bdf1f3b5541ac36589c223b7263bc63d923b25882000d013"
+    },
+    {
       "path": "tokens/marker.css",
       "sha256": "d9aafb077ddb0b827ef12912db1cb7bd9bee7d735f99ac2d6d2884182b2f732b"
     },
@@ -350,11 +354,11 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "963215f36b9fdc11bc465bfa22f72ee52eb95d5890a9369a2bb614c0778ab3ca"
+      "sha256": "56685619b2a2a2b65b63565b69541a9021d3534dc3f2175233092f22c7e25e62"
     },
     {
       "path": "elements/focus.css",
-      "sha256": "fbabc1a5bea2c69fde62d1ab55d9813b0450cbe73ec54795ca5c0a7033d17324"
+      "sha256": "3572d0e2d16f0ab556db92cad211af03e9cfb2c6678c5f0ef9ac1e215773905b"
     },
     {
       "path": "elements/icon-button.css",
@@ -494,7 +498,7 @@
     },
     {
       "path": "elements/kbd.css",
-      "sha256": "e9d9e74e0fd95546fb4d7861200c174f8d4b58233e9f190b53ca0fc6c68b8669"
+      "sha256": "95c3ac58272cfe33147e41f41231de53f72efdaf30fb02830ffda899b4f8b593"
     },
     {
       "path": "tokens/document.css",
@@ -570,7 +574,7 @@
     },
     {
       "path": "elements/dialog.css",
-      "sha256": "a354898094722c4c8b0f300a0d9a3660bd154fc946d9d7a740871bb27571293b"
+      "sha256": "3a91b2023361fb4ce62618f27a8a1937b016741db619d927465fce8cdd365d37"
     },
     {
       "path": "elements/empty.css",

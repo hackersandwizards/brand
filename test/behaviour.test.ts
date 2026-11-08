@@ -139,6 +139,43 @@ test("a drag from inside the panel ending on the backdrop leaves the dialog open
   await p.close();
 }, 30_000);
 
+const LONG = "Donaudampfschifffahrtsgesellschaftskapitänsmützenhalterungsverordnung";
+const KEYS = `<dl style="display:grid;grid-template-columns:auto auto;gap:.5rem 1.5rem;margin:0">${[
+  "PageDown Space Shift",
+  "PageUp Shift Space",
+]
+  .map(
+    (k) =>
+      `<dt style="display:flex;gap:.25rem">${k
+        .split(" ")
+        .map((x) => `<kbd class="hw-kbd">${x}</kbd>`)
+        .join("")}</dt><dd style="margin:0">${LONG}</dd>`,
+  )
+  .join("")}</dl>`;
+const fits = (p: Page, sel: string) =>
+  p.$eval(sel, (d) => {
+    const r = d.getBoundingClientRect();
+    const box = d.matches(":modal") ? innerWidth : d.parentElement!.clientWidth;
+    return { width: r.width <= box, scroll: d.scrollWidth <= d.clientWidth };
+  });
+
+test("a dialog fits its container in the flow and a phone when modal, its content wrapping", async () => {
+  const p = await page(
+    `<div style="width:357px"><dialog open class="hw-dialog" data-size="small" id="f"><h2 class="hw-dialog-title">Deal anlegen</h2><div class="hw-dialog-body">${LONG}</div></dialog></div>
+<div class="hw-focus-ring"><dialog class="hw-dialog" data-size="large" id="m" aria-label="Tasten">${KEYS}</dialog></div>`,
+  );
+  await p.setViewport({ width: 390, height: 800 });
+  expect(await fits(p, "#f")).toEqual({ width: true, scroll: true });
+  await p.keyboard.press("Tab");
+  await p.$eval("#m", (d) => (d as HTMLDialogElement).showModal());
+  expect(await fits(p, "#m")).toEqual({ width: true, scroll: true });
+  // A dialog holding no control takes the focus itself and draws no ring round the panel.
+  expect(
+    await p.$eval("#m", (d) => [d.matches(":focus-visible"), getComputedStyle(d).outlineStyle]),
+  ).toEqual([true, "none"]);
+  await p.close();
+}, 30_000);
+
 test("the toast region exists before its first toast and leaves a dialog that closes", async () => {
   const p = await page(DIALOG);
   expect(await p.$eval(".hw-toasts", (b) => b.childElementCount)).toBe(0);

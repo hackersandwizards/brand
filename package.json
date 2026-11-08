@@ -29,6 +29,7 @@
     "./stage.css": "./tokens/stage.css",
     "./document.css": "./tokens/document.css",
     "./marker.css": "./tokens/marker.css",
+    "./layers.css": "./tokens/layers.css",
     "./text-base.css": "./tokens/text-base.css",
     "./fonts/*": "./tokens/fonts/*",
     "./expert.css": "./expert/expert.css",

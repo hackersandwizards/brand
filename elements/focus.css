@@ -18,7 +18,7 @@
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
-  .hw-focus-ring .hw-card .hw-card-link:focus-visible {
+  .hw-focus-ring :is(.hw-card .hw-card-link, .hw-dialog):focus-visible {
     outline: none;
   }
   .hw-focus-ring :is(p, li, dt, dd, td, th, blockquote, figcaption) > a:focus-visible {
