@@ -25,7 +25,7 @@
      --hw-check-target        the target's side under a mouse
      --hw-check-target-touch  the target's side on a touch screen (any-pointer: coarse)
    Under a CSS zoom, set --hw-zoom beside it as for marker.css, so the box's side is whole real
-   pixels. The read-only tick still sits up to 0.5px off there: Chrome draws its mask larger than
+   pixels. The read-only tick still sits up to 1px off there: Chrome draws its mask larger than
    the box under a zoom.
 
    Markup: <label><input type="checkbox" class="hw-check"> Erledigt</label>

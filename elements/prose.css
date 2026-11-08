@@ -111,9 +111,11 @@
 /* Held at full opacity although GFM emits these disabled: they are readable states, not
    controls, and the browser's grey washes them out. The box's middle sits where marker.css puts
    the list marker's (--hw-marker-mid), placed from the line box as marker.css places it (its
-   comment says why): a whole number of pixels from the baseline, a transform the rest of the way,
-   each pixel a real one under --hw-zoom. check.css's font: inherit takes em and lh from the item. */
+   comment says why): a whole number of pixels from the baseline, a transform the rest of the
+   way, each pixel a real one under --hw-zoom. check.css's font: inherit takes em and lh from the
+   item. */
 .hw-prose li.task-list-item input[type="checkbox"] {
+  --_hw-px: calc(1px / var(--hw-zoom, 1));
   --_hw-size: round(1em, var(--_hw-px));
   --_hw-ascent: round(0.96875em, var(--_hw-px));
   --_hw-baseline: calc(
