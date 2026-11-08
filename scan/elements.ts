@@ -49,7 +49,7 @@ import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
-import { catalogPages, launch, open, openFolds, serve, toUrl } from "./markers";
+import { catalogPages, launch, open, openFolds, pool, serve, toUrl } from "./markers";
 
 export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
@@ -59,7 +59,7 @@ export type Config = {
   exceptions?: Record<string, Exception>;
   lightOnly?: boolean;
   site?: string;
-  catalog?: string | { dir: string; at: string };
+  catalog?: string | { dir: string; at?: string };
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
@@ -210,7 +210,8 @@ export const elementCss = () =>
     .map((f) => readFileSync(join(DIR, f), "utf8").replace(/@import[^;]+;/g, ""))
     .join("\n");
 /** The settings a surface may set: every --hw-* an element file reads. */
-export const SETTINGS = [...new Set(elementCss().match(/(?<=var\()--hw-[\w-]+/g))];
+const ELEMENT_CSS = elementCss();
+export const SETTINGS = [...new Set(ELEMENT_CSS.match(/(?<=var\()--hw-[\w-]+/g))];
 /** The brand tokens each element reads: a surface that never defines one (Tailwind emits only the
  * @theme tokens a scanned file names) leaves page and reference equally wrong, so each is checked.
  * `day` leaves out the tokens only the element's night rules read. */
@@ -479,7 +480,7 @@ export async function measurePage(
     await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     const out = await page.evaluate(compare, [
-      elementCss(),
+      ELEMENT_CSS,
       ELEMENTS,
       OWNS,
       SETTINGS,
@@ -557,9 +558,11 @@ const styles = (raw: string, ext: string) =>
  *  (hover:, focus:, ...) sets nothing at rest, a breakpoint, theme or print variant does. A text-*
  *  of a theme's own name may be a size or a colour, so it stands for both. */
 const utility = (token: string): string[] => {
-  const parts = token.replace(/^!|!$/g, "").split(":");
-  const name = parts.pop()!;
-  if (parts.some((v) => !/^(sm|md|lg|xl|2xl|dark|print|(min|max)-.+)$/.test(v))) return [];
+  // Variants split at a colon outside an arbitrary value's brackets.
+  const parts = token.split(/:(?![^[]*\])/);
+  const name = parts.pop()!.replace(/^!|!$/g, "");
+  if (parts.some((v) => !/^(sm|md|lg|xl|2xl|dark|print|motion-safe|(min|max)-.+|@.+)$/.test(v)))
+    return [];
   const sides: Record<string, string> = {
     x: "-inline",
     y: "-block",
@@ -743,6 +746,11 @@ if (import.meta.main) {
     process.exit(2);
   }
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
+  const i = process.argv.indexOf("--base");
+  if (i >= 0 && !/^https?:$/.test(URL.parse(process.argv[i + 1] ?? "")?.protocol ?? "")) {
+    console.error("usage: brand-elements [--base <url>] [--json]");
+    process.exit(2);
+  }
   const named = config.pages ?? [];
   const { dir, at } =
     typeof config.catalog === "string"
@@ -750,7 +758,7 @@ if (import.meta.main) {
       : (config.catalog ?? {});
   let stories: string[] = [];
   try {
-    if (dir) stories = catalogPages(dir, at, config.site);
+    if (dir) stories = catalogPages(dir, at, config.site, !!config.site || i >= 0);
   } catch (e) {
     console.error(`brand-elements: ${(e as Error).message}`);
     process.exit(2);
@@ -762,23 +770,16 @@ if (import.meta.main) {
     );
     process.exit(2);
   }
-  const i = process.argv.indexOf("--base");
-  if (i >= 0 && !/^https?:$/.test(URL.parse(process.argv[i + 1] ?? "")?.protocol ?? "")) {
-    console.error("usage: brand-elements [--base <url>] [--json]");
-    process.exit(2);
-  }
   const server = i < 0 && config.site ? serve(config.site) : undefined;
   const base = i < 0 ? server?.url : new URL(process.argv[i + 1]!);
   const browser = await launch();
   const results: PageResult[] = [];
-  let next = 0;
   try {
     // Eight tabs side by side: each page waits for the network to go quiet.
-    await Promise.all(
-      Array.from({ length: Math.min(pages.length, 8) }, async () => {
-        for (let i = next++; i < pages.length; i = next++)
-          results[i] = await measurePage(browser, pages[i]!, "", config.lightOnly === true, base);
-      }),
+    results.push(
+      ...(await pool(pages, 8, (url) =>
+        measurePage(browser, url, "", config.lightOnly === true, base),
+      )),
     );
   } finally {
     await browser.close();

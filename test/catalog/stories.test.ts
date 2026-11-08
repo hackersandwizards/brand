@@ -2,7 +2,7 @@ import { afterAll, beforeAll, expect, test } from "bun:test";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import { coverage, ELEMENTS, measurePage } from "../../scan/elements";
-import { catalogPages, launch } from "../../scan/markers";
+import { catalogPages, launch, pool } from "../../scan/markers";
 import catalogs from "../../expert/catalogs.json";
 import { BASE, DIST, page, serveSite } from "./site";
 
@@ -25,9 +25,7 @@ test("every element story passes brand-elements", async () => {
   // Five per element, and two that show a setting: the prose block's reading width, the row's padding.
   expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 2);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
-  const results: Awaited<ReturnType<typeof measurePage>>[] = [];
-  for (let i = 0; i < pages.length; i += 8)
-    results.push(...(await Promise.all(pages.slice(i, i + 8).map((p) => measurePage(browser, p)))));
+  const results = await pool(pages, 8, (p) => measurePage(browser, p));
   expect(pages.filter((_, i) => !results[i]!.seen.length)).toEqual([]);
   expect(results.flatMap((r) => r.findings)).toEqual([]);
   expect(coverage({ pages, uses: Object.keys(ELEMENTS) }, results)).toEqual([]);

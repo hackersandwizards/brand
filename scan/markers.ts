@@ -24,7 +24,7 @@
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, or a named page with no marker (a zero proves nothing; a story page may show none).
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -283,7 +283,8 @@ async function inkMiddle(png: string, scale: number, split: number): Promise<[nu
 /** Opens `url` and throws where a stylesheet of its own (its origin's or a file) fails to load: an
  *  unstyled page shows the browser's own list markers and spacing, as a build linking file://
  *  stylesheets does when served over http with --site. A third party's sheet, such as a web font
- *  service's, may fail offline without reddening the run. */
+ *  service's, may fail offline without reddening the run. A page answering 4xx or 5xx throws too:
+ *  a missing story would otherwise pass as one showing nothing. */
 export async function open(page: Page, url: string) {
   const origin = new URL(url).origin;
   const missing: string[] = [];
@@ -295,7 +296,8 @@ export async function open(page: Page, url: string) {
   const status = (r: HTTPResponse) => r.status() >= 400 && failed(r.request());
   page.on("requestfailed", failed).on("response", status);
   try {
-    await page.goto(url, { waitUntil: "networkidle0" });
+    const answer = await page.goto(url, { waitUntil: "networkidle0" });
+    if (answer && answer.status() >= 400) throw new Error(`${url}: HTTP ${answer.status()}`);
   } finally {
     page.off("requestfailed", failed).off("response", status);
   }
@@ -476,21 +478,46 @@ export const serve = (dir: string) => {
 
 /** Every story state page of a built catalog folder `dir`, as scaffolding writes it
  * (stories/<group>/<story>/<state>/index.html), named below `at` the way a page is: a URL or a path
- * on the served site ends in the state's folder, a file names its index.html. `at` defaults to the
- * folder's path on the served `site`, else the folder. Throws on a folder without a story page. */
-export const catalogPages = (dir: string, at?: string, site?: string) => {
+ * on the served site ends in the state's folder, URL-encoded, a file names its index.html. `at` defaults to the
+ * folder's path on the served `site`, else the folder; `served` (a site or a --base server) makes a
+ * path starting with / one on the server. A page forwarding elsewhere (a meta refresh,
+ * as a catalog that is not the site's home leaves under its old path) is no story. Throws on a folder
+ * without a story page. */
+export const catalogPages = (dir: string, at?: string, site?: string, served = !!site) => {
   const stories = join(dir, "stories");
   const states = existsSync(stories)
     ? readdirSync(stories, { recursive: true, encoding: "utf8" })
-        .filter((f) => f === "index.html" || f.endsWith("/index.html"))
+        .filter(
+          (f) =>
+            f.endsWith("/index.html") &&
+            !/<meta[^>]+http-equiv=["']?refresh/i.test(readFileSync(join(stories, f), "utf8")),
+        )
         .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
         .sort()
     : [];
   if (!states.length) throw new Error(`no story page under ${stories}; build the catalog first`);
   const root = at ?? (site ? `/${relative(site, dir)}` : dir);
-  const file = !/^[a-z]+:\/\//.test(root) && !(site && root.startsWith("/"));
-  return states.map((s) => `${root.replace(/\/?$/, "/")}${s}${file ? "index.html" : ""}`);
+  const file = !/^[a-z]+:\/\//.test(root) && !(served && root.startsWith("/"));
+  const encoded = (s: string) => s.split("/").map(encodeURIComponent).join("/");
+  return states.map((s) => `${root.replace(/\/?$/, "/")}${file ? `${s}index.html` : encoded(s)}`);
 };
+
+/** `run` over `items`, at most `limit` at a time, each call told which of the `limit` workers runs it;
+ * the results in the items' order. */
+export async function pool<T, R>(
+  items: T[],
+  limit: number,
+  run: (item: T, worker: number) => Promise<R>,
+): Promise<R[]> {
+  const out: R[] = [];
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(items.length, limit) }, async (_, worker) => {
+      for (let i = next++; i < items.length; i = next++) out[i] = await run(items[i]!, worker);
+    }),
+  );
+  return out;
+}
 
 if (import.meta.main) {
   const args = process.argv.slice(2);
@@ -522,28 +549,42 @@ if (import.meta.main) {
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, server?.url));
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
-  // most 8, as a run at 4x holds a 5120 x 3600 surface.
-  const runs = pages.flatMap((url) =>
-    scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
-  );
-  const done: Reading[][] = [];
-  let next = 0;
+  // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass at the first scale finds the
+  // pages with a marker, most stories having none; only those take the other runs.
+  const workers = Math.min(availableParallelism(), 8, pages.length);
+  let readings: Reading[];
   try {
-    await Promise.all(
-      // A context per worker: puppeteer shoots one page of a context at a time.
-      Array.from({ length: Math.min(runs.length, availableParallelism(), 8) }, async () => {
-        const context = await browser.createBrowserContext();
-        for (let i = next++; i < runs.length; i = next++) {
-          const { url, ...options } = runs[i]!;
-          done[i] = await measureMarkers(context, url, { ...options, width });
-        }
-      }),
+    // A context per worker: puppeteer shoots one page of a context at a time.
+    const contexts = await Promise.all(
+      Array.from({ length: workers }, () => browser.createBrowserContext()),
     );
+    type Run = { url: string; scale: number; newline: boolean };
+    const measure = (runs: Run[]) =>
+      pool(runs, workers, ({ url, ...options }, w) =>
+        measureMarkers(contexts[w]!, url, { ...options, width }),
+      );
+    const [first, ...rest] = scales;
+    // Both newline runs at the first scale, as the newline may change which items read.
+    const firstRuns = pages.flatMap((url) =>
+      [false, true].map((newline) => ({ url, scale: first!, newline })),
+    );
+    const found = await measure(firstRuns);
+    const read = new Set(firstRuns.filter((_, i) => found[i]!.length).map((r) => r.url));
+    const more = await measure(
+      pages
+        .filter((url) => read.has(url))
+        .flatMap((url) =>
+          rest.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
+        ),
+    );
+    // Grouped by page, in the order named, as --json printed them before.
+    readings = [...found, ...more]
+      .flat()
+      .sort((a, b) => pages.indexOf(a.page) - pages.indexOf(b.page));
   } finally {
     await browser.close();
     await server?.stop(true);
   }
-  const readings = done.flat();
   const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
   const bad = readings.filter(failing);
   if (json) console.log(JSON.stringify(readings, null, 2));

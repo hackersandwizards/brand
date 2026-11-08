@@ -43,6 +43,11 @@ write(
 for (const [s, body] of Object.entries(STORIES))
   write(`site/catalog/stories/${s}/index.html`, body);
 write("empty/catalog/index.html", html("<p>No stories.</p>"));
+// A catalog that is not the site's home leaves forwarding pages under its old path: no story.
+write(
+  "empty/catalog/stories/Cards/Fork/default/index.html",
+  '<meta http-equiv="refresh" content="0; url=/stories/Cards/Fork/default/">',
+);
 // brand-elements reads its source half from a Git checkout.
 Bun.spawnSync(["git", "init", "-q"], { cwd: dir });
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
@@ -79,6 +84,12 @@ test("brand-elements: on a served site a story is a path below the catalog's, or
   }
 }, 60_000);
 
+test("brand-elements: a story the server does not answer fails rather than passing as empty", () => {
+  const r = elements({ site: "site", pages: [], catalog: { dir: "site/catalog", at: "/catlog/" } });
+  expect(r.code).not.toBe(0);
+  expect(r.err).toContain("HTTP 404");
+}, 60_000);
+
 test("brand-elements: a catalog folder without a story is a usage error, not a pass", () => {
   expect(elements({ pages: [], catalog: "empty/catalog" }).code).toBe(2);
   expect(elements({ pages: [], catalog: "missing" }).code).toBe(2);
@@ -100,7 +111,7 @@ test("brand-markers: the home alone misses a story's lifted list, --catalog read
     "site/catalog/index.html",
   ]);
   expect(all.code).toBe(1);
-  expect([...new Set(off(all.out).map((r) => r.page))]).toEqual([
+  expect(forkPages(off(all.out))).toEqual([
     expect.stringContaining("/stories/Lists/Lifted/default/index.html"),
   ]);
   expect(run("markers.ts", ["--catalog", "empty/catalog"]).code).toBe(2);
@@ -112,12 +123,18 @@ test("source: an @apply sets the properties its utilities stand for; btn names a
 .btn-primary { border-radius: 3px; }
 .state-card { @apply hover:bg-muted focus:ring-2; }
 .layout-card { @apply grid gap-4 md:grid-cols-2; }
-.wide-card { @apply md:px-6; }`,
+.wide-card { @apply md:px-6; }
+.loud-card { @apply md:!p-4; }
+.photo-card { @apply bg-[url(https://x.test/a.png)]; }
+.box-card { @apply @md:p-6; }`,
   };
   expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
     'src/a.css: .my-card styles an element named like a shared one; use the hw-* element or list "my-card" as an exception',
     'src/a.css: .btn-primary styles an element named like a shared one; use the hw-* element or list "btn-primary" as an exception',
     'src/a.css: .wide-card styles an element named like a shared one; use the hw-* element or list "wide-card" as an exception',
+    'src/a.css: .loud-card styles an element named like a shared one; use the hw-* element or list "loud-card" as an exception',
+    'src/a.css: .photo-card styles an element named like a shared one; use the hw-* element or list "photo-card" as an exception',
+    'src/a.css: .box-card styles an element named like a shared one; use the hw-* element or list "box-card" as an exception',
   ]);
 });
 

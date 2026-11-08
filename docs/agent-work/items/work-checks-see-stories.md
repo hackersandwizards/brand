@@ -4,12 +4,12 @@ status: open
 priority: 1
 order: 100
 owner: Ada
-evidence: "08.11.: brand-elements and brand-markers measure every story page of a built catalog (catalog key, --catalog), the source rule reads @apply and btn, and test/catalog-scan.test.ts runs it over expert/; controls in that test, report os docs/agent-work/2026-11-08-catalog-coherence.md"
+evidence: "08.11., v1.42.0: brand-elements and brand-markers measure every story page of a built catalog (catalog key, --catalog), the source rule reads @apply and btn, and test/catalog-scan.test.ts runs it over expert/; controls in that test, report os docs/agent-work/2026-11-08-catalog-coherence.md"
 ---
 
 # The brand checks see inside catalog stories: what remains
 
-The checks are done and released; two things remain.
+The checks are done and released in v1.42.0; two things remain.
 
 1. **The expert layer's forks.** The fork rule over `expert/` (`test/catalog-scan.test.ts`,
    `KNOWN`) finds nine, each a duplicate of a shared element, held in that list until fixed
@@ -29,5 +29,8 @@ The checks are done and released; two things remain.
    mode is needed. The `btn` name finds 4 os classes the audit's sweep did not report
    (`detail-panel-toolbar-btn`, `list-row-action-btn`, `popup-menu-btn`, `popup-menu-btn-sm`, on
    os `origin/main`); the website's 11 are its item `work-brand-past-v1-28-5`'s.
+
+   Where the catalog is the site's home (documents, slides, mail), `dist/catalog/stories` holds
+   only forwarding pages and the stories sit in `dist/stories`: the key names `dist` there.
 
 Completion check: `KNOWN` is empty, and every consumer's `brand-elements.json` has a `catalog`.
