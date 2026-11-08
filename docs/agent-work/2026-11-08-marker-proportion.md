@@ -88,11 +88,17 @@ Review: large, because a shared brand element changes on two surfaces.
 - `tokens/document.css`: `--bullet: 0.5em`, `--list-marker-gap: 0.625em`, `--list-indent` their
   sum; new `--deck-marker-gap` for the readout deck.
 - `tokens/stage.css`: `--slide-marker: 0.375em`, new `--slide-marker-gap: 0.625em`.
-- `elements/scales.css`: the stage scale sets `--hw-marker-gap` from `--slide-marker-gap`.
+- `elements/scales.css`: the stage scale sets the marker from `--slide-marker` and
+  `--slide-marker-gap`, the print scale from `--bullet` and `--list-marker-gap` (v1.41.2).
+- `tokens/marker.css` (v1.41.2): an item's indent takes the square's rounded side, as the square
+  does, so an em size no longer sets the square up to 0.5px left of the item's edge.
 - The website keeps its rem values. Checked with `brand-markers` on the onepager, proposal,
   certificate and readout built against this tree: 112 readings, 0 off by more than 0.25px.
 
 ## Left out
+
+- `--ol-indent` stays 12pt. Beside 9.5 to 10pt text, ordered-list text now starts 0.75 to 1.3pt
+  right of bulleted text; the ordered list was not part of the review.
 
 - The website's marker stays fixed in rem, so beside its 12px and 14px meta text it is larger than
   0.375em. Switching it to em would change every website list; worth a review round only once a
