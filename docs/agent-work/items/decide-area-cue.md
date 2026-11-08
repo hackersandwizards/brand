@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 2
 order: 410
 area: brand
@@ -77,6 +77,9 @@ images:
       caption: "(a) phone, 390 px"
     - src: today-continuity.jpg
       caption: "(a) continuity question: two of the three pages carry the same teal"
+decision: shapes-colour
+by: Benedikt
+quote: '"(c+) eine Form pro Bereich, heutige Farben, dieselbe Form vor der H1 der Zielseite (Empfehlung)" bau das mal dann kann ich es mir anschauen ist auch ok wen nes deployed wird ich schaue es mir dann live an.'
 ---
 
 # Does the area cue carry from the link to the page it opens?
