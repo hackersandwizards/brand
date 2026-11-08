@@ -5,19 +5,29 @@ priority: 1
 order: 20
 area: brand
 owner: Benedikt
-evidence: "Blind review 08.11., round 6: 13 lines carrying flow or tune (Benedikt's two ideas as stated and shortened, five of this run's, two from a fresh model, two older lines) beside n02 and c3; prefilter 6 runs; 576 cold reads of one LinkedIn banner (what kind of company, who the team or the people are); 10 lines on banners, closing slide and link preview by round 5's panel, 20 runs; the best two against the home H1 k3, the tuning desk and the website's decided page headlines (24: one blog line of two), 24 runs. Round 5 before it: 971 runs, round 4: 304. Reports: docs/agent-work/2026-11-08-claim-round-6.md, docs/agent-work/2026-11-08-claim-round-5.md"
+evidence: "Blind review 08.11., round 7: 13 lines extending f6 with the company or flow (Benedikt's line as stated and shortened, six of this run's, three from a fresh model) beside f6, n02 and c3; prefilter 6 runs; 10 lines on banners, closing slide and link preview, 20 runs; 576 cold reads of the LinkedIn banner alone; f6, d3 and n02 as whole sets, every banner in place on real LinkedIn and YouTube screenshots and the live XING and Sessionize pages, with the home hero, the 24 decided page headlines and Benedikt's profile texts, 16 runs. Report: docs/agent-work/2026-11-08-claim-round-7.md. Round 6: 13 lines carrying flow or tune (Benedikt's two ideas as stated and shortened, five of this run's, two from a fresh model, two older lines) beside n02 and c3; prefilter 6 runs; 576 cold reads of one LinkedIn banner (what kind of company, who the team or the people are); 10 lines on banners, closing slide and link preview by round 5's panel, 20 runs; the best two against the home H1 k3, the tuning desk and the website's decided page headlines (24: one blog line of two), 24 runs. Round 5 before it: 971 runs, round 4: 304. Reports: docs/agent-work/2026-11-08-claim-round-6.md, docs/agent-work/2026-11-08-claim-round-5.md"
 recommended: n02
 options:
   - key: n02
     label: "Every agent needs your people. / Jeder KI-Agent braucht eure Leute. On the banners with the line: Training and mentoring in agentic engineering / Training und Mentoring in Agentic Engineering"
-    detail: "Round 6: first on the panel (79.5), tied with f6 (lead 0.9; Claude prefers n02, Codex f6). Read as people by 32 of 32; only the reader outside tech guesses a tool vendor (EN 4, DE 1 of 16). In the site it repeats only one deep page's 'your people'. Reviewers: says why, not what; the link preview orphans 'people.'. Round 5: 75.2, noise 0.6."
-    score: 79.5
+    detail: "Round 7: first on the panel (81.2), tied with f6 (lead 1.0; Claude prefers n02, Codex f6). As a whole set with the site and the profile texts 76.9 against f6's 78.1, a tie; fits the profiles best (80.1) and is calmest (8.7); repeats only the Factory operating model headline's 'your people'. Alone on a banner: tool vendor EN 2, DE 0 of 16; the people read as people 32 of 32. Reviewers: 'Needs my people for what?', could read as supervision or HR. Round 6: 79.5, noise 1.2."
+    score: 81.2
     noise: 1.2
   - key: f6
     label: "Every agent needs a team in tune. / Jeder KI-Agent braucht ein eingespieltes Team. With the descriptor line on the banners"
-    detail: "Round 6, the best line with flow or tune: ties n02 on the panel (78.6; Codex 82.4 against 79.2, Claude 74.8 against 80.0) and in the cold reads (vendor EN 4, DE 3 of 16, all from the reader outside tech; people EN 13, DE 16 of 16). In the site it repeats the home H1: 'eingespieltes Team' against 'Wenn alle Rollen eingespielt sind' (repetition DE 2.7 of 10), 69.6 against 77.0 for n02, behind in every run and with both models, a tie by the rule only because n02's two runs differ by 6.3. With the German H1 'zusammenspielen' (home-claim-line's de-zusammenspielen) it ties n02 there too, 75.5 against 73.9. Choosing f6 means choosing de-zusammenspielen."
-    score: 78.6
-    noise: 1.0
+    detail: "Round 7: ties n02 on the panel (80.2 against 81.2; Codex 83.8 against 80.4, Claude 76.8 against 82.0) and as a whole set with the German H1 'zusammenspielen' (78.1 against 76.9, inside n02's noise of 1.8): most of one piece with the home hero (together 8.3), but 'in tune' repeats 'in step' and the tuning desk (repetition 5.2 / 5.1). Alone on a banner it trails n02 beyond the noise: tool vendor EN 7 of 16 (n02 2); asked whether the team is people or agents, 15 of 16 English and 14 of 16 German readers cannot tell. Choosing f6 means choosing de-zusammenspielen. Round 6: 78.6."
+    score: 80.2
+    noise: 0.1
+  - key: d3
+    label: "From a team in tune to a company in flow. / Vom eingespielten Team zum Unternehmen im Flow. With the descriptor line on the banners"
+    detail: "Round 7, the best of 11 extensions of f6 with the company or flow: 17.0 behind n02 on the panel, in both runs and with both models; as a whole set 8.1 behind (68.8). Names no agents ('could advertise agile coaching'); its 'in flow' repeats the tuning desk, the LinkedIn About and two bios (repetition 3.5). Alone it reads as training 32 of 32. Its wording comes close to two retired lines."
+    score: 64.2
+    noise: 2.1
+  - key: B3
+    label: "Every company in flow needs agents with a team in tune. / Jedes Unternehmen im Flow braucht KI-Agenten mit einem eingespielten Team. As Benedikt put it, translated"
+    detail: "Round 7: last of ten, 36.5 behind n02 in both runs and with both models. Reviewers: a nested chain to read twice, 'every company needs agents' sounds like a sales doctrine, 'agents with a team' turns round who serves whom. Alone: tool vendor EN 5, DE 7 of 16; the team unclear for 26 of 32. Shortened to B3k, 'A company in flow: agents and a team in tune.', 56.2 (25.0 behind)."
+    score: 44.7
+    noise: 0.4
   - key: B1k
     label: "Every agent needs a team in flow. / Jeder KI-Agent braucht ein Team im Flow. With the descriptor line on the banners"
     detail: "Round 6, Benedikt's first idea shortened: 5.7 behind n02, in both runs and with both models. 'in flow' repeats the tuning desk's caption word for word (repetition 3.6). Vendor EN 6 of 16."
@@ -79,7 +89,19 @@ options:
     score: 77.0
     noise: 0.4
 images:
+  d3:
+    - src: r7-set-linkedin.jpg
+      caption: "Round 7, LinkedIn's narrow layout in place (real screenshot of 31.10.): f6, d3, n02 from the top, English left, German right. The photo covers each claim's first letters"
+    - src: r7-set-phone-de.jpg
+      caption: "Round 7, XING and Sessionize live on a phone, German: f6, d3, n02 from the top"
+  B3:
+    - src: r7-extensions-banners.jpg
+      caption: "Round 7, the LinkedIn banner with the descriptor: B3, B3k, d3, g3 from the top, English left, German right"
   f6:
+    - src: r7-set-linkedin.jpg
+      caption: "Round 7, LinkedIn's narrow layout in place (real screenshot of 31.10.): f6, d3, n02 from the top, English left, German right. The photo covers each claim's first letters"
+    - src: r7-set-phone-de.jpg
+      caption: "Round 7, XING and Sessionize live on a phone, German: f6, d3, n02 from the top"
     - src: r6-f6-banners.jpg
       caption: "f6: LinkedIn profile, X and Sessionize banners with the descriptor line, English left, German right"
     - src: r6-f6-surfaces.jpg
@@ -94,6 +116,8 @@ images:
     - src: r6-b1-b2-banners.jpg
       caption: "The LinkedIn banner with the descriptor line, from the top: B1, B1k, B2 and its short form, English left, German right"
   n02:
+    - src: r7-set-linkedin.jpg
+      caption: "Round 7, LinkedIn's narrow layout in place (real screenshot of 31.10.): f6, d3, n02 from the top, English left, German right. The photo covers each claim's first letters"
     - src: r5-n02-banners.jpg
       caption: "n02: LinkedIn profile, X and Sessionize banners with the descriptor line, English left, German right"
     - src: r5-n02-surfaces.jpg
@@ -144,65 +168,72 @@ images:
 
 Blocks the brand raise on the website, the 25 page headlines, the bio rewrite and the banners. Nothing of these ships until you pick.
 
-Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterieren ich habe noch einige ideen im chat", and then: "das wort flow oder tune finde ich schon noch wichtig. außer der score sinkt dann massiv." Round 6 tested his ideas blind beside n02; his preference stays a hypothesis, not a score.
+Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterieren ich habe noch einige ideen im chat", then: "das wort flow oder tune finde ich schon noch wichtig. außer der score sinkt dann massiv.", and after round 6: "\"„Every agent needs a team in tune.“\" finde ich stark. man könnte das noch irgendwie erweitern \"Every company in flow needs agents with a team in tune\"? sowas vllt? teste noch mal ein paar weitere variationen bitte und dann natürlich auch alle headlines und bio und banner dazu. banner auch dort wo sie eingesetzt sind." Rounds 6 and 7 tested his ideas blind; his preferences stay hypotheses, not scores.
 
 I recommend n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure Leute.", with
-the line "Training and mentoring in agentic engineering" under it on the banners. It is first or
-tied on every test of round 6 and needs no change elsewhere. In round 5 it came second
-to m08k, which reads as an AI tool vendor without the descriptor.
+the line "Training and mentoring in agentic engineering" under it on the banners. It ties f6 on
+the banners, slide and link preview (81.2 against 80.2) and as a whole set with the website and
+your profile texts (76.9 against 78.1), and it leads f6 when the banner stands alone: 2 against 7
+of 16 English readers take f6 for an AI tool vendor, and 15 of 16 cannot tell whether f6's team
+is people or agents. n02 needs no other change.
 
-If "tune" matters to you: f6, "Every agent needs a team in tune." / "Jeder KI-Agent braucht ein
-eingespieltes Team.", holds. Its score does not sink: it ties n02 on the banners, slide and link
-preview (78.6 against 79.5, noise 1.0 and 1.2) and in the cold reads. It has one condition. Its
-"eingespieltes Team" repeats the German home H1 "Wenn alle Rollen eingespielt sind" word for word,
-and there it trails n02 in every run (69.6 against 77.0), a tie by the rule only because n02's
-own runs differ by 6.3. With "zusammenspielen" in the German H1, which
-`home-claim-line` recommends anyway, it ties n02 in the site as well (75.5 against 73.9). So pick
-f6 together with `de-zusammenspielen`, or n02 alone.
+If "tune" matters to you, f6 still holds: by the rule below its score does not sink. Pick it
+together with `de-zusammenspielen` in `home-claim-line`, since its German repeats "eingespielt"
+from the home H1 otherwise (round 6).
 
+- Extending f6 does not hold. Each of the five extensions on the panel scores 17.0 to 28.6 points
+  below n02, in both runs and with both models. Your line as stated, "Every company in flow needs
+  agents with a team in tune.", comes last at 36.5 behind; shortened to "A company in flow: agents
+  and a team in tune." 25.0 behind. The best extension, "From a team in tune to a company in
+  flow.", names no agents, and as a set its "in flow" repeats the home page's tuning desk, your
+  LinkedIn About and two bios (8.1 behind n02).
+- Seen in place, every claim has the same defect: on LinkedIn's narrow layout your profile photo
+  covers the first letters of the claim (image `r7-set-linkedin.jpg`). The shipped banner has it
+  too; it is fixed in the banner's layout, independent of the claim.
 - A score sinks, by the rule set before any score, where n02 leads by more than the noise in both
-  runs and with both models. By that rule f6 holds. Every new line with "flow" on the panel sinks: B1k, your
-  first idea shortened to "Every agent needs a team in flow.", by 5.7; your two lines as stated
-  by 20.7 and 37.8. Alone on a banner, "Every agent needs a team to stay in flow." goes to an AI
-  tool vendor for 16 of 16 English readers. "in flow" also repeats the home page's tuning desk
-  caption word for word.
-- c3, the current claim, ties n02 on this round's panel, but alone it names no training (round 4)
-  and repeats the H1 on the home page (round 1).
-- Still owed before the claim goes out: a trademark clearance in DPMA, EUIPO and USPTO, and the
-  chosen line on the one-pager, footer and remaining banners.
+  runs and with both models.
+- c3, the current claim, trails n02 by 4.7, a tie by the rule only because Codex puts it 0.8
+  behind; alone it names no training
+  (round 4) and repeats the H1 on the home page (round 1).
+- Still owed before the claim goes out: a trademark clearance in DPMA, EUIPO and USPTO.
 
 Overall is the mean of each reviewer's own overall score, 0 to 100, over English and German.
 Noise is the difference between the panel means of the two runs. Scores compare within one round only.
 
-## Round 6, per surface
+## Round 7, per surface
 
-| Surface        | n02         | f6          | c3          | B1k         | B1          | B2          |
+| Surface        | n02         | f6          | c3          | d3          | B3k         | B3          |
 | -------------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| Banners        | 81.3        | 79.5        | 80.3        | 76.4        | 63.5        | 47.3        |
-| Closing slide  | 80.6        | 78.7        | 79.3        | 75.5        | 60.0        | 43.5        |
-| Link preview   | 80.9        | 80.2        | 82.0        | 77.5        | 59.6        | 43.0        |
-| Overall        | 79.5        | 78.6        | 77.0        | 73.8        | 58.8        | 41.7        |
-| Claude / Codex | 80.0 / 79.2 | 74.8 / 82.4 | 74.4 / 79.5 | 71.9 / 75.8 | 56.8 / 60.8 | 38.0 / 45.4 |
-| EN / DE        | 79.1 / 80.0 | 76.3 / 80.8 | 77.3 / 76.5 | 74.2 / 73.5 | 62.5 / 55.1 | 43.0 / 40.4 |
+| Banners        | 83.6        | 82.1        | 81.4        | 70.5        | 60.7        | 49.5        |
+| Closing slide  | 82.2        | 80.7        | 80.7        | 69.6        | 59.5        | 47.2        |
+| Link preview   | 83.8        | 82.6        | 83.2        | 71.0        | 59.8        | 49.5        |
+| Overall        | 81.2        | 80.2        | 76.5        | 64.2        | 56.2        | 44.7        |
+| Claude / Codex | 82.0 / 80.4 | 76.8 / 83.8 | 73.4 / 79.7 | 63.6 / 64.7 | 51.2 / 61.2 | 42.1 / 47.2 |
+| EN / DE        | 80.8 / 81.6 | 79.8 / 80.7 | 76.6 / 76.5 | 63.6 / 64.7 | 58.8 / 53.6 | 47.8 / 41.5 |
 
-## Cold reads, banner alone (16 per cell)
+## Cold reads, the LinkedIn banner alone (16 per cell)
 
-| Key            | EN: tool vendor | DE: tool vendor | EN: read as people | DE: read as people |
-| -------------- | --------------- | --------------- | ------------------ | ------------------ |
-| n02            | 4               | 1               | 16                 | 16                 |
-| f6             | 4               | 3               | 13                 | 16                 |
-| B1k            | 6               | 3               | 15                 | 16                 |
-| B1             | 16              | 14              | 6                  | 9                  |
-| B2             | 16              | 7               | 16                 | 16                 |
-| m08k (round 5) | 16              | 7               | 3                  | 15                 |
+| Key | EN: tool vendor | DE: tool vendor | EN: team read as people / unclear | DE: team read as people / unclear |
+| --- | --------------- | --------------- | --------------------------------- | --------------------------------- |
+| n02 | 2               | 0               | 16 / 0                            | 16 / 0                            |
+| f6  | 7               | 2               | 1 / 15                            | 2 / 14                            |
+| d3  | 0               | 0               | 16 / 0                            | 16 / 0                            |
+| B3k | 8               | 6               | 16 / 0                            | 16 / 0                            |
+| B3  | 5               | 7               | 5 / 11                            | 1 / 15                            |
 
-## In the site: the home H1, the tuning desk and the decided page headlines (24, one blog line)
+This round offered "unclear" as an answer, round 6 did not (f6 there: people 13 and 16 of 16).
 
-| Key | Repetition, H1 as in verbal.json (EN / DE) | Overall | Repetition, German H1 "zusammenspielen" | Overall |
-| --- | ------------------------------------------ | ------- | --------------------------------------- | ------- |
-| n02 | 7.2 / 7.2                                  | 77.0    | 6.8 / 6.8                               | 73.9    |
-| f6  | 5.0 / 2.7                                  | 69.6    | 5.4 / 4.8                               | 75.5    |
-| B1k | 3.6 / 3.6                                  | 63.5    | 3.2 / 3.2                               | 61.9    |
+## The whole set: every banner in place, the site and your profile texts
+
+| Key | Overall | Noise | Repetition EN / DE | Together | Profiles | Website | Brand surfaces | Calm |
+| --- | ------- | ----- | ------------------ | -------- | -------- | ------- | -------------- | ---- |
+| f6  | 78.1    | 0.2   | 5.2 / 5.1          | 8.3      | 75.9     | 79.6    | 79.6           | 7.7  |
+| n02 | 76.9    | 1.8   | 7.0 / 6.9          | 7.2      | 80.1     | 75.1    | 80.0           | 8.7  |
+| d3  | 68.8    | 1.1   | 3.5 / 3.5          | 7.5      | 66.3     | 71.3    | 72.8           | 6.7  |
+
+German home H1 with "zusammenspielen" for f6 and d3, as in `verbal.json` for n02. Your profile
+texts as they stand: none repeats n02 or f6; "developers in flow", the Sessionize bio's "into
+flow" and the About's "In flow" repeat d3.
 
 ## What choosing changes
 
@@ -220,3 +251,6 @@ Noise is the difference between the panel means of the two runs. Scores compare 
 - `home-claim-line`: n02 or f6 above the home H1 is untested; with m08k or m08 the slot stays empty, as
   round 3 measured (m08 there 72.0 against 79.8 for the empty slot).
 - c3: nothing changes.
+- Whichever line: `profile-1` in `render.py` starts the group at x 480, and on LinkedIn's narrow
+  layout the photo covers the claim's first letters; the descriptor needs the same check on XING
+  mobile, where the photo covers its start (round 7 report, "Seen in place").
