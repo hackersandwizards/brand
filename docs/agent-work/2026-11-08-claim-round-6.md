@@ -3,10 +3,11 @@
 The recommendation stays n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure
 Leute.". A line carrying "tune" holds: f6, "Every agent needs a team in tune." / "Jeder KI-Agent
 braucht ein eingespieltes Team.", ties n02 on the claim surfaces and in the cold reads. On the
-current home page, though, it repeats the home H1, and there it falls behind n02, outside the
-noise. It ties n02 there too only if the German H1 says "zusammenspielen" in place of
-"eingespielt", the option `home-claim-line` already recommends. Every other new flow or tune
-line scores lower than n02 by more than the noise, in both runs and with both models.
+current home page, though, its German repeats the home H1 word for word. There it trails n02 in
+every run and with both models, a tie only because n02's own two runs differ by 6.3. With
+"zusammenspielen" in the German H1, the option `home-claim-line` already recommends, the
+repetition shrinks and the two tie closely. Every other flow or tune line on the panel scores
+lower than n02 by more than the noise, in both runs and with both models.
 
 The rule for "the score sinks", set before any score: n02 leads by more than the noise, in both
 runs and with both models. By that rule f6 does not sink. The two lines as stated in the brief sink
@@ -17,7 +18,7 @@ by 20.7 and 37.8 points.
 Benedikt, 08.11., asked for lines with "flow" or "tune" in them, and named two ideas: "Every
 agent needs a team to stay in flow" and "your company in flow with agents supported by teams". The
 words matter to him unless the score drops hard. This round tests his two lines, a short fix of
-each and eight lines of its own blind, beside n02 and the current claim c3 as unmarked controls.
+each, five lines of its own, two from a fresh model and two older lines blind, beside n02 and the current claim c3 as unmarked controls.
 
 ## Candidates
 
@@ -44,8 +45,8 @@ each and eight lines of its own blind, beside n02 and the current claim c3 as un
   figures, no hype, no dash, ihr-form, "KI-Agent", and no "team of agents". It saw no candidate, no
   current or retired line and no words of Benedikt's. Two of its six lines went on.
 - Prefilter: text only, round 4's method (CTO, conference organiser, brand strategist; Claude and
-  Codex; one run each; so no noise measured). The panel took the five best new lines, B1 and B2 as
-  stated, and one fix of each. The prefilter reviewers' main cause against B1: an agent "staying
+  Codex; one run each; so no noise measured). The panel took the four best new lines, B1 and B2 as
+  stated, and one fix of each; f7, fifth at 60.3, was cut to keep the panel at ten. The prefilter reviewers' main cause against B1: an agent "staying
   in flow" reads as a human state given to software, and the clause makes the line long. Against
   B2: long, corporate, "supported by teams" makes the people secondary. B1k and B2k keep each idea
   and drop that cause.
@@ -142,8 +143,8 @@ of 12 cold readers named training (round 4), and on the home page c3 repeats the
 | B1  | 16 / 0                | 5.2  | 14 / 2                | 5.2  | 1 / 0 / 6 / 9                        | 1 / 0 / 9 / 6                        |
 | B2  | 16 / 0                | 5.8  | 7 / 9                 | 5.5  | 0 / 0 / 16 / 0                       | 0 / 0 / 16 / 0                       |
 
-No reader answered "other". Noise in every cell is at most two reads of eight (B1k and f6 in
-English: people 8 then 7, and 7 then 6). For n02 and f6, every vendor guess comes from the reader
+No reader answered "other". Noise is at most one read of eight for n02, f6, f2, d4 and B1k, and
+largest for B1 in German, read as people 6 then 3. For n02 and f6, every vendor guess comes from the reader
 outside tech; the buyer personas named training in every run. B1 as stated goes to a tool vendor
 16 to 0 in English, across all four personas: "Probably a developer tool that runs several coding
 agents together as a team, or adds team support around them, so they keep working". Its "stay in
@@ -159,32 +160,35 @@ the reader outside tech: "it could just as well mean a group of AI agents workin
 | B1k | 3.6 (3.6 / 3.6)                            | 7.0      | 63.5                | 63.8 / 63.1 | 54.2 / 72.8    | 3.2 (3.2 / 3.2)                            | 7.1      | 61.9    | 63.3 / 60.4 | 51.7 / 72.1    |
 
 - With the H1 as `verbal.json` holds it, n02 leads f6 by 7.4 in the site, in both runs (3.8 and
-  10.9) and with both models (6.2 and 8.5). n02's own noise in this test is 6.3, so the lead
-  stands just outside it. All 12 runs name the same cause: "eingespieltes Team" repeats
+  10.9) and with both models (6.2 and 8.5). n02's own runs differ by 6.3 (Claude 60.3 then 73.7),
+  so run 1's lead lies inside the noise: by the rule, a tie, with f6 behind in every split. All 12 runs name the same cause: "eingespieltes Team" repeats
   "Wenn alle Rollen eingespielt sind" from the German H1 word for word, and "in tune" restates
   "every role is in step" and the tuning desk in English.
 - With "zusammenspielen" in the German H1, f6 leads n02 by 1.6: in both runs (2.7 and 0.6), with
   Claude (5.2) but not with Codex (-1.9). A tie. f6's German repetition rises from 2.7 to 4.8; the
   English, still "in step" beside "in tune", stays at 5.4.
+- n02 and B1k repeat the same words in both languages, and every reviewer gave each of them one
+  repetition score for English and German alike.
 - B1k repeats the tuning desk's caption "in flow" / "im Flow" word for word in all 24 runs.
 - n02 repeats one deep page: "your people" / "eure Leute" stands in the Factory operating model
   headline ("Agents do the work, and your people decide what ships.").
 
 ## Decision
 
-n02 stays the recommendation: it is the only line that is first or tied on every test without a
-condition. f6 ties it on the claim surfaces and in the cold reads, but falls behind on the home page
-as it stands, and needs the German H1 change to tie there too. A tie goes to the line with fewer
-exceptions.
+n02 stays the recommendation. f6 ties it on every test of this round, so the tie goes to the line
+with fewer exceptions. n02 needs none. f6 repeats the German home H1 word for word, which all 12
+site reviewers named, and trails n02 there in every run and with both models; only the German H1
+change removes that.
 
 Benedikt's condition leaves f6 open to him: he holds "flow" or "tune" important unless the score
-drops hard. By the rule above it does not drop for f6, provided the German home H1 says
-"zusammenspielen". Choosing f6 then means choosing `de-zusammenspielen` in `home-claim-line` too.
+drops hard. By the rule above it does not drop for f6, and with "zusammenspielen" in the German
+home H1 its one exception goes. Choosing f6 then means choosing `de-zusammenspielen` in `home-claim-line` too.
 In English "in tune" still sits beside "in step" on the home page (repetition 5.4 against 6.8 for
 n02), within the tie.
 
-No flow line holds. Every line with "flow" scores lower than n02 by more than the noise, except
-c3, the current claim, which earlier rounds rejected on other grounds. The word "flow" already
+No new flow line holds. Every line with "flow" on the panel scores lower than n02 by more than the
+noise, except c3, the current claim, which earlier rounds rejected on other grounds. The flow lines
+below the panel cut scored lower than n02 in the prefilter, one run each, noise not measured. The word "flow" already
 stands on the home page as the tuning desk's caption.
 
 ## Skipped and owed

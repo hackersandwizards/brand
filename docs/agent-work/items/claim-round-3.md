@@ -5,7 +5,7 @@ priority: 1
 order: 20
 area: brand
 owner: Benedikt
-evidence: "Blind review 08.11., round 6: 13 lines carrying flow or tune (Benedikt's two ideas as stated and fixed, eight of this run's, two from a fresh model) beside n02 and c3; prefilter 6 runs; 576 cold reads of one LinkedIn banner (what kind of company, who the team or the people are); 10 lines on banners, closing slide and link preview by round 5's panel, 20 runs; the best two against the home H1 k3, the tuning desk and the 24 decided page headlines, 24 runs. Round 5 before it: 971 runs, round 4: 304. Reports: docs/agent-work/2026-11-08-claim-round-6.md, docs/agent-work/2026-11-08-claim-round-5.md"
+evidence: "Blind review 08.11., round 6: 13 lines carrying flow or tune (Benedikt's two ideas as stated and shortened, five of this run's, two from a fresh model, two older lines) beside n02 and c3; prefilter 6 runs; 576 cold reads of one LinkedIn banner (what kind of company, who the team or the people are); 10 lines on banners, closing slide and link preview by round 5's panel, 20 runs; the best two against the home H1 k3, the tuning desk and the website's decided page headlines (24: one blog line of two), 24 runs. Round 5 before it: 971 runs, round 4: 304. Reports: docs/agent-work/2026-11-08-claim-round-6.md, docs/agent-work/2026-11-08-claim-round-5.md"
 recommended: n02
 options:
   - key: n02
@@ -15,7 +15,7 @@ options:
     noise: 1.2
   - key: f6
     label: "Every agent needs a team in tune. / Jeder KI-Agent braucht ein eingespieltes Team. With the descriptor line on the banners"
-    detail: "Round 6, the best line with flow or tune: ties n02 on the panel (78.6; Codex 82.4 against 79.2, Claude 74.8 against 80.0) and in the cold reads (vendor EN 4, DE 3 of 16, all from the reader outside tech; people EN 13, DE 16 of 16). In the site it repeats the home H1: 'eingespieltes Team' against 'Wenn alle Rollen eingespielt sind' (repetition DE 2.7 of 10), 69.6 against 77.0 for n02, behind in both runs and with both models. With the German H1 'zusammenspielen' (home-claim-line's de-zusammenspielen) it ties n02 there too, 75.5 against 73.9. Choosing f6 means choosing de-zusammenspielen."
+    detail: "Round 6, the best line with flow or tune: ties n02 on the panel (78.6; Codex 82.4 against 79.2, Claude 74.8 against 80.0) and in the cold reads (vendor EN 4, DE 3 of 16, all from the reader outside tech; people EN 13, DE 16 of 16). In the site it repeats the home H1: 'eingespieltes Team' against 'Wenn alle Rollen eingespielt sind' (repetition DE 2.7 of 10), 69.6 against 77.0 for n02, behind in every run and with both models, a tie by the rule only because n02's two runs differ by 6.3. With the German H1 'zusammenspielen' (home-claim-line's de-zusammenspielen) it ties n02 there too, 75.5 against 73.9. Choosing f6 means choosing de-zusammenspielen."
     score: 78.6
     noise: 1.0
   - key: B1k
@@ -87,6 +87,12 @@ images:
   B1:
     - src: r6-b1-b2-banners.jpg
       caption: "The LinkedIn banner with the descriptor line, from the top: B1, B1k, B2 and its short form, English left, German right"
+  B1k:
+    - src: r6-b1-b2-banners.jpg
+      caption: "The LinkedIn banner with the descriptor line, from the top: B1, B1k, B2 and its short form, English left, German right"
+  B2:
+    - src: r6-b1-b2-banners.jpg
+      caption: "The LinkedIn banner with the descriptor line, from the top: B1, B1k, B2 and its short form, English left, German right"
   n02:
     - src: r5-n02-banners.jpg
       caption: "n02: LinkedIn profile, X and Sessionize banners with the descriptor line, English left, German right"
@@ -138,20 +144,24 @@ images:
 
 Blocks the brand raise on the website, the 25 page headlines, the bio rewrite and the banners. Nothing of these ships until you pick.
 
+Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterieren ich habe noch einige ideen im chat", and then: "das wort flow oder tune finde ich schon noch wichtig. außer der score sinkt dann massiv." Round 6 tested his ideas blind beside n02; his preference stays a hypothesis, not a score.
+
 I recommend n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure Leute.", with
 the line "Training and mentoring in agentic engineering" under it on the banners. It is first or
-tied on every test of rounds 5 and 6, with no condition attached.
+tied on every test of round 6 and needs no change elsewhere. In round 5 it came second
+to m08k, which reads as an AI tool vendor without the descriptor.
 
 If "tune" matters to you: f6, "Every agent needs a team in tune." / "Jeder KI-Agent braucht ein
 eingespieltes Team.", holds. Its score does not sink: it ties n02 on the banners, slide and link
 preview (78.6 against 79.5, noise 1.0 and 1.2) and in the cold reads. It has one condition. Its
-"eingespieltes Team" repeats the German home H1 "Wenn alle Rollen eingespielt sind", and there it
-falls behind n02 (69.6 against 77.0). With "zusammenspielen" in the German H1, which
+"eingespieltes Team" repeats the German home H1 "Wenn alle Rollen eingespielt sind" word for word,
+and there it trails n02 in every run (69.6 against 77.0), a tie by the rule only because n02's
+own runs differ by 6.3. With "zusammenspielen" in the German H1, which
 `home-claim-line` recommends anyway, it ties n02 in the site as well (75.5 against 73.9). So pick
 f6 together with `de-zusammenspielen`, or n02 alone.
 
 - A score sinks, by the rule set before any score, where n02 leads by more than the noise in both
-  runs and with both models. By that rule f6 holds. Every new line with "flow" sinks: B1k, your
+  runs and with both models. By that rule f6 holds. Every new line with "flow" on the panel sinks: B1k, your
   first idea shortened to "Every agent needs a team in flow.", by 5.7; your two lines as stated
   by 20.7 and 37.8. Alone on a banner, "Every agent needs a team to stay in flow." goes to an AI
   tool vendor for 16 of 16 English readers. "in flow" also repeats the home page's tuning desk
@@ -187,7 +197,7 @@ only: n02, f6, B1k, f2, B1, B2 and c3 carry round 6's, the other options round 5
 | B2   | 16              | 7               | 16                 | 16                 |
 | m08k | 16 (round 5)    | 7 (round 5)     | 3 (round 5)        | 15 (round 5)       |
 
-## In the site: the home H1, the tuning desk and the 24 decided page headlines
+## In the site: the home H1, the tuning desk and the decided page headlines (24, one blog line)
 
 | Key | Repetition, H1 as in verbal.json (EN / DE) | Overall | Repetition, German H1 "zusammenspielen" | Overall |
 | --- | ------------------------------------------ | ------- | --------------------------------------- | ------- |
