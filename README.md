@@ -484,8 +484,8 @@ tag in their dependency line. Every brand file changes here; the rest of the rul
 
 The package is never published to a registry. Bun rewrites `git+https://github.com/...` to
 GitHub's tarball API, which serves this public repo without a login, a key or any git
-configuration. That tarball is `git archive` of the tag, which bun unpacks whole and `files` does
-not narrow: `.gitattributes` marks every Git LFS file and every source no export or command reads
-`export-ignore`, so an install holds the shipped files and no LFS pointer.
+configuration. That tarball is `git archive` of the tag, which bun unpacks whole without reading
+`files`: `export-ignore` in `.gitattributes` narrows it to the files `files` names, no Git LFS file
+among them.
 
 Licence: PolyForm Strict 1.0.0, see [LICENSE](LICENSE).
