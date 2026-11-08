@@ -5,243 +5,250 @@ priority: 2
 order: 200
 area: brand
 owner: Benedikt
-evidence: "Blind review 08.11., 24 runs in two rounds, on the website's origin/main (093daa7c) with brand v1.28.5, the website's own pin, linked locally (the website moved the Factory to teal itself, in ef5ae8b4); method and scores in the body."
-recommended: shapes
+evidence: "Blind review 08.11., round 3 (16 look and glance runs, 16 continuity runs) and round 4 (16 look runs), on the website's origin/main d4dc0734 with its brand pin v1.28.5, each variant injected as CSS into a throwaway clone; method, scores and the reviewer prompt in the body. Round 2's scores: this item's history (1b2eb0f)."
+recommended: shapes-colour
 options:
-  - key: shapes
-    label: "(c) One mark shape per area in today's colours"
-    detail: "Trainings a teal square, Software Factory a teal diamond, Blog a purple circle, Knowledge base a purple triangle, Podcast a purple ring, every other page a grey bar; a card shows the mark before its area name. At a glance 100 % correct and unhedged. Keeps the palette; brand's rule that every mark too small for the brand corner is a square (tokens/marker.css) gains a shape per category. Reviewers: the shapes are small and take learning, and a card with an edge but no area name (the factory step cards) still shows only teal."
-    score: 7.94
-    noise: 0.12
-  - key: five-hues
-    label: "(b) One colour per area, none of them a state colour"
-    detail: "Trainings teal, Software Factory blue #2563eb, Blog purple, Knowledge base pink #db2777, Podcast magenta #c026d3. At a glance 100 % correct and unhedged. Needs three hues outside the palette, and two of them sit close to existing ones: pink is ΔE 10.1 from red, magenta 9.7 from purple (teal to purple is 26.5). Reviewers: five accents compete, the pink edge reads near an error red, pink and magenta are hard to tell apart."
-    score: 7.69
-    noise: 0.62
-  - key: today
-    label: "(a) Today: teal for Trainings and Software Factory, purple for Blog, Knowledge base and Podcast, grey for the rest"
-    detail: "Every link is placed correctly once its words are read. At a glance only 39 % of answers were correct and unhedged (86 % with the hedged guesses counted): Software Factory was mistaken for Trainings, and Knowledge base and Podcast for Blog. The calmest of the coloured variants."
-    score: 6.88
+  - key: shapes-colour
+    label: "(c+) One mark shape per area in today's colours, carried to the page as a mark before the H1"
+    detail: "Trainings a teal square, Software Factory a teal diamond, Blog a purple dot, Knowledge base a purple triangle, Podcast a purple ring, other pages a grey bar. The link shows the mark (cards before their area name); the page it opens shows the same mark before the H1, hanging in the margin from 1024 px, inline on the phone. Best overall in round 3 (7.62), outside the noise against every variant but (x), in both runs and with both models. Links with a mark: 100 % of reviewers found the page a link opens, sure; 89 % placed an unread link at a glance. Recommended at the medium mark size of round 4 (0.42 em of the H1, about 24 px on desktop): overall 7.50, a tie with 0.3 em, and arrival 7.31 against 6.69. Reviewers: the triangle can read as a warning and the dot and ring as status lights."
+    score: 7.62
+    noise: 0
+  - key: counter
+    label: "(x) Independent counter-draft: shape and today's colour, a large mark inline at the start of the H1 and in the Resources tab, no mark for other pages"
+    detail: "Drafted blind by a separate designer prompt. Best arrival in both rounds (8.50, 8.69), but the least calm (6.69): 30 of the 32 look runs of rounds 3 and 4 name the large marks competing with the headline, the extra line breaks they cause or the repeated mark in the tab bar. Without a mark for other pages, an unread link to About or Clients is placed sure in 5 of 16 runs (16 of 16 with the grey bar). Overall 7.12, inside the noise of (c+) in round 3 and of every variant in round 4."
+    score: 7.12
     noise: 0.25
-  - key: amber-green
-    label: "(e) The website departs from the category rule: Software Factory amber, Knowledge base green, the rest as today"
-    detail: "At a glance 94 % correct, 77 % unhedged; Podcast still passes for Blog. The lowest meaning score of all: all 16 round-1 runs named the amber and green as the warning, running, success and autonomous colours of the factory run and the maturity curve on the same page. Amber-dark is ΔE 6.4 from the former factory rust, green-dark 12.9 from teal."
-    score: 6.19
-    noise: 0.38
-  - key: label-only
-    label: "(d) No mark, the area name alone"
-    detail: "The calmest, but at a glance no answer came without a hedge (74 % right by guessing from layout). The pages read flat and the phone squeezes a long link beside its label."
-    score: 5.94
-    noise: 0.37
+  - key: shapes-teal
+    label: "(c) One mark shape per area, all in teal"
+    detail: "Orients like (c+) (links with a mark 93 %) and looks calm (8.69), but 14 of 16 runs say the marks share their teal with the buttons and the factory run's status dot, so the small shapes carry the whole difference. Overall 6.88."
+    score: 6.88
+    noise: 0
+  - key: today
+    label: "(a) Today: teal for Trainings and Software Factory, purple for Blog, Knowledge base and Podcast, grey for the rest; on the page the area's name above the H1"
+    detail: "Every link reaches its page once its words are read. Without the words, reviewers placed only 29 % of links with a mark sure at a glance, and found the page a Trainings or Software Factory link opens sure in half the runs (8 of 16 per link): both pages carry the same teal. Calmest with (c). The area name above the H1 goes if the website takes its own recommendation of no line above any H1 (decide-eyebrow-concept)."
+    score: 6.62
+    noise: 0.25
+  - key: hues
+    label: "(b) One colour per area: Software Factory blue #1d4ed8, Knowledge base olive #625114, Podcast rose #b42587, the rest as today"
+    detail: "The hypothesis this round tested: the colour carried from the link to the page. It does carry (links with a mark 94 %, the same as (c+)), but it scores lowest on meaning (6.00) and below today overall (6.50). Reviewers: six colours on one square read like a status legend, 5 of 16 runs read the olive as a warning, teal and blue and purple and rose are hard to tell apart at 10 px. Adds three colours to every surface's palette. The hues are this round's fix of round 2's: each sits at least 14.5 ΔE (OKLab ×100) from teal, purple and the three state colours (round 2: 9.7), and passes AA as text on white and as its night variant on Night."
+    score: 6.5
+    noise: 0
 images:
-  shapes:
-    - src: shapes-home.jpg
-      caption: "(c) home, 1440 px: About row, Software Factory row, book, blog and podcast cards"
-    - src: today-factory.jpg
-      caption: "(c) service page, 1440 px: the same as today, since this view's cues are Trainings squares and card edges, which (c) leaves as they are"
-    - src: shapes-phone.jpg
-      caption: "(c) phone, 390 px: home hero, home, blog post, factory steps, knowledge base"
-    - src: shapes-glance.jpg
-      caption: "(c) round 1 glance board: the cues with all text blurred"
-  five-hues:
-    - src: five-hues-home.jpg
-      caption: "(b) home, 1440 px"
-    - src: five-hues-factory.jpg
-      caption: "(b) service page, 1440 px"
-    - src: five-hues-phone.jpg
+  shapes-colour:
+    - src: shapes-colour-medium-pages.jpg
+      caption: "(c+) at the recommended mark size (0.42 em), the page a link opens, 1440 px: a training, the Software Factory, a knowledge base entry, a blog post, a podcast episode. Prices hidden."
+    - src: shapes-colour-medium-phone.jpg
+      caption: "(c+) at 0.42 em, phone, 390 px: five such pages"
+    - src: shapes-colour-pages.jpg
+      caption: "(c+) at 0.3 em, as round 3 scored it"
+    - src: shapes-colour-phone.jpg
+      caption: "(c+) at 0.3 em, phone"
+    - src: shapes-colour-home.jpg
+      caption: "(c+) home, 1440 px scaled to 1000: hero link, training cards, Software Factory row, book and blog cards"
+    - src: shapes-colour-continuity.jpg
+      caption: "(c+) continuity question as reviewers saw it: a Software Factory link, then three pages with all text blurred"
+  counter:
+    - src: counter-pages.jpg
+      caption: "(x) pages, 1440 px"
+    - src: counter-phone.jpg
+      caption: "(x) phone, 390 px"
+    - src: counter-continuity.jpg
+      caption: "(x) continuity question"
+  shapes-teal:
+    - src: shapes-teal-pages.jpg
+      caption: "(c) pages, 1440 px"
+    - src: shapes-teal-phone.jpg
+      caption: "(c) phone, 390 px"
+    - src: shapes-teal-continuity.jpg
+      caption: "(c) continuity question"
+  hues:
+    - src: hues-pages.jpg
+      caption: "(b) pages, 1440 px"
+    - src: hues-phone.jpg
       caption: "(b) phone, 390 px"
-    - src: five-hues-glance.jpg
-      caption: "(b) glance board"
+    - src: hues-home.jpg
+      caption: "(b) home, 1440 px scaled to 1000"
+    - src: hues-continuity.jpg
+      caption: "(b) continuity question"
   today:
-    - src: today-home.jpg
-      caption: "(a) home, 1440 px"
-    - src: today-factory.jpg
-      caption: "(a) service page, 1440 px"
+    - src: today-pages.jpg
+      caption: "(a) pages, 1440 px"
     - src: today-phone.jpg
       caption: "(a) phone, 390 px"
-    - src: today-glance.jpg
-      caption: "(a) glance board"
-  amber-green:
-    - src: amber-green-home.jpg
-      caption: "(e) home, 1440 px"
-    - src: amber-green-factory.jpg
-      caption: "(e) service page, 1440 px: the amber hero label beside the amber running and warning marks"
-    - src: amber-green-phone.jpg
-      caption: "(e) phone, 390 px"
-    - src: amber-green-glance.jpg
-      caption: "(e) glance board"
-  label-only:
-    - src: label-only-home.jpg
-      caption: "(d) home, 1440 px"
-    - src: label-only-factory.jpg
-      caption: "(d) service page, 1440 px"
-    - src: label-only-phone.jpg
-      caption: "(d) phone, 390 px"
-    - src: label-only-glance.jpg
-      caption: "(d) glance board"
+    - src: today-continuity.jpg
+      caption: "(a) continuity question: two of the three pages carry the same teal"
 ---
 
-# Does the area cue still orient, now that areas share two colours?
+# Does the area cue carry from the link to the page it opens?
 
-Only when the reader reads it. At a glance, without the words, reviewers placed a link with
-confidence 39 % of the time, because teal now marks both Trainings and the Software Factory and
-purple marks Blog, Knowledge base and Podcast. One mark shape per area in today's colours, or one
-non-state colour per area, brings it to 100 %. Amber and green manage 94 %, but they read as
-warning and success beside the factory run and the maturity curve.
+Only if the page shows the link's mark again. Round 2's shapes lived on links alone, so a reader
+who followed a diamond found no diamond on arrival. Put the same mark before the page's H1 and a
+shape per area carries as well as a colour per area: with the words blurred, reviewers found the
+page a marked link opens, sure, in 100 % of cases for both. Shapes in today's colours look better
+(7.62 against 6.50) and add no colour: recommended, with a medium mark (0.42 em).
 
-## How the cue works and what changed
+## What the page shows today
 
-The website's destination cue (`src/lib/destinations.ts`, `LinkRow.astro`, `Card.astro`,
-`src/styles/patterns.css`) puts a 10 px square in the area's colour before a link row, a 3 px edge
-on a linked card, and the area name in small capitals where the link text does not already name it.
-
-| Area the cue names                                            | Before 06.11.    | Today  |
-| ------------------------------------------------------------- | ---------------- | ------ |
-| Trainings, Enablement                                         | teal             | teal   |
-| Software Factory                                              | rust `#a3402a`   | teal   |
-| Blog                                                          | purple           | purple |
-| Knowledge base                                                | green-dark       | purple |
-| Podcast                                                       | amber-dark       | purple |
-| About, Clients, Book, Events, Self-check, Contact, RSS, hosts | grey (ampersand) | grey   |
-
-brand v1.13.0 (`70546a1`) reserved amber, green and red for states; website `ec080771` moved
-Knowledge base and Podcast to purple; brand v1.31.0 (`9e96038`) and website `ef5ae8b4` moved the
-Software Factory to teal (its review: `docs/agent-work/2026-11-07-factory-labels.md`).
-
-State colours on the website: the factory run in the factory hero (green done or autonomous, amber
-running, red error, purple human input, `hero-feed.ts`), the maturity curve (amber trap point,
-green goal step, `FactoryMaturity.astro`), and green or red ticks in `ProofSections`,
-`StandardSections` and `PrincipleRows`. None appears on home.
-
-Elsewhere brand's category colours carry no website area: os gives its categories teal, purple
-and slate (its name for ampersand) and the factory training format rust (`src/config.ts`),
-documents set outcomes and module heads in purple, and slides set code-explainer section labels
-in amber (`ContentSlide.tsx`, a category in a state colour, the slides repository's to fix). So
-(c) changes brand's mark rule and the website, (b) adds three colours to every surface's palette,
-(e) changes the website alone.
+The website sets the area on `<body data-area>` (`src/layouts/Layout.astro`), and three things on
+the page take its colour: the area's name above the H1 (`[data-hero-eyebrow]` in
+`src/components/ui/PageHero.astro`), the bar under the current header item (`Nav.astro`) and, on
+Blog, Knowledge base and Podcast, the bar under the current tab (`SectionBar.astro`). Trainings and
+the Software Factory share one header item and one teal, so nothing but the H1's words tells those
+pages apart. The line above the H1 may go (website `decide-eyebrow-concept`).
 
 ## Research
 
-- WCAG 1.4.1 allows colour coding where another visual cue carries the same information
-  ([W3C, Understanding 1.4.1](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html)).
-  Every variant passes: the area name or the link text names the destination. Colour alone fails
-  only where nothing else is shown.
-- Readers handle up to about six categories well, and performance falls beyond that
-  ([arXiv 2508.17460](https://arxiv.org/abs/2508.17460)). The cue has five areas plus grey.
-- A shape or icon needs a visible label next to it
-  ([NN/g, Icon usability](https://www.nngroup.com/articles/icon-usability/)). The shapes in (c)
-  sit beside the area name or a link text that names the place.
-- Design systems use status colours mainly to show status
-  ([CMS design system](https://design.cms.gov/foundation/theme-colors)). The blind review
-  measured the cost of breaking that on this site directly (meaning score of (e)).
+- Users judge a link from its label, its context and their prior experience, and a weak cue gets
+  overlooked ([NN/g, Information scent](https://www.nngroup.com/videos/information-scent/)).
+- A site shows where the reader is through several cues at once: the current navigation item, the
+  headings, breadcrumbs and, on sites with sharply distinct content, colour per section. People
+  overlook subtle changes, so a colour shift alone may go unnoticed
+  ([NN/g, You are here](https://www.nngroup.com/articles/navigation-you-are-here/)).
+- Colour-coded sections apply one colour per section to every space in it; small elements take
+  bolder colours, and a colour that matters needs a non-colour cue beside it
+  ([Tidwell, Color-coded sections](https://www.mit.edu/~jtidwell/language/color-coded_sections.html)).
+- The BBC gives each service a core colour that identifies it, applied in the service's lockup and
+  across graphical elements such as icons and progress indicators
+  ([BBC Simorgh, service colours](https://raw.githubusercontent.com/bbc/simorgh/latest/docs/User-Experience/service-colours.mdx)).
+
+The strongest landing anchor these sources support is the link's own mark repeated at the top of
+the page, beside the heading, with the navigation's current item as the second cue. Every variant
+but today puts its mark before the H1 and keeps the header bar and the tab bar in the area's colour.
 
 ## Blind review
 
 Medium, audience and size in every prompt: the public website, 1440 px desktop and 390 px phone,
-read by CTOs, engineering leads and product managers. Neutral letters, a new order per run, the
-current state scored alongside and never named. Criteria were fixed before any score.
+read by CTOs, engineering leads and product managers. Personas: CTO, head of engineering, product
+manager, designer; Claude and Codex; two runs each. Neutral letters and paths, a new order per run,
+today's site scored alongside and never named. Criteria and the decision rule were written before
+any score. Every candidate keeps the site's rules except the one it tests, and drops the line above
+the H1 (today keeps it): (b) adds colours, (c), (c+) and (x) add mark shapes other than the square.
 
-Round 1, 16 runs (CTO, head of engineering, product manager, designer; Claude and Codex; two runs
-each), each variant's whole pages plus 16 numbered links:
+Three tests per variant: (i) glance, 13 unseen links with their text blurred after a learning board
+of 12; (ii) continuity, 10 questions, each a readable link and three pages it might open with all
+text blurred and photos hidden (5 desktop, 5 phone; the distractors are the confusable areas);
+(iii) look, 1 to 10 per criterion.
 
-| Variant         | Calm | Room | Appeal | Meaning | Orientation | Overall |
-| --------------- | ---- | ---- | ------ | ------- | ----------- | ------- |
-| (c) shapes      | 7.31 | 8.00 | 7.50   | 5.94    | 8.69        | 7.94    |
-| (b) five hues   | 7.00 | 8.00 | 7.69   | 6.62    | 8.56        | 7.69    |
-| (a) today       | 8.31 | 8.06 | 6.50   | 5.75    | 6.19        | 6.88    |
-| (e) amber-green | 6.56 | 7.94 | 7.56   | 3.81    | 8.50        | 6.19    |
-| (d) label only  | 8.88 | 7.88 | 5.00   | 6.25    | 4.94        | 5.94    |
+Round 3, 32 runs (16 look and glance, 16 continuity):
 
-With the words readable, every reviewer placed all 16 links correctly in every variant.
+| Variant          | Calm | Room | Appeal | Meaning | Arrival | Overall |
+| ---------------- | ---- | ---- | ------ | ------- | ------- | ------- |
+| (c+) shapes      | 8.38 | 8.50 | 7.25   | 7.31    | 7.44    | 7.62    |
+| (x) counter      | 6.69 | 7.44 | 7.75   | 7.12    | 8.50    | 7.12    |
+| (c) shapes, teal | 8.69 | 8.50 | 6.19   | 6.19    | 6.81    | 6.88    |
+| (a) today        | 8.69 | 8.06 | 5.69   | 6.19    | 7.44    | 6.62    |
+| (b) hues         | 7.25 | 8.50 | 6.88   | 6.00    | 7.00    | 6.50    |
 
-Overall by model: Claude (c) 7.62, (b) 7.12, (a) 6.00, (e) 5.50, (d) 5.38; Codex (c) 8.25,
-(b) 8.25, (a) 7.75, (e) 6.88, (d) 6.50. Noise, the difference between a reviewer's two runs:
-0.55 on overall, 0.65 on meaning. An option's `noise` above is the gap between the two runs'
-variant means.
+Overall by model: Claude (x) 7.50, (c+) 6.88, (c) 6.25, (b) 5.75, (a) 5.38; Codex (c+) 8.38,
+(a) 7.88, (c) 7.50, (b) 7.25, (x) 6.75. Noise, the difference between a reviewer's two runs:
+overall 0.55, arrival 0.47, meaning 0.82. An option's `noise` above is the gap between its two
+runs' means.
 
-Round 1's glance board reused the 16 read links, and reviewers matched them by layout: even (d)
-scored 98 %. Round 2 therefore showed each variant's 16 links with their areas as a learning
-board, then 11 links not on it, all text blurred and every area name set to one length:
+Orientation, share of answers both correct and sure:
 
-| Variant         | Correct | Correct and unhedged | Missed                                                   |
-| --------------- | ------- | -------------------- | -------------------------------------------------------- |
-| (c) shapes      | 100%    | 100%                 |                                                          |
-| (b) five hues   | 100%    | 100%                 |                                                          |
-| (e) amber-green | 94%     | 77%                  | Podcast as Blog                                          |
-| (a) today       | 86%     | 39%                  | Factory as Trainings, Knowledge base and Podcast as Blog |
-| (d) label only  | 74%     | 0%                   | Knowledge base, Blog, Podcast                            |
+| Variant          | Glance | Continuity | Both | All links | Rows without any mark: glance, continuity |
+| ---------------- | ------ | ---------- | ---- | --------- | ----------------------------------------- |
+| (c+) shapes      | 89 %   | 100 %      | 94 % | 74 %      | 12 %, 75 %                                |
+| (b) hues         | 89 %   | 100 %      | 94 % | 74 %      | 12 %, 75 %                                |
+| (c) shapes, teal | 88 %   | 100 %      | 93 % | 73 %      | 12 %, 75 %                                |
+| (x) counter      | 72 %   | 100 %      | 85 % | 67 %      | 12 %, 69 %                                |
+| (a) today        | 29 %   | 64 %       | 45 % | 42 %      | 12 %, 75 %                                |
 
-Noise on correct-and-unhedged: 0.02. Same order with both models.
+Glance, continuity and both leave out the "Keep learning" rows, which carry no mark in any variant.
+(x) gives links to other pages no mark either; they stay in, which is why its glance figure falls.
 
-Every candidate keeps the site's rules except the one it tests: (b) adds colours outside the
-palette, (c) adds mark shapes other than the square, (e) gives two categories state colours.
-Not tested: a German page, the hover state, an icon per area (the shapes stand for it), and a
-reader with a colour-vision deficiency (the shapes in (c) and the area names serve that reader;
-(b) and (e) rely on hue).
+Counting guesses, 95 % of glance and 99 to 100 % of continuity answers were right in every variant:
+without the words, readers place most links by layout but are sure only where the cue tells them.
+The "Keep learning" rows on training and blog pages carry no mark in any variant, only the area's
+name under the link, and fail at a glance everywhere (last column).
 
-## Why (c)
+The decision rule, written before any score, asked for 90 % correct and sure over all links and,
+where no variant reaches it, ranks all variants by overall. None reaches it, because of those rows,
+so overall decides: (c+) leads (c) by 0.74 and (b) by 1.12, outside the noise of 0.55 in both runs
+and with both models, and leads (x) by 0.50, a tie. (c+) and (x) add the same exception, the shape
+set, so the tie rule does not separate them. Read over the links with a mark only, (c+), (b) and (c)
+reach 90 % and (x) does not; that reading was not part of the rule.
 
-(c) and (b) tie on look (lead 0.25 inside the noise of 0.55) and both orient fully at a glance.
-The tie goes to fewer exceptions. Brand's category rule has three colours and leaves a fourth
-value neutral; the website's five areas outgrew it by sharing colours. (c) gives the rule a second
-channel, a shape per value, and keeps the palette on every surface. (b) adds three colours to every
-surface's palette, two of them near red and purple. (e) orients less well than either and costs the meaning of amber and green on
-the pages that carry the factory run.
+The most frequent reason (c+) stays below 10, in 7 of 8 Claude runs: the mark before the H1 is too
+small to say where you landed. Round 4 tested that one cause, 16 runs, look only:
 
-Two reviewer findings hold for every variant and are the website's to fix: purple also marks
-"human input" in the factory run and the step numbers ("01 · Diagnose") on the factory step cards,
-so purple means a place, a person and a sequence on one page.
+| Variant                 | Calm | Arrival | Overall |
+| ----------------------- | ---- | ------- | ------- |
+| (c+) mark 0.42 em       | 8.06 | 7.31    | 7.50    |
+| (c+) mark 0.3 em        | 8.69 | 6.69    | 7.38    |
+| (x) mark 0.5 em, inline | 6.69 | 8.69    | 7.19    |
+
+Noise: overall 0.46, arrival 0.46, calm 0.29. Overall is a three-way tie, and the three trade calm
+for arrival in steps outside the noise. All three add the same exception (the shape set), so the
+exception rule does not decide. Recommended: 0.42 em, my judgement from three readings: it buys
+arrival outside the noise for calm still above 8, keeps the links (c+) was measured with, and does
+not repeat (x)'s headline line breaks.
 
 ## Reviewer prompt
 
-Round 1, Claude, CTO, run 1, verbatim:
+Round 3, look and glance part, Claude, CTO, run 1, verbatim:
 
 ```text
 You are the CTO of a 400-person software company in Germany. You are evaluating outside help to get your engineering teams productive with AI coding agents, and you browse vendor websites between meetings.
 
 Medium: the public website of a consultancy that trains software teams on AI coding agents and builds agent-based delivery systems. Viewed in a desktop browser at 1440 px width and on a phone at 390 px width. Audience: CTOs, engineering leads and product managers deciding whether to hire this firm.
 
-On this website a link to another part of the site can carry a destination cue: a small mark, a coloured edge, a small capitalised area name, or a mix of these. Below are 5 variants of the same site, labelled R, M, P, T, K. They differ only in how that cue is drawn. Read every image named below (absolute paths).
+On this website a link into another area of the site can carry a cue (a small mark, a coloured edge, a small capitalised area name, or a mix), and the page it opens can carry one too. Below are 5 variants of the same site, labelled […]. They differ only in these cues. Read every image named below (absolute paths).
 
-Variant R:
-  read board: /tmp/claude/areacue/boards/R-read.png
-  glance board: /tmp/claude/areacue/boards/R-glance.png
-  desktop pages: /tmp/claude/areacue/boards/R-desktop1.png and /tmp/claude/areacue/boards/R-desktop2.png
-  phone pages: /tmp/claude/areacue/boards/R-phone.png
-[the same four lines for M, P, T and K]
+[per variant: learning board, glance board, desktop home, desktop pages, phone home, phone pages, each a path /tmp/ac3/blind/<random id>/<board>.png]
 
 Board contents:
-- read board: 16 numbered links cut from the real pages at real size (1 image px = 1 CSS px).
-- glance board: the same 16 links in a different order, with all text blurred so that it cannot be read, as a reader sees a link out of the corner of the eye. Colours and marks stay as they are.
-- desktop and phone pages: whole sections of the home page, a service page, a blog post and the knowledge base. Desktop images are scaled from 1440 px to 1000 px wide.
+- learning board: links cut from the real pages at real size, each with the area it leads to written above it.
+- glance board: 13 other numbered links, with all text blurred so that it cannot be read, as a reader sees a link out of the corner of the eye.
+- desktop home: three sections of the home page, scaled from 1440 to 1000 px wide. Phone home: three sections at 390 px.
+- desktop pages: the first screen of five pages the links lead to, 1440 px scaled to 700 px each. Phone pages: the same five pages' first screens at 390 px.
 
-Task 1, orientation. For each variant, look at its read board first, then its glance board. For every numbered link on each board, name the area of the site the link leads to, using only what the link itself shows. Choose one of: Trainings (includes Enablement), Software Factory, Blog, Knowledge base, Podcast, Other page on this site (About, Clients, Book and similar). On the glance board, use what you learned from that variant's read board. If you cannot tell, give your best guess.
+Task 1, glance. For each variant, study its learning board, then name for every numbered link on its glance board the area it leads to, using only what the link shows, and whether you are sure or guessing. Areas: Trainings, Software Factory, Blog, Knowledge base, Podcast, Other (Other: About, Clients, Book and similar pages).
 
-Task 2, look. For each variant, score from 1 to 10 (10 best), judging the desktop and phone pages:
+Task 2, look. For each variant, score from 1 to 10 (10 best), judging the home and page images:
 - calm: visual calm, nothing competes for attention without reason
 - room: breathing room, not cramped
-- appeal: the cue makes the pages more engaging and distinctive, not dull
-- meaning: every colour on the pages means one thing; 10 = no colour seems to mean two different things (a place on the site and a status such as running, warning, success or error), 1 = colours are confusing
-- orientation: how well you could tell, while browsing, where a link will take you
+- appeal: the cues make the pages more engaging and distinctive, not dull
+- meaning: every colour and every mark means one thing; 10 = nothing seems to mean two different things (such as a place on the site and a status such as running, warning, success or error)
+- arrival: on a page you opened, how well you can tell which area of the site you are in
 - overall: would you ship this variant
 Then name in one short sentence per variant what keeps it below 10.
 
 Answer with JSON only, no prose before or after, in this shape:
-{"variants": {"<label>": {"read": {"1": "<area>", "...": "...", "16": "<area>"}, "glance": {"1": "<area>", "16": "<area>"}, "calm": 0, "room": 0, "appeal": 0, "meaning": 0, "orientation": 0, "overall": 0, "below10": "<sentence>"}}}
+{"variants": {"<label>": {"glance": {"1": {"area": "<area>", "sure": true}, "...": "...", "13": {"area": "<area>", "sure": false}}, "calm": 0, "room": 0, "appeal": 0, "meaning": 0, "arrival": 0, "overall": 0, "below10": "<sentence>"}}}
 Use exactly these area names: Trainings, Software Factory, Blog, Knowledge base, Podcast, Other.
 ```
 
+The continuity part asked, per question image: "for every question, say which of the three pages
+the link leads to (1, 2 or 3), using only what you see, and whether you are sure or guessing."
+
+A first pass of round 3 named each variant's folder in the image paths (one of them `today`), so a
+reviewer could tell the current site. It was discarded and rerun with random folder names; its
+order was the same.
+
+## Open points the next round or the website takes up
+
+- The "Keep learning" rows carry no mark in any variant. Under every choice except (a) they need
+  the mark before their area name.
+- A linked card without an area name (the enablement page's Software Factory card) shows only its
+  coloured edge: under (c+) a teal edge, which reads as Trainings (2 of 16 sure). It needs the mark
+  before its title.
+- Reviewers read the purple triangle as a warning and the dot and ring as status lights (round 4,
+  10 of 16 runs name one of them). Not yet tested: other shapes for Knowledge base and Podcast.
+- Not tested: a German page, the hover state, a reader with a colour-vision deficiency, and the
+  shape set on the other surfaces that use brand's category colours (os, documents, slides).
+
 ## What each choice changes
 
-- (c): brand adds an ordered set of category mark shapes (square, diamond, circle, triangle, ring,
-  bar; sizes beside a line) to the category rule in `tokens/tokens.css` and to the square rule in
-  `tokens/marker.css`, in a minor release. The website maps its areas to them in
-  `src/lib/destinations.ts` and draws them in `LinkRow.astro`, `Card.astro` and `patterns.css`.
-  `brand-markers` measures list items and `.hw-marker` elements, which the
-  website's swatch is not.
-- (b): brand adds blue, pink and magenta with text and night variants (text on white: blue `#1d4ed8`
-  6.70, pink `#be185d` 6.04, magenta `#a21caf` 6.32; the night variants on night 7.46, 7.16, 7.70) and names them category
-  colours; the website maps the areas.
-- (e): the website alone, against brand's category rule, which then needs a written exception for
-  marketing surfaces.
-- (a) or (d): nothing, or the website removes the square and the card edge.
+- (c+): brand adds the ordered set of category mark shapes (square, diamond, dot, triangle, ring,
+  bar; sizes beside a line and beside an H1) to the category rule in `tokens/tokens.css` and the
+  square rule in `tokens/marker.css`, in a minor release. The website maps its areas to them in
+  `src/lib/destinations.ts`, draws them in `LinkRow.astro`, `Card.astro` and `patterns.css`, adds
+  the mark before the H1 in `PageHero.astro`, and takes up the first two open points.
+- (x): as (c+), with the larger inline mark and a mark in `SectionBar.astro`.
+- (c): as (c+), and the website gives every area teal.
+- (b): brand adds blue, olive and rose with text and night variants (text on white: blue 6.70,
+  olive 7.76, rose 5.91; night variants `#6894f5`, `#a9975d`, `#e85ab5` on Night: 6.45, 6.57,
+  5.92) and names them category colours; the website maps the areas and adds the mark before the
+  H1.
+- (a): nothing.
