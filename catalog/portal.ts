@@ -45,8 +45,8 @@ const table = (head: string[], rows: unknown[][], cls?: string) =>
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 // Files the page loads beside it (catalogue-assets/, served by their own route): its frames'
-// documents, the elements as one stylesheet, so each sample frame loads one file instead of elements.css and its imports,
-// and each PNG an inlined SVG embeds, so the HTML carries no image
+// documents, the elements as one stylesheet, so each sample frame loads one file instead of
+// elements.css and its imports, and each PNG an inlined SVG embeds, so the HTML carries no image
 // as base64 text (the MacBook stickers' wizard was 0.95 MB of 1.28 MB).
 const ASSETS = "catalogue-assets";
 const assets: Record<string, string> = {};
@@ -62,26 +62,29 @@ const elementsCss = readFileSync(join(ROOT, "elements/elements.css"), "utf8").re
   (_, file: string) => readFileSync(join(ROOT, "elements", file), "utf8"),
 );
 writeAsset("elements.css", elementsCss);
+// An asset named by its content's hash; returns its path from the page.
+const hashedAsset = (content: string | Buffer, ext: string) => {
+  const name = `${createHash("sha256").update(content).digest("hex").slice(0, 16)}.${ext}`;
+  writeAsset(name, content);
+  return `${ASSETS}/${name}`;
+};
 const pngFiles = (svg: string) =>
-  svg.replace(/href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/g, (_, data: string) => {
-    const png = Buffer.from(data, "base64");
-    const name = `${createHash("sha256").update(png).digest("hex").slice(0, 16)}.png`;
-    writeAsset(name, png);
-    return `href="${ASSETS}/${name}"`;
-  });
+  svg.replace(
+    /href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/g,
+    (_, data: string) => `href="${hashedAsset(Buffer.from(data, "base64"), "png")}"`,
+  );
 
 // A frame's document is a file beside the page too: Chrome loads a srcdoc frame at once, below the
-// fold or in a hidden view, where an src frame waits for loading="lazy" (FCP 4.4 s to 1 s on
+// fold or in a hidden view, where an src frame waits for loading="lazy" (FCP 4.4 s to 1.8 s on
 // Lighthouse mobile). Its links stay relative to the page through <base>.
 const frame = (doc: string, attrs: string) => {
-  const file = `${createHash("sha256").update(doc).digest("hex").slice(0, 16)}.html`;
-  writeAsset(
-    file,
+  const src = hashedAsset(
     doc.includes("<head>")
       ? doc.replace("<head>", '<head><base href="../">')
-      : `<!doctype html>${doc}`,
+      : `<!doctype html><base href="../">${doc}`,
+    "html",
   );
-  return `<iframe src="${ASSETS}/${file}" ${attrs} loading="lazy"></iframe>`;
+  return `<iframe src="${src}" ${attrs} loading="lazy"></iframe>`;
 };
 
 // An SVG <image> loads even inside a hidden section, so the merch and device mockups (1.9 MB of
