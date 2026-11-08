@@ -485,8 +485,9 @@ The catalog is one Astro app in `catalog/`, in scaffolding's catalog shell. Its 
 portal, `catalog/portal.ts` run by the route `catalog/pages/index.html.ts`: tokens, logos, every
 family of brand files in use under `applications/`, the press kit, and a link to each system's own
 design-system page; the tracked files it links sit beside it (`catalog/files.ts`). The element
-stories (`catalog/stories/`) are at `/brand/catalog/`. `catalogue.html` forwards to the portal with
-its anchor. `dist/index.html` also opens from disk.
+stories (`catalog/stories/`) are at `/brand/catalog/`. The former address `catalogue.html` (route
+`catalog/pages/[former].html.ts`) forwards to the portal with its anchor.
+`dist/index.html` also opens from disk.
 
 A release is a tag `v<version>` that matches `version` in `package.json`; consumers then raise the
 tag in their dependency line. Every brand file changes here; the rest of the rules:

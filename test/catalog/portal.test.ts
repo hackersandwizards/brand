@@ -62,7 +62,7 @@ test("every link and image of the portal resolves in dist/", () => {
       (_, e: string) => ({ quot: '"', lt: "<", gt: ">", amp: "&" })[e]!,
     );
   // A frame's document resolves its links against the page, through <base href="../">.
-  const frames = [...html.matchAll(/<iframe src="(catalogue-assets\/[^"]+\.html)"/g)].map((m) =>
+  const frames = [...html.matchAll(/<iframe src="(catalog-assets\/[^"]+\.html)"/g)].map((m) =>
     page(m[1]!).replace('<base href="../">', ""),
   );
   expect(frames.length).toBeGreaterThan(30);

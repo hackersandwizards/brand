@@ -69,10 +69,11 @@ data or secret.
   preset `catalog()`), built to `dist/` and published by the reusable Pages workflow at
   `https://hackersandwizards.github.io/brand/`. Its root is the brand portal, generated from this
   repo's files only by `catalog/portal.ts`, which the route `pages/index.html.ts` runs in its own
-  process, with `catalogue-assets/` (the elements as one stylesheet and the
+  process, with `catalog-assets/` (the elements as one stylesheet and the
   PNGs the inlined SVGs embed) from their own route and the tracked files it links copied beside it
-  (`files.ts`). The element stories sit in `catalog/stories/` at `/catalog/`. `catalogue.html`
-  forwards to the root with its anchor. The tests in `test/catalog/` read `dist/` after the build.
+  (`files.ts`). The element stories sit in `catalog/stories/` at `/catalog/`. The portal's former
+  address `catalogue.html` (route `pages/[former].html.ts`) forwards to the root with its anchor.
+  The tests in `test/catalog/` read `dist/` after the build.
 
 ## Commands
 

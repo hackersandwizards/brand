@@ -1,5 +1,7 @@
-// The portal's former address: catalogue.html, with its anchor, forwards to the portal at the root.
+// The portal's former addresses: each, with its anchor, forwards to the portal at the root.
 export const prerender = true;
+
+export const getStaticPaths = () => [{ params: { former: "catalogue" } }];
 
 export const GET = () =>
   new Response(

@@ -3,7 +3,7 @@
 // renderCatalog and catalog.css, brand's header.css), whose search also lists every token, colour,
 // logo, file and photo, and one view per area below the tiles (colours, type, tokens, elements,
 // logos, applications, press kit). It reads this repo's files only. Run as its own process by the
-// catalog's routes (pages/index.html.ts, pages/catalogue-assets/), so it reads the working tree
+// catalog's routes (pages/index.html.ts, pages/catalog-assets/), so it reads the working tree
 // afresh on each dev request; it prints the page and its assets as JSON and writes nothing.
 // Usage: bun catalog/portal.ts
 import { spawnSync } from "node:child_process";
@@ -44,11 +44,11 @@ const table = (head: string[], rows: unknown[][], cls?: string) =>
     .join("")}</tbody></table>`;
 const code = (s: unknown) => `<code>${esc(s)}</code>`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-// Files the page loads beside it (catalogue-assets/, served by their own route): its frames'
+// Files the page loads beside it (catalog-assets/, served by their own route): its frames'
 // documents, the elements as one stylesheet, so each sample frame loads one file instead of
 // elements.css and its imports, and each PNG an inlined SVG embeds, so the HTML carries no image
 // as base64 text (the MacBook stickers' wizard was 0.95 MB of 1.28 MB).
-const ASSETS = "catalogue-assets";
+const ASSETS = "catalog-assets";
 const assets: Record<string, string> = {};
 const writeAsset = (name: string, content: string | Buffer) => {
   assets[name] = Buffer.from(content).toString("base64");
@@ -397,7 +397,7 @@ const PREVIEW = ["png", "svg", "html", "txt"];
 // Tracked files only, so a scratch render or a .DS_Store in the folder never reaches the page.
 const assetStems = (dir: string) => {
   const ls = spawnSync("git", ["ls-files", "-z", "--", dir], { cwd: ROOT, encoding: "utf8" });
-  if (ls.status !== 0) throw new Error(`catalogue: git ls-files ${dir}: ${ls.stderr}`);
+  if (ls.status !== 0) throw new Error(`portal: git ls-files ${dir}: ${ls.stderr}`);
   const stems = new Map<string, string[]>();
   for (const f of ls.stdout
     .split("\0")
@@ -921,7 +921,7 @@ const LEAD =
   "Everything the hackers&wizards brand is made of: tokens, logos, the files made from them and the press kit. Each system shows its components on its own design-system page.";
 // The overview's mode goes in the markup: set first by show() at the end of the page, it would
 // let the quick start appear above the tiles after they painted (CLS 0.41 on Lighthouse mobile).
-const catalogue = renderCatalog({
+const catalogPage = renderCatalog({
   title: "hackers&wizards brand",
   lead: LEAD,
   provenance: `brand v${pkg.version} · tokens/tokens.css, manifest.json, applications/, press/ · ${entries} entries`,
@@ -1133,7 +1133,7 @@ ${catalogs
 </div>
 </header>
 <main>
-${catalogue}
+${catalogPage}
 </main>
 <script>
 const INDEX = ${JSON.stringify(index).replace(/</g, "\\u003c")};
