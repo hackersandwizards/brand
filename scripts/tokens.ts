@@ -5,7 +5,9 @@
 // and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces, for a surface
 // that writes its own @font-face; and from tokens/print.css static-fonts.css, its @font-face rules
 // alone, for a surface that needs the static faces without the print scale; and cursor.svg, the
-// slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6.
+// slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6; and
+// elements.css and document.css, elements/elements.css and tokens/document.css with every
+// @import resolved in place, for a page that links them and must not wait on a request chain.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
@@ -249,6 +251,20 @@ const dayAgain = (tokens: Record<string, string>) => {
   return out;
 };
 
+/** A stylesheet with its relative @imports replaced by the files, recursively, each where the
+ *  browser applies it. */
+const flat = (path: string): string =>
+  readFileSync(path, "utf8").replace(/^@import "(\.\.?\/[\w./-]+\.css)";\n/gm, (_, f: string) =>
+    flat(join(path, "..", f)),
+  );
+
+const FLAT = (
+  source: string,
+) => `/* Generated from ${source} by scripts/tokens.ts. Edit the source, never this file.
+   The source with every @import resolved in place: a page that links the stylesheet links this
+   one instead, so its first paint waits on one request. */
+${flat(join(ROOT, source))}`;
+
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
   const tokens = parseTokens(css);
@@ -279,6 +295,8 @@ ${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(FONT_FACE)]
   .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
   .join("\n\n")}
 `,
+    "elements.css": FLAT("elements/elements.css"),
+    "document.css": FLAT("tokens/document.css"),
     "cursor.svg": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">${(
       [
         [3, ""],

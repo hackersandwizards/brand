@@ -1,0 +1,540 @@
+/* Generated from tokens/document.css by scripts/tokens.ts. Edit the source, never this file.
+   The source with every @import resolved in place: a page that links the stylesheet links this
+   one instead, so its first paint waits on one request. */
+/* The document scale: every length, size and step the document engine (@hackersandwizards/documents)
+   draws a page with: print lengths in pt, page geometry in mm, the onepager's px rhythm and the
+   readout deck's rem. Every value comes from brand: the engine keeps its components and the roles
+   it derives from these, tokens.css and print.css with var().
+   The readout deck's values that equal the slide stage's read them from stage.css. Export
+   ./document.css, after tokens.css and print.css. */
+/* The stage scale: every length, size and step the slide engine (@hackersandwizards/slides) draws a
+   slide with, at the 1440 stage whose rem is 1/90 of the slide's width. Every value comes from
+   brand: the engine keeps its components and the roles it derives from these and from tokens.css
+   with var(); a value whose reason concerns one component is stated beside it here. The @theme
+   block is the engine's Tailwind steps: import this file with theme(static) after tokens.css
+   (export ./stage.css). A plain-CSS reader, such as the documents engine's readout deck, takes the
+   :root block; a browser drops the @theme block. */
+
+/* The slide scale: the website's type roles at stage size. A slide is designed at 1440x810, where
+   running text is 24px against the website's 16px body, so every role is its website size times
+   --slide-stage (1.5), read from the role tokens, never copied. A fluid role resolves to its largest
+   step on a slide: the slide's rem is 1.1111vw, so each clamp's preferred value lands above its
+   maximum at any stage size. At 1920 a rem is 21.333px, so body reaches 32px and card text 36px,
+   the Meet floor (18pt on the slide, half that in a 960px Meet window). Line heights stay the
+   slide's own, tighter than the website's reading rhythm, so a projected card holds its text.
+
+   Tailwind step  role                    size
+   text-xs        label                   0.75 x 1.5 = 1.125rem
+   text-sm        between label and code  1.25rem, see below
+   text-base      body                    1 x 1.5 = 1.5rem
+   text-lg        between body and h4     1.625rem, see below
+   text-xl, -2xl  h4 (title)              1.125 x 1.5 = 1.6875rem
+   text-3xl       lead                    1.25 x 1.5 = 1.875rem
+   text-4xl       h3                      1.5 x 1.5 = 2.25rem
+   text-7xl       h1                      3 x 1.5 = 4.5rem
+   .slide-title   h1, slide size          3.375rem, see .slide-title
+   text-5xl, -6xl, -8xl  statement steps  2, 2.5 and 4 x the slide body
+
+   text-sm and text-lg stay off the roles: the code role at stage size (1.3125rem) and h4
+   (1.6875rem) push hub slides under the fit guard or deeper into it, and a guard that shrinks the
+   whole body loses more than the step gains.
+   The statement steps carry the title, statement, closing and big-number slides. The website
+   has no role for type that fills a stage (its display role at stage size, 5.25rem, sits between
+   two of them), so they stay steps of the slide body. Not inline, so the utilities read the
+   variables. */
+@theme {
+  --text-xs--line-height: 1.4;
+  --text-sm: 1.25rem;
+  --text-sm--line-height: 1.4;
+  --text-base--line-height: 1.45;
+  --text-lg: 1.625rem;
+  --text-lg--line-height: 1.4;
+  --text-xl--line-height: 1.4;
+  --text-2xl--line-height: 1.35;
+  --text-3xl--line-height: 1.2;
+  --text-4xl--line-height: calc(2.5 / 2.25);
+  --text-5xl--line-height: 1;
+  --text-6xl--line-height: 1;
+  --text-7xl--line-height: 1;
+  --text-8xl--line-height: 1;
+  /* The brand tokens reset Tailwind's tracking and leading steps; the slides keep the ones they
+     use, at Tailwind's values. */
+  --tracking-tight: -0.025em;
+  --tracking-wide: 0.025em;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+}
+/* The slide scale: the website's shapes sized for a room. A slide is a 1920x1080 page seen on a
+   projector from the back row, in a shared screen at half size, or as a thumbnail at a quarter.
+   Viewing distance sets the factor: a laptop at 60 cm shows a website px at about 0.35 mrad, a
+   3 m projector image seen from 8 m shows a slide px at 0.2 mrad, so a website px needs about 1.8
+   slide px at 1920 to look the same. The type roles take 2 (--slide-stage, 1.5 rem on the 1440
+   stage, see the type table above), and the shapes follow that factor, except where the quarter
+   size thumbnail sets a floor for the header strip: under 4px at 1920 it drops below one pixel
+   there and vanishes.
+   All lengths in rem, so they grow with the stage (a rem is 21.333px at 1920), but the marker's,
+   which follow the text beside them.
+
+   --slide-strip     the header strip: website 3px x 2 = 6px fails the thumbnail floor and reads
+                     thin across a room; 0.75rem = 16px at 1920, 8px at half size, 4px at a quarter
+   --slide-hairline  every border and rule: website 1px x 2 = 2px at 1920, 1px at half size, under
+                     the strip's thumbnail floor, since 4px draws a card with a heavy grey frame.
+                     Painted as an overlay, so the box keeps its 1px layout: a real wide border
+                     pushes slides under the fit guard
+   --slide-radius    the brand corner: website 20px 5px x 2 = 40px 10px at 1920
+   --slide-radius-sm a tile, label box, stage strip or inline code, which stands a line tall: the
+                     small corner at stage size, the brand corner's small radius (tokens.css)
+   --slide-marker    the list marker, the website's teal square at its share of the text beside it,
+                     in em: set where the item's text size is. Square, as every mark too small for
+                     the brand corner at its full value, on the website and on paper alike
+   --slide-marker-gap the space from the marker to its text, the website's share too, in em. A row
+                     that sets the marker as an element takes it as its gap
+   --slide-marker-caps-mid the marker's middle beside a capitals label (hw-label): half the cap
+                     height, since marker.css's default leans towards an x-height capitals lack
+
+   --slide-footer-inset  the corner row's distance from the slide's bottom edge: 1.5rem, 32px at
+                     1920
+   --slide-footer-side   the corner row's distance from the slide's right edge: the content's 4.5rem
+                     side margin (--slide-side), so the row ends where the text ends, inside the
+                     graphics-safe margin. At 1.5rem the mark reads tight to the edge and off the
+                     grid
+   --slide-footer-mark   the corner row's height: 2.25rem, 48px
+   --slide-corner-wordmark the wordmark's box, 1.956rem, 42px at 1920. The corner shows the wordmark
+                     alone, in its two colours, on every slide but the title and the closing slide,
+                     which carry the lockup: the wizard on every slide reads as busy, and the
+                     wordmark in one muted colour or smaller loses attribution in photos and phone
+                     feeds
+   --slide-corner-lockup the corner lockup's box, sized so its letters keep the wordmark's size: the
+                     wordmark is 952 of the day lockup's 1489 units and of the night cut's 1640.612,
+                     whose box grows round the wizard's edge, so each cut takes its own height
+   --slide-closing-lockup the closing slide's lockup, wizard and wordmark: 4.3rem, 92px at 1920;
+                     the night cut scales by 1640.612 / 1489 so its
+                     letters keep that size
+   --slide-footer-band   the band above the bottom edge that a slide's content never enters: the
+                     corner row plus a 2rem gap, 43px at 1920, so timelines, card grids and closing
+                     lines keep clear of the page counter
+
+   Card padding stays each component's own (2rem, 43px at 1920, for most cards): the website's
+   32px x 2 would take a fifth of a card's width at four columns and push bodies under the fit
+   guard. */
+:root {
+  --slide-footer-inset: 1.5rem;
+  --slide-footer-mark: 2.25rem;
+  --slide-corner-wordmark: 1.956rem;
+  --slide-corner-lockup: calc(var(--slide-corner-wordmark) * 1489 / 952);
+  --slide-corner-lockup-night: calc(var(--slide-corner-wordmark) * 1640.612 / 952);
+  --slide-closing-lockup: 4.3rem;
+  --slide-strip: 0.75rem;
+  --slide-hairline: 0.09375rem;
+  --slide-radius: 1.875rem 0.46875rem;
+  --slide-radius-sm: 0.46875rem;
+  --slide-marker: 0.375em;
+  --slide-marker-gap: 0.625em;
+  --slide-marker-caps-mid: 0.5cap;
+  --slide-stage: 1.5;
+  /* ── Stage ──
+     The slide's rem on screen: 1/90 of the window's width, or of its height on a window wider than
+     16:9. The print root is the same rem at 1920x1080, whatever window opens the print route. */
+  --slide-root: min(1.1111vw, 1.9753vh);
+  --slide-root-print: 21.333px;
+  --slide-page-width: 1920px;
+  --slide-page-height: 1080px;
+  /* A titled slide's top padding, and the side margin, 96px at 1920: the 5% graphics-safe margin
+     a projector or a Meet crop leaves. */
+  --slide-top: 5.5rem;
+  --slide-side: 4.5rem;
+  --slide-body-gap: 1.5rem;
+  /* The kicker hangs above the title line: tall enough for the principle pill, its top 53px down,
+     inside the safe area, its net height zero. */
+  --slide-kicker-height: 2.5rem;
+  --slide-kicker-margin: -3rem 0 0.5rem;
+  /* The 1px border a box keeps for layout under its hairline overlay. */
+  --slide-layout-border: 1px;
+  /* The h1 role at a slide's own size: 72px at 1920, 36pt on the slide, the floor for a title
+     watched in a Meet window. The h1 role at stage size (5.25rem) fits three words on a line. */
+  --slide-title-size: 3.375rem;
+  --slide-title-leading: 1.1;
+  /* ── Display ──
+     The display heading (DisplayHeading): one tracking and one leading for every size, the
+     brand's display tracking. The padding keeps the glyphs inside the box BlurFade's filter cuts
+     while it runs; the negative margin takes it back out of the layout. */
+  --slide-display-leading: 1.05;
+  --slide-display-bleed: 0.2em;
+  /* ── Measures ── a block's widest line, where Tailwind's container steps do not fit it. */
+  --slide-measure-phases: 100rem;
+  --slide-measure-overview: 81rem;
+  --slide-measure-list: 60rem;
+  --slide-measure-chart: 56.25rem;
+  --slide-measure-chart-narrow: 50rem;
+  --slide-measure-figure-label: 38rem;
+  --slide-measure-vote: 3ch;
+  /* The activity's frame card, beside the steps. */
+  --slide-activity-frame: 34%;
+  --slide-closing-side: 5vw;
+  /* ── Media ── an image, video or linked image under its title. */
+  --slide-media-gap: 0.75rem;
+  --slide-media-max: 60vh;
+  --slide-media-pad: 1rem 0.75rem;
+  --slide-picture-max: 45vh;
+  --slide-picture-max-media: 62vh;
+  --slide-link-gap: 0.4em;
+  --slide-link-icon: 1.1em;
+  --slide-chart-height: 26.25rem;
+  /* ── Figures ── a number set as the slide's point: a stat, a big number, an index. */
+  --slide-figure-size: 8rem;
+  --slide-figure-leading: 0.85;
+  --slide-figure-tracking: -0.045em;
+  --slide-figure-hero: 13rem;
+  --slide-figure-unit: 0.55em;
+  --slide-figure-unit-gap: 0.2em;
+  --slide-index-tracking: 0.25em;
+  --slide-wheel-label: 14px;
+  --slide-wheel-hub: 22%;
+  /* ── Rules and marks ── wider than the hairline, for a mark that carries meaning. */
+  --slide-rule-strong: 3px;
+  --slide-rule-heavy: 4px;
+  --slide-rule-accent: 6px;
+  --slide-loop-bend: 1.25rem;
+  --slide-arrow-inset: 4rem;
+  --slide-arrowhead-half: 0.6rem;
+  --slide-arrowhead-length: 0.9rem;
+  --slide-arrowhead-offset: 0.2rem;
+  --slide-decision-columns: minmax(0, 15rem) 4rem minmax(0, 14rem) 7.5rem minmax(0, 1fr) 3.5rem
+    minmax(0, 17rem);
+  /* A complicated-subsystem team's octagon (Team Shape Templates): an outer octagon in the line
+     colour holds an inner one a line smaller in the fill, since a clipped box draws no border. The
+     inner cut is smaller by (2 - sqrt 2) x the line, so the diagonal edges are as thick. */
+  --slide-octagon-cut: 0.9rem;
+  --slide-octagon-line: 3px;
+  --slide-octagon-diagonal: 1.76px;
+  /* ── Phone ── below Tailwind's md a slide is one column that scrolls, cut to fit 390px. */
+  --slide-phone-padding: 4rem 1.25rem 6rem;
+  --slide-phone-kicker-gap: 1rem;
+  --slide-phone-cell-padding: 0.5rem 0.625rem;
+  --slide-phone-card-padding: 1.25rem;
+  /* The player's control bar below Tailwind's sm (SlideNavigation: 1rem from the bottom, 3rem
+     buttons) and a 1rem gap: the corner mark stands above it and the slide's bottom padding grows
+     by it, so the controls cover neither the mark nor the last line. */
+  --slide-phone-nav-band: 5rem;
+  --slide-phone-padding-nav: 4rem 1.25rem 11rem;
+  /* ── Speaker tools ── the speaker view's slide frame and the edit mode's marks and field, on the
+     speaker's screen, never on a slide. */
+  --slide-presenter-frame: min(100cqw, calc(100cqh * 16 / 9));
+  --slide-edit-outline: 2px;
+  --slide-edit-field: 60px;
+  --slide-edit-field-padding: 8px;
+  --slide-edit-field-font: 18px/1.4 system-ui, sans-serif;
+}
+
+:root {
+  /* ── Type ──
+     Every text takes one role through its shorthand, never a size or face of its own. --density
+     scales every role by one factor (1 the brand's print sizes); a type that must fit a page count
+     sets it, as the onepager's tight fallback does. */
+  --density: 1;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --tracking-none: 0;
+  /* A chip's and a pill's own line, and a line set solid. */
+  --leading-chip: 1.5;
+  --leading-solid: 1;
+  /* The total row's figure, 1.2 times its row. */
+  --figure-scale: 1.2em;
+  --page-width: 210mm;
+  --measure: 150mm;
+  /* ── Rules, marks and corners ──
+     The print scale, set for the two ways an A4 PDF is read, printed at arm's length and on a laptop
+     at fit-width, about 70% zoom, where 1pt is about 0.93 CSS px. The floor is a rule that stays a
+     visible line at 70% on a 1x screen and in a 25% thumbnail; the website's px x 0.625 would give a
+     2pt strip and 0.75pt hairlines, too slim to see. */
+  --strip: 6pt;
+  /* From page 2 the header's strip returns as this rail on the paper edge, one gradient across the
+     two top boxes. */
+  --rail: 1.5pt;
+  --rule: 1pt;
+  --rule-strong: 2pt;
+  --rule-accent: 3pt;
+  /* The list marker and the section label's swatch: squares, as every mark too small for the brand
+     corner at its full value (the website's patterns.css). The marker on paper: half the size of the
+     text beside it, under the x-height; its gap the website's 0.625em. */
+  --bullet: 0.5em;
+  --swatch: 8pt;
+  /* The whole pixel the swatch's lift rounds to, as Chrome paints. */
+  --pixel: 1px;
+  /* The swatch's centre on the caps, above the baseline, for Inter and JetBrains Mono alike. */
+  --caps-middle: 0.365em;
+  --header-row: 56pt;
+  --logo: 28pt;
+  --logo-gap: 7pt;
+  /* The pixel wordmark's box, 1.3 times the h4 role (the letters 1.17 times), and the
+     gap to text after it, 0.4 of the letters' height. */
+  --wordmark: 14.3pt;
+  --wordmark-gap: 5.1pt;
+  /* ── Spacing ──
+     Each step is named for what it spaces; a step two blocks share is one token. */
+  --space-hair: 1pt;
+  --space-imprint: 1.5pt;
+  --space-label: 2pt;
+  --space-chip: 2.5pt;
+  --space-tag: 3pt;
+  --space-heading: 4pt;
+  --space-cell: 5pt;
+  --space-paragraph: 6pt;
+  --space-group: 7pt;
+  --space-grid: 10pt;
+  --space-list: 12.5pt;
+  --space-lead: 15pt;
+  --card-pad-base: 14pt;
+  --h2-margin: 20pt 0 6pt;
+  --h3-margin: 12.5pt 0 4pt;
+  --h4-margin: 10pt 0 3pt;
+  --rule-margin: 12.5pt 0;
+  --card-rule-margin: 6.25pt 0;
+  --table-margin: 4pt 0 10pt;
+  --block-margin: 6pt 0;
+  --block-margin-loose: 6pt 0 10pt;
+  --callout-margin: 8pt 0;
+  --band-margin: 10pt 0;
+  --list-indent: calc(round(var(--bullet), 1px) + var(--list-marker-gap));
+  --list-marker-gap: 0.625em;
+  --ol-indent: 12pt;
+  --swatch-gap: 7.5pt;
+  --section-label-margin: 15pt 0 6pt;
+  --subtitle-space-after: 10pt;
+  --lead-margin: 18pt 0 12pt;
+  --card-grid-gap: 12.5pt 15pt;
+  --dl-gap: 2pt 10pt;
+  --total-pad-top: 7pt;
+  --timeline-when: 36mm;
+  --header-gap: 8mm;
+  --header-pad: 8pt;
+  --header-meta-width: 70mm;
+  --section-space: 7mm;
+  --closing-space: 6mm;
+  --closing-space-tight: 4mm;
+  --closing-line: 1mm;
+  --signature-gap: 12mm;
+  --signature-space: 16mm;
+  /* The room above a signature line, for a hand signature (the trainer NDA's 14mm). */
+  --signature-room: 14mm;
+  --card-title-space: 1mm;
+  --card-meta-space: 2mm;
+  --dense-title-space: 1.5mm;
+  --foot-pad: 1.6mm;
+  --note-pad: 3mm 4mm;
+  --confirmation-space: 4mm;
+  --closing-sign-off-tight: 3mm;
+  /* ── Proposal ── */
+  --community-column-gap: 6mm;
+  --terms-column-gap: 8mm;
+  --term-space: 3mm;
+  --acceptance-margin: 4mm 0 6pt;
+  --acceptance-term: 28mm;
+  --acceptance-facts-margin: 2mm 0 3mm;
+  /* ── Preparation ── */
+  --step-space: 2mm;
+  --step-code-margin: 1.5mm 0;
+  --step-code-margin-grid: 1mm 0;
+  --step-code-pad: 2mm 4mm;
+  --step-code-size: 8.8pt;
+  --step-number-width: 1.5em;
+  /* ── Leistungsnachweis ── A month of 23 single-line rows still fits one page with the
+     confirmation, so the rows are set tight. */
+  --meta-gap: 3mm 6mm;
+  --meta-space-after: 5mm;
+  --note-space-after: 3mm;
+  --hours-row-pad: 0.2mm;
+  --hours-date: 16mm;
+  --hours-day: 11mm;
+  --hours-time: 27mm;
+  --hours-figure: 18mm;
+  --hours-section-pad: 2mm;
+  /* ── Certificate ── One rhythm with the verifier's certificate page: tight inside a group of
+     lines, related between the groups of the statement, section between sections. The name is the
+     one size outside the print roles: display's 26pt reads too small for a name. */
+  --cert-tight: 3pt;
+  --cert-related: 12pt;
+  --cert-section: 24pt;
+  --cert-section-fit: 16pt;
+  --cert-pad: 16mm 25mm 14mm;
+  --cert-logo: 16mm;
+  --cert-logo-fit: 12mm;
+  --cert-name-scale: 1.75;
+  --cert-name-scale-fit: 1.5;
+  --cert-name-scale-small: 1.25;
+  --cert-name-leading: 1.15;
+  --cert-topics: 130mm;
+  --cert-topics-compact: 145mm;
+  --cert-topics-wide: 160mm;
+  --cert-topic-pad: 0.3mm;
+  --cert-column-gap: 10mm;
+  --cert-signature-gap: 16mm;
+  --cert-signature: 72mm;
+  --cert-signature-image: 22mm;
+  --cert-signature-image-fit: 16mm;
+  --cert-signature-image-width: 70mm;
+  --cert-signature-line: 66mm;
+  --cert-qr: 26mm;
+}
+/* ── Onepager ── The website's px rhythm: --op-N is N px, the steps the site's spacing uses. */
+:root {
+  --op-side: 14mm;
+  /* Two rhythms, as on the site: between sections and inside one. */
+  --op-section: 18px;
+  --op-section-tight: 7px;
+  --op-stack: 8px;
+  --op-1: 1px;
+  --op-2: 2px;
+  --op-3: 3px;
+  --op-4: 4px;
+  --op-5: 5px;
+  --op-6: 6px;
+  --op-7: 7px;
+  --op-8: 8px;
+  --op-9: 9px;
+  --op-10: 10px;
+  --op-14: 14px;
+  --op-16: 16px;
+  --op-17: 17px;
+  --op-18: 18px;
+  --op-20: 20px;
+  --op-22: 22px;
+  --op-28: 28px;
+  --op-hero-pad: 20px 24px 22px;
+  --op-hero-pad-tight: 13px 18px 14px;
+  --op-cta-leading: 2;
+  --op-chip-gap: 0.3em;
+  --op-proof-min: 70px;
+  /* The facts box's and a callout's block padding, as a share of the card padding. */
+  --op-facts-pad: 0.6;
+  --op-box-pad: 0.8;
+  /* The tight fallback: every role at 0.85, the card padding at half. */
+  --op-tight-density: 0.85;
+  --op-tight-card-pad: 0.5;
+  /* The fit pass's gap levels: page 2's blocks (air) and page 1's after the hero (lift), each a
+     step above --op-section, into which a smaller margin would collapse. */
+  --op-air-0: 22px;
+  --op-air-1: 28px;
+  --op-air-2: 36px;
+  --op-air-3: 46px;
+  --op-air-4: 58px;
+  --op-lift-0: 22px;
+  --op-lift-1: 26px;
+  --op-lift-2: 34px;
+  --op-lift-3: 44px;
+  --op-lift-4: 56px;
+  /* The page on screen: A4 wide, on the tint. */
+  --op-screen-width: 794px;
+  --op-screen-margin: 20px auto;
+  --op-screen-pad: 42px 53px;
+}
+/* ── Handout ── Read as a PDF on a laptop or an iPad, never printed: on an 11-inch iPad in portrait
+   an A4 page shows at 1.4 times, so 10pt body text reads as 14px. One point more on the text roles
+   brings it to 15px and a full-width line under 90 characters. */
+:root {
+  --handout-body-size: 11pt;
+  --handout-small-size: 10pt;
+  --handout-code-size: 10pt;
+  --handout-label-size: 9pt;
+  /* The handout page's top margin, as its page box below sets it. */
+  --handout-margin-top: 18mm;
+  --handout-flow-space: 12mm;
+  --handout-code-hang: 4ch;
+  --handout-eyebrow-space: 2mm;
+  --handout-title-space: 5mm;
+  --handout-title-bar-space: 3mm;
+  --handout-h2-margin: 6mm 0 2mm;
+  --handout-h3-margin: 4mm 0 1.5mm;
+  /* The text runs the full page width: a note takes its width only where one is. */
+  --handout-note-width: 46mm;
+  --handout-note-gap: 6mm;
+  --handout-note-space: 3mm;
+  --handout-note-pad: 3mm;
+  --handout-note-rule: 3px;
+  --handout-keybox-margin: 3mm 0;
+  --handout-keybox-pad: 4mm 5mm;
+  /* The ruled notes page: 28 lines fit the one page under the chapter title at this pitch. */
+  --handout-note-line: 8mm;
+  --handout-cover-space: 24mm;
+  --handout-cover-card: 80mm;
+  --handout-cover-card-space: 8mm;
+  --handout-toc-space: 10mm;
+  --handout-toc-gap: 2mm;
+  --handout-toc-pad: 1mm 0;
+  --handout-toc-number: 7mm;
+}
+/* ── Readout deck ── The survey readout's slides, in the slide engine's look (slides
+   styles/slides.css): its stage is 1440x810 with a rem of 1/90 of the width, so the deck's 1280px
+   page takes a rem of 14.2222px and every engine length is a rem. --deck-N is N/16 rem, the slide
+   engine's N px at its 1440 stage. */
+:root {
+  --deck-rem: 14.2222px;
+  --deck-width: 1280px;
+  --deck-height: 720px;
+  --deck-2: 0.125rem;
+  --deck-4: 0.25rem;
+  --deck-6: 0.375rem;
+  --deck-8: 0.5rem;
+  --deck-12: 0.75rem;
+  --deck-16: 1rem;
+  --deck-20: 1.25rem;
+  --deck-24: 1.5rem;
+  --deck-28: 1.75rem;
+  --deck-32: 2rem;
+  --deck-40: 2.5rem;
+  --deck-44: 2.75rem;
+  --deck-48: 3rem;
+  --deck-56: 3.5rem;
+  --deck-68: 4.25rem;
+  --deck-72: 4.5rem;
+  --deck-88: 5.5rem;
+  --deck-112: 7rem;
+  --deck-160: 10rem;
+  --deck-384: 24rem;
+  --deck-448: 28rem;
+  --deck-480: 30rem;
+  --deck-hairline: var(--slide-hairline);
+  --deck-corner: var(--slide-radius);
+  --deck-marker: var(--slide-marker);
+  --deck-marker-gap: var(--slide-marker-gap);
+  /* The corner row and the deck's marks are the slide stage's (stage.css): the same rem, so the
+     same lengths. */
+  --deck-corner-side: var(--slide-side);
+  --deck-corner-inset: var(--slide-footer-inset);
+  --deck-corner-wordmark: var(--slide-corner-wordmark);
+  --deck-text-caption: 1.125rem;
+  --deck-text-note: 1.25rem;
+  --deck-text-item: 1.375rem;
+  --deck-text-body: 1.5rem;
+  --deck-text-counter: 1.625rem;
+  --deck-text-kicker: 1.6875rem;
+  --deck-text-lead: 1.875rem;
+  --deck-text-stat: 3rem;
+  --deck-text-h2: 3.375rem;
+  --deck-text-h1: 6rem;
+  --deck-text-bignum: 140px;
+  --deck-h1-tracking: -0.03em;
+  --deck-leading-kicker: 1.25;
+  --deck-leading-h1: 1.02;
+  --deck-leading-h2: 1.1;
+  --deck-leading-bignum: 0.9;
+  --deck-leading-label: 1.3;
+  --deck-leading-quote: 1.4;
+  --deck-leading-item: 1.35;
+  /* The charts' own pixel geometry. */
+  --deck-px-2: 2px;
+  --deck-px-3: 3px;
+  --deck-px-8: 8px;
+  --deck-px-12: 12px;
+  --deck-px-14: 14px;
+  --deck-px-16: 16px;
+  --deck-px-18: 18px;
+  --deck-px-24: 24px;
+  --deck-px-48: 48px;
+  --deck-px-180: 180px;
+  --deck-px-300: 300px;
+}

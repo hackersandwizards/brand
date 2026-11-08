@@ -188,6 +188,28 @@ test("a dialog fits its container in the flow and a phone when modal, its conten
   await p.close();
 }, 30_000);
 
+test("a ruled facts list in columns leaves its whole first row open and rules every later row", async () => {
+  const fact = (i: number) =>
+    `<div><dt class="hw-label" data-tone="muted">F${i}</dt><dd>${i}</dd></div>`;
+  const list = (cols: string) =>
+    `<dl class="hw-facts" data-variant="ruled" ${cols}>${[1, 2, 3, 4, 5].map(fact).join("")}</dl>`;
+  const p = await page(`<div style="width:600px">${list('data-columns="3"')}${list("")}</div>`);
+  const rows = await p.$$eval("dl", (dls) =>
+    dls.map((dl) =>
+      [...dl.children].map((d) => [
+        Math.round(d.getBoundingClientRect().top - dl.getBoundingClientRect().top),
+        getComputedStyle(d).borderTopWidth,
+      ]),
+    ),
+  );
+  const [grid, stack] = rows;
+  expect(grid!.map(([, b]) => b)).toEqual(["0px", "0px", "0px", "1px", "1px"]);
+  expect(new Set(grid!.slice(0, 3).map(([t]) => t)).size).toBe(1);
+  expect(grid![3]![0]).toBe(grid![4]![0]);
+  expect(stack!.map(([, b]) => b)).toEqual(["0px", "1px", "1px", "1px", "1px"]);
+  await p.close();
+}, 30_000);
+
 test("the toast region exists before its first toast and leaves a dialog that closes", async () => {
   const p = await page(DIALOG);
   expect(await p.$eval(".hw-toasts", (b) => b.childElementCount)).toBe(0);

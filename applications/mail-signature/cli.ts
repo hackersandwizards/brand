@@ -1,18 +1,16 @@
 #!/usr/bin/env bun
-/**
- * Writes a mail signature from the template beside this file: <out>.html to open in a browser and
- * copy into the mail client, <out>.txt for a client that takes plain text only.
- *
- *   bun run brand-mail-signature --name "Kim Beispiel" --role "Freie Trainerin" \
- *     [--phone "+49 40 1234 5678"] [--linkedin <url>] \
- *     --out <path without extension>
- *
- * The signature is for an h&w account: wordmark and the GmbH lines. Without --out it prints the plain text.
- */
+/** Writes a mail signature from the template beside this file; `--help` prints how. */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { fillSignature } from "./fill";
+
+const USAGE = `Writes a mail signature for an h&w account (wordmark and the GmbH lines) from the template
+beside this command: <out>.html to open in a browser and copy into the mail client, <out>.txt for a
+client that takes plain text only. Without --out it prints the plain text.
+
+  bun run brand-mail-signature --name "Kim Beispiel" --role "Freie Trainerin" \\
+    [--phone "+49 40 1234 5678"] [--linkedin <url>] [--out <path without extension>]`;
 
 const { values: a } = parseArgs({
   options: {
@@ -21,10 +19,15 @@ const { values: a } = parseArgs({
     phone: { type: "string" },
     linkedin: { type: "string" },
     out: { type: "string" },
+    help: { type: "boolean", short: "h" },
   },
 });
+if (a.help) {
+  console.log(USAGE);
+  process.exit(0);
+}
 if (!a.name || !a.role) {
-  console.error("brand-mail-signature: --name and --role are required");
+  console.error(`brand-mail-signature: --name and --role are required\n\n${USAGE}`);
   process.exit(1);
 }
 const fields = { ...a, name: a.name, role: a.role };

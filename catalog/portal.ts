@@ -973,8 +973,8 @@ const catalogPage = renderCatalog({
   groups,
   intro: `<div class="portal">${quick}<div id="results"></div><div class="portal-views">${pages.map(([id, title, body]) => `<section id="view-${id}" data-page="${id}" hidden><h2>${esc(title)}</h2>${body}</section>`).join("\n")}</div></div>`,
 }).replace(
-  'class="hw-catalogue hw-container"',
-  'class="hw-catalogue hw-container" data-mode="overview"',
+  'class="hw-catalog hw-container"',
+  'class="hw-catalog hw-container" data-mode="overview"',
 );
 
 // The head's stylesheets are inline, so the first paint waits on no request: without their
@@ -1020,16 +1020,16 @@ ${inline(catalogCss)}</style>
   input[type=search]::-webkit-search-cancel-button { cursor: pointer; }
   /* The overview shows the tiles, quick start and refresh; a search the tiles it hits and the other
      matches; a view its own section only. */
-  .hw-catalogue:not([data-mode="overview"]) .quick,
-  .hw-catalogue:not([data-mode="search"]) #results,
-  .hw-catalogue:not([data-mode="view"]) .portal-views,
-  .hw-catalogue[data-mode="view"] .hw-catalogue-main > :not(.portal) { display: none; }
+  .hw-catalog:not([data-mode="overview"]) .quick,
+  .hw-catalog:not([data-mode="search"]) #results,
+  .hw-catalog:not([data-mode="view"]) .portal-views,
+  .hw-catalog[data-mode="view"] .hw-catalog-main > :not(.portal) { display: none; }
   .pv-colours { display: grid; grid-template-columns: repeat(8, 1fr); height: 100%; }
   .pv-type { display: block; padding: 1rem; zoom: 0.5; }
   .pv-type p { margin: 0 0 0.75rem; white-space: nowrap; }
   .pv-tokens { display: flex; gap: 1.25rem; align-items: center; justify-content: center; height: 100%; }
   .pv-tokens span { width: 4.5rem; height: 4.5rem; background: var(--color-white); border: 1px solid var(--color-border); }
-  .hw-catalogue-preview > svg { display: block; width: 100%; height: 100%; }
+  .hw-catalog-preview > svg { display: block; width: 100%; height: 100%; }
   /* The portal's own parts, the views included; the catalog shape and its tiles are catalog.css's. */
   .portal {
     --hw-markers: on;
@@ -1181,8 +1181,8 @@ ${catalogPage}
 </main>
 <script>
 const INDEX = ${JSON.stringify(index).replace(/</g, "\\u003c")};
-const cat = document.querySelector(".hw-catalogue"), q = cat.querySelector(".hw-catalogue-search"), results = document.getElementById("results");
-const tiles = [...cat.querySelectorAll(".hw-catalogue-tile")];
+const cat = document.querySelector(".hw-catalog"), q = cat.querySelector(".hw-catalog-search"), results = document.getElementById("results");
+const tiles = [...cat.querySelectorAll(".hw-catalog-tile")];
 const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const words = () => q.value.toLowerCase().split(/\\s+/).filter(Boolean);
 const show = () => {
@@ -1195,7 +1195,7 @@ const show = () => {
   cat.dataset.mode = searching ? "search" : view ? "view" : "overview";
   for (const s of document.querySelectorAll("section[data-page]")) s.hidden = s.dataset.page !== view;
   for (const i of document.querySelectorAll("section[data-page]:not([hidden]) image[data-href]")) i.setAttribute("href", i.dataset.href);
-  for (const a of cat.querySelectorAll(".hw-catalogue-rail .hw-catalogue-names a")) if (!searching && view && [location.hash, "#" + view].includes(a.getAttribute("href"))) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  for (const a of cat.querySelectorAll(".hw-catalog-rail .hw-catalog-names a")) if (!searching && view && [location.hash, "#" + view].includes(a.getAttribute("href"))) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   const el = !searching && (view ? anchor && document.getElementById(anchor) : page !== "overview" && page && document.getElementById(page));
   if (el) { el.scrollIntoView({ block: "start" }); if (view) { el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); } }
   else scrollTo(0, 0);
@@ -1213,7 +1213,7 @@ const search = () => {
 q.addEventListener("input", search);
 // A link followed from a search clears it; one to the page already open fires no hashchange, so
 // the cleared search shows it.
-cat.addEventListener("click", (e) => { if (!words().length || !e.target.closest('.hw-catalogue-main a[href^="#"]')) return; q.value = ""; q.dispatchEvent(new Event("input", { bubbles: true })); });
+cat.addEventListener("click", (e) => { if (!words().length || !e.target.closest('.hw-catalog-main a[href^="#"]')) return; q.value = ""; q.dispatchEvent(new Event("input", { bubbles: true })); });
 addEventListener("hashchange", show);
 // Keys as in Storybook: / or Cmd+K searches.
 addEventListener("keydown", (e) => {
@@ -1234,7 +1234,7 @@ enhance();
 // On GitHub Pages, links to a system page with a public address leave their local addresses for
 // the public ones; a system page without one stays as its name, marked local only.
 const PUBLIC = ${JSON.stringify(PUBLIC)};
-if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; if (PUBLIC[a.href]) a.href = PUBLIC[a.href]; else if (a.matches(".hw-catalogue-tile")) { a.removeAttribute("href"); a.querySelector(".hw-catalogue-note").append(" (local only)"); } else a.replaceWith(a.textContent + " (local only)"); }
+if (location.hostname.endsWith(".github.io")) for (const a of document.querySelectorAll("a[href]")) { if (a.hostname !== "localhost" && !a.hostname.endsWith(".localhost")) continue; if (PUBLIC[a.href]) a.href = PUBLIC[a.href]; else if (a.matches(".hw-catalog-tile")) { a.removeAttribute("href"); a.querySelector(".hw-catalog-note").append(" (local only)"); } else a.replaceWith(a.textContent + " (local only)"); }
 </script>
 </body>
 </html>

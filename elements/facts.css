@@ -1,7 +1,10 @@
 /* The facts list: a record's facts, each an hw-label (data-tone="muted") over its value, 4 px apart,
    so "DE" reads as the language and a name as the trainer. A dl whose children are a div per fact
-   holding dt and dd. data-variant="ruled" stacks the facts between hairlines. How the facts flow
-   (a row that wraps, a grid of columns) and the value's weight stay the surface's.
+   holding dt and dd. data-variant="ruled" stacks the facts between hairlines. data-columns="2",
+   "3" or "4" sets the facts in that many equal columns, the ruled variant leaving the whole first
+   row open; a fact spanning columns (grid-column) belongs after the first row. Any other flow (a
+   row that wraps) and the value's weight stay the surface's; a ruled list rules only its first
+   fact open there.
 
    Settings:
      --hw-hairline  the rule's width
@@ -24,7 +27,23 @@
     border-top: var(--hw-hairline, 1px) solid var(--hw-line, var(--color-border));
     padding-block: 0.625rem;
   }
-  .hw-facts[data-variant="ruled"] > div:first-child {
+  .hw-facts[data-columns] {
+    display: grid;
+    column-gap: 1rem;
+  }
+  .hw-facts[data-columns="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hw-facts[data-columns="3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .hw-facts[data-columns="4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .hw-facts[data-variant="ruled"] > div:first-child,
+  .hw-facts[data-variant="ruled"][data-columns="2"] > div:nth-child(-n + 2),
+  .hw-facts[data-variant="ruled"][data-columns="3"] > div:nth-child(-n + 3),
+  .hw-facts[data-variant="ruled"][data-columns="4"] > div:nth-child(-n + 4) {
     border-top: 0;
     padding-top: 0;
   }
