@@ -49,6 +49,8 @@ images:
 
 # Switch to a short/long pair that carries the core thought?
 
+You found s4p less beautiful than earlier candidates (08.11.). The overview `docs/agent-work/2026-11-08-claim-all-candidates.md` lists every candidate of every round with its scores: name the one you want, or several for a further round.
+
 You asked whether one combination meets every requirement. The pair s4p comes closest. On the banners: "Agents pay off when your people ship as a team." Everywhere else it adds: "Your customers notice."
 
 Alone on a banner, readers name people and the core thought; for f6, 14 and 12 of 32 did. Reviewers score it 12.0 above f6 overall with the banners, slide and link preview in view; on the banners alone the two are level, though one of the two reviewer models puts it 2.7 behind. With the site and your profile texts it ties f6. Its weak spot is German: "als Team liefern" scores 3.0 below the English, and three other German wordings scored lower still. "Im Einklang" lost in all ten lines it was tested in.
