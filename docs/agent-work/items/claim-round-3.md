@@ -177,6 +177,8 @@ Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterier
 
 Round 8 (`docs/agent-work/2026-11-08-claim-round-8.md`) tested Benedikt's line "Every agent needs your teams in tune and your company in flow." and 40 more lines against the decided f6: f6 stays.
 
+Round 9 (`docs/agent-work/2026-11-08-claim-round-9.md`) tested short/long pairs against six requirements; its recommendation, the pair s4p, waits in `claim-confirm-after-round-8`.
+
 I recommend n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure Leute.", with
 the line "Training and mentoring in agentic engineering" under it on the banners. It ties f6
 overall on the banners, slide and link preview (81.2 against 80.2) and as a whole set with the website and
