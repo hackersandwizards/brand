@@ -558,6 +558,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-row-fill",
     "--hw-prose-width",
     "--hw-field-family",
+    "--hw-button-corner",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });
