@@ -538,7 +538,7 @@
     },
     {
       "path": "elements/choice.css",
-      "sha256": "72f5004924ff8505a2453d1db38c2667da2adbd1cd112c8f1cf4d411b5c781ce"
+      "sha256": "deedf40dedc4a4b9c6760ae21700bc8f9ab8f0a1e54674a5f9daadc2781ddaf9"
     },
     {
       "path": "expert/components/ListRow.astro",

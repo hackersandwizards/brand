@@ -5,8 +5,8 @@
    chosen one (a checked input, aria-current, aria-pressed="true") filled with the accent and its
    on-accent text, as the segmented control's. hw-choice-count is the count, in the choice's
    colour, tabular figures. A row of choices sits in hw-choices, wrapping, 0.375rem apart. Its
-   target is the medium's control height: 44 px on a client screen, the apps' choice height in dense. On night the expert set's
-   night roles.
+   target is the medium's control height: 44 px on a client screen, the apps' choice height in
+   dense. On night the expert set's night roles.
 
    Markup: <div class="hw-choices" role="group" aria-label="…">
              <label class="hw-choice"><input type="radio" name="topic" value="">All

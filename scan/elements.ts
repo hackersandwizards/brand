@@ -320,6 +320,7 @@ const OWNS: Record<string, string[]> = {
     "color",
     "min-height",
   ],
+  "choice .hw-choice-count": ["opacity", "font-variant-numeric"],
   search: ["position"],
   breadcrumb: ["font-size", "color"],
   "breadcrumb a": ["color", "text-decoration-line"],
