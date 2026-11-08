@@ -147,8 +147,8 @@ const OWNS: Record<string, string[]> = {
   label: [...TYPE, "color"],
   "label-box": [...CORNER, ...FILL, ...borders(), ...PAD],
   pill: [...CORNER, ...FILL, ...borders(), ...PAD, ...TYPE, "color"],
-  "pill .hw-pill-chevron": ["width", "height", "opacity", "background-color"],
-  "pill .hw-pill-remove": ["width", "height", "opacity", "background-color"],
+  "pill .hw-pill-chevron": ["width", "height", "color"],
+  "pill .hw-pill-remove": ["width", "height", "color"],
   card: [...CORNER, ...FILL, ...borders(), ...PAD],
   callout: [...CORNER, ...FILL, ...borders(["left"]), ...PAD, "font-weight"],
   quote: [...borders(["left"]), "padding-left", "color"],
@@ -773,7 +773,7 @@ if (import.meta.main) {
     process.exit(2);
   }
   const named = config.pages ?? [];
-  const { dir, at } = listedCatalog(LIST);
+  const { dir, at } = listedCatalog(config);
   let stories: string[] = [];
   try {
     if (dir) stories = catalogPages(dir, at, config.site, !!config.site || i >= 0);

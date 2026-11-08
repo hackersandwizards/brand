@@ -161,7 +161,7 @@ const EXCEPTIONS = {
   "filter-chip-bar":
     "the row around FilterChip pills and a Clear all link: it draws no pill of its own",
   "chip-link":
-    "a link beside labels, teal text after an icon naming where it leads: no pill, a link",
+    "a link beside labels, its icon before the text naming where it leads: no pill, and not hw-arrow-link, whose arrow follows the label",
 };
 test("the fork rule over expert/ finds only the recorded forks", () => {
   const paths = Bun.spawnSync(["git", "ls-files", "expert"], { cwd: ROOT })

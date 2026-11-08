@@ -504,19 +504,18 @@ export const catalogPages = (dir: string, at?: string, site?: string, served = !
   return states.map((s) => `${root.replace(/\/?$/, "/")}${file ? `${s}index.html` : encoded(s)}`);
 };
 
-/** The catalog and site `file` (brand-elements.json) names: what brand-elements measures, so
- * brand-markers takes the same catalog without a flag. Empty where the file or its catalog is missing. */
-export const listedCatalog = (
-  file = "brand-elements.json",
-): { dir?: string; at?: string; site?: string } => {
-  if (!existsSync(file)) return {};
-  const { catalog, site } = JSON.parse(readFileSync(file, "utf8")) as {
-    catalog?: string | { dir: string; at?: string };
-    site?: string;
-  };
-  if (!catalog) return {};
-  return { ...(typeof catalog === "string" ? { dir: catalog } : catalog), site };
-};
+/** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
+ * brand-elements measures without a flag. Empty where it names no catalog. */
+export const listedCatalog = (config: {
+  catalog?: string | { dir: string; at?: string };
+  site?: string;
+}): { dir?: string; at?: string; site?: string } =>
+  config.catalog
+    ? {
+        ...(typeof config.catalog === "string" ? { dir: config.catalog } : config.catalog),
+        site: config.site,
+      }
+    : {};
 
 /** `run` over `items`, at most `limit` at a time, each call told which of the `limit` workers runs it;
  * the results in the items' order. */
@@ -555,7 +554,10 @@ if (import.meta.main) {
     console.error(usage);
     process.exit(2);
   }
-  const listed = flagCatalog ? {} : listedCatalog();
+  const listed =
+    flagCatalog || !existsSync("brand-elements.json")
+      ? {}
+      : listedCatalog(JSON.parse(readFileSync("brand-elements.json", "utf8")));
   const catalog = flagCatalog || listed.dir;
   const at = flagAt || listed.at;
   const site = flagSite || (flagBase ? undefined : listed.site);

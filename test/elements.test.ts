@@ -934,3 +934,44 @@ test("a stacked field row in a form field puts the error between field and butto
   expect(desk["ff-err"]!.top > desk["ff-btn"]!.bottom).toBe(true);
   await p.close();
 }, 60_000);
+
+// A disabled button keeps its look under the pointer, teal and purple, primary and secondary, day and night.
+test("a disabled button does not change on hover, on day or night", async () => {
+  const p = await browser.newPage();
+  const buttons = ["", ' data-hue="purple"']
+    .flatMap((hue) =>
+      ["", ' data-variant="secondary"'].map(
+        (v) => `<button class="hw-button"${hue}${v} disabled>Go</button>`,
+      ),
+    )
+    .join("");
+  await open(
+    p,
+    pathToFileURL(
+      file(
+        "button-disabled.html",
+        only(
+          `<div data-hw-scale="screen">${buttons}</div><div data-theme="dark" data-hw-scale="screen">${buttons}</div>`,
+        ),
+      ),
+    ).href,
+  );
+  const n = await p.$$eval(".hw-button", (b) => b.length);
+  for (let i = 0; i < n; i++) {
+    const look = () =>
+      p.$$eval(
+        ".hw-button",
+        (b, i) => {
+          const s = getComputedStyle(b[i]!);
+          return [s.backgroundColor, s.borderTopColor, s.color, s.opacity, s.cursor];
+        },
+        i,
+      );
+    await p.mouse.move(0, 0);
+    const rest = await look();
+    await (await p.$$(".hw-button"))[i]!.hover();
+    expect(await look()).toEqual(rest);
+    expect(rest.slice(3)).toEqual(["0.5", "not-allowed"]);
+  }
+  await p.close();
+}, 60_000);

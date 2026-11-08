@@ -17,8 +17,9 @@
      data-state="draft"     a draft, not yet released: a dashed amber-dark line on no fill, its
                             text amber-dark mixed 75 % into ink; on night amber
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
-   changes the value) and hw-pill-remove (a button, or a link to the list without the value: removes the value). A leading icon is an svg
-   child. With any of them the pill lays its children out in a row, 0.25em apart.
+   changes the value) and hw-pill-remove (a button, or a link to the list without the value: removes
+   the value). A leading icon is an svg child, or an emoji in a span hw-pill-icon. With any of them
+   the pill lays its children out in a row, 0.25em apart. A pill that is a button shows the pointer.
 
    Settings:
      --hw-pill-hue         the hue (a brand hue token; teal unless the surface groups by hue). A
@@ -50,10 +51,15 @@
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
-  .hw-pill:has(> svg, > .hw-pill-chevron, > .hw-pill-remove) {
+  .hw-pill:has(> svg, > .hw-pill-icon, > .hw-pill-chevron, > .hw-pill-remove) {
     display: inline-flex;
     align-items: center;
     gap: 0.25em;
+  }
+  button.hw-pill {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
   }
   .hw-pill > svg {
     flex: none;
@@ -116,6 +122,15 @@
     padding: 0;
     font: inherit;
     color: inherit;
+    background: none;
+  }
+  /* The icon is drawn on ::before, so the part's own focus ring stays outside the mask. */
+  .hw-pill-chevron::before,
+  .hw-pill-remove::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
     background-color: currentColor;
     opacity: 0.7;
     -webkit-mask: var(--_hw-pill-icon) center / contain no-repeat;
@@ -128,7 +143,7 @@
     --_hw-pill-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
     cursor: pointer;
   }
-  .hw-pill-remove:hover {
+  .hw-pill-remove:hover::before {
     opacity: 1;
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {

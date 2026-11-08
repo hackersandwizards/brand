@@ -50,7 +50,7 @@
     --_hue: var(--color-purple);
     --_hover: color-mix(in srgb, var(--color-purple) 80%, var(--color-ink));
   }
-  .hw-button:hover {
+  .hw-button:hover:not(:disabled, [aria-disabled="true"]) {
     border-color: var(--_hover);
     background: var(--_hover);
   }
@@ -58,7 +58,7 @@
     color: var(--_hue);
     background: transparent;
   }
-  .hw-button[data-variant="secondary"]:hover {
+  .hw-button[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
     border-color: var(--_hover);
     color: var(--_hover);
     background: transparent;
@@ -68,7 +68,6 @@
   }
   /* Disabled: half opacity, as hw-field and hw-check, and no hover change. */
   .hw-button:is(:disabled, [aria-disabled="true"]) {
-    --_hover: var(--_hue);
     cursor: not-allowed;
     opacity: 0.5;
   }

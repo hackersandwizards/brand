@@ -41,6 +41,8 @@ const {
 } = Astro.props;
 
 const attrs: Record<string, string> = {};
+for (const [k, v] of Object.entries(data ?? {}))
+  if (v !== undefined) attrs[k.startsWith("data-") ? k : `data-${k}`] = String(v);
 // One meaning per property: a pill that changes its value here (a button with words) takes the
 // editable corner; one only read, and a button holding only an icon, stays round.
 if (as === "button" && (label !== undefined || Astro.slots.has("default")))
@@ -48,24 +50,24 @@ if (as === "button" && (label !== undefined || Astro.slots.has("default")))
 if (unset) attrs["data-variant"] = "outline";
 else if (priority !== undefined) attrs["data-priority"] = String(priority);
 else {
-  const classes = (color ?? "").split(/\s+/).filter((c) => c && !c.includes(":"));
-  const hue = (
-    classes.find((c) => c.startsWith("bg-"))?.slice(3) ??
-    classes.find((c) => /^text-[a-z]/.test(c))?.slice(5)
-  )?.split("/")[0];
+  // A text-* utility that sets size, alignment or wrapping names no hue.
+  const NOT_HUE = /^(xs|sm|base|lg|\d?xl|ui|meta|micro|page|heading|subheading|left|right|center|justify|start|end|wrap|nowrap|balance|pretty|ellipsis|clip)$/;
+  const words = (color ?? "").split(/\s+/).filter((c) => c && !c.includes(":") && !c.includes("["));
+  const named = (prefix: string) =>
+    words
+      .filter((c) => c.startsWith(prefix))
+      .map((c) => c.slice(prefix.length).split("/")[0]!)
+      .find((h) => !NOT_HUE.test(h));
+  const hue = named("bg-") ?? named("text-");
   if (!hue || hue === "muted" || hue === "foreground") attrs["data-tone"] = "neutral";
   else {
     // The expert roles (--hue-*, --error, --tier-*) are plain variables that flip with the theme,
-    // and Tailwind emits no --color-<role> for them; a brand colour has only --color-<name>.
-    const v = `var(--${hue}, var(--color-${hue}))`;
-    attrs.style = `--hw-pill-hue: ${v}; --hw-pill-hue-night: ${v}`;
+    // and Tailwind emits no --color-<role> for them; a brand colour has --color-<name> and its
+    // night tone --color-<name>-night.
+    attrs.style = `--hw-pill-hue: var(--${hue}, var(--color-${hue})); --hw-pill-hue-night: var(--${hue}, var(--color-${hue}-night, var(--color-${hue})))`;
   }
 }
-const classes = `hw-pill inline-flex items-center gap-1 whitespace-nowrap ${extraClass}`.trim();
-
-const dataAttrs: Record<string, string> = {};
-for (const [k, v] of Object.entries(data ?? {}))
-  if (v !== undefined) dataAttrs[k.startsWith("data-") ? k : `data-${k}`] = String(v);
+const classes = `hw-pill whitespace-nowrap ${extraClass}`.trim();
 ---
 
 {as === "button" ? (
@@ -78,9 +80,8 @@ for (const [k, v] of Object.entries(data ?? {}))
     aria-haspopup={ariaHasPopup}
     aria-expanded={ariaExpanded}
     {...attrs}
-    {...dataAttrs}
   >
-    {icon && <span aria-hidden="true">{icon}</span>}
+    {icon && <span class="hw-pill-icon" aria-hidden="true">{icon}</span>}
     {label && <span>{label}</span>}
     <slot />
   </button>
@@ -92,9 +93,8 @@ for (const [k, v] of Object.entries(data ?? {}))
     aria-label={ariaLabel}
     role={ariaLabel && !label ? "img" : undefined}
     {...attrs}
-    {...dataAttrs}
   >
-    {icon && <span aria-hidden="true">{icon}</span>}
+    {icon && <span class="hw-pill-icon" aria-hidden="true">{icon}</span>}
     {label && <span>{label}</span>}
     <slot />
   </span>
