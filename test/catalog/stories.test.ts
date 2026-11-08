@@ -24,8 +24,8 @@ afterAll(async () => {
 test("every element story passes brand-elements", async () => {
   const pages = storyPages();
   // Five per element, two that show a setting (the prose block's reading width, the row's
-  // padding), and the list filter's three.
-  expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 2 + 3);
+  // padding), and the list filter's seven.
+  expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 2 + 7);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
   const results = await pool(pages, 8, (p) => measurePage(browser, p));
   expect(pages.filter((_, i) => !results[i]!.seen.length)).toEqual([]);
