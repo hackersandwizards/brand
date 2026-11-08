@@ -202,6 +202,8 @@
   --hw-frame-width: 0.125rem;
   --hw-kpi-size: 3rem;
   --hw-kpi-tracking: 0;
-  /* The list marker at the stage: the website's 6 px square times 1.5, stage.css's --slide-marker. */
-  --hw-marker-size: var(--slide-marker, 0.5625rem);
+  /* The list marker at the stage: the website's share of the text beside it, stage.css's
+     --slide-marker and --slide-marker-gap. */
+  --hw-marker-size: var(--slide-marker, 0.375em);
+  --hw-marker-gap: var(--slide-marker-gap, 0.625em);
 }
