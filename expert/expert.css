@@ -303,6 +303,9 @@ html[data-theme="dark"] {
    disabled at half opacity. The label, hint and message round it are hw-form-* (form-field.css). */
 .form-input[aria-invalid="true"] {
   border-color: var(--error);
+}
+/* Focused, the focus ring takes the shadow. */
+.form-input[aria-invalid="true"]:not(:focus) {
   box-shadow: inset 0 0 0 1px var(--error);
 }
 .form-input:disabled {

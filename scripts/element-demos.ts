@@ -36,3 +36,79 @@ export const DEMOS: Record<string, string> = {
   kpi: `<div class="hw-kpi"><span class="hw-label" data-tone="muted">Pipeline</span><span class="hw-kpi-value">12</span></div>`,
   prose: `<div class="hw-prose"><h2>Ablauf</h2><p>Erst der Plan, dann <code>bun run check</code>, wie im <a href="#elements">Runbook</a>.</p><h3>Tag 1</h3><ul><li>Gate einrichten</li><li>Cache behalten</li></ul><ol><li>Holen</li><li>Prüfen</li></ol><ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked disabled> Bericht</li><li class="task-list-item"><input type="checkbox" disabled> Review</li></ul></div>`,
 };
+
+// The elements in sections, as mature UI libraries group theirs: forms, actions, navigation,
+// feedback, data display, typography, containers, and the utilities every element shares. Each is
+// [name, title, file]; the portal draws the sections, and the catalog's story folders and their
+// order follow them.
+export const SECTIONS: [string, [string, string, string][]][] = [
+  [
+    "Forms",
+    [
+      ["field", "Field", "field"],
+      ["check", "Checkbox and radio", "check"],
+      ["form-field", "Form field", "form-field"],
+    ],
+  ],
+  [
+    "Actions",
+    [
+      ["button", "Button", "button"],
+      ["arrow-link", "Arrow link", "arrow-link"],
+      ["icon-button", "Round icon control", "icon-button"],
+      ["segmented", "Segmented control", "segmented"],
+    ],
+  ],
+  [
+    "Navigation",
+    [
+      ["link", "Link in text", "link"],
+      ["breadcrumb", "Breadcrumb", "breadcrumb"],
+    ],
+  ],
+  [
+    "Feedback",
+    [
+      ["status", "Status box", "status"],
+      ["callout", "Callout", "callout"],
+    ],
+  ],
+  [
+    "Data display",
+    [
+      ["table", "Ruled table", "table"],
+      ["facts", "Facts list", "facts"],
+      ["row", "List row", "row"],
+      ["kpi", "Key figure", "kpi"],
+      ["dot-list", "Dot list", "dot-list"],
+      ["pill", "Pill", "pill"],
+      ["label-box", "Label box", "label-box"],
+    ],
+  ],
+  [
+    "Typography",
+    [
+      ["label", "Label", "label"],
+      ["quote", "Quote", "quote"],
+      ["code", "Code block", "code"],
+      ["inline-code", "Inline code", "inline-code"],
+      ["kbd", "Keycap", "kbd"],
+      ["prose", "Prose block", "prose"],
+    ],
+  ],
+  [
+    "Containers",
+    [
+      ["card", "Card", "card"],
+      ["frame", "Dashed frame", "frame"],
+    ],
+  ],
+  [
+    "Utilities",
+    [
+      ["focus-ring", "Focus ring", "focus"],
+      ["rule", "Accent rule", "rule"],
+      ["strip", "Gradient strip", "strip"],
+    ],
+  ],
+];
