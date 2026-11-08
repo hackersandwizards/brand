@@ -206,8 +206,11 @@ test("the first pass finds a page with a marker and passes over one without", as
     "none.html",
     `<!doctype html><ol><li>A numbered item</li></ol><p><span style="display:inline-block;width:10px;height:10px;background:teal"></span> A swatch outside a list</p>`,
   );
-  expect([await hasMarkers(browser, NEW), await hasMarkers(browser, none)]).toEqual([true, false]);
-});
+  expect(await Promise.all([NEW, none].map((url) => hasMarkers(browser, url)))).toEqual([
+    true,
+    false,
+  ]);
+}, 30_000);
 
 test.each([2, 4])(
   "marker.css sits within 0.25 px at every 1/64 px offset at %dx",

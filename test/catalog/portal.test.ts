@@ -33,13 +33,14 @@ test("catalogs.json's portal anchors lead to every element and every colour", ()
   // Every colour with a value of its own; an alias or a role (var() of another) has no swatch.
   const colours = Object.entries(tokens)
     .filter(([k, v]) => k.startsWith("--color-") && !v.startsWith("var("))
-    .map(([k]) => k)
-    .map((k) => anchors!.colour.replace("<colour>", k.slice(8)));
+    .map(([k]) => anchors!.colour.replace("<colour>", k.slice("--color-".length)));
   const elements = Object.keys(ELEMENTS).map((n) => anchors!.element.replace("<element>", n));
-  // A link opens the view before the id: #<view>/<id>, both on the page.
+  // A link opens the view, then the id inside it: #<view>/<id>.
   const missing = [...colours, ...elements].filter((a) => {
     const [view, id] = a.slice(1).split("/");
-    return !html.includes(`data-page="${view}"`) || !html.includes(` id="${id}"`);
+    // The view runs to the next view's opening tag.
+    const [, body = ""] = html.split(new RegExp(`<section[^>]* data-page="${view}"`));
+    return !body.split(/<section[^>]* data-page="/)[0]!.includes(` id="${id}"`);
   });
   expect(colours.length).toBeGreaterThan(10);
   expect(missing).toEqual([]);

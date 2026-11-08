@@ -5,7 +5,7 @@
     "portal": "https://hackersandwizards.github.io/brand/",
     "anchors": {
       "element": "#elements/hw-<element>",
-      "colour": "#colours/-color-<colour>"
+      "colour": "#colours/color-<colour>"
     }
   },
   { "name": "Slides", "href": "https://hackersandwizards.github.io/slides/catalog/" },

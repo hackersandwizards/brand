@@ -120,8 +120,13 @@ const colourCell = (name: string, palette: string) => {
   const first = !anchored.has(k);
   anchored.add(k);
   if (first)
-    index.push({ t: k, k: "colour", h: `colours/${slug(k)}`, x: `${colors[k]} ${palette}` });
-  return swatch(`var(${k})`, colors[k]!, code(name), first ? ` id="${slug(k)}"` : "");
+    index.push({
+      t: k,
+      k: "colour",
+      h: `colours/color-${slug(name)}`,
+      x: `${colors[k]} ${palette}`,
+    });
+  return swatch(`var(${k})`, colors[k]!, code(name), first ? ` id="color-${slug(name)}"` : "");
 };
 const tintCell = (base: string, p: number) => {
   const k = tintToken(base, p);

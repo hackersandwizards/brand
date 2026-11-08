@@ -311,14 +311,8 @@ export async function open(page: Page, url: string) {
   if (missing.length) throw new Error(`${url}: stylesheet not loaded: ${missing.join(", ")}`);
 }
 
-/** Headless Chrome for Testing; a page opened as a file may read its sheets' rules, which
- * brand-elements reads for the classes they define. */
 export const launch = () =>
-  puppeteer.launch({
-    executablePath: findChrome(),
-    headless: true,
-    args: [...NO_KEYCHAIN, "--allow-file-access-from-files"],
-  });
+  puppeteer.launch({ executablePath: findChrome(), headless: true, args: NO_KEYCHAIN });
 
 /** Every marker on one page, at one device scale, how far it sits off its line and how far its
  * first line starts right of the wrapped lines, in CSS px, after `css` is added. */
@@ -327,16 +321,8 @@ export async function measureMarkers(
   url: string,
   { scale = 4, width = 1280, newline = false, css = "" } = {},
 ): Promise<Reading[]> {
-  const page = await browser.newPage();
+  const page = await prepare(browser, url, { scale, width, css });
   try {
-    await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
-    // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
-    await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
-    await open(page, url);
-    if (css) await page.addStyleTag({ content: css });
-    await page.evaluate(() => document.fonts.ready.then(() => undefined));
-    // A closed panel's lists are markers too.
-    await page.evaluate(openFolds);
     const found = (await page.evaluateHandle(collect, [newline, MAX_SIDE] as [
       boolean,
       number,
@@ -431,17 +417,39 @@ export async function measureMarkers(
   }
 }
 
-/** Whether a page shows a marker brand-markers would measure, as served or with the newline: one
- * load at 1x, where measureMarkers takes one per scale and newline. A superset of the pages that
- * give a reading, as a found marker may still be skipped as decoration. */
-export async function hasMarkers(browser: Browser | BrowserContext, url: string, width = 1280) {
+/** A new tab on `url` as both passes read it: settled (reduced motion), `css` added, fonts loaded
+ * and every fold open, as a closed panel's lists are markers too. */
+async function prepare(
+  browser: Browser | BrowserContext,
+  url: string,
+  { scale = 4, width = 1280, css = "" } = {},
+) {
   const page = await browser.newPage();
   try {
-    await page.setViewport({ width, height: 900 });
+    await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
+    // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     await open(page, url);
+    if (css) await page.addStyleTag({ content: css });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     await page.evaluate(openFolds);
+    return page;
+  } catch (e) {
+    await page.close();
+    throw e;
+  }
+}
+
+/** Whether a page shows a marker brand-markers would measure at `scale`, as served or with the
+ * newline: one load, where measureMarkers takes one per newline. A superset of the pages that give
+ * a reading, as a found marker may still be skipped as decoration. */
+export async function hasMarkers(
+  browser: Browser | BrowserContext,
+  url: string,
+  { scale = 4, width = 1280 } = {},
+) {
+  const page = await prepare(browser, url, { scale, width });
+  try {
     // The newline only adds blank text, so the second count runs on the same page.
     for (const newline of [false, true])
       if (await page.evaluate(collect, [newline, MAX_SIDE, true] as [boolean, number, boolean]))
@@ -633,8 +641,9 @@ if (import.meta.main) {
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, base));
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
-  // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass, one load per page at 1x,
-  // finds the pages with a marker, most stories having none; only those take the measured runs.
+  // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass, one load per story at the
+  // first scale, finds the stories with a marker, most having none; only those, and every page
+  // named, take the measured runs. It mostly waits for the network to go quiet: four tabs per worker.
   const workers = Math.min(availableParallelism(), 8, pages.length);
   let readings: Reading[];
   try {
@@ -642,16 +651,13 @@ if (import.meta.main) {
     const contexts = await Promise.all(
       Array.from({ length: workers }, () => browser.createBrowserContext()),
     );
-    // Mostly a wait for the network to go quiet at 1x, so four tabs per worker.
-    const marked = await pool(pages, 4 * workers, (url, w) =>
-      hasMarkers(contexts[w % workers]!, url, width),
+    const listed = pages.slice(named.length);
+    const marked = await pool(listed, 4 * workers, (url, w) =>
+      hasMarkers(contexts[w % workers]!, url, { scale: scales[0], width }),
     );
-    const runs = pages
-      .filter((_, i) => marked[i])
-      .flatMap((url) =>
-        scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
-      );
-    // Grouped by page, in the order named, as --json printed them before.
+    const runs = [...pages.slice(0, named.length), ...listed.filter((_, i) => marked[i])].flatMap(
+      (url) => scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
+    );
     readings = (
       await pool(runs, workers, ({ url, ...options }, w) =>
         measureMarkers(contexts[w]!, url, { ...options, width }),

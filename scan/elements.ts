@@ -34,8 +34,8 @@
 //    rules read are left out, since a page without night never draws them. An element drawn with
 //    the brand corner (top-left and bottom-right larger than top-right) inside another so drawn
 //    fails too: the brand corner sits on the outermost block only (tokens.css). So does an element
-//    carrying an hw-* class, or one of BRAND_CLASSES, that no rule of a loaded stylesheet names: it
-//    draws unstyled.
+//    carrying an hw-* class, or one of BRAND_CLASSES, that no rule of a loaded stylesheet names (but
+//    inside :not()) draws unstyled; not one inside [data-hw-shell].
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
 //    button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
@@ -132,6 +132,21 @@ export const BRAND_CLASSES = [
   "rounded-brand",
   "theme-switching",
 ];
+export const isBrandClass = (c: string) => c.startsWith("hw-") || BRAND_CLASSES.includes(c);
+
+/** The classes a stylesheet's rules name, anywhere in a selector but inside :not(). */
+export const definedClasses = (css: string) =>
+  rules(css).flatMap((r) =>
+    r.selectors.flatMap((sel) => {
+      let s = sel;
+      for (let i = s.indexOf(":not("); i >= 0; i = s.indexOf(":not(")) {
+        let j = i + 5;
+        for (let depth = 1; depth; j++) depth += s[j] === "(" ? 1 : s[j] === ")" ? -1 : 0;
+        s = s.slice(0, i) + s.slice(j);
+      }
+      return [...s.matchAll(/\.((?:\\.|[\w-])+)/g)].map((m) => m[1]!.replace(/\\(.)/g, "$1"));
+    }),
+  );
 // What each element (and each part, "<element> <part>") sets, and so what is compared: a property
 // the element leaves to its surroundings, such as a card's text size, stays the surface's.
 const CORNER = [
@@ -303,11 +318,10 @@ type Args = [
   string[],
   number,
   Record<string, string[]>,
-  string[],
 ];
 
 /** Runs in the page: each hub element against its reference, as findings plus the tiles found. */
-function compare([css, elements, owns, settings, tolerance, tokens, brandClasses]: Args) {
+function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   const findings: { element: string; label: string; prop: string; got: string; want: string }[] =
     [];
   const seen: string[] = [];
@@ -315,43 +329,6 @@ function compare([css, elements, owns, settings, tolerance, tokens, brandClasses
   const missing = new Set<string>();
   const label = (el: Element) =>
     `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${(el.textContent ?? "").trim().slice(0, 30)}"`;
-  // A brand class (an hw-* one or one brand once defined) that no rule of a loaded sheet names: the
-  // element draws unstyled. A sheet the page may not read (another origin's) names none.
-  const defined = new Set<string>();
-  const names = (list: CSSRuleList) => {
-    for (const r of list) {
-      if (r instanceof CSSStyleRule)
-        for (const m of r.selectorText.matchAll(/\.((?:\\.|[\w-])+)/g))
-          defined.add(m[1]!.replace(/\\(.)/g, "$1"));
-      if (r instanceof CSSImportRule && r.styleSheet) read(r.styleSheet);
-      if ("cssRules" in r) names((r as CSSGroupingRule).cssRules);
-    }
-  };
-  const read = (sheet: CSSStyleSheet) => {
-    try {
-      names(sheet.cssRules);
-    } catch {
-      // another origin's sheet
-    }
-  };
-  for (const sheet of [...document.styleSheets, ...document.adoptedStyleSheets]) read(sheet);
-  const unstyled = new Set<string>();
-  for (const el of document.querySelectorAll("[class]"))
-    for (const c of el.classList)
-      if (
-        (c.startsWith("hw-") || brandClasses.includes(c)) &&
-        !defined.has(c) &&
-        !unstyled.has(c)
-      ) {
-        unstyled.add(c);
-        findings.push({
-          element: "class",
-          label: label(el),
-          prop: "class",
-          got: c,
-          want: "a rule",
-        });
-      }
   const num = (v: string) => (/^-?[\d.]+px$/.test(v) ? parseFloat(v) : null);
   // One colour, one text: a build that rewrites color-mix() (Lightning CSS) leaves rgba() where the
   // reference computes color(srgb ...), so each colour reads as rgba() of whole channels.
@@ -595,11 +572,41 @@ export async function measurePage(
     await page.setViewport({ width: 1280, height: 900 });
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     // Every tab holds focus as the one in front does, so the focus ring reads in pages run side by side.
-    await (
-      await page.createCDPSession()
-    ).send("Emulation.setFocusEmulationEnabled", { enabled: true });
+    const cdp = await page.createCDPSession();
+    await cdp.send("Emulation.setFocusEmulationEnabled", { enabled: true });
     await open(page, toUrl(url, site));
     if (css) await page.addStyleTag({ content: css });
+    // Every sheet's text, another origin's and an imported one's too, which the page's own script
+    // may not read: an element carrying a brand class no rule names draws unstyled.
+    const sheets: string[] = [];
+    cdp.on("CSS.styleSheetAdded", (e) => sheets.push(e.header.styleSheetId));
+    await cdp.send("DOM.enable");
+    await cdp.send("CSS.enable");
+    const defined = new Set(
+      (
+        await Promise.all(
+          sheets.map((id) =>
+            cdp.send("CSS.getStyleSheetText", { styleSheetId: id }).then((r) => r.text),
+          ),
+        )
+      ).flatMap(definedClasses),
+    );
+    // The catalog shell's markup is the shell's (scaffolding's), as for the elements.
+    const used = await page.evaluate(() =>
+      [...document.querySelectorAll("[class]")]
+        .filter((el) => !el.closest("[data-hw-shell]"))
+        .flatMap((el) =>
+          [...el.classList].map((c) => [
+            c,
+            `${el.tagName.toLowerCase()} "${(el.textContent ?? "").trim().slice(0, 30)}"`,
+          ]),
+        ),
+    );
+    // One finding per class, at its first element.
+    const first = new Map<string, string>();
+    for (const [c, label] of used)
+      if (isBrandClass(c!) && !defined.has(c!) && !first.has(c!)) first.set(c!, label!);
+    const unstyled = [...first].map(([cls, label]) => ({ page: url, cls, label }));
     await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     const out = await page.evaluate(compare, [
@@ -609,9 +616,13 @@ export async function measurePage(
       SETTINGS,
       TOLERANCE,
       lightOnly ? DAY_TOKENS : TOKENS,
-      BRAND_CLASSES,
     ] as Args);
-    return { ...out, page: url, findings: out.findings.map((f) => ({ page: url, ...f })) };
+    return {
+      ...out,
+      page: url,
+      findings: out.findings.map((f) => ({ page: url, ...f })),
+      unstyled,
+    };
   } finally {
     await page.close();
   }
@@ -907,11 +918,13 @@ if (import.meta.main) {
     await server?.stop(true);
   }
   const rendered = results.flatMap((r) => r.findings);
+  const unstyled = results.flatMap((r) => r.unstyled);
   const empty = named.filter((_, i) => !results[i]!.seen.length);
   const tree = listTree("brand-elements");
   const source = sourceFindings(tree, (p) => readFileSync(p, "utf8"), config.exceptions ?? {});
   const covered = coverage(config, results);
-  if (json) console.log(JSON.stringify({ rendered, source, coverage: covered, empty }, null, 2));
+  if (json)
+    console.log(JSON.stringify({ rendered, unstyled, source, coverage: covered, empty }, null, 2));
   else {
     const report = skippedReport("brand-elements", tree);
     if (report) console.log(report);
@@ -920,17 +933,21 @@ if (import.meta.main) {
         `${f.page} ${f.element} ${f.label}: ${
           f.got === "undefined"
             ? `reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`
-            : f.element === "class"
-              ? `carries .${f.got}, which no stylesheet on the page defines, so it draws unstyled: take the hw-* element brand defines now, or define the class in your own CSS`
-              : `${f.prop} ${f.got}, brand ${f.want}`
+            : `${f.prop} ${f.got}, brand ${f.want}`
         }`,
+      );
+    for (const u of unstyled)
+      console.error(
+        `${u.page} ${u.label}: carries .${u.cls}, which no stylesheet on the page defines, so it draws unstyled: take the hw-* element brand defines now, or define the class in your own CSS`,
       );
     for (const line of [...source, ...covered]) console.error(line);
     for (const url of empty) console.error(`${url}: no shared element found`);
     const shown = new Set(results.flatMap((r) => r.seen));
     console.log(
-      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${source.length} source findings, ${covered.length} coverage findings`,
+      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${source.length} source findings, ${covered.length} coverage findings`,
     );
   }
-  process.exit(rendered.length || source.length || covered.length || empty.length ? 1 : 0);
+  process.exit(
+    rendered.length || unstyled.length || source.length || covered.length || empty.length ? 1 : 0,
+  );
 }
