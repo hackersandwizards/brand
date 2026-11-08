@@ -108,6 +108,9 @@ const DRIFT: Record<string, string> = {
   "label-box": ".hw-label-box { padding: 9px }",
   prose: ".hw-prose h3 { font-weight: 400 }",
   kbd: ".hw-kbd { border-radius: 0 }",
+  nav: ".hw-nav a { padding: 9px }",
+  choice: ".hw-choice { border-radius: 999px }",
+  search: ".hw-search { position: static }",
 };
 test("every element has its drift", () => {
   expect(Object.keys(DRIFT).sort()).toEqual(Object.keys(ELEMENTS).sort());
@@ -502,7 +505,8 @@ test("a light subtree inside a dark one draws the day rule", async () => {
   expect(probe).toBe(day);
 }, 60_000);
 
-// A cell takes no shadow root; a remove button sizes by the pill, not the browser's button font.
+// A cell takes no shadow root; a remove button's icon sizes by the pill, not the browser's button
+// font, inside a 24 px target.
 test("an element in a table cell and a pill's remove button are measured", async () => {
   const r = await measurePage(
     browser,
@@ -517,12 +521,16 @@ test("an element in a table cell and a pill's remove button are measured", async
   expect(r.findings).toEqual([]);
   const page2 = await browser.newPage();
   await page2.goto(`file://${file("cell2.html", page())}`);
-  const [btn, pill] = await page2.evaluate(() => {
+  const [target, icon, pill] = await page2.evaluate(() => {
     const b = document.querySelector(".hw-pill-remove")!;
-    return [getComputedStyle(b).width, getComputedStyle(b.parentElement!).fontSize];
+    return [
+      b.getBoundingClientRect().width,
+      getComputedStyle(b, "::before").width,
+      getComputedStyle(b.parentElement!).fontSize,
+    ];
   });
   await page2.close();
-  expect(btn).toBe(pill);
+  expect([target, icon]).toEqual([24, pill]);
 }, 60_000);
 
 // The link's underline offset is in em: its reference reads the cell's 14 px, not the table's parent.
@@ -582,7 +590,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   expect(out).toEqual([
     `card: the tile on b.html says brand v0.1.0, the installed package is v${own.version}; rebuild that page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, kbd, button, arrow-link, field, check, form-field, switch, range, error-summary, facts, dot-list, segmented, row, breadcrumb, status, frame, kpi, prose)',
+    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, kbd, button, arrow-link, field, check, form-field, switch, range, error-summary, facts, dot-list, segmented, row, breadcrumb, nav, choice, search, status, frame, kpi, prose)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',
@@ -655,6 +663,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-field-family",
     "--hw-button-corner",
     "--hw-range-fill",
+    "--hw-field-pad-start",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });

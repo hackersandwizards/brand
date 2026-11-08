@@ -22,8 +22,9 @@ afterAll(async () => {
 
 test("every element story passes brand-elements", async () => {
   const pages = catalogPages(join(DIST, "catalog"), `${server.url}${BASE.slice(1)}catalog`);
-  // Five per element, and two that show a setting: the prose block's reading width, the row's padding.
-  expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 2);
+  // Five per element, two that show a setting (the prose block's reading width, the row's
+  // padding), and the list filter's three.
+  expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 2 + 3);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
   const results = await pool(pages, 8, (p) => measurePage(browser, p));
   expect(pages.filter((_, i) => !results[i]!.seen.length)).toEqual([]);

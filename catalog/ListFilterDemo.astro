@@ -1,0 +1,84 @@
+---
+// The list filter (expert/components/ListFilter.astro) over list rows (ListRow.astro), at one scale,
+// on light or night, as an app's or the website's list page renders it.
+import ListFilter from "../expert/components/ListFilter.astro";
+import ListRow from "../expert/components/ListRow.astro";
+
+interface Props {
+  scale?: "screen" | "dense";
+  night?: boolean;
+}
+
+const { scale = "dense", night = false } = Astro.props;
+const rows = [
+  { title: "Context Engineering", topic: "tools", days: "2 Tage", hue: "teal" },
+  { title: "Spec-driven Development", topic: "tools", days: "1 Tag", hue: "teal" },
+  { title: "Messbare Produktivität", topic: "evidence", days: "1 Tag", hue: "purple" },
+  { title: "Agenten im Team", topic: "practice", days: "2 Tage", hue: "amber" },
+];
+const items = rows.map((r) => ({ text: r.title.toLowerCase(), facets: { topic: [r.topic] } }));
+---
+
+<div class="demo hw-focus-ring" data-hw-scale={scale} data-theme={night ? "dark" : undefined}>
+  <ListFilter
+    id={`units-${scale}-${night ? "night" : "day"}`}
+    action="#"
+    label="Einheiten suchen"
+    items={items}
+    state={{ q: "", facets: { topic: "" } }}
+    facet={{
+      param: "topic",
+      legend: "Thema",
+      options: [
+        { value: "tools", label: "Werkzeuge" },
+        { value: "evidence", label: "Belege" },
+        { value: "practice", label: "Praxis" },
+      ],
+    }}
+    count={{ one: "1 Einheit", other: "{shown} von {total} Einheiten" }}
+    copy={{
+      all: "Alle",
+      clear: "Alles zurücksetzen",
+      empty: "Nichts passt. Versucht ein kürzeres Wort oder ein anderes Thema.",
+      submit: "Suchen",
+      filters: "Filter",
+    }}
+  >
+    {rows.map((r, i) => (
+      <ListRow
+        stripeColor={`stripe-${r.hue}`}
+        data-filter-item
+        data-filter-text={items[i]!.text}
+        data-filter-facets={JSON.stringify(items[i]!.facets)}
+        data-filter-order={i}
+        current={i === 0}
+      >
+        <span slot="lead" data-filter-title>
+          {r.title}
+        </span>
+        <span slot="trail">{r.days}</span>
+      </ListRow>
+    ))}
+  </ListFilter>
+</div>
+
+<style>
+  .demo {
+    padding: 1.5rem;
+    color: var(--color-ink);
+    background: var(--color-white);
+  }
+  .demo[data-theme="dark"] {
+    color: var(--color-night-ink);
+    background: var(--color-night);
+  }
+  .demo :global(.stripe-teal) {
+    background: var(--color-teal);
+  }
+  .demo :global(.stripe-purple) {
+    background: var(--color-purple);
+  }
+  .demo :global(.stripe-amber) {
+    background: var(--color-amber);
+  }
+</style>

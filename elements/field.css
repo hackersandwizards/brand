@@ -36,6 +36,7 @@
                         corner at the medium's size
      --hw-field-height  the field's least height
      --hw-field-pad     its inline padding
+     --hw-field-pad-start its start padding, where something sits inside it (search.css's icon)
      --hw-field-size    its text size, and a form label's (form-field.css)
      --hw-field-family  its family: the body role, or mono where a reader compares the value
                         character by character (an ID)
@@ -59,7 +60,7 @@
     min-height: var(--hw-field-height, 3rem);
     border: var(--hw-hairline, 1px) solid var(--color-border-strong);
     border-radius: var(--hw-card-corner, var(--radius-brand));
-    padding: 0 var(--hw-field-pad, 1rem);
+    padding: 0 var(--hw-field-pad, 1rem) 0 var(--hw-field-pad-start, var(--hw-field-pad, 1rem));
     font-family: var(--hw-field-family, var(--type-body-family));
     font-size: var(--hw-field-size, var(--type-body-size));
     line-height: var(--type-body-line-height);

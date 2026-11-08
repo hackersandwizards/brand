@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import { ROOT } from "../scripts/git";
 import {
+  applyExceptions,
   failing,
   hasMarkers,
   launch,
@@ -380,4 +381,39 @@ test("a page whose stylesheet does not load throws rather than measuring the uns
     await server.stop(true);
     rmSync(site, { recursive: true, force: true });
   }
+});
+
+// A declared exception keeps its page's off readings up to its count, and reports itself once it
+// keeps nothing, so a fixed page drops it.
+test("marker exceptions keep their readings, fail over their count and report a stale entry", () => {
+  const off = (page: string): Reading => ({
+    page,
+    label: "li",
+    kind: "before",
+    scale: 2,
+    newline: false,
+    offset: 0.26,
+    indent: null,
+    double: false,
+  });
+  const story = "http://127.0.0.1:1/catalog/stories/Slides/Slide%20types/content-slide/at-rest/";
+  const readings = [off(story), off(story), off("http://127.0.0.1:1/units/x/")];
+  const kept = applyExceptions(readings, {
+    "**/Slide types/content-slide/at-rest/": { reason: "engine rounding", off: 2 },
+    "**/ground-intro/": { reason: "engine rounding", off: 1 },
+  });
+  expect(kept.kept.length).toBe(2);
+  expect(kept.bad.map((r) => r.page)).toEqual(["http://127.0.0.1:1/units/x/"]);
+  expect(kept.findings).toEqual([
+    'markers exception "**/ground-intro/" is stale: it keeps no off reading',
+  ]);
+  const over = applyExceptions(readings, {
+    "**/at-rest/": { reason: "engine rounding", off: 1 },
+    "**/units/**": { reason: "", off: 1 },
+  });
+  expect(over.findings).toEqual([
+    'markers exception "**/at-rest/": 2 off readings, 1 kept',
+    'markers exception "**/units/**": needs a "reason" and an "off" count of at least 1',
+  ]);
+  expect(applyExceptions(readings).bad.length).toBe(3);
 });

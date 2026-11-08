@@ -1,0 +1,83 @@
+/* The list filter's layout (expert/components/ListFilter.astro, elements/list-filter.ts): the
+   search with its submit button, the facet's choices and an optional select, the count line with
+   its links, the list, and the empty line. The parts are shared elements (hw-search, hw-field,
+   hw-choice, hw-button, hw-form-field); this file only places them, in the scale's form gap, and
+   marks the matched words in the accent's 20 % tint. Below 48rem, once the script runs, the facets
+   fold behind the Filters button and the submit button goes, as Enter submits. */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-list-filter > form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .hw-list-filter-search {
+    display: flex;
+    max-width: 36rem;
+    gap: 0.5rem;
+  }
+  .hw-list-filter-search > .hw-search {
+    flex: 1;
+  }
+  .hw-list-filter-search > .hw-button {
+    flex: none;
+  }
+  .hw-list-filter [data-filter-panel] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .hw-list-filter [data-filter-panel] > label.hw-form-field {
+    max-width: 36rem;
+  }
+  .hw-list-filter-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    font-size: var(--text-ui, var(--type-small-size));
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+  .hw-list-filter :is([data-filter-list], [data-filter-empty]) {
+    margin-top: 0.75rem;
+  }
+  .hw-list-filter [data-filter-empty] {
+    font-size: var(--text-ui, var(--type-small-size));
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+  .hw-list-filter [data-filter-empty] > p {
+    margin: 0 0 0.25rem;
+  }
+  .hw-list-filter [hidden] {
+    display: none;
+  }
+  .hw-list-filter mark {
+    border-radius: var(--radius-sm);
+    color: inherit;
+    background: color-mix(in srgb, var(--color-teal) 20%, transparent);
+  }
+  .hw-list-filter [data-filter-toggle] {
+    display: none;
+  }
+  @media (max-width: 47.99rem) {
+    .hw-list-filter[data-js] [data-filter-submit],
+    .hw-list-filter[data-closed] [data-filter-panel] {
+      display: none;
+    }
+    .hw-list-filter[data-js] [data-filter-toggle] {
+      display: inline-flex;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-list-filter-status,
+    .hw-list-filter [data-filter-empty] {
+      color: var(--color-night-muted);
+    }
+    .hw-list-filter mark {
+      background: color-mix(in srgb, var(--color-teal-night) 30%, transparent);
+    }
+  }
+}

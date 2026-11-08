@@ -1,0 +1,21 @@
+---
+/** One record in a list on hw-row (elements/row.css): the stripe in the record's colour, the
+ *  `lead` slot (title and chips) clipping, the `trail` slot (figures, dates) keeping its width.
+ *  Every further attribute goes on the row, such as a filtered list's data-filter-* or hidden;
+ *  `current` marks the record open beside the list. */
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"div"> {
+  /** The stripe's colour: a class that sets its background, such as "bg-teal". */
+  stripeColor: string;
+  current?: boolean;
+}
+
+const { stripeColor, current = false, class: className, ...rest } = Astro.props;
+---
+
+<div class:list={["hw-row", className]} aria-current={current ? "true" : undefined} {...rest}>
+  <span class={`hw-row-stripe ${stripeColor}`} aria-hidden="true"></span>
+  <div class="hw-row-lead"><slot name="lead" /></div>
+  <div class="hw-row-trail"><slot name="trail" /></div>
+</div>

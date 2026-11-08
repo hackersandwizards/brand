@@ -1,0 +1,99 @@
+/* The navigation list: a sidebar, a rail or a header's links, each item a link in a list inside a
+   <nav>. Items in the UI step at the foreground's 70 %, the muted fill and the full foreground on
+   hover; the current page (aria-current="page", or "true" on a section holding it) in the accent
+   on its 7 % tint, weight 500. hw-nav-count is an item's count, at the end of its row in the
+   foreground's 70 %, tabular figures; hw-nav-group is a group's caption, an hw-label (muted) set off above its list.
+   A nested list sits under its parent behind a guide line, up to four levels; a branch is a
+   <details class="hw-disclosure"> whose <summary> takes the item's measures. A <nav>, links and
+   lists, never role="tree". On night the expert set's night roles.
+
+   Markup: <nav class="hw-nav" aria-label="…"><p class="hw-label hw-nav-group" data-tone="muted">…</p>
+             <ul><li><a href="…" aria-current="page">…<span class="hw-nav-count">12</span></a></li>
+                 <li><details class="hw-disclosure" open><summary>…</summary><ul>…</ul></details></li>
+             </ul></nav>
+
+   Settings:
+     --hw-nav-pad   an item's block and inline padding
+     --hw-corner-sm the item's corner */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-nav {
+    font-size: var(--text-ui, var(--type-small-size));
+    line-height: var(--text-ui--line-height, 1.5);
+  }
+  .hw-nav :is(ul, ol) {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hw-nav :is(ul, ol) :is(ul, ol) {
+    margin-left: 0.5rem;
+    border-left: var(--hw-hairline, 1px) solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+    padding-left: 0.5rem;
+  }
+  .hw-nav a,
+  .hw-nav summary {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
+    padding: var(--hw-nav-pad, 0.25rem 0.5rem);
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    transition:
+      background-color var(--motion-fast, 0.1s),
+      color var(--motion-fast, 0.1s);
+  }
+  .hw-nav summary {
+    font-weight: 500;
+  }
+  .hw-nav :is(a, summary):hover {
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+  }
+  .hw-nav a[aria-current]:not([aria-current="false"]) {
+    font-weight: 500;
+    color: var(--color-teal-dark);
+    background: color-mix(in srgb, var(--color-teal) 7%, transparent);
+  }
+  .hw-nav-count {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  }
+  .hw-nav-group {
+    display: block;
+    margin: 0.75rem 0 0.25rem;
+    padding: 0 0.5rem;
+  }
+  .hw-nav-group:first-child {
+    margin-top: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-nav :is(a, summary) {
+      transition: none;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-nav :is(ul, ol) :is(ul, ol) {
+      border-left-color: color-mix(in srgb, var(--color-night-ink) 15%, transparent);
+    }
+    .hw-nav :is(a, summary),
+    .hw-nav-count {
+      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
+    }
+    .hw-nav :is(a, summary):hover {
+      color: var(--color-night-ink);
+      background: var(--color-night-2);
+    }
+    .hw-nav a[aria-current]:not([aria-current="false"]) {
+      color: var(--color-teal-night);
+      background: color-mix(in srgb, var(--color-teal-night) 12%, transparent);
+    }
+  }
+}

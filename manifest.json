@@ -310,11 +310,11 @@
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "7e50935de31c2f539c6712f5f6be10f91cdfbb8b2a543cddb8874dada0838d49"
+      "sha256": "092562cbfb38efe04da74a127015e4eb0949fe3ecd0ab87c6d36687ea7378b81"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
-      "sha256": "305315f30302fbac3ca2dacc732d2385cd6c06f8127ed3450dee9b35c0f9dbf4"
+      "sha256": "4ad0d7f14f491237df72f87e73123c2d8188dbe36863fb48702087e5b970f06a"
     },
     {
       "path": "expert/components/ThemeToggle.astro",
@@ -322,7 +322,7 @@
     },
     {
       "path": "expert/components/space-nav.ts",
-      "sha256": "6b1d0e1f84bcaff940257a8d280ee28c1325335fea960eef78dbed2dd2f72ced"
+      "sha256": "6eff12ddd6030c098fb68d27a52b4f148eb3098f08db7e80166304feb7ea6a4b"
     },
     {
       "path": "expert/components/theme-icons.ts",
@@ -350,7 +350,7 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "d50084ca02aa2f2ebb5948802504e68865c7a1bc78682fffc05b8613730f321d"
+      "sha256": "b0491a0c04ccf3d0374c2aff47e6a2c56f36a814c9c428ffa4165f94a994ed0b"
     },
     {
       "path": "elements/focus.css",
@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/icon-button.css",
-      "sha256": "1f510373723c3b635e7eb5d499abfca67794ba721adce129cc2bcd64d611f1a1"
+      "sha256": "a3e835aef2554df853abc73b7c3ab9459eaba1714e9ff46cf964ef1e70a31bb8"
     },
     {
       "path": "elements/label.css",
@@ -374,7 +374,7 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "42dcb5566955ff4660db8e2c34f90dbb49e37dd2ca89dce99ec8c2577cf9a641"
+      "sha256": "4585aaa930adfe8849f3b0ea1b39ad73008e91c62f95b051f15abee4369538f5"
     },
     {
       "path": "elements/quote.css",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "ca53373237f9fc272cfa1bb123fa9bac64688c7ac19aa21f96959b429fbd0805"
+      "sha256": "6a66cefb7806667de10418dda3833737faf0cabde7ff2a1c2c1348329ccfb9f5"
     },
     {
       "path": "elements/strip.css",
@@ -462,7 +462,7 @@
     },
     {
       "path": "elements/field.css",
-      "sha256": "aa957399341a616513a9845e5979b52a83d6dabb6e53e85beb8eb4eba9074ac5"
+      "sha256": "06e69b6e6dc2fcec504964107c895912a32cb0ee48390406a21c13688e495ced"
     },
     {
       "path": "elements/frame.css",
@@ -478,7 +478,7 @@
     },
     {
       "path": "elements/row.css",
-      "sha256": "8674b7b549594e566ac655b9c7b55894f248fe652aa8faee0a042cc5981fc91a"
+      "sha256": "b634f54515fb46ad10144b54828e5a8562ce82ef8555ff1cdcd55498d360f347"
     },
     {
       "path": "elements/rule.css",
@@ -519,6 +519,34 @@
     {
       "path": "verbal/verbal.json",
       "sha256": "98a93160f37cc2de71da47f7a32dbd615e623490c41c60219dd70d3220149e58"
+    },
+    {
+      "path": "elements/search.css",
+      "sha256": "814dd93c166ffd1f3878c79cc04c218284a03cb5755be6380cc7bb2cb079366d"
+    },
+    {
+      "path": "elements/nav.css",
+      "sha256": "6cefdb54e794549fcc84e29e06614d5f25e33d113e069895666be659ce19007e"
+    },
+    {
+      "path": "elements/list-filter.css",
+      "sha256": "95c2e035fda6215f86acd4765f2c768070a5e74deaebf03b65675154f7e9173a"
+    },
+    {
+      "path": "elements/list-filter.ts",
+      "sha256": "9e8f80f08f86b579af84c0c625cbfbcccb3749b04e3a5afa38e584385e8938a4"
+    },
+    {
+      "path": "elements/choice.css",
+      "sha256": "8a1325a76f93b8f501a24bda0d55fe881174212a76e986276982880db620773e"
+    },
+    {
+      "path": "expert/components/ListRow.astro",
+      "sha256": "c78b52847def6b4f4f120cf48e5758504e40281f554d247e02326010b1eb302e"
+    },
+    {
+      "path": "expert/components/ListFilter.astro",
+      "sha256": "dbf9235878f82dbf27f0b6bfb52fc63d158f54a25929b39602e7863c4f61cf9a"
     }
   ]
 }

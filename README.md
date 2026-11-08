@@ -254,7 +254,7 @@ padding and Tailwind utilities win.
 Every element two or more systems show lives in `elements/`, one plain-CSS file each: label, label box,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
 strip, accent rule, code block (and its panel), inline code, button, arrow link, field (text field, field with button, textarea, select, combobox, date, file, password, read-only, warning and success, sizes), checkbox and radio, form field (label, optional mark, hint, error, warning and success message, character count, floating label, fieldset), switch, range, error summary, facts list, dot list, segmented
-control, list row, breadcrumb, status box, dashed frame, key figure, prose block. The catalog groups them in sections as mature UI
+control, list row, breadcrumb, navigation list, filter value, search field, status box, dashed frame, key figure, prose block. The catalog groups them in sections as mature UI
 libraries do: Forms, Actions, Navigation, Feedback, Data display, Typography, Containers, Utilities. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
@@ -483,6 +483,27 @@ the retired list and fails: import the fields a page shows (`import { claim } fr
 "@hackersandwizards/brand/verbal.json"`) or read the file at build time only. Add it after your
 build step: `"check:retired": "brand-retired dist"`.
 
+### Lists you filter and navigate
+
+A sidebar, a rail or a header's links is `hw-nav` (`elements/nav.css`): links in lists inside a
+`<nav>`, the current one marked by `aria-current`, counts in `hw-nav-count`, captions in
+`hw-label hw-nav-group`, a branch a `details.hw-disclosure` (which `elements.css` imports). A
+space's tree is `expert/components/SpaceNavTree.astro` over `buildSpaceTree(base, entries, title)`
+from `expert/components/space-nav.ts`, the entry `{ id, data: { order? } }`; your app keeps only
+its collection query.
+
+A list with a search and a facet is `expert/components/ListFilter.astro`: a GET form whose values
+are `hw-choice` (a label around a radio, a link with `aria-current` or a button with
+`aria-pressed`, with its count) and whose field is `hw-search`, sized by your `data-hw-scale` (44 px
+targets on `screen`). Its browser side is `initListFilter` in `elements/list-filter.ts`, which a
+page without Astro runs over the same markup; each row carries `data-filter-item`, its lowercase
+text in `data-filter-text`, its facet values as JSON in `data-filter-facets`
+(`{"topic":["tools"]}`), its place in `data-filter-order`; a `[data-filter-title]` gets the matches
+marked and a `[data-filter-group]` hides while none of its rows shows. `browse="active"` lists rows
+only while a filter is set. A row is `expert/components/ListRow.astro` on `hw-row`
+(`stripeColor`, the slots `lead` and `trail`, every further attribute passed to the row, `current`
+for the record open beside the list).
+
 ### List markers
 
 Every list marker is `marker.css`: a small square whose middle sits two thirds of the way from the
@@ -511,7 +532,11 @@ target and tolerance from the package: `import { CAP_SHARE, TOLERANCE } from
 "@hackersandwizards/brand/markers"`. It measures every story page of the catalog that the
 `catalog` key of your `brand-elements.json` names, on its `"site"` where neither `--site` nor
 `--base <server url>` is given, so you name your catalog once. `--catalog <dir>` names another
-instead, `--catalog-at <page>` where it is served; a story page without a list passes.
+instead, `--catalog-at <page>` where it is served; a story page without a list passes. Readings
+you keep go in the `"markers"` block of the same file, each glob over a page's path with its
+reason and how many off readings it keeps: `"markers": { "**/content-slide/at-rest/": { "reason":
+"...", "off": 6 } }`. A kept reading prints as kept; more than `off` fails, and so does an entry
+that keeps none, so a fixed page drops it.
 
 ## Press kit
 

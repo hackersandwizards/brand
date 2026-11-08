@@ -24,6 +24,11 @@
 // "catalog" of brand-elements.json in the working directory is measured, with its "site" where
 // neither --site nor --base is given and its "exclude" (listedCatalog), so a consumer names its
 // catalog once.
+// The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
+// its reason and how many off readings it keeps at most:
+//   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
+// An off reading on a page the glob matches is kept, printed as kept; more off readings there than
+// "off" fail, and so does an entry that keeps nothing (stale), so a fixed page drops its exception.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, or a named page with no marker (a zero proves nothing; a story page may show none).
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
@@ -466,6 +471,38 @@ export const failing = (r: Reading) =>
   !(Math.abs(r.offset) <= TOLERANCE) ||
   (r.indent !== null && !(Math.abs(r.indent) <= TOLERANCE));
 
+/** A declared marker exception: why the readings stay off, and how many may. */
+export type MarkerException = { reason: string; off: number };
+
+/** The off readings `exceptions` keeps, those it does not, and its findings: an entry over its
+ * count, an entry without a reason or count, and an entry keeping nothing. A glob matches a page's
+ * decoded path, such as "**\/content-slide/at-rest/". */
+export function applyExceptions(off: Reading[], exceptions: Record<string, MarkerException> = {}) {
+  const entries = Object.entries(exceptions).map(([glob, e]) => ({
+    glob,
+    e,
+    g: new Bun.Glob(glob),
+  }));
+  const pathOf = (page: string) => decodeURIComponent(URL.parse(page)?.pathname ?? page);
+  const by = new Map<string, Reading[]>(entries.map(({ glob }) => [glob, []]));
+  const bad: Reading[] = [];
+  for (const r of off) {
+    const hit = entries.find(({ g }) => g.match(pathOf(r.page)));
+    if (hit) by.get(hit.glob)!.push(r);
+    else bad.push(r);
+  }
+  const findings = entries.flatMap(({ glob, e }) => {
+    const n = by.get(glob)!.length;
+    if (!e?.reason || !Number.isInteger(e.off) || e.off < 1)
+      return [`markers exception "${glob}": needs a "reason" and an "off" count of at least 1`];
+    if (n === 0) return [`markers exception "${glob}" is stale: it keeps no off reading`];
+    if (n > e.off) return [`markers exception "${glob}": ${n} off readings, ${e.off} kept`];
+    return [];
+  });
+  const kept = [...by.values()].flat();
+  return { bad, kept, findings };
+}
+
 /** A page argument as a URL: a URL as it is, a path starting with / on the served site `site`, else
  * a file. */
 export const toUrl = (arg: string, site?: URL) =>
@@ -618,10 +655,10 @@ if (import.meta.main) {
     console.error(usage);
     process.exit(2);
   }
-  const listed =
-    flagCatalog || !existsSync("brand-elements.json")
-      ? {}
-      : listedCatalog(JSON.parse(readFileSync("brand-elements.json", "utf8")));
+  const config = existsSync("brand-elements.json")
+    ? JSON.parse(readFileSync("brand-elements.json", "utf8"))
+    : {};
+  const listed = flagCatalog ? {} : listedCatalog(config);
   const catalog = flagCatalog || listed.dir;
   const at = flagAt || listed.at;
   const site = flagSite || (flagBase ? undefined : listed.site);
@@ -668,9 +705,14 @@ if (import.meta.main) {
     await server?.stop(true);
   }
   const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
-  const bad = readings.filter(failing);
+  const { bad, kept, findings } = applyExceptions(readings.filter(failing), config.markers);
+  for (const f of findings) console.error(f);
   if (json) console.log(JSON.stringify(readings, null, 2));
   else {
+    for (const r of kept)
+      console.log(
+        `kept: ${r.page} ${r.label} ${r.offset.toFixed(2)} px off (brand-elements.json "markers")`,
+      );
     for (const r of bad)
       console.error(
         `${r.page} ${r.label} (${r.kind}, ${r.scale}x${r.newline ? ", newline after <li>" : ""}): ` +
@@ -679,8 +721,8 @@ if (import.meta.main) {
       );
     for (const url of empty) console.error(`${url}: no marker found`);
     console.log(
-      `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px`,
+      `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px, ${kept.length} kept`,
     );
   }
-  process.exit(bad.length || empty.length ? 1 : 0);
+  process.exit(bad.length || empty.length || findings.length ? 1 : 0);
 }

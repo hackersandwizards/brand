@@ -118,8 +118,8 @@ data or secret.
   `tokens/stage.css` holds every length and step the slide engine
   draws, `tokens/document.css` the document engine's, and an engine keeps only `var()` roles on them. Each shows itself in its own catalog, which the portal
   links; nothing here reads an engine.
-- The expert components (`expert/components/`) are the UI pieces Company OS and the trainer hub
-  both render, this repo's own: a component one app alone uses stays in that app. Where the apps
+- The expert components (`expert/components/`) are the UI pieces two systems both render, this
+  repo's own: a component one system alone uses stays in that system. Where the apps
   differ on purpose, the difference is a prop or a token the app sets, never a fork: the hub's
   `--dim-floor` of 70% lifts every `text-foreground/65` to its projector rule, and a hub pill on a
   card passes its own `color`. Their CSS lives in `expert/expert.css`; a consumer adds
