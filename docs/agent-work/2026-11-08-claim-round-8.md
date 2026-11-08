@@ -4,7 +4,7 @@ f6 stays: "Every agent needs a team in tune." / "Jeder KI-Agent braucht ein eing
 with the German home H1 "zusammenspielen". No line of five rounds leads it outside the noise in
 both runs and with both models. The runner-up is m3, "Agents write code. Your team ships
 products." / "KI-Agenten schreiben Code. Euer Team liefert Produkte.": it leads f6 on the banners,
-slide and link preview by 2.9 with Codex but trails by 0.2 with Claude, and ties it exactly as a
+slide and link preview by 2.9 (6.0 with Codex) but trails by 0.2 with Claude, and ties it exactly as a
 whole set with the site and the profile texts (76.5 each). So no decision item opens.
 
 Benedikt's line, "Every agent needs your teams in tune and your company in flow.", fixes what f6
@@ -37,14 +37,14 @@ The lines that reached the rendered panel, with their German:
 | e6  | Agents write code. Teams in tune ship products.                | KI-Agenten schreiben Code. Eingespielte Teams liefern Produkte.              | round 2, from d1           |
 | k1  | Agents write code. Your people ship products.                  | KI-Agenten schreiben Code. Eure Leute liefern Produkte.                      | round 3, from e6           |
 | k6  | Agents write code. Your teams in tune ship products.           | KI-Agenten schreiben Code. Eure eingespielten Teams liefern Produkte.        | round 3, from e6           |
-| h4  | Agents are fast. Teams in tune ship.                           | KI-Agenten sind schnell. Eingespielte Teams liefern.                         | this run                   |
+| h4  | Agents are fast. Teams in tune ship.                           | KI-Agenten sind schnell. Eingespielte Teams liefern.                         | round 1                    |
 | k10 | Agents write code. Your company ships with teams in tune.      | KI-Agenten schreiben Code. Euer Unternehmen liefert mit eingespielten Teams. | round 3, the company named |
 | m3  | Agents write code. Your team ships products.                   | KI-Agenten schreiben Code. Euer Team liefert Produkte.                       | round 5, from k1           |
 | m4  | Agents write code. Your team in tune ships products.           | KI-Agenten schreiben Code. Euer eingespieltes Team liefert Produkte.         | round 5, from k1           |
 | m6  | Agents write code. Your people ship it together.               | KI-Agenten schreiben Code. Eure Leute liefern gemeinsam.                     | round 5, from k1           |
 
-- d1, "Agents write code. Teams ship products.", came from a fresh model (`claude -p --model
-opus`) that got the offer, the buyers and the thought in neutral words, and never saw a
+- d1, "Agents write code. Teams ship products.", came from a fresh model
+  (`claude -p --model opus`) that got the offer, the buyers and the thought in neutral words, and never saw a
   candidate, a current or retired line or any words of Benedikt's. Its first draft gave ten lines,
   nine went into round 1; its second, given only round 1's reasons in general form, gave eight,
   four went into round 2.
@@ -52,8 +52,8 @@ opus`) that got the offer, the buyers and the thought in neutral words, and neve
   Teams" would have dropped the "eure". B4a to B4c tried "Your teams in tune. Your company in
   flow.", "Every agent needs teams in tune and a company in flow." and "Every agent needs your
   people in tune and your company in flow.".
-- All 42 lines and their scores: the round tables below; the rest of the texts in the run's
-  scratch, removed.
+- All 42 lines and their scores: the round tables below; the reviewer texts stayed in the run's
+  scratch, removed at its end.
 
 ## Method
 
@@ -106,6 +106,7 @@ Round 1, 21 lines, one run (gap to f6, positive = ahead; cold: of 8 readings, pe
 | h4  | Agents are fast. Teams in tune ship.                            | 77.2    | +3.4  | +1.0 / +5.8    | 7.9  | 7.4    | 7 / 4              |
 | d2  | Agents alone ship nothing. Teams in tune do.                    | 76.6    | +2.8  | +4.0 / +1.5    | 8.8  | 7.6    | 7 / 4              |
 | d1  | Agents write code. Teams ship products.                         | 74.4    | +0.6  | -3.4 / +4.5    | 7.2  | 8.0    | 8 / 7              |
+| h6  | Agents ship once your people are in tune.                       | 73.9    | +0.1  | +0.4 / -0.2    | 8.0  | 9.4    | 8 / 2              |
 | f6  | Every agent needs a team in tune.                               | 73.9    |       |                | 6.4  | 6.9    | 7 / 1              |
 | n02 | Every agent needs your people.                                  | 73.2    | -0.7  | +1.9 / -3.2    | 5.2  | 9.8    | 8 / 0              |
 | d8  | Agents bring speed. Your people bring it home.                  | 73.2    | -0.7  | -3.4 / +2.0    | 7.4  | 9.5    | 7 / 7              |
@@ -114,7 +115,7 @@ Round 1, 21 lines, one run (gap to f6, positive = ahead; cold: of 8 readings, pe
 | B4c | Every agent needs your people in tune and your company in flow. | 49.8    | -24.1 | -20.0 / -28.1  | 6.6  | 9.2    | 7 / 1              |
 | B4  | Every agent needs your teams in tune and your company in flow.  | 48.9    | -25.0 | -21.0 / -29.0  | 6.4  | 7.3    | 8 / 0              |
 
-The other eleven scored 49.9 to 73.9. What kept the leaders below the maximum: h4, "teams" could be
+The other ten scored 49.9 to 71.2. What kept the leaders below the maximum: h4, "teams" could be
 agent teams and "ship" ends without an object; d2, the absolute "ship nothing" ("an absolute I'd
 push back on"); d1, German "Liefern tun"; d8, German "es" has no clear referent. Against B4 and its
 variants, 14 of the 16 reasons for B4 name length or the two stacked images ("Too long for a banner;
@@ -179,20 +180,20 @@ Round 5 (20 runs), the fix for k1's cause:
 
 The gap to f6, per run and per model:
 
-| Round | Key | Gap   | Run 1 | Run 2 | Claude | Codex | Verdict          |
-| ----- | --- | ----- | ----- | ----- | ------ | ----- | ---------------- |
-| 4     | k1  | +2.6  | +3.1  | +2.0  | +0.4   | +4.8  | tie (Claude)     |
-| 4     | e6  | +0.8  | +1.1  | +0.4  | -2.5   | +4.1  | tie              |
-| 4     | h4  | -0.4  | -0.6  | -0.2  | -1.2   | +0.4  | tie              |
-| 4     | n02 | -2.9  | -3.0  | -2.9  | -2.2   | -3.6  | sinks            |
-| 4     | B4  | -30.7 | -30.5 | -30.9 | -31.2  | -30.1 | sinks, massively |
-| 5     | m3  | +2.9  | +3.0  | +2.8  | -0.2   | +6.0  | tie (Claude)     |
-| 5     | k1  | +2.2  | +3.3  | +1.2  | +0.1   | +4.3  | tie (Claude)     |
-| 5     | e6  | +0.4  | +1.0  | -0.3  | -4.1   | +4.8  | tie              |
-| 5     | m4  | -9.0  | -9.3  | -8.6  | -14.9  | -3.2  | sinks            |
+| Round | Key | Gap   | Run 1 | Run 2 | Claude | Codex | Verdict           |
+| ----- | --- | ----- | ----- | ----- | ------ | ----- | ----------------- |
+| 4     | k1  | +2.6  | +3.1  | +2.0  | +0.4   | +4.8  | tie (Claude)      |
+| 4     | e6  | +0.8  | +1.1  | +0.4  | -2.5   | +4.1  | tie, models split |
+| 4     | h4  | -0.4  | -0.6  | -0.2  | -1.2   | +0.4  | tie               |
+| 4     | n02 | -2.9  | -3.0  | -2.9  | -2.2   | -3.6  | sinks             |
+| 4     | B4  | -30.7 | -30.5 | -30.9 | -31.2  | -30.1 | sinks, massively  |
+| 5     | m3  | +2.9  | +3.0  | +2.8  | -0.2   | +6.0  | tie (Claude)      |
+| 5     | k1  | +2.2  | +3.3  | +1.2  | +0.1   | +4.3  | tie (Claude)      |
+| 5     | e6  | +0.4  | +1.0  | -0.3  | -4.1   | +4.8  | tie, models split |
+| 5     | m4  | -9.0  | -9.3  | -8.6  | -14.9  | -3.2  | sinks             |
 
-Codex puts the "Agents write code." lines 4 to 6 points ahead of f6 in both rounds; Claude
-puts them level or behind. m3 against k1: +0.7 at noise 1.7, a tie. A plateau: round 5's best
+Codex puts e6, k1 and m3 4.1 to 6.0 points ahead of f6 in both rounds; Claude puts them level
+or behind. m3 against k1: +0.7 at noise 1.7, a tie. A plateau: round 5's best
 lies within round 4's.
 
 What keeps the lines below the maximum, in the reviewers' words:
@@ -233,9 +234,8 @@ What keeps the lines below the maximum, in the reviewers' words:
 Noise: the people count differs by at most 2 between run 1 and run 2 (h4, m6), by 1 or 0
 elsewhere. Asked whether f6's team is people or agents, readers answer "unclear" 31 of 32 times,
 as in round 7, though in their own words all 32 take it to mean people ("Ein KI-Programm allein
-reicht nicht ... braucht es Menschen, die gut zusammenarbeiten"). No reader of f6 or B4 names a
-result for the company or its customers; for every "Agents write code." line all 32 do. n02 had
-no cold read this round; round 7 has it (people 32 of 32).
+reicht nicht ... braucht es Menschen, die gut zusammenarbeiten"). n02 had no cold read and no set
+test this round; round 7 holds both (people 32 of 32).
 
 ## The set: every surface in place, with the site and the profile texts (16 runs)
 
@@ -252,8 +252,8 @@ no cold read this round; round 7 has it (people 32 of 32).
   question it leaves: "What does 'in tune' mean in practice, and how would I measure it in my
   releases?"
 - k1 and m3 repeat two page headlines: the Factory operating model ("Agents do the work, and your
-  people decide what ships.") and the Leaders training ("once agents write the code"); m3's "Your
-  team" opens about a dozen page headlines, so "the claim's second line reads like one more
+  people decide what ships.") and the Leaders training ("once agents write the code"); 11 of the 24
+  page headlines open with "Your team" or "Your teams", so for m3 "the claim's second line reads like one more
   headline". The question they leave: "My team already ships. What makes it ship faster with
   agents?" The line states what the team does today, not what changes.
 
@@ -271,30 +271,22 @@ alone, the same unbalanced wrap round 7 found for n02.
 
 ## Decision
 
-f6 stays decided. No line leads it outside the noise in both runs and with both models: the best,
-m3 and k1, lead with Codex by 4.3 to 6.0 and trail or tie with Claude (-0.2, +0.1, +0.4). Both read
-as people 32 of 32 alone on a banner, so they would pass the cold read. By the rule no
+f6 stays decided. The best lines, m3 and k1, lead it with Codex by 4.3 to 6.0 and trail or tie with
+Claude (-0.2, +0.1, +0.4), so none leads outside the noise in both runs and with both models. No
 `claim-round-8` decision item opens.
 
 Final recommendation: f6. Runner-up: m3, "Agents write code. Your team ships products." /
-"KI-Agenten schreiben Code. Euer Team liefert Produkte.". m3 ties f6 as a whole set and leads it
-on the claim surfaces with Codex only; it fixes f6's weakness (people 32 of 32 against 1 of 32, the
-core thought 32 of 32 against 0) and loses the idea of working in tune, which Claude reviewers
-name in every persona, and it repeats "your team" from a dozen page headlines.
+"KI-Agenten schreiben Code. Euer Team liefert Produkte.". It would pass the cold read (people and
+core thought 32 of 32), but it drops the idea of working in tune, which Claude reviewers name in
+every persona, and in the set it states what the team already does.
 
-Benedikt's line: it makes the people recognisable, as he meant, and costs 30.7 points on the
-claim surfaces. Shorter forms of it with the company in flow (B4a to B4c, e8, e11, e12, k10)
-recover part of that but stay 10.8 to 24.1 behind f6. As in round 7, every line here that adds
-the company scores lower than the line it extends.
+Benedikt's line and the lines that add the company to a claim (B4a to B4c, e8, e11, e12, k10)
+score 10.8 to 24.1 below f6 in the text rounds, where B4 itself scores 25.0 to 31.8 below; as in
+round 7, every such line scores lower than the line it extends.
 
 ## Skipped and owed
 
-- n02 had no cold read and no set test this round (round 7 holds both).
-- The X header was judged as a render with a grey circle, as in round 7; LinkedIn on the real
-  screenshot of 31.10., XING and Sessionize live.
-- Benedikt's profile texts were taken as round 7 read them on the same morning, not read again.
-- The classifier of the free-text readings is one Claude run without a second model; 16 spot
-  checks found no wrong mark.
+- The X header was judged as a render with a grey circle, as in round 7, not in its live page.
 - Trademark: DPMA, EUIPO and USPTO are still not queried for f6.
 
 ## Prompt, verbatim
