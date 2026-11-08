@@ -73,7 +73,7 @@
     }
   }
   @media (min-width: 64rem) {
-    .hw-list-filter[data-inline] > form {
+    .hw-list-filter[data-inline] > form:not([hidden]) {
       display: grid;
       grid-template-columns: minmax(0, 36rem) 16rem 1fr;
       align-items: end;

@@ -257,7 +257,7 @@ test("a tooltip shows on keyboard focus and closes on Escape", async () => {
 
 test("a carousel's step moves the track, updates the dots and announces, the ends disable", async () => {
   const p = await page(
-    `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" id="p">P</button><span data-hw-position></span><button data-hw-step="1" id="n">N</button><p class="hw-sr-only"></p></div></div>`,
+    `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" id="p">P</button><span data-hw-position></span><button data-hw-step="1" id="n">N</button><p class="hw-sr-only" aria-live="polite"></p></div></div>`,
   );
   expect(await p.$$eval(".hw-carousel-dot", (d) => d.length)).toBe(2);
   expect(await p.$eval("#p", (b) => (b as HTMLButtonElement).disabled)).toBe(true);
@@ -276,7 +276,7 @@ const position = (p: Page) =>
 
 test("an autoplaying carousel advances each tick, holds under the pointer and stops on pause", async () => {
   const p = await page(
-    `${CAPTURE_TICKS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only"></p></div></div><p id="away" style="margin-top:400px">away</p>`,
+    `${CAPTURE_TICKS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only" aria-live="polite"></p></div></div><p id="away" style="margin-top:400px">away</p>`,
   );
   expect(await position(p)).toBe(0);
   await tick(p);

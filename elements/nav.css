@@ -66,7 +66,7 @@
   }
   .hw-nav
     li:has(a[aria-current="page"])
-    > a[aria-current]:not([aria-current="page"], [aria-current="false"]) {
+    > a[aria-current]:not([aria-current="page"], [aria-current="false"], :hover) {
     color: var(--color-ink);
     background: none;
   }
@@ -106,7 +106,7 @@
     }
     .hw-nav
       li:has(a[aria-current="page"])
-      > a[aria-current]:not([aria-current="page"], [aria-current="false"]) {
+      > a[aria-current]:not([aria-current="page"], [aria-current="false"], :hover) {
       color: var(--color-night-ink);
       background: none;
     }

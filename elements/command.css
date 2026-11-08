@@ -13,7 +13,8 @@
    Markup: <dialog class="hw-dialog" data-variant="command" id="c" aria-label="Befehle" data-hw-shortcut="k"><div class="hw-command-field"><input role="combobox" aria-controls="c-list" aria-expanded="true" aria-autocomplete="list" placeholder="Suchen"><kbd class="hw-kbd">Esc</kbd></div><div class="hw-command-list" id="c-list" role="listbox" aria-label="Ergebnisse"><p class="hw-command-group">Aktionen</p><a role="option" class="hw-command-option" href="…">Neuer Deal<span class="hw-command-meta">Anlegen</span></a></div></dialog>
 
    Settings:
-     --hw-item-height         a result's height, at least the touch target on a touch screen
+     --hw-item-height         a result's height under a mouse
+     --hw-touch-floor         its least height, the touch target on a touch screen (scales.css)
      --hw-field-size          the text size
      --hw-corner-sm           a result's corner */
 
@@ -22,7 +23,7 @@
   .hw-dialog[data-variant="command"] {
     --_hw-quiet: var(--muted-foreground, var(--color-muted));
     --_hw-accent: var(--accent, var(--color-teal-dark));
-    --_hw-target: var(--hw-item-height, 2.75rem);
+    --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-touch-floor, 0px));
     --_hw-line: var(--border, var(--color-border));
     --_hw-sel: 7%;
     margin: 15vh auto auto;

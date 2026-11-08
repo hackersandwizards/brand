@@ -14,7 +14,8 @@
    A right-click opener takes data-hw-context="<menu id>" and no popovertarget.
 
    Settings:
-     --hw-item-height         an entry's height, at least the touch target on a touch screen
+     --hw-item-height         an entry's height under a mouse
+     --hw-touch-floor         its least height, the touch target on a touch screen (scales.css)
      --hw-field-size          the text size
      --hw-corner-sm           the list's and each entry's corner
      --hw-hairline            the line's width */
@@ -27,7 +28,7 @@
     --_hw-line: var(--border, var(--color-border));
     --_hw-quiet: var(--muted-foreground, var(--color-muted));
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
-    --_hw-target: var(--hw-item-height, 2.75rem);
+    --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-touch-floor, 0px));
     box-sizing: border-box;
     min-width: 10rem;
     max-width: min(22rem, 100vw - 1rem);

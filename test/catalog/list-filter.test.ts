@@ -153,7 +153,7 @@ test("under an overview the rows wait for a filter, and the overview steps aside
   }
 }, 60_000);
 
-test("a source page's rows load on first use; should they fail, the form goes there", async () => {
+test("a source page's rows load on first use; should they fail, the search goes there", async () => {
   const p = await browser.newPage();
   await p.goto(story("source"), { waitUntil: "networkidle0" });
   expect(await p.$$eval("[data-filter-item]", (rows) => rows.length)).toBe(0);
@@ -170,9 +170,9 @@ test("a source page's rows load on first use; should they fail, the form goes th
     r.resourceType() === "fetch" ? r.respond({ status: 503, body: "" }) : r.continue(),
   );
   await q.goto(story("source"), { waitUntil: "networkidle0" });
+  // The typed search goes there on its own once the load fails.
   await q.type('input[name="q"]', "context");
-  await settle();
-  await Promise.all([q.waitForNavigation(), q.keyboard.press("Enter")]);
+  await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
   expect(new URL(q.url()).pathname).toEndWith("/list-filter/dense/");
   expect(new URL(q.url()).searchParams.get("q")).toBe("context");
   await q.close();

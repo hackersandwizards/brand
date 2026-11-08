@@ -153,6 +153,7 @@ export function initListFilter(root: HTMLElement) {
   if (chipParam) options[chipParam] = radios.map((radio) => radio.value);
   for (const select of selects)
     options[select.name] = [...select.options].map((option) => option.value);
+  form.hidden = false;
   const template = list.querySelector<HTMLTemplateElement>("template[data-filter-rows]");
   template?.replaceWith(template.content);
 
@@ -189,21 +190,26 @@ export function initListFilter(root: HTMLElement) {
   let loading: Promise<void> | undefined;
   const load = () =>
     (loading ??= fetch(source!)
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok) throw new Error(String(response.status));
-        return response.text();
+        return { html: await response.text(), base: response.url };
       })
-      .then((html) => {
+      .then(({ html, base }) => {
         const page = new DOMParser().parseFromString(html, "text/html");
-        (list.querySelector("ol, ul") ?? list).append(
-          ...page.querySelectorAll("[data-filter-item]"),
-        );
+        for (const link of page.querySelectorAll<HTMLAnchorElement>("[data-filter-item] a[href]"))
+          link.href = new URL(link.getAttribute("href")!, base).href;
+        // The source's list as it stands, groups included, else its rows alone.
+        const from = page.querySelector("[data-filter-list]");
+        if (from) list.replaceChildren(...from.childNodes);
+        else list.append(...page.querySelectorAll("[data-filter-item]"));
         collect();
         loaded = true;
         apply();
       })
       .catch(() => {
         failed = true;
+        // A search already typed goes to the source page, which lists every row.
+        if (isActive(state())) form.submit();
       }));
 
   const state = (): FilterState => {

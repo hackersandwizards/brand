@@ -131,13 +131,10 @@
 }
 
 /* On a touch screen an item of a list, menu, tab row or pager stands at least as tall as the
-   touch target. Paper and stage have no pointer. */
+   touch target; paper and stage set it to 0. --hw-touch-floor is that least height. */
 @media (any-pointer: coarse) {
-  [data-hw-scale="screen"] {
-    --hw-item-height: max(2.75rem, var(--hw-check-target-touch));
-  }
-  [data-hw-scale="dense"] {
-    --hw-item-height: max(2rem, var(--hw-check-target-touch));
+  [data-hw-scale] {
+    --hw-touch-floor: var(--hw-check-target-touch);
   }
 }
 

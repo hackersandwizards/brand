@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/icon-button.css",
-      "sha256": "65bc0b1531ae138ccd97a053ded92f957f29f54450484c8b18b0a5981d61e3a3"
+      "sha256": "b5ed59063e19867547d3100c220163b263d2368967b6ab56b44817aa3461979d"
     },
     {
       "path": "elements/label.css",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "ebe603afc472b42e91066b4a7bd31976a61f320c7adcbb442ef0d6292dd99965"
+      "sha256": "b7dd22eaaf8f5c19d4b6fe838c04ef8f12e09c275de007e00e61a3a5cb4898ac"
     },
     {
       "path": "elements/strip.css",
@@ -426,7 +426,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "e5d1314d0be6c1be81469c5bda9278c8c2e415baf1df34716072a18f3d42c8c6"
+      "sha256": "60e779431c5c1063a7c51b7dc51b11fdf8b12b02db48c47b4175b3dcef1f7bcb"
     },
     {
       "path": "elements/check.css",
@@ -526,15 +526,15 @@
     },
     {
       "path": "elements/nav.css",
-      "sha256": "5e420a6527cf47e02e4aa848007db1fd6722a8526750c5f40f20b1b39af7a5b9"
+      "sha256": "08ca5ea541e140f190c766d168a1531f9b76697b0a777ff7f6338abf107ec556"
     },
     {
       "path": "elements/list-filter.css",
-      "sha256": "54ce0581f402d71d6f9a2d668fea53dd5dcce6bb5c5d1b11783b6d556a96532e"
+      "sha256": "583ddf4a6f6bcb7cb9253beae2c0722176014713a531815090c4eb1e44f289da"
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "fc8fe24a75c0ceb7669498df956beadcf58f186a7f5e1ce37d10e91f3917a1be"
+      "sha256": "33b3c23e25b14cb83b74ab17ccdc00c3c58bb28af19b48e3462559be80c93ebd"
     },
     {
       "path": "elements/choice.css",
@@ -550,7 +550,7 @@
     },
     {
       "path": "elements/accordion.css",
-      "sha256": "c9aec84e1877f4a7d81e020cd014dfd98baa24f60769ad9e28052ef9aa9f488d"
+      "sha256": "ce90c375885dd959cd7752d9870ce9c46260d354d5d9158b38a4c3d6bec43bbd"
     },
     {
       "path": "elements/avatar.css",
@@ -558,7 +558,7 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "7e8485b45f2ddc9b882afbf27557845b04a957abb979d476b472e087e8b58f5d"
+      "sha256": "35bd5c563530c8a9163813e5816f75f6342689b519d60288818339505890c395"
     },
     {
       "path": "elements/carousel.css",
@@ -566,7 +566,7 @@
     },
     {
       "path": "elements/command.css",
-      "sha256": "54870cd0d87edbad478d55fdf8d9dc55c25683ebde2a49bef93af7c9aa52f644"
+      "sha256": "28512dd2328c17cd9efabb42a43c2e39be3f98869ccb9382c2410c06c36c7b0f"
     },
     {
       "path": "elements/dialog.css",
@@ -578,11 +578,11 @@
     },
     {
       "path": "elements/menu.css",
-      "sha256": "aeb5a94fa1adac717c965ff6068b16ba91a14e0ccafef489d62924e51e8b163e"
+      "sha256": "40dfd1a3f811690fea3a1772e5f1d68fbd587ac65e37e88527344f6536f68522"
     },
     {
       "path": "elements/pagination.css",
-      "sha256": "aaf52d6a9607d70c57db2b961937de246f49fe8341801aff35eb0e6c497dbb8c"
+      "sha256": "639a8518a9293c63a2784eaa550df67b0c34ccbac034a5e0bb967ca05bc06f5b"
     },
     {
       "path": "elements/popover.css",
@@ -606,11 +606,11 @@
     },
     {
       "path": "elements/tabs.css",
-      "sha256": "0d2c01a9af226a600d3ccd271468dc6d493fabe54aa208f89285b65dc0c41622"
+      "sha256": "a2cecd549ecc9b1298a6fb0f2171be5851f562614d5598ff2fd3ca6307b75c9a"
     },
     {
       "path": "elements/toast.css",
-      "sha256": "5a3b4009864e9d0adf58f9855fffd94be946ad22008f983bf13b4d66b7d51a37"
+      "sha256": "1804db7358095f9831661dc78b978611f4b459ba60c33731e6e77b164c86715a"
     },
     {
       "path": "elements/tooltip.css",
@@ -618,7 +618,7 @@
     },
     {
       "path": "elements/tree.css",
-      "sha256": "fc85a456dafd2919c5998bf14be518ea11bfbf6587fd2b0ae8d54ec3d5e04f5a"
+      "sha256": "3d6a685d7c53f6d4322cbadb372cdaa20b9427007012d40be0760aea3f9f3ca1"
     },
     {
       "path": "elements/chosen.css",

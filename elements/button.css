@@ -47,6 +47,10 @@
       border-color var(--motion-fast),
       color var(--motion-fast);
   }
+  .hw-button[hidden] {
+    display: none;
+  }
+
   .hw-button[data-hue="purple"] {
     --_hue: var(--color-purple);
     --_hover: color-mix(in srgb, var(--color-purple) 80%, var(--color-ink));

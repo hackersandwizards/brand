@@ -30,6 +30,10 @@
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
     cursor: pointer;
   }
+  .hw-icon-button[hidden] {
+    display: none;
+  }
+
   .hw-icon-button > svg {
     flex: none;
     width: var(--hw-control-icon, 20px);

@@ -500,14 +500,15 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
 
 // A copy button says its result on itself, where the eye already is, and the toast region
 // announces it. One button at a time reads as copied: only that one says what the clipboard holds.
-const copyLabels = new WeakMap<HTMLElement, string>();
+const copyLabels = new WeakMap<HTMLElement, Node[]>();
 let copiedButton: HTMLElement | undefined;
 let presses = 0;
 /** Wires a button that copies its data-hw-copy text and shows it was copied, or how it failed, on
- *  itself. A button that starts hidden shows once wired, so a page without script never offers it. */
+ *  itself in words, its own content coming back once another copy button is pressed. A button that
+ *  starts hidden shows once wired, so a page without script never offers it. */
 export function copyButton(button: HTMLElement) {
   if (copyLabels.has(button)) return;
-  copyLabels.set(button, button.textContent ?? "");
+  copyLabels.set(button, [...button.childNodes]);
   button.hidden = false;
   button.addEventListener("click", async () => {
     const press = ++presses;
@@ -520,7 +521,7 @@ export function copyButton(button: HTMLElement) {
     }
     if (press !== presses) return;
     if (copiedButton && copiedButton !== button)
-      copiedButton.textContent = copyLabels.get(copiedButton)!;
+      copiedButton.replaceChildren(...copyLabels.get(copiedButton)!);
     copiedButton = button;
     button.textContent = said;
     const note = document.createElement("span");
@@ -540,7 +541,7 @@ function enhanceCarousel(carousel: HTMLElement) {
   if (!track || !controls) return;
   const items = [...track.children] as HTMLElement[];
   const position = controls.querySelector<HTMLElement>("[data-hw-position]");
-  const status = controls.querySelector<HTMLElement>(".hw-sr-only");
+  const status = controls.querySelector<HTMLElement>(":scope > .hw-sr-only");
   const of = german() ? "von" : "of";
   const useDots = items.length <= 5;
   position?.replaceChildren();

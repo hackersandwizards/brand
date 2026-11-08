@@ -7,7 +7,8 @@
    Markup: <div class="hw-accordion"><details name="faq"><summary>Wie lange dauert es?</summary><div class="hw-accordion-body">Zwei Tage.</div></details></div>
 
    Settings:
-     --hw-item-height         a row's height, at least the touch target on a touch screen
+     --hw-item-height         a row's height under a mouse
+     --hw-touch-floor         its least height, the touch target on a touch screen (scales.css)
      --hw-field-size          the text size
      --hw-hairline            the line's width */
 
@@ -15,7 +16,7 @@
 @layer components {
   .hw-accordion {
     --_hw-line: var(--border, var(--color-border));
-    --_hw-target: var(--hw-item-height, 2.75rem);
+    --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-touch-floor, 0px));
     border-top: var(--hw-hairline, 1px) solid var(--_hw-line);
     font-size: var(--hw-field-size, var(--type-body-size));
     line-height: var(--type-body-line-height);

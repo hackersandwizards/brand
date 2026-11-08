@@ -41,7 +41,10 @@ const rows = [
   { title: "Messbare Produktivität", topic: "evidence", days: "1 Tag", hue: "purple" },
   { title: "Agenten im Team", topic: "practice", days: "2 Tage", hue: "amber" },
 ];
-const items = rows.map((r) => ({ text: r.title.toLowerCase(), facets: { topic: [r.topic] } }));
+const items = rows.map((r) => ({
+  text: r.title.toLowerCase(),
+  facets: mode === "listed" ? { topic: [r.topic], days: [r.days[0]!] } : { topic: [r.topic] },
+}));
 ---
 
 <div class="demo hw-focus-ring" data-hw-scale={scale} data-theme={night ? "dark" : undefined}>
@@ -86,9 +89,7 @@ const items = rows.map((r) => ({ text: r.title.toLowerCase(), facets: { topic: [
           stripeColor={`stripe-${r.hue}`}
           data-filter-item
           data-filter-text={items[i]!.text}
-          data-filter-facets={JSON.stringify(
-            mode === "listed" ? { ...items[i]!.facets, days: [r.days[0]] } : items[i]!.facets,
-          )}
+          data-filter-facets={JSON.stringify(items[i]!.facets)}
           data-filter-order={i}
           current={i === 0}
         >

@@ -8,7 +8,8 @@
    Markup: <ul class="hw-tree" role="tree" aria-label="Dokumente"><li role="treeitem" aria-expanded="true" tabindex="0"><span class="hw-tree-row">Verträge</span><ul role="group"><li role="treeitem" aria-selected="true" tabindex="-1"><span class="hw-tree-row">Rahmen</span></li></ul></li></ul>
 
    Settings:
-     --hw-item-height         a row's height, at least the touch target on a touch screen
+     --hw-item-height         a row's height under a mouse
+     --hw-touch-floor         its least height, the touch target on a touch screen (scales.css)
      --hw-field-size          the text size
      --hw-corner-sm           a row's corner
      --hw-hairline            the indent line's width */
@@ -19,7 +20,7 @@
     --hw-markers: off;
     --_hw-line: var(--border, var(--color-border));
     --_hw-accent: var(--accent, var(--color-teal-dark));
-    --_hw-target: var(--hw-item-height, 2.75rem);
+    --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-touch-floor, 0px));
     --_hw-sel: 7%;
     margin: 0;
     padding: 0;
