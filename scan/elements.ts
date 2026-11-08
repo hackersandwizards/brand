@@ -21,7 +21,7 @@
 //    hub element on the pages (an hw-* class; for the focus ring, the first focusable inside
 //    [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception], which is that
 //    exception's instance, nor one inside [data-hw-shell], the scaffolding catalog shell's own
-//    card and pill) is compared with a reference: the same markup in a shadow root beside it,
+//    card and pill, nor one carrying or inside [hidden], which draws nothing) is compared with a reference: the same markup in a shadow root beside it,
 //    styled only by this package's element files and inheriting the page's tokens, theme and scale.
 //    Any difference in a computed property the element sets (OWNS: its corner, fill, line, text
 //    colour, type, padding or size) fails, by more than 0.02px for a length. Each brand token an
@@ -322,7 +322,8 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   // settings and tokens, insert every reference, then read every pair.
   const found = Object.entries(elements).flatMap(([element, selector]) =>
     [...document.querySelectorAll(selector)]
-      .filter((el) => !el.closest(SKIP))
+      // A hidden element draws nothing, so it is not measured (the corner rule below still reads it).
+      .filter((el) => !el.closest(SKIP) && !el.closest("[hidden]"))
       .map((el) => {
         const own = getComputedStyle(el);
         for (const t of tokens[element] ?? [])

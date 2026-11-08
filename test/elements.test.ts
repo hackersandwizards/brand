@@ -1008,3 +1008,29 @@ test("a label on a heading keeps its weight whichever brand file loads first", a
     expect(r.findings).toEqual([]);
   }
 }, 60_000);
+
+// A hidden element draws nothing, so it is not measured; the same markup shown is.
+test("an element carrying hidden, or inside one, is not measured", async () => {
+  const drift = `<style>.hw-card { border-radius: 0 }</style>`;
+  const tile = `<div data-hw-tile="label" data-hw-version="${own.version}">${DEMOS.label}</div>`;
+  const hidden = await measurePage(
+    browser,
+    file(
+      "hidden.html",
+      only(
+        `${drift}${tile}<div class="hw-card" hidden>a</div><div hidden><div class="hw-card">b</div></div>`,
+      ),
+    ),
+  );
+  expect(hidden.findings).toEqual([]);
+  expect(hidden.seen).toEqual(["label"]);
+  // Control: the same cards shown are measured, and the drift is red.
+  const shown = await measurePage(
+    browser,
+    file(
+      "shown.html",
+      only(`${drift}${tile}<div class="hw-card">a</div><div><div class="hw-card">b</div></div>`),
+    ),
+  );
+  expect(shown.findings.filter((f) => f.element === "card").length).toBeGreaterThan(0);
+}, 60_000);
