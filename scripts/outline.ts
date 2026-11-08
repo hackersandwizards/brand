@@ -21,7 +21,8 @@
 // wordmark's centre line keeps its share of the box height below the box centre (lockup 7.8%,
 // wordmark 0), so a text beside it still centres on the letters; in the compact lockup it grows
 // only as far as needed. Renders each PNG at its day PNG's scale and rehashes both in
-// manifest.json. A second run changes nothing.
+// manifest.json. Also writes the lockup's small screen cuts and emoji-256.png, the wizard alone at
+// 256 px from the LFS master. A second run changes nothing.
 // Usage: bun scripts/outline.ts
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -30,6 +31,18 @@ import manifest from "../manifest.json";
 import { colors } from "../generated/tokens";
 import { ROOT, sha256 } from "./git";
 import { rgb } from "./tokens";
+
+/** Sets the sha256 of `path` in manifest.json, which must list it. */
+const rehash = (path: string) => {
+  const entry = manifest.files.find((f) => f.path === path);
+  if (!entry) throw new Error(`${path} is missing from manifest.json`);
+  entry.sha256 = sha256(readFileSync(join(ROOT, path)));
+};
+/** A raster at `width` px, as a palette PNG. */
+const shrink = (input: string | Buffer, width: number) =>
+  sharp(input)
+    .resize(width, null, { kernel: "lanczos3" })
+    .png({ palette: true, compressionLevel: 9 });
 
 const OUTLINE = 48;
 const INK = { x0: 96, y0: 96, x1: 6667, y1: 947 }; // the wordmark's letters in SVG units
@@ -185,10 +198,7 @@ async function writeDay(base: string) {
     .resize(Math.round((width * next[2]) / old[2]))
     .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toFile(png);
-  for (const p of [`logos/${base}.svg`, `logos/${base}.png`]) {
-    const entry = manifest.files.find((f) => f.path === p)!;
-    entry.sha256 = sha256(readFileSync(join(ROOT, p)));
-  }
+  for (const p of [`logos/${base}.svg`, `logos/${base}.png`]) rehash(p);
   console.log(`${base}: wizard moves ${t.toFixed(1)} for a gap of ${WIDEN * GAP[base]} units`);
 }
 
@@ -308,11 +318,7 @@ async function writeCut(base: string, kind: "night" | "outline" | keyof typeof M
       .toFile(join(ROOT, pngPath));
     paths.push(pngPath);
   }
-  for (const path of paths) {
-    const entry = manifest.files.find((f) => f.path === path);
-    if (!entry) throw new Error(`${path} is missing from manifest.json`);
-    entry.sha256 = sha256(readFileSync(join(ROOT, path)));
-  }
+  for (const path of paths) rehash(path);
 }
 
 for (const base of Object.keys(GAP)) await writeDay(base);
@@ -333,26 +339,17 @@ for (const [from, to] of [
   for (const [, b64] of svg.matchAll(/href="data:image\/png;base64,([^"]+)"/g)) {
     const png = Buffer.from(b64, "base64");
     const { width } = await sharp(png).metadata();
-    const small = await sharp(png)
-      .resize(Math.round(width / SCREEN), null, { kernel: "lanczos3" })
-      .png({ palette: true, compressionLevel: 9 })
-      .toBuffer();
+    const small = await shrink(png, Math.round(width / SCREEN)).toBuffer();
     svg = svg.replace(b64, small.toString("base64"));
   }
   const path = `logos/${to}.svg`;
   writeFileSync(join(ROOT, path), svg);
-  const entry = manifest.files.find((f) => f.path === path);
-  if (!entry) throw new Error(`${path} is missing from manifest.json`);
-  entry.sha256 = sha256(readFileSync(join(ROOT, path)));
+  rehash(path);
 }
 // The wizard alone at that size, for a page or document that inlines it: emoji-256.png, a plain Git
 // file the package ships, where the 4096 px master stays in LFS.
-const emoji = "logos/emoji-256.png";
-await sharp(join(ROOT, "logos/emoji-logo-short.png"))
-  .resize(256, null, { kernel: "lanczos3" })
-  .png({ palette: true, compressionLevel: 9 })
-  .toFile(join(ROOT, emoji));
-const emojiEntry = manifest.files.find((f) => f.path === emoji);
-if (!emojiEntry) throw new Error(`${emoji} is missing from manifest.json`);
-emojiEntry.sha256 = sha256(readFileSync(join(ROOT, emoji)));
+await shrink(join(ROOT, "logos/emoji-logo-short.png"), 256).toFile(
+  join(ROOT, "logos/emoji-256.png"),
+);
+rehash("logos/emoji-256.png");
 writeFileSync(join(ROOT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
