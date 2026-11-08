@@ -6,7 +6,7 @@
      --hw-frame-width  the dashed line's width
      --hw-card-corner  the corner, the brand corner at the medium's size */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-frame {
     box-sizing: border-box;

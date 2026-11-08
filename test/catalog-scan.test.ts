@@ -113,6 +113,9 @@ test("brand-elements and brand-markers: an exclude glob leaves its stories out, 
   expect(markers(["Lists/**"]).filter((p) => p.includes("Lifted"))).toEqual([]);
   expect(markers([]).filter((p) => p.includes("Lifted")).length).toBeGreaterThan(0);
   rmSync(join(dir, "brand-elements.json"));
+  // A glob that matches no story, or an exclude that is no list, is a usage error.
+  for (const exclude of [["Slides/**"], "Cards/**"])
+    expect(elements({ pages: [], catalog: { dir: "site/catalog", exclude } }).code).toBe(2);
 }, 60_000);
 
 test("brand-elements: a catalog folder without a story is a usage error, not a pass", () => {

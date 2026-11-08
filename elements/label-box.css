@@ -10,7 +10,7 @@
      --hw-hairline       the line's width
      --hw-corner-sm      the corner, the small corner at the medium's size */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-label-box {
     --_line: var(--hw-line, var(--color-border));

@@ -10,7 +10,7 @@
    Settings:
      --hw-corner-sm  the corner, the small corner at the medium's size */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-inline-code {
     border-radius: var(--hw-corner-sm, var(--radius-sm));

@@ -486,7 +486,7 @@ export const serve = (dir: string) => {
  * path starting with / one on the server. A page forwarding elsewhere (a meta refresh,
  * as a catalog that is not the site's home leaves under its old path) is no story, nor is one an
  * `exclude` glob matches, relative to the stories folder (a story group the consumer does not own,
- * such as "Slides/**"). Throws on a folder without a story page. */
+ * such as "Slides/**"). Throws on a folder without a story page and on a glob matching no story. */
 export const catalogPages = (
   dir: string,
   at?: string,
@@ -494,19 +494,29 @@ export const catalogPages = (
   served = !!site,
   exclude: string[] = [],
 ) => {
-  const skip = exclude.map((g) => new Bun.Glob(g));
+  if (!Array.isArray(exclude))
+    throw new Error(`"exclude" is a list of globs, not ${JSON.stringify(exclude)}`);
   const stories = join(dir, "stories");
-  const states = existsSync(stories)
-    ? readdirSync(stories, { recursive: true, encoding: "utf8" })
-        .filter(
-          (f) =>
-            f.endsWith("/index.html") &&
-            !skip.some((g) => g.match(f)) &&
-            !/<meta[^>]+http-equiv=["']?refresh/i.test(readFileSync(join(stories, f), "utf8")),
-        )
-        .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
-        .sort()
+  const pages = existsSync(stories)
+    ? readdirSync(stories, { recursive: true, encoding: "utf8" }).filter((f) =>
+        f.endsWith("/index.html"),
+      )
     : [];
+  // A glob that leaves out nothing is a typo or a story group since gone: it fails.
+  const skip = exclude.map((g) => {
+    const glob = new Bun.Glob(g);
+    if (!pages.some((f) => glob.match(f)))
+      throw new Error(`exclude "${g}" matches no story under ${stories}`);
+    return glob;
+  });
+  const states = pages
+    .filter(
+      (f) =>
+        !skip.some((g) => g.match(f)) &&
+        !/<meta[^>]+http-equiv=["']?refresh/i.test(readFileSync(join(stories, f), "utf8")),
+    )
+    .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
+    .sort();
   if (!states.length) throw new Error(`no story page under ${stories}; build the catalog first`);
   const root = at ?? (site ? `/${relative(site, dir)}` : dir);
   const file = !/^[a-z]+:\/\//.test(root) && !(served && root.startsWith("/"));
@@ -516,8 +526,10 @@ export const catalogPages = (
 
 /** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
  * brand-elements measures without a flag. Empty where it names no catalog. */
+/** The "catalog" of brand-elements.json. */
+export type Catalog = string | { dir: string; at?: string; exclude?: string[] };
 export const listedCatalog = (config: {
-  catalog?: string | { dir: string; at?: string; exclude?: string[] };
+  catalog?: Catalog;
   site?: string;
 }): { dir?: string; at?: string; exclude?: string[]; site?: string } =>
   config.catalog
@@ -573,14 +585,7 @@ if (import.meta.main) {
   const site = flagSite || (flagBase ? undefined : listed.site);
   let stories: string[] = [];
   try {
-    if (catalog)
-      stories = catalogPages(
-        catalog,
-        at,
-        site,
-        !!site || !!flagBase,
-        flagCatalog ? [] : listed.exclude,
-      );
+    if (catalog) stories = catalogPages(catalog, at, site, !!site || !!flagBase, listed.exclude);
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);

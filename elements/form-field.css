@@ -33,7 +33,7 @@
      --hw-check-target-touch  the same on a touch screen
      --hw-muted       the muted grey, where a surface's --color-muted means something else */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-form-mark,
   .hw-form-hint,
@@ -64,7 +64,7 @@
     --_hw-target: var(--hw-check-target, 32px);
     padding-block: max(0px, (var(--_hw-target) - 1lh) / 2);
   }
-  @media (pointer: coarse) {
+  @media (any-pointer: coarse) {
     .hw-form-field > label:has(> .hw-check) {
       --_hw-target: var(--hw-check-target-touch, 44px);
     }

@@ -980,15 +980,15 @@ test("a disabled button does not change on hover, on day or night", async () => 
 // the elements before the text base still lets the element win over the heading's weight.
 test("a label on a heading keeps its weight whichever brand file loads first", async () => {
   const heading = `<div data-hw-tile="label" data-hw-version="${own.version}"><h2 class="hw-label">Kurs</h2></div>`;
-  const weight = async (name: string, sheets: string[]) => {
-    const html = `<!doctype html><html><head>${sheets.map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${heading}</body></html>`;
-    const url = file(name, html);
-    const p = await browser.newPage();
-    await open(p, pathToFileURL(url).href);
-    const w = await p.$eval(".hw-label", (e) => getComputedStyle(e).fontWeight);
-    await p.close();
-    return { w, r: await measurePage(browser, url) };
-  };
+  // The label owns its weight, so a heading's 700 over the reference's 500 is a finding.
+  const measure = (name: string, sheets: readonly string[]) =>
+    measurePage(
+      browser,
+      file(
+        name,
+        `<!doctype html><html><head>${sheets.map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${heading}</body></html>`,
+      ),
+    );
   for (const [name, order] of [
     [
       "layers-elements-first.html",
@@ -1003,9 +1003,9 @@ test("a label on a heading keeps its weight whichever brand file loads first", a
       ["generated/tokens.root.css", "tokens/text-base.css", "elements/elements.css"],
     ],
   ] as const) {
-    const { w, r } = await weight(name, [...order]);
-    expect([name, w]).toEqual([name, "500"]);
-    expect(r.findings).toEqual([]);
+    const r = await measure(name, order);
+    expect([name, r.findings]).toEqual([name, []]);
+    expect(r.seen).toEqual(["label"]);
   }
 }, 60_000);
 
@@ -1101,4 +1101,49 @@ test("an option row and a lone box's label are the target, 32 px by mouse, 44 px
   // Control: paper keeps the option at its line and the lone box at its own size.
   expect(mouse[2]![0]).toBeLessThan(32);
   expect(touch[2]).toEqual(mouse[2]);
+}, 60_000);
+
+// A hidden tile shows nothing, so it covers nothing; the same tile shown does.
+test("coverage: an element only in a hidden tile is not shown", async () => {
+  const tile = (attr: string) =>
+    only(`<div data-hw-tile="label" data-hw-version="${own.version}"${attr}>${DEMOS.label}</div>`);
+  const hidden = await measurePage(browser, file("tile-hidden.html", tile(" hidden")));
+  expect(coverage({ pages: [], uses: ["label"] }, [hidden])).toEqual([
+    'label: used, but no page shows it in a [data-hw-tile="label"]',
+  ]);
+  const shown = await measurePage(browser, file("tile-shown.html", tile("")));
+  expect(coverage({ pages: [], uses: ["label"] }, [shown])).toEqual([]);
+}, 60_000);
+
+// The reference is built from the instance as it was before any reference went in beside an
+// element inside it, so the focused node keeps its place; and the lone box's target is measured.
+test("a focused node after an element in the same parent is read at its own place; a shrunk target is red", async () => {
+  const card = `<div data-theme="light"><div class="hw-card"><span class="hw-label">Kurs</span><button class="hw-icon-button" data-tone="danger" aria-label="Entfernen"><svg viewBox="0 0 20 20"></svg></button></div></div>`;
+  const focused = await measurePage(
+    browser,
+    file(
+      "focused-nested.html",
+      only(
+        `${card}<script>document.querySelector('[data-tone="danger"]').focus({ focusVisible: true })</script>`,
+        "hw-focus-ring",
+      ),
+    ),
+  );
+  expect(focused.findings).toEqual([]);
+  const target = (css: string) =>
+    measurePage(
+      browser,
+      file(
+        "target-drift.html",
+        only(
+          `<style>${css}</style><label class="hw-check-target"><input type="checkbox" class="hw-check" aria-label="Erledigt"></label>`,
+        ),
+      ),
+    );
+  expect((await target("")).findings).toEqual([]);
+  expect(
+    (await target(".hw-check-target { min-width: 24px; min-height: 24px }")).findings.map(
+      (f) => f.prop,
+    ),
+  ).toEqual(["width", "height"]);
 }, 60_000);

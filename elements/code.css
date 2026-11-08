@@ -12,7 +12,7 @@
      --hw-card-corner  the corner, the brand corner at the medium's size
      --hw-hairline     a panel's line */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-code {
     box-sizing: border-box;

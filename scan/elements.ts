@@ -56,6 +56,7 @@ import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
 import {
   catalogPages,
+  type Catalog,
   launch,
   listedCatalog,
   open,
@@ -73,7 +74,7 @@ export type Config = {
   exceptions?: Record<string, Exception>;
   lightOnly?: boolean;
   site?: string;
-  catalog?: string | { dir: string; at?: string; exclude?: string[] };
+  catalog?: Catalog;
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
@@ -99,7 +100,7 @@ export const ELEMENTS: Record<string, string> = {
   button: ".hw-button",
   "arrow-link": ".hw-arrow-link",
   field: ".hw-field",
-  check: ".hw-check",
+  check: ".hw-check, .hw-check-target",
   "form-field": ".hw-form-field",
   facts: ".hw-facts",
   "dot-list": ".hw-dot-list",
@@ -394,8 +395,18 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
         break;
       }
   }
-  // Every clone before any reference goes in, so none holds another instance's reference.
+  // Every clone before any reference goes in, so none holds another instance's reference, and each
+  // focus target found while the page's child order is still the clone's.
   const clones = found.map(({ el }) => el.cloneNode(true) as HTMLElement);
+  // Each side's focus target: the focus ring's own element, else the page's focused node inside the
+  // instance and its place in the reference.
+  const targets = found.map(({ element, el }, i) =>
+    element === "focus-ring"
+      ? { got: el as HTMLElement, want: clones[i]!, visible: true }
+      : active && el.contains(active)
+        ? { got: active, want: counterpart(el, clones[i]!, active), visible }
+        : null,
+  );
   const pairs = found.map(({ element, el, set }, i) => {
     seen.push(element);
     const clone = clones[i]!;
@@ -441,34 +452,30 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
     if (theme) frame.setAttribute("data-theme", theme);
     frame.append(inner);
     // A table part takes no shadow root and a row no span: the reference to a cell or a row then
-    // follows the table. Anything inside a cell keeps its reference in the cell, under its type.
+    // follows the table. Anything inside a cell keeps its reference in the cell, under its type. A
+    // box's reference follows its target label, which it would otherwise widen.
     const host = document.createElement("span");
     host.setAttribute("data-hw-reference", "");
-    const part = el.matches("tr, td, th, thead, tbody, tfoot") && el.closest("table");
-    (part || el).after(host);
+    const outer =
+      (el.matches("tr, td, th, thead, tbody, tfoot") && el.closest("table")) ||
+      el.parentElement?.closest(".hw-check-target");
+    (outer || el).after(host);
     const root = host.attachShadow({ mode: "open" });
     const style = document.createElement("style");
     style.textContent = css;
     root.append(style, frame);
-    return { element, el, clone, host };
+    return { element, el, clone, host, target: targets[i] };
   });
   try {
-    for (const { element, el, clone } of pairs) {
+    for (const { element, el, clone, target } of pairs) {
       const list = owns[element]!;
       const parts = Object.entries(owns).flatMap(([key, props]) => {
         const [owner, ...rest] = key.split(" ");
         return owner === element && rest.length ? [[rest.join(" "), props] as const] : [];
       });
-      // Each side read while its focus target holds focus: the focus ring's own element, else the
-      // page's focused node inside the instance and its place in the reference.
-      const target =
-        element === "focus-ring"
-          ? ([el, clone, true] as const)
-          : active && el.contains(active)
-            ? ([active, counterpart(el, clone, active), visible] as const)
-            : null;
-      const read = (x: Element, focus?: Element) => {
-        (focus as HTMLElement | undefined)?.focus({ focusVisible: target![2] });
+      // Each side read while its focus target holds focus; the page's own focus back after the pair.
+      const read = (x: Element, focus?: HTMLElement) => {
+        focus?.focus({ focusVisible: target!.visible });
         return {
           own: snap(x, list),
           parts: parts.map(([part, props]) => {
@@ -477,31 +484,25 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
           }),
         };
       };
-      const [a, b] = [read(el, target?.[0]), read(clone, target?.[1])];
-      if (target) (target[1] as HTMLElement).blur();
-      if (element === "focus-ring") {
-        const [got, want] = [a.own, b.own];
-        if (got["outline-style"] === "none")
-          findings.push({
-            element,
-            label: label(el),
-            prop: "outline-style",
-            got: "none",
-            want: want["outline-style"]!,
-          });
-        for (const p of list) {
-          if (!same(got[p]!, want[p]!))
-            findings.push({ element, label: label(el), prop: p, got: got[p]!, want: want[p]! });
-        }
-        continue;
+      const [a, b] = [read(el, target?.got), read(clone, target?.want)];
+      if (target) {
+        target.want.blur();
+        active?.focus({ focusVisible: visible });
       }
+      if (element === "focus-ring" && a.own["outline-style"] === "none")
+        findings.push({
+          element,
+          label: label(el),
+          prop: "outline-style",
+          got: "none",
+          want: b.own["outline-style"]!,
+        });
       diff(element, label(el), a.own, b.own, list);
       parts.forEach(([part, props], i) => {
         const [x, y] = [a.parts[i], b.parts[i]];
         if (x && y) diff(element, `${label(el)} ${part}`, x, y, props);
       });
     }
-    active?.focus({ focusVisible: visible });
   } finally {
     for (const { host } of pairs) host.remove();
   }
@@ -509,7 +510,9 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
     name: t.getAttribute("data-hw-tile")!,
     version: t.getAttribute("data-hw-version") ?? "",
     holds: Object.entries(elements).some(
-      ([e, s]) => e === t.getAttribute("data-hw-tile") && t.querySelector(s) !== null,
+      ([e, s]) =>
+        e === t.getAttribute("data-hw-tile") &&
+        [...t.querySelectorAll(s)].some((x) => !x.closest("[hidden]")),
     ),
   }));
   const exceptions = [...document.querySelectorAll("[data-hw-exception]")].map((t) =>

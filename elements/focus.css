@@ -7,7 +7,7 @@
      --hw-focus-width   the ring's width
      --hw-focus-offset  the gap between element and ring */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   :is(.hw-focus-ring :focus-visible, .hw-focus-ring:focus-visible) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);

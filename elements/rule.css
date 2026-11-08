@@ -9,7 +9,7 @@
      --hw-rule-accent  the line's thickness
      --hw-rule-bar     the short bar's length */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-rule {
     --_hue: var(--color-teal);

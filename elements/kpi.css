@@ -9,7 +9,7 @@
      --hw-kpi-size      the figure's size
      --hw-kpi-tracking  its tracking */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-kpi {
     display: flex;

@@ -26,7 +26,7 @@
                         character by character (an ID)
      --hw-muted         the muted grey, where a surface's --color-muted means something else */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-field-row {
     --_hw-row-gap: 0.75rem;

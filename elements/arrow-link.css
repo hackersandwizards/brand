@@ -11,7 +11,7 @@
      --hw-arrow-link-pad  block padding, keeping a 44 px target on one line
      --hw-muted           the muted grey, where a surface's --color-muted means something else */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-arrow-link {
     padding-block: var(--hw-arrow-link-pad, 0.75rem);

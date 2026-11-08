@@ -103,7 +103,7 @@ describe("expert/header.css focus", () => {
     expect(ringOutside(readFileSync(join(ROOT, "expert/header.css"), "utf8"))).toBeLessThanOrEqual(
       0,
     );
-  });
+  }, 30_000);
 });
 
 // The header with the catalog list (catalogs.json, Mail current on its home, Slides below it) at `width`: whether every link

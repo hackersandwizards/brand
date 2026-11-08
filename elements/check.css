@@ -23,12 +23,12 @@
    Settings (scales.css sets them per medium; print and stage set 0, since nobody taps paper or a
    slide):
      --hw-check-target        the target's side under a mouse
-     --hw-check-target-touch  the target's side on a touch screen (pointer: coarse)
+     --hw-check-target-touch  the target's side on a touch screen (any-pointer: coarse)
 
    Markup: <label><input type="checkbox" class="hw-check"> Erledigt</label>
            <label><input type="radio" class="hw-check" name="…"> Behalten</label> */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-check,
   .hw-prose li.task-list-item input[type="checkbox"] {
@@ -66,7 +66,7 @@
     min-height: var(--_hw-target);
     cursor: pointer;
   }
-  @media (pointer: coarse) {
+  @media (any-pointer: coarse) {
     .hw-check-target {
       --_hw-target: var(--hw-check-target-touch, 44px);
     }

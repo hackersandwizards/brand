@@ -14,7 +14,7 @@
      --hw-hairline      the rule's width
      --hw-line          the rule's colour */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-table {
     border-collapse: collapse;

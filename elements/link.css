@@ -5,7 +5,7 @@
    Settings:
      --hw-underline  the underline's thickness */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   :is(.hw-link, .hw-links a) {
     color: var(--color-teal-dark);

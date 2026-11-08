@@ -7,7 +7,7 @@
 
    Settings: none; the size is the UI step (--text-ui). */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-breadcrumb {
     font-size: var(--text-ui, var(--type-small-size));

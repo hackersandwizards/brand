@@ -4,7 +4,7 @@
    import it after Tailwind and expert.css, so a utility still wins. An app's own exceptions, such as
    the hub's accent-color on native controls, stay in its global.css. */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer base {
   * {
     border-color: var(--border);

@@ -7,7 +7,7 @@
      --hw-quote-gap   the space from the rule to the words
      --hw-muted       the grey of a muted quote (label.css) */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-quote {
     margin-inline: 0;

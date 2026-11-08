@@ -16,7 +16,7 @@
      --hw-muted         the muted grey, where a surface's --color-muted means something else
                         (expert.css: a fill) */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-label {
     font-family: var(--hw-label-family, var(--type-label-family));

@@ -35,7 +35,7 @@
      --hw-label-family     the family of a capitals pill (label.css)
      --hw-muted            the muted grey (label.css) */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-pill {
     display: inline-block;

@@ -8,7 +8,7 @@
      --hw-card-corner   the corner
      --hw-rule-accent   the rule's width */
 
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @layer components {
   .hw-callout {
     --_hue: var(--color-teal);

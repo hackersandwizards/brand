@@ -7,7 +7,7 @@
    card.css also gives every block inside a brand-cornered one the small corner, so a surface
    importing single elements imports card.css. The list marker is tokens/marker.css (export
    ./marker.css). */
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components, utilities;
 @import "./scales.css";
 @import "./label.css";
 @import "./label-box.css";
