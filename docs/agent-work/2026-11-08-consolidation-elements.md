@@ -1,6 +1,6 @@
 # Navigation list, filter value, search field, list filter and list row: the reviews
 
-Brand v1.46.0 takes the components several systems built on their own into the shared elements:
+Brand v1.47.0 takes the components several systems built on their own into the shared elements:
 `hw-nav`, `hw-choice`, `hw-search`, `ListFilter.astro` over `elements/list-filter.ts`,
 `ListRow.astro`, the row's current state, the round icon control's pressed and quiet variants,
 the dense button at 38 px and the pill's 24 px remove target. Four visual questions were open; each
