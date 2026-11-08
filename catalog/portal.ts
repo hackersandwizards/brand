@@ -245,6 +245,10 @@ const DELIVERY: [string, string[]][] = [
     pick(/^logos\/(lockup|wordmark)[\w-]*\.png$/),
   ],
   [
+    "The wizard alone as an icon a page or document shows or inlines, 256 px, from the emoji master.",
+    pick(/^logos\/emoji-256/),
+  ],
+  [
     "The favicon set every page serves from the package, and the web app icons.",
     pick(/^logos\/(favicon|apple-touch-icon|icon-)/),
   ],

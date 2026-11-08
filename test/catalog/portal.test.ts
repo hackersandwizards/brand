@@ -41,7 +41,7 @@ test("the portal links every logo file the package ships, a master's cut or a de
   const shipped = manifest.files
     .map((f) => f.path)
     .filter((p) => p.startsWith("logos/") && !/emoji-logo|\.tif$|\.json$/.test(p));
-  expect(shipped.length).toBe(29);
+  expect(shipped.length).toBe(30);
   expect(shipped.filter((p) => !html.includes(`href="${p}" download`))).toEqual([]);
 });
 

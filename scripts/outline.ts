@@ -345,4 +345,14 @@ for (const [from, to] of [
   if (!entry) throw new Error(`${path} is missing from manifest.json`);
   entry.sha256 = sha256(readFileSync(join(ROOT, path)));
 }
+// The wizard alone at that size, for a page or document that inlines it: emoji-256.png, a plain Git
+// file the package ships, where the 4096 px master stays in LFS.
+const emoji = "logos/emoji-256.png";
+await sharp(join(ROOT, "logos/emoji-logo-short.png"))
+  .resize(256, null, { kernel: "lanczos3" })
+  .png({ palette: true, compressionLevel: 9 })
+  .toFile(join(ROOT, emoji));
+const emojiEntry = manifest.files.find((f) => f.path === emoji);
+if (!emojiEntry) throw new Error(`${emoji} is missing from manifest.json`);
+emojiEntry.sha256 = sha256(readFileSync(join(ROOT, emoji)));
 writeFileSync(join(ROOT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");

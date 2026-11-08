@@ -125,6 +125,10 @@
       "sha256": "d4302a294ded586d81019000e468447d75274a4d9b9e7ef04f0e917fd7a1b547"
     },
     {
+      "path": "logos/emoji-256.png",
+      "sha256": "cb23871abd0382b7491c55487e63a9776245540b1d00aeae1d6238fc86aaf9d9"
+    },
+    {
       "path": "logos/type-logo-short.svg",
       "sha256": "c694b79b843184a299a62ccaaa7bc57599a654f1c95913dcf21300ddcee2bb25"
     },

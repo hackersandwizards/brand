@@ -130,6 +130,10 @@ rounded.
 
 Till drew the wizard, and hackers&wizards GmbH holds the rights to it.
 
+The wizard alone ships as `logos/emoji-256.png` (256 px, 13 KB), for a page or document that shows
+or inlines it as an icon. Its 4096 px master `emoji-logo-short.png` and the CMYK print file stay in
+Git LFS outside the package; `bun scripts/outline.ts` writes the 256 px file from the master.
+
 The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides.
 `bun scripts/ampersand.ts` writes that offset into every one-line logo,
 renders its PNG and rehashes both in `manifest.json`.
