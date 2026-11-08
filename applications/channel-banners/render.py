@@ -9,8 +9,8 @@ Run from the brand repo root:
     uv run applications/channel-banners/render.py
 
 The banners with client logos (profile slide 2, the Featured link) take their marks from clients/.
-The profile banners take the claim from verbal/verbal.json, one sentence per line: after a claim
-change, run this and read each of them for the safe area.
+The profile banners take the claim from verbal/verbal.json in two rows: after a claim change, run
+this and read each of them for the safe area.
 Layout values are measured from the airy set as shipped; an ink box in a comment is this render's
 pixels brighter than 70 of 255, a few px narrower than the alpha box the grid centres.
 """
@@ -64,8 +64,16 @@ def headline(x, baseline, size, track, *parts, font=MONO):
     return {"x": x, "baseline": baseline, "size": size, "track": track, "parts": parts, "font": font}
 
 
-def two_lines(first, second, b1, b2, size, track, x=480):
-    return [headline(x, b1, size, track, *first), headline(x, b2, size, track, *second)]
+def claim_block(size, step, track, x=480):
+    """The claim in two rows, step apart, and the descriptor under it at DESCRIPTOR's share of
+    the claim size, in the subline's weight and colour."""
+    first, second = PROFILE_LINES
+    d = DESCRIPTOR[1] * size
+    return [
+        headline(x, 0, size, track, *first),
+        headline(x, step, size, track, *second),
+        headline(x, step + DESCRIPTOR[2] * size, d, 0, (DESCRIPTOR[0], 2), font=MONO_SUB),
+    ]
 
 
 def logos(band, radius, items):
@@ -171,8 +179,8 @@ def grid_surfaces():
         left=480,
     )
     # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
-    # its claim in slide 2's headline size, which fills the slide more: ink x 469 to 1137, rows 49 to 275
-    s1 = grid((1584, 396), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), top=s2["top"], left=480)
+    # its claim in slide 2's headline size, which fills the slide more: ink x 469 to 1290, rows 48 to 330
+    s1 = grid((1584, 396), 79.8, claim_block(49.0, 59.3, -0.050), top=s2["top"], left=480)
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
         # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
@@ -191,28 +199,27 @@ def grid_surfaces():
         # says every screen shows (60 px may be cropped top and bottom); the profile photo's circle
         # covers the lower left, centre x 210 to 234, y 500, radius 170 to 174 at 1440, 390 and 440 px
         # (measured 1.11. on x.com logged out), so the group centres on the width right of x 384:
-        # ink x 411 to 1080, rows 138 to 363
-        "x-profile": grid((1500, 500), 79.8, two_lines(*PROFILE_LINES, b1=0, b2=59.3, size=49.0, track=-0.050), area=(60, 440), floor=384),
-        # The XING cover: XING crops it centred (object-fit cover) to 944 x 208 at 1024 px, 944 x 268
-        # at 1440 and 375 x 188 at 375, so rows 175 to 464 show everywhere; the photo covers x < 303 below
-        # row 371 on desktop and x 126 to 542 below row 431 on mobile (measured 1.11. on xing.com). The
-        # group sits 41 px right of the desktop photo and above the mobile one, the claim at slide 1's
-        # size rather than a smaller one right of the mobile photo: ink x 344 to 1012 (300 clear on the
-        # right), rows 191 to 416
-        "xing-profile": grid((1312, 639), 79.8, two_lines(*PROFILE_LINES, x=355, b1=0, b2=59.3, size=49.0, track=-0.050), area=(175, 431), left=355),
+        # ink x 384 to 1205, rows 109 to 391
+        "x-profile": grid((1500, 500), 79.8, claim_block(49.0, 59.3, -0.050), area=(60, 440), floor=384),
+        # The XING cover: at 1024 px XING crops it centred to 976 x 220, so rows 172 to 468 show on
+        # every desktop; a 390 px phone shows it whole. The photo covers x < 323 below row 309 at 1024
+        # px, and x 67 to 441 below row 363 on the phone (measured 8.11. on xing.com logged out). The
+        # group sits right of the phone's photo, in the desktop rows, at 0.9 of slide 1's size:
+        # ink x 470 to 1200, rows 194 to 446
+        "xing-profile": grid((1312, 639), 71.8, claim_block(44.1, 53.4, -0.050), area=(172, 468), floor=470),
         # The Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
         # 832 px, 288 below 992, 400 above, centred (object-fit cover), so a 375 px phone shows x 581 to 1419
         # and a 2560 px screen rows 94 to 406; the round photo overlaps the bottom 32 px (measured 1.11. on
-        # sessionize.com). The group centred in that box, with margins on the phone rather than the claim at
-        # 43 px filling the phone's width: ink x 731 to 1262, rows 163 to 337
+        # sessionize.com). The group centred in that box, nearly filling the phone's width so the small line
+        # stays legible there: ink x 612 to 1388, rows 121 to 379
         "sessionize-profile": grid(
-            (2000, 500), 61.9, two_lines(*PROFILE_LINES, b1=0, b2=46.0, size=38.0, track=-0.050), area=(94, 406), floor=0
+            (2000, 500), 73.3, claim_block(45.0, 54.5, -0.050), area=(94, 406), floor=0
         ),
         # The Brella cover (Digitale Leute Summit 2026): Brella asks for 2000 x 800; how much of it
         # Brella shows on desktop and phone is not measured yet, so the group sits centred in the full
-        # frame at 1.5 times the Sessionize cover: ink x 603 to 1386, rows 270 to 531
+        # frame at 1.5 times the Sessionize cover: ink x 521 to 1479, rows 237 to 563
         "brella-profile": grid(
-            (2000, 800), 92.85, two_lines(*PROFILE_LINES, b1=0, b2=69.0, size=57.0, track=-0.050), floor=0
+            (2000, 800), 92.85, claim_block(57.0, 69.0, -0.050), floor=0
         ),
         # The Facebook profile cover: Facebook Help (facebook.com/help/220070894714080, read 6.11.)
         # asks only for at least 720 px wide; its 2.4:1 and 16:9 crops (help/125379114252045) are for
@@ -220,10 +227,10 @@ def grid_surfaces():
         # (2.70:1) at 1024, 1440 and 1920 px, the photo's circle over x 32 to 208 from row 243; a 375 px
         # phone (m.facebook.com) whole at 375 x 139, the photo over x 12 to 108 from row 99 and the white
         # sheet from row 120. Here: the photo below row 517 (desktop) and 528 (phone), the sheet below 640.
-        # The group at 1.15 times the Brella cover, centred on the width and in rows 0 to 640: ink x 544
-        # to 1443, rows 170 to 470
+        # The group at 1.15 times the Brella cover, centred on the width and in rows 0 to 640: ink x 453
+        # to 1547, rows 133 to 507
         "facebook-profile": grid(
-            (2000, 740), 106.8, two_lines(*PROFILE_LINES, b1=0, b2=79.4, size=65.5, track=-0.050), area=(0, 640), floor=0
+            (2000, 740), 106.8, claim_block(65.5, 79.4, -0.050), area=(0, 640), floor=0
         ),
         "featured": grid(
             (1200, 627),
@@ -240,13 +247,13 @@ def grid_surfaces():
                 headline(151, 238, 47.5, 0, ("200+ Teams", 1), (" und 1.000+ Entwickler:innen trainiert.", 2), font=MONO_SUB),
             ],
         ),
-        # the group centred in the 2560 x 423 strip every device shows, on the width too (ink x 786 to
-        # 1759, rows 589 to 852); glows on that strip's
+        # the group centred in the 2560 x 423 strip every device shows, on the width too (ink x 735 to
+        # 1825, rows 565 to 875); glows on that strip's
         # corners, plus weaker canvas corners
         "youtube": grid(
             (2560, 1440),
-            81.6,
-            two_lines(*PROFILE_LINES, b1=0, b2=77, size=71.4, track=-0.057),
+            73.4,
+            claim_block(64.3, 69.3, -0.057),
             floor=0,
             area=(508.5, 931.5),
             glows=[
@@ -260,20 +267,26 @@ def grid_surfaces():
 
 
 def claim_lines():
-    """verbal.json's English claim, one sentence per line, its word in the accent."""
+    """verbal.json's English claim in two rows, broken at the space that leaves the longer row
+    shortest, its word in the accent."""
     claim = json.loads((BRAND / "verbal/verbal.json").read_text())["claim"]
-    first, second = claim["en"].split(". ")
+    words = claim["en"].split(" ")
+    rows = min(([" ".join(words[:i]), " ".join(words[i:])] for i in range(1, len(words))), key=lambda r: max(map(len, r)))
+    word = claim["word"]["en"]
 
     def parts(text):
-        before, word, after = text.partition(claim["word"]["en"])
-        return [(t, role) for t, role in ((before, 0), (word, 1), (after, 0)) if t]
+        before, hit, after = text.partition(word)
+        return [(t, role) for t, role in ((before, 0), (hit, 1), (after, 0)) if t]
 
-    return parts(first + "."), parts(second)
+    return parts(rows[0]), parts(rows[1])
 
 
 PROFILE_LINES = claim_lines()
-PROFILE_LOGOS = [("mercedes-benz.webp", 569, 63), ("dm.svg", 682.5, 59), ("tchibo.svg", 842, 47), ("vorwerk.svg", 1025, 53), ("bonprix.webp", 1201.5, 45)]
-FEATURED_LOGOS = [("mercedes-benz.webp", 188, 78), ("dm.svg", 327.5, 72), ("tchibo.svg", 522.5, 57), ("vorwerk.svg", 747, 64), ("bonprix.webp", 963.5, 55)]
+# the line under the claim on the profile banners: its text, its size and its baseline's distance
+# below the claim's second row, both as shares of the claim size
+DESCRIPTOR = ("Training and mentoring in agentic engineering", 0.62, 1.11)
+PROFILE_LOGOS = [("mercedes-benz.webp", 569, 63), ("dm.svg", 682.5, 71), ("tchibo.svg", 842, 47), ("vorwerk.svg", 1025, 53), ("bonprix.webp", 1201.5, 45)]
+FEATURED_LOGOS = [("mercedes-benz.webp", 188, 78), ("dm.svg", 327.5, 88), ("tchibo.svg", 522.5, 57), ("vorwerk.svg", 747, 64), ("bonprix.webp", 963.5, 55)]
 
 
 # file name -> (surface, scale)
@@ -368,10 +381,10 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
             path = CLIENTS / file
             if path.suffix == ".svg":
                 path = BytesIO(svg_to_bytes(svg_path=str(path), height=round(lh * k * 4), background="white"))
-            src = Image.open(path).convert("RGB")
+            src = Image.open(path).convert("RGBA")  # raster marks have transparent grounds
             lw = lh * src.width / src.height
             src = src.resize((round(lw * k), round(lh * k)), Image.LANCZOS)
-            band.paste(src, (round((cx + margin - lw / 2) * k) - x0, round((cy - lh / 2) * k) - y0))
+            band.paste(src, (round((cx + margin - lw / 2) * k) - x0, round((cy - lh / 2) * k) - y0), src)
         mask = brand_corner(band, s["logos"]["radius"] * k)
         img.paste(band, (x0, y0), mask)
     lk = s["lockup"]

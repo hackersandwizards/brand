@@ -234,7 +234,7 @@ Leute als Team liefern."; readers still name people 32 of 32.
 ## Seen in place
 
 LinkedIn's narrow layout cuts the first two to four letters of every line, as in rounds 7 and 8
-(image `items/claim-confirm-after-round-8/r9-linkedin.jpg`: f6, m3, u1p, s4p from the top, English
+(image `2026-11-08-claim-all-candidates/claim-confirm-after-round-8/r9-linkedin.jpg`: f6, m3, u1p, s4p from the top, English
 left). s4p breaks into two lines on the profile banner, so the photo takes "Ag" and "peo". It stays
 the defect of `profile-1` in `render.py`, item `work-banner-photo-overlap`. s4p in place on every surface: images `r9-s4p-en.jpg` and `r9-s4p-de.jpg`.
 

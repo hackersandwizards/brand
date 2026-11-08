@@ -262,7 +262,7 @@ test this round; round 7 holds both (people 32 of 32).
 On LinkedIn's narrow layout the profile photo covers the first two to four letters of each line,
 as round 7 found. For the two-line claims it cuts the word that makes them human: "r people ship
 products.", "r team ships products.", "e Leute liefern Produkte." (image
-`items/claim-round-3/r8-linkedin.jpg`: f6, k1, m3, e6, B4 from the top, English left). The panel
+`2026-11-08-claim-all-candidates/claim-round-3/r8-linkedin.jpg`: f6, k1, m3, e6, B4 from the top, English left). The panel
 saw this view; reviewers named it against k1, m3 and f6 alike. It stays the defect of `profile-1`
 in `render.py`, item `work-banner-photo-overlap`.
 

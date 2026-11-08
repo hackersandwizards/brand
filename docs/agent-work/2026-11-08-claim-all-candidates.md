@@ -136,7 +136,7 @@ In the German-only round 7, s4p scored 77.2 (noise 1.1), m3 74.3 (0.1) and f6 66
 scored 78.8 (noise 0.7, core 8.7, people 7.9) in text round 2. The cold read of the LinkedIn banner
 in its narrow layout counts the team question for people and the classified free reading for core.
 
-Images: `items/claim-confirm-after-round-8/r9-linkedin.jpg` (f6, m3, u1p, s4p on LinkedIn's narrow
+Images: `2026-11-08-claim-all-candidates/claim-confirm-after-round-8/r9-linkedin.jpg` (f6, m3, u1p, s4p on LinkedIn's narrow
 layout), `r9-s4p-en.jpg` and `r9-s4p-de.jpg` (s4p on every surface).
 
 ## Round 8 (08.11.): Benedikt's line and fresh lines against f6
@@ -171,7 +171,7 @@ read counts 8 readings of the line as text; the banner cold read 16 per language
 | B4c | Every agent needs your people in tune and your company in flow. | not in the report                                                            | 49.8    | one run | text round 1     | 6.6 / 9.2 (text 1)    | text 7 / 1 of 8               |             |
 
 B4 is Benedikt's line as he stated it; B4a to B4c are its variants. Image:
-`items/claim-round-3/r8-linkedin.jpg` (f6, k1, m3, e6 and B4 on LinkedIn's narrow layout).
+`2026-11-08-claim-all-candidates/claim-round-3/r8-linkedin.jpg` (f6, k1, m3, e6 and B4 on LinkedIn's narrow layout).
 
 ## Round 7 (08.11.): extensions of "a team in tune"
 
@@ -195,7 +195,7 @@ offered. Set: f6, n02 and d3 with every surface in place, the site and the profi
 | g1  | Your company in flow: every agent with a team in tune.      | Euer Unternehmen im Flow: jeder KI-Agent mit einem eingespielten Team.                  | 44.5    | one run | prefilter |                                        |             |
 | g6  | Companies in flow give every agent a team in tune.          | Unternehmen im Flow geben jedem KI-Agenten ein eingespieltes Team.                      | 39.8    | one run | prefilter |                                        |             |
 
-B3 is Benedikt's line as stated, B3k its short form. Images: `items/claim-round-3/r7-set-linkedin.jpg`
+B3 is Benedikt's line as stated, B3k its short form. Images: `2026-11-08-claim-all-candidates/claim-round-3/r7-set-linkedin.jpg`
 (f6, d3, n02 on LinkedIn's narrow layout), `r7-set-phone-de.jpg` (XING and Sessionize on a phone),
 `r7-extensions-banners.jpg` (B3, B3k, d3, g3).
 
@@ -224,7 +224,7 @@ claim as text in the website with the home H1 as `verbal.json` held it, then wit
 | f5  | Flow is a team sport.                                 | Flow ist Teamsport.                                          | 52.3    | one run | prefilter |                                        |                                    |
 
 B1 and B2 are Benedikt's two ideas as stated, translated; B1k and B2k their short forms. f3 is q6,
-f5 is c2. Images: `items/claim-round-3/r6-f6-banners.jpg`, `r6-f6-surfaces.jpg`,
+f5 is c2. Images: `2026-11-08-claim-all-candidates/claim-round-3/r6-f6-banners.jpg`, `r6-f6-surfaces.jpg`,
 `r6-b1-b2-banners.jpg`.
 
 ## Round 5 (08.11.): whose team, and could a tool vendor say it?
@@ -250,7 +250,7 @@ f5 is c2. Images: `items/claim-round-3/r6-f6-banners.jpg`, `r6-f6-surfaces.jpg`,
 | n06  | Good agents need good people.       | Gute KI-Agenten brauchen gute Leute.             | 56.7    | one run | prefilter |                                        |
 | n07  | Your people make agents fast.       | Eure Leute machen KI-Agenten schnell.            | 56.2    | one run | prefilter |                                        |
 
-Images: `items/claim-round-3/r5-n02-banners.jpg`, `r5-n02-surfaces.jpg`, `r5-m08k-n02-alone.jpg`.
+Images: `2026-11-08-claim-all-candidates/claim-round-3/r5-n02-banners.jpg`, `r5-n02-surfaces.jpg`, `r5-m08k-n02-alone.jpg`.
 
 ## Round 4 (08.11.): a claim that works on a banner
 
@@ -284,7 +284,7 @@ pass 1 lines that did not go on carry their pass 1 score.
 | e06  | Your customers feel it first.                                     | Eure Kunden merken es zuerst.                                          | 39.5    | one run | prefilter |
 | e08  | Play like a band.                                                 | Spielt wie eine Band.                                                  | 38.2    | one run | prefilter |
 
-r0 is the retired claim, a control. Images in `items/claim-round-3/`: `r4-m08k-banners.jpg`,
+r0 is the retired claim, a control. Images in `2026-11-08-claim-all-candidates/claim-round-3/`: `r4-m08k-banners.jpg`,
 `r4-m08k-surfaces.jpg`, `r4-m08-banners.jpg`, `r4-m08-surfaces.jpg`, `r4-a6-banners.jpg`,
 `r4-a6-surfaces.jpg`, `r4-d01k-banners.jpg`, `r4-d01k-surfaces.jpg`, `r4-e01-banners.jpg`,
 `r4-e01-surfaces.jpg`, `r4-c3-banners.jpg`, `r4-c3-surfaces.jpg`, `r4-banner-alone-and-descriptor.jpg`.
@@ -340,7 +340,7 @@ score; prefilter lines their one-run score.
 Above the home H1, a6 scored 80.9 against 79.8 for the empty slot (item `home-claim-line`). Images:
 `2026-11-07-claim-and-headline/round3-linkedin-banners.jpg` (all twelve claims),
 `round3-a6-surfaces.jpg`, `round3-a6-website.jpg`, `round3-c3-surfaces.jpg`,
-`round3-c3-website.jpg`; `items/claim-round-3/a6-website.jpg`, `c3-website.jpg`, `m08-website.jpg`.
+`round3-c3-website.jpg`; `2026-11-08-claim-all-candidates/claim-round-3/a6-website.jpg`, `c3-website.jpg`, `m08-website.jpg`.
 
 ## Round 2 (07.11.): the line above the home H1
 
@@ -362,7 +362,7 @@ pass 1 score.
 | footer-c3          | Agents in the team. Teams in flow. (foot of the hero copy) | Agenten im Team. Teams im Flow.                                                                 | 69.0    | 0.5   | pass 1    |
 | under-c3           | Agents in the team. Teams in flow. (directly under the H1) | Agenten im Team. Teams im Flow.                                                                 | 67.5    | 1.3   | pass 1    |
 
-Images in `items/home-claim-line/`: `none-desktop.jpg`, `none-phone.jpg`, `none-z-*.jpg`,
+Images in `2026-11-08-claim-all-candidates/home-claim-line/`: `none-desktop.jpg`, `none-phone.jpg`, `none-z-*.jpg`,
 `none-s-*.jpg`, `eyebrow-cto-*.jpg`, `eyebrow-audience-*.jpg`, `eyebrow-offer-*.jpg`,
 `desk-c3-*.jpg`, `eyebrow-c3-*.jpg`, `footer-c3-*.jpg`, `under-c3-*.jpg`, `eyebrow-a6-*.jpg`.
 

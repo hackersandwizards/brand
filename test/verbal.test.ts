@@ -15,6 +15,6 @@ test("no retired slogan is a current text", () => {
   expect(verbal.retired.length).toBeGreaterThan(0);
   for (const r of verbal.retired) {
     expect(current.some((c) => c.includes(r.text))).toBe(false);
-    expect(["claim", "mission"]).toContain(r.replacedBy);
+    expect(["claim", "headline", "mission"]).toContain(r.replacedBy);
   }
 });
