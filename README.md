@@ -223,7 +223,9 @@ libraries do: Forms, Actions, Navigation, Feedback, Data display, Typography, Co
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
 `elements/scales.css`, after `tokens.css` (and `print.css` on paper). The rules sit in
-`@layer components`, so your utilities win, which is what `brand-elements` then measures; the prose
+`@layer components`, so your utilities win, which is what `brand-elements` then measures; every
+brand file that opens a layer first declares Tailwind's order (`theme, base, components,
+utilities`), so the text base never outranks an element whichever file loads first; the prose
 block and its inline code sit in no layer, since Tailwind Typography's `prose` comes in the utilities
 layer. A `<code>` in running text takes `class="hw-inline-code"`; inside the prose block every
 inline `<code>` is that element already, and every link the link in text: mark tables, code blocks,
@@ -266,11 +268,17 @@ story state page scaffolding wrote under its `stories/` is measured too, found i
 than listed. Each is named the way a page is, below the catalog's own name: the folder's files, or
 with `"site"` the folder's path on it. Where your gate serves the catalog itself, say where it is:
 `"catalog": { "dir": "dist/client/catalog", "at": "/catalog/" }` with `--base`, or a full URL as
-`at`. A story showing no element passes; a catalog folder holding no story page exits 2.
+`at`. A story showing no element passes; a catalog folder holding no story page exits 2. Stories
+another repository owns, such as the slides engine's, stay out with `"exclude": ["Slides/**"]` in
+that object: globs relative to `stories/`, read by both checks; your own stories stay measured, and
+a used element whose only tile sits in an excluded story fails coverage.
 
 Before it measures, `brand-elements` opens every closed `<details>` outside a header or nav, since
 a focusable in a shut fold takes no focus. An element inside `[data-hw-shell]`, the scaffolding
-catalog shell's own card and pill, is the shell's: neither measured nor counted as shown.
+catalog shell's own card and pill, is the shell's: neither measured nor counted as shown. An element
+carrying `hidden`, or inside one, draws nothing and is not measured. An element holding the page's
+focus, or holding the focused node, as a story's focused state does, is read focused, its reference
+too.
 
 An exception's instance on a real page carries `data-hw-exception="<name>"` too: a hub element
 inside it is that exception, not measured. `files` exempts a stylesheet of the system's own medium

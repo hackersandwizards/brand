@@ -90,6 +90,31 @@ test("brand-elements: a story the server does not answer fails rather than passi
   expect(r.err).toContain("HTTP 404");
 }, 60_000);
 
+// A consumer leaves out a story group another repository owns; its own stories stay measured.
+test("brand-elements and brand-markers: an exclude glob leaves its stories out, the rest stay", () => {
+  const cut = elements({
+    pages: [],
+    catalog: { dir: "site/catalog", exclude: ["Cards/**"] },
+  });
+  expect(cut.json.rendered).toEqual([]);
+  expect(cut.json.coverage).toContain(
+    'card: used, but no page shows it in a [data-hw-tile="card"]',
+  );
+  // Control: the glob of another group leaves the fork in.
+  const kept = elements({ pages: [], catalog: { dir: "site/catalog", exclude: ["Text/**"] } });
+  expect(forkPages(kept.json.rendered)).toEqual([
+    "site/catalog/stories/Cards/Fork/default/index.html",
+  ]);
+  const markers = (exclude: string[]) => {
+    write("brand-elements.json", JSON.stringify({ catalog: { dir: "site/catalog", exclude } }));
+    const r = run("markers.ts", ["--scale", "2", "--json"]);
+    return (JSON.parse(r.out) as { page: string }[]).map((x) => x.page);
+  };
+  expect(markers(["Lists/**"]).filter((p) => p.includes("Lifted"))).toEqual([]);
+  expect(markers([]).filter((p) => p.includes("Lifted")).length).toBeGreaterThan(0);
+  rmSync(join(dir, "brand-elements.json"));
+}, 60_000);
+
 test("brand-elements: a catalog folder without a story is a usage error, not a pass", () => {
   expect(elements({ pages: [], catalog: "empty/catalog" }).code).toBe(2);
   expect(elements({ pages: [], catalog: "missing" }).code).toBe(2);

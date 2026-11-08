@@ -22,7 +22,8 @@
 // instead. --catalog adds every story page of a built catalog folder (catalogPages), each named
 // below --catalog-at, by default the folder itself, or its path on --site. Without --catalog, the
 // "catalog" of brand-elements.json in the working directory is measured, with its "site" where
-// neither --site nor --base is given (listedCatalog), so a consumer names its catalog once.
+// neither --site nor --base is given and its "exclude" (listedCatalog), so a consumer names its
+// catalog once.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, or a named page with no marker (a zero proves nothing; a story page may show none).
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
@@ -483,15 +484,24 @@ export const serve = (dir: string) => {
  * on the served site ends in the state's folder, URL-encoded, a file names its index.html. `at` defaults to the
  * folder's path on the served `site`, else the folder; `served` (a site or a --base server) makes a
  * path starting with / one on the server. A page forwarding elsewhere (a meta refresh,
- * as a catalog that is not the site's home leaves under its old path) is no story. Throws on a folder
- * without a story page. */
-export const catalogPages = (dir: string, at?: string, site?: string, served = !!site) => {
+ * as a catalog that is not the site's home leaves under its old path) is no story, nor is one an
+ * `exclude` glob matches, relative to the stories folder (a story group the consumer does not own,
+ * such as "Slides/**"). Throws on a folder without a story page. */
+export const catalogPages = (
+  dir: string,
+  at?: string,
+  site?: string,
+  served = !!site,
+  exclude: string[] = [],
+) => {
+  const skip = exclude.map((g) => new Bun.Glob(g));
   const stories = join(dir, "stories");
   const states = existsSync(stories)
     ? readdirSync(stories, { recursive: true, encoding: "utf8" })
         .filter(
           (f) =>
             f.endsWith("/index.html") &&
+            !skip.some((g) => g.match(f)) &&
             !/<meta[^>]+http-equiv=["']?refresh/i.test(readFileSync(join(stories, f), "utf8")),
         )
         .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
@@ -507,9 +517,9 @@ export const catalogPages = (dir: string, at?: string, site?: string, served = !
 /** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
  * brand-elements measures without a flag. Empty where it names no catalog. */
 export const listedCatalog = (config: {
-  catalog?: string | { dir: string; at?: string };
+  catalog?: string | { dir: string; at?: string; exclude?: string[] };
   site?: string;
-}): { dir?: string; at?: string; site?: string } =>
+}): { dir?: string; at?: string; exclude?: string[]; site?: string } =>
   config.catalog
     ? {
         ...(typeof config.catalog === "string" ? { dir: config.catalog } : config.catalog),
@@ -563,7 +573,14 @@ if (import.meta.main) {
   const site = flagSite || (flagBase ? undefined : listed.site);
   let stories: string[] = [];
   try {
-    if (catalog) stories = catalogPages(catalog, at, site, !!site || !!flagBase);
+    if (catalog)
+      stories = catalogPages(
+        catalog,
+        at,
+        site,
+        !!site || !!flagBase,
+        flagCatalog ? [] : listed.exclude,
+      );
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);

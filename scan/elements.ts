@@ -11,8 +11,11 @@
 //     "site": "<folder>",                             optional: a built site, served on a free
 //                                                     port, which a page starting with / names
 //     "catalog": "<folder>"                           optional: a built catalog, every story page
-//                | { "dir": "<folder>", "at": "<page>" } } under it measured too, named below "at"
-//                                                     (default: the folder, or its path on "site")
+//                | { "dir": "<folder>", "at": "<page>",  under it measured too, named below "at"
+//                    "exclude": ["<glob>", ...] } }      (default: the folder, or its path on
+//                                                     "site"), but those an exclude glob matches,
+//                                                     relative to its stories folder, such as
+//                                                     "Slides/**" for a group another repo owns
 //
 // --base <url> names the server a page starting with / is on, such as one the consumer's gate
 // started on a free port, instead of "site".
@@ -70,7 +73,7 @@ export type Config = {
   exceptions?: Record<string, Exception>;
   lightOnly?: boolean;
   site?: string;
-  catalog?: string | { dir: string; at?: string };
+  catalog?: string | { dir: string; at?: string; exclude?: string[] };
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
@@ -809,10 +812,10 @@ if (import.meta.main) {
     process.exit(2);
   }
   const named = config.pages ?? [];
-  const { dir, at } = listedCatalog(config);
+  const { dir, at, exclude } = listedCatalog(config);
   let stories: string[] = [];
   try {
-    if (dir) stories = catalogPages(dir, at, config.site, !!config.site || i >= 0);
+    if (dir) stories = catalogPages(dir, at, config.site, !!config.site || i >= 0, exclude);
   } catch (e) {
     console.error(`brand-elements: ${(e as Error).message}`);
     process.exit(2);
