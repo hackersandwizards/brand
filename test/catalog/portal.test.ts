@@ -9,6 +9,8 @@ import { lfsOid } from "../../scan/colours";
 import { failing, launch, measureMarkers } from "../../scan/markers";
 import { DIST, fileOf, page } from "./site";
 import manifest from "../../manifest.json";
+import catalogs from "../../expert/catalogs.json";
+import { tokens } from "../../generated/tokens";
 
 const html = page("index.html");
 
@@ -23,6 +25,24 @@ test("the portal shows every shared element and every expert component", () => {
     .map((f) => f.slice(0, -6));
   expect(Object.keys(ELEMENTS).filter((name) => !html.includes(`id="hw-${name}"`))).toEqual([]);
   expect(components.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
+});
+
+test("catalogs.json's portal anchors lead to every element and every colour", () => {
+  const { portal, anchors } = catalogs.find((c) => c.name === "Brand")!;
+  expect(portal).toBe("https://hackersandwizards.github.io/brand/");
+  // Every colour with a value of its own; an alias or a role (var() of another) has no swatch.
+  const colours = Object.entries(tokens)
+    .filter(([k, v]) => k.startsWith("--color-") && !v.startsWith("var("))
+    .map(([k]) => k)
+    .map((k) => anchors!.colour.replace("<colour>", k.slice(8)));
+  const elements = Object.keys(ELEMENTS).map((n) => anchors!.element.replace("<element>", n));
+  // A link opens the view before the id: #<view>/<id>, both on the page.
+  const missing = [...colours, ...elements].filter((a) => {
+    const [view, id] = a.slice(1).split("/");
+    return !html.includes(`data-page="${view}"`) || !html.includes(` id="${id}"`);
+  });
+  expect(colours.length).toBeGreaterThan(10);
+  expect(missing).toEqual([]);
 });
 
 test("the portal lists tokens.css's aliases and no role token among them", () => {

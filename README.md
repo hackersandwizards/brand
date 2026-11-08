@@ -25,40 +25,40 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 @import "@hackersandwizards/brand/tokens.css"; /* in a Tailwind 4 stylesheet */
 ```
 
-| Import                                                    | File                                                                                                               |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `@hackersandwizards/brand/tokens.css`                     | Tailwind 4 `@theme` tokens                                                                                         |
-| `@hackersandwizards/brand/tokens.root.css`                | the same tokens on `:root`                                                                                         |
-| `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours                                                                                        |
-| `@hackersandwizards/brand/tokens`                         | the same as TypeScript                                                                                             |
-| `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                                                                                        |
-| `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)                                                                      |
-| `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes                                                                     |
-| `@hackersandwizards/brand/print.css`                      | print scale and static fonts                                                                                       |
-| `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`                                                                        |
-| `@hackersandwizards/brand/static-fonts.css`               | `print.css`'s static faces alone, for a surface that renders PDFs without the print scale                          |
-| `@hackersandwizards/brand/cursor.svg`                     | the slide player's pointer in teal, for `cursor: url()`, hotspot `6 6`                                             |
-| `@hackersandwizards/brand/fonts.json`                     | the same faces as data, for your `@font-face`, in their order; a face without `unicodeRange` takes every character |
-| `@hackersandwizards/brand/night.css`                      | night for light-token surfaces, below                                                                              |
-| `@hackersandwizards/brand/stage.css`                      | the slide engine's stage scale                                                                                     |
-| `@hackersandwizards/brand/document.css`                   | the document engine's scale                                                                                        |
-| `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below                                                                                  |
-| `@hackersandwizards/brand/text-base.css`                  | headings in the heading face at 700, balanced; paragraphs and list items pretty; `@layer base`                     |
-| `@hackersandwizards/brand/fonts/<file>`                   | font files                                                                                                         |
-| `@hackersandwizards/brand/expert.css`                     | expert UI layer                                                                                                    |
-| `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                                                                                     |
-| `@hackersandwizards/brand/app-base.css`                   | an expert app's base layer: document scroll, body column, heading face, link accent, pointer, plain CSS            |
-| `@hackersandwizards/brand/catalogs.json`                  | every published catalog, name and address, for the header's nav                                                    |
-| `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                                                                                    |
-| `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS                                                                                  |
-| `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below                                                                         |
-| `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`                                                                                |
-| `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                                                                                               |
-| `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, `logos.json`                                                                                   |
-| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                                                                                    |
-| `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                                                                                      |
-| `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                                                                                   |
-| `@hackersandwizards/brand/package.json`                   | the installed brand version, `version`                                                                             |
+| Import                                                    | File                                                                                                                                                |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@hackersandwizards/brand/tokens.css`                     | Tailwind 4 `@theme` tokens                                                                                                                          |
+| `@hackersandwizards/brand/tokens.root.css`                | the same tokens on `:root`                                                                                                                          |
+| `@hackersandwizards/brand/tokens.json`                    | tokens and resolved colours                                                                                                                         |
+| `@hackersandwizards/brand/tokens`                         | the same as TypeScript                                                                                                                              |
+| `@hackersandwizards/brand/tokens.py`                      | the same as a Python module                                                                                                                         |
+| `@hackersandwizards/brand/code-theme.json`                | the code palette as a Shiki theme (`hw-code`)                                                                                                       |
+| `@hackersandwizards/brand/elements/code.ts`               | `codeClasses`, Shiki's code palette as classes                                                                                                      |
+| `@hackersandwizards/brand/print.css`                      | print scale and static fonts                                                                                                                        |
+| `@hackersandwizards/brand/fonts.css`                      | the screen faces, self-hosted, `@font-face`                                                                                                         |
+| `@hackersandwizards/brand/static-fonts.css`               | `print.css`'s static faces alone, for a surface that renders PDFs without the print scale                                                           |
+| `@hackersandwizards/brand/cursor.svg`                     | the slide player's pointer in teal, for `cursor: url()`, hotspot `6 6`                                                                              |
+| `@hackersandwizards/brand/fonts.json`                     | the same faces as data, for your `@font-face`, in their order; a face without `unicodeRange` takes every character                                  |
+| `@hackersandwizards/brand/night.css`                      | night for light-token surfaces, below                                                                                                               |
+| `@hackersandwizards/brand/stage.css`                      | the slide engine's stage scale                                                                                                                      |
+| `@hackersandwizards/brand/document.css`                   | the document engine's scale                                                                                                                         |
+| `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below                                                                                                                   |
+| `@hackersandwizards/brand/text-base.css`                  | headings in the heading face at 700, balanced; paragraphs and list items pretty; `@layer base`                                                      |
+| `@hackersandwizards/brand/fonts/<file>`                   | font files                                                                                                                                          |
+| `@hackersandwizards/brand/expert.css`                     | expert UI layer                                                                                                                                     |
+| `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                                                                                                                      |
+| `@hackersandwizards/brand/app-base.css`                   | an expert app's base layer: document scroll, body column, heading face, link accent, pointer, plain CSS                                             |
+| `@hackersandwizards/brand/catalogs.json`                  | every published catalog, name and address, for the header's nav; the Brand entry adds the portal's root (`portal`) and its anchor forms (`anchors`) |
+| `@hackersandwizards/brand/select.css`                     | the dropdown chevron, plain CSS                                                                                                                     |
+| `@hackersandwizards/brand/disclosure.css`                 | the disclosure chevron, plain CSS                                                                                                                   |
+| `@hackersandwizards/brand/elements.css`                   | every shared element and the scales, below                                                                                                          |
+| `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`                                                                                                                 |
+| `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                                                                                                                                |
+| `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, `logos.json`                                                                                                                    |
+| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                                                                                                                     |
+| `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                                                                                                                       |
+| `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                                                                                                                    |
+| `@hackersandwizards/brand/package.json`                   | the installed brand version, `version`                                                                                                              |
 
 A client mark's box ends on its drawn edge and its ground is transparent. `clients.json` gives
 each mark's `height`: the share of a row's height at which it reads as heavy as the others; its

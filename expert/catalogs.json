@@ -1,5 +1,13 @@
 [
-  { "name": "Brand", "href": "https://hackersandwizards.github.io/brand/catalog/" },
+  {
+    "name": "Brand",
+    "href": "https://hackersandwizards.github.io/brand/catalog/",
+    "portal": "https://hackersandwizards.github.io/brand/",
+    "anchors": {
+      "element": "#elements/hw-<element>",
+      "colour": "#colours/-color-<colour>"
+    }
+  },
   { "name": "Slides", "href": "https://hackersandwizards.github.io/slides/catalog/" },
   { "name": "Documents", "href": "https://hackersandwizards.github.io/documents/catalog/" },
   { "name": "Mail", "href": "https://hackersandwizards.github.io/mail/catalog/" },
