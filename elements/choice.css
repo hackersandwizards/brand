@@ -2,11 +2,11 @@
    around a radio or checkbox (the input hidden, its state drawn on the label), a link with
    aria-current to the list filtered by it, or a button with aria-pressed. The small corner, a
    hairline in the field line, the UI text at the foreground's 70 %, the muted fill on hover; the
-   chosen one (a checked input, aria-current, aria-pressed="true") filled with the accent and its
-   on-accent text, as the segmented control's. hw-choice-count is the count, in the choice's
-   colour, tabular figures. A row of choices sits in hw-choices, wrapping, 0.375rem apart. Its
-   target is the medium's control height: 44 px on a client screen, the apps' choice height in
-   dense. On night the expert set's night roles.
+   chosen one (a checked input, aria-current, aria-pressed="true") in the chosen fill
+   (elements/chosen.css). hw-choice-count is the count, in the choice's colour, tabular figures. A
+   row of choices sits in hw-choices, wrapping, 0.375rem apart. Its target is the medium's control
+   height: 44 px on a client screen, the apps' choice height in dense. On night the expert set's
+   night roles.
 
    Markup: <div class="hw-choices" role="group" aria-label="…">
              <label class="hw-choice"><input type="radio" name="topic" value="">All
@@ -18,6 +18,7 @@
      --hw-corner-sm      the corner */
 
 @layer properties, theme, base, components, utilities;
+@import "./chosen.css";
 @layer components {
   .hw-choices {
     display: flex;
@@ -65,9 +66,9 @@
     [aria-current]:not([aria-current="false"]),
     [aria-pressed="true"]
   ) {
-    border-color: var(--color-teal-dark);
-    color: var(--color-white);
-    background: var(--color-teal-dark);
+    border-color: var(--_hw-chosen);
+    color: var(--_hw-on-chosen);
+    background: var(--_hw-chosen);
   }
   .hw-focus-ring .hw-choice:has(> input:focus-visible) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
@@ -87,15 +88,6 @@
     .hw-choice:hover {
       color: var(--color-night-ink);
       background: var(--color-night-2);
-    }
-    .hw-choice:is(
-      :has(> input:checked),
-      [aria-current]:not([aria-current="false"]),
-      [aria-pressed="true"]
-    ) {
-      border-color: var(--color-teal-night);
-      color: var(--color-night);
-      background: var(--color-teal-night);
     }
     .hw-focus-ring .hw-choice:has(> input:focus-visible) {
       outline-color: var(--color-purple-night);

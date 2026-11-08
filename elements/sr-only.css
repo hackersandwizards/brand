@@ -1,0 +1,15 @@
+/* The screen-reader-only text: read aloud, drawn nowhere, such as a live region's status or a
+   link's "(opens in a new tab)". */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

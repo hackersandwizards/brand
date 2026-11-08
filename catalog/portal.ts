@@ -621,6 +621,17 @@ const elementDoc = (file: string) => {
     names: [...settings.matchAll(/(--hw-[\w-]+)/g)].map((m) => m[1]!),
   };
 };
+// A sample's ids, every attribute naming one of them and its radio groups' names, suffixed so they
+// stay unique across the cells.
+const uniqueIds = (html: string, suffix: string) => {
+  const ids = new Set([...html.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]));
+  const own = (attr: string, token: string) => attr === "id" || attr === "name" || ids.has(token);
+  return html.replace(/ ([\w-]+)="([^"]*)"/g, (all, attr: string, value: string) =>
+    attr !== "class" && value.split(" ").some((token) => own(attr, token))
+      ? ` ${attr}="${value.replace(/\S+/g, (token) => (own(attr, token) ? `${token}-${suffix}` : token))}"`
+      : all,
+  );
+};
 const CLASS: Record<string, string> = { "focus-ring": ".hw-focus-ring", link: ".hw-link" };
 // Search words for what an element holds beyond its name.
 const KEYWORDS: Record<string, string> = {
@@ -658,9 +669,8 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
     h: `elements/hw-${name}`,
     x: `hw-${name} ${file}.css${KEYWORDS[name] ? ` ${KEYWORDS[name]}` : ""}`,
   });
-  // A sample's ids, and the for and aria-describedby naming them, stay unique across the cells.
   const cell = (scale: string, night: boolean) =>
-    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ (id|for|list|aria-describedby|aria-controls|aria-labelledby|data-for|popovertarget|data-hw-open|name)="([^"]*)"/g, (_, attr: string, ids: string) => ` ${attr}="${ids.replace(/\S+/g, (id) => `${id}-${scale}${night ? "-night" : ""}`)}"`)}</div></div>`;
+    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${uniqueIds(DEMOS[name]!, `${scale}${night ? "-night" : ""}`)}</div></div>`;
   const row = (night: boolean) =>
     `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
   return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>

@@ -1222,3 +1222,85 @@ test("every class brand's stylesheets define is listed as one brand defines", ()
     ["not-prose", "task-list-item"].includes(c) || c.startsWith("text-foreground/");
   expect([...new Set(defined)].filter((c) => !isBrandClass(c) && !read(c))).toEqual([]);
 });
+
+test("a chosen choice, segment and pressed icon button share one fill, day and night", async () => {
+  const set = `<div class="hw-choices"><label class="hw-choice"><input type="radio" checked>A</label></div><div class="hw-segmented"><button aria-pressed="true">B</button></div><button class="hw-icon-button" aria-pressed="true" data-variant="quiet">C</button>`;
+  const body = `<div data-hw-scale="screen">${set}</div><div data-hw-scale="screen" data-theme="dark">${set}</div>`;
+  const p = await browser.newPage();
+  await open(p, pathToFileURL(file("chosen.html", only(body))).href);
+  const fills = await p.$$eval("[data-hw-scale]", (scales) =>
+    scales.map((s) =>
+      [".hw-choice", ".hw-segmented > button", ".hw-icon-button"].map((sel) => {
+        const cs = getComputedStyle(s.querySelector(sel)!);
+        return `${cs.backgroundColor} ${cs.color}`;
+      }),
+    ),
+  );
+  await p.close();
+  for (const theme of fills) expect(new Set(theme).size).toBe(1);
+  expect(fills[0]![0]).not.toBe(fills[1]![0]);
+}, 30_000);
+
+test("a menu entry, tab and accordion row hold the dense item height by mouse, 44 px by touch", async () => {
+  const body = `<div data-hw-scale="dense"><div class="hw-menu" role="menu"><button class="hw-menu-item" role="menuitem">A</button></div><div class="hw-tabs" role="tablist"><button class="hw-tab" role="tab">B</button></div><div class="hw-accordion"><details><summary>C</summary></details></div></div>`;
+  const url = pathToFileURL(file("items.html", only(body))).href;
+  const heights = async (touch: boolean) => {
+    const p = await browser.newPage();
+    await p.emulate({
+      viewport: { width: 800, height: 600, isMobile: touch, hasTouch: touch },
+      userAgent: "",
+    });
+    await open(p, url);
+    const out = await p.$$eval(".hw-menu-item, .hw-tab, .hw-accordion summary", (els) =>
+      els.map((e) => Math.round(e.getBoundingClientRect().height)),
+    );
+    await p.close();
+    return out;
+  };
+  // The accordion row is its line and padding above the 32 px floor.
+  expect(await heights(false)).toEqual([32, 32, 37]);
+  expect(await heights(true)).toEqual([44, 44, 44]);
+}, 30_000);
+
+test("a nav section holding the current page drops its fill; one marked alone keeps it; the ring sits inside", async () => {
+  const body = `<div data-hw-scale="dense"><nav class="hw-nav" id="held"><ul><li><a href="#" aria-current="true">S</a><ul><li><a href="#" aria-current="page">P</a></li></ul></li></ul></nav><nav class="hw-nav" id="alone"><ul><li><a href="#" aria-current="true">S</a></li></ul></nav></div>`;
+  const p = await browser.newPage();
+  await open(p, pathToFileURL(file("nav.html", only(body, "hw-focus-ring"))).href);
+  const look = (sel: string) =>
+    p.$eval(sel, (a) => {
+      const cs = getComputedStyle(a);
+      return { fill: cs.backgroundColor, color: cs.color, weight: cs.fontWeight };
+    });
+  const held = await look('#held a[aria-current="true"]');
+  const page = await look('#held a[aria-current="page"]');
+  const alone = await look('#alone a[aria-current="true"]');
+  expect(held.fill).toBe("rgba(0, 0, 0, 0)");
+  expect(held.weight).toBe("500");
+  expect(held.color).not.toBe(page.color);
+  expect(alone).toEqual(page);
+  await p.focus('#alone a[aria-current="true"]');
+  await p.keyboard.press("Tab");
+  await p.keyboard.down("Shift");
+  await p.keyboard.press("Tab");
+  await p.keyboard.up("Shift");
+  expect(await p.$eval(":focus-visible", (a) => getComputedStyle(a).outlineOffset)).toBe("-3px");
+  await p.close();
+}, 30_000);
+
+test("toasts stack at the bottom centre; on a phone data-place=top holds them at the top", async () => {
+  const body = `<div class="hw-toasts" data-place="top"><div class="hw-toast"><span class="hw-toast-text">Gespeichert</span></div></div>`;
+  const url = pathToFileURL(file("toasts.html", only(body))).href;
+  const where = async (width: number) => {
+    const p = await browser.newPage();
+    await p.setViewport({ width, height: 800 });
+    await open(p, url);
+    const r = await p.$eval(".hw-toast", (t) => t.getBoundingClientRect().toJSON());
+    await p.close();
+    return r as DOMRect;
+  };
+  const wide = await where(1280);
+  expect(Math.abs(wide.left + wide.width / 2 - 640)).toBeLessThan(1);
+  expect(wide.bottom).toBeGreaterThan(700);
+  expect(wide.width).toBeLessThan(200);
+  expect((await where(390)).top).toBeLessThan(100);
+}, 30_000);

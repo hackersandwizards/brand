@@ -3,7 +3,7 @@
    segments in the field line (the foreground at 70 % on the page, 3:1 as WCAG 1.4.11 asks of a
    control's boundary), the UI size; a segment at the foreground's 70 %, the full foreground and the
    muted fill on hover; the chosen one (aria-current, aria-pressed="true" or data-active="true")
-   filled with the accent and its on-accent text. A leading hw-label names the category. A segment
+   in the chosen fill (elements/chosen.css). A leading hw-label names the category. A segment
    holding only an icon (an svg child, 1.25em wide and a line high, so it stands as tall as a word) names itself with aria-label. On night
    the expert set's night roles.
 
@@ -13,6 +13,7 @@
      --hw-segment-line  the frame's colour */
 
 @layer properties, theme, base, components, utilities;
+@import "./chosen.css";
 @layer components {
   .hw-segmented {
     display: inline-flex;
@@ -55,8 +56,8 @@
       [aria-pressed="true"],
       [data-active="true"]
     ):hover {
-    color: var(--color-white);
-    background: var(--color-teal-dark);
+    color: var(--_hw-on-chosen);
+    background: var(--_hw-chosen);
   }
   .hw-segmented > .hw-label {
     display: flex;
@@ -77,21 +78,6 @@
     .hw-segmented > :is(a, button):hover {
       color: var(--color-night-ink);
       background: var(--color-night-2);
-    }
-    .hw-segmented
-      > :is(
-        [aria-current]:not([aria-current="false"]),
-        [aria-pressed="true"],
-        [data-active="true"]
-      ),
-    .hw-segmented
-      > :is(
-        [aria-current]:not([aria-current="false"]),
-        [aria-pressed="true"],
-        [data-active="true"]
-      ):hover {
-      color: var(--color-night);
-      background: var(--color-teal-night);
     }
   }
 }

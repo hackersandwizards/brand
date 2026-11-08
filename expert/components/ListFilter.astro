@@ -5,8 +5,12 @@
  *  sets `hidden` where `matches(item, state)` is false. The browser side and the rows' attributes
  *  are elements/list-filter.ts's; the look is the shared elements
  *  (hw-search, hw-choice, hw-field, hw-button) placed by elements/list-filter.css, sized by the
- *  page's data-hw-scale. `browse="active"` shows the list only while a filter is set, in place of
- *  the element `overview` names. Copy is a prop, so a page in another language passes its own. */
+ *  page's data-hw-scale. A facet whose labels run past `budget` characters shows as a select.
+ *  `browse="active"` shows the list only while a filter is set, in place of the element `overview`
+ *  names. Under it a static page keeps its rows out of the page without JavaScript: in an inert
+ *  template, the form showing only once the script runs; `source` names a page listing every row,
+ *  where the form sends its query and whose rows load on first use; `listed` keeps them in the page
+ *  instead. Copy is a prop, so a page in another language passes its own. */
 import {
   countLine,
   fullTextUrl,
@@ -41,6 +45,8 @@ interface Props {
   facet: Facet;
   /** Shown as a select, for a facet with too many values for choices. */
   select?: Facet;
+  /** The summed label length, "All" included, past which `facet` shows as a select too. */
+  budget?: number;
   /** The count line, with {shown} and {total}, or one for a single match and one for any other. */
   count: CountCopy;
   /** "always" (default) lists every row until a filter narrows them; "active" only while one is set. */
@@ -49,6 +55,12 @@ interface Props {
   overview?: string;
   /** A fuller search the query can continue in; `?q=` is appended. */
   fullText?: { href: string; label: string };
+  /** A page listing every row, for `browse="active"`: the form's target, and the rows' source. */
+  source?: string;
+  /** Under `browse="active"`, the rows stay in the page without JavaScript. */
+  listed?: boolean;
+  /** From 64rem, the select sits beside the search. */
+  inline?: boolean;
   copy?: { all: string; clear: string; empty: string; submit: string; filters: string };
 }
 
@@ -64,6 +76,10 @@ const {
   browse = "always",
   overview,
   fullText,
+  source,
+  listed: keep = false,
+  inline = false,
+  budget = 160,
   copy = {
     all: "All",
     clear: "Clear all",
@@ -74,11 +90,16 @@ const {
 } = Astro.props;
 
 const active = isActive(state);
-const listed = browse === "always" || active;
+const listed = browse === "always" || active || keep;
+// Under an overview with nowhere else to send the query, the rows wait in a template.
+const inert = browse === "active" && !source && !keep && !active;
+const asChoices =
+  [copy.all, ...facet.options.map((option) => option.label)].join("").length <= budget;
+const selects = [...(asChoices ? [] : [facet]), ...(select ? [select] : [])];
 const shown = items.filter((item) => matches(item, state)).length;
 const countText = listed ? countLine(count, shown, items.length) : "";
 const choiceCounts = tally(items, state, facet.param);
-const selectCounts = select ? tally(items, state, select.param) : new Map<string, number>();
+
 const faceted = Object.values(state.facets).some(Boolean);
 ---
 
@@ -87,8 +108,11 @@ const faceted = Object.values(state.facets).some(Boolean);
   data-list-filter={browse}
   data-count={JSON.stringify(count)}
   data-overview={overview}
+  data-source={source}
+  data-listed={keep ? "" : undefined}
+  data-inline={inline ? "" : undefined}
 >
-  <form role="search" action={action}>
+  <form role="search" action={source ?? action} hidden={inert}>
     <div class="hw-list-filter-search">
       <div class="hw-search">
         <input
@@ -118,41 +142,46 @@ const faceted = Object.values(state.facets).some(Boolean);
       </button>
     </div>
     <div id={`${id}-facets`} data-filter-panel>
-      <fieldset class="hw-form-field">
-        <legend class="hw-form-label">{facet.legend}</legend>
-        <div class="hw-choices">
-          {[{ value: "", label: copy.all }, ...facet.options].map((option) => (
-            <label class="hw-choice">
-              <input
-                type="radio"
-                name={facet.param}
-                value={option.value}
-                checked={(state.facets[facet.param] ?? "") === option.value}
-              />
-              {option.label}
-              <span class="hw-choice-count" data-facet-count={option.value}>
-                {choiceCounts.get(option.value) ?? 0}
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      {select && (
-        <label class="hw-form-field">
-          <span class="hw-form-label">{select.legend}</span>
-          <select name={select.param} class="hw-field hw-select">
-            {[{ value: "", label: copy.all }, ...select.options].map((option) => (
-              <option
-                value={option.value}
-                selected={state.facets[select.param] === option.value}
-                data-label={option.label}
-              >
-                {`${option.label} (${selectCounts.get(option.value) ?? 0})`}
-              </option>
+      {asChoices && (
+        <fieldset class="hw-form-field">
+          <legend class="hw-form-label">{facet.legend}</legend>
+          <div class="hw-choices">
+            {[{ value: "", label: copy.all }, ...facet.options].map((option) => (
+              <label class="hw-choice">
+                <input
+                  type="radio"
+                  name={facet.param}
+                  value={option.value}
+                  checked={(state.facets[facet.param] ?? "") === option.value}
+                />
+                {option.label}
+                <span class="hw-choice-count" data-facet-count={option.value}>
+                  {choiceCounts.get(option.value) ?? 0}
+                </span>
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </fieldset>
       )}
+      {selects.map((each) => {
+        const counts = tally(items, state, each.param);
+        return (
+          <label class="hw-form-field">
+            <span class="hw-form-label">{each.legend}</span>
+            <select name={each.param} class="hw-field hw-select">
+              {[{ value: "", label: copy.all }, ...each.options].map((option) => (
+                <option
+                  value={option.value}
+                  selected={(state.facets[each.param] ?? "") === option.value}
+                  data-label={option.label}
+                >
+                  {`${option.label} (${counts.get(option.value) ?? 0})`}
+                </option>
+              ))}
+            </select>
+          </label>
+        );
+      })}
     </div>
     <p class="hw-list-filter-status">
       <span aria-live="polite" data-filter-count>{countText}</span>
@@ -172,19 +201,47 @@ const faceted = Object.values(state.facets).some(Boolean);
     </p>
   </form>
   <div data-filter-list hidden={!listed || shown === 0}>
-    <slot />
+    {
+      inert ? (
+        <template data-filter-rows>
+          <slot />
+        </template>
+      ) : (
+        <slot />
+      )
+    }
   </div>
   <div data-filter-empty hidden={!listed || shown > 0}>
     <p>{copy.empty}</p>
     <a href={action} class="hw-link" data-filter-clear>{copy.clear}</a>
   </div>
 </div>
-{/* Before first paint: the phone's facets start closed once the script can open them. */}
+{
+  /* Before first paint: the phone's facets start closed, the form shows, and under an overview the
+   listed rows wait for a filter. Should the module never mark the filter ready, the page returns
+   to its state without script, so the facets and the search button stay usable. */
+}
 <script is:inline>
   {
     const root = document.currentScript.previousElementSibling;
+    const form = root.querySelector("form");
+    const list = root.querySelector("[data-filter-list]");
+    const overview = root.dataset.overview && document.getElementById(root.dataset.overview);
+    const was = [form.hidden, list.hidden, overview && overview.hidden];
+    const params = new URLSearchParams(location.search);
+    const set = [...form.querySelectorAll("[name]")].some((field) => params.get(field.name));
     root.dataset.js = "";
     root.dataset.closed = "";
+    form.hidden = false;
+    if ("listed" in root.dataset && !set) list.hidden = true;
+    if (set && overview) overview.hidden = true;
+    addEventListener("DOMContentLoaded", () => {
+      if ("ready" in root.dataset) return;
+      delete root.dataset.js;
+      delete root.dataset.closed;
+      [form.hidden, list.hidden] = was;
+      if (overview) overview.hidden = was[2];
+    });
   }
 </script>
 

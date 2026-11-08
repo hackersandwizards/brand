@@ -8,8 +8,7 @@
    Markup: <nav class="hw-pagination" aria-label="Seiten"><ul><li><a href="…" rel="prev">Zurück</a></li><li class="hw-pagination-page"><a href="…" aria-current="page">3</a></li><li class="hw-pagination-count">Seite 3 von 12</li><li><a href="…" rel="next">Weiter</a></li></ul></nav>
 
    Settings:
-     --hw-item-height         a page link's height under a mouse
-     --hw-check-target-touch  its least height on a touch screen
+     --hw-item-height         a page link's height, at least the touch target on a touch screen
      --hw-field-size          the text size
      --hw-corner-sm           a page link's corner
      --hw-hairline            the line's width in the sequence */
@@ -86,11 +85,6 @@
   .hw-pagination[data-variant="sequence"] ul {
     justify-content: space-between;
     gap: 1rem;
-  }
-  @media (any-pointer: coarse) {
-    .hw-pagination {
-      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
-    }
   }
   @media (max-width: 40rem) {
     .hw-pagination:not([data-variant="sequence"]) .hw-pagination-page,

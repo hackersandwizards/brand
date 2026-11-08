@@ -127,14 +127,17 @@ export function highlight(text: string, words: string[]): string {
 }
 
 /** The browser side of ListFilter.astro, over its markup (root [data-list-filter], its value
- *  "always" or "active"): typing (200 ms debounce), a choice and the select filter in place, the
+ *  "always" or "active"): typing (200 ms debounce), a choice and each select filter in place, the
  *  state lives in `?q=` and each facet's parameter, Back and Forward restore it, and the counts
- *  follow the search. One search is one history entry, arrowing across the choices is one too. */
+ *  follow the search. One search is one history entry, arrowing across the choices is one too.
+ *  Rows in a template[data-filter-rows] enter the list; with data-source on the root, the rows of
+ *  that page load on first use, and until they do the form's submit goes there. Once wired the
+ *  root carries data-ready. */
 export function initListFilter(root: HTMLElement) {
   const form = root.querySelector("form")!;
   const input = form.querySelector<HTMLInputElement>('input[name="q"]')!;
   const radios = [...form.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
-  const select = form.querySelector("select");
+  const selects = [...form.querySelectorAll("select")];
   const list = root.querySelector<HTMLElement>("[data-filter-list]")!;
   const empty = root.querySelector<HTMLElement>("[data-filter-empty]")!;
   const count = root.querySelector<HTMLElement>("[data-filter-count]")!;
@@ -145,30 +148,68 @@ export function initListFilter(root: HTMLElement) {
   const overview = root.dataset.overview ? document.getElementById(root.dataset.overview) : null;
   const browseAlways = root.dataset.listFilter !== "active";
   const copy: CountCopy = JSON.parse(root.dataset.count!);
-  const chipParam = radios[0]!.name;
-  const options: Record<string, string[]> = { [chipParam]: radios.map((radio) => radio.value) };
-  if (select) options[select.name] = [...select.options].map((option) => option.value);
+  const chipParam = radios[0]?.name;
+  const options: Record<string, string[]> = {};
+  if (chipParam) options[chipParam] = radios.map((radio) => radio.value);
+  for (const select of selects)
+    options[select.name] = [...select.options].map((option) => option.value);
+  const template = list.querySelector<HTMLTemplateElement>("template[data-filter-rows]");
+  template?.replaceWith(template.content);
 
-  const rows = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")]
-    .sort((a, b) => Number(a.dataset.filterOrder ?? 0) - Number(b.dataset.filterOrder ?? 0))
-    .map((el) => {
-      const title = el.querySelector<HTMLElement>("[data-filter-title]");
-      const item: FilterItem = {
-        text: el.dataset.filterText ?? "",
-        facets: JSON.parse(el.dataset.filterFacets ?? "{}"),
-      };
-      return { el, title, plain: title?.textContent ?? "", item };
-    });
-  const items = rows.map((row) => row.item);
+  type Row = { el: HTMLElement; title: HTMLElement | null; plain: string; item: FilterItem };
+  let rows: Row[] = [];
+  let items: FilterItem[] = [];
   // The rows as the page placed them, which may be a query's order.
-  let placed = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")].map((el) =>
-    rows.find((row) => row.el === el)!,
-  );
-  const groups = [...list.querySelectorAll<HTMLElement>("[data-filter-group]")];
+  let placed: Row[] = [];
+  let groups: HTMLElement[] = [];
+  const collect = () => {
+    rows = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")]
+      .sort((a, b) => Number(a.dataset.filterOrder ?? 0) - Number(b.dataset.filterOrder ?? 0))
+      .map((el) => {
+        const title = el.querySelector<HTMLElement>("[data-filter-title]");
+        const item: FilterItem = {
+          text: el.dataset.filterText ?? "",
+          facets: JSON.parse(el.dataset.filterFacets ?? "{}"),
+        };
+        return { el, title, plain: title?.textContent ?? "", item };
+      });
+    items = rows.map((row) => row.item);
+    placed = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")].map((el) =>
+      rows.find((row) => row.el === el)!,
+    );
+    groups = [...list.querySelectorAll<HTMLElement>("[data-filter-group]")];
+  };
+  collect();
+
+  // The source page's rows arrive on first use; until then nothing filters, and should they never
+  // arrive the form goes to that page.
+  const source = root.dataset.source;
+  let loaded = !source;
+  let failed = false;
+  let loading: Promise<void> | undefined;
+  const load = () =>
+    (loading ??= fetch(source!)
+      .then((response) => {
+        if (!response.ok) throw new Error(String(response.status));
+        return response.text();
+      })
+      .then((html) => {
+        const page = new DOMParser().parseFromString(html, "text/html");
+        (list.querySelector("ol, ul") ?? list).append(
+          ...page.querySelectorAll("[data-filter-item]"),
+        );
+        collect();
+        loaded = true;
+        apply();
+      })
+      .catch(() => {
+        failed = true;
+      }));
 
   const state = (): FilterState => {
-    const facets = { [chipParam]: radios.find((radio) => radio.checked)?.value ?? "" };
-    if (select) facets[select.name] = select.value;
+    const facets: Record<string, string> = {};
+    if (chipParam) facets[chipParam] = radios.find((radio) => radio.checked)?.value ?? "";
+    for (const select of selects) facets[select.name] = select.value;
     return { q: input.value.trim(), facets };
   };
 
@@ -177,6 +218,12 @@ export function initListFilter(root: HTMLElement) {
     const words = searchWords(current.q);
     const faceted = Object.values(current.facets).some(Boolean);
     const active = words.length > 0 || faceted;
+    if (overview) overview.hidden = active;
+    if (!loaded) {
+      if (active) void load();
+      list.hidden = true;
+      return;
+    }
     let shown = 0;
     const order = ranked(rows, (row) => row.plain, current.q);
     // Rows move only when the order changes, and only within their own parent, so a grouped list
@@ -201,15 +248,16 @@ export function initListFilter(root: HTMLElement) {
       link.href = fullTextUrl(link.dataset.filterFulltext!, current.q);
       link.hidden = !current.q;
     }
-    const chips = tally(items, current, chipParam);
-    for (const each of form.querySelectorAll<HTMLElement>("[data-facet-count]"))
-      each.textContent = String(chips.get(each.dataset.facetCount!) ?? 0);
-    if (select) {
+    if (chipParam) {
+      const chips = tally(items, current, chipParam);
+      for (const each of form.querySelectorAll<HTMLElement>("[data-facet-count]"))
+        each.textContent = String(chips.get(each.dataset.facetCount!) ?? 0);
+    }
+    for (const select of selects) {
       const counts = tally(items, current, select.name);
       for (const option of select.options)
         option.textContent = `${option.dataset.label} (${counts.get(option.value) ?? 0})`;
     }
-    if (overview) overview.hidden = active;
     // A set facet fills the phone's Filters button: its facets are folded away behind it.
     if (faceted) toggle?.removeAttribute("data-variant");
     else toggle?.setAttribute("data-variant", "secondary");
@@ -218,8 +266,8 @@ export function initListFilter(root: HTMLElement) {
   const restore = () => {
     const { q, facets } = readState(new URLSearchParams(location.search), options);
     input.value = q;
-    for (const radio of radios) radio.checked = radio.value === facets[chipParam];
-    if (select) select.value = facets[select.name] ?? "";
+    for (const radio of radios) radio.checked = radio.value === facets[chipParam!];
+    for (const select of selects) select.value = facets[select.name] ?? "";
     apply();
   };
 
@@ -252,8 +300,10 @@ export function initListFilter(root: HTMLElement) {
       apply();
       record("picking");
     });
-  select?.addEventListener("change", () => once("picking"));
+  for (const select of selects) select.addEventListener("change", () => once("picking"));
+  if (source) form.addEventListener("focusin", () => void load());
   form.addEventListener("submit", (event) => {
+    if (failed) return;
     event.preventDefault();
     clearTimeout(timer);
     once("typing");
@@ -263,8 +313,8 @@ export function initListFilter(root: HTMLElement) {
     clear.addEventListener("click", (event) => {
       event.preventDefault();
       input.value = "";
-      radios[0]!.checked = true;
-      if (select) select.value = "";
+      if (radios[0]) radios[0].checked = true;
+      for (const select of selects) select.value = "";
       once("typing");
       input.focus();
     });
@@ -277,7 +327,9 @@ export function initListFilter(root: HTMLElement) {
   const untouched =
     input.value === input.defaultValue &&
     radios.every((radio) => radio.checked === radio.defaultChecked) &&
-    (!select || [...select.options].every((option) => option.selected === option.defaultSelected));
+    selects.every((select) =>
+      [...select.options].every((option) => option.selected === option.defaultSelected),
+    );
   if (untouched) restore();
   else apply();
   history.replaceState(history.state, "", stateUrl(location.href, state()));
@@ -285,6 +337,7 @@ export function initListFilter(root: HTMLElement) {
   // The phone's facets: the toggle opens and closes them, Escape and a click outside close them,
   // Escape returning focus to the toggle.
   root.dataset.js = "";
+  root.dataset.ready = "";
   if (!toggle) return;
   const open = (next: boolean) => {
     root.toggleAttribute("data-closed", !next);

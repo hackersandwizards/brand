@@ -4,9 +4,10 @@
    unset for info), so the state never rests on colour alone; an error also washes the ground in
    its red. hw-toast-action is a text button such as Undo.
 
-   Toasts stack in one hw-toasts region, top right on a wide screen and along the bottom on a phone,
-   within reach of a thumb and clear of the safe area; data-place="top" holds it at the top for an
-   app whose phone screen has a bottom navigation, and --hw-toast-offset lifts it clear of a bar.
+   Toasts stack in one hw-toasts region at the bottom centre, clear of a header's links and buttons,
+   each as wide as its text; on a phone along the bottom edge, within reach of a thumb and clear of
+   the safe area. data-place="top" holds the phone's stack at the top for an app whose phone screen
+   has a bottom navigation, and --hw-toast-offset lifts the stack clear of a bar.
    toast() in elements/behaviour.ts creates both, announces politely (an error interrupts), keeps
    an error until it is closed, closes others after 4 s, and pauses while the pointer or focus is
    on one. It raises the region inside an open modal, since the rest of the page is inert.
@@ -23,13 +24,15 @@
 @layer components {
   .hw-toasts {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom) + var(--hw-toast-offset, 0px));
+    left: 50%;
     z-index: 1000;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
+    align-items: center;
     gap: 0.5rem;
     width: min(26rem, 100vw - 2rem);
+    translate: -50% 0;
   }
   .hw-toast {
     --_hw-ground: var(--background, var(--color-white));
@@ -42,6 +45,7 @@
     align-items: start;
     gap: 0 0.5rem;
     box-sizing: border-box;
+    max-width: 100%;
     border: var(--hw-hairline, 1px) solid var(--_hw-line);
     border-radius: var(--hw-corner-sm, var(--radius-sm));
     padding: 0.625rem 0.5rem 0.625rem 0.75rem;
@@ -120,15 +124,18 @@
   @keyframes hw-toast-in {
     from {
       opacity: 0;
-      translate: 0 -0.5rem;
+      translate: 0 var(--_hw-toast-from, 0.5rem);
     }
   }
   @media (max-width: 40rem) {
-    .hw-toasts:not([data-place="top"]) {
-      top: auto;
-      right: 1rem;
-      bottom: calc(1rem + env(safe-area-inset-bottom) + var(--hw-toast-offset, 0px));
-      flex-direction: column-reverse;
+    .hw-toasts {
+      align-items: stretch;
+    }
+    .hw-toasts[data-place="top"] {
+      --_hw-toast-from: -0.5rem;
+      top: 1rem;
+      bottom: auto;
+      flex-direction: column;
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {

@@ -9,8 +9,7 @@
    Markup: <div class="hw-tabs" role="tablist" aria-label="Deal"><button role="tab" class="hw-tab" id="t1" aria-selected="true" aria-controls="p1">Überblick</button><button role="tab" class="hw-tab" id="t2" aria-selected="false" aria-controls="p2" tabindex="-1">Aktivität</button></div><div class="hw-tab-panel" id="p1" role="tabpanel" aria-labelledby="t1" tabindex="0">…</div>
 
    Settings:
-     --hw-item-height         a tab's height under a mouse
-     --hw-check-target-touch  its least height on a touch screen
+     --hw-item-height         a tab's height, at least the touch target on a touch screen
      --hw-field-size          the text size
      --hw-hairline            the line's width */
 
@@ -58,11 +57,6 @@
   }
   .hw-tab-panel {
     padding-top: 1rem;
-  }
-  @media (any-pointer: coarse) {
-    .hw-tabs {
-      --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-check-target-touch, 44px));
-    }
   }
   @media (prefers-reduced-motion: reduce) {
     .hw-tab {

@@ -257,13 +257,76 @@ test("a tooltip shows on keyboard focus and closes on Escape", async () => {
 
 test("a carousel's step moves the track, updates the dots and announces, the ends disable", async () => {
   const p = await page(
-    `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" id="p">P</button><span data-hw-position></span><button data-hw-step="1" id="n">N</button><p class="hw-sr-status"></p></div></div>`,
+    `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" id="p">P</button><span data-hw-position></span><button data-hw-step="1" id="n">N</button><p class="hw-sr-only"></p></div></div>`,
   );
   expect(await p.$$eval(".hw-carousel-dot", (d) => d.length)).toBe(2);
   expect(await p.$eval("#p", (b) => (b as HTMLButtonElement).disabled)).toBe(true);
   await p.click("#n");
-  expect(await p.$eval(".hw-sr-status", (s) => s.textContent)).toBe("2 von 2");
+  expect(await p.$eval(".hw-sr-only", (s) => s.textContent)).toBe("2 von 2");
   expect(await p.$eval("#n", (b) => (b as HTMLButtonElement).disabled)).toBe(true);
+  await p.close();
+}, 30_000);
+
+// The autoplay timer, captured so a test runs each tick itself.
+const CAPTURE_TICKS = `<script>window.ticks = []; window.setInterval = (f) => window.ticks.push(f);</script>`;
+const tick = (p: Page) =>
+  p.evaluate(() => (window as unknown as { ticks: (() => void)[] }).ticks.forEach((f) => f()));
+const position = (p: Page) =>
+  p.$$eval(".hw-carousel-dot", (dots) => dots.findIndex((d) => d.hasAttribute("aria-current")));
+
+test("an autoplaying carousel advances each tick, holds under the pointer and stops on pause", async () => {
+  const p = await page(
+    `${CAPTURE_TICKS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only"></p></div></div><p id="away" style="margin-top:400px">away</p>`,
+  );
+  expect(await position(p)).toBe(0);
+  await tick(p);
+  expect(await position(p)).toBe(1);
+  await p.hover(".hw-carousel-track");
+  await tick(p);
+  expect(await position(p)).toBe(1);
+  await p.hover("#away");
+  await tick(p);
+  expect(await position(p)).toBe(2);
+  await p.click("#pause");
+  expect(await attr(p, "#pause", "aria-pressed")).toBe("true");
+  await p.hover("#away");
+  await tick(p);
+  expect(await position(p)).toBe(2);
+  await p.close();
+}, 30_000);
+
+test("a copy button shows once wired, copies its text and says so on itself, one at a time", async () => {
+  const p = await page(
+    `<button id="a" data-hw-copy="https://example.org/a" hidden>Copy link</button><button id="b" data-hw-copy="b@example.org" hidden>Copy address</button>`,
+    "en",
+  );
+  await p.evaluate(() => {
+    const w = window as unknown as { copied: string[]; fail: boolean };
+    w.copied = [];
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (t: string) => {
+          if (w.fail) throw new Error("denied");
+          w.copied.push(t);
+        },
+      },
+    });
+  });
+  expect(await p.$eval("#a", (b) => (b as HTMLElement).hidden)).toBe(false);
+  await p.click("#a");
+  await p.waitForFunction(() => document.querySelector("#a")!.textContent === "Copied");
+  expect(await p.$eval(".hw-toasts .hw-sr-only", (n) => n.textContent)).toBe("Copied");
+  await p.click("#b");
+  await p.waitForFunction(() => document.querySelector("#b")!.textContent === "Copied");
+  expect(await p.$eval("#a", (b) => b.textContent)).toBe("Copy link");
+  expect(await p.evaluate(() => (window as unknown as { copied: string[] }).copied)).toEqual([
+    "https://example.org/a",
+    "b@example.org",
+  ]);
+  await p.evaluate(() => ((window as unknown as { fail: boolean }).fail = true));
+  await p.click("#a");
+  await p.waitForFunction(() => document.querySelector("#a")!.textContent !== "Copy link");
+  expect(await p.$eval("#a", (b) => b.textContent)).toBe("Copy failed: select the text");
   await p.close();
 }, 30_000);
 

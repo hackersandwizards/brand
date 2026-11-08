@@ -4,8 +4,7 @@
    The icon is its svg child, sized here; the target keeps its size when text is enlarged, since the
    settings are px on screen. data-tone="danger" is a control that removes or deletes: under the
    pointer and on keyboard focus the icon takes the error red on its 15 % wash, on night the night
-   red. A toggle (aria-pressed) draws its pressed state as the segmented control's chosen segment:
-   teal-dark with a white icon, on night teal-night with a night icon. data-variant="quiet" is a
+   red. A toggle (aria-pressed) draws its pressed state in the chosen fill (elements/chosen.css). data-variant="quiet" is a
    control in a dense toolbar or row: no fill at rest, the icon in ink at 70 %, the 7 % fill on
    hover.
 
@@ -14,6 +13,7 @@
      --hw-control-icon  the icon's side */
 
 @layer properties, theme, base, components, utilities;
+@import "./chosen.css";
 @layer components {
   .hw-icon-button {
     display: inline-flex;
@@ -55,8 +55,8 @@
   }
   .hw-icon-button[aria-pressed="true"],
   .hw-icon-button[aria-pressed="true"]:hover {
-    color: var(--color-white);
-    background: var(--color-teal-dark);
+    color: var(--_hw-on-chosen);
+    background: var(--_hw-chosen);
   }
   .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible) {
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
@@ -79,10 +79,11 @@
       color: var(--color-night-ink);
       background: color-mix(in srgb, white 15%, transparent);
     }
+    /* The night rules above outrank the day toggle, so it stands here again. */
     .hw-icon-button[aria-pressed="true"],
     .hw-icon-button[aria-pressed="true"]:hover {
-      color: var(--color-night);
-      background: var(--color-teal-night);
+      color: var(--_hw-on-chosen);
+      background: var(--_hw-chosen);
     }
     .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible) {
       --_hw-danger: var(--color-red-night);

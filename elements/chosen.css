@@ -1,0 +1,18 @@
+/* The chosen fill: the one value picked among several, the same in every control that offers a
+   pick (hw-choice, hw-segmented, hw-icon-button with aria-pressed). Teal-dark with white text; on
+   night teal-night with night text (7.4:1). Each of those files imports this one and reads
+   --_hw-chosen for the fill and --_hw-on-chosen for the text on it. */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  :is(.hw-choice, .hw-segmented, .hw-icon-button) {
+    --_hw-chosen: var(--color-teal-dark);
+    --_hw-on-chosen: var(--color-white);
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    :is(.hw-choice, .hw-segmented, .hw-icon-button) {
+      --_hw-chosen: var(--color-teal-night);
+      --_hw-on-chosen: var(--color-night);
+    }
+  }
+}

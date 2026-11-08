@@ -9,6 +9,8 @@
    ./marker.css). */
 @layer properties, theme, base, components, utilities;
 @import "./scales.css";
+@import "./chosen.css";
+@import "./sr-only.css";
 @import "./label.css";
 @import "./label-box.css";
 @import "./pill.css";

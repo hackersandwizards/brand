@@ -20,7 +20,8 @@
     --_hw-on-accent: var(--accent-foreground, var(--color-white));
     --_hw-mark: 1.75em;
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 1rem;
     margin: 0;
     padding: 0;
     color: var(--_hw-quiet);
@@ -28,18 +29,19 @@
     list-style: none;
     counter-reset: hw-step;
   }
+  /* Stacked: the mark beside the name, the line down to the next step's mark. */
   .hw-stepper > li {
     position: relative;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 0.25rem;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0 0.5rem;
     counter-increment: hw-step;
   }
   .hw-stepper > li::before {
     position: relative;
     z-index: 1;
     display: flex;
+    grid-row: 1 / span 2;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
@@ -52,16 +54,22 @@
     font-family: var(--font-mono);
     font-weight: 600;
   }
-  .hw-stepper > li + li::after {
+  .hw-stepper > li > .hw-step-name {
+    display: flex;
+    align-self: center;
+    align-items: center;
+    min-height: var(--_hw-mark);
+  }
+  .hw-stepper > li:not(:last-child)::after {
     position: absolute;
-    top: calc(var(--_hw-mark) / 2);
-    right: 100%;
-    left: calc(var(--_hw-mark) - 100% - 0.5rem);
-    border-top: var(--hw-hairline, 1px) solid var(--_hw-line);
+    top: var(--_hw-mark);
+    bottom: -1rem;
+    left: calc(var(--_hw-mark) / 2);
+    border: 0 solid var(--_hw-line);
+    border-left-width: var(--hw-hairline, 1px);
     content: "";
   }
-  .hw-stepper > li[data-state="done"]::after,
-  .hw-stepper > li[data-state="done"] + li::after {
+  .hw-stepper > li[data-state="done"]::after {
     border-color: var(--_hw-accent);
   }
   .hw-stepper > li[aria-current="step"] {
@@ -85,70 +93,30 @@
     color: var(--_hw-quiet);
     font-weight: 400;
   }
-  .hw-stepper[data-orientation="vertical"] {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .hw-stepper[data-orientation="vertical"] > li {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 0 0.5rem;
-  }
-  .hw-stepper[data-orientation="vertical"] > li::before {
-    grid-row: 1 / span 2;
-  }
-  .hw-stepper[data-orientation="vertical"] > li > .hw-step-name {
-    align-self: center;
-    min-height: var(--_hw-mark);
-    display: flex;
-    align-items: center;
-  }
-  .hw-stepper[data-orientation="vertical"] > li + li::after {
-    display: none;
-  }
-  .hw-stepper[data-orientation="vertical"] > li:not(:last-child)::after {
-    display: block;
-    position: absolute;
-    top: var(--_hw-mark);
-    right: auto;
-    bottom: -1rem;
-    left: calc(var(--_hw-mark) / 2);
-    border-top: 0;
-    border-left: var(--hw-hairline, 1px) solid var(--_hw-line);
-    content: "";
-  }
-  @media (max-width: 40rem) {
-    .hw-stepper {
-      flex-direction: column;
-      gap: 1rem;
+  /* Across, on a wide screen: the name below the mark, the line along to the next step's mark. */
+  @media (width > 40rem) {
+    .hw-stepper:not([data-orientation="vertical"]) {
+      flex-direction: row;
+      gap: 0.5rem;
     }
-    .hw-stepper > li {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
-      gap: 0 0.5rem;
-    }
-    .hw-stepper > li::before {
-      grid-row: 1 / span 2;
-    }
-    .hw-stepper > li > .hw-step-name {
-      align-self: center;
-      min-height: var(--_hw-mark);
+    .hw-stepper:not([data-orientation="vertical"]) > li {
       display: flex;
-      align-items: center;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.25rem;
     }
-    .hw-stepper > li + li::after {
-      display: none;
-    }
-    .hw-stepper > li:not(:last-child)::after {
+    .hw-stepper:not([data-orientation="vertical"]) > li > .hw-step-name {
       display: block;
-      position: absolute;
-      top: var(--_hw-mark);
-      right: auto;
-      bottom: -1rem;
-      left: calc(var(--_hw-mark) / 2);
-      border-top: 0;
-      border-left: var(--hw-hairline, 1px) solid var(--_hw-line);
-      content: "";
+      align-self: auto;
+      min-height: 0;
+    }
+    .hw-stepper:not([data-orientation="vertical"]) > li:not(:last-child)::after {
+      top: calc(var(--_hw-mark) / 2);
+      right: -0.5rem;
+      bottom: auto;
+      left: var(--_hw-mark);
+      border-top-width: var(--hw-hairline, 1px);
+      border-left-width: 0;
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {

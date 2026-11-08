@@ -130,6 +130,17 @@
   --hw-avatar-size: 1.5rem;
 }
 
+/* On a touch screen an item of a list, menu, tab row or pager stands at least as tall as the
+   touch target. Paper and stage have no pointer. */
+@media (any-pointer: coarse) {
+  [data-hw-scale="screen"] {
+    --hw-item-height: max(2.75rem, var(--hw-check-target-touch));
+  }
+  [data-hw-scale="dense"] {
+    --hw-item-height: max(2rem, var(--hw-check-target-touch));
+  }
+}
+
 /* The dense tier at the expert set's regular text: UI text 14 px, micro 12 px, every other dense
    measure kept. Set beside data-hw-scale="dense" on the same element (the trainer hub at 14,
    os at 13). */

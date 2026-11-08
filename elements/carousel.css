@@ -5,13 +5,14 @@
    and the live status. data-hw-autoplay advances every six seconds with a pause button; hover,
    focus, a hidden tab or a row off screen hold it, and under reduced motion it never starts.
 
-   Markup: <div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li>…</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" aria-label="Zurück"></button><span data-hw-position></span><button data-hw-step="1" aria-label="Weiter"></button><p class="hw-sr-status" aria-live="polite"></p></div></div>
+   Markup: <div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li>…</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" aria-label="Zurück"></button><span data-hw-position></span><button data-hw-step="1" aria-label="Weiter"></button><p class="hw-sr-only" aria-live="polite"></p></div></div>
 
    Settings:
      --hw-control-size  a control's side
      --hw-control-icon  the control's arrow */
 
 @layer properties, theme, base, components, utilities;
+@import "./sr-only.css";
 @layer components {
   .hw-carousel {
     --_hw-tray: color-mix(in srgb, var(--color-ink) 7%, transparent);
@@ -92,15 +93,6 @@
     font-size: var(--hw-form-small, var(--type-small-size));
     font-variant-numeric: tabular-nums;
     text-align: center;
-  }
-  .hw-sr-status {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
   @media (prefers-reduced-motion: reduce) {
     .hw-carousel-track {

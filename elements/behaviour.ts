@@ -1,5 +1,6 @@
 // The script the common elements need where HTML alone cannot do it: dialog and drawer openers,
-// menu, popover and tooltip placement and keys, tabs, tree, command palette, carousel, toasts.
+// menu, popover and tooltip placement and keys, tabs, tree, command palette, carousel, toasts,
+// copy buttons.
 // Call enhance() once the page is parsed, or enhance(root) after adding markup; listeners on the
 // document are installed once, per-element state is set up per call.
 import { searchWords } from "./list-filter.ts";
@@ -9,6 +10,18 @@ const GAP = 4;
 const MARGIN = 8;
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const byId = (id: string | null) => (id ? document.getElementById(id) : null);
+const german = () => (document.documentElement.lang || "de").startsWith("de");
+
+/** Calls `hold(by, true)` while the pointer or the focus is inside `el`, and `false` as it leaves. */
+function holdWhileUsed(el: HTMLElement, hold: (by: string, on: boolean) => void) {
+  const events = [
+    ["mouseenter", "pointer", true],
+    ["mouseleave", "pointer", false],
+    ["focusin", "focus", true],
+    ["focusout", "focus", false],
+  ] as const;
+  for (const [type, by, on] of events) el.addEventListener(type, () => hold(by, on));
+}
 
 /** Beside `rect`, flipped above where the window ends and kept in the window. */
 function place(pop: HTMLElement, rect: { left: number; top: number; bottom: number }) {
@@ -430,7 +443,7 @@ export type Toast = {
 /** Shows a toast and returns it. Set its text from data or copy; it is never parsed as markup. */
 export function toast(message: string, { tone = "info", duration = 4000, action }: Toast = {}) {
   const box = region();
-  const de = (document.documentElement.lang || "de").startsWith("de");
+  const de = german();
   const el = document.createElement("div");
   el.className = "hw-toast";
   if (tone !== "info") el.dataset.tone = tone;
@@ -480,12 +493,42 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
       timer = window.setTimeout(fade, Math.max(left, 1500));
     }
   };
-  el.addEventListener("mouseenter", () => hold("pointer", true));
-  el.addEventListener("mouseleave", () => hold("pointer", false));
-  el.addEventListener("focusin", () => hold("focus", true));
-  el.addEventListener("focusout", () => hold("focus", false));
+  holdWhileUsed(el, hold);
   timer = window.setTimeout(fade, left);
   return el;
+}
+
+// A copy button says its result on itself, where the eye already is, and the toast region
+// announces it. One button at a time reads as copied: only that one says what the clipboard holds.
+const copyLabels = new WeakMap<HTMLElement, string>();
+let copiedButton: HTMLElement | undefined;
+let presses = 0;
+/** Wires a button that copies its data-hw-copy text and shows it was copied, or how it failed, on
+ *  itself. A button that starts hidden shows once wired, so a page without script never offers it. */
+export function copyButton(button: HTMLElement) {
+  if (copyLabels.has(button)) return;
+  copyLabels.set(button, button.textContent ?? "");
+  button.hidden = false;
+  button.addEventListener("click", async () => {
+    const press = ++presses;
+    const de = german();
+    let said = de ? "Kopiert" : "Copied";
+    try {
+      await navigator.clipboard.writeText(button.dataset.hwCopy ?? "");
+    } catch {
+      said = de ? "Kopieren fehlgeschlagen: Text markieren" : "Copy failed: select the text";
+    }
+    if (press !== presses) return;
+    if (copiedButton && copiedButton !== button)
+      copiedButton.textContent = copyLabels.get(copiedButton)!;
+    copiedButton = button;
+    button.textContent = said;
+    const note = document.createElement("span");
+    note.className = "hw-sr-only";
+    note.textContent = said;
+    region().append(note);
+    setTimeout(() => note.remove(), 1000);
+  });
 }
 
 const wiredCarousels = new WeakSet<Element>();
@@ -497,8 +540,8 @@ function enhanceCarousel(carousel: HTMLElement) {
   if (!track || !controls) return;
   const items = [...track.children] as HTMLElement[];
   const position = controls.querySelector<HTMLElement>("[data-hw-position]");
-  const status = controls.querySelector<HTMLElement>(".hw-sr-status");
-  const of = (document.documentElement.lang || "de").startsWith("de") ? "von" : "of";
+  const status = controls.querySelector<HTMLElement>(".hw-sr-only");
+  const of = german() ? "von" : "of";
   const useDots = items.length <= 5;
   position?.replaceChildren();
   const dots =
@@ -562,10 +605,7 @@ function enhanceCarousel(carousel: HTMLElement) {
   const holds = new Set<string>();
   let stopped = false;
   const hold = (by: string, on: boolean) => (on ? holds.add(by) : holds.delete(by));
-  carousel.addEventListener("mouseenter", () => hold("pointer", true));
-  carousel.addEventListener("mouseleave", () => hold("pointer", false));
-  carousel.addEventListener("focusin", () => hold("focus", true));
-  carousel.addEventListener("focusout", () => hold("focus", false));
+  holdWhileUsed(carousel, hold);
   new IntersectionObserver(([e]) => hold("offscreen", !e!.isIntersecting)).observe(carousel);
   pause?.addEventListener("click", () => {
     stopped = !stopped;
@@ -597,4 +637,5 @@ export function enhance(root: ParentNode = document) {
   }
   for (const carousel of root.querySelectorAll<HTMLElement>(".hw-carousel"))
     enhanceCarousel(carousel);
+  for (const button of root.querySelectorAll<HTMLElement>("[data-hw-copy]")) copyButton(button);
 }
