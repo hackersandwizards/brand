@@ -18,7 +18,7 @@ import press from "../press/press.json";
 import verbal from "../verbal/verbal.json";
 import catalogs from "../expert/catalogs.json";
 import { ROOT } from "../scripts/git";
-import { DEMOS } from "../scripts/element-demos";
+import { DEMOS, SECTIONS } from "../scripts/element-demos";
 import { MARK } from "../applications/avatars/generate";
 import { escHtml } from "../applications/linkedin-visuals/render";
 import { stickerCaptions } from "../applications/device-stickers/devices";
@@ -596,79 +596,6 @@ index.push({
 // The shared elements: each file's own words (its first paragraph and its settings), then its
 // sample live in a matrix of the four scales by light and night. Every cell loads the same file;
 // only the data-hw-scale on the cell changes.
-// The elements in sections, as mature UI libraries group theirs: forms, actions, navigation,
-// feedback, data display, typography, containers, and the utilities every element shares.
-const SECTIONS: [string, [string, string, string][]][] = [
-  [
-    "Forms",
-    [
-      ["field", "Field", "field"],
-      ["check", "Checkbox and radio", "check"],
-      ["form-field", "Form field", "form-field"],
-    ],
-  ],
-  [
-    "Actions",
-    [
-      ["button", "Button", "button"],
-      ["arrow-link", "Arrow link", "arrow-link"],
-      ["icon-button", "Round icon control", "icon-button"],
-      ["segmented", "Segmented control", "segmented"],
-    ],
-  ],
-  [
-    "Navigation",
-    [
-      ["link", "Link in text", "link"],
-      ["breadcrumb", "Breadcrumb", "breadcrumb"],
-    ],
-  ],
-  [
-    "Feedback",
-    [
-      ["status", "Status box", "status"],
-      ["callout", "Callout", "callout"],
-    ],
-  ],
-  [
-    "Data display",
-    [
-      ["table", "Ruled table", "table"],
-      ["facts", "Facts list", "facts"],
-      ["row", "List row", "row"],
-      ["kpi", "Key figure", "kpi"],
-      ["dot-list", "Dot list", "dot-list"],
-      ["pill", "Pill", "pill"],
-      ["label-box", "Label box", "label-box"],
-    ],
-  ],
-  [
-    "Typography",
-    [
-      ["label", "Label", "label"],
-      ["quote", "Quote", "quote"],
-      ["code", "Code block", "code"],
-      ["inline-code", "Inline code", "inline-code"],
-      ["kbd", "Keycap", "kbd"],
-      ["prose", "Prose block", "prose"],
-    ],
-  ],
-  [
-    "Containers",
-    [
-      ["card", "Card", "card"],
-      ["frame", "Dashed frame", "frame"],
-    ],
-  ],
-  [
-    "Utilities",
-    [
-      ["focus-ring", "Focus ring", "focus"],
-      ["rule", "Accent rule", "rule"],
-      ["strip", "Gradient strip", "strip"],
-    ],
-  ],
-];
 const ELEMENT_ORDER = SECTIONS.flatMap(([section, els]) =>
   els.map(([name, title, file]) => ({ section, name, title, file })),
 );
@@ -690,17 +617,22 @@ const elementDoc = (file: string) => {
   };
 };
 const CLASS: Record<string, string> = { "focus-ring": ".hw-focus-ring", link: ".hw-link" };
-const elementHtml = ({ name, title, file }: (typeof ELEMENT_ORDER)[number]) => {
+// Search words for what an element holds beyond its name.
+const KEYWORDS: Record<string, string> = {
+  field: "select dropdown hw-select textarea form-input",
+  "form-field": "label hint error message optional fieldset legend validation",
+};
+const elementHtml = ({ name, title, file }: { name: string; title: string; file: string }) => {
   const { words, names } = elementDoc(file);
   index.push({
     t: title.toLowerCase(),
     k: "element",
     h: `elements/hw-${name}`,
-    x: `hw-${name} ${file}.css`,
+    x: `hw-${name} ${file}.css${KEYWORDS[name] ? ` ${KEYWORDS[name]}` : ""}`,
   });
-  // A sample's ids (a label's for, an aria-describedby) stay unique across the eight cells.
+  // A sample's ids, and the for and aria-describedby naming them, stay unique across the cells.
   const cell = (scale: string, night: boolean) =>
-    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ff-/g, `ff-${scale}${night ? "-night" : ""}-`)}</div></div>`;
+    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ (id|for|aria-describedby)="([^"]*)"/g, (_, attr: string, ids: string) => ` ${attr}="${ids.replace(/\S+/g, (id) => `${id}-${scale}${night ? "-night" : ""}`)}"`)}</div></div>`;
   const row = (night: boolean) =>
     `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
   return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
@@ -721,11 +653,9 @@ const disclosureHtml = `<h4 id="disclosure">Disclosure <code>.hw-disclosure</cod
 <div class="disclosures"><figure><span class="label">Light</span><div class="disclosure-demo">${disclosureDemo}</div></figure><figure><span class="label">Night</span>${frame(nightDisclosure, 'title="disclosure on night"')}</figure></div>`;
 const elementsHtml = `${sharedIntro}
 ${SECTIONS.map(
-  ([section]) =>
-    `<h3 id="${sectionId(section)}">${section}</h3>\n${ELEMENT_ORDER.filter(
-      (e) => e.section === section,
-    )
-      .map(elementHtml)
+  ([section, els]) =>
+    `<h3 id="${sectionId(section)}">${section}</h3>\n${els
+      .map(([name, title, file]) => elementHtml({ name, title, file }))
       .join("\n")}${section === "Navigation" ? `\n${disclosureHtml}` : ""}`,
 ).join("\n")}
 <h3 id="expert-group">Expert: the apps</h3>

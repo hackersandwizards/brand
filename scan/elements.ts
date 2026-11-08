@@ -180,7 +180,7 @@ const OWNS: Record<string, string[]> = {
   ],
   "form-field .hw-form-mark": ["font-weight", "color"],
   "form-field .hw-form-hint": ["font-size", "line-height", "color"],
-  "form-field .hw-form-error": ["font-size", "font-weight", "line-height", "color", "column-gap"],
+  "form-field .hw-form-error": ["font-size", "font-weight", "line-height", "color", "padding-left"],
   facts: ["margin-top", "margin-bottom"],
   "dot-list": ["flex-wrap", "align-items", "margin-left"],
   "facts div": ["display", "row-gap", ...borders(["top"]), "padding-top", "padding-bottom"],

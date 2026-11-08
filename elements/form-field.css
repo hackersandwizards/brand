@@ -1,6 +1,7 @@
 /* The form field: one question of a form, its parts stacked in this order: the label, a hint, the
    control (hw-field, hw-check rows, or a select), then the error message. The label is the body
-   text at medium weight, the field's own size; the hint is muted, at the small size; the error
+   text at medium weight, the field's own size; the hint is muted, at the scale's small size (on
+   dense the UI size, the apps' smallest reading text, so only colour and weight set it off); the error
    message is the error red (an app's --error where it has one) at medium weight, behind a circled
    exclamation mark drawn by the element, so the message never relies on colour alone. A <fieldset>
    with its <legend> takes the same class for a group of checkboxes or radios; each option is a
@@ -75,9 +76,10 @@
   .hw-form-hint {
     color: var(--_hw-quiet);
   }
+  /* The icon hangs in the message's left padding, so the message stays one run of text. */
   .hw-form-error {
-    display: flex;
-    gap: 0.375em;
+    position: relative;
+    padding-left: 1.525em;
     font-weight: 500;
     color: var(--_hw-error);
   }
@@ -86,7 +88,9 @@
   }
   .hw-form-error::before {
     content: "";
-    flex: none;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 1.15em;
     height: 1lh;
     background: currentColor;

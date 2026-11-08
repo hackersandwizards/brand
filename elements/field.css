@@ -31,8 +31,11 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.75rem;
   }
-  .hw-field {
+  .hw-field,
+  .hw-field-row {
     --_hw-error: var(--error, var(--color-red));
+  }
+  .hw-field {
     box-sizing: border-box;
     width: 100%;
     min-height: var(--hw-field-height, 3rem);
@@ -55,7 +58,7 @@
     padding-block: calc((var(--hw-field-height, 3rem) - 1lh) / 2);
     resize: vertical;
   }
-  .hw-field:not(:disabled):hover {
+  .hw-field:hover:not(:disabled, [aria-invalid="true"]) {
     border-color: var(--color-ink);
   }
   .hw-field[aria-invalid="true"] {
@@ -90,6 +93,12 @@
     border: 0;
     border-radius: 0;
     background: transparent;
+    box-shadow: none;
+  }
+  /* An invalid field in the joined row: the row draws the error line. */
+  .hw-field-row[data-joined]:has(> .hw-field[aria-invalid="true"]) {
+    border-color: var(--_hw-error);
+    box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-error);
   }
   .hw-field-row[data-joined] > button {
     display: flex;
@@ -117,8 +126,11 @@
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    .hw-field {
+    .hw-field,
+    .hw-field-row {
       --_hw-error: var(--error, var(--color-red-night));
+    }
+    .hw-field {
       border-color: var(--color-night-muted);
       color: var(--color-white);
       background: var(--color-night-2);
@@ -126,10 +138,13 @@
     .hw-field::placeholder {
       color: var(--color-night-muted);
     }
-    .hw-field:not(:disabled):hover {
+    .hw-field:hover:not(:disabled, [aria-invalid="true"]) {
       border-color: var(--color-white);
     }
     .hw-field[aria-invalid="true"] {
+      border-color: var(--_hw-error);
+    }
+    .hw-field-row[data-joined]:has(> .hw-field[aria-invalid="true"]) {
       border-color: var(--_hw-error);
     }
     .hw-field-row[data-joined] {
