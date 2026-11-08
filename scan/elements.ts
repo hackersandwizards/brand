@@ -191,6 +191,8 @@ const OWNS: Record<string, string[]> = {
     "column-gap",
     "font-size",
     "line-height",
+    "padding-top",
+    "padding-bottom",
   ],
   "form-field .hw-form-mark": ["font-weight", "color"],
   "form-field .hw-form-hint": ["font-size", "line-height", "color"],

@@ -1061,3 +1061,44 @@ test("a focused element is measured against its focused reference", async () => 
   );
   expect(drift.findings.map((f) => f.prop)).toContain("color");
 }, 60_000);
+
+// The target is the label: an option row and a lone box's label are 32 px under a mouse and 44 px
+// on a touch screen, at the screen and dense scales; paper and stage keep the line.
+test("an option row and a lone box's label are the target, 32 px by mouse, 44 px by touch", async () => {
+  const body = ["screen", "dense", "print"]
+    .map(
+      (scale) =>
+        `<div data-hw-scale="${scale}"><fieldset class="hw-form-field"><legend class="hw-form-label">Rolle</legend><label><input type="radio" class="hw-check"> Trainer</label></fieldset><label class="hw-check-target"><input type="checkbox" class="hw-check" aria-label="Erledigt"></label></div>`,
+    )
+    .join("");
+  const url = pathToFileURL(file("target.html", only(body))).href;
+  const sizes = async (touch: boolean) => {
+    const p = await browser.newPage();
+    await p.emulate({
+      viewport: { width: 800, height: 600, isMobile: touch, hasTouch: touch },
+      userAgent: "",
+    });
+    await open(p, url);
+    const out = await p.$$eval("[data-hw-scale]", (scales) =>
+      scales.map((s) => {
+        const row = s.querySelector(".hw-form-field > label")!.getBoundingClientRect();
+        const lone = s.querySelector(".hw-check-target")!.getBoundingClientRect();
+        return [Math.round(row.height), Math.round(lone.width), Math.round(lone.height)];
+      }),
+    );
+    await p.close();
+    return out;
+  };
+  const [mouse, touch] = [await sizes(false), await sizes(true)];
+  expect(mouse.slice(0, 2)).toEqual([
+    [32, 32, 32],
+    [32, 32, 32],
+  ]);
+  expect(touch.slice(0, 2)).toEqual([
+    [44, 44, 44],
+    [44, 44, 44],
+  ]);
+  // Control: paper keeps the option at its line and the lone box at its own size.
+  expect(mouse[2]![0]).toBeLessThan(32);
+  expect(touch[2]).toEqual(mouse[2]);
+}, 60_000);

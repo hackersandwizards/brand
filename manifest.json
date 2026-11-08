@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "206d891db817783baf8229911039993b0020cc03ceaec4eb13eb25b7434a4a4f"
+      "sha256": "ca53373237f9fc272cfa1bb123fa9bac64688c7ac19aa21f96959b429fbd0805"
     },
     {
       "path": "elements/strip.css",
@@ -430,11 +430,11 @@
     },
     {
       "path": "elements/check.css",
-      "sha256": "6acab374709e7a6430a2d1222304769ea3521f6f254f933b87017c794ba3bfc9"
+      "sha256": "b589ffb8ae34e9db0d6727a31d92547c4e32c1f6e2bb3a96ea30d39ce91878f0"
     },
     {
       "path": "elements/form-field.css",
-      "sha256": "ba3c870572b381dd4c9b199d3d276c828967cf0fe80a295275ab24e669357a9a"
+      "sha256": "98fbda498425355f64501c06dad447dff5251f5ed7bffcf9a8a7d77224e39c86"
     },
     {
       "path": "elements/facts.css",

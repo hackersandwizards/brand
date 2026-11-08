@@ -15,6 +15,16 @@
    inline alike. Set its text 0.5rem from it (a flex gap), so the focus ring clears the text.
    Under forced colours the browser's own control returns.
 
+   The target is the label: an option in hw-form-field is a row as tall as the target. A box with
+   no text beside it (a list row's done box) sits in <label class="hw-check-target">, a square of
+   the target's side with the box in its middle. The target is 32 px under a mouse and 44 px on a
+   touch screen.
+
+   Settings (scales.css sets them per medium; print and stage set 0, since nobody taps paper or a
+   slide):
+     --hw-check-target        the target's side under a mouse
+     --hw-check-target-touch  the target's side on a touch screen (pointer: coarse)
+
    Markup: <label><input type="checkbox" class="hw-check"> Erledigt</label>
            <label><input type="radio" class="hw-check" name="…"> Behalten</label> */
 
@@ -46,6 +56,23 @@
   }
   .hw-check[type="radio"] {
     border-radius: 50%;
+  }
+  .hw-check-target {
+    --_hw-target: var(--hw-check-target, 32px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--_hw-target);
+    min-height: var(--_hw-target);
+    cursor: pointer;
+  }
+  @media (pointer: coarse) {
+    .hw-check-target {
+      --_hw-target: var(--hw-check-target-touch, 44px);
+    }
+  }
+  .hw-check-target > .hw-check {
+    margin: 0;
   }
   .hw-check:not(:disabled, :checked):hover {
     border-color: var(--_hw-hover);

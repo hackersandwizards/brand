@@ -12,7 +12,8 @@
    message only once the reader has submitted or left the control; set aria-invalid="true" on the
    control and name hint and message in its aria-describedby. A group's message is the group's:
    aria-describedby on the fieldset, no aria-invalid on its options (that marks a lone checkbox,
-   such as consent), and it stands a gap further from the last option. Night takes night-muted for
+   such as consent), and it stands a gap further from the last option. Each option's row is the
+   target: a one-line row stands 32 px tall under a mouse, 44 px on a touch screen. Night takes night-muted for
    hint and mark and red-night for the message.
 
    Markup: <div class="hw-form-field">
@@ -28,6 +29,8 @@
      --hw-form-gap    the space between the parts
      --hw-form-small  the hint's and the message's size
      --hw-field-size  the label's and each option's size, the field's text size
+     --hw-check-target        an option row's least height under a mouse (check.css)
+     --hw-check-target-touch  the same on a touch screen
      --hw-muted       the muted grey, where a surface's --color-muted means something else */
 
 @layer theme, base, components, utilities;
@@ -58,6 +61,13 @@
     align-items: start;
     font-size: var(--hw-field-size, var(--type-body-size));
     line-height: var(--type-body-line-height);
+    --_hw-target: var(--hw-check-target, 32px);
+    padding-block: max(0px, (var(--_hw-target) - 1lh) / 2);
+  }
+  @media (pointer: coarse) {
+    .hw-form-field > label:has(> .hw-check) {
+      --_hw-target: var(--hw-check-target-touch, 44px);
+    }
   }
   .hw-form-label {
     font-size: var(--hw-field-size, var(--type-body-size));
