@@ -47,12 +47,14 @@ async function contrastFailures(url: string, css = "") {
     if (css) await tab.addStyleTag({ content: css });
     await tab.evaluate(axe.source);
     const found = await tab.evaluate(async (unmeasured) => {
+      // `checks` is a run option axe documents and its types leave out.
+      const options = {
+        runOnly: ["color-contrast"],
+        checks: { "color-contrast": { options: { ignoreLength: true } } },
+      } as axe.RunOptions;
       const { violations, incomplete } = await (window as unknown as { axe: typeof axe }).axe.run(
         document,
-        {
-          runOnly: ["color-contrast"],
-          checks: { "color-contrast": { options: { ignoreLength: true } } },
-        },
+        options,
       );
       const nodes = [...violations, ...incomplete]
         .flatMap((r) => r.nodes)
