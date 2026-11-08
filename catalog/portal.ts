@@ -18,7 +18,7 @@ import press from "../press/press.json";
 import verbal from "../verbal/verbal.json";
 import catalogs from "../expert/catalogs.json";
 import { ROOT } from "../scripts/git";
-import { DEMOS } from "../scripts/element-demos";
+import { DEMOS, SECTIONS } from "../scripts/element-demos";
 import { MARK } from "../applications/avatars/generate";
 import { escHtml } from "../applications/linkedin-visuals/render";
 import { stickerCaptions } from "../applications/device-stickers/devices";
@@ -202,7 +202,7 @@ const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none
 const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div class="rules">
 <div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}: everything that holds content or is pressed with words on it, cards, panels, callouts, code blocks, pictures and buttons. Only the outermost block takes it: whatever sits inside takes the small corner.</p></div>
-<div><p class="shape-demo"><span class="hw-label hw-label-box">Part one</span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments, an app's button under 32 px tall, a picture in a mail, and every block inside a block with the brand corner.</p></div>
+<div><p class="shape-demo"><span class="hw-label hw-label-box">Part one</span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments, a picture in a mail, and every block inside a block with the brand corner.</p></div>
 <div><p class="shape-demo"><span class="hw-pill">Remote</span> <span class="hw-icon-button">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
 <div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Square: a mark smaller than a line, a list marker or a colour swatch.</p></div>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
@@ -583,16 +583,6 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
     return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${cut ? `, <a href="press/${cut}" download>${code(cut)}</a>` : ""}</figcaption></figure>`;
   })
   .join("")}</div>`;
-const dropdownOptions = ["All (116)", "Context engineering (12)", "Testing (9)"]
-  .map((o) => `<option>${esc(o)}</option>`)
-  .join("");
-const nightDropdown = `<!doctype html><html data-theme="dark"><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="expert/select.css"><style>body{margin:0;padding:1rem;background:var(--color-night);font:400 0.875rem/1.5 var(--type-body-family)}select{box-sizing:border-box;min-height:2.5rem;width:16rem;padding-left:0.875rem;border:1px solid var(--color-night-muted);border-radius:var(--radius-brand);background-color:var(--color-night-2);color:var(--color-white);font:inherit}</style></head><body><select class="hw-select" aria-label="Topic">${dropdownOptions}</select></body></html>`;
-index.push({
-  t: "dropdown",
-  k: "element",
-  h: "elements/dropdown",
-  x: "select chevron hw-select form-input",
-});
 const disclosureDemo = `<details class="hw-disclosure" open><summary>Meetings <span class="hw-disclosure-count">3</span></summary><p>Kick-off, 12 Oct</p></details><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary><p>Hidden while closed</p></details>`;
 // The disclosure demo's spacing, the same in the night frame, the tile and the inline demo.
 const DISCLOSURE_SPACING = "summary{padding:0.25rem 0}details p{margin:0.25rem 0 0.5rem 1.5rem}";
@@ -606,36 +596,10 @@ index.push({
 // The shared elements: each file's own words (its first paragraph and its settings), then its
 // sample live in a matrix of the four scales by light and night. Every cell loads the same file;
 // only the data-hw-scale on the cell changes.
-const ELEMENT_ORDER: [string, string, string][] = [
-  ["label", "Label", "label"],
-  ["label-box", "Label box", "label-box"],
-  ["pill", "Pill", "pill"],
-  ["card", "Card", "card"],
-  ["callout", "Callout", "callout"],
-  ["quote", "Quote", "quote"],
-  ["table", "Ruled table", "table"],
-  ["link", "Link in text", "link"],
-  ["focus-ring", "Focus ring", "focus"],
-  ["icon-button", "Round icon control", "icon-button"],
-  ["strip", "Gradient strip", "strip"],
-  ["rule", "Accent rule", "rule"],
-  ["code", "Code block", "code"],
-  ["inline-code", "Inline code", "inline-code"],
-  ["kbd", "Keycap", "kbd"],
-  ["button", "Button", "button"],
-  ["arrow-link", "Arrow link", "arrow-link"],
-  ["field", "Field with button", "field"],
-  ["check", "Checkbox and radio", "check"],
-  ["facts", "Facts list", "facts"],
-  ["dot-list", "Dot list", "dot-list"],
-  ["segmented", "Segmented control", "segmented"],
-  ["row", "List row", "row"],
-  ["breadcrumb", "Breadcrumb", "breadcrumb"],
-  ["status", "Status box", "status"],
-  ["frame", "Dashed frame", "frame"],
-  ["kpi", "Key figure", "kpi"],
-  ["prose", "Prose block", "prose"],
-];
+const ELEMENT_ORDER = SECTIONS.flatMap(([section, els]) =>
+  els.map(([name, title, file]) => ({ section, name, title, file })),
+);
+const sectionId = (section: string) => `el-${section.toLowerCase().replace(/ /g, "-")}`;
 const SCALES: [string, string][] = [
   ["screen", "website, verifier: px"],
   ["dense", "os, trainer hub, talks"],
@@ -653,39 +617,49 @@ const elementDoc = (file: string) => {
   };
 };
 const CLASS: Record<string, string> = { "focus-ring": ".hw-focus-ring", link: ".hw-link" };
-const sharedHtml = ELEMENT_ORDER.map(([name, title, file]) => {
+// Search words for what an element holds beyond its name.
+const KEYWORDS: Record<string, string> = {
+  field: "select dropdown hw-select textarea form-input",
+  "form-field": "label hint error message optional fieldset legend validation",
+};
+const elementHtml = ({ name, title, file }: { name: string; title: string; file: string }) => {
   const { words, names } = elementDoc(file);
   index.push({
     t: title.toLowerCase(),
     k: "element",
     h: `elements/hw-${name}`,
-    x: `hw-${name} ${file}.css`,
+    x: `hw-${name} ${file}.css${KEYWORDS[name] ? ` ${KEYWORDS[name]}` : ""}`,
   });
+  // A sample's ids, and the for and aria-describedby naming them, stay unique across the cells.
   const cell = (scale: string, night: boolean) =>
-    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]}</div></div>`;
+    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ (id|for|aria-describedby)="([^"]*)"/g, (_, attr: string, ids: string) => ` ${attr}="${ids.replace(/\S+/g, (id) => `${id}-${scale}${night ? "-night" : ""}`)}"`)}</div></div>`;
   const row = (night: boolean) =>
     `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
-  return `<h3 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h3>
+  return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
 <p class="meta">${code(`elements/${file}.css`)} · brand v${pkg.version}</p>
 <p>${esc(words)}</p>
 <div class="el-matrix"><span></span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>`).join("")}${row(false)}${row(true)}</div>
 <p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
-}).join("\n");
+};
 const EXPERT_COMPONENTS = readdirSync(join(ROOT, "expert/components"))
   .sort()
   .flatMap((f) => f.match(/^(\w+)\.astro$/)?.[1] ?? []);
 const sharedIntro = `<p>Every element two or more systems show lives here once: one CSS file, shown live in light and night at each of the four scales. A system sets the scale, never a colour or a shape, and shows its exceptions in full on its own design-system page, beside a tile per hub element it uses. ${code('@import "@hackersandwizards/brand/elements.css";')} takes them all, ${code("elements/<name>.css")} with ${code("elements/scales.css")} one each; the scale is ${code('data-hw-scale="screen | dense | print | stage"')} on any container. ${code("brand-elements")} measures each element on the system's own page against this rule, in that system's gate.</p>
 <p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, tooltip, chart bars, slide table, header bars, ghost button. The slide engine's number tile, a step's number on a square, is a slide part.</p>`;
-const elementsHtml = `${sharedIntro}
-${sharedHtml}
-<h3 id="expert-group">Expert: the apps</h3>
-<p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), shown on each app's design-system page, and the plain-CSS parts below, which any surface may take.</p>
-<h3 id="dropdown">Dropdown</h3>
-<p>A native ${code("<select>")} with the brand chevron in place of the system's arrow: border-strong on light, night-muted on night. ${code('@import "@hackersandwizards/brand/select.css";')} and the class ${code("hw-select")}, or ${code("form-input")} under the expert layer. The file draws the arrow and its room only; corner, border, height and focus stay the surface's, here the website's field.</p>
-<div class="dropdowns"><label><span class="label">Light</span><select class="input hw-select">${dropdownOptions}</select></label><figure><span class="label">Night</span>${frame(nightDropdown, 'title="dropdown on night"')}</figure></div>
-<h3 id="disclosure">Disclosure</h3>
+// The disclosure is the expert layer's plain CSS, which any surface may take, shown in Navigation.
+const disclosureHtml = `<h4 id="disclosure">Disclosure <code>.hw-disclosure</code></h4>
+<p class="meta">${code("expert/disclosure.css")} · brand v${pkg.version}</p>
 <p>A native ${code("<details>")} with the brand chevron in place of the browser's triangle: Lucide's chevron-right in the summary's text colour, turned down while open. ${code('@import "@hackersandwizards/brand/disclosure.css";')} and the class ${code("hw-disclosure")}, or the expert layer, which imports it. ${code("hw-disclosure-chevron")} places the chevron inside the summary instead, ${code("hw-disclosure-count")} is the count pill. Type, colour and padding stay the surface's.</p>
-<div class="dropdowns disclosures"><figure><span class="label">Light</span><div class="disclosure-demo">${disclosureDemo}</div></figure><figure><span class="label">Night</span>${frame(nightDisclosure, 'title="disclosure on night"')}</figure></div>`;
+<div class="disclosures"><figure><span class="label">Light</span><div class="disclosure-demo">${disclosureDemo}</div></figure><figure><span class="label">Night</span>${frame(nightDisclosure, 'title="disclosure on night"')}</figure></div>`;
+const elementsHtml = `${sharedIntro}
+${SECTIONS.map(
+  ([section, els]) =>
+    `<h3 id="${sectionId(section)}">${section}</h3>\n${els
+      .map(([name, title, file]) => elementHtml({ name, title, file }))
+      .join("\n")}${section === "Navigation" ? `\n${disclosureHtml}` : ""}`,
+).join("\n")}
+<h3 id="expert-group">Expert: the apps</h3>
+<p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), shown on each app's design-system page. Their field is ${code("form-input")}, which takes the field's states and the form field's parts above.</p>`;
 
 // Each system's own design-system page, served by its dev server, and the public address its owner
 // publishes, which the Pages copy links instead; a system without a page is not listed.
@@ -705,7 +679,7 @@ const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub])
 // A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
 const sampleFrame = (body: string, css = "") =>
   frame(
-    `<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><link rel="stylesheet" href="expert/select.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`,
+    `<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`,
     'tabindex="-1" aria-hidden="true" title=""',
   );
 // An image under applications/ is in Git LFS and a pointer in a checkout without it: the preview
@@ -789,27 +763,26 @@ const groups: CatalogGroup[] = [
   {
     name: "Elements",
     items: [
-      ...ELEMENT_ORDER.map(([name, title, file]) => ({
-        name: title,
-        href: `#elements/hw-${name}`,
-        note: `${CLASS[name] ?? `.hw-${name}`} · elements/${file}.css`,
-        html: sampleFrame(DEMOS[name]!),
-      })),
-      {
-        name: "Dropdown",
-        href: "#elements/dropdown",
-        note: ".hw-select · expert/select.css",
-        html: sampleFrame(
-          `<select class="hw-select" aria-label="Topic">${dropdownOptions}</select>`,
-          "select{box-sizing:border-box;min-height:2.5rem;width:16rem;padding-left:0.875rem;border:1px solid var(--color-border-strong);border-radius:var(--radius-brand);background-color:var(--color-white);color:var(--color-ink);font:inherit}",
-        ),
-      },
-      {
-        name: "Disclosure",
-        href: "#elements/disclosure",
-        note: ".hw-disclosure · expert/disclosure.css",
-        html: sampleFrame(disclosureDemo, DISCLOSURE_SPACING),
-      },
+      ...ELEMENT_ORDER.flatMap(({ section, name, title, file }) => [
+        {
+          name: title,
+          href: `#elements/hw-${name}`,
+          note: `${CLASS[name] ?? `.hw-${name}`} · elements/${file}.css`,
+          pill: section,
+          html: sampleFrame(DEMOS[name]!),
+        },
+        ...(name === "breadcrumb"
+          ? [
+              {
+                name: "Disclosure",
+                href: "#elements/disclosure",
+                note: ".hw-disclosure · expert/disclosure.css",
+                pill: section,
+                html: sampleFrame(disclosureDemo, DISCLOSURE_SPACING),
+              },
+            ]
+          : []),
+      ]),
     ],
   },
   {
@@ -1026,9 +999,11 @@ ${inline(catalogCss)}</style>
     .input:hover { border-color: var(--color-muted); }
     .input:focus-visible { border-color: var(--color-teal); }
     section[data-page] { max-width: var(--container-wide); }
-    .portal-views :is(h2, h3):not(.el-cell *) { font-family: var(--font-mono); letter-spacing: -0.02em; }
+    .portal-views :is(h2, h3, h4):not(.el-cell *) { font-family: var(--font-mono); letter-spacing: -0.02em; }
     .portal-views h2:not(.el-cell *) { font-size: var(--text-h2); margin: 0 0 1rem; }
-    .portal-views h3:not(.el-cell *) { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
+    .portal-views :is(h3, h4):not(.el-cell *) { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
+    /* A section of the elements: a ruled heading above its elements. */
+    .portal-views h3[id^="el-"] { font-size: var(--text-h3); margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
     .meta { color: var(--color-muted); }
     /* The words view: ruled tables (hw-table) at the view's width, one paragraph per text. */
     .portal-views .hw-table { width: 100%; }
@@ -1105,11 +1080,9 @@ ${inline(catalogCss)}</style>
     .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
     .asset img[src$=".png"] { object-fit: scale-down; }
     .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
-    .dropdowns { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: start; }
-    .dropdowns label, .dropdowns figure { display: grid; gap: 0.5rem; margin: 0; }
-    .dropdowns .input { width: 16rem; }
-    .dropdowns iframe { width: 18rem; height: 4.5rem; border: 0; border-radius: var(--radius-brand); }
-    .disclosures iframe { height: 7rem; }
+    .disclosures { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: start; }
+    .disclosures figure { display: grid; gap: 0.5rem; margin: 0; }
+    .disclosures iframe { width: 18rem; height: 7rem; border: 0; border-radius: var(--radius-brand); }
     .disclosure-demo { width: 16rem; ${DISCLOSURE_SPACING} }
     .el-matrix { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
     .el-head { align-self: end; }
@@ -1138,7 +1111,7 @@ ${inline(catalogCss)}</style>
     .portal .words-cols tr { border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
   }
 </style>
-<style>${["expert/select.css", "expert/disclosure.css"].map(ownCss).join("\n")}</style>
+<style>${ownCss("expert/disclosure.css")}</style>
 </head>
 <body class="hw-focus-ring">
 <header class="hw-header">

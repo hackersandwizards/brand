@@ -35,7 +35,7 @@ test("every element story passes brand-elements", async () => {
 test("the home and a story page link every catalog once, Catalog current", () => {
   for (const [path, current] of [
     ["catalog/index.html", "page"],
-    ["catalog/dashboard/Elements/button/dense/index.html", "true"],
+    ["catalog/dashboard/Actions/button/dense/index.html", "true"],
   ]) {
     const navs = page(path).match(/<nav[^>]*data-hw-catalogs[^>]*>.*?<\/nav>/gs) ?? [];
     expect(navs.length).toBe(1);

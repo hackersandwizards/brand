@@ -65,7 +65,8 @@
    stage, see the type table above), and the shapes follow that factor, except where the quarter
    size thumbnail sets a floor for the header strip: under 4px at 1920 it drops below one pixel
    there and vanishes.
-   All lengths in rem, so they grow with the stage (a rem is 21.333px at 1920).
+   All lengths in rem, so they grow with the stage (a rem is 21.333px at 1920), but the marker's,
+   which follow the text beside them.
 
    --slide-strip     the header strip: website 3px x 2 = 6px fails the thumbnail floor and reads
                      thin across a room; 0.75rem = 16px at 1920, 8px at half size, 4px at a quarter
@@ -76,9 +77,11 @@
    --slide-radius    the brand corner: website 20px 5px x 2 = 40px 10px at 1920
    --slide-radius-sm a tile, label box, stage strip or inline code, which stands a line tall: the
                      small corner at stage size, the brand corner's small radius (tokens.css)
-   --slide-marker    the list marker, the website's teal square (EventRow.astro .event-facts):
-                     0.375rem x 2 = 12px at 1920. Square, as every mark too small for the brand
-                     corner at its full value, on the website and on paper alike
+   --slide-marker    the list marker, the website's teal square at its share of the text beside it,
+                     in em: set where the item's text size is. Square, as every mark too small for
+                     the brand corner at its full value, on the website and on paper alike
+   --slide-marker-gap the space from the marker to its text, the website's share too, in em. A row
+                     that sets the marker as an element takes it as its gap
    --slide-marker-caps-mid the marker's middle beside a capitals label (hw-label): half the cap
                      height, since marker.css's default leans towards an x-height capitals lack
 
@@ -118,7 +121,8 @@
   --slide-hairline: 0.09375rem;
   --slide-radius: 1.875rem 0.46875rem;
   --slide-radius-sm: 0.46875rem;
-  --slide-marker: 0.5625rem;
+  --slide-marker: 0.375em;
+  --slide-marker-gap: 0.625em;
   --slide-marker-caps-mid: 0.5cap;
   --slide-stage: 1.5;
   /* ── Stage ──

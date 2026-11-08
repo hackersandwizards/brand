@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import { catalog } from "@hackersandwizards/scaffolding/catalog";
 import { files } from "./files.ts";
 import catalogs from "../expert/catalogs.json";
+import { SECTIONS } from "../scripts/element-demos";
 
 const own = (f: string) => new URL(`../${f}`, import.meta.url).pathname;
 
@@ -20,7 +21,7 @@ export default defineConfig({
         own("tokens/marker.css"),
         own("elements/elements.css"),
       ],
-      groupOrder: ["Elements"],
+      groupOrder: SECTIONS.map(([section]) => section),
       home: "./Home.astro",
       nav: {
         items: [
