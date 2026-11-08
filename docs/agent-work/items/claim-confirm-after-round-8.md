@@ -49,6 +49,8 @@ images:
 
 # Switch to a short/long pair that carries the core thought?
 
+The LinkedIn banner scores below were taken in the mobile-browser layout, which nobody in the audience uses. They are being re-measured in the app and on the laptop; wait for that before you pick.
+
 You found s4p less beautiful than earlier candidates (08.11.). The overview `docs/agent-work/2026-11-08-claim-all-candidates.md` lists every candidate of every round with its scores: name the one you want, or several for a further round.
 
 You asked whether one combination meets every requirement. The pair s4p comes closest. On the banners: "Agents pay off when your people ship as a team." Everywhere else it adds: "Your customers notice."
