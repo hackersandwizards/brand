@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 560
+order: 830
 owner: a brand session (points 1, 2, 4); slides (point 3)
 evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, teal 7 % on white) and brand-elements' source check learned button, breadcrumb and fact, read 0 findings on slides, documents and talks origin/main (the control, website, reads 10); measurements below from tokens/tokens.css and applications/channel-banners/render.py"
 ---
@@ -27,3 +27,9 @@ evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, tea
 4. **From the spoke switches**, not yet measured: a setting naming an undefined token falls back
    silently; night pills lose hue distinction; a hue setting for card, label and callout; a
    line-height setting on the pill.
+5. **Left from the 07./08.11. runs.** `--slide-measure-overview` in `tokens/stage.css` stays until
+   talks, trainer-hub and hycle-private all pin slides v1.22.0 or later, then goes. A ring setting
+   beside `--hw-focus-width` would remove four off-token shadows in os (`ListRow.css`,
+   `PipelineCard.css`, `StageHero.css`, `StageDots.astro`). A compact `hw-row` variant a header row
+   can read would remove os's two copies of the compact values (`ListRow.css`, `DetailPane.css`).
+   The channel banners' client band still shows the client marks from before v1.36.0: re-render.
