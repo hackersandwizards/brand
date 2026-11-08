@@ -30,7 +30,9 @@ data or secret.
 - `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
   name and mark file in display order, keeping neighbours from different industries, with the
   mark's source where known. `"onepager": false` keeps a mark off the os onepagers' client row,
-  which shows every other entry. Outside `manifest.json`.
+  which shows every other entry. Each mark's box ends on its drawn edge, its ground transparent;
+  its `height`, the share of a row it takes at equal visual weight, comes from
+  `bun scripts/clients.ts`, which the unit tests check. Outside `manifest.json`.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
   device and call backgrounds, channel banners, LinkedIn post images, avatars, GitHub social previews, booth banners,
   gradients, merch print files, device stickers, mail signatures. Where a script builds a family it sits beside the files and writes

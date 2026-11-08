@@ -60,6 +60,10 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                                                                                   |
 | `@hackersandwizards/brand/package.json`                   | the installed brand version, `version`                                                                             |
 
+A client mark's box ends on its drawn edge and its ground is transparent. `clients.json` gives
+each mark's `height`: the share of a row's height at which it reads as heavy as the others; its
+width follows from the file's aspect.
+
 Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
 with `Script not found`.
@@ -196,9 +200,12 @@ A native `<details>` wears the brand chevron in place of the browser's triangle:
 `disclosure.css`, or the expert layer, which imports it, and give the details the class
 `hw-disclosure`. The chevron is Lucide's chevron-right in the summary's text colour, 1em wide,
 0.5rem before the label, in the middle of its first line where the summary aligns on the baseline
-or the start, and turns down while open (150 ms, at once under reduced motion). Where
+or the start, in a box one line of its own type high, and turns down while open (150 ms, at once under reduced motion). Where
 the chevron belongs elsewhere in the summary, inside its heading for one, put
-`<span class="hw-disclosure-chevron" aria-hidden="true"></span>` there. `hw-disclosure-count` is
+`<span class="hw-disclosure-chevron" aria-hidden="true"></span>` there. A span beside a heading
+whose line is shorter than the summary's makes a centred row as tall as the summary's line: give
+the span the heading's type (`text-lg` beside a `text-lg` heading) to keep the heading's height.
+`hw-disclosure-count` is
 the neutral count pill. The rules sit in `@layer components`, so the surface's own type, colour,
 padding and Tailwind utilities win.
 
