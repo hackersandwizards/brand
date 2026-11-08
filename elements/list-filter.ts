@@ -226,7 +226,8 @@ export function initListFilter(root: HTMLElement) {
     const active = words.length > 0 || faceted;
     if (overview) overview.hidden = active;
     if (!loaded) {
-      if (active) void load();
+      if (active && failed) form.submit();
+      else if (active) void load();
       list.hidden = true;
       return;
     }
