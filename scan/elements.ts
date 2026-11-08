@@ -8,8 +8,11 @@
 //     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
 //                     | { "reason": "...", "files": ["<path>", ...] }, ... },
 //     "lightOnly": true,                              optional: the pages never turn to night
-//     "site": "<folder>" }                            optional: a built site, served on a free
+//     "site": "<folder>",                             optional: a built site, served on a free
 //                                                     port, which a page starting with / names
+//     "catalog": "<folder>"                           optional: a built catalog, every story page
+//                | { "dir": "<folder>", "at": "<page>" } } under it measured too, named below "at"
+//                                                     (default: the folder, or its path on "site")
 //
 // --base <url> names the server a page starting with / is on, such as one the consumer's gate
 // started on a free port, instead of "site".
@@ -28,7 +31,8 @@
 //    fails too: the brand corner sits on the outermost block only (tokens.css).
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
-//    button; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its longhands) fails, and so
+//    button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
+//    longhands, an @apply utility for the properties it sets) fails, and so
 //    does a component file of such a name, unless it carries the hw-* class, its name is an
 //    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
 //    medium, such as a slide deck's).
@@ -37,14 +41,15 @@
 //    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, and every hub
 //    element a page shows is listed as used.
 //
-// Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a page with no hub
-// element (a zero proves nothing). Needs Chrome for Testing (CHROME_BINARY overrides).
+// Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a named page with no
+// hub element (a zero proves nothing; a story page may show none). Exits 2 on a config naming no page
+// and on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
-import { launch, open, openFolds, serve, toUrl } from "./markers";
+import { catalogPages, launch, open, openFolds, serve, toUrl } from "./markers";
 
 export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
@@ -54,6 +59,7 @@ export type Config = {
   exceptions?: Record<string, Exception>;
   lightOnly?: boolean;
   site?: string;
+  catalog?: string | { dir: string; at: string };
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
@@ -464,6 +470,10 @@ export async function measurePage(
   try {
     await page.setViewport({ width: 1280, height: 900 });
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+    // Every tab holds focus as the one in front does, so the focus ring reads in pages run side by side.
+    await (
+      await page.createCDPSession()
+    ).send("Emulation.setFocusEmulationEnabled", { enabled: true });
     await open(page, toUrl(url, site));
     if (css) await page.addStyleTag({ content: css });
     await page.evaluate(openFolds);
@@ -496,6 +506,7 @@ const WORD: Record<string, string> = {
   quote: "quote",
   "icon-button": "icon-button",
   button: "button",
+  btn: "button",
   breadcrumb: "breadcrumb",
   fact: "facts",
 };
@@ -542,8 +553,53 @@ const styles = (raw: string, ext: string) =>
     ? raw
     : [...raw.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
 
-/** Each rule's selectors and the properties it sets, at-rule blocks opened and nested rules
- *  (SCSS, CSS nesting) resolved against their parent's selectors. */
+/** The properties a Tailwind utility sets, as far as an element owns them: a state variant
+ *  (hover:, focus:, ...) sets nothing at rest, a breakpoint, theme or print variant does. A text-*
+ *  of a theme's own name may be a size or a colour, so it stands for both. */
+const utility = (token: string): string[] => {
+  const parts = token.replace(/^!|!$/g, "").split(":");
+  const name = parts.pop()!;
+  if (parts.some((v) => !/^(sm|md|lg|xl|2xl|dark|print|(min|max)-.+)$/.test(v))) return [];
+  const sides: Record<string, string> = {
+    x: "-inline",
+    y: "-block",
+    t: "-top",
+    r: "-right",
+    b: "-bottom",
+    l: "-left",
+    s: "-inline-start",
+    e: "-inline-end",
+  };
+  const pad = /^p([xytrblse])?-/.exec(name);
+  if (pad) return [`padding${pad[1] ? sides[pad[1]] : ""}`];
+  if (/^rounded(-|$)/.test(name)) return ["border-radius"];
+  if (/^border(-|$)/.test(name) && !/^border-(collapse|separate|spacing)/.test(name))
+    return ["border"];
+  if (
+    /^bg-/.test(name) &&
+    !/^bg-(clip|origin|repeat|no-repeat|fixed|local|scroll|blend|cover|contain|auto|center|top|bottom|left|right)/.test(
+      name,
+    )
+  )
+    return ["background"];
+  if (/^text-(left|center|right|justify|start|end)$/.test(name)) return ["text-align"];
+  if (/^text-(xs|sm|base|lg|\d?xl|\[[\d.]+(px|r?em)\])$/.test(name)) return ["font-size"];
+  if (/^text-/.test(name) && !/^text-(wrap|nowrap|balance|pretty|ellipsis|clip)$/.test(name))
+    return ["font-size", "color"];
+  if (/^font-/.test(name)) return ["font"];
+  if (/^leading-/.test(name)) return ["line-height"];
+  if (/^tracking-/.test(name)) return ["letter-spacing"];
+  if (/^(uppercase|lowercase|capitalize|normal-case)$/.test(name)) return ["text-transform"];
+  if (/^min-h-/.test(name)) return ["min-height"];
+  if (/^size-/.test(name)) return ["width", "height"];
+  if (/^[hw]-/.test(name)) return [name[0] === "h" ? "height" : "width"];
+  if (/^opacity-/.test(name)) return ["opacity"];
+  return [];
+};
+
+/** Each rule's selectors and the properties it sets, @apply utilities as the properties they stand
+ *  for, at-rule blocks opened and nested rules (SCSS, CSS nesting) resolved against their parent's
+ *  selectors. */
 export const rules = (css: string) => {
   const out: { selectors: string[]; props: string[] }[] = [];
   const nest = (parents: string[], selectors: string[]) =>
@@ -571,7 +627,12 @@ export const rules = (css: string) => {
       i = j;
     }
     own += s.slice(i);
-    const props = [...own.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)].map((m) => m[1]!);
+    const props = [
+      ...[...own.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)].map((m) => m[1]!),
+      ...[...own.matchAll(/@apply\s+([^;]+)/g)].flatMap((m) =>
+        m[1]!.trim().split(/\s+/).flatMap(utility),
+      ),
+    ];
     if (parents && props.length) out.push({ selectors: parents, props });
   };
   walk(css.replace(/\/\*[\s\S]*?\*\//g, ""));
@@ -682,7 +743,20 @@ if (import.meta.main) {
     process.exit(2);
   }
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
-  if (!config.pages?.length) {
+  const named = config.pages ?? [];
+  const { dir, at } =
+    typeof config.catalog === "string"
+      ? { dir: config.catalog, at: undefined }
+      : (config.catalog ?? {});
+  let stories: string[] = [];
+  try {
+    if (dir) stories = catalogPages(dir, at, config.site);
+  } catch (e) {
+    console.error(`brand-elements: ${(e as Error).message}`);
+    process.exit(2);
+  }
+  const pages = [...named, ...stories];
+  if (!pages.length) {
     console.error(
       `brand-elements: ${LIST} names no page; a run that measures nothing passes nothing`,
     );
@@ -697,15 +771,21 @@ if (import.meta.main) {
   const base = i < 0 ? server?.url : new URL(process.argv[i + 1]!);
   const browser = await launch();
   const results: PageResult[] = [];
+  let next = 0;
   try {
-    for (const url of config.pages)
-      results.push(await measurePage(browser, url, "", config.lightOnly === true, base));
+    // Eight tabs side by side: each page waits for the network to go quiet.
+    await Promise.all(
+      Array.from({ length: Math.min(pages.length, 8) }, async () => {
+        for (let i = next++; i < pages.length; i = next++)
+          results[i] = await measurePage(browser, pages[i]!, "", config.lightOnly === true, base);
+      }),
+    );
   } finally {
     await browser.close();
     await server?.stop(true);
   }
   const rendered = results.flatMap((r) => r.findings);
-  const empty = config.pages.filter((_, i) => !results[i]!.seen.length);
+  const empty = named.filter((_, i) => !results[i]!.seen.length);
   const tree = listTree("brand-elements");
   const source = sourceFindings(tree, (p) => readFileSync(p, "utf8"), config.exceptions ?? {});
   const covered = coverage(config, results);
@@ -725,7 +805,7 @@ if (import.meta.main) {
     for (const url of empty) console.error(`${url}: no shared element found`);
     const shown = new Set(results.flatMap((r) => r.seen));
     console.log(
-      `brand-elements: ${shown.size} elements on ${config.pages.length} pages, ${rendered.length} rendered differences, ${source.length} source findings, ${covered.length} coverage findings`,
+      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${source.length} source findings, ${covered.length} coverage findings`,
     );
   }
   process.exit(rendered.length || source.length || covered.length || empty.length ? 1 : 0);

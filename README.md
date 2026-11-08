@@ -68,19 +68,19 @@ Run a command the package ships from your repo's root with `bun run <name>`. Nev
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
 with `Script not found`.
 
-| Command                                                              | Does                                                                  |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`        | frames an image as a 1080 x 1350 LinkedIn post image                  |
-| `brand-linkedin-terminal <spec.json> <out.png>`                      | renders a terminal snippet for the frame; no arguments print the spec |
-| `brand-linkedin-sketch-prompt`                                       | prints the prompt for a generated sketch and its worked examples      |
-| `brand-slide-sketch-prompt`                                          | prints the prompt for a slide sketch and its worked example           |
-| `brand-mail-signature --name <n> --role <r> --out <path>`            | writes a mail signature as HTML and text; all flags in `cli.ts`       |
-| `brand-colours [--tighten]`                                          | the colour, radius and shadow scan for your gate, below               |
-| `brand-copies [--tighten]`                                           | flags a copy of a brand file in your tree, below                      |
-| `brand-scan [--tighten]`                                             | flags a fork of an expert component, below                            |
-| `brand-markers [--scale 2,4] [--site <dir>] <url, file or /path>...` | measures every list marker on your pages, below                       |
-| `brand-elements [--base <url>] [--json]`                             | measures the shared elements on your design-system page, below        |
-| `brand-retired <dir or file>...`                                     | fails on a retired slogan in what your build wrote, below             |
+| Command                                                                                                      | Does                                                                  |
+| ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                | frames an image as a 1080 x 1350 LinkedIn post image                  |
+| `brand-linkedin-terminal <spec.json> <out.png>`                                                              | renders a terminal snippet for the frame; no arguments print the spec |
+| `brand-linkedin-sketch-prompt`                                                                               | prints the prompt for a generated sketch and its worked examples      |
+| `brand-slide-sketch-prompt`                                                                                  | prints the prompt for a slide sketch and its worked example           |
+| `brand-mail-signature --name <n> --role <r> --out <path>`                                                    | writes a mail signature as HTML and text; all flags in `cli.ts`       |
+| `brand-colours [--tighten]`                                                                                  | the colour, radius and shadow scan for your gate, below               |
+| `brand-copies [--tighten]`                                                                                   | flags a copy of a brand file in your tree, below                      |
+| `brand-scan [--tighten]`                                                                                     | flags a fork of an expert component, below                            |
+| `brand-markers [--scale 2,4] [--site <dir>] [--catalog <dir> [--catalog-at <page>]] <url, file or /path>...` | measures every list marker on your pages and catalog stories, below   |
+| `brand-elements [--base <url>] [--json]`                                                                     | measures the shared elements on your design-system page, below        |
+| `brand-retired <dir or file>...`                                                                             | fails on a retired slogan in what your build wrote, below             |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -258,6 +258,14 @@ night rules read may then stay undefined there. `"site": "<dir>"` is `brand-mark
 A gate that starts its own server on a free port names each page as a path from the server's root,
 starting with `/`, and runs `brand-elements --base <server url>`, so two gates at once never collide on a port.
 
+Your catalog's home frames each story in an iframe, which neither measuring scan looks into.
+`"catalog": "<dir>"` names the built catalog folder (`dist/catalog`, `dist/client/catalog`): every
+story state page scaffolding wrote under its `stories/` is measured too, found in the build rather
+than listed. Each is named the way a page is, below the catalog's own name: the folder's files, or
+with `"site"` the folder's path on it. Where your gate serves the catalog itself, say where it is:
+`"catalog": { "dir": "dist/client/catalog", "at": "/catalog/" }` with `--base`, or a full URL as
+`at`. A story showing no element passes; a catalog folder holding no story page exits 2.
+
 Before it measures, `brand-elements` opens every closed `<details>` outside a header or nav, since
 a focusable in a shut fold takes no focus. An element inside `[data-hw-shell]`, the scaffolding
 catalog shell's own card and pill, is the shell's: neither measured nor counted as shown.
@@ -271,8 +279,8 @@ computed corner, fill, line, text colour, type, padding or size differs from the
 same scale and theme (a reference beside it styled only by this package), on any element drawn
 with the brand corner inside another so drawn (inside one, `elements/card.css` gives every element
 and every `rounded-brand` the small corner), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
-callout, note; quote; button; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
-padding, a label's type and colour; a shorthand counts), or a component of such a name, without the
+callout, note; quote; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
+padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), or a component of such a name, without the
 `hw-*` class and without an exception of that name, on a used element without a tile or with a stale version, on an exception
 without a reason or a tile, and on a page showing no element. A `brand-elements.json` naming no page
 exits 2, as a run measuring nothing proves nothing. Each page's tile of a used element is
@@ -449,7 +457,9 @@ page whose stylesheet does not load, such as a build linking `file://` styleshee
 `--site`: unstyled, the page shows the browser's own markers and spacing. Name such a build's
 pages as files instead. A test of your own that measures markers brand-markers leaves out takes its
 target and tolerance from the package: `import { CAP_SHARE, TOLERANCE } from
-"@hackersandwizards/brand/markers"`.
+"@hackersandwizards/brand/markers"`. `--catalog <dir>` adds every story page of a built catalog,
+as the `catalog` key of `brand-elements.json` does, `--catalog-at <page>` naming where it is served;
+a story page without a list passes.
 
 ## Press kit
 

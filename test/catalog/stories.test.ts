@@ -1,18 +1,14 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
-import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import { coverage, ELEMENTS, measurePage } from "../../scan/elements";
-import { launch } from "../../scan/markers";
+import { catalogPages, launch } from "../../scan/markers";
 import catalogs from "../../expert/catalogs.json";
 import { BASE, DIST, page, serveSite } from "./site";
 
 // brand-elements over every element story, as a spoke's gate runs it over its catalog: each state
-// matches the element's rule, and every element has its tile at this version.
-const STORIES = join(DIST, "catalog/stories/Elements");
-const pages = readdirSync(STORIES).flatMap((el) =>
-  readdirSync(join(STORIES, el)).map((state) => `catalog/stories/Elements/${el}/${state}/`),
-);
+// matches the element's rule, and every element has its tile at this version. The pages are the
+// ones the catalog key names.
 let browser: Browser;
 let server: ReturnType<typeof serveSite>;
 beforeAll(async () => {
@@ -25,20 +21,14 @@ afterAll(async () => {
 });
 
 test("every element story passes brand-elements", async () => {
+  const pages = catalogPages(join(DIST, "catalog"), `${server.url}${BASE.slice(1)}catalog`);
   // Five per element, and two that show a setting: the prose block's reading width, the row's padding.
   expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 2);
-  // Eight tabs at a time, since each page waits for the network to go quiet, about a second; the
-  // focus ring's one by one, since only the tab in front holds focus.
-  const measure = (p: string) => measurePage(browser, `${server.url}${BASE.slice(1)}${p}`);
-  const focus = (p: string) => p.includes("/focus-ring/");
-  const order = [...pages.filter((p) => !focus(p)), ...pages.filter(focus)];
-  const results: Awaited<ReturnType<typeof measure>>[] = [];
-  for (let i = 0; i < order.length; i += 8) {
-    const batch = order.slice(i, i + 8);
-    if (batch.some(focus)) for (const p of batch) results.push(await measure(p));
-    else results.push(...(await Promise.all(batch.map(measure))));
-  }
-  expect(order.filter((_, i) => !results[i]!.seen.length)).toEqual([]);
+  // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
+  const results: Awaited<ReturnType<typeof measurePage>>[] = [];
+  for (let i = 0; i < pages.length; i += 8)
+    results.push(...(await Promise.all(pages.slice(i, i + 8).map((p) => measurePage(browser, p)))));
+  expect(pages.filter((_, i) => !results[i]!.seen.length)).toEqual([]);
   expect(results.flatMap((r) => r.findings)).toEqual([]);
   expect(coverage({ pages, uses: Object.keys(ELEMENTS) }, results)).toEqual([]);
 }, 300_000);
