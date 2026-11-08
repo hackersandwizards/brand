@@ -110,7 +110,7 @@
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "a184c1020ea2384b5f8b6c3165c9cd86ec58c8a829bdad40bb523fc600ebf4b2"
+      "sha256": "35b93f30cb04f3d9a4ec30875292809229b2048e5a2c1e0ed4ff378cac1d8073"
     },
     {
       "path": "tokens/tokens.css",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "3de929c1bc70a8eb09088e5740387f426db84ec21d48f30b313da6c3105383df"
+      "sha256": "74b9643bfeb2532f86c02a9345141fcb12402953155d15785e4cd11d313bf405"
     },
     {
       "path": "elements/strip.css",
@@ -482,7 +482,7 @@
     },
     {
       "path": "tokens/document.css",
-      "sha256": "b4052da395448d050dccffe867f5ba993f45b596d2a13cbb374d4695741d70ff"
+      "sha256": "c31ccd5e93a9272a36e55a39f47d4f212f5225435a92787592acdc322c626702"
     },
     {
       "path": "tokens/fonts.css",
@@ -494,7 +494,7 @@
     },
     {
       "path": "tokens/stage.css",
-      "sha256": "a99cd3755d9b5cda9e227586faeafad9be3ed29d829c5000f03cc6aedd674fa0"
+      "sha256": "3d98154121993f196d5273efedf665bae88bff136d3c46e3dcdea118f0671358"
     },
     {
       "path": "tokens/text-base.css",
