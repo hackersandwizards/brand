@@ -36,7 +36,7 @@ export const escHtml = (s: string) =>
 
 /**
  * Chrome for Testing, the build puppeteer and playwright install, never the user's own Chrome: a
- * headless instance from `/Applications/Google Chrome.app` made macOS activate it instead of opening
+ * headless instance from `/Applications/Google Chrome.app` makes macOS activate it instead of opening
  * the user's window. The newest build for this platform in puppeteer's cache, else installed there.
  */
 export function findChrome(): string {

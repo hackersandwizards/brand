@@ -2,13 +2,22 @@ import { expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { brandFiles, brandSizes, contentHash, isBrandCopy } from "../scan/colours";
+import { brandFiles, brandSizes, contentHash, isBrandCopy, lfsOid } from "../scan/colours";
 import { copyOf, signatures, unlistedCopies } from "../scan/copies";
 import { ROOT } from "../scripts/git";
 
 const wordmark = readFileSync(join(ROOT, "logos/wordmark.svg"), "utf8");
 const brand = brandFiles();
 const identical = (text: string) => brand.get(contentHash(Buffer.from(text)));
+
+test("an LFS pointer names its object through ext lines and CRLF; other text names none", () => {
+  const oid = "a".repeat(64);
+  const v1 = "version https://git-lfs.github.com/spec/v1";
+  const ext = `ext-0-foo sha256:${"b".repeat(64)}`;
+  expect(lfsOid(Buffer.from(`${v1}\n${ext}\n${ext}\noid sha256:${oid}\nsize 1\n`))).toBe(oid);
+  expect(lfsOid(Buffer.from(`${v1}\r\noid sha256:${oid}\r\nsize 1\r\n`))).toBe(oid);
+  expect(lfsOid(Buffer.from(`version 2\noid sha256:${oid}\n`))).toBeUndefined();
+});
 
 test("knows every manifest file, the generated formats and the client marks", () => {
   const paths = new Set(brand.values());

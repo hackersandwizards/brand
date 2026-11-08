@@ -64,10 +64,12 @@ afterAll(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+// An element inside an exception's instance is not measured.
 test("every element matches its rule in every scale and theme", async () => {
   const r = await measurePage(browser, file("clean.html", page()));
   expect(r.findings).toEqual([]);
   expect(r.seen.sort()).toEqual(Object.keys(ELEMENTS).sort());
+  expect(r.exceptions).toEqual(["total-band"]);
 }, 60_000);
 
 // One drift per element, as a surface's own rule overrides the element: each must turn red.
@@ -99,7 +101,11 @@ const DRIFT: Record<string, string> = {
   kpi: ".hw-kpi-value { font-weight: 500 }",
   "label-box": ".hw-label-box { padding: 9px }",
   prose: ".hw-prose h3 { font-weight: 400 }",
+  kbd: ".hw-kbd { border-radius: 0 }",
 };
+test("every element has its drift", () => {
+  expect(Object.keys(DRIFT).sort()).toEqual(Object.keys(ELEMENTS).sort());
+});
 test.each(Object.entries(DRIFT))(
   "a drifted %s is red",
   async (name, css) => {
@@ -208,12 +214,6 @@ test("an element in a closed details is measured open; a header's menu stays shu
     file("menu.html", fold(`<header><details><summary>Menü</summary>${tile}</details></header>`)),
   );
   expect(menu.findings.map((f) => f.prop)).toEqual(["outline-style"]);
-}, 60_000);
-
-test("an element inside an exception's instance is not measured", async () => {
-  const r = await measurePage(browser, file("exception.html", page()));
-  expect(r.findings).toEqual([]);
-  expect(r.exceptions).toEqual(["total-band"]);
 }, 60_000);
 
 // Tailwind's preflight: every element a solid border of no width, which draws nothing.
@@ -562,7 +562,7 @@ test("the screen preset sets every setting an element reads", () => {
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });
 
-// Decision ds-roll-trainer-hub-compact (2026-11-02): os 13 px, trainer hub 14 px, both dense.
+// os 13 px, trainer hub 14 px, both dense.
 test("dense with data-hw-type=regular takes the expert set's regular text, dense alone 13 px", async () => {
   const p = await browser.newPage();
   const read = async (attrs: string) => {
@@ -644,6 +644,19 @@ test("a gap, flex-flow or logical property sets the longhands an element owns", 
       owned: true,
     });
   expect(setsOwned("kpi", "margin-inline")).toBe(false);
+});
+
+test("source: a compound forks an element in any class order; an --hw-* setting is no hw-* class", () => {
+  const files: Record<string, string> = {
+    "src/a.css": `.project-card.is-open { border-radius: 4px } .is-open.project-card { border-radius: 4px } .note.hw-card { border-radius: 4px } .hw-card.note { border-radius: 4px }`,
+    "src/components/TeamCard.astro": `<div class="team-card" style="gap:var(--hw-card-pad)"/>`,
+    "src/components/NoteCard.astro": `<div class="hw-card"/>`,
+  };
+  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+    'src/a.css: .project-card.is-open styles an element named like a shared one; use the hw-* element or list "project-card" as an exception',
+    'src/a.css: .is-open.project-card styles an element named like a shared one; use the hw-* element or list "project-card" as an exception',
+    'src/components/TeamCard.astro: a component named like a shared element; render the hw-* element or list "team-card" as an exception',
+  ]);
 });
 
 test("source: a PascalCase component, a camelCase class and a nested rule are read like kebab case", () => {

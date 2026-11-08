@@ -99,6 +99,21 @@ test("a partner's mark may be listed against HEAD; a partner entry needs a name,
   expect(violations(counts, tighten(counts, note), {})).toEqual(violations(counts, note, {}));
 });
 
+test("an entry turned partner frees no total for another file to grow into", () => {
+  const head: Allowlist = {
+    "a.svg": { ...zero, hex: 50, reason: "r" },
+    "b.css": { ...zero, hex: 1, reason: "r" },
+  };
+  const now: Allowlist = {
+    "a.svg": { ...head["a.svg"]!, partner: "Acme" },
+    "b.css": { ...zero, hex: 40, reason: "r" },
+  };
+  const files = { "a.svg": { ...zero, hex: 50 }, "b.css": { ...zero, hex: 40 } };
+  expect(violations(files, now, head)).toEqual([
+    "brand-colours.json: b.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+  ]);
+});
+
 test("tightening lowers and drops entries, never raises or adds", () => {
   expect(tighten({ "a.css": { ...zero, hex: 5 }, "b.css": { ...zero, hex: 1 } }, allow)).toEqual(
     allow,
@@ -115,6 +130,16 @@ test("a four-digit hex of letters alone counts where its colour part is a grey",
   expect(
     scanSource(".a { color: #ffff; background: #ccca; border: #eee; }", ".css").counts,
   ).toEqual({ ...zero, hex: 2, tokenHex: 1 });
+});
+
+test("a // in CSS, SVG or a url() hides nothing after it; a script's line comment does", () => {
+  const css = ".a { background: url(//cdn.example.com/x.png); color: #123456 }";
+  expect(scanSource(css, ".css").counts.hex).toBe(1);
+  expect(scanSource(`<p>a // b</p><path fill="#123456"/>`, ".svg").counts.hex).toBe(1);
+  expect(
+    scanSource(`<div style="background:url(//x/y.png);color:#123456">`, ".html").counts.hex,
+  ).toBe(1);
+  expect(scanSource(`const a = 1; // #123456`, ".ts").counts.hex).toBe(0);
 });
 
 test("an entry written before rgb, radius and shadow existed allows none of them", () => {

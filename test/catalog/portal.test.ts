@@ -4,7 +4,8 @@ import type { Browser } from "puppeteer-core";
 import { closeSync, openSync, readdirSync, readSync } from "node:fs";
 import { join } from "node:path";
 import { ELEMENTS, measurePage } from "../../scan/elements";
-import { lfsOid, ROOT } from "../../scripts/git";
+import { ROOT } from "../../scripts/git";
+import { lfsOid } from "../../scan/colours";
 import { failing, launch, measureMarkers } from "../../scan/markers";
 import { DIST, fileOf, page } from "./site";
 import manifest from "../../manifest.json";
@@ -22,6 +23,12 @@ test("the portal shows every shared element and every expert component", () => {
     .map((f) => f.slice(0, -6));
   expect(Object.keys(ELEMENTS).filter((name) => !html.includes(`id="hw-${name}"`))).toEqual([]);
   expect(components.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
+});
+
+test("the portal lists tokens.css's aliases and no role token among them", () => {
+  const aliases = html.match(/<p class="meta">Aliases, [^]*?<\/p>/)?.[0] ?? "";
+  expect(aliases).toContain("<code>--color-subtle</code>");
+  expect(aliases).not.toContain("--color-label-text");
 });
 
 test("the portal counts the logos it shows", () => {
@@ -58,7 +65,6 @@ test("every link and image of the portal resolves in dist/", () => {
   const refs = [html, ...frames]
     .flatMap((h) => [...h.matchAll(/\s(?:src|href|data-href)="([^"#]*)(?:#[^"]*)?"/g)])
     .map((m) => decode(m[1]!).split("?")[0]!)
-    // and each url() of the stylesheets the page inlines
     .concat(
       [...html.matchAll(/<style>([^]*?)<\/style>/g)].flatMap((s) =>
         [...s[1]!.matchAll(/url\("([^"]+)"\)/g)].map((m) => m[1]!),

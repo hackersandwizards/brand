@@ -9,7 +9,7 @@
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT } from "./git";
 
@@ -44,6 +44,14 @@ export const palettes = (css: string) => {
   const hues = rows(4).map(([base, text, night, job]) => ({ base, text, night, job }));
   return { neutrals, hues };
 };
+
+/** The colour tokens of tokens.css's Aliases block: each resolves to another and adds no colour. */
+export const aliases = (css: string) =>
+  [
+    ...(/\/\* Aliases\b[^]*?\*\/([^]*?)\n\s*\n/.exec(css)?.[1] ?? "").matchAll(
+      /(--color-[\w-]+):/g,
+    ),
+  ].map((m) => m[1]!);
 
 export const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const hex = (c: number[]) =>
@@ -291,7 +299,7 @@ if (import.meta.main) {
   for (const [name, content] of Object.entries(generate())) {
     const path = join(dir, name);
     if (!check) writeFileSync(path, content);
-    else if (readFileSync(path, "utf8") !== content) {
+    else if (!existsSync(path) || readFileSync(path, "utf8") !== content) {
       console.error(`generated/${name} is stale: run bun run tokens`);
       stale++;
     }

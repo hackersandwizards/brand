@@ -114,7 +114,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "14e51fad4e17f95002a5bff4e07c16f80823385ebb61f4d01d5145c5a5554b8b"
+      "sha256": "b05cbcf4d3c9cc098aa671406359e1329e5bf88127b43688eb3e903c436e394a"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",
@@ -250,7 +250,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "a4625476632b6bb7dbc910d87dcd5c85b51e52dd006869260c5e36eb3bf03b88"
+      "sha256": "487869e0ba8678c720d9cfa5310549a491c86826f83e72ae5cd76d843f34dafb"
     },
     {
       "path": "expert/catalogs.json",
@@ -266,7 +266,7 @@
     },
     {
       "path": "expert/app-base.css",
-      "sha256": "053c26c8f011a6a5c1c8f31032a7fc7e68e38c1ebb4ff672c9bde998c7fd68c2"
+      "sha256": "47ea118df92cb8c0c9a974fa675b176c61381d89bc0f7e7beaaa76815815c25a"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -306,7 +306,7 @@
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "db8203aa044741a3e1e4de0f92e993c63aeb29c2d4be7032567ec647cd43e32b"
+      "sha256": "7e50935de31c2f539c6712f5f6be10f91cdfbb8b2a543cddb8874dada0838d49"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
@@ -482,7 +482,7 @@
     },
     {
       "path": "tokens/night.css",
-      "sha256": "bcdd3ef603de3d3fae950f4605d4e3e0f67b0cad3db3f50dfa5d1dd3938a8107"
+      "sha256": "e3faf4b29742d22375f4247552aae7f37169a2d7d1c809d3b7a1fc6ece7dd52c"
     },
     {
       "path": "tokens/stage.css",

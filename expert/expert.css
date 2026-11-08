@@ -27,7 +27,7 @@
   /* Body and h4: every control, row, table cell and section title. */
   --text-ui: 0.875rem;
   --text-ui--line-height: 1.5;
-  /* Former name of ui. */
+  /* An alias of ui: write ui. */
   --text-meta: var(--text-ui);
   --text-meta--line-height: var(--text-ui--line-height);
   /* The label size: counters, badges, key hints and caps labels, never running text. */
@@ -92,7 +92,7 @@
      the same 4.5:1 rule. A category takes teal, purple or slate (the ampersand hue's text colour)
      and leaves the rest of its set neutral; rust colours no area and no label (the hue rule in tokens.css). Rust takes the
      ink mix too: alone it is 4.2:1 on its wash over the muted fill. hue-amber and hue-green are
-     former names of warning and success: no category takes them. */
+     aliases of warning and success: no category takes them. */
   --hue-teal: var(--color-teal-dark);
   --hue-purple: color-mix(in srgb, var(--color-purple) 70%, var(--color-ink));
   --hue-amber: var(--warning);
@@ -216,7 +216,7 @@ html[data-theme="dark"] {
 }
 /* Stacked rows have no shared baseline to fight over, so the fixed height is
    unnecessary here and only crowds the layout. */
-@media (max-width: 639px) {
+@media (width < 640px) {
   .page-title-row {
     height: auto;
     min-height: var(--page-title-row-h);

@@ -8,6 +8,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
+import { colors } from "../../generated/tokens";
 import { browser } from "../backgrounds/render";
 import { TEXTILE, wear as wearPrint } from "./mockup";
 
@@ -16,7 +17,7 @@ const LOGOS = join(DIR, "../../logos");
 // Mockups for review only, outside git.
 const MOCKUPS = join(DIR, "../../captures/merch");
 mkdirSync(MOCKUPS, { recursive: true });
-const NIGHT = "#0B1118";
+const NIGHT = colors["--color-night"]!;
 const CUT = "#EC008C";
 // lockup and compact lockup widths in the D files, in brand units (wordmark: 6571)
 const LOCKUP_UNITS = 7988.814;

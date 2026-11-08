@@ -18,6 +18,11 @@
     scrollbar-width: auto;
     scrollbar-color: var(--muted) transparent;
   }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
   /* On night the fill is night-2, 1.1:1 on the night ground: the thumb takes the night muted grey. */
   html[data-theme="dark"] {
     scrollbar-color: var(--color-night-muted) transparent;

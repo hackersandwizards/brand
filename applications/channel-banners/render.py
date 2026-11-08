@@ -44,12 +44,12 @@ LIFT = 0.078  # the wordmark's centre line lies this share of the lockup height 
 LAYOUT_BOX = [-1321.814, -288.642, 7988.814, 1489]
 NIGHT_BOX = [float(v) for v in re.search(r'viewBox="([^"]+)"', (BRAND / "logos/lockup-night.svg").read_text()).group(1).split()]
 
-BASE = (11, 17, 24)
 WHITE = (234, 235, 236)
 SUBLINE = (223, 224, 226)
 # on night the accent takes its night tone, as the website and the apps do
 COLORS = run_path(str(BRAND / "generated/tokens.py"))["COLORS"]
 ACCENTS = {"teal": COLORS["--color-teal-night"], "purple": COLORS["--color-purple-night"]}
+BASE = tuple(int(COLORS["--color-night"][i : i + 2], 16) for i in (1, 3, 5))
 TEAL_GLOW, PURPLE_GLOW = (7, 41, 46), (35, 9, 54)
 
 CLIENTS = BRAND / "clients"

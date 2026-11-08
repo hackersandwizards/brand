@@ -1,10 +1,10 @@
 // The tracked brand files, served beside the portal, which links them: in dev from the working
 // tree, in the build copied into dist/. Only the brand folders, the scripts inside them included:
 // the repo's tests, scan/, scripts/ and docs stay out, as a test copied into dist/ runs again
-// under a bare `bun test`. The print masters
-// (logos/*.tif) stay out too, as the portal links none of them. `bun install` pulls the LFS files
-// .lfsconfig keeps from a clone, as a pointer shows as a broken image. On GitHub Actions the build
-// pulls them too and fails on any still a pointer, so the published page never shows one.
+// under a bare `bun test`. The print masters (logos/*.tif) stay out too, as the portal links none
+// of them. `bun install` pulls the LFS files .lfsconfig keeps from a clone, as a pointer shows as
+// a broken image. On GitHub Actions the build pulls them too and fails on any still a pointer, so
+// the published page never shows one.
 import type { AstroIntegration } from "astro";
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
@@ -12,8 +12,10 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const POINTER = "version https://git-lfs.github.com/spec/";
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
+// Its own pointer test, not scan/colours.ts: the Astro config loads this under Vite, without Bun's
+// import.meta.dir.
+const POINTER = "version https://git-lfs.github.com/spec/";
 const git = (args: string[]) => {
   const run = spawnSync("git", args, { cwd: ROOT, encoding: "utf8" });
   if (run.status !== 0) throw new Error(`git ${args.join(" ")}: ${run.stderr}`);

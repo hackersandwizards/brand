@@ -298,7 +298,8 @@ and counts, per file:
 - `palette`: Tailwind default palette classes
 - `radius`, `shadow`: a `border-radius` or `box-shadow` (CSS, a custom property named for either,
   a style object, a Tailwind arbitrary value) that is no brand token, and Tailwind's default
-  radius and shadow classes (`rounded-lg`, `shadow-md`). A token value, `0`, `none`, a CSS-wide
+  radius and shadow classes with a size (`rounded-lg`, `shadow-md`; the bare `rounded` and
+  `shadow` are not read, as words they match prose). A token value, `0`, `none`, a CSS-wide
   keyword, a `var()` whose fallback is a value or another such `var()` (`var(--a, var(--b))`), and
   the generated tokens' own key (`tokens["--radius-brand"]`) pass; a value the scan cannot read, an
   interpolation or a variable, counts nothing.

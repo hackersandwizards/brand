@@ -89,9 +89,9 @@ if (import.meta.main) {
   // The Qonto invoice logo: logos/wordmark.svg at full width, top-aligned in a transparent 1000 px
   // square, so the mark sits level with the invoice heading. Qonto takes it as a square and prints
   // it at 200 x 200 px; the wordmark alone is an exception in os's design guide.
-  const lockup = readFileSync(logos("wordmark.svg"));
-  const lockupWidth = Number(/ width="([\d.]+)"/.exec(lockup.toString())?.[1]);
-  await sharp(lockup, { density: (72 * 1000) / lockupWidth })
+  const wordmark = readFileSync(logos("wordmark.svg"));
+  const wordmarkWidth = Number(/ width="([\d.]+)"/.exec(wordmark.toString())?.[1]);
+  await sharp(wordmark, { density: (72 * 1000) / wordmarkWidth })
     .resize(1000, 1000, { fit: "contain", position: "top", background: "#0000" })
     .png()
     .toFile(join(import.meta.dir, "qonto-invoice-logo-1000.png"));

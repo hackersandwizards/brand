@@ -9,6 +9,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { crc32 } from "node:zlib";
 import sharp from "sharp";
+import { colors } from "../../generated/tokens";
 import { brand, browser, fileUrl, fontFaces, tint, toJpeg } from "./render";
 
 const DARK = import.meta.dir;
@@ -28,11 +29,11 @@ const IPAD_WIDE = { w: 1366, h: 1024, s: 2 };
 const STUDIO = { w: 2560, h: 1440, s: 2 };
 
 const C = {
-  teal: "#1A7285",
-  purple: "#9333EA",
-  bg: "#F7F9FA",
-  tealNight: "#47AEC6",
-  purpleNight: "#B97AF1",
+  teal: colors["--color-teal"]!,
+  purple: colors["--color-purple"]!,
+  bg: colors["--color-bg"]!,
+  tealNight: colors["--color-teal-night"]!,
+  purpleNight: colors["--color-purple-night"]!,
 };
 const GRADIENT = `linear-gradient(180deg, ${C.purple}, ${C.teal})`;
 // Mid-tone ground for paired home screens: white iOS labels stay legible on it.
@@ -132,7 +133,7 @@ export const VARIANTS: Record<string, Variant> = {
     }),
   },
   pastel: light(`linear-gradient(135deg, ${tint(C.teal, 38)}, ${tint(C.purple, 36)})`),
-  // The March gradient, brought to logo system D: wizard large and centred, wordmark under it.
+  // The brand gradient in logo system D: wizard large and centred, wordmark under it.
   "gradient-classic": {
     tone: "mid",
     wall: (d) => {
@@ -375,12 +376,12 @@ async function generateBackgrounds() {
     if (mocks) {
       files.dark = {
         mac: join(DARK, "macbook-background.png"),
-        ipad: join(DARK, "ipad-background.png"),
-        iphone: join(DARK, "iphone-wallpaper.png"),
+        ipad: join(DARK, "ipad-lock-background.png"),
+        "ipad-home": join(DARK, "ipad-home-background.png"),
+        iphone: join(DARK, "iphone-lock-background.png"),
+        "iphone-home": join(DARK, "iphone-home-background.png"),
         call: join(DARK, "call-background.png"),
       };
-    }
-    if (mocks) {
       const dir = join(out, "mocks");
       mkdirSync(dir, { recursive: true });
       for (const [name, f] of Object.entries(files)) {
@@ -430,9 +431,9 @@ async function generateBackgrounds() {
   }
 }
 
-// The Night ground of the dark files in the design guide, rebuilt without the lockup: #111A24 to
-// #0B1118, a teal glow top left and a purple glow bottom right, the direction of --gradient-magic.
-const NIGHT = `radial-gradient(ellipse 60% 50% at 100% 100%, rgba(147,51,234,.24), transparent 70%), radial-gradient(ellipse 45% 45% at 0% 0%, rgba(26,114,133,.32), transparent 70%), linear-gradient(180deg, #111A24, #0B1118)`;
+// The Night ground of the dark files in the design guide, rebuilt without the lockup: night-2 to
+// night, a teal glow top left and a purple glow bottom right, the direction of --gradient-magic.
+const NIGHT = `radial-gradient(ellipse 60% 50% at 100% 100%, color-mix(in srgb, ${C.purple} 24%, transparent), transparent 70%), radial-gradient(ellipse 45% 45% at 0% 0%, color-mix(in srgb, ${C.teal} 32%, transparent), transparent 70%), linear-gradient(180deg, ${colors["--color-night-2"]}, ${colors["--color-night"]})`;
 const PASTEL_HOME = `linear-gradient(135deg, ${tint(C.teal, 88)}, ${tint(C.purple, 84)})`;
 type Base = "dark" | "light";
 type WallFile =
@@ -479,8 +480,7 @@ function withDpi(png: Buffer, dpi: number) {
 // the stacked lockup (wizard over wordmark) by width. Lockup 5.365:1, wordmark 6.9:1, stack 2.01:1.
 type El = ["w" | "l" | "m" | "k", number, number, number];
 // Arrangements: lw = wizard and logo, logo = the lockup or (wm) the wordmark alone, wiz = the
-// wizard alone. lw-split on the lock files and logo-band on the home files are today's light
-// winner. Zones kept clear: Mac Dock (x 484-1244 below y 1030), desktop files top right, lock
+// wizard alone. Zones kept clear: Mac Dock (x 484-1244 below y 1030), desktop files top right, lock
 // clock (y 100-260) and login (y 936-1050); iPad portrait lock shows x 172-1204, clock to y 300,
 // widgets to y 424; iPad landscape home shows y 172-1204, free band y 812-1072; iPhone clock to
 // y 222, widgets to y 316, lock buttons at the bottom corners; iPhone home free band y 740-800;

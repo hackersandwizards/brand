@@ -204,7 +204,7 @@ export const elementCss = () =>
     .map((f) => readFileSync(join(DIR, f), "utf8").replace(/@import[^;]+;/g, ""))
     .join("\n");
 /** The settings a surface may set: every --hw-* an element file reads. */
-export const SETTINGS = [...new Set(elementCss().match(/(?<=var\()--hw-[a-z-]+/g))];
+export const SETTINGS = [...new Set(elementCss().match(/(?<=var\()--hw-[\w-]+/g))];
 /** The brand tokens each element reads: a surface that never defines one (Tailwind emits only the
  * @theme tokens a scanned file names) leaves page and reference equally wrong, so each is checked.
  * `day` leaves out the tokens only the element's night rules read. */
@@ -290,9 +290,8 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       if (!same(got, want)) findings.push({ element, label: name, prop, got, want });
     }
   };
-  // In passes, so the page restyles twice rather than once per instance (os /documents, 3,700
-  // pills: 150 s): read every instance's settings and tokens, insert every reference, then read
-  // every pair.
+  // In passes, so the page restyles twice rather than once per instance: read every instance's
+  // settings and tokens, insert every reference, then read every pair.
   const found = Object.entries(elements).flatMap(([element, selector]) =>
     [...document.querySelectorAll(selector)]
       .filter((el) => !el.closest(SKIP))
@@ -596,14 +595,13 @@ const outside = (selector: string, seps: string) => {
 /** A selector's last compound, its functional pseudo-classes and their arguments included. */
 const last = (selector: string) => outside(selector, " >+~").pop() ?? "";
 
-/** The class a selector styles: the last class of its last compound, outside :is(), :has() and the like. */
-const subject = (selector: string) =>
+/** The classes a selector styles: those of its last compound, outside :is(), :has() and the like. */
+const subjects = (selector: string) =>
   outside(last(selector), ":")
     .filter((x) => !/^(is|where|not|has)\(/.test(x))
     .join(":")
     .match(/\.([\w-]+)/g)
-    ?.pop()
-    ?.slice(1);
+    ?.map((c) => c.slice(1)) ?? [];
 
 /** The consumer's sources that could fork an element: file and selector or component name. */
 export const sourceFindings = (
@@ -621,7 +619,7 @@ export const sourceFindings = (
     const raw = read(p);
     if (COMPONENT.has(ext) && /(^|\/)components\//.test(p)) {
       const name = kebab(basename(p, ext));
-      if (NAMED.test(name) && !(name in allow) && !/\bhw-[a-z]/.test(raw))
+      if (NAMED.test(name) && !(name in allow) && !/(?<![\w-])hw-[a-z]/.test(raw))
         out.push(
           `${p}: a component named like a shared element; render the hw-* element or list "${name}" as an exception`,
         );
@@ -629,8 +627,10 @@ export const sourceFindings = (
     if (!STYLED.has(ext)) continue;
     for (const r of rules(styles(raw, ext))) {
       for (const sel of r.selectors) {
-        const cls = STATE.test(last(sel)) ? undefined : subject(sel);
-        const element = cls && !cls.startsWith("hw-") ? namedAs(cls) : undefined;
+        // A compound with an hw-* class is the element itself; any other class named like one forks it.
+        const classes = STATE.test(last(sel)) ? [] : subjects(sel);
+        const cls = classes.some((c) => c.startsWith("hw-")) ? undefined : classes.find(namedAs);
+        const element = cls && namedAs(cls);
         if (element && !(cls! in allow) && r.props.some((x) => setsOwned(element, x)))
           out.push(
             `${p}: ${sel} styles an element named like a shared one; use the hw-* element or list "${cls}" as an exception`,

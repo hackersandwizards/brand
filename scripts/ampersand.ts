@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 // Places the & of the one-line wordmark optically centred between the s and the w: its mean
-// row-wise gap is the same on both sides (Benedikt, 2026-10-29, os row wordmark-ampersand-spacing,
-// "B, optisch mittig"). Writes the offset into every logo carrying the one-line wordmark, renders
-// each PNG at its current width and rehashes both in manifest.json. A second run changes nothing.
+// row-wise gap is the same on both sides. Writes the offset into every logo carrying the one-line
+// wordmark, renders each PNG at its current width and rehashes both in manifest.json. A second run
+// changes nothing.
 // The -night, -outline, -white and -black cuts carry the same & group: run scripts/outline.ts after
 // it, which writes them from the day files.
 // Usage: bun scripts/ampersand.ts
@@ -12,7 +12,7 @@ import sharp from "sharp";
 import manifest from "../manifest.json";
 import { ROOT, sha256 } from "./git";
 
-// SVG units. The & ink sits 115 from the s and 84 from the w, row means 198 and 197 (LGD-3, b).
+// SVG units. The & ink sits 115 from the s and 84 from the w, row means 198 and 197.
 const AMPERSAND_DX = -29;
 const LOGOS = ["wordmark", "lockup", "lockup-compact"].flatMap((n) => [n, `${n}-night`]);
 // The & is the first group inside the "&wizards" block, which the wordmark shifts as one.

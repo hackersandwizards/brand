@@ -10,7 +10,7 @@
  *
  * Needs sharp installed beside it and Chrome for Testing (CHROME_BINARY overrides the search).
  */
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -109,8 +109,9 @@ async function frameImage(input: string, output: string, headline: string): Prom
       join(dir, "frame.html"),
       await frameHtml(await matchPaper(resolve(input), dir), headline),
     );
-    rmSync(output, { force: true });
-    await screenshot(dir, "frame.html", [WIDTH, HEIGHT, SCALE], output);
+    // Rendered in the scratch folder, so an output naming the input never deletes the image first.
+    await screenshot(dir, "frame.html", [WIDTH, HEIGHT, SCALE], join(dir, "frame.png"));
+    copyFileSync(join(dir, "frame.png"), output);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

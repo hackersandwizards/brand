@@ -5,7 +5,7 @@
 // literals repeating a token value instead of naming it (`tokenHex`), font stacks that do not open
 // on a brand family (`font`), Tailwind default palette classes (`palette`), radii (`radius`) and
 // box shadows (`shadow`) whose value is no brand token, Tailwind's default radius and shadow
-// classes included. Compares the counts with the consumer's brand-colours.json and exits 1 on any
+// classes with a size included (bare `rounded` and `shadow` match prose, so they are not read). Compares the counts with the consumer's brand-colours.json and exits 1 on any
 // count above its entry, any unlisted file with a count, an entry without a reason, or an entry
 // that grew against HEAD: the allowlist may only shrink. An entry may grow, a new file's included,
 // where the allowlist's total for that metric does not grow against HEAD, so a value moved from one
@@ -182,14 +182,16 @@ const SCRIPT = /^\.([cm]?[jt]sx?|json|webmanifest)$/;
 const BLOCK = /\/\*[\s\S]*?\*\//g;
 const STRING_OR_BLOCK =
   /("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\//g;
-const strip = (s: string, ext: string) =>
-  ext === ".py"
-    ? s
-    : s
-        .replace(ENGINE_STYLE, "")
-        .replace(SCRIPT.test(ext) ? STRING_OR_BLOCK : BLOCK, (_, str?: string) => str ?? "")
-        .replace(/(^|[^:"'`])\/\/.*$/gm, "$1")
-        .replace(/<!--[\s\S]*?-->/g, "");
+// CSS and SVG know no line comment, and a url(//host/x) anywhere is none either.
+const NO_LINE_COMMENT = /^\.(css|svg)$/;
+const strip = (s: string, ext: string) => {
+  if (ext === ".py") return s;
+  const out = s
+    .replace(ENGINE_STYLE, "")
+    .replace(SCRIPT.test(ext) ? STRING_OR_BLOCK : BLOCK, (_, str?: string) => str ?? "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+  return NO_LINE_COMMENT.test(ext) ? out : out.replace(/(^|[^:"'`(])\/\/.*$/gm, "$1");
+};
 // 8 and 4 digits carry an alpha channel; the colour part decides token or off-token.
 const HEX = /(?<![&\w])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g;
 const isColour3 = (h: string) => /\d/.test(h) || /^(.)\1\1/.test(h);
@@ -315,9 +317,9 @@ export const scanSource = (raw: string, ext: string) => {
   return { counts, hexes, fonts };
 };
 
-/** The allowlist's sum of one metric, partner marks left out. */
-const total = (allow: Allowlist, k: (typeof METRICS)[number]) =>
-  Object.entries(allow).reduce((sum, [f, e]) => sum + (isPartner(f, e) ? 0 : (e[k] ?? 0)), 0);
+/** The allowlist's sum of one metric, the files in `skip` left out. */
+const total = (allow: Allowlist, k: (typeof METRICS)[number], skip: Set<string>) =>
+  Object.entries(allow).reduce((sum, [f, e]) => sum + (skip.has(f) ? 0 : (e[k] ?? 0)), 0);
 
 /** Every way the counts exceed the allowlist, and every entry without a reason or grown against
  *  the committed allowlist beyond `ceiling`, this scanner's counts of the files as committed, which
@@ -337,8 +339,13 @@ export const violations = (
       if (counts[k] > allowed) out.push(`${file}: ${k} ${counts[k]}, allowed ${allowed}`);
     }
   }
+  // Partner marks count in no total. One in the committed list counts there too where the working
+  // tree turns it partner, so that frees no total for another entry to grow into.
+  const partnersOf = (a: Allowlist) => Object.keys(a).filter((f) => isPartner(f, a[f]));
+  const now = new Set(partnersOf(allow));
+  const before = new Set([...now, ...partnersOf(committed ?? {})]);
   const totalGrew = Object.fromEntries(
-    METRICS.map((k) => [k, !!committed && total(allow, k) > total(committed, k)]),
+    METRICS.map((k) => [k, !!committed && total(allow, k, now) > total(committed, k, before)]),
   );
   for (const [file, e] of Object.entries(allow)) {
     if (!e.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
@@ -383,7 +390,8 @@ export const tighten = (
   return next;
 };
 
-const runGit = (args: string[]) => spawnSync("git", args, { encoding: "utf8", maxBuffer: 1 << 30 });
+export const runGit = (args: string[]) =>
+  spawnSync("git", args, { encoding: "utf8", maxBuffer: 1 << 30 });
 
 /** Every file under the current directory, tracked or untracked, .gitignore honoured. */
 export const listTree = (cmd: string) => {
@@ -427,11 +435,13 @@ const committedCounts = (p: string) => {
   return head.status === 0 ? scanSource(head.stdout, extname(p)).counts : undefined;
 };
 
-const LFS = /^version https:\/\/git-lfs\.github\.com\/spec\/v1\noid sha256:([0-9a-f]{64})\n/;
+// The spec puts any ext-* lines between version and oid.
+const LFS =
+  /^version https:\/\/git-lfs\.github\.com\/spec\/v1\r?\n(?:ext-[^\n]*\n)*oid sha256:([0-9a-f]{64})\r?\n/;
+/** The object id a Git LFS pointer names, the sha256 of the real file; undefined for any other. */
+export const lfsOid = (b: Buffer) => LFS.exec(b.subarray(0, 1024).toString("latin1"))?.[1];
 /** A file's sha256, read through a Git LFS pointer to the object it names. */
-export const contentHash = (b: Buffer) =>
-  LFS.exec(b.subarray(0, 200).toString("latin1"))?.[1] ??
-  createHash("sha256").update(b).digest("hex");
+export const contentHash = (b: Buffer) => lfsOid(b) ?? createHash("sha256").update(b).digest("hex");
 
 const PKG = join(import.meta.dir, "..");
 const walk = (dir: string): string[] =>
@@ -449,8 +459,7 @@ export const brandFiles = () => {
     if (statSync(join(PKG, f)).size >= 64) out.set(contentHash(readFileSync(join(PKG, f))), f);
   return out;
 };
-const isPointer = (path: string) =>
-  statSync(path).size < 200 && readFileSync(path).subarray(0, 8).toString() === "version ";
+const isPointer = (path: string) => statSync(path).size < 1024 && !!lfsOid(readFileSync(path));
 /** The sizes of the brand files present on disk, to hash only consumer files that could match, and
  *  the extensions of those known by hash alone (the print masters: not shipped, or an LFS pointer
  *  here), whose every file is hashed. */

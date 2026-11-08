@@ -15,10 +15,9 @@ import { brand, browser, fileUrl, toJpeg } from "../backgrounds/render";
 const BOOTH = import.meta.dir;
 const boothCss = (f: string) => `<link rel="stylesheet" href="${fileUrl(join(BOOTH, f))}">`;
 const qr = fileUrl(join(BOOTH, "qr-hackersandwizards-dev.svg"));
-const MAGIC = "linear-gradient(135deg, var(--teal), var(--purple))"; // the brand's --gradient-magic
 
 function docHead(title: string, w: number, h: number) {
-  const over = `<style>body{background:#fff}.sheet{background:${MAGIC}}.contact img{box-shadow:0 0 0 calc(3*var(--mm)) rgba(25,40,58,.12)}</style>`;
+  const over = `<style>body{background:#fff}.sheet{background:var(--gradient-magic)}.contact img{box-shadow:0 0 0 calc(3*var(--mm)) rgba(25,40,58,.12)}</style>`;
   return `<!doctype html><html lang="en"><head><title>${title}</title><meta charset="utf-8">${boothCss("tokens.css")}${boothCss("banner.css")}<style>@page{size:${w + 40}mm ${h + 40}mm;margin:0}</style>${over}</head><body>`;
 }
 
@@ -65,7 +64,7 @@ function gradientTall() {
 }
 
 // The wordmark near full width, the offer line on two lines, the large wizard with the outline cut's
-// white edge below, moved 30 mm left (the 40 mm of the 600 mm wizard before v0.21.4, scaled). The
+// white edge below, moved 30 mm left (40 mm on a 600 mm wizard, scaled). The
 // wizard and its edge stay whole inside the padding, one line pitch of the offer clear below it.
 function gradientSquare() {
   const mascot = edgedWizard(WIZARD_1X1, "translate:calc(-30 * var(--mm)) 0");

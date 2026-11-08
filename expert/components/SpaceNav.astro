@@ -24,7 +24,7 @@ const { label, base, nodes, currentPath, pageCount, extra = [], labels = {} } = 
 const {
   sections = `${label} sections`,
   browse = `Browse ${label}`,
-  pages = (count: number) => `${count} pages`,
+  pages = (count: number) => `${count} ${count === 1 ? "page" : "pages"}`,
   home = `${label} home`,
   overview,
 } = labels;

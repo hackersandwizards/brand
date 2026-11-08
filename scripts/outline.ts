@@ -29,6 +29,7 @@ import sharp from "sharp";
 import manifest from "../manifest.json";
 import { colors } from "../generated/tokens";
 import { ROOT, sha256 } from "./git";
+import { rgb } from "./tokens";
 
 const OUTLINE = 48;
 const INK = { x0: 96, y0: 96, x1: 6667, y1: 947 }; // the wordmark's letters in SVG units
@@ -206,11 +207,11 @@ async function edgeRaster(wizard: Buffer, size: number, r: number, colour: strin
     Float64Array.from(data, (a) => (a >= 128 ? 0 : 1e12)),
     n,
   );
-  const [cr, cg, cb] = [1, 3, 5].map((i) => parseInt(colour.slice(i, i + 2), 16));
+  const [cr, cg, cb] = rgb(colour);
   const px = Buffer.alloc(n * n * 4);
   let [x0, y0, x1, y1] = [n, n, -1, -1];
   for (let i = 0; i < n * n; i++) {
-    const a = Math.max(Math.min(r + 0.5 - Math.sqrt(grid[i]), 1, 1), data[i] / 255, 0);
+    const a = Math.max(Math.min(r + 0.5 - Math.sqrt(grid[i]), 1), data[i] / 255, 0);
     px.set([cr, cg, cb, Math.round(a * 255)], i * 4);
     if (a > 0) {
       const [x, y] = [i % n, Math.floor(i / n)];

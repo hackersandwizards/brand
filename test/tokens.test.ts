@@ -8,7 +8,7 @@ import { fontFaces, palettes, parseTokens, resolveColors, rgb, SOURCE } from "..
 const css = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(css);
 const colors = resolveColors(tokens);
-const alias = (k: string) => /^var\(--color-[\w-]+\)$/.test(tokens[k]);
+const namesAnother = (k: string) => /^var\(--color-[\w-]+\)$/.test(tokens[k]);
 const { neutrals, hues } = palettes(css);
 const print = readFileSync(SOURCE.replace("tokens.css", "print.css"), "utf8");
 
@@ -31,7 +31,7 @@ test("reads every declaration of tokens.css", () => {
 
 test("mixes color-mix() tokens in sRGB", () => {
   expect(colors["--color-night-ink"]).toBe("#ebeced"); // white 92 % on night
-  expect(colors["--color-subtle"]).toBe(colors["--color-muted"]); // former name
+  expect(colors["--color-subtle"]).toBe(colors["--color-muted"]); // an alias
 });
 
 test("ampersand-light, written out against night.css's loop, stays ampersand 60 % on white", () => {
@@ -39,8 +39,8 @@ test("ampersand-light, written out against night.css's loop, stays ampersand 60 
   expect(rgb(colors["--color-ampersand-light"])).toEqual(mix);
 });
 
-test("holds 31 brand colours, a former name adding none", () => {
-  const own = Object.keys(colors).filter((k) => !alias(k));
+test("holds 31 brand colours, a token naming another adding none", () => {
+  const own = Object.keys(colors).filter((k) => !namesAnother(k));
   expect(own).toHaveLength(31);
   expect(new Set(own.map((k) => colors[k])).size).toBe(31);
 });
@@ -73,7 +73,7 @@ test("the two palettes hold every brand colour, and name only brand colours", ()
   ]);
   cells.delete("-");
   const own = Object.keys(colors)
-    .filter((k) => !alias(k))
+    .filter((k) => !namesAnother(k))
     .map((k) => k.replace("--color-", ""));
   expect([...cells].sort()).toEqual(own.sort());
   expect(neutrals.every((r) => r.day !== "-" || r.night !== "-")).toBe(true);
@@ -140,9 +140,9 @@ test("static-fonts.css holds print.css's faces, each url reaching its file from 
 });
 
 // Tailwind v4 resolves a utility such as text-<name> against two theme namespaces: text-label is
-// a colour wherever --color-label exists, and the element loses the --text-label size (website,
-// brand v1.13.0). No name may sit in both namespaces of such a utility, in any CSS file the package
-// ships, a consumer's @theme reading tokens.css and expert.css side by side.
+// a colour wherever --color-label exists, and the element loses the --text-label size. No name may
+// sit in both namespaces of such a utility, in any CSS file the package ships, a consumer's @theme
+// reading tokens.css and expert.css side by side.
 const SHARED = [
   ["text", "color"],
   ["shadow", "color"],

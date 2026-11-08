@@ -105,7 +105,7 @@
   --color-label-text: var(--color-teal-dark);
   --color-label-text-night: var(--color-teal-night);
 
-  /* Former names, resolving to their successors. */
+  /* Aliases: write the token each resolves to. */
   --color-subtle: var(--color-muted);
 
   /* Headings, labels and stats. Code has its own family, so swapping this

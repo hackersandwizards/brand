@@ -11,7 +11,7 @@ const SCRATCH = mkdtempSync(join(tmpdir(), "li-frame-"));
 afterAll(() => rmSync(SCRATCH, { recursive: true, force: true }));
 
 // Needs Chrome, as frame.ts does. Each render cold-starts Chrome with a fresh profile, which takes
-// seconds and grows with the machine's load (11 to 60 s at load 130, 06.11.); the limit is the
+// seconds and grows with the machine's load (11 to 60 s at load 130); the limit is the
 // one screenshot() gives Chrome itself.
 const CHROME = 60_000;
 describe("applications/linkedin-visuals/frame.ts", () => {
@@ -90,8 +90,8 @@ describe("applications/linkedin-visuals/frame.ts", () => {
       const px = (x: number, y: number) => [
         ...data.subarray((y * 1080 + x) * 3, (y * 1080 + x) * 3 + 3),
       ];
-      // The image is the card, x 56-1023 and y 206-1173, the band across it at y 593-787. Without
-      // the fix every sampled pixel at the image's edge reads the paper's #F5F8F9.
+      // The image is the card, x 56-1023 and y 206-1173, the band across it at y 593-787. An image
+      // short of the card leaves the paper's #F5F8F9 at every sampled edge pixel.
       const card = [0xf7, 0xf9, 0xfa];
       for (let x = 100; x <= 980; x += 20) {
         expect(px(x, 212)).toEqual(card);

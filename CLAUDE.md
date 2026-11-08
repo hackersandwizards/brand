@@ -49,7 +49,7 @@ data or secret.
   its people records. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
-- `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS with the colours again for a light island inside night, JSON, TS, Python), the Shiki theme of its code palette (`code-theme.json`),
+- `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS with the colours again for a light island inside night, JSON, TS, Python, the slide pointer `cursor.svg`), the Shiki theme of its code palette (`code-theme.json`),
   the faces of `tokens/fonts.css` (`fonts.json`) and the `@font-face` rules of `tokens/print.css`
   alone (`static-fonts.css`). Never edit them; run `bun run tokens`.
 - `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;
@@ -79,11 +79,10 @@ data or secret.
 - `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
   structure, coupling, unique names, spaces, confidential, history, licenses, the unit tests, the catalog build and the item
   check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements`
-  over every story) and `check:tokens` (the freshness of `generated/`). No hook runs it:
-  `.githooks/pre-commit` runs `bun run check:staged`, scaffolding's `check-staged`: `gitleaks`,
-  coupling and confidential over the staged changes, `prettier --check` and `eslint` on the staged files, `admin-check` when an item is staged; `commit-msg` runs `check-confidential` on the
-  message, `pre-push` refuses the commits `.confidential-purged.json` lists (the 248 the 02.11. rewrite replaced) and hands the refs to `git lfs pre-push` (scaffolding's
-  skeleton hooks). `bun install` points `core.hooksPath` at `.githooks/`.
+  over every story) and `check:tokens` (the freshness of `generated/`). No hook runs it: the
+  hooks are scaffolding's skeleton hooks, and `.githooks/README.md` lists what each runs, the
+  `pre-push` refusal of the 248 commits `.confidential-purged.json` lists included. `bun install`
+  points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset
@@ -125,8 +124,8 @@ data or secret.
   frame every internal system and page wears (`AppHeader.astro`), is plain CSS in
   `expert/header.css`, so a static or generated page links or inlines it.
 - Only the print masters (the CMYK TIFF and the 4096 px emoji PNG) and the PNG, PDF and
-  AI files under `applications/` live in Git LFS (`.gitattributes`). `.lfsconfig` keeps clones,
-  a consumer's `bun install` included, from fetching them, so the install stays small; `bun install` here fetches all but the TIFF, as the catalog shows them, and `git -c lfs.fetchexclude= lfs pull` fetches every one. Every file the package ships is
+  AI files under `applications/` live in Git LFS (`.gitattributes`). `.lfsconfig` keeps clones
+  from fetching them; a consumer's `bun install` takes GitHub's tarball, where they are pointers. `bun install` here fetches all but the TIFF, as the catalog shows them, and `git -c lfs.fetchexclude= lfs pull` fetches every one. Every file the package ships is
   a plain Git file, and `test/package.test.ts` fails on one in LFS.
 
 ## Behavioral rules

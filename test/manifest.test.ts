@@ -2,13 +2,14 @@ import { expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import manifest from "../manifest.json";
-import { lfsOid, ROOT, sha256 } from "../scripts/git";
+import { ROOT } from "../scripts/git";
+import { contentHash } from "../scan/colours";
 
 // A print master .lfsconfig keeps from fetching is a pointer on disk: its oid is the real file's sha256.
 test("every file matches its manifest hash", () => {
   for (const f of manifest.files) {
     const b = readFileSync(join(ROOT, f.path));
-    expect({ path: f.path, sha256: lfsOid(b) ?? sha256(b) }).toEqual({
+    expect({ path: f.path, sha256: contentHash(b) }).toEqual({
       path: f.path,
       sha256: f.sha256,
     });

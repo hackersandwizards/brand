@@ -8,7 +8,7 @@
 // Usage: bun catalog/portal.ts
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { basename, dirname, join } from "node:path";
 import manifest from "../manifest.json";
@@ -20,20 +20,24 @@ import catalogs from "../expert/catalogs.json";
 import { ROOT } from "../scripts/git";
 import { DEMOS } from "../scripts/element-demos";
 import { MARK } from "../applications/avatars/generate";
+import { escHtml } from "../applications/linkedin-visuals/render";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
-import { colorValue, palettes, parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
+import {
+  aliases,
+  colorValue,
+  palettes,
+  parseTokens,
+  resolveColors,
+  SOURCE,
+} from "../scripts/tokens";
 import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
 
 const source = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(source);
 const colors = resolveColors(tokens);
-const esc = (s: unknown) =>
-  String(s).replace(
-    /[&<>"]/g,
-    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!,
-  );
+const esc = (s: unknown) => escHtml(String(s));
 const table = (head: string[], rows: unknown[][], cls?: string) =>
   `<table${cls ? ` class="${cls}"` : ""}>${head.length ? `<thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>` : ""}<tbody>${rows
     .map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`)
@@ -77,8 +81,8 @@ const scopeIds = (svg: string, prefix: string) =>
 // The search index: what a reader types, where it leads.
 const index: { t: string; k: string; h: string; x?: string }[] = [];
 
-// A former name is a token whose value is another colour token: it resolves, but adds no colour.
-const former = Object.keys(colors).filter((k) => /^var\(--color-[\w-]+\)$/.test(tokens[k]));
+// A role token such as --color-label-text also resolves to another colour, and is no alias.
+const aliasNames = aliases(source);
 const { neutrals, hues } = palettes(source);
 const chartKeys = Object.keys(tokens).filter((k) => k.startsWith("--chart-"));
 // The chart series a hue gives, by its base or its text colour (amber and green chart dark).
@@ -87,7 +91,7 @@ const chartOf = (...names: string[]) =>
 // A hue's wash or tint on white, and the token that carries it where one does (teal-light).
 const hueMix = (base: string, p: number) => `color-mix(in srgb, var(--color-${base}) ${p}%, white)`;
 const tintToken = (base: string, p: number) =>
-  Object.keys(colors).find((k) => tokens[k] === hueMix(base, p) && !former.includes(k));
+  Object.keys(colors).find((k) => tokens[k] === hueMix(base, p) && !aliasNames.includes(k));
 // A colour cell: a button that copies the hex. A colour in a second cell (muted, a hue that is its
 // own text colour) keeps its anchor and search entry on the first.
 const anchored = new Set<string>();
@@ -135,7 +139,7 @@ ${table(["Job", "Day", "Night"], neutralRows)}
 <h3 class="label" id="hues">Hues</h3>
 <p>Text on day clears 4.5:1 on bg and white, night clears 4.5:1 on night and night-2. A wash is the hue at 7 % on white, a tint at 40 %. Chart series take the hues in ${code("--chart-*")} order, each the colour named by day and its hue's night colour by night.</p>
 ${table(["Hue", "Job", "Text on day", "Night", "Wash 7 %", "Tint 40 %", "Chart"], hueRows)}
-${former.length ? `<p class="meta">Former names, resolving to their successor: ${former.map((k) => `${code(k)} → ${code(tokens[k].slice(4, -1))}`).join(", ")}.</p>` : ""}`;
+${aliasNames.length ? `<p class="meta">Aliases, each resolving to the token to write: ${aliasNames.map((k) => `${code(k)} → ${code(tokens[k].slice(4, -1))}`).join(", ")}.</p>` : ""}`;
 
 const roleNames = [
   ...new Set(Object.keys(tokens).flatMap((k) => k.match(/^--type-(\w+)-family$/)?.[1] ?? [])),
@@ -301,7 +305,7 @@ const FAMILIES: Family[] = [
   {
     id: "avatars",
     title: "Avatars and workspace icons",
-    note: `The white hw on the brand gradient, one file per platform, the hw at ${MARK * 100}% of the tile width, the largest that stays inside a maskable icon's safe circle; generate.ts builds them. The Google Workspace logo is the wide avatar, the hw centred on the gradient at 320 x 132. The Qonto invoice logo is the compact lockup, full width and top-aligned in a transparent 1000 px square.`,
+    note: `The white hw on the brand gradient, one file per platform, the hw at ${MARK * 100}% of the tile width, the largest that stays inside a maskable icon's safe circle; generate.ts builds them. The Google Workspace logo is the wide avatar, the hw centred on the gradient at 320 x 132. The Qonto invoice logo is the wordmark, full width and top-aligned in a transparent 1000 px square.`,
     dir: "applications/avatars",
   },
   {
@@ -569,7 +573,9 @@ index.push({
   x: "select chevron hw-select form-input",
 });
 const disclosureDemo = `<details class="hw-disclosure" open><summary>Meetings <span class="hw-disclosure-count">3</span></summary><p>Kick-off, 12 Oct</p></details><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary><p>Hidden while closed</p></details>`;
-const nightDisclosure = `<!doctype html><html data-theme="dark"><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{--foreground:var(--color-night-ink);margin:0;padding:1rem;background:var(--color-night);color:var(--color-night-ink);font:400 0.875rem/1.5 var(--type-body-family)}summary{padding:0.25rem 0}p{margin:0.25rem 0 0.5rem 1.5rem}</style></head><body>${disclosureDemo}</body></html>`;
+// The disclosure demo's spacing, the same in the night frame, the tile and the inline demo.
+const DISCLOSURE_SPACING = "summary{padding:0.25rem 0}details p{margin:0.25rem 0 0.5rem 1.5rem}";
+const nightDisclosure = `<!doctype html><html data-theme="dark"><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{--foreground:var(--color-night-ink);margin:0;padding:1rem;background:var(--color-night);color:var(--color-night-ink);font:400 0.875rem/1.5 var(--type-body-family)}${DISCLOSURE_SPACING}</style></head><body>${disclosureDemo}</body></html>`;
 index.push({
   t: "disclosure",
   k: "element",
@@ -622,7 +628,7 @@ const elementDoc = (file: string) => {
   const [rule, settings = ""] = head.split(/\n\s*Settings[^\n]*\n/);
   return {
     words: rule!.replace(/\s+/g, " ").trim(),
-    names: [...settings.matchAll(/(--hw-[a-z-]+)/g)].map((m) => m[1]!),
+    names: [...settings.matchAll(/(--hw-[\w-]+)/g)].map((m) => m[1]!),
   };
 };
 const CLASS: Record<string, string> = { "focus-ring": ".hw-focus-ring", link: ".hw-link" };
@@ -644,16 +650,9 @@ const sharedHtml = ELEMENT_ORDER.map(([name, title, file]) => {
 <div class="el-matrix"><span></span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>`).join("")}${row(false)}${row(true)}</div>
 <p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
 }).join("\n");
-const EXPERT_COMPONENTS = [
-  "AppHeader",
-  "PageHeader",
-  "Pill",
-  "FilterChip",
-  "FilterChipBar",
-  "SpaceNav",
-  "SpaceNavTree",
-  "ThemeToggle",
-];
+const EXPERT_COMPONENTS = readdirSync(join(ROOT, "expert/components"))
+  .sort()
+  .flatMap((f) => f.match(/^(\w+)\.astro$/)?.[1] ?? []);
 const sharedIntro = `<p>Every element two or more systems show lives here once: one CSS file, shown live in light and night at each of the four scales. A system sets the scale, never a colour or a shape, and shows its exceptions in full on its own design-system page, beside a tile per hub element it uses. ${code('@import "@hackersandwizards/brand/elements.css";')} takes them all, ${code("elements/<name>.css")} with ${code("elements/scales.css")} one each; the scale is ${code('data-hw-scale="screen | dense | print | stage"')} on any container. ${code("brand-elements")} measures each element on the system's own page against this rule, in that system's gate.</p>
 <p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, tooltip, chart bars, slide table, header bars, ghost button. The slide engine's number tile, a step's number on a square, is a slide part.</p>`;
 const elementsHtml = `${sharedIntro}
@@ -694,7 +693,7 @@ const familyPreview = (f: Family) => {
   if (f.id === "mail-signature")
     return sampleFrame(fillSignature(signatureTemplate, EXAMPLE, "html"));
   const files = [...familyStems.get(f.id)!.values()].flat();
-  const svg = files.find((x) => x.endsWith(".svg") && !x.startsWith("qr-"));
+  const svg = files.find((x) => x.endsWith(".svg"));
   const png = files.find((x) => x.endsWith(".png"));
   return svg
     ? `<img src="${f.dir}/${esc(svg)}" alt="" loading="lazy">`
@@ -702,9 +701,9 @@ const familyPreview = (f: Family) => {
       ? lfsImage(`${f.dir}/${png}`)
       : "";
 };
-// One group per view, named so its anchor is the view's key: the rail opens the view itself.
 const swatches = (names: string[]) =>
   `<span class="pv-colours">${names.map((k) => `<span style="background:var(${k})"></span>`).join("")}</span>`;
+// One group per view, named so its anchor is the view's key: the rail opens the view itself.
 const groups: CatalogGroup[] = [
   {
     name: "Colours",
@@ -785,10 +784,7 @@ const groups: CatalogGroup[] = [
         name: "Disclosure",
         href: "#elements/disclosure",
         note: ".hw-disclosure · expert/disclosure.css",
-        html: sampleFrame(
-          disclosureDemo,
-          "summary{padding:0.25rem 0}details p{margin:0.25rem 0 0.5rem 1.5rem}",
-        ),
+        html: sampleFrame(disclosureDemo, DISCLOSURE_SPACING),
       },
     ],
   },
@@ -989,7 +985,6 @@ ${inline(catalogCss)}</style>
   .hw-catalogue[data-mode="view"] .hw-catalogue-main > :not(.portal) { display: none; }
   .pv-colours { display: grid; grid-template-columns: repeat(8, 1fr); height: 100%; }
   .pv-type { display: block; padding: 1rem; zoom: 0.5; }
-  .pv-type .label { display: none; }
   .pv-type p { margin: 0 0 0.75rem; white-space: nowrap; }
   .pv-tokens { display: flex; gap: 1.25rem; align-items: center; justify-content: center; height: 100%; }
   .pv-tokens span { width: 4.5rem; height: 4.5rem; background: var(--color-white); border: 1px solid var(--color-border); }
@@ -1091,9 +1086,7 @@ ${inline(catalogCss)}</style>
     .dropdowns .input { width: 16rem; }
     .dropdowns iframe { width: 18rem; height: 4.5rem; border: 0; border-radius: var(--radius-brand); }
     .disclosures iframe { height: 7rem; }
-    .disclosure-demo { width: 16rem; }
-    .disclosure-demo summary { padding: 0.25rem 0; }
-    .disclosure-demo p { margin: 0.25rem 0 0.5rem 1.5rem; }
+    .disclosure-demo { width: 16rem; ${DISCLOSURE_SPACING} }
     .el-matrix { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
     .el-head { align-self: end; }
     .el-row { align-self: center; }
@@ -1152,7 +1145,10 @@ const tiles = [...cat.querySelectorAll(".hw-catalogue-tile")];
 const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const words = () => q.value.toLowerCase().split(/\\s+/).filter(Boolean);
 const show = () => {
-  const [page, anchor] = decodeURIComponent(location.hash.slice(1)).split("/");
+  const raw = location.hash.slice(1);
+  let decoded = raw;
+  try { decoded = decodeURIComponent(raw); } catch {} // a stray % in a hand-typed link
+  const [page, anchor] = decoded.split("/");
   const view = document.querySelector('section[data-page="' + CSS.escape(page) + '"]') ? page : "";
   const searching = words().length > 0;
   cat.dataset.mode = searching ? "search" : view ? "view" : "overview";

@@ -11,7 +11,6 @@
 // Usage: brand-copies [--tighten]
 //   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
 //              pin change, for such a file.
-import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
@@ -23,6 +22,7 @@ import {
   isBrandCopy,
   listTree,
   pinChange,
+  runGit,
   skippedReport,
 } from "./colours";
 
@@ -102,7 +102,7 @@ if (import.meta.main) {
   const report = skippedReport("brand-copies", tree);
   if (report) console.log(report);
   const allow = existsSync(LIST) ? (JSON.parse(readFileSync(LIST, "utf8")) as Allowlist) : {};
-  const head = spawnSync("git", ["show", `HEAD:./${LIST}`], { encoding: "utf8" });
+  const head = runGit(["show", `HEAD:./${LIST}`]);
   const committed = head.status === 0 ? (JSON.parse(head.stdout) as Allowlist) : undefined;
   const upgrade = committed !== undefined && pinChange("brand-copies") !== undefined;
   const mayAdd = (p: string) => upgrade && p in found && committedAsIs(p);

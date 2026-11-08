@@ -9,8 +9,8 @@ import { failing, launch, measureMarkers, serve, toUrl, type Reading } from "../
 
 // marker.css on lists at five text sizes, wrapped and not, and on element markers in baseline rows,
 // against the rules it replaced: the inline-block list marker lifted by whole pixels (the website's
-// .marker-list, documents before v0.1.25), the element marker lifted by whole pixels (the slide
-// engine before 2026-11-01) and the browser's own disc (the website's list-disc lists).
+// .marker-list), the element marker lifted by whole pixels and the browser's own disc (the
+// website's list-disc lists).
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
 const item = (i: number) =>
   i % 2
@@ -74,7 +74,7 @@ const OLD_ELEMENT = `.hw-marker { flex-shrink: 0; width: 0.5625rem; height: 0.56
 const DISC = `.hw-marker-list { list-style: disc; padding-left: 1.25rem }`;
 
 // Every 1/64px offset of the first line, the side just under a whole pixel (the slide stage's
-// 0.5625rem at 1920): an unrounded side painted a pixel short at one offset in 64 (2026-11-03).
+// 0.5625rem at 1920): an unrounded side painted a pixel short at one offset in 64.
 const fractional = (css: string) => `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
 <link rel="stylesheet" href="${brand("tokens/print.css")}">
@@ -95,8 +95,8 @@ const UNROUNDED = `.hw-marker, ul > li::before {
 
 // prose.css's task checkbox, boxed and read-only (the tick alone), at line heights 1.25 to 2,
 // tight and loose, up to 16px text (a larger box is no marker to brand-markers), against the fixed
-// top it replaced (admin read it 0.87 to 2.87px off, 2026-11-06). The read-only tick drawn from the
-// box's own path read 0.63 to 0.79px low (2026-11-07).
+// top it replaced (0.87 to 2.87px off). The read-only tick drawn from the box's own path read 0.63
+// to 0.79px low.
 const tasks = (css: string) => `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
 <link rel="stylesheet" href="${brand("tokens/print.css")}">
@@ -147,7 +147,7 @@ const PLANTED = file("unrounded.html", fractional(UNROUNDED));
 const INNER = file("inner.html", inner);
 const TASKS = file("tasks.html", tasks(""));
 const OLD_TASKS = file("old-tasks.html", tasks(OLD_CHECK));
-// The read-only tick masked with the box's own path, as v1.27.0 drew it.
+// The read-only tick masked with the box's own path, the rule it replaced.
 const BOX_TICK = file(
   "box-tick.html",
   tasks(".hw-prose li.task-list-item input[data-readonly]:checked { mask-image: var(--_hw-tick) }"),

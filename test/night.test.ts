@@ -39,7 +39,8 @@ ${night}</style></head><body></body></html>`);
 // export names, with the dark toggle on <html>: every token night.css sets takes its night value
 // there, and the page's colour scheme turns dark.
 test("night.css after tokens.root.css turns every token on a dark html", async () => {
-  const set = [...night.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)].map((m) => [m[1]!, m[2]!]);
+  const scope = night.slice(0, night.indexOf("@layer base"));
+  const set = [...scope.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)].map((m) => [m[1]!, m[2]!]);
   expect(set.length).toBeGreaterThan(10);
   const tab = await browser.newPage();
   await tab.setContent(`<!doctype html><html data-theme="dark" data-hw-night><head>
@@ -73,11 +74,19 @@ test("tokens.root.css's island block declares only the colour tokens and those r
 // data-theme wins, so every token tokens.root.css declares, a derived one included, computes there
 // as on a day page, and so do its text, which body's colour would hand down in night ink, and
 // scales.css's line; also where the island carries data-hw-night or holds a data-hw-night element.
-// The expert roles night.css also sets are expert.css's on the island (test/expert.test.ts).
+// The expert roles night.css sets take expert.css's day values on the island (test/expert.test.ts).
 test("a data-theme=light element under a night html keeps every day token", async () => {
   const tab = await browser.newPage();
-  // Every token tokens.root.css declares, scales.css's line, and the text colour.
-  const keys = [...Object.keys(parseTokens(readFileSync(SOURCE, "utf8"))), "--hw-line"];
+  // Every token tokens.root.css declares, scales.css's line, the roles night.css sets, and the text
+  // colour. A day page sets the roles as expert.css does.
+  const roles = `--background: var(--color-bg); --foreground: var(--color-ink);
+--accent: var(--color-teal-dark); --border: var(--color-border);
+--muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));`;
+  const keys = [
+    ...Object.keys(parseTokens(readFileSync(SOURCE, "utf8"))),
+    "--hw-line",
+    ...[...roles.matchAll(/(--[\w-]+):/g)].map((m) => m[1]!),
+  ];
   const read = async (html: string, body: string) => {
     await tab.setContent(`<!doctype html><html data-hw-scale="screen" ${html}><head>
 <style>${tokens}${css("elements/scales.css")}</style>
@@ -90,7 +99,7 @@ test("a data-theme=light element under a night html keeps every day token", asyn
       };
     }, keys);
   };
-  const day = await read("", "<main></main>");
+  const day = await read("", `<main style="${roles.replace(/\n/g, " ")}"></main>`);
   const dark = 'data-theme="dark" data-hw-night';
   for (const body of [
     '<main data-theme="light"></main>',

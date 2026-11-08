@@ -2,7 +2,7 @@
 // markup. w1.ts renders the textile ones for review, the catalogue draws every product from the print
 // files in this folder.
 
-// Stanley/Stella textile colours, as in the merch rounds
+// Stanley/Stella textile colours
 export const TEXTILE = { stargazer: "#39505C", "purple-love": "#6C5A9E" };
 
 // A garment in mm: body 520 wide, sleeves to 760, 740 long; hood and long sleeves for the hoodie.

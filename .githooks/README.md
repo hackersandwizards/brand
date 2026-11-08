@@ -1,12 +1,12 @@
 # Git hooks
 
-Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `prepare` script sets `core.hooksPath`, never in user-global git config). Each hook calls a package.json script, except `post-merge` and `post-checkout`, which run `bun install` themselves.
+Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `prepare` script sets `core.hooksPath`, never in user-global git config). `pre-commit` calls a package.json script, `commit-msg` and `pre-push` scaffolding's `check-confidential` command, and `post-merge` and `post-checkout` run `bun install` themselves.
 
 ## What fires when
 
 | Hook            | Trigger                                                     | Runs                                                                                                                                            |
 | --------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pre-commit`    | every commit that is not a conflict-free merge              | `bun run check:staged`: scaffolding's `check-staged` (gitleaks, coupling, confidential, prettier, eslint; `admin-check` when an item is staged) |
+| `pre-commit`    | every commit that is not a conflict-free merge              | `bun run check:staged`: scaffolding's `check-staged` (gitleaks, coupling, confidential, prettier, eslint, stylelint on CSS and Astro; `check-licenses` when `package.json` or `bun.lock` is staged, `admin-check` when an item is) |
 | `commit-msg`    | every commit                                                | `check-confidential` on the message                                                                                                             |
 | `pre-push`      | every push                                                  | `check-confidential prepush`: refuses commits listed in `.confidential-purged.json`, then the LFS upload                                        |
 | `post-merge`    | a merge that changed `bun.lock` or `package.json`           | `bun install --frozen-lockfile`, quiet; a failure never fails the merge and shows as the gate's first step                                      |

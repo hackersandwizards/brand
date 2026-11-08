@@ -8,20 +8,25 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import sharp from "sharp";
 import { findChrome, NO_KEYCHAIN } from "../linkedin-visuals/render";
+import { lfsOid } from "../../scan/colours";
 
 const BRAND = resolve(import.meta.dir, "../..");
 
 function lfs(file: string): string {
   const path = join(BRAND, "logos", file);
-  if (readFileSync(path).subarray(0, 8).toString() === "version ")
+  if (lfsOid(readFileSync(path)))
     throw new Error(`${file} is a Git LFS pointer: run git -c lfs.fetchexclude= lfs pull`);
   return path;
 }
 
 export const fileUrl = (path: string) => pathToFileURL(path).href;
+let emoji: string | undefined;
 export const brand = {
   version: JSON.parse(readFileSync(join(BRAND, "package.json"), "utf8")).version as string,
-  emoji: fileUrl(lfs("emoji-logo-short.png")),
+  // Read on use, so a generator that draws no emoji runs where the master is still a pointer.
+  get emoji() {
+    return (emoji ??= fileUrl(lfs("emoji-logo-short.png")));
+  },
   lockup: fileUrl(join(BRAND, "logos/lockup.svg")),
   lockupNight: fileUrl(join(BRAND, "logos/lockup-night.svg")),
   lockupOutline: fileUrl(join(BRAND, "logos/lockup-outline.svg")),
@@ -58,6 +63,15 @@ export async function browser() {
   ]);
   const portFile = join(profile, "DevToolsActivePort");
   let ws: WebSocket;
+  let id = 0;
+  const pending = new Map<number, Pending>();
+  const events: ((m: { method: string; sessionId?: string }) => void)[] = [];
+  const send = (method: string, params: object = {}, sessionId?: string) =>
+    new Promise<Record<string, unknown>>((ok, ko) => {
+      pending.set(++id, { resolve: ok, reject: ko });
+      ws.send(JSON.stringify({ id, method, params, sessionId }));
+    });
+  let sessionId: string;
   try {
     for (let i = 0; !existsSync(portFile) || !readFileSync(portFile, "utf8").includes("\n"); i++) {
       if (i > 200) throw new Error("Chrome did not start");
@@ -71,38 +85,30 @@ export async function browser() {
         once: true,
       });
     });
+    // A Chrome that exits mid-run answers no pending call: fail them, so no await hangs.
+    ws.addEventListener("close", () => {
+      for (const p of pending.values()) p.reject(new Error("Chrome's DevTools socket closed"));
+      pending.clear();
+    });
+    ws.addEventListener("message", (e) => {
+      const m = JSON.parse(String(e.data));
+      if (m.id && pending.has(m.id)) {
+        const p = pending.get(m.id)!;
+        pending.delete(m.id);
+        if (m.error) p.reject(new Error(m.error.message));
+        else p.resolve(m.result);
+      } else for (const f of events) f(m);
+    });
+    const { targetId } = await send("Target.createTarget", { url: "about:blank" });
+    ({ sessionId } = (await send("Target.attachToTarget", { targetId, flatten: true })) as {
+      sessionId: string;
+    });
+    await send("Page.enable", {}, sessionId);
   } catch (e) {
     proc.kill();
     rmSync(profile, { recursive: true, force: true });
     throw e;
   }
-  let id = 0;
-  const pending = new Map<number, Pending>();
-  const events: ((m: { method: string; sessionId?: string }) => void)[] = [];
-  ws.addEventListener("message", (e) => {
-    const m = JSON.parse(String(e.data));
-    if (m.id && pending.has(m.id)) {
-      const p = pending.get(m.id)!;
-      pending.delete(m.id);
-      if (m.error) p.reject(new Error(m.error.message));
-      else p.resolve(m.result);
-    } else for (const f of events) f(m);
-  });
-  const send = (method: string, params: object = {}, sessionId?: string) =>
-    new Promise<Record<string, unknown>>((ok, ko) => {
-      pending.set(++id, { resolve: ok, reject: ko });
-      ws.send(JSON.stringify({ id, method, params, sessionId }));
-    });
-  const { targetId } = await send("Target.createTarget", {
-    url: "about:blank",
-  });
-  const { sessionId } = (await send("Target.attachToTarget", {
-    targetId,
-    flatten: true,
-  })) as {
-    sessionId: string;
-  };
-  await send("Page.enable", {}, sessionId);
   const scratch = mkdtempSync(join(tmpdir(), "hw-html-"));
 
   async function load(html: string, ready = "document.fonts.ready") {

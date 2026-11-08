@@ -13,8 +13,7 @@ const SCRATCH = mkdtempSync(join(tmpdir(), "hw-header-"));
 afterAll(() => rmSync(SCRATCH, { recursive: true, force: true }));
 
 // The header's markup from the opening comment of header.css, in headless Chrome. Every point of a
-// grid over the lockup lands in the one link, with the pointer and no text selection (Benedikt
-// 2026-11-01: "das logo ist teilweise nicht auf der ganzen fläche verlinkt").
+// grid over the lockup lands in the one link, with the pointer and no text selection.
 const page = (css: string) => `<!doctype html><html><head><style>
 ${readFileSync(join(ROOT, "generated/tokens.root.css"), "utf8")}
 ${css}
