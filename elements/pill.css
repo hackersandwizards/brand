@@ -142,13 +142,14 @@
     --_hw-pill-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   }
   /* The remove target: 24 px square around the 1em icon, its overhang taken back by a negative
-     margin, so the pill keeps its height and the cross its place. */
+     margin, so the pill keeps its height; at its start only the gap, so it never covers the words. */
   .hw-pill-remove {
     display: grid;
     box-sizing: border-box;
     width: 24px;
     height: 24px;
     margin: calc((1em - 24px) / 2);
+    margin-inline-start: -0.25em;
     place-items: center;
     border-radius: var(--radius-pill);
     --_hw-pill-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");

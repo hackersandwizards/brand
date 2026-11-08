@@ -58,7 +58,7 @@ const catalogCss = readFileSync(
   "utf8",
 );
 const elementsCss = readFileSync(join(ROOT, "elements/elements.css"), "utf8").replace(
-  /@import "\.\/([\w-]+\.css)";/g,
+  /@import "(\.\.?\/[\w/-]+\.css)";/g,
   (_, file: string) => readFileSync(join(ROOT, "elements", file), "utf8"),
 );
 writeAsset("elements.css", elementsCss);

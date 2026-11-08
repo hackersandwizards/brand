@@ -398,12 +398,19 @@ test("marker exceptions keep their readings, fail over their count and report a 
   });
   const story = "http://127.0.0.1:1/catalog/stories/Slides/Slide%20types/content-slide/at-rest/";
   const readings = [off(story), off(story), off("http://127.0.0.1:1/units/x/")];
-  const kept = applyExceptions(readings, {
-    "**/Slide types/content-slide/at-rest/": { reason: "engine rounding", off: 2 },
-    "**/ground-intro/": { reason: "engine rounding", off: 1 },
-  });
+  const measured = [...readings.map((r) => r.page), "http://127.0.0.1:1/x/ground-intro/"];
+  const kept = applyExceptions(
+    [...readings, { ...off(story), double: true }],
+    {
+      "**/Slide types/content-slide/at-rest/": { reason: "engine rounding", off: 2 },
+      "**/ground-intro/": { reason: "engine rounding", off: 1 },
+      "**/not-measured/": { reason: "engine rounding", off: 1 },
+    },
+    measured,
+  );
   expect(kept.kept.length).toBe(2);
-  expect(kept.bad.map((r) => r.page)).toEqual(["http://127.0.0.1:1/units/x/"]);
+  // The item with two markers stays bad; a page not measured in this run makes no entry stale.
+  expect(kept.bad.map((r) => r.page)).toEqual(["http://127.0.0.1:1/units/x/", story]);
   expect(kept.findings).toEqual([
     'markers exception "**/ground-intro/" is stale: it keeps no off reading',
   ]);

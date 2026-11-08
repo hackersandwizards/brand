@@ -5,8 +5,10 @@
 // search words and one chosen value per facet, "" for all. Each row of the list carries
 // data-filter-item, its lowercase text in data-filter-text, its facet values as JSON in
 // data-filter-facets ({"topic":["tools"]}), its place in the server's order in data-filter-order;
-// a [data-filter-title] inside gets the matched words marked, and a [data-filter-group] hides
-// while none of its rows shows.
+// a [data-filter-title] inside, holding text only, gets the matched words marked, and a
+// [data-filter-group] hides while none of its rows shows. A server render sets `hidden` on each row
+// where `matches(item, state)` is false, so a shared link shows the same rows without JavaScript.
+// One list filter per page: each reads and writes `?q=`.
 export interface FilterItem {
   text: string;
   facets: Record<string, string[]>;
@@ -158,6 +160,10 @@ export function initListFilter(root: HTMLElement) {
       return { el, title, plain: title?.textContent ?? "", item };
     });
   const items = rows.map((row) => row.item);
+  // The rows as the page placed them, which may be a query's order.
+  let placed = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")].map((el) =>
+    rows.find((row) => row.el === el)!,
+  );
   const groups = [...list.querySelectorAll<HTMLElement>("[data-filter-group]")];
 
   const state = (): FilterState => {
@@ -173,8 +179,12 @@ export function initListFilter(root: HTMLElement) {
     const active = words.length > 0 || faceted;
     let shown = 0;
     const order = ranked(rows, (row) => row.plain, current.q);
-    // Rows reorder only within their own parent, so a grouped list keeps its groups.
-    for (const row of order) row.el.parentElement?.append(row.el);
+    // Rows move only when the order changes, and only within their own parent, so a grouped list
+    // keeps its groups.
+    if (order.some((row, i) => row !== placed[i])) {
+      for (const row of order) row.el.parentElement?.append(row.el);
+      placed = order;
+    }
     for (const { el, title, plain, item } of order) {
       el.hidden = !matches(item, current);
       if (!el.hidden) shown += 1;

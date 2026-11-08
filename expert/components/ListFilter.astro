@@ -1,8 +1,9 @@
 ---
 /** Search, one facet as choices and an optional second facet as a select, over a list the page
  *  renders in full in the default slot: a GET form to its own page, so the server applies the
- *  URL's state and a shared link and a browser without JavaScript show the same rows. The browser
- *  side and the rows' attributes are elements/list-filter.ts's; the look is the shared elements
+ *  URL's state and a shared link and a browser without JavaScript show the same rows: each row
+ *  sets `hidden` where `matches(item, state)` is false. The browser side and the rows' attributes
+ *  are elements/list-filter.ts's; the look is the shared elements
  *  (hw-search, hw-choice, hw-field, hw-button) placed by elements/list-filter.css, sized by the
  *  page's data-hw-scale. `browse="active"` shows the list only while a filter is set, in place of
  *  the element `overview` names. Copy is a prop, so a page in another language passes its own. */

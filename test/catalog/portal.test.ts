@@ -125,7 +125,8 @@ const url = pathToFileURL(`${DIST}/index.html`).href;
 test("the portal's samples match their rules", async () => {
   const views = [...new Set(page("index.html").match(/(?<=data-page=")[a-z-]+/g))];
   const rs = await Promise.all(views.map((v) => measurePage(browser, `${url}#${v}`)));
-  expect(new Set(rs.flatMap((r) => r.seen)).size).toBe(31);
+  // Every element but one: the focus ring is read only on a focused tile.
+  expect(new Set(rs.flatMap((r) => r.seen)).size).toBe(Object.keys(ELEMENTS).length - 1);
   expect(rs.flatMap((r) => r.findings)).toEqual([]);
   expect((await measurePage(browser, url)).seen).toEqual([]);
 }, 60_000);

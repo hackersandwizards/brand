@@ -28,7 +28,8 @@
 // its reason and how many off readings it keeps at most:
 //   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
 // An off reading on a page the glob matches is kept, printed as kept; more off readings there than
-// "off" fail, and so does an entry that keeps nothing (stale), so a fixed page drops its exception.
+// "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so a
+// fixed page drops its exception. An item with two markers is never kept.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, or a named page with no marker (a zero proves nothing; a story page may show none).
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
@@ -477,7 +478,11 @@ export type MarkerException = { reason: string; off: number };
 /** The off readings `exceptions` keeps, those it does not, and its findings: an entry over its
  * count, an entry without a reason or count, and an entry keeping nothing. A glob matches a page's
  * decoded path, such as "**\/content-slide/at-rest/". */
-export function applyExceptions(off: Reading[], exceptions: Record<string, MarkerException> = {}) {
+export function applyExceptions(
+  off: Reading[],
+  exceptions: Record<string, MarkerException> = {},
+  measured: string[] = off.map((r) => r.page),
+) {
   const entries = Object.entries(exceptions).map(([glob, e]) => ({
     glob,
     e,
@@ -487,7 +492,7 @@ export function applyExceptions(off: Reading[], exceptions: Record<string, Marke
   const by = new Map<string, Reading[]>(entries.map(({ glob }) => [glob, []]));
   const bad: Reading[] = [];
   for (const r of off) {
-    const hit = entries.find(({ g }) => g.match(pathOf(r.page)));
+    const hit = !r.double && entries.find(({ g }) => g.match(pathOf(r.page)));
     if (hit) by.get(hit.glob)!.push(r);
     else bad.push(r);
   }
@@ -495,7 +500,8 @@ export function applyExceptions(off: Reading[], exceptions: Record<string, Marke
     const n = by.get(glob)!.length;
     if (!e?.reason || !Number.isInteger(e.off) || e.off < 1)
       return [`markers exception "${glob}": needs a "reason" and an "off" count of at least 1`];
-    if (n === 0) return [`markers exception "${glob}" is stale: it keeps no off reading`];
+    if (n === 0 && measured.some((page) => new Bun.Glob(glob).match(pathOf(page))))
+      return [`markers exception "${glob}" is stale: it keeps no off reading`];
     if (n > e.off) return [`markers exception "${glob}": ${n} off readings, ${e.off} kept`];
     return [];
   });
@@ -705,7 +711,7 @@ if (import.meta.main) {
     await server?.stop(true);
   }
   const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
-  const { bad, kept, findings } = applyExceptions(readings.filter(failing), config.markers);
+  const { bad, kept, findings } = applyExceptions(readings.filter(failing), config.markers, pages);
   for (const f of findings) console.error(f);
   if (json) console.log(JSON.stringify(readings, null, 2));
   else {
