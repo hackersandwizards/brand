@@ -68,19 +68,19 @@ Run a command the package ships from your repo's root with `bun run <name>`. Nev
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
 with `Script not found`.
 
-| Command                                                                                                      | Does                                                                  |
-| ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                | frames an image as a 1080 x 1350 LinkedIn post image                  |
-| `brand-linkedin-terminal <spec.json> <out.png>`                                                              | renders a terminal snippet for the frame; no arguments print the spec |
-| `brand-linkedin-sketch-prompt`                                                                               | prints the prompt for a generated sketch and its worked examples      |
-| `brand-slide-sketch-prompt`                                                                                  | prints the prompt for a slide sketch and its worked example           |
-| `brand-mail-signature --name <n> --role <r> --out <path>`                                                    | writes a mail signature as HTML and text; all flags in `cli.ts`       |
-| `brand-colours [--tighten]`                                                                                  | the colour, radius and shadow scan for your gate, below               |
-| `brand-copies [--tighten]`                                                                                   | flags a copy of a brand file in your tree, below                      |
-| `brand-scan [--tighten]`                                                                                     | flags a fork of an expert component, below                            |
-| `brand-markers [--scale 2,4] [--site <dir>] [--catalog <dir> [--catalog-at <page>]] <url, file or /path>...` | measures every list marker on your pages and catalog stories, below   |
-| `brand-elements [--base <url>] [--json]`                                                                     | measures the shared elements on your design-system page, below        |
-| `brand-retired <dir or file>...`                                                                             | fails on a retired slogan in what your build wrote, below             |
+| Command                                                                                                                      | Does                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                                | frames an image as a 1080 x 1350 LinkedIn post image                  |
+| `brand-linkedin-terminal <spec.json> <out.png>`                                                                              | renders a terminal snippet for the frame; no arguments print the spec |
+| `brand-linkedin-sketch-prompt`                                                                                               | prints the prompt for a generated sketch and its worked examples      |
+| `brand-slide-sketch-prompt`                                                                                                  | prints the prompt for a slide sketch and its worked example           |
+| `brand-mail-signature --name <n> --role <r> --out <path>`                                                                    | writes a mail signature as HTML and text; all flags in `cli.ts`       |
+| `brand-colours [--tighten]`                                                                                                  | the colour, radius and shadow scan for your gate, below               |
+| `brand-copies [--tighten]`                                                                                                   | flags a copy of a brand file in your tree, below                      |
+| `brand-scan [--tighten]`                                                                                                     | flags a fork of an expert component, below                            |
+| `brand-markers [--scale 2,4] [--site <dir> \| --base <url>] [--catalog <dir> [--catalog-at <page>]] <url, file or /path>...` | measures every list marker on your pages and catalog stories, below   |
+| `brand-elements [--base <url>] [--json]`                                                                                     | measures the shared elements on your design-system page, below        |
+| `brand-retired <dir or file>...`                                                                                             | fails on a retired slogan in what your build wrote, below             |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -459,9 +459,10 @@ page whose stylesheet does not load, such as a build linking `file://` styleshee
 `--site`: unstyled, the page shows the browser's own markers and spacing. Name such a build's
 pages as files instead. A test of your own that measures markers brand-markers leaves out takes its
 target and tolerance from the package: `import { CAP_SHARE, TOLERANCE } from
-"@hackersandwizards/brand/markers"`. `--catalog <dir>` adds every story page of a built catalog,
-as the `catalog` key of `brand-elements.json` does, `--catalog-at <page>` naming where it is served;
-a story page without a list passes.
+"@hackersandwizards/brand/markers"`. It measures every story page of the catalog that the
+`catalog` key of your `brand-elements.json` names, on its `"site"` where neither `--site` nor
+`--base <server url>` is given, so you name your catalog once. `--catalog <dir>` names another
+instead, `--catalog-at <page>` where it is served; a story page without a list passes.
 
 ## Press kit
 

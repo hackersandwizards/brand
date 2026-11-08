@@ -16,11 +16,13 @@
 // also keeps the browser's own fails, whatever its offset. Not measured: a heading's or
 // link's swatch outside a list, and ol numerals, whose digits stand on the baseline.
 //
-// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--catalog <folder>
+// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder>
 // [--catalog-at <page>]] [--json] <url, html file or site path>... --site serves a built folder on a
-// free port, and a page starting with / is a path on it. --catalog adds every story page of a built
-// catalog folder (catalogPages), each named below --catalog-at, by default the folder itself, or
-// its path on --site.
+// free port, and a page starting with / is a path on it; --base names a server the gate started
+// instead. --catalog adds every story page of a built catalog folder (catalogPages), each named
+// below --catalog-at, by default the folder itself, or its path on --site. Without --catalog, the
+// "catalog" of brand-elements.json in the working directory is measured, with its "site" where
+// neither --site nor --base is given (listedCatalog), so a consumer names its catalog once.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, or a named page with no marker (a zero proves nothing; a story page may show none).
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
@@ -502,6 +504,20 @@ export const catalogPages = (dir: string, at?: string, site?: string, served = !
   return states.map((s) => `${root.replace(/\/?$/, "/")}${file ? `${s}index.html` : encoded(s)}`);
 };
 
+/** The catalog and site `file` (brand-elements.json) names: what brand-elements measures, so
+ * brand-markers takes the same catalog without a flag. Empty where the file or its catalog is missing. */
+export const listedCatalog = (
+  file = "brand-elements.json",
+): { dir?: string; at?: string; site?: string } => {
+  if (!existsSync(file)) return {};
+  const { catalog, site } = JSON.parse(readFileSync(file, "utf8")) as {
+    catalog?: string | { dir: string; at?: string };
+    site?: string;
+  };
+  if (!catalog) return {};
+  return { ...(typeof catalog === "string" ? { dir: catalog } : catalog), site };
+};
+
 /** `run` over `items`, at most `limit` at a time, each call told which of the `limit` workers runs it;
  * the results in the items' order. */
 export async function pool<T, R>(
@@ -527,27 +543,37 @@ if (import.meta.main) {
   };
   const scales = opt("--scale", "2,4").split(",").map(Number);
   const width = Number(opt("--width", "1280"));
-  const site = opt("--site", "");
-  const catalog = opt("--catalog", "");
-  const at = opt("--catalog-at", "");
+  const flagSite = opt("--site", "");
+  const flagBase = opt("--base", "");
+  const flagCatalog = opt("--catalog", "");
+  const flagAt = opt("--catalog-at", "");
   const json = args.includes("--json");
   const named = args.filter((a) => a !== "--json");
+  const usage =
+    "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] <url, html file or site path>...";
+  if (flagBase && !/^https?:$/.test(URL.parse(flagBase)?.protocol ?? "")) {
+    console.error(usage);
+    process.exit(2);
+  }
+  const listed = flagCatalog ? {} : listedCatalog();
+  const catalog = flagCatalog || listed.dir;
+  const at = flagAt || listed.at;
+  const site = flagSite || (flagBase ? undefined : listed.site);
   let stories: string[] = [];
   try {
-    if (catalog) stories = catalogPages(catalog, at || undefined, site || undefined);
+    if (catalog) stories = catalogPages(catalog, at, site, !!site || !!flagBase);
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);
   }
   if (!named.length && !stories.length) {
-    console.error(
-      "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder>] [--catalog <folder> [--catalog-at <page>]] [--json] <url, html file or site path>...",
-    );
+    console.error(usage);
     process.exit(2);
   }
   const server = site ? serve(site) : undefined;
+  const base = server?.url ?? (flagBase ? new URL(flagBase) : undefined);
   const browser = await launch();
-  const pages = [...named, ...stories].map((a) => toUrl(a, server?.url));
+  const pages = [...named, ...stories].map((a) => toUrl(a, base));
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
   // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass at the first scale finds the
   // pages with a marker, most stories having none; only those take the other runs.

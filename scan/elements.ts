@@ -49,7 +49,16 @@ import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
-import { catalogPages, launch, open, openFolds, pool, serve, toUrl } from "./markers";
+import {
+  catalogPages,
+  launch,
+  listedCatalog,
+  open,
+  openFolds,
+  pool,
+  serve,
+  toUrl,
+} from "./markers";
 
 export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
@@ -764,10 +773,7 @@ if (import.meta.main) {
     process.exit(2);
   }
   const named = config.pages ?? [];
-  const { dir, at } =
-    typeof config.catalog === "string"
-      ? { dir: config.catalog, at: undefined }
-      : (config.catalog ?? {});
+  const { dir, at } = listedCatalog(LIST);
   let stories: string[] = [];
   try {
     if (dir) stories = catalogPages(dir, at, config.site, !!config.site || i >= 0);

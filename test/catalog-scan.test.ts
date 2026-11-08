@@ -95,11 +95,12 @@ test("brand-elements: a catalog folder without a story is a usage error, not a p
   expect(elements({ pages: [], catalog: "missing" }).code).toBe(2);
 });
 
-test("brand-markers: the home alone misses a story's lifted list, --catalog reads it", () => {
+test("brand-markers: the home alone misses a story's lifted list, --catalog or the catalog key reads it", () => {
   const off = (out: string) =>
     (JSON.parse(out) as { page: string; offset: number }[]).filter(
       (r) => !(Math.abs(r.offset) <= 0.25),
     );
+  rmSync(join(dir, "brand-elements.json"), { force: true });
   const home = run("markers.ts", ["--scale", "2", "--json", "site/catalog/index.html"]);
   expect([home.code, off(home.out)]).toEqual([0, []]);
   const all = run("markers.ts", [
@@ -115,6 +116,22 @@ test("brand-markers: the home alone misses a story's lifted list, --catalog read
     expect.stringContaining("/stories/Lists/Lifted/default/index.html"),
   ]);
   expect(run("markers.ts", ["--catalog", "empty/catalog"]).code).toBe(2);
+  // Without --catalog, the catalog brand-elements.json names, on its site where it has one.
+  for (const config of [{ catalog: "site/catalog" }, { site: "site", catalog: "site/catalog" }]) {
+    write("brand-elements.json", JSON.stringify(config));
+    const listed = run("markers.ts", ["--scale", "2", "--json"]);
+    expect(listed.code).toBe(1);
+    expect(forkPages(off(listed.out))).toEqual([
+      expect.stringMatching(
+        config.site
+          ? /^http:\/\/[^/]+\/catalog\/stories\/Lists\/Lifted\/default\/$/
+          : /^file:.*\/stories\/Lists\/Lifted\/default\/index\.html$/,
+      ),
+    ]);
+  }
+  write("brand-elements.json", JSON.stringify({ catalog: "empty/catalog" }));
+  expect(run("markers.ts", ["site/catalog/index.html"]).code).toBe(2);
+  rmSync(join(dir, "brand-elements.json"));
 }, 60_000);
 
 test("source: an @apply sets the properties its utilities stand for; btn names a button", () => {
