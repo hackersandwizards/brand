@@ -58,11 +58,11 @@
 }
 
 [data-hw-scale="dense"] {
-  /* The button at its own defaults (button.css), not a surrounding scale's. */
-  --hw-button-height: initial;
-  --hw-button-height-wide: initial;
-  --hw-button-pad: initial;
-  --hw-button-size: initial;
+  /* The button at the apps' size: 38 px tall in the ui step at every width. */
+  --hw-button-height: 2.375rem;
+  --hw-button-height-wide: 2.375rem;
+  --hw-button-pad: 0.5rem 1rem;
+  --hw-button-size: 0.875rem;
   --hw-label-size: 0.75rem;
   --hw-pill-size: 0.75rem;
   --hw-pill-pad: 0.0625rem 0.5rem;

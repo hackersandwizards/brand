@@ -1,13 +1,21 @@
 ---
+/**
+ * The shared pill (`hw-pill`, elements/pill.css) behind the apps' props, so a caller keeps its
+ * colour constants. `color` names a wash (`bg-<hue>/<n>`, else `text-<hue>`): its hue becomes the
+ * pill's `--hw-pill-hue`, a grey wash (`bg-muted`, `bg-foreground/<n>`) or none the neutral tone.
+ * `priority` is the element's priority scale instead of a colour, `unset` its outline (no value
+ * set), and a button with words its editable corner. The element sets the size per scale.
+ */
 interface Props {
   color?: string;
   icon?: string;
   label?: string;
   title?: string;
   as?: "span" | "button";
-  /** No value set: a line in the text colour on no fill; `color` then sets only the text. */
+  /** No value set: a line on no fill. */
   unset?: boolean;
-  size?: "xs" | "sm" | "md";
+  /** A priority, 0 to 4 (P0 to P4), in place of `color`. */
+  priority?: number;
   class?: string;
   id?: string;
   data?: Record<string, string | number | boolean | undefined>;
@@ -17,56 +25,47 @@ interface Props {
 }
 
 const {
-  // The neutral fill. On a card whose surface is the muted fill (the trainer hub in dark) it
-  // vanishes, so such an app passes its own color.
-  color = "bg-muted text-foreground/70",
+  color,
   icon,
   label,
   title,
   as = "span",
   unset = false,
-  size = "sm",
+  priority,
   class: extraClass = "",
   id,
   data,
   "aria-label": ariaLabel,
   "aria-haspopup": ariaHasPopup,
   "aria-expanded": ariaExpanded,
-}: Props = Astro.props;
+} = Astro.props;
 
-// min-height + leading-none: emoji glyphs are taller than Latin and would drift the box height.
-const sizeClass =
-  size === "md"
-    ? "px-2.5 py-1 text-ui leading-none min-h-[28px]"
-    : size === "xs"
-      ? "px-1.5 py-0.5 text-ui leading-none min-h-[20px]"
-      : "px-2 py-0.5 text-ui leading-none min-h-[22px]";
-
-// One meaning per property: a pill that changes its value here, a button with words, takes the
-// small corner of a button or field; one only read, and a button holding only an icon, stays round.
-// A line means no value set, never emphasis. The transparent border reserves the line's width,
-// keeping a mixed row aligned.
-const editable = as === "button" && (label !== undefined || Astro.slots.has("default"));
-const classes = [
-  "inline-flex items-center gap-1 font-medium whitespace-nowrap border",
-  editable ? "rounded-sm" : "rounded-full",
-  sizeClass,
-  color,
-  unset ? "border-current/40" : "border-transparent",
-  as === "button" ? "cursor-pointer select-none transition-colors" : "",
-  extraClass,
-]
-  .filter(Boolean)
-  .join(" ");
-
-const dataAttrs: Record<string, string> = {};
-if (data) {
-  for (const [k, v] of Object.entries(data)) {
-    if (v === undefined) continue;
-    const key = k.startsWith("data-") ? k : `data-${k}`;
-    dataAttrs[key] = String(v);
+const attrs: Record<string, string> = {};
+// One meaning per property: a pill that changes its value here (a button with words) takes the
+// editable corner; one only read, and a button holding only an icon, stays round.
+if (as === "button" && (label !== undefined || Astro.slots.has("default")))
+  attrs["data-editable"] = "";
+if (unset) attrs["data-variant"] = "outline";
+else if (priority !== undefined) attrs["data-priority"] = String(priority);
+else {
+  const classes = (color ?? "").split(/\s+/).filter((c) => c && !c.includes(":"));
+  const hue = (
+    classes.find((c) => c.startsWith("bg-"))?.slice(3) ??
+    classes.find((c) => /^text-[a-z]/.test(c))?.slice(5)
+  )?.split("/")[0];
+  if (!hue || hue === "muted" || hue === "foreground") attrs["data-tone"] = "neutral";
+  else {
+    // The expert roles (--hue-*, --error, --tier-*) are plain variables that flip with the theme,
+    // and Tailwind emits no --color-<role> for them; a brand colour has only --color-<name>.
+    const v = `var(--${hue}, var(--color-${hue}))`;
+    attrs.style = `--hw-pill-hue: ${v}; --hw-pill-hue-night: ${v}`;
   }
 }
+const classes = `hw-pill inline-flex items-center gap-1 whitespace-nowrap ${extraClass}`.trim();
+
+const dataAttrs: Record<string, string> = {};
+for (const [k, v] of Object.entries(data ?? {}))
+  if (v !== undefined) dataAttrs[k.startsWith("data-") ? k : `data-${k}`] = String(v);
 ---
 
 {as === "button" ? (
@@ -78,6 +77,7 @@ if (data) {
     aria-label={ariaLabel}
     aria-haspopup={ariaHasPopup}
     aria-expanded={ariaExpanded}
+    {...attrs}
     {...dataAttrs}
   >
     {icon && <span aria-hidden="true">{icon}</span>}
@@ -91,6 +91,7 @@ if (data) {
     title={title}
     aria-label={ariaLabel}
     role={ariaLabel && !label ? "img" : undefined}
+    {...attrs}
     {...dataAttrs}
   >
     {icon && <span aria-hidden="true">{icon}</span>}

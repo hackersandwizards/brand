@@ -155,25 +155,19 @@ test("source: an @apply sets the properties its utilities stand for; btn names a
   ]);
 });
 
-// brand's own expert layer meets the fork rule a consumer's gate applies. Each name below is a
-// fork recorded in item work-checks-see-stories; a new one fails here, and a fixed one fails until
-// its line goes.
-const KNOWN = [
-  "expert/components/FilterChip.astro:",
-  "expert/components/FilterChipBar.astro:",
-  "expert/components/Pill.astro:",
-  "expert/expert.css: .btn-primary",
-  "expert/expert.css: .btn-secondary",
-  "expert/expert.css: .chip-link",
-  "expert/expert.css: .chip-link-muted",
-  "expert/expert.css: .filter-chip",
-  "expert/expert.css: .filter-chip .chip-remove",
-];
+// brand's own expert layer meets the fork rule a consumer's gate applies, with the exceptions a
+// consumer would list in its brand-elements.json, each with its reason.
+const EXCEPTIONS = {
+  "filter-chip-bar":
+    "the row around FilterChip pills and a Clear all link: it draws no pill of its own",
+  "chip-link":
+    "a link beside labels, teal text after an icon naming where it leads: no pill, a link",
+};
 test("the fork rule over expert/ finds only the recorded forks", () => {
   const paths = Bun.spawnSync(["git", "ls-files", "expert"], { cwd: ROOT })
     .stdout.toString()
     .trim()
     .split("\n");
-  const out = sourceFindings(paths, (p) => readFileSync(join(ROOT, p), "utf8"), {});
-  expect(out.map((f) => f.replace(/ (styles an|a component named) .*/, ""))).toEqual(KNOWN);
+  const out = sourceFindings(paths, (p) => readFileSync(join(ROOT, p), "utf8"), EXCEPTIONS);
+  expect(out).toEqual([]);
 });

@@ -17,7 +17,7 @@
      data-state="draft"     a draft, not yet released: a dashed amber-dark line on no fill, its
                             text amber-dark mixed 75 % into ink; on night amber
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
-   changes the value) and hw-pill-remove (a button: removes the value). A leading icon is an svg
+   changes the value) and hw-pill-remove (a button, or a link to the list without the value: removes the value). A leading icon is an svg
    child. With any of them the pill lays its children out in a row, 0.25em apart.
 
    Settings:
@@ -115,6 +115,7 @@
     border: 0;
     padding: 0;
     font: inherit;
+    color: inherit;
     background-color: currentColor;
     opacity: 0.7;
     -webkit-mask: var(--_hw-pill-icon) center / contain no-repeat;

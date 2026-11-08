@@ -1,4 +1,5 @@
 ---
+/** An applied filter value: the shared pill (`hw-pill`) with its remove link (`hw-pill-remove`). */
 interface Props {
   label?: string;
   removeHref: string;
@@ -7,9 +8,7 @@ interface Props {
 const { label, removeHref } = Astro.props;
 ---
 
-<span class="filter-chip">
+<span class="hw-pill">
   {label ?? <slot />}
-  <a href={removeHref} class="chip-remove" aria-label={label ? `Clear filter ${label}` : "Clear filter"}>
-    &times;
-  </a>
+  <a href={removeHref} class="hw-pill-remove" aria-label={label ? `Clear filter ${label}` : "Clear filter"}></a>
 </span>

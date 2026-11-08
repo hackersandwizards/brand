@@ -261,19 +261,8 @@ html[data-theme="dark"] {
   flex-shrink: 0;
 }
 
-/* Both variants carry a 1px border, transparent on primary, so they render at the same pixel
-   height when they share a row. `hover:` still matches a disabled button, so without the
-   `disabled:hover` pins, a button disabled mid-mutation keeps lighting up under the cursor. */
-.btn-primary {
-  @apply rounded-brand border border-transparent bg-accent px-4 py-2 text-ui text-on-accent transition-colors hover:bg-accent-light disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-accent;
-}
-.btn-secondary {
-  @apply rounded-brand border border-border px-4 py-2 text-ui transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent;
-}
-
 /* A link to a record or out of the app, beside labels: teal text after an icon naming where it
-   leads, never a chip. The muted variant is a value
-   only read, a grey pill. */
+   leads, never a pill. A value only read is hw-pill data-tone="neutral". */
 .chip-link {
   @apply inline-flex items-center gap-1 text-ui text-accent transition-colors hover:text-accent-light;
 }
@@ -288,9 +277,6 @@ html[data-theme="dark"] {
     center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E")
     center / contain no-repeat;
-}
-.chip-link-muted {
-  @apply inline-flex items-center gap-1 rounded-full bg-muted/40 px-2.5 py-0.5 text-ui text-foreground/70;
 }
 
 /* Shape only; width is the caller's. The 40px min-height matches a native `<select>`, which
@@ -313,38 +299,10 @@ html[data-theme="dark"] {
   cursor: not-allowed;
 }
 
-/* The components in expert/components need these two rules. */
 /* ThemeToggle freezes transitions across a theme flip, or 1k+ of them cascade-fade the page. */
 html.theme-switching,
 html.theme-switching *,
 html.theme-switching *::before,
 html.theme-switching *::after {
   transition: none !important;
-}
-
-/* FilterChip: an active filter value with its clear button. */
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: var(--radius-pill);
-  font-size: var(--text-ui);
-  background: color-mix(in srgb, var(--accent) 15%, transparent);
-  color: var(--accent);
-}
-/* The clear button keeps the chip's full accent, which clears 4.5:1 on the 15 percent wash; the
-   hover adds the 25 percent wash. */
-.filter-chip .chip-remove {
-  width: 0.875rem;
-  height: 0.875rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-pill);
-  transition: background-color 0.1s;
-  cursor: pointer;
-}
-.filter-chip .chip-remove:hover {
-  background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
