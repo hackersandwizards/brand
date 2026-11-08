@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 1
 order: 40
 area: brand
@@ -127,6 +127,9 @@ images:
       caption: "German H1 with Spielen alle Rollen zusammen: desktop 1440 px, English above German"
     - src: none-s-phone.jpg
       caption: "German H1 with Spielen alle Rollen zusammen: phone 375 px, English beside German"
+decision: "de-zusammenspielen; nothing above the H1 stays as recommended"
+by: Benedikt
+quote: "f6 ist geil. vor allem mit der h1 anpassung. das machen wir."
 ---
 
 # What stands above the home H1?

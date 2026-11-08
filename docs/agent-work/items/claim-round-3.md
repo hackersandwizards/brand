@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 1
 order: 20
 area: brand
@@ -162,6 +162,9 @@ images:
       caption: "c3: slide, link preview, one-pager, footer, English above German"
     - src: c3-website.jpg
       caption: "Round 3, c3: home hero (desktop and phone) and footer"
+decision: "f6"
+by: Benedikt
+quote: "f6 ist geil. vor allem mit der h1 anpassung. das machen wir."
 ---
 
 # Which claim replaces c3?
