@@ -15,7 +15,7 @@
     "since": "2026-11-08"
   },
   "headline": {
-    "en": "Your teams have agents. Once every role is in step, your releases speed up.",
+    "en": "Your teams have agents. Once all roles are in tune, your releases speed up.",
     "de": "Eure Teams haben Agenten. Wenn alle Rollen zusammenspielen, werden eure Releases schneller.",
     "since": "2026-11-08"
   },
@@ -145,6 +145,12 @@
     {
       "text": "Eure Teams haben Agenten. Wenn alle Rollen eingespielt sind, werden eure Releases schneller.",
       "lang": "de",
+      "retired": "2026-11-08",
+      "replacedBy": "headline"
+    },
+    {
+      "text": "Your teams have agents. Once every role is in step, your releases speed up.",
+      "lang": "en",
       "retired": "2026-11-08",
       "replacedBy": "headline"
     }

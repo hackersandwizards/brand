@@ -3,7 +3,10 @@
 Benedikt decided on 08.11. to follow the recommendations: the claim u1 (`claim-confirm-after-round-8`)
 and the home H1 step-every (`decide-home-headline-wording`), with the German H1 "zusammenspielen"
 (`home-claim-line`) and nothing above the H1. Brand v1.56.0 ships it. All three items are deleted;
-`git log --all -- docs/agent-work/items/<id>.md` finds them. Their images moved to
+`git log --all -- docs/agent-work/items/<id>.md` finds them.
+Brand v1.57.0 replaces the H1 step-every with tune-all (`decide-home-headline-tune`): "Your teams
+have agents. Once all roles are in tune, your releases speed up." The "in step" line is retired, so
+every consumer raises its pin to v1.57.0, not v1.56.0. Their images moved to
 `2026-11-08-claim-all-candidates/<id>/`, where the round reports link them.
 
 ## What changed in brand
@@ -119,21 +122,22 @@ Found by searching every repository under `~/dev/hackersandwizards` (without `no
 repository that runs `brand-retired` fails once it raises its pin while a build still shows the old
 claim. Each brief is for a session in that repository, and each carries one rule (item `work-claim-rollout-holistic`): the copy around the claim or the headline on a surface is rewritten to fit it and blind-reviewed in that surface's context against the current copy, aiming at the highest score, never only the claim line swapped. That item also holds every consumer run until the profile texts and the banners are tuned as a whole.
 
-- **website** (pin v1.28.5): raise to v1.56.0. The home hero's title is `claim` today
+- **website** (pin v1.28.5): raise to v1.57.0. The home hero's title is `claim` today
   (`src/copy/start.en.ts:58`, `start.de.ts:33`); the decision makes it `headline.en` / `headline.de`
   from `verbal.json`, with nothing above the H1. `src/copy/ui.ts` `claimLines` splits the claim at
   ". " for the footer and leaves an empty first line for a one-sentence claim: show the claim whole
   or break it like the banners. The social cards (`src/lib/social-cards.ts`), the default image alt
   (`src/layouts/Layout.astro`) and the onepager script read `claim` and follow the pin. Re-render the
   link-preview images. The jump from v1.28.5 brings every release since; read their commit messages.
-- **os** (pin v1.53.0): raise to v1.56.0 and re-render every onepager (`scripts/onepager/render.ts`
+- **os** (pin v1.53.0): raise to v1.57.0 and re-render every onepager (`scripts/onepager/render.ts`
   writes the claim; 16 HTML files still hold the old one). `src/content/handbook/company/business-foundation.md`
   lines 152 and 313 explain the claim through "flow" ("Always connect speed to teams in flow"):
   rewrite them for a claim about people shipping together. `src/content/documents/marketing/brand-message-2026-09.md`
   M3 and `linkedin/profile-and-page-drafts-2026-09.md` (P2 headline, P3 Featured title, P4 slide 1,
   C1 and C9 taglines, D3) state the old claim as text: set them to the new one, as in brand's item
   `work-update-external-profiles-after-claim`. The handbook pages that embed `verbal.json#claim.*`
-  follow the pin.
+  follow the pin. `src/lib/__tests__/remark-brand-verbal.test.ts:44` plants the retired "in step"
+  line as its copy: plant the current `headline.en` instead.
 - **slides** (pin v1.52.0): pin raise only. `claimParts` accents "together" / "gemeinsam" on the
   closing; the closing tests read `verbal.json`. Check the contact closing's claim line for wrapping:
   the claim is 47 characters in English and 59 in German, longer than c3.
@@ -143,7 +147,7 @@ claim. Each brief is for a session in that repository, and each carries one rule
   None shows the claim or the headline as its own text; talks' closing tests and the documents'
   mission test read `verbal.json`.
 - **scaffolding**, **bench**: no brand pin and no claim; only their voice skill copy changes, through the hub sync.
-- **hub** (`~/.claude`): raise `~/.claude/package.json` to brand v1.56.0, `bun install`, run
+- **hub** (`~/.claude`): raise `~/.claude/package.json` to brand v1.57.0, `bun install`, run
   `scripts/sync-agent-config.sh`, so every repository's `voice/verbal.json` and `verbal.source` carry
   the new claim. `skills/voice/brand-voice.md` "Core positioning" says "Primary headline: the claim
   ... Flow is the emotional result": since 07.11. the home headline is `headline` and the claim no
