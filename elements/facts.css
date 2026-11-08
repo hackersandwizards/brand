@@ -7,6 +7,7 @@
      --hw-hairline  the rule's width
      --hw-line      the rule's colour */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-facts {
     margin: 0;

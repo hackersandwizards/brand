@@ -13,6 +13,7 @@
 
    Markup: <p class="hw-dot-list"><span>3 Deals</span><span>€ 0,00</span><span>überfällig 4d</span></p> */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-dot-list {
     display: flex;

@@ -10,6 +10,7 @@
      --hw-control-size  the circle's diameter
      --hw-control-icon  the icon's side */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-icon-button {
     display: inline-flex;

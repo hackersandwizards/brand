@@ -11,6 +11,7 @@
      --hw-segment-pad   a segment's block and inline padding
      --hw-segment-line  the frame's colour */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-segmented {
     display: inline-flex;

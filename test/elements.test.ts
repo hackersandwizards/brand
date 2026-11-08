@@ -975,3 +975,36 @@ test("a disabled button does not change on hover, on day or night", async () => 
   }
   await p.close();
 }, 60_000);
+
+// The cascade layers' order is declared by every brand file that opens one, so a surface loading
+// the elements before the text base still lets the element win over the heading's weight.
+test("a label on a heading keeps its weight whichever brand file loads first", async () => {
+  const heading = `<div data-hw-tile="label" data-hw-version="${own.version}"><h2 class="hw-label">Kurs</h2></div>`;
+  const weight = async (name: string, sheets: string[]) => {
+    const html = `<!doctype html><html><head>${sheets.map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${heading}</body></html>`;
+    const url = file(name, html);
+    const p = await browser.newPage();
+    await open(p, pathToFileURL(url).href);
+    const w = await p.$eval(".hw-label", (e) => getComputedStyle(e).fontWeight);
+    await p.close();
+    return { w, r: await measurePage(browser, url) };
+  };
+  for (const [name, order] of [
+    [
+      "layers-elements-first.html",
+      ["generated/tokens.root.css", "elements/elements.css", "tokens/text-base.css"],
+    ],
+    [
+      "layers-label-first.html",
+      ["generated/tokens.root.css", "elements/label.css", "tokens/text-base.css"],
+    ],
+    [
+      "layers-base-first.html",
+      ["generated/tokens.root.css", "tokens/text-base.css", "elements/elements.css"],
+    ],
+  ] as const) {
+    const { w, r } = await weight(name, [...order]);
+    expect([name, w]).toEqual([name, "500"]);
+    expect(r.findings).toEqual([]);
+  }
+}, 60_000);

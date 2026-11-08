@@ -250,11 +250,11 @@
     },
     {
       "path": "expert/disclosure.css",
-      "sha256": "a1e2a1188f71d65036a1070502ebd680893806f3c1dc55f061e74931e8a926a5"
+      "sha256": "161d5f3b44bc40fc41b433a8e1ad212c74609f650a062e1d34f11f587237921e"
     },
     {
       "path": "expert/expert.css",
-      "sha256": "78eed2fb1a132212b4df303651e120ac25467a00384c617c9153522c0526780b"
+      "sha256": "3b469b4e9db30c49072369cd72e7c85b5bc6f6a25f256423dddbbacc21cd8da4"
     },
     {
       "path": "expert/catalogs.json",
@@ -270,7 +270,7 @@
     },
     {
       "path": "expert/app-base.css",
-      "sha256": "47ea118df92cb8c0c9a974fa675b176c61381d89bc0f7e7beaaa76815815c25a"
+      "sha256": "7d22dfc07875454ae8f4d85d439b4fa8b8427de8789e5100f64a87e8e8d54930"
     },
     {
       "path": "tokens/fonts/inter-latin-wght-normal.woff2",
@@ -330,15 +330,15 @@
     },
     {
       "path": "elements/callout.css",
-      "sha256": "0db6bda3f97f0ba3b8cadd75b34fe1dd239849c9b417583caaa96f6bbb820a92"
+      "sha256": "764e980e38232b72933b09a3ea83ed054ac8ea7e06f817a5969674682b940ea1"
     },
     {
       "path": "elements/card.css",
-      "sha256": "b020f25133577edebf8a0fd88fdb50fad0b90847aebc2543fe583e3fe92b68b0"
+      "sha256": "182b533b4233d30d9cbc0406151b2d9fb1735ba383069e4c1fa6591d69e08dc5"
     },
     {
       "path": "elements/code.css",
-      "sha256": "ec0c1d8b1a864aa3da9ba7d1214a2c2e74c7832c46f25d05f2aa0140df3a9d4d"
+      "sha256": "617e99c70899429abfbb91a459453c8388263c5bbd4f3ec8189c5e5b42890b1a"
     },
     {
       "path": "elements/code.ts",
@@ -346,39 +346,39 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "6e2b90c85f473ffa76b857695d8cecafd0a37241e7e082510772114e6482f18c"
+      "sha256": "f9e2dacf3ea7797d7f4d95faf93f4ef2b78c6e6fe9e9df79e3c0bd3aa2951da9"
     },
     {
       "path": "elements/elements.css",
-      "sha256": "6d8a36b497e8e50951ba8c69da7143a56d8a14932fc9c39c841d05af6111303b"
+      "sha256": "642b28d71df9e98eba2eb870f1260407e0836d6468837fba460ee7ea708e9f34"
     },
     {
       "path": "elements/focus.css",
-      "sha256": "4dc91313def85744dac4deed56f837e8ba0689d09086ec8f460d477392506917"
+      "sha256": "a1200a9f8cb3cddcf8779dddab755ea2446271bf94f7aceba3cb4e5ecc3f5ffc"
     },
     {
       "path": "elements/icon-button.css",
-      "sha256": "94e2accb52164dab7fcbf5d3a038508ddeaeb1205199e66ad6b33b25dba4b1dd"
+      "sha256": "912f6ecfcc3517776b8660023d4f50918c87e4f3c18ed68a00f305d08c7640b1"
     },
     {
       "path": "elements/label.css",
-      "sha256": "526becbc654e695c4310c3cc81e4193ba5c9a02094ab117cea86d9ab76f6fd3a"
+      "sha256": "130dff12162ae649ab103698ec27bae57d52ba5ae80f05d07505712f25866c8f"
     },
     {
       "path": "elements/label-box.css",
-      "sha256": "ecdefa974395cecd2586572f31a06761dfe88a1666dbf911fa2038a68b2071c2"
+      "sha256": "8ce9806e627e514d6f485922ba0b11b14662539eb5d6cd28802819c276501736"
     },
     {
       "path": "elements/link.css",
-      "sha256": "5f63ec96fa2e52b8ed0f535c0f0c8e51d053ced494f59b92e9de1601ca7d0409"
+      "sha256": "10320c5169adbe7ffdb80fb2a4ac57d187e6712e01c5d40c6b5703a976f21c58"
     },
     {
       "path": "elements/pill.css",
-      "sha256": "b19c2d8b12c22fbca90c5b9dc2edd8117582426a993b587c4ad4b920e4db7e4f"
+      "sha256": "2b0f0e08696e21827c68563f1da83c1c432c685671ee112d9a709bb05bfb5860"
     },
     {
       "path": "elements/quote.css",
-      "sha256": "c586d4604bcc9773aa441d824a120e0b80da81f0d67bb3a8fbb017887ca287a3"
+      "sha256": "78f3cd746bc9b97d70a900a9306409929bf3b480f1e1979ffd67f629b7c098e9"
     },
     {
       "path": "elements/scales.css",
@@ -386,11 +386,11 @@
     },
     {
       "path": "elements/strip.css",
-      "sha256": "893a98bb6a05291a935680a5d65e58acdb3aa88f28b6fe2905e583ec49350210"
+      "sha256": "fbbe0879657e1fca8942218fe26b09d068b19da8ff51628b89973bd002830a0a"
     },
     {
       "path": "elements/table.css",
-      "sha256": "ca72dcc7b9fefff3d18f595901ea365b71980eb6e11e65feb41a774fb4567269"
+      "sha256": "8bfe2b0b147a133bfbb436451c91a3d9cc09cf5ce6b6820017f4435fad430af1"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",
@@ -418,43 +418,43 @@
     },
     {
       "path": "elements/arrow-link.css",
-      "sha256": "216e59f086b2cfe338f08039ce37e1be14195ebd0526da6c341033c04e965474"
+      "sha256": "e96600aa73f0c6d796723785df81ebd852d1f6e606ee2bbf95e8a89cb4ebcf9f"
     },
     {
       "path": "elements/breadcrumb.css",
-      "sha256": "ea378bea250b069399121940f68517df7e33585df79404ac877c53139c0dc963"
+      "sha256": "3582559bb503bead145ffac2f2d4710dd29f1db13692f7fdf4e7cd0988ebbec8"
     },
     {
       "path": "elements/button.css",
-      "sha256": "49169c02e4fe1004ec6994bc32de3bd09b3c92e6d0e61f183c48bb7d8a992509"
+      "sha256": "67b9df08b41124b4815fb0a546b8211b1fce7b1fc67603a7fc2dee1f5618d210"
     },
     {
       "path": "elements/check.css",
-      "sha256": "378aac7bb644ef68f3d149f6a482452292e13eb2170d664ea68b52928a18b07f"
+      "sha256": "6acab374709e7a6430a2d1222304769ea3521f6f254f933b87017c794ba3bfc9"
     },
     {
       "path": "elements/form-field.css",
-      "sha256": "72fb158be89d2613f23baa2efb4d12b42b097752dc02e214cab145dad27c1d71"
+      "sha256": "ba3c870572b381dd4c9b199d3d276c828967cf0fe80a295275ab24e669357a9a"
     },
     {
       "path": "elements/facts.css",
-      "sha256": "be90fe498e46c1d1051173cd81e32168a575cad543754f01e0689b24628af11e"
+      "sha256": "0d7a69ed4a97ed26de9e42e72c80ad068f510f812c85f2a59d2bf4fcd56a177a"
     },
     {
       "path": "elements/dot-list.css",
-      "sha256": "e2d5cf1610cf4152464dd5a2dcf102f43c3897dc900318cca912bad1294c767e"
+      "sha256": "1ef208e2ddf49106cb494ff0bf31ff21ed27e3252c8e7461cc58a31507d70a1f"
     },
     {
       "path": "elements/field.css",
-      "sha256": "62ca158a969ffad9478d4f83fa9cd65e098386839cfd9da8cca1d6e98a95dfea"
+      "sha256": "fc164ece4f878432da32643fdf9bbbe07a0df0e317ecfe625f967371e13e8a8a"
     },
     {
       "path": "elements/frame.css",
-      "sha256": "69ca498754bf9ab577a2531e35c577f3a4bbf6c83d514385f6bc113103e42e2c"
+      "sha256": "9fedff00001377f0c667a9d3766e7beaa46127374b9153405e53756fecb12d58"
     },
     {
       "path": "elements/kpi.css",
-      "sha256": "6801391ce59a17d9f2696593713103c33b64f2bafab1e9e4591e993575da8d72"
+      "sha256": "2244536ed4834ca1632946d0c655cfe31da1a05f5f2232679ad23914a1bdeb00"
     },
     {
       "path": "elements/prose.css",
@@ -462,23 +462,23 @@
     },
     {
       "path": "elements/row.css",
-      "sha256": "f89caddd9266e2772e089566f638324c0187bee418e20eaaa2384043cd001adf"
+      "sha256": "1bf298b9eacc89d84086fd38f6b380747ea4ebbe4ed507f50a253c3a8285f888"
     },
     {
       "path": "elements/rule.css",
-      "sha256": "bb9827a3e0e2c405b299a0fdc82325b5ccaba48d6dfce53a15a0d764b22fd881"
+      "sha256": "5d8908b6730d0689b8a2bcc40efd11ee26c9f92badf42b751efe4814ec518dc1"
     },
     {
       "path": "elements/segmented.css",
-      "sha256": "031c2bbaa1f51be92946cf4dd284808985c2618eacba0201bbc6de72281b513c"
+      "sha256": "80ead89a0ae21f110217f31d8306ab25c608b95df34f4065c076a1bc0533b8f7"
     },
     {
       "path": "elements/status.css",
-      "sha256": "7060e0ca57537a7d37a967b0c779960f0dbb34d6fb6f481b706d467543a9934f"
+      "sha256": "c48d47781cae02892c1d55627420676beec1671d4f7d17d6cc4424673009e66a"
     },
     {
       "path": "elements/kbd.css",
-      "sha256": "a66c20d26c0b7d9053bda8c2bea337380b399b65f82300f49b3af9960b13d8b3"
+      "sha256": "37ed038ed720871fc0790da8143f0188b6f411868d10370f380f79f869077fa8"
     },
     {
       "path": "tokens/document.css",
@@ -490,7 +490,7 @@
     },
     {
       "path": "tokens/night.css",
-      "sha256": "e3faf4b29742d22375f4247552aae7f37169a2d7d1c809d3b7a1fc6ece7dd52c"
+      "sha256": "1d00e13bf85b7ee892d16b978d1f776583a6224ed6e83b36b5cbf0ad777f6345"
     },
     {
       "path": "tokens/stage.css",
@@ -498,7 +498,7 @@
     },
     {
       "path": "tokens/text-base.css",
-      "sha256": "009a3dfe0f444d6c4399e636d211849011e264f0ef866a6ec51d38b8f7fc3ca7"
+      "sha256": "d7bc8612f79fd04595abccfea3daa0ec39f08072436abe8aa80a1f3641d9a58c"
     },
     {
       "path": "verbal/verbal.json",

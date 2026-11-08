@@ -15,6 +15,7 @@
    padding and hover stay the surface's. The focus ring takes --focus where the surface sets it,
    else the brand purple; under hw-focus-ring (elements/focus.css) that ring wins. */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-disclosure > summary {
     display: flex;

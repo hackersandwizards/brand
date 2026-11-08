@@ -10,6 +10,7 @@
      --hw-card-corner  the corner
      --hw-hairline     the line's width */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-status {
     --_tone: color-mix(in srgb, var(--color-amber-dark) 70%, var(--color-ink));

@@ -4,6 +4,7 @@
    type steps, the theme neutrals and accents, the status and hue roles, and the app primitives.
    Anything one app alone needs stays in that app's global.css. */
 
+@layer theme, base, components, utilities;
 /* The dropdown chevron for select.form-input, shared with surfaces outside the expert set. */
 @import "../elements/select.css";
 /* The disclosure chevron for details.hw-disclosure, shared the same way. */

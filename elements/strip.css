@@ -4,6 +4,7 @@
    Settings:
      --hw-strip  the strip's height */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-strip {
     height: var(--hw-strip, 3px);

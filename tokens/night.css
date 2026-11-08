@@ -35,6 +35,7 @@
 /* A data-theme="light" element inside that night: tokens.root.css gives it the day tokens, and this
    resolves its text, scales.css's line and the roles above from them, expert.css's day roles, in
    base so the surface's own rules win. */
+@layer theme, base, components, utilities;
 @layer base {
   [data-hw-night] [data-theme="light"] {
     --background: var(--color-bg);

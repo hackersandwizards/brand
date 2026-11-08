@@ -30,6 +30,7 @@
      --hw-field-size  the label's and each option's size, the field's text size
      --hw-muted       the muted grey, where a surface's --color-muted means something else */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-form-mark,
   .hw-form-hint,

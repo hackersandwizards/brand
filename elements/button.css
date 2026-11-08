@@ -19,6 +19,7 @@
      --hw-button-corner       the corner, else --hw-card-corner: the brand corner at the medium's
                               size, the small one inside a block with the brand corner (card.css) */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-button {
     --_hue: var(--color-teal);

@@ -18,6 +18,7 @@
    Markup: <label><input type="checkbox" class="hw-check"> Erledigt</label>
            <label><input type="radio" class="hw-check" name="…"> Behalten</label> */
 
+@layer theme, base, components, utilities;
 @layer components {
   .hw-check,
   .hw-prose li.task-list-item input[type="checkbox"] {
