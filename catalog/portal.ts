@@ -1117,7 +1117,7 @@ ${inline(catalogCss)}</style>
 <header class="hw-header">
 <div class="hw-header-strip"></div>
 <div class="hw-header-row hw-container">
-<a class="hw-header-brand" href="#overview" aria-label="hackers&amp;wizards Brand"><img class="hw-header-logo" src="logos/lockup-screen.svg" alt="" width="8042" height="1489"><img class="hw-header-logo-night" src="logos/lockup-screen-night.svg" alt="" width="8196" height="1641"><span class="hw-header-product">Brand</span></a>
+<a class="hw-header-brand" href="#overview" aria-label="hackers&amp;wizards Brand"><img class="hw-header-logo" src="logos/lockup-screen.svg" alt="" width="8042" height="1489"><img class="hw-header-logo-night" src="logos/lockup-screen-night.svg" alt="" width="8196" height="1641" loading="lazy"><span class="hw-header-product">Brand</span></a>
 <nav class="hw-header-nav" aria-label="Main" data-hw-catalogs>
 ${catalogs
   .flatMap((c) =>

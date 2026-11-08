@@ -262,7 +262,7 @@
     },
     {
       "path": "expert/header.css",
-      "sha256": "1533d4893c816b2ef1bebdfa99e9b174bfccdbc217ee213f7361a27b90ccfbc1"
+      "sha256": "b2a179cda5f2d415451a8320ced1e2d5c37d1a5e6f773193867c3c6b1fb41704"
     },
     {
       "path": "elements/select.css",
@@ -290,7 +290,7 @@
     },
     {
       "path": "expert/components/AppHeader.astro",
-      "sha256": "fb90124e19bfcb612b3c3ea4f6a7f7dd14324884a6b551a5ec299e799b89caa7"
+      "sha256": "01570d35ca1687e888b8b53e6ca7caf204960e996a4a8aff745bae93a63134f5"
     },
     {
       "path": "expert/components/FilterChip.astro",

@@ -177,3 +177,41 @@ ${nav}</div></header>
     expect((await catalogPage(1440, { theme: "dark" })).bg).toBe("rgb(11, 17, 24)");
   });
 });
+
+// AppHeader's night lockup loads lazily: hidden on a light page, Chrome never fetches it, and it
+// arrives once the page turns night. The img tag is AppHeader.astro's own, its src a file here.
+describe("AppHeader's night lockup", () => {
+  let browser: Browser;
+  beforeAll(async () => {
+    browser = await launch();
+  });
+  afterAll(() => browser?.close());
+
+  it("loads only once the page turns night", async () => {
+    const component = readFileSync(join(ROOT, "expert/components/AppHeader.astro"), "utf8");
+    const img = /<img class="hw-header-logo-night"[^>]*>/.exec(component)![0];
+    const file = join(SCRATCH, "night-lockup.html");
+    writeFileSync(
+      file,
+      `<!doctype html><html data-theme="light"><head><style>${style}</style></head><body>
+<header class="hw-header"><div class="hw-header-row hw-container"><a class="hw-header-brand" href="/">
+${img.replace("{lockupNight}", `"file://${ROOT}/logos/lockup-screen-night.svg"`)}</a></div></header></body></html>`,
+    );
+    const tab = await browser.newPage();
+    const fetched: string[] = [];
+    tab.on("request", (r) => fetched.push(r.url()));
+    const night = () => fetched.some((u) => u.endsWith("lockup-screen-night.svg"));
+    await tab.goto(`file://${file}`, { waitUntil: "load" });
+    await new Promise((r) => setTimeout(r, 300));
+    const onLight = night();
+    await tab.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
+    await tab.waitForFunction(
+      () =>
+        document.querySelector<HTMLImageElement>(".hw-header-logo-night")!.complete &&
+        document.querySelector<HTMLImageElement>(".hw-header-logo-night")!.naturalWidth > 0,
+      { timeout: 5000 },
+    );
+    await tab.close();
+    expect([onLight, night()]).toEqual([false, true]);
+  });
+});
