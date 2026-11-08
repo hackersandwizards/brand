@@ -156,7 +156,6 @@
   --cert-signature-image-width: 70mm;
   --cert-signature-line: 66mm;
   --cert-qr: 26mm;
-  --cert-button-pad: 2.8mm 7mm;
 }
 /* ── Onepager ── The website's px rhythm: --op-N is N px, the steps the site's spacing uses. */
 :root {
@@ -177,13 +176,13 @@
   --op-10: 10px;
   --op-14: 14px;
   --op-16: 16px;
+  --op-17: 17px;
   --op-18: 18px;
   --op-20: 20px;
   --op-22: 22px;
   --op-28: 28px;
   --op-hero-pad: 20px 24px 22px;
   --op-hero-pad-tight: 13px 18px 14px;
-  --op-button-pad: 3pt 10pt;
   --op-cta-leading: 2;
   --op-chip-gap: 0.3em;
   --op-proof-min: 70px;
