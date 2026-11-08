@@ -92,6 +92,8 @@ data or secret.
 
 ## Rules
 
+- A brief that sets a shared element's value for one scale or surface runs `blind-review` first,
+  scored on every surface that renders the element, before the value changes.
 - A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
   Other repos take it from the package and never commit a copy of a brand file.
 - A comment in a file the package exports states how to use the token or element, never its
