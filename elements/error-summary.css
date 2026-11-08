@@ -1,0 +1,69 @@
+/* The error summary: at the top of a form a submit sent back, one box naming every error with a
+   link to its field, so a long form's reader sees all of them at once. The error red line twice
+   as thick, as on an invalid field (an app's --error where it has one), the brand corner, the card
+   padding; the title in the body role at weight 600 behind the error message's circled mark in red; each link in the error red at medium weight,
+   underlined, its text the field's error message. Night takes red-night.
+
+   Show it only after a submit with errors, move focus to it (tabindex="-1"), and keep each
+   field's own message too. Each link's href is its field's id.
+
+   Markup: <div class="hw-error-summary" role="alert" tabindex="-1" aria-labelledby="s-title">
+             <p class="hw-error-summary-title" id="s-title">Bitte prüft 2 Angaben</p>
+             <ul><li><a href="#mail">E-Mail: gebt eine Adresse mit Domain an.</a></li> …</ul>
+           </div>
+
+   Settings:
+     --hw-card-pad     the padding
+     --hw-card-corner  the corner
+     --hw-hairline     half the line's width
+     --hw-field-size   the text size */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-error-summary {
+    --_hw-error: var(--error, var(--color-red));
+    box-sizing: border-box;
+    border: calc(2 * var(--hw-hairline, 1px)) solid var(--_hw-error);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
+    padding: var(--hw-card-pad, var(--spacing-card));
+    font-size: var(--hw-field-size, var(--type-body-size));
+    line-height: var(--type-body-line-height);
+  }
+  .hw-error-summary-title {
+    position: relative;
+    margin: 0;
+    padding-left: 1.525em;
+    font-weight: 600;
+  }
+  .hw-error-summary-title::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1.15em;
+    height: 1lh;
+    background: var(--_hw-error);
+    mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 8v4M12 16h.01'/%3E%3C/svg%3E")
+      center / 1.15em no-repeat;
+  }
+  .hw-error-summary ul {
+    margin: 0.5em 0 0 1.525em;
+    padding: 0;
+    list-style: none;
+  }
+  .hw-error-summary li + li {
+    margin-top: 0.25em;
+  }
+  .hw-error-summary a {
+    font-weight: 500;
+    color: var(--_hw-error);
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--hw-underline, 1px);
+    text-underline-offset: 0.2em;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-error-summary {
+      --_hw-error: var(--error, var(--color-red-night));
+    }
+  }
+}

@@ -104,6 +104,9 @@ export const ELEMENTS: Record<string, string> = {
   field: ".hw-field",
   check: ".hw-check, .hw-check-target",
   "form-field": ".hw-form-field",
+  switch: ".hw-switch",
+  range: ".hw-range",
+  "error-summary": ".hw-error-summary",
   facts: ".hw-facts",
   "dot-list": ".hw-dot-list",
   segmented: ".hw-segmented",
@@ -233,6 +236,15 @@ const OWNS: Record<string, string[]> = {
   "form-field .hw-form-mark": ["font-weight", "color"],
   "form-field .hw-form-hint": ["font-size", "line-height", "color"],
   "form-field .hw-form-error": ["font-size", "font-weight", "line-height", "color", "padding-left"],
+  "form-field .hw-form-warning": ["font-size", "font-weight", "color", "padding-left"],
+  "form-field .hw-form-success": ["font-size", "font-weight", "color", "padding-left"],
+  "form-field .hw-form-count": ["font-size", "font-weight", "color"],
+  "form-field .hw-form-float > .hw-field": ["min-height", "padding-top", "padding-bottom"],
+  switch: ["width", "height", ...CORNER, ...FILL, ...borders()],
+  range: ["height", "font-size", ...FILL],
+  "error-summary": [...CORNER, ...borders(), ...PAD, "font-size", "line-height"],
+  "error-summary .hw-error-summary-title": ["font-weight"],
+  "error-summary a": ["color", "font-weight", "text-decoration-line"],
   facts: ["margin-top", "margin-bottom"],
   "dot-list": ["flex-wrap", "align-items", "margin-left"],
   "facts div": ["display", "row-gap", ...borders(["top"]), "padding-top", "padding-bottom"],
@@ -455,12 +467,13 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       wrap.append(clone);
       inner = wrap;
     }
-    // A field or button in a field row takes the row's joined rules: the reference sits in a row too.
-    const row = el.parentElement?.closest(".hw-field-row");
-    if (row && row === el.parentElement) {
+    // A field or button in a field row, or a field under a floating label, takes its parent's
+    // rules: the reference sits in a bare copy of that parent.
+    const parent = el.parentElement;
+    if (parent?.matches(".hw-field-row, .hw-form-float")) {
       const wrap = document.createElement("div");
-      wrap.className = "hw-field-row";
-      if (row.hasAttribute("data-joined")) wrap.setAttribute("data-joined", "");
+      wrap.className = parent.matches(".hw-field-row") ? "hw-field-row" : "hw-form-float";
+      if (parent.hasAttribute("data-joined")) wrap.setAttribute("data-joined", "");
       wrap.append(inner);
       inner = wrap;
     }

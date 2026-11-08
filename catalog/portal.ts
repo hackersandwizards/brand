@@ -624,8 +624,13 @@ const elementDoc = (file: string) => {
 const CLASS: Record<string, string> = { "focus-ring": ".hw-focus-ring", link: ".hw-link" };
 // Search words for what an element holds beyond its name.
 const KEYWORDS: Record<string, string> = {
-  field: "select dropdown hw-select textarea form-input",
-  "form-field": "label hint error message optional fieldset legend validation",
+  field:
+    "select dropdown hw-select textarea form-input readonly read-only file upload date combobox datalist autocomplete size small large password toggle",
+  "form-field":
+    "label hint error message optional fieldset legend validation warning success character count floating label",
+  switch: "toggle on off setting",
+  range: "slider",
+  "error-summary": "validation errors form submit",
 };
 const elementHtml = ({ name, title, file }: { name: string; title: string; file: string }) => {
   const { words, names } = elementDoc(file);
@@ -637,7 +642,7 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
   });
   // A sample's ids, and the for and aria-describedby naming them, stay unique across the cells.
   const cell = (scale: string, night: boolean) =>
-    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ (id|for|aria-describedby)="([^"]*)"/g, (_, attr: string, ids: string) => ` ${attr}="${ids.replace(/\S+/g, (id) => `${id}-${scale}${night ? "-night" : ""}`)}"`)}</div></div>`;
+    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${DEMOS[name]!.replace(/ (id|for|list|aria-describedby|aria-controls|aria-labelledby|data-for)="([^"]*)"/g, (_, attr: string, ids: string) => ` ${attr}="${ids.replace(/\S+/g, (id) => `${id}-${scale}${night ? "-night" : ""}`)}"`)}</div></div>`;
   const row = (night: boolean) =>
     `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
   return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>

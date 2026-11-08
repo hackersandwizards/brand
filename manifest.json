@@ -266,7 +266,7 @@
     },
     {
       "path": "elements/select.css",
-      "sha256": "d13f3d6a48a0e00fc581f52c511bfe47b5fca5d3c69a466ba222b970554c167e"
+      "sha256": "e07ad9ad5be4ee962b62f26613be5dc9842a8310525c43194ffae3c5d138c215"
     },
     {
       "path": "expert/app-base.css",
@@ -350,7 +350,7 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "ba47e4efd4fdc01316baa39876c2931226aefd692b03eaac2a16ce28838e20af"
+      "sha256": "d50084ca02aa2f2ebb5948802504e68865c7a1bc78682fffc05b8613730f321d"
     },
     {
       "path": "elements/focus.css",
@@ -434,7 +434,23 @@
     },
     {
       "path": "elements/form-field.css",
-      "sha256": "1c8750e8ab72373c1457731e241d4caf0764f06a0532f0e99ea7a360d8db6358"
+      "sha256": "31ef75bf6753b59ea9a5c36e02f9e04901f789f9f67dbd6b312e71efe61b3a7d"
+    },
+    {
+      "path": "elements/switch.css",
+      "sha256": "345bbe48b1841e0873bb057f46cfaf1baface5c49f0e214c7a3264f8ffff36e2"
+    },
+    {
+      "path": "elements/range.css",
+      "sha256": "eff8e91562348bc6f0ce032139a7e1c1551249c11453103ffa083eeab6d609e3"
+    },
+    {
+      "path": "elements/error-summary.css",
+      "sha256": "c4c28b4ce335a8c47bc0b0bb3ac1cf8b68c4a645d405138238192df94c006c7c"
+    },
+    {
+      "path": "elements/form.ts",
+      "sha256": "6a73074418397cfd67814504bbb7913bd3e51bc6b3a540af5b83afcc40ccb894"
     },
     {
       "path": "elements/facts.css",
@@ -446,7 +462,7 @@
     },
     {
       "path": "elements/field.css",
-      "sha256": "6ffd2b6c202b65762e726f85b757f89df2ef9f8f30f48f6ccc5c4197f4c543b3"
+      "sha256": "9842dc7d9a4665cd21033cd1b28fcdb59f5a3885729caefaa1fc4961fcdf2196"
     },
     {
       "path": "elements/frame.css",

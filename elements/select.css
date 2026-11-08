@@ -22,15 +22,15 @@ select.form-input {
   padding-right: 2rem;
 }
 /* On the field the chevron sits at the field's padding and takes the size of its text, so it keeps
-   its proportion at every scale. */
-select.hw-field.hw-select {
+   its proportion at every scale. A combobox (input with list) wears it too. */
+.hw-field.hw-select {
   background-position: right var(--hw-field-pad, 1rem) center;
   background-size: 0.75em 0.5em;
   padding-right: calc(var(--hw-field-pad, 1rem) + 1.25em);
 }
 @scope ([data-theme="dark"]) to ([data-theme="light"]) {
   html:scope :is(.hw-select, select.form-input),
-  select.hw-field.hw-select {
+  .hw-field.hw-select {
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
   }
 }

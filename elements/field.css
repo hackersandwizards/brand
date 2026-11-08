@@ -5,6 +5,17 @@
    hw-check. The same class frames a <textarea>, its text inset as on one line, and a <select>
    with hw-select (select.css), which adds the chevron. The label, hint and error message round
    it are form-field.css.
+   readonly shows a value to read and copy, not to change: a dashed line, no fill, no hover, the
+   value at full contrast. data-state="warning" or "success" draws the line twice as thick in
+   amber-dark or green-dark (amber or green on night), as aria-invalid does in red; a message
+   below says why (form-field.css). data-size="small" or "large" takes 5/6 or 7/6 of the scale's
+   height, the small text or 9/8 of the field's, at the same padding, so values align in a column. type="file" puts the browser's
+   choose button flush left, teal-dark text at medium weight behind a hairline; type="date" keeps
+   the browser's picker, whose calendar follows the theme (color-scheme). With hw-select and a
+   list naming a <datalist>, the field is a combobox: free text with suggestions, the chevron in
+   place of the browser's own indicator, which stays clickable over it.
+   hw-field-toggle in a joined row is the password field's show button: an eye on no fill,
+   crossed out while aria-pressed="true"; form.ts flips the field's type and the button's state.
    data-joined on hw-field-row sets field and button in one framed row, the button a teal-dark
    square holding an icon (the website's search), both 44 px tall; without it the button is an
    hw-button beside the field, 0.75rem apart, stacking under 40rem (the verifier's lookup), where
@@ -15,6 +26,10 @@
    Markup: <div class="hw-field-row"><input class="hw-field"><button class="hw-button">…</button></div>
            <textarea class="hw-field"></textarea>
            <select class="hw-field hw-select">…</select>
+           <input class="hw-field hw-select" list="topics"><datalist id="topics">…</datalist>
+           <div class="hw-field-row" data-joined><input class="hw-field" type="password" id="pw">
+             <button type="button" class="hw-field-toggle" aria-controls="pw"
+               aria-pressed="false" aria-label="Passwort zeigen" hidden></button></div>
 
    Settings:
      --hw-card-corner   the corner of the field, or of the joined row around it, the brand
@@ -50,7 +65,14 @@
     line-height: var(--type-body-line-height);
     color: var(--color-ink);
     background: var(--color-white);
+    color-scheme: light;
     transition: border-color var(--motion-fast);
+  }
+  .hw-field[data-state="warning"] {
+    --_hw-state: var(--color-amber-dark);
+  }
+  .hw-field[data-state="success"] {
+    --_hw-state: var(--color-green-dark);
   }
   .hw-field::placeholder {
     color: var(--hw-muted, var(--color-muted));
@@ -61,12 +83,75 @@
     padding-block: calc((var(--hw-field-height, 3rem) - 1lh) / 2);
     resize: vertical;
   }
-  .hw-field:hover:not(:disabled, [aria-invalid="true"]) {
+  .hw-field:hover:not(:disabled, [readonly], [aria-invalid="true"], [data-state]) {
     border-color: var(--color-ink);
   }
   .hw-field[aria-invalid="true"] {
     border-color: var(--_hw-error);
     box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-error);
+  }
+  .hw-field[data-state]:not([aria-invalid="true"]) {
+    border-color: var(--_hw-state);
+    box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-state);
+  }
+  .hw-field[readonly] {
+    border-style: dashed;
+    background: transparent;
+  }
+  .hw-field[data-size="small"] {
+    min-height: calc(var(--hw-field-height, 3rem) * 5 / 6);
+    font-size: var(--hw-form-small, var(--type-small-size));
+  }
+  .hw-field[data-size="large"] {
+    min-height: calc(var(--hw-field-height, 3rem) * 7 / 6);
+    font-size: calc(var(--hw-field-size, var(--type-body-size)) * 9 / 8);
+  }
+  /* The file field: the browser's button as the field's first part, the file name after it. */
+  .hw-field[type="file"] {
+    padding-left: 0;
+    line-height: calc(var(--hw-field-height, 3rem) - 2 * var(--hw-hairline, 1px));
+    cursor: pointer;
+  }
+  .hw-field[type="file"]::file-selector-button {
+    height: calc(var(--hw-field-height, 3rem) - 2 * var(--hw-hairline, 1px));
+    margin: 0 var(--hw-field-pad, 1rem) 0 0;
+    border: 0;
+    border-right: var(--hw-hairline, 1px) solid var(--color-border);
+    padding: 0 var(--hw-field-pad, 1rem);
+    font: inherit;
+    font-weight: 500;
+    color: var(--color-teal-dark);
+    background: transparent;
+    cursor: pointer;
+  }
+  .hw-field[list]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+  }
+  /* The password field's row is a field with a button inside: the field's own line. */
+  .hw-field-row[data-joined]:has(> .hw-field-toggle) {
+    border-color: var(--color-border-strong);
+  }
+  .hw-field-row[data-joined] > .hw-field-toggle {
+    color: var(--hw-muted, var(--color-muted));
+    background: transparent;
+  }
+  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible) {
+    color: var(--color-ink);
+    background: transparent;
+  }
+  .hw-field-toggle[hidden] {
+    display: none;
+  }
+  .hw-field-toggle::before {
+    content: "";
+    width: 1.25rem;
+    height: 1.25rem;
+    background: currentColor;
+    mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  .hw-field-toggle[aria-pressed="true"]::before {
+    mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E");
   }
   .hw-field:disabled {
     opacity: 0.5;
@@ -146,11 +231,37 @@
       border-color: var(--color-night-muted);
       color: var(--color-white);
       background: var(--color-night-2);
+      color-scheme: dark;
+    }
+    .hw-field[data-state="warning"] {
+      --_hw-state: var(--color-amber);
+    }
+    .hw-field[data-state="success"] {
+      --_hw-state: var(--color-green);
+    }
+    .hw-field[data-state]:not([aria-invalid="true"]) {
+      border-color: var(--_hw-state);
+    }
+    .hw-field[readonly] {
+      background: transparent;
+    }
+    .hw-field[type="file"]::file-selector-button {
+      border-right-color: var(--color-night-line);
+      color: var(--color-teal-night);
+    }
+    .hw-field-row[data-joined]:has(> .hw-field-toggle) {
+      border-color: var(--color-night-muted);
+    }
+    .hw-field-row[data-joined] > .hw-field-toggle {
+      color: var(--color-night-muted);
+    }
+    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible) {
+      color: var(--color-white);
     }
     .hw-field::placeholder {
       color: var(--color-night-muted);
     }
-    .hw-field:hover:not(:disabled, [aria-invalid="true"]) {
+    .hw-field:hover:not(:disabled, [readonly], [aria-invalid="true"], [data-state]) {
       border-color: var(--color-white);
     }
     .hw-field[aria-invalid="true"] {

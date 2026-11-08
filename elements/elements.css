@@ -30,6 +30,9 @@
 @import "./check.css";
 @import "./select.css";
 @import "./form-field.css";
+@import "./switch.css";
+@import "./range.css";
+@import "./error-summary.css";
 @import "./facts.css";
 @import "./dot-list.css";
 @import "./segmented.css";

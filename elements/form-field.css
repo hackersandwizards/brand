@@ -12,9 +12,22 @@
    message only once the reader has submitted or left the control; set aria-invalid="true" on the
    control and name hint and message in its aria-describedby. A group's message is the group's:
    aria-describedby on the fieldset, no aria-invalid on its options (that marks a lone checkbox,
-   such as consent), and it stands a gap further from the last option. Each option's row is the
+   such as consent), and it stands a gap further from the last option. A disabled option's text
+   takes the muted grey. Each option's row is the
    target: a one-line row stands 32 px tall under a mouse, 44 px on a touch screen. Night takes night-muted for
    hint and mark and red-night for the message.
+
+   hw-form-warning and hw-form-success are the message for a field's data-state (field.css): the
+   same place and weight as the error, amber-dark behind a triangle, green-dark behind a tick
+   (amber and green on night). Neither sets aria-invalid: the answer is accepted.
+   hw-form-count under a textarea counts its characters: muted; with data-over it reads as an
+   error message, red behind the circled mark. form.ts fills it from data-max and its two texts, data-left and data-over,
+   where {n} stands for the number, and sets aria-invalid on the field while it is over (name it
+   in the field's aria-describedby). Without the script it states the limit.
+   hw-form-float holds a field and its label after it: the label, muted at regular weight like a
+   placeholder, sits in the field and moves to the field's top edge, at the small size, once the field has focus or
+   a value. The field needs placeholder=" " and stands 7/6 of the scale's height. Prefer the
+   label above: a floated label stays legible only as a short noun.
 
    Markup: <div class="hw-form-field">
              <label class="hw-form-label" for="m">E-Mail <span class="hw-form-mark">(optional)</span></label>
@@ -24,6 +37,10 @@
            </div>
            <fieldset class="hw-form-field"><legend class="hw-form-label">…</legend>
              <label><input type="checkbox" class="hw-check"> …</label> …</fieldset>
+           <p class="hw-form-count" id="n-count" data-for="n" data-max="200"
+             data-left="Noch {n} Zeichen" data-over="{n} Zeichen zu viel" aria-live="polite">…</p>
+           <div class="hw-form-float"><input class="hw-field" id="c" placeholder=" ">
+             <label class="hw-form-label" for="c">Stadt</label></div>
 
    Settings:
      --hw-form-gap    the space between the parts
@@ -37,8 +54,14 @@
 @layer components {
   .hw-form-mark,
   .hw-form-hint,
-  .hw-form-error {
+  .hw-form-error,
+  .hw-form-warning,
+  .hw-form-success,
+  .hw-form-count,
+  .hw-form-float {
     --_hw-error: var(--error, var(--color-red));
+    --_hw-warning: var(--color-amber-dark);
+    --_hw-success: var(--color-green-dark);
     --_hw-quiet: var(--hw-muted, var(--color-muted));
   }
   .hw-form-field {
@@ -55,7 +78,7 @@
     width: 100%;
     padding: 0;
   }
-  .hw-form-field > label:has(> .hw-check) {
+  .hw-form-field > label:has(> :is(.hw-check, .hw-switch)) {
     display: flex;
     gap: 0.5em;
     align-items: start;
@@ -65,9 +88,13 @@
     padding-block: max(0px, (var(--_hw-target) - 1lh) / 2);
   }
   @media (any-pointer: coarse) {
-    .hw-form-field > label:has(> .hw-check) {
+    .hw-form-field > label:has(> :is(.hw-check, .hw-switch)) {
       --_hw-target: var(--hw-check-target-touch, 44px);
     }
+  }
+  /* A disabled option's text dims with its control. */
+  .hw-form-field > label:has(> :disabled:not([data-readonly])) {
+    color: var(--hw-muted, var(--color-muted));
   }
   .hw-form-label {
     font-size: var(--hw-field-size, var(--type-body-size));
@@ -79,25 +106,41 @@
     color: var(--_hw-quiet);
   }
   .hw-form-hint,
-  .hw-form-error {
+  .hw-form-error,
+  .hw-form-warning,
+  .hw-form-success,
+  .hw-form-count {
     margin: 0;
     font-size: var(--hw-form-small, var(--type-small-size));
     line-height: var(--type-small-line-height);
   }
-  .hw-form-hint {
+  .hw-form-hint,
+  .hw-form-count {
     color: var(--_hw-quiet);
   }
   /* The icon hangs in the message's left padding, so the message stays one run of text. */
-  .hw-form-error {
+  .hw-form-count[data-over],
+  .hw-form-error,
+  .hw-form-warning,
+  .hw-form-success {
     position: relative;
     padding-left: 1.525em;
     font-weight: 500;
     color: var(--_hw-error);
   }
+  .hw-form-warning {
+    color: var(--_hw-warning);
+  }
+  .hw-form-success {
+    color: var(--_hw-success);
+  }
   .hw-form-field > label + .hw-form-error {
     margin-top: var(--hw-form-gap, 0.375rem);
   }
-  .hw-form-error::before {
+  .hw-form-error::before,
+  .hw-form-count[data-over]::before,
+  .hw-form-warning::before,
+  .hw-form-success::before {
     content: "";
     position: absolute;
     top: 0;
@@ -108,12 +151,61 @@
     mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 8v4M12 16h.01'/%3E%3C/svg%3E")
       center / 1.15em no-repeat;
   }
+  .hw-form-warning::before {
+    mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'/%3E%3Cpath d='M12 9v4M12 17h.01'/%3E%3C/svg%3E");
+  }
+  .hw-form-success::before {
+    mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E");
+  }
+  /* The floating label: at rest centred in the field at the field's size, raised to the top edge
+     at the small size once the field holds focus or a value. */
+  .hw-form-float {
+    --_hw-float: calc(var(--hw-field-height, 3rem) * 7 / 6);
+    position: relative;
+    display: grid;
+  }
+  .hw-form-float > .hw-field {
+    min-height: var(--_hw-float);
+    padding-top: calc(var(--_hw-float) * 0.45);
+    padding-bottom: calc(var(--_hw-float) * 0.03);
+  }
+  .hw-form-float > .hw-form-label {
+    position: absolute;
+    top: calc(var(--_hw-float) / 2);
+    left: calc(var(--hw-field-pad, 1rem) + var(--hw-hairline, 1px));
+    font-weight: 400;
+    color: var(--_hw-quiet);
+    pointer-events: none;
+    translate: 0 -50%;
+    transition:
+      top var(--motion-fast),
+      translate var(--motion-fast);
+  }
+  .hw-form-float > .hw-field:is(:focus, :not(:placeholder-shown)) ~ .hw-form-label {
+    top: calc(var(--_hw-float) * 0.06);
+    font-size: var(--hw-form-small, var(--type-small-size));
+    translate: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-form-float > .hw-form-label {
+      transition: none;
+    }
+  }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-form-mark,
     .hw-form-hint,
-    .hw-form-error {
+    .hw-form-error,
+    .hw-form-warning,
+    .hw-form-success,
+    .hw-form-count,
+    .hw-form-float {
       --_hw-error: var(--error, var(--color-red-night));
+      --_hw-warning: var(--color-amber);
+      --_hw-success: var(--color-green);
       --_hw-quiet: var(--color-night-muted);
+    }
+    .hw-form-field > label:has(> :disabled:not([data-readonly])) {
+      color: var(--color-night-muted);
     }
   }
 }

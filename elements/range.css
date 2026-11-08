@@ -1,0 +1,91 @@
+/* The range: a number picked on a scale where the exact value matters less than its place, the
+   native <input type="range">. A 0.25 em track in border-strong (--input on an app; night-muted at 60 % on night, below the fill),
+   round, filled in the accent (--accent on an app, teal-dark on a client surface) up to the
+   knob, a 1.25 em accent knob with a white ring; night takes the night accent and a night ring.
+   It takes the size of the field's text (--hw-field-size). The input is as tall as the target, 32
+   px under a mouse and 44 px on a touch screen (--hw-check-target, check.css). Disabled is half
+   opacity. Show the value beside it in an <output> wherever the reader needs the number, and
+   label it like any field (hw-form-field).
+
+   The fill up to the knob reads --hw-range-fill, a percentage form.ts keeps in step with the
+   value (Firefox draws it natively); without the script, set it from the value on render.
+
+   Markup: <input type="range" class="hw-range" min="0" max="10" value="4" style="--hw-range-fill: 40%"> */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-range {
+    --_hw-line: var(--input, var(--color-border-strong));
+    --_hw-fill: var(--accent, var(--color-teal-dark));
+    --_hw-ring: var(--color-white);
+    --_hw-target: var(--hw-check-target, 32px);
+    --_hw-track: linear-gradient(
+      to right,
+      var(--_hw-fill) 0 var(--hw-range-fill, 0%),
+      var(--_hw-line) 0
+    );
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: max(var(--_hw-target), 1.25em);
+    margin: 0;
+    font-size: var(--hw-field-size, var(--type-body-size));
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+  }
+  @media (any-pointer: coarse) {
+    .hw-range {
+      --_hw-target: var(--hw-check-target-touch, 44px);
+    }
+  }
+  .hw-range::-webkit-slider-runnable-track {
+    height: 0.25em;
+    border-radius: 999px;
+    background: var(--_hw-track);
+  }
+  .hw-range::-moz-range-track {
+    height: 0.25em;
+    border-radius: 999px;
+    background: var(--_hw-line);
+  }
+  .hw-range::-moz-range-progress {
+    height: 0.25em;
+    border-radius: 999px;
+    background: var(--_hw-fill);
+  }
+  .hw-range::-webkit-slider-thumb {
+    box-sizing: border-box;
+    width: 1.25em;
+    height: 1.25em;
+    margin-top: -0.5em;
+    border: 0.1875em solid var(--_hw-ring);
+    border-radius: 50%;
+    background: var(--_hw-fill);
+    box-shadow: 0 0 0 1px var(--_hw-fill);
+    appearance: none;
+  }
+  .hw-range::-moz-range-thumb {
+    box-sizing: border-box;
+    width: 1.25em;
+    height: 1.25em;
+    border: 0.1875em solid var(--_hw-ring);
+    border-radius: 50%;
+    background: var(--_hw-fill);
+    box-shadow: 0 0 0 1px var(--_hw-fill);
+  }
+  .hw-range:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-range {
+      --_hw-line: var(
+        --input,
+        color-mix(in srgb, var(--color-night-muted) 60%, var(--color-night))
+      );
+      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-ring: var(--color-night);
+    }
+  }
+}

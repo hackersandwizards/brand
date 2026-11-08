@@ -1,0 +1,81 @@
+/* The switch: an on/off setting that takes effect at once, the native checkbox with role="switch",
+   painted as a track with a knob. Ask with hw-check where the answer waits for a submit. The
+   track is 2.25 by 1.25 em, so it takes the size of the text it labels, round, with the
+   checkbox's 1.5px line (--input on an app, ink at 70% on a client surface) and a knob in the
+   line's colour on the left. On, the track fills in the accent (--accent on an app, teal-dark on
+   a client surface) and the knob turns white on the right. Hover draws the line in the text
+   colour; disabled is half opacity, and a disabled switch that is on keeps its knob right on a
+   track in the line's colour, so it never passes for an active one. Night takes the night accent and a night knob. The focus ring
+   is focus.css's; under forced colours the browser's checkbox returns.
+
+   It stands on its label's first line like hw-check, its text 0.5rem from it. The label is the
+   target: in hw-form-field each switch's row is as tall as the target, 32 px under a mouse and
+   44 px on a touch screen (--hw-check-target, check.css).
+
+   Markup: <label><input type="checkbox" role="switch" class="hw-switch" checked> Benachrichtigungen</label> */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-switch {
+    --_hw-line: var(--input, color-mix(in srgb, var(--color-ink) 70%, var(--color-bg)));
+    --_hw-hover: var(--foreground, var(--color-ink));
+    --_hw-fill: var(--accent, var(--color-teal-dark));
+    --_hw-knob: var(--_hw-line);
+    --_hw-h: round(1.25em, 1px);
+    box-sizing: border-box;
+    flex: none;
+    width: round(2.25em, 1px);
+    height: var(--_hw-h);
+    margin: calc((1lh - var(--_hw-h)) / 2) 0 0;
+    vertical-align: top;
+    font: inherit;
+    border: 1.5px solid var(--_hw-line);
+    border-radius: 999px;
+    background: radial-gradient(circle closest-side, var(--_hw-knob) 0 96%, transparent 100%) left
+      2px center / calc(var(--_hw-h) - 7px) calc(var(--_hw-h) - 7px) no-repeat;
+    cursor: pointer;
+    appearance: none;
+    transition:
+      background-color var(--motion-fast),
+      background-position var(--motion-fast),
+      border-color var(--motion-fast);
+  }
+  .hw-switch:checked {
+    --_hw-knob: white;
+    border-color: var(--_hw-fill);
+    background-color: var(--_hw-fill);
+    background-position: right 2px center;
+  }
+  .hw-switch:not(:disabled, :checked):hover {
+    border-color: var(--_hw-hover);
+    --_hw-knob: var(--_hw-hover);
+  }
+  .hw-switch:checked:disabled {
+    border-color: var(--_hw-line);
+    background-color: var(--_hw-line);
+  }
+  .hw-switch:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hw-switch {
+      transition: none;
+    }
+  }
+  @media (forced-colors: active) {
+    .hw-switch {
+      appearance: auto;
+    }
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-switch {
+      --_hw-line: var(--input, var(--color-night-muted));
+      --_hw-hover: var(--foreground, var(--color-white));
+      --_hw-fill: var(--accent, var(--color-teal-night));
+    }
+    .hw-switch:checked {
+      --_hw-knob: var(--color-night);
+    }
+  }
+}
