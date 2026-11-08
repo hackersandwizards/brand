@@ -308,11 +308,11 @@ test("the first pass finds a page with a marker and passes over one without", as
   ]);
 }, 30_000);
 
-// An area mark opening a list item is an icon, centred on the caps, not a list marker. The control:
-// the same box without the class is measured.
+// An area mark opening a list item is an icon, not a list marker. The control: the same box
+// without the class is measured.
 test("an area mark opening a list item is no marker", async () => {
   const row = (cls: string) =>
-    `<!doctype html><link rel="stylesheet" href="${brand("generated/tokens.root.css")}"><link rel="stylesheet" href="${brand("tokens/marker.css")}"><ul style="list-style:none"><li><span class="${cls}" data-mark="blog" style="width:14px;height:14px;display:inline-block;background:teal"></span> Blog</li></ul>`;
+    `<!doctype html><ul style="list-style:none"><li><span class="${cls}" style="width:14px;height:14px;display:inline-block;background:teal"></span> Blog</li></ul>`;
   const urls = [file("mark.html", row("hw-mark")), file("box.html", row("box"))];
   expect(await Promise.all(urls.map((url) => hasMarkers(browser, url)))).toEqual([false, true]);
 }, 30_000);

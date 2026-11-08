@@ -497,11 +497,9 @@ top of the file. A marker under CSS `zoom` needs `--hw-zoom` set to the same fac
 element, or it sits off its line; the prose task box and `hw-check` take it too. Never write your own marker: a lift rounded to whole pixels sits up to 0.56 px
 off, and an inline-block marker shifts the first line once a newline follows `<li>`.
 
-An area of h&w carries its area mark, `.hw-mark` in `marker.css`: one Lucide icon per area
-(`data-mark` trainings, factory, blog, knowledge, podcast, other) in the area's colour, beside a link
-into the area and before the H1 of a page in it (`data-size="heading"`). An empty, `aria-hidden`
-box; its middle sits on the cap-height middle of its line. The icons' licence is
-`tokens/LICENSE-Lucide.txt`. `brand-markers` leaves it alone.
+An area of h&w carries its area mark, `.hw-mark` in `marker.css`: one icon per area, in its
+colour, beside a link into the area and before the H1 of a page in it. The areas, sizes and settings
+are listed at the top of its block in the file.
 
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting

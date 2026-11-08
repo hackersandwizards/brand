@@ -97,8 +97,7 @@
      set with more values leaves the rest neutral. Amber, green and red only ever mean their state,
      and factory colours no label and no area: the Software Factory area takes teal labels like
      every other. A priority is a state too (elements/pill.css, data-priority). An area of h&w
-     carries its category colour and its area mark, one icon per area, beside a link into it and
-     before the H1 of a page in it (marker.css, .hw-mark). */
+     takes its category colour and its area mark (marker.css, .hw-mark). */
 
   /* The label's colour (elements/label.css), day and night: an eyebrow, kicker, fact name or
      table head. A surface that cannot load the element, such as a mail, reads these. Never

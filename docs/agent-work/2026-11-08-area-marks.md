@@ -1,4 +1,4 @@
-# Area marks: one icon per area, released in v1.53.0
+# Area marks: one icon per area, released in v1.55.0
 
 Each area of h&w now has a mark: a Lucide line icon in the area's colour, `.hw-mark` in
 `tokens/marker.css` (export `./marker.css`). It goes beside a link into the area and before the H1
@@ -18,23 +18,26 @@ the noise, with both models and in both runs. A second panel then picked the ico
 | Podcast          | `podcast`   | `mic`                       | purple        | purple-night    |
 | Any other page   | `other`     | `building-2`                | ampersand     | ampersand-light |
 
-Markup: `<span class="hw-mark" data-mark="blog" aria-hidden="true"></span>`, an empty box.
+Markup: `<span class="hw-mark" data-mark="blog" aria-hidden="true"></span>`, an empty box in
+running text or in a row aligned on the baseline. A mark without `data-mark` is other.
 
 Sizes:
 
 - **Beside a line:** 1.15em of the line's text (1.3em inside a `.hw-label`).
 - **Before an H1:** `data-size="heading"`, 0.5em of the heading. The icon draws inside the middle
-  20 of its 24 units, so the stroke spans 0.42em, the size the shape review recommended.
-- **Other sizes and colours:** `--hw-mark-size` and `--hw-mark-color` set any other.
+  20 of its 24 units, so the drawing spans 0.42em, the size the shape review recommended.
+- **Gap to the text:** 0.5em, 0.3em before an H1, from the mark's own margin.
+- **Other values:** `--hw-mark-size`, `--hw-mark-gap` and `--hw-mark-color`, on the mark or a parent.
 
-The box's middle sits on the cap-height middle of its line, rounded to whole pixels with the text.
-Night is `data-theme="dark"`. `brand-markers` skips `.hw-mark`.
+The box's middle sits on the cap-height middle of its line, rounded to whole pixels with the text,
+and the mark never makes its line taller (`test/marks.test.ts` measures both). Night is
+`data-theme="dark"`. `brand-markers` skips `.hw-mark`, so the mark never counts as a list marker.
 
 What the website builds: map its areas to `data-mark` (`src/lib/destinations.ts`). Put the mark
 where `.dest-swatch` stands today (`LinkRow.astro`, `ArticleRows.astro`), before the card's area
 label (`Card.astro`), before the area name of a rail row (`RailBlock.astro`, the "Keep learning"
 rows) and before the H1 (`PageHero.astro`). The H1 mark hangs in the margin from 1024 px and
-stands inline on the phone, as reviewed. Then raise the brand pin to `v1.53.0`.
+stands inline on the phone, as reviewed. Then raise the brand pin to `v1.55.0`.
 
 ## How the mark is drawn: round A
 
@@ -121,6 +124,28 @@ variants in its own panel, never across panels.
 - **Other surfaces:** os, documents and slides render the category colours but carry no area mark
   yet.
 - **Other icon sets:** Lucide is the only one tried; brand already pins `lucide-static`.
+
+## Code review of the change
+
+`/simplify` and `/code-review` ran on the release diff. Fixed:
+
+- **Line height:** a 1.3em mark made a 12px label line 3px taller; a negative top margin keeps its
+  line box.
+- **Default icon:** a mark without a known `data-mark` painted a solid square; it now draws other.
+- **Private names:** `--_hw-mark` collided with a private variable of `stepper.css`; renamed.
+- **Settings:** size settings on a parent lost to the label rule; the label and heading sizes are
+  now private defaults.
+- **Comment:** the comment called the drawn extent a stroke.
+- **Placement:** `.hw-mark` shares `.hw-marker`'s placement rule.
+
+Kept, each with its reason:
+
+- **Licence in the manifest:** the Lucide licence stays in `manifest.json` as the OFL texts are,
+  although a consumer that commits a copy would hear from `brand-copies`.
+- **Scanner:** `brand-markers` skips `.hw-mark` by name. Skipping every masked box, as proposed,
+  stopped it measuring the prose task box, whose tick is a mask.
+- **Its own file:** the mark stays in `marker.css`, the file the decision named, rather than moving
+  to `elements/mark.css`.
 
 ## Reviewer prompt
 

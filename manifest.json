@@ -118,11 +118,11 @@
     },
     {
       "path": "tokens/marker.css",
-      "sha256": "d38db4db5d22cb8c6a5accc43db135b8ee461fb99815971878135c32ba51aa41"
+      "sha256": "1f02a81dcc7c2f997a84eed673c3f4a60a033e94be4a7792c4b0ee44a7dbc7af"
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "a1a342b0999014a68a20c3be1127c389ca837852892df04418b6613826161493"
+      "sha256": "1c8bb0806e470ee94cbb9efcdefa4e0ea95aca27f2669a4b21f2dd18c5f43dd6"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",
