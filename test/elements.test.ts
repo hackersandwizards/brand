@@ -1034,3 +1034,30 @@ test("an element carrying hidden, or inside one, is not measured", async () => {
   );
   expect(shown.findings.filter((f) => f.element === "card").length).toBeGreaterThan(0);
 }, 60_000);
+
+// A page that focuses an element (a story's focused state) draws its focus rules; the reference
+// is read holding focus too.
+test("a focused element is measured against its focused reference", async () => {
+  const tile = `<div data-hw-tile="icon-button" data-hw-version="${own.version}">${DEMOS["icon-button"]}</div>`;
+  const page = (theme: string) =>
+    only(
+      `<div data-theme="${theme}">${tile}<button class="hw-icon-button" data-tone="danger" aria-label="Entfernen"><svg viewBox="0 0 20 20"></svg></button></div><script>document.querySelector('[data-tone="danger"]').focus({ focusVisible: true })</script>`,
+      "hw-focus-ring",
+    );
+  for (const theme of ["light", "dark"]) {
+    const r = await measurePage(browser, file(`focused-${theme}.html`, page(theme)));
+    expect(r.findings).toEqual([]);
+  }
+  // Control: a surface's own focus colour on the same button is still red.
+  const drift = await measurePage(
+    browser,
+    file(
+      "focused-drift.html",
+      page("light").replace(
+        "</body>",
+        "<style>.hw-icon-button:focus-visible { color: rgb(0, 128, 0) }</style></body>",
+      ),
+    ),
+  );
+  expect(drift.findings.map((f) => f.prop)).toContain("color");
+}, 60_000);

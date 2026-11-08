@@ -21,8 +21,10 @@
 //    hub element on the pages (an hw-* class; for the focus ring, the first focusable inside
 //    [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception], which is that
 //    exception's instance, nor one inside [data-hw-shell], the scaffolding catalog shell's own
-//    card and pill, nor one carrying or inside [hidden], which draws nothing) is compared with a reference: the same markup in a shadow root beside it,
-//    styled only by this package's element files and inheriting the page's tokens, theme and scale.
+//    card and pill, nor one carrying or inside [hidden], which draws nothing) is compared with a
+//    reference: the same markup in a shadow root beside it, styled only by this package's element
+//    files and inheriting the page's tokens, theme and scale. An instance holding the page's focus
+//    (a story's focused state) is read focused, and its reference too.
 //    Any difference in a computed property the element sets (OWNS: its corner, fill, line, text
 //    colour, type, padding or size) fails, by more than 0.02px for a length. Each brand token an
 //    element reads must be defined where it renders; with "lightOnly" the tokens only its night
@@ -304,19 +306,37 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
     const [x, y] = [num(got), num(want)];
     return x !== null && y !== null ? Math.abs(x - y) <= tolerance : colour(got) === colour(want);
   };
-  const diff = (element: string, name: string, a: Element, b: Element, list: string[]) => {
-    const ga = getComputedStyle(a);
-    const gb = getComputedStyle(b);
+  const sideOf = (prop: string) => /^(border-[a-z]+)-(style|color)$/.exec(prop)?.[1];
+  /** The computed values of `list` on `x`, with the width of each border side it names. */
+  const snap = (x: Element, list: string[]) => {
+    const g = getComputedStyle(x);
+    const props = list.flatMap((p) => (sideOf(p) ? [p, `${sideOf(p)}-width`] : [p]));
+    return Object.fromEntries(props.map((p) => [p, g.getPropertyValue(p)]));
+  };
+  type Snap = ReturnType<typeof snap>;
+  const diff = (element: string, name: string, got: Snap, want: Snap, list: string[]) => {
     for (const prop of list) {
-      const got = ga.getPropertyValue(prop);
-      const want = gb.getPropertyValue(prop);
       // A border of no width draws nothing, so its style and colour are no difference (Tailwind's
       // preflight gives every element a solid zero-width border the reference has as none).
-      const side = /^(border-[a-z]+)-(style|color)$/.exec(prop)?.[1];
-      const width = (g: CSSStyleDeclaration) => g.getPropertyValue(`${side}-width`);
-      if (side && width(ga) === "0px" && width(gb) === "0px") continue;
-      if (!same(got, want)) findings.push({ element, label: name, prop, got, want });
+      const side = sideOf(prop);
+      if (side && got[`${side}-width`] === "0px" && want[`${side}-width`] === "0px") continue;
+      if (!same(got[prop]!, want[prop]!))
+        findings.push({ element, label: name, prop, got: got[prop]!, want: want[prop]! });
     }
+  };
+  // The element the page focused (a story's focused state): an instance holding it is read, and
+  // its reference too, while the same node holds focus, since a computed style reads the live state.
+  const active =
+    document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+      ? document.activeElement
+      : null;
+  const visible = active?.matches(":focus-visible") ?? false;
+  /** The node in `copy` at the place `node` holds in `root`. */
+  const counterpart = (root: Element, copy: Element, node: Element) => {
+    const path: number[] = [];
+    for (let n = node; n !== root; n = n.parentElement!)
+      path.unshift([...n.parentElement!.children].indexOf(n));
+    return path.reduce<Element>((x, i) => x.children[i]!, copy) as HTMLElement;
   };
   // In passes, so the page restyles twice rather than once per instance: read every instance's
   // settings and tokens, insert every reference, then read every pair.
@@ -430,15 +450,32 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   try {
     for (const { element, el, clone } of pairs) {
       const list = owns[element]!;
-      if (element === "focus-ring") {
-        // Each read while it holds focus: a computed style reads the live state.
-        const read = (x: Element) => {
-          (x as HTMLElement).focus();
-          const g = getComputedStyle(x);
-          return Object.fromEntries(list.map((p) => [p, g.getPropertyValue(p)]));
+      const parts = Object.entries(owns).flatMap(([key, props]) => {
+        const [owner, ...rest] = key.split(" ");
+        return owner === element && rest.length ? [[rest.join(" "), props] as const] : [];
+      });
+      // Each side read while its focus target holds focus: the focus ring's own element, else the
+      // page's focused node inside the instance and its place in the reference.
+      const target =
+        element === "focus-ring"
+          ? ([el, clone, true] as const)
+          : active && el.contains(active)
+            ? ([active, counterpart(el, clone, active), visible] as const)
+            : null;
+      const read = (x: Element, focus?: Element) => {
+        (focus as HTMLElement | undefined)?.focus({ focusVisible: target![2] });
+        return {
+          own: snap(x, list),
+          parts: parts.map(([part, props]) => {
+            const y = x.querySelector(part);
+            return y && snap(y, props);
+          }),
         };
-        const [got, want] = [read(el), read(clone)];
-        clone.blur();
+      };
+      const [a, b] = [read(el, target?.[0]), read(clone, target?.[1])];
+      if (target) (target[1] as HTMLElement).blur();
+      if (element === "focus-ring") {
+        const [got, want] = [a.own, b.own];
         if (got["outline-style"] === "none")
           findings.push({
             element,
@@ -453,15 +490,13 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
         }
         continue;
       }
-      diff(element, label(el), el, clone, list);
-      for (const [key, props] of Object.entries(owns)) {
-        const [owner, ...rest] = key.split(" ");
-        const part = rest.join(" ");
-        if (owner !== element || !part) continue;
-        const [a, b] = [el.querySelector(part), clone.querySelector(part)];
-        if (a && b) diff(element, `${label(el)} ${part}`, a, b, props);
-      }
+      diff(element, label(el), a.own, b.own, list);
+      parts.forEach(([part, props], i) => {
+        const [x, y] = [a.parts[i], b.parts[i]];
+        if (x && y) diff(element, `${label(el)} ${part}`, x, y, props);
+      });
     }
+    active?.focus({ focusVisible: visible });
   } finally {
     for (const { host } of pairs) host.remove();
   }
