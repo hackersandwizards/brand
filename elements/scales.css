@@ -44,6 +44,9 @@
   --hw-arrow-link-pad: 0.75rem;
   --hw-field-height: 3rem;
   --hw-field-pad: 1rem;
+  --hw-field-size: var(--type-body-size);
+  --hw-form-gap: 0.375rem;
+  --hw-form-small: var(--type-small-size);
   --hw-segment-pad: 0.25rem 0.5rem;
   --hw-row-pad-block: 0.5rem;
   --hw-row-pad-inline: 0.75rem;
@@ -99,6 +102,12 @@
   --hw-row-pad-block: 0.5rem;
   --hw-row-pad-inline: 0.75rem;
   --hw-control-height: 2.5rem;
+  /* A form at the expert set's control height and UI text. */
+  --hw-field-height: 2.5rem;
+  --hw-field-pad: 0.75rem;
+  --hw-field-size: var(--text-ui);
+  --hw-form-gap: 0.25rem;
+  --hw-form-small: var(--text-ui);
   --hw-kbd-size: var(--text-micro);
 }
 
@@ -145,6 +154,11 @@
   --hw-corner-sm: 4px;
   --hw-label-box-pad: 2pt 6pt;
   --hw-kbd-size: var(--type-label-size);
+  --hw-field-height: 22pt;
+  --hw-field-pad: 7pt;
+  --hw-field-size: var(--type-body-size);
+  --hw-form-gap: 3pt;
+  --hw-form-small: var(--type-small-size);
 }
 
 [data-hw-scale="stage"] {
@@ -173,6 +187,11 @@
   --hw-corner-sm: 0.46875rem;
   --hw-label-box-pad: 0.375rem 1rem;
   --hw-kbd-size: 1.125rem;
+  --hw-field-height: 4.5rem;
+  --hw-field-pad: 1.5rem;
+  --hw-field-size: 1.5rem;
+  --hw-form-gap: 0.5625rem;
+  --hw-form-small: 1.3125rem;
   /* The website's button times 1.5: a slide's "Read more" or call to action. */
   --hw-button-height: 4.5rem;
   --hw-button-height-wide: 4.5rem;

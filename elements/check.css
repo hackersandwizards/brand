@@ -3,7 +3,8 @@
    app, 3:1 or more, WCAG 1.4.11; ink at 70% on a client surface), the small corner on the box,
    round on the radio. Checked, the box fills in the accent (--accent on an app, teal-dark on a
    client surface) with a white tick, a dash when indeterminate; the radio fills the same with a
-   white dot. Hover draws the line in the text colour; disabled is half opacity. data-readonly marks a
+   white dot. Hover draws the line in the text colour; disabled is half opacity; aria-invalid="true"
+   draws an unchecked box's line in the error red (an app's --error), as the field's. data-readonly marks a
    box that shows a state nobody changes here (a Markdown task list's step, rendered disabled): full
    opacity, the normal cursor, no hover, and on a checkbox no box, so it never passes for the
    control beside it: a done step is the tick alone in the accent, an open one a small ring. Night takes the
@@ -24,6 +25,7 @@
     --_hw-hover: var(--foreground, var(--color-ink));
     --_hw-fill: var(--accent, var(--color-teal-dark));
     --_hw-mark: white;
+    --_hw-error: var(--error, var(--color-red));
     --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
     box-sizing: border-box;
     flex: none;
@@ -46,6 +48,9 @@
   }
   .hw-check:not(:disabled, :checked):hover {
     border-color: var(--_hw-hover);
+  }
+  .hw-check[aria-invalid="true"]:not(:checked, :indeterminate) {
+    border-color: var(--_hw-error);
   }
   .hw-check:checked,
   .hw-check[type="checkbox"]:indeterminate,
@@ -109,6 +114,7 @@
       --_hw-hover: var(--foreground, var(--color-white));
       --_hw-fill: var(--accent, var(--color-teal-night));
       --_hw-mark: var(--color-night);
+      --_hw-error: var(--error, var(--color-red-night));
       --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
     }
   }
