@@ -10,7 +10,7 @@ recommended: s4p
 options:
   - key: s4p
     label: "Switch to the pair s4p. Banners: Agents pay off when your people ship as a team. / KI-Agenten lohnen sich, wenn eure Leute als Team liefern. Slide, link preview, one-pager, About and bios: the same plus Your customers notice. / Eure Kunden merken es. (German H1 'zusammenspielen' stays)"
-    detail: "Alone on the LinkedIn banner, photo over it: people 32 of 32, core thought 31 of 32. Banners, slide and link preview: 12.0 ahead of f6 in both runs and with both models; on the banners alone a tie overall and with Claude, 2.7 behind with Codex. Whole set with site and profiles: 78.6 against f6's 79.0, a tie. Together 7.3 (f6 6.5). Misses German in part: German 3.0 below its English, German banners 3.3 below f6's, 'als Team liefern' slightly translated; still the best of four German wordings. Reviewers' open question: what exactly do customers notice?"
+    detail: "Alone on the LinkedIn banner, photo over it: people 32 of 32, core thought 31 of 32. Rendered panel overall 12.0 ahead of f6 in both runs and with both models; per surface: banners a tie (-0.5; Codex 2.7 behind), slide +2.2, link preview +3.0. Whole set with site and profiles: 78.6 against f6's 79.0, a tie. Together 7.3 (f6 6.5). Misses German in part: German 3.0 below its English, German banners 3.3 below f6's, 'als Team liefern' slightly translated; still the best of four German wordings. Reviewers' open question: what exactly do customers notice?"
     score: 77.1
     noise: 0.8
   - key: u1p
@@ -20,7 +20,7 @@ options:
     noise: 1.7
   - key: f6
     label: "Keep f6: Every agent needs a team in tune. / Jeder KI-Agent braucht ein eingespieltes Team."
-    detail: "Your decision of 08.11. Best as a whole set (79.0, together 9.1) and in German (language 9.3). Alone on a banner 14 of 32 readers read its team as people, 12 of 32 the core thought; on the banners, slide and link preview 12.0 behind s4p."
+    detail: "Your decision of 08.11. Best as a whole set (79.0, together 9.1) and in German (language 9.3). Alone on a banner 14 of 32 readers read its team as people, 12 of 32 the core thought; rendered panel overall 12.0 behind s4p, level on the banners."
     score: 65.1
     noise: 1.9
   - key: m3
@@ -51,7 +51,7 @@ images:
 
 You asked whether one combination meets every requirement. The pair s4p comes closest. On the banners: "Agents pay off when your people ship as a team." Everywhere else it adds: "Your customers notice."
 
-Alone on a banner, readers name people and the core thought, which f6 never did. It leads f6 by 12.0 on the banners, slide and link preview, and ties it with the site and your profile texts. Its weak spot is German: "als Team liefern" scores 3.0 below the English, and three other German wordings scored lower still. "Im Einklang" lost in all ten lines it was tested in.
+Alone on a banner, readers name people and the core thought; for f6, 14 and 12 of 32 did. Reviewers score it 12.0 above f6 overall with the banners, slide and link preview in view; on the banners alone the two are level, though one of the two reviewer models puts it 2.7 behind. With the site and your profile texts it ties f6. Its weak spot is German: "als Team liefern" scores 3.0 below the English, and three other German wordings scored lower still. "Im Einklang" lost in all ten lines it was tested in.
 
 Overall is the panel mean, 0 to 100, over English and German, from round 6 (round 9's last rendered round with both languages); scores compare within one round only. Noise is the gap between the two runs' means.
 

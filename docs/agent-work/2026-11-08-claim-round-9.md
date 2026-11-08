@@ -9,12 +9,11 @@ The pair s4p meets four of the six requirements fully and two in part:
   lohnen sich, wenn eure Leute als Team liefern. Eure Kunden merken es."
 
 Alone on the LinkedIn banner, with the photo over the first letters, 32 of 32 cold readers read
-its people as people and 31 of 32 restate the core thought (f6: 14 and 12). On the banners, slide
-and link preview it leads f6 by 12.0, in both runs and with both models (noise 0.8). As a whole set
+its people as people and 31 of 32 restate the core thought (f6: 14 and 12). With the banners, slide and link preview in view, the panel's overall score puts it 12.0 ahead of f6, in both runs and with both models (noise 0.8); surface by surface it ties f6 on the banners (-0.5) and leads on the slide (+2.2) and the link preview (+3.0). As a whole set
 with the home H1 "zusammenspielen", the decided headlines and the profile texts it ties f6 (78.6
-against 79.0). The short line alone on every surface still leads f6 by 8.2. On the banners alone it ties f6 overall and with Claude, and trails with Codex by 2.7.
+against 79.0). The short line alone on every surface still leads f6 by 8.2 overall. On the banners Codex puts s4p 2.7 behind f6, outside the noise.
 
-What it misses: German. The German scores 3.0 below the English (noise 0.8), its banners 3.3 below
+What it misses in part: Codex's banner score, 2.7 behind f6's, and German. The German scores 3.0 below the English (noise 0.8), its banners 3.3 below
 f6's German banners, and reviewers call "als Team liefern" slightly translated (language 8.1
 against f6's 9.3). It is still the best of four German wordings and leads f6's German by 10.5.
 
@@ -96,6 +95,7 @@ of A3q, u1p and s4p. 53 keys in all; every key and score is in the tables below.
   two runs: 16 runs.
 - Noise: the gap between the means of run 1 and run 2. A lead counts only outside the noise, in
   both runs and with both models; otherwise a tie.
+- Overall is each reviewer's own 0-to-100 score for the line as the company's claim, with every surface in view, not the mean of the three surface scores: a line can score lower overall than on every surface where reviewers mark down core and people (f6 in round 6).
 - 954 runs: 1 drafting, 24 text panel, 100 rendered panel, 768 cold reads, 45 classifier, 16 set.
 
 ## Rounds 1 and 2, text
@@ -178,7 +178,7 @@ es." in the long line.
   1.2).
 - s4p against u1p in round 6: +1.2 at noise 1.7, a tie. s4p is calmer (7.6 against 6.2) and wins
   the set (below).
-- On the banners alone s4p ties f6 overall (-0.5, noise 1.3 and 1.5) and with Claude (+1.5), and trails with Codex by 2.7. u1p trails by 3.5 in round 5, outside the noise; "ship together" cost it.
+- Surface by surface in round 6, s4p against f6: banners -0.5 (Claude +1.5, Codex -2.7; noise 1.3 and 1.5), slide +2.2 (Claude +4.6, Codex -0.5; noise 1.2 and 0.6), link preview +3.0 (Claude +5.0, Codex +1.2; noise 1.1 and 0.4). u1p trails by 3.5 in round 5, outside the noise; "ship together" cost it.
 - What keeps s4p below the maximum, in the reviewers' words: "Customers notice what?", "working
   with agents only implied", "'als Team liefern' slightly translated", "the LinkedIn crop eats the
   first words". For m3, every Claude reviewer in every round: no working together ("Separates
@@ -240,12 +240,12 @@ the defect of `profile-1` in `render.py`, item `work-banner-photo-overlap`. s4p 
 
 ## Decision
 
-Recommendation: s4p. It meets (a), (d) and (e), meets (b) on the three surfaces together (on the banners alone Codex puts it 2.7 behind f6), meets (c) with a tie rather than a lead, and misses (f) in part: its German trails its English by 3.0 and f6's German banners by 3.3, though it
+Recommendation: s4p. It meets (a), (d) and (e), and (c) with a tie rather than a lead. It meets (b) in part: ahead in the panel's overall score and with Claude on every surface, while Codex puts its banners 2.7 behind f6's, outside the noise. It meets (f) in part: its German trails its English by 3.0 and f6's German banners by 3.3, though it
 leads f6's German overall by 10.5 and beats three other German wordings.
 
 - u1p is the second-best pair: it ties s4p on the panel and passes (a), but its banners trail f6's
   by 3.5 and it ties f6 in the set only at -1.9.
-- m3 passes (a) (people 32 of 32, core 25 of 32) and misses (d) in every round (together 2.8 to 3.3); in the set it trails f6 by 6.9 with Claude.
+- m3 passes (a) (people 32 of 32, core 25 of 32) and misses (d) in every round (together 2.8 to 3.6); in the set it trails f6 by 6.9 with Claude.
 - f6 misses (a): 14 of 32 readers read its team as people, 12 of 32 restate the core thought.
 - "Im Einklang", scored blind in ten lines, took round 1's three lowest language scores and lost 12.5 points of German against "eingespielt" in the same line (y1 against y1e).
 
