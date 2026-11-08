@@ -6,7 +6,7 @@ order: 100
 area: brand
 owner: Benedikt
 multiple: true
-evidence: "Blind review 07.11., round 4: the website's page headlines with a6 and with c3, 96 reviewer runs (website item decide-page-headlines). Round 3 (claim-round-3): a6 above the H1 against the empty slot, 48 reviewer runs. Round 2: home hero in two passes (8 then 5 candidates), the claim on 11 surfaces, the 35 page headlines with c3 and k3, then alternatives for 4 pages: 6 personas, Claude and Codex, two runs each, 120 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md"
+evidence: "Blind review 07.11., round 4: the website's page headlines with a6 and with c3, 96 reviewer runs (website item work-ship-decided-page-headlines). Round 3 (claim-round-3): a6 above the H1 against the empty slot, 48 reviewer runs. Round 2: home hero in two passes (8 then 5 candidates), the claim on 11 surfaces, the 35 page headlines with c3 and k3, then alternatives for 4 pages: 6 personas, Claude and Codex, two runs each, 120 reviewer runs. Report: docs/agent-work/2026-11-07-claim-and-headline.md"
 recommended:
   - eyebrow-a6
   - de-zusammenspielen
@@ -172,7 +172,7 @@ Round 3 measured every claim candidate, c3 and q6 included, on the seven banners
 
 ## The page headlines
 
-The website's page headlines were read with c3 and k3 in round 2 and with each claim, a6 and c3, in round 4 (report, sections Round 2 and Round 4). The set fits both claims equally; the final set per claim, the lines that change and every score are in the website item `decide-page-headlines`.
+The website's page headlines were read with c3 and k3 in round 2 and with each claim, a6 and c3, in round 4 (report, sections Round 2 and Round 4). The set fits both claims equally; the final set per claim and the lines that change are in the website item `work-ship-decided-page-headlines`, every score in the git history its evidence names.
 
 ## What choosing changes
 

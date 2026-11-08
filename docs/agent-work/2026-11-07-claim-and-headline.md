@@ -334,9 +334,9 @@ should be the brand claim is open in these sources; this round measured it.
   line by script in the hero's own classes: the section eyebrow (`meta-line`) above or under the
   H1, the hero footer line's style at the foot of the copy or under the desk. The price in the
   assessment link is removed from every image, since this repository is public.
-- Page headlines: the 35 lines of the website item `decide-page-headlines` as text, with c3 and
-  k3 fixed above them. Then, for the four the reviewers would change most, the website item's
-  other candidates and five new drafts of this round, each scored on its own.
+- Page headlines: the 35 lines the website then had under review (its item `work-ship-decided-page-headlines` now carries the decided set) as text, with c3 and
+  k3 fixed above them. Then, for the four the reviewers would change most, the other
+  candidates of that review and five new drafts of this round, each scored on its own.
 - Personas: CIO of a retail group, CTO of a Mittelstand manufacturer, VP of Engineering at a
   scale-up, Chief Product Officer, Head of Engineering at an insurer, brand strategist for DACH B2B
   tech services. Claude (`claude -p --model opus`) and Codex (`gpt-6.1-sol`, high), two runs each,
@@ -649,7 +649,7 @@ Review: large, because the claim stands on every surface and leaves the company.
 
 ## Round 4: the page headlines with each claim
 
-Benedikt, 07.11., on the website item `decide-page-headlines`: "alle bitte anhand deiner
+Benedikt, 07.11., on the website's page headlines (item `work-ship-decided-page-headlines`): "alle bitte anhand deiner
 recommendation aber denk dran auch noch den test mit claim und home headline und allen Bannern
 abzuwarten so das alles zusammen passt. ich folge dann überall deinen Empfehlungen"
 
@@ -657,8 +657,8 @@ The website's recommended page headlines fit a6 and c3 equally: as a set, 77.5 w
 and 77.8 with c3 (noise 1.2). Six lines change with either claim, one line depends on the claim:
 Blog's English "What faster code generation does to your delivery, with sources." repeats a6 for
 24 of 24 reviewers (with c3, 10 of 24 find it echoes k3), so with a6 it becomes "What agents change in your releases,
-and what the research shows." The final set per claim, every score and the three flags are in the
-website item `decide-page-headlines`.
+and what the research shows." The final set per claim is in the website item
+`work-ship-decided-page-headlines`; every score and the three flags are in the git history its evidence names.
 
 ### Method
 
