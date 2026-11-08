@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 2
 area: brand
 owner: Benedikt
@@ -52,6 +52,9 @@ images:
       caption: "in step with the others, every role: desktop 1440 px, five lines"
     - src: step-others-every-phone.jpg
       caption: "in step with the others, every role: phone 390 px, five lines"
+decision: step-every
+by: Benedikt
+quote: "ok perfekt. dann folge ich deinen empfehlungen und ergebnissen bei claim und headline. leg mal los das zu implementieren und alle effekte die das hat überall zu berücksichtigen"
 ---
 
 # Which wording for the home H1?

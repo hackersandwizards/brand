@@ -1,6 +1,6 @@
 ---
 kind: decision
-status: open
+status: decided
 priority: 1
 order: 10
 area: brand
@@ -63,6 +63,9 @@ images:
       caption: "f6 on every surface, English"
     - src: docs/agent-work/2026-11-08-claim-round-10/f6-de.jpg
       caption: "f6 on every surface, German"
+decision: u1
+by: Benedikt
+quote: "ok perfekt. dann folge ich deinen empfehlungen und ergebnissen bei claim und headline. leg mal los das zu implementieren und alle effekte die das hat überall zu berücksichtigen"
 ---
 
 # Which claim: u1, s4, s4p, m3, or keep f6?
