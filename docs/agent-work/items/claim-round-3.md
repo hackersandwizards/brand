@@ -98,6 +98,8 @@ images:
     - src: r7-extensions-banners.jpg
       caption: "Round 7, the LinkedIn banner with the descriptor: B3, B3k, d3, g3 from the top, English left, German right"
   f6:
+    - src: r8-linkedin.jpg
+      caption: "Round 8, LinkedIn's narrow layout in place: f6, k1, m3, e6 and Benedikt's line from the top, English left, German right. The photo cuts 'Your' to 'r'"
     - src: r7-set-linkedin.jpg
       caption: "Round 7, LinkedIn's narrow layout in place (real screenshot of 31.10.): f6, d3, n02 from the top, English left, German right. The photo covers each claim's first letters"
     - src: r7-set-phone-de.jpg
@@ -172,6 +174,8 @@ quote: "f6 ist geil. vor allem mit der h1 anpassung. das machen wir."
 Blocks the brand raise on the website, the 25 page headlines, the bio rewrite and the banners. Nothing of these ships until you pick.
 
 Benedikt, 08.11.: "n02 finde ich cool. lass uns trotzdem noch mal weiter iterieren ich habe noch einige ideen im chat", then: "das wort flow oder tune finde ich schon noch wichtig. außer der score sinkt dann massiv.", and after round 6: "\"„Every agent needs a team in tune.“\" finde ich stark. man könnte das noch irgendwie erweitern \"Every company in flow needs agents with a team in tune\"? sowas vllt? teste noch mal ein paar weitere variationen bitte und dann natürlich auch alle headlines und bio und banner dazu. banner auch dort wo sie eingesetzt sind." Rounds 6 and 7 tested his ideas blind; his preferences stay hypotheses, not scores.
+
+Round 8 (`docs/agent-work/2026-11-08-claim-round-8.md`) tested Benedikt's line "Every agent needs your teams in tune and your company in flow." and 40 more lines against the decided f6: none leads f6 outside the noise in both runs and with both models, so f6 stays. His line reads as people but scores 30.7 lower; the runner-up, "Agents write code. Your team ships products.", ties f6 as a whole set.
 
 I recommend n02, "Every agent needs your people." / "Jeder KI-Agent braucht eure Leute.", with
 the line "Training and mentoring in agentic engineering" under it on the banners. It ties f6
