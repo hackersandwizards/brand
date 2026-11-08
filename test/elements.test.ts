@@ -590,7 +590,7 @@ test("dense with data-hw-type=regular takes the expert set's regular text, dense
   await p.close();
 }, 60_000);
 
-test("the print button stands as tall as its text in the small corner, a carded one too on screen", async () => {
+test("the print button stands as tall as its text in the brand corner at paper size, a carded one in the small corner", async () => {
   const p = await browser.newPage();
   await open(
     p,
@@ -598,7 +598,7 @@ test("the print button stands as tall as its text in the small corner, a carded 
       file(
         "button-print.html",
         only(
-          '<div data-hw-scale="print"><a class="hw-button" id="paper" href="#">Go</a></div><div data-hw-scale="screen"><a class="hw-button" id="screen" href="#">Go</a><div class="hw-card"><a class="hw-button" id="carded" href="#">Go</a></div></div>',
+          '<div data-hw-scale="print"><a class="hw-button" id="paper" href="#">Go</a><div class="hw-card"><a class="hw-button" id="carded-paper" href="#">Go</a></div></div><div data-hw-scale="screen"><a class="hw-button" id="screen" href="#">Go</a><div class="hw-card"><a class="hw-button" id="carded" href="#">Go</a></div></div>',
           "",
           ["tokens/print.css"],
         ),
@@ -608,14 +608,60 @@ test("the print button stands as tall as its text in the small corner, a carded 
   const read = (id: string) =>
     p.$eval(`#${id}`, (e) => {
       const s = getComputedStyle(e);
-      return [s.minHeight, s.fontSize, s.paddingTop, s.borderTopLeftRadius];
+      return [s.minHeight, s.fontSize, s.paddingTop, s.borderTopLeftRadius, s.borderTopRightRadius];
     });
-  expect(await read("paper")).toEqual(["0px", "12.6667px", "4px", "4px"]);
+  expect(await read("paper")).toEqual(["0px", "12.6667px", "4px", "16px", "4px"]);
   expect((await read("screen"))[3]).toBe("20px");
   expect((await read("carded"))[3]).toBe("5px");
+  expect((await read("carded-paper")).slice(3)).toEqual(["4px", "4px"]);
   await p.setViewport({ width: 1280, height: 800 });
   expect((await read("paper"))[0]).toBe("0px");
   await p.close();
+}, 60_000);
+
+// Size scales with the medium, shape never: every sample draws the same corner kind and border on
+// every scale and theme, and a brand corner is the medium's own, the card's.
+test("every element keeps one shape on every scale and theme", async () => {
+  const p = await browser.newPage();
+  await open(p, pathToFileURL(file("shapes.html", page())).href);
+  const shapes = await p.$$eval("section", (sections) =>
+    sections.map((section) => {
+      const corners = (s: CSSStyleDeclaration) =>
+        [
+          s.borderTopLeftRadius,
+          s.borderTopRightRadius,
+          s.borderBottomRightRadius,
+          s.borderBottomLeftRadius,
+        ].map(parseFloat);
+      const [card] = corners(
+        getComputedStyle(
+          section.querySelector(
+            "[data-hw-tile='card'] > .hw-card, [data-hw-sample='card'] > .hw-card",
+          )!,
+        ),
+      );
+      const kind = ([tl, tr, br, bl]: number[]) => {
+        if (tl !== br || tr !== bl) return `uneven ${tl}/${tr}/${br}/${bl}`;
+        if (tl !== tr) return `brand ${tl! / tr!}:1 ${tl === card ? "the card's" : `${tl}px`}`;
+        if (tl === 0) return "square";
+        return tl! > 999 ? "pill" : "small";
+      };
+      return [...section.querySelectorAll("[data-hw-tile], [data-hw-sample]")].flatMap((tile) =>
+        [...tile.querySelectorAll("[class*='hw-']")].map((e, i) => {
+          const s = getComputedStyle(e);
+          const border = [
+            s.borderTopStyle,
+            s.borderRightStyle,
+            s.borderBottomStyle,
+            s.borderLeftStyle,
+          ].join(" ");
+          return `${tile.getAttribute("data-hw-tile") ?? tile.getAttribute("data-hw-sample")} ${i} ${e.getAttribute("class")}: ${kind(corners(s))}, ${border}`;
+        }),
+      );
+    }),
+  );
+  await p.close();
+  for (const other of shapes.slice(1)) expect(other).toEqual(shapes[0]!);
 }, 60_000);
 
 test("rules resolves nested rules against the parent and keeps the parent's own properties", () => {

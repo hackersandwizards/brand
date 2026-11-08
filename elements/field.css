@@ -10,6 +10,8 @@
    Markup: <div class="hw-field-row"><input class="hw-field"><button class="hw-button">…</button></div>
 
    Settings:
+     --hw-card-corner   the corner of the field, or of the joined row around it, the brand
+                        corner at the medium's size
      --hw-field-height  the field's least height
      --hw-field-pad     its inline padding
      --hw-field-family  its family: the body role, or mono where a reader compares the value
@@ -27,7 +29,7 @@
     width: 100%;
     min-height: var(--hw-field-height, 3rem);
     border: var(--hw-hairline, 1px) solid var(--color-border-strong);
-    border-radius: var(--radius-brand);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: 0 var(--hw-field-pad, 1rem);
     font-family: var(--hw-field-family, var(--type-body-family));
     font-size: var(--type-body-size);
@@ -51,7 +53,7 @@
     gap: 0;
     overflow: hidden;
     border: var(--hw-hairline, 1px) solid var(--color-border);
-    border-radius: var(--radius-brand);
+    border-radius: var(--hw-card-corner, var(--radius-brand));
     background: var(--color-white);
   }
   /* The ring goes round the row: neither part draws its own. */
