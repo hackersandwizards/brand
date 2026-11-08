@@ -151,7 +151,7 @@ d8 + tune is the strongest pair in the path, 3.2 ahead of tpe + tune outside the
 - The 24 decided page headlines round 10 showed beside the set were not shown: this round the set is the reader's path. The X header, Sessionize cover and closing slide appear on the panel only.
 - The German sheets keep the LinkedIn profile's English screenshot (About line and labels) under the German banner; a few reviewers noted the switch of language.
 - Trademark for the recommended line is not queried in DPMA, EUIPO and USPTO.
-- Profile texts in the set open with the claim line as round 10 did; a switch rewrites them around the new line, scored in `work-claim-rollout-holistic`, not here.
+- Profile texts in the set open with the claim line as round 10 did; a switch rewrites them around the new line, scored with the method of `2026-11-08-claim-rollout-holistic.md`, not here.
 
 ## Prompts, verbatim
 

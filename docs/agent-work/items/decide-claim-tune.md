@@ -74,7 +74,7 @@ The H1 "Once all roles are in tune" scores above "Once every role is in step" wi
 
 - `verbal/verbal.json`: `claim.en`, `claim.de`, `claim.word` (the accent becomes "in tune" / "eingespielt"), u1's two lines into `retired`.
 - Every channel banner re-rendered, the footer and link preview with the next brand pin in each consumer, a brand release.
-- Profile texts (LinkedIn About and headline, practitioners bios, Sessionize, OMR) rewritten around the new line and blind-reviewed under `work-claim-rollout-holistic`; the list in `work-update-external-profiles-after-claim` takes the new line.
+- Profile texts (LinkedIn About and headline, practitioners bios, Sessionize, OMR) rewritten around the new line and blind-reviewed in one more scored round (the method of `docs/agent-work/2026-11-08-claim-rollout-holistic.md`); the list in `work-update-external-profiles-after-claim` takes the new line.
 - DPMA, EUIPO and USPTO are not queried for any line yet; a chosen line gets that check before release.
 
 Keeping u1 changes nothing.
