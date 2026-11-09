@@ -41,7 +41,8 @@
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, a page named on the command line with no marker (a zero proves nothing; a story
 // page may show none), or a line still drawn in a fallback face after three loads, where the first
-// family of its font-family is one the page declares with @font-face.
+// family of its font-family is one the page declares with @font-face; that page is reported and the
+// others are still measured.
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { availableParallelism } from "node:os";
@@ -660,7 +661,7 @@ export async function measureMarkers(
 /** The page with its lines rewritten, each probe's line drawn in the first family its font-family
  * names where the page declares that family with @font-face: a line drawn in a fallback face reads
  * the fallback's x-height. document.fonts.ready may resolve, and the face report loaded, while a
- * line still shows the fallback; the page is opened afresh twice, then throws. */
+ * line still shows the fallback; the page is opened afresh twice, then throws FallbackFace. */
 async function drawn(
   browser: Browser | BrowserContext,
   url: string,
@@ -674,7 +675,7 @@ async function drawn(
       const miss = await fallbackFace(page, found);
       if (!miss) return { page, found };
       if (tries === 3)
-        throw new Error(
+        throw new FallbackFace(
           `${url}: page drawn in fallback font ${miss.face}; ${miss.family} missed font-display's block period`,
         );
     } catch (e) {
@@ -684,6 +685,9 @@ async function drawn(
     await page.close();
   }
 }
+
+/** A page still drawn in a fallback face after three loads: a finding on that page alone. */
+export class FallbackFace extends Error {}
 
 /** The first probe line drawn in no downloaded face although its first family is one the page
  * declares, with the face Chrome drew it in; undefined where every line shows its web face. */
@@ -1005,6 +1009,7 @@ if (import.meta.main) {
   const refused: Refusal[] = [];
   const exceptions = Object.keys(config.exceptions ?? {});
   const excepted = new Set<string>();
+  const fallbacks = new Map<string, string>();
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
   // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass, one load per story at the
   // first scale, finds the stories with a marker, most having none; only those, and every page
@@ -1043,6 +1048,10 @@ if (import.meta.main) {
               : undefined,
           exceptions,
           excepted,
+        }).catch((e) => {
+          if (!(e instanceof FallbackFace)) throw e;
+          fallbacks.set(url, e.message);
+          return [];
         }),
       )
     ).flat();
@@ -1053,9 +1062,11 @@ if (import.meta.main) {
   // A marker inside a declared [data-hw-exception] counts as found: the page names its own marks.
   const empty = pages
     .slice(0, named.length)
-    .filter((url) => !readings.some((r) => r.page === url) && !excepted.has(url));
+    .filter(
+      (url) => !readings.some((r) => r.page === url) && !excepted.has(url) && !fallbacks.has(url),
+    );
   // Only searched pages, none showing a marker: a run that measures nothing passes nothing.
-  const nothing = searched.length > 0 && !readings.length && !excepted.size;
+  const nothing = searched.length > 0 && !readings.length && !excepted.size && !fallbacks.size;
   if (nothing)
     console.error(
       `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,
@@ -1063,6 +1074,7 @@ if (import.meta.main) {
   const { bad, kept, findings } = applyExceptions(readings.filter(failing), config.markers, pages);
   for (const f of findings) console.error(f);
   for (const r of refused) console.error(refusalLine(r));
+  for (const message of fallbacks.values()) console.error(message);
   if (json) console.log(JSON.stringify(readings, null, 2));
   else {
     for (const r of kept)
@@ -1080,5 +1092,9 @@ if (import.meta.main) {
       `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px, ${kept.length} kept`,
     );
   }
-  process.exit(bad.length || empty.length || findings.length || refused.length || nothing ? 1 : 0);
+  process.exit(
+    bad.length || empty.length || findings.length || refused.length || fallbacks.size || nothing
+      ? 1
+      : 0,
+  );
 }

@@ -5,8 +5,9 @@
    the browser fetches it only for a page that shows such a character, such as Č or ł in a name.
    The family names are the ones tokens.css names. Paper takes print.css's static files instead:
    Chrome embeds a variable font in a PDF as Type 3 glyphs. A surface imports this file after
-   tokens.css (export ./fonts.css); one that writes its own @font-face reads the same faces from
-   generated/fonts.json (./fonts.json). */
+   tokens.css (export ./fonts.css); one that serves the font files from its own path takes these
+   rules from fontFaceRules(base) (./font-faces), and one that writes its own @font-face reads the
+   same faces from generated/fonts.json (./fonts.json). */
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;

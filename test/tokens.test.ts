@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fontFaceRules } from "../generated/font-faces";
 import fonts from "../generated/fonts.json";
 import { ROOT } from "../scripts/git";
 import {
@@ -173,6 +174,24 @@ test("each stack names its fallback face after the web face, and both font files
   );
   expect(fonts.fallbacks.map((f) => f.fontFamily)).toEqual(
     screen.map((face) => face.match(/font-family: "([^"]+)"/)![1]),
+  );
+});
+
+// A surface serving the font files from its own path writes fonts.css's rules with its own urls.
+test("fontFaceRules gives fonts.css's rules, each url the base or the function's answer", () => {
+  const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");
+  const rules = [...screen.matchAll(/@font-face\s*\{[^}]*\}/g)].map(([face]) => face).join("\n\n");
+  expect(fontFaceRules("fonts/")).toBe(rules);
+  const prefixed = fontFaceRules("/static/fonts/");
+  expect(fontFaces(prefixed.replaceAll('url("/static/', 'url("'))).toEqual(fontFaces(screen));
+  expect(fallbackFaces(prefixed)).toEqual(fallbackFaces(screen));
+  const files = fonts.faces.map((f) => f.file);
+  expect(fontFaceRules((file) => `data:font/woff2;base64,${btoa(file)}`)).toBe(
+    files.reduce(
+      (out, file) =>
+        out.replace(`url("fonts/${file}")`, `url("data:font/woff2;base64,${btoa(file)}")`),
+      rules,
+    ),
   );
 });
 

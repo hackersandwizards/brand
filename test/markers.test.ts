@@ -842,6 +842,30 @@ describe("a page drawn in a fallback face", () => {
     }
   }, 60_000);
 
+  // One page left in a fallback fails the run without hiding the others: the page that loads its
+  // face is still measured and reported.
+  test("brand-markers reports a page left in a fallback and measures the rest", async () => {
+    const [gone, served] = [site(-1), site(0)];
+    try {
+      const run = Bun.spawn(
+        ["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", gone.url.href, served.url.href],
+        { cwd: tmpdir(), stdout: "pipe", stderr: "pipe" },
+      );
+      const [code, out, err] = await Promise.all([
+        run.exited,
+        new Response(run.stdout).text(),
+        new Response(run.stderr).text(),
+      ]);
+      expect(code).toBe(1);
+      expect(err).toContain(`${gone.url.href}: page drawn in fallback font`);
+      expect(err).not.toContain(served.url.href);
+      expect(out).toContain("brand-markers: 4 readings on 2 pages, 0 off");
+    } finally {
+      await gone.stop(true);
+      await served.stop(true);
+    }
+  }, 60_000);
+
   test("the same page served at once reads 0 off", async () => {
     const rs = await measure(0);
     expect(rs.length).toBe(2);

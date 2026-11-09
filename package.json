@@ -21,6 +21,7 @@
     "./tokens.py": "./generated/tokens.py",
     "./code-theme.json": "./generated/code-theme.json",
     "./fonts.json": "./generated/fonts.json",
+    "./font-faces": "./generated/font-faces.ts",
     "./print.css": "./tokens/print.css",
     "./fonts.css": "./tokens/fonts.css",
     "./static-fonts.css": "./generated/static-fonts.css",

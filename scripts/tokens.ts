@@ -3,7 +3,8 @@
 // generated/tokens.root.css (the @theme block as :root and on a light element under night),
 // tokens.json, tokens.ts and tokens.py, and code-theme.json, the Shiki theme of the --code-* tokens
 // and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces and fallback
-// faces, for a surface that writes its own @font-face; and static-fonts.css, tokens/print.css's
+// faces, for a surface that writes its own @font-face; font-faces.ts, fonts.css's rules with the
+// url of each font file the caller's; and static-fonts.css, tokens/print.css's
 // @font-face rules and fonts.css's fallback faces, for a surface that needs the static faces without
 // the print scale; and cursor.svg, the slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6; and
 // elements.css and document.css, elements/elements.css and tokens/document.css with every
@@ -300,6 +301,23 @@ export const flat = (path: string): string => {
     .trim()}\n`;
 };
 
+/** generated/font-faces.ts: fonts.css's rules, as written, in a function of the font files' url. */
+const fontFaceModule = (screen: string) => {
+  const rules = [...screen.matchAll(FONT_FACE)].map(([face]) => face).join("\n\n");
+  if (/[`\\]|\$\{/.test(rules))
+    throw new Error("tokens/fonts.css: a rule a template literal would alter");
+  return `// Generated from tokens/fonts.css by scripts/tokens.ts. Edit the source, never this file.
+
+/** fonts.css's @font-face rules, its web faces and fallback faces with every descriptor, for a
+ *  surface that serves the font files from its own path: each file's url is \`base\` followed by the
+ *  file name, or what \`base\` returns for the file name, such as a data: URL. */
+export const fontFaceRules = (base: string | ((file: string) => string)) => {
+  const url = typeof base === "string" ? (file: string) => base + file : base;
+  return \`${rules.replace(/url\("fonts\/([^"]+)"\)/g, (_, file: string) => `url("\${url(${JSON.stringify(file)})}")`)}\`;
+};
+`;
+};
+
 const FLAT = (source: string) =>
   `/* Generated from ${source} by scripts/tokens.ts. Edit the source, never this file.
    The source with every @import resolved in place: a page that links the stylesheet links this
@@ -326,6 +344,7 @@ const generate = () => {
     "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
     "fonts.json":
       JSON.stringify({ faces: fontFaces(screen), fallbacks: fallbackData(screen) }, null, 2) + "\n",
+    "font-faces.ts": fontFaceModule(screen),
     "static-fonts.css": `/* Generated from tokens/print.css and tokens/fonts.css by scripts/tokens.ts. Edit the
    sources, never this file. print.css's static faces without the print scale (static files, never
    variable ones, so Chrome embeds real glyphs in a PDF), then fonts.css's fallback faces.
