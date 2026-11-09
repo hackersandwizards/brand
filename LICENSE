@@ -4,6 +4,7 @@ The name hackers&wizards and its logos are trademarks of hackers&wizards GmbH an
 Third-party material keeps its own licence: the Inter and JetBrains
 Mono fonts in tokens/fonts/ are under the SIL Open Font License 1.1
 (tokens/fonts/OFL-Inter.txt, tokens/fonts/OFL-JetBrainsMono.txt),
+Lucide's icons are under the ISC License (tokens/LICENSE-Lucide.txt),
 client logos in clients/ belong to their owners, and the photographer
 named in press/press.json keeps the rights in the press photos.
 

@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { SUN } from "../expert/components/theme-icons";
 import { ROOT } from "../scripts/git";
 
 // Each area mark in marker.css is its Lucide icon unchanged, at the version package.json pins:
@@ -19,6 +20,8 @@ const shapes = (svg: string) =>
   [...svg.matchAll(/<(path|rect|circle|line|polyline|polygon|ellipse)\b([^>]*?)\/?>/g)].map(
     ([, tag, attrs]) => `${tag} ${attrs!.replaceAll('"', "'").replace(/\s+/g, " ").trim()}`,
   );
+const lucide = (name: string) =>
+  shapes(readFileSync(join(ROOT, `node_modules/lucide-static/icons/${name}.svg`), "utf8"));
 
 test("every area mark draws its Lucide icon, other the default", () => {
   const marks = [
@@ -28,15 +31,21 @@ test("every area mark draws its Lucide icon, other the default", () => {
   ].map(([, area, uri]) => [area ?? "other", uri!] as const);
   expect(marks.map(([area]) => area).sort()).toEqual(Object.keys(ICONS).sort());
   for (const [area, uri] of marks) {
-    const icon = readFileSync(
-      join(ROOT, `node_modules/lucide-static/icons/${ICONS[area as keyof typeof ICONS]}.svg`),
-      "utf8",
-    );
     expect({ area, shapes: shapes(decodeURIComponent(uri)) }).toEqual({
       area,
-      shapes: shapes(icon),
+      shapes: lucide(ICONS[area as keyof typeof ICONS]),
     });
   }
+});
+
+// One path, so a port draws it as it draws the moon: Lucide's circle as two arcs, then its rays.
+test("the theme switch's sun draws Lucide's sun", () => {
+  const [circle, ...rays] = lucide("sun");
+  expect(circle).toBe("circle cx='12' cy='12' r='4'");
+  const d = rays.map((ray) =>
+    ray.slice("path d='".length, -1).replace(/^m([\d.]+ [\d.]+) ?/, "M$1l"),
+  );
+  expect(SUN).toBe(`M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z${d.join("")}`);
 });
 
 // Rendered: beside running text, in a label, in a baseline-aligned flex row and before an H1, on

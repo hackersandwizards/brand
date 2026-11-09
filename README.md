@@ -182,6 +182,9 @@ takes the same width with the class `hw-container`. A control holding only an ic
 search) is `hw-header-link` with `data-icon`: round, 36 px. `ThemeToggle.astro` is one; an app
 that renders no `.astro` takes its two icons from `expert/components/theme-icons.ts`.
 
+Past those two, the area marks and the disclosure chevron, brand exports no icons. An app that
+draws other Lucide icons pins Lucide's own package and imports from it.
+
 Every catalog's header links every catalog: `catalogs.json` lists them, name and address, and each
 catalog renders its nav from it (`import catalogs from "@hackersandwizards/brand/catalogs.json"`),
 the current one with `aria-current="page"` on its home and `aria-current="true"` on a page below
