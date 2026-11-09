@@ -16,7 +16,8 @@
 // also keeps the browser's own fails, whatever its offset. Not measured: a heading's or
 // link's swatch outside a list, an area mark (.hw-mark), ol numerals, whose digits stand on the
 // baseline, and anything inside [data-hw-exception], a system's own element brand-elements.json
-// names with its reason.
+// names with its reason; a marker there, under a name "exceptions" declares, still counts as found
+// for the checks below that a page shows one.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder>
 // [--catalog-at <page>]] [--json] [<url, html file or site path>...] --site serves a built folder on
@@ -38,8 +39,9 @@
 // "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so a
 // fixed page drops its exception. An item with two markers is never kept.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
-// two markers, or a page named on the command line with no marker (a zero proves nothing; a story
-// page may show none).
+// two markers, a page named on the command line with no marker (a zero proves nothing; a story
+// page may show none), or a line still drawn in a fallback face after three loads, where the first
+// family of its font-family is one the page declares with @font-face.
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { availableParallelism } from "node:os";
@@ -74,6 +76,10 @@ type Probe = {
   indent: number | null;
   double: boolean;
 };
+/** collect's probes, the element each scrolls into view and the one holding its line, and whether a
+ * marker sits inside a [data-hw-exception] whose name is in `declared`. */
+type Found = { probes: Probe[]; anchors: Element[]; texts: Element[]; excepted: boolean };
+type Collect = [newline: boolean, maxSide: number, count: boolean, declared: string[]];
 export type Kind = "before" | "element" | "native" | "glyph";
 export type Reading = {
   page: string;
@@ -98,8 +104,8 @@ export function openFolds() {
  * finds, the page's lines left as they are but for the newline. The boxes are read two frames after
  * the rewrite, once a script that refits the page to its longer lines (a slide's fit guard, run by
  * a ResizeObserver) has done so. */
-async function collect([newline, maxSide, count]: [boolean, number, boolean?]): Promise<
-  { probes: Probe[]; anchors: Element[] } | number
+async function collect([newline, maxSide, count, declared]: Collect): Promise<
+  Found | [number, boolean]
 > {
   if (newline)
     for (const li of document.querySelectorAll("li"))
@@ -166,14 +172,19 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
   };
   const found: { host: Element; text: Text; kind: Kind; mark?: Element }[] = [];
   const seen = new Set<Text>();
+  // A system's own mark, declared in brand-elements.json, is noted but not measured, as
+  // brand-elements leaves it out.
+  let excepted = false;
+  let inException: Element | null = null;
   const add = (host: Element, text: Text | null, kind: Kind, mark?: Element) => {
     if (!text || seen.has(text)) return;
     seen.add(text);
-    found.push({ host, text, kind, mark });
+    if (inException) excepted ||= declared.includes(inException.getAttribute("data-hw-exception")!);
+    else found.push({ host, text, kind, mark });
   };
   for (const host of document.querySelectorAll("body *")) {
-    // A system's own mark, declared in brand-elements.json, as brand-elements leaves it out.
-    if (!visible(host) || host.closest("[data-hw-exception]")) continue;
+    if (!visible(host)) continue;
+    inException = host.closest("[data-hw-exception]");
     const before = getComputedStyle(host, "::before");
     const side = parseFloat(before.width);
     const item =
@@ -212,7 +223,7 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
       if (next) add(host.parentElement!, firstText(next), "element", host);
     }
   }
-  if (count) return found.length;
+  if (count) return [found.length, excepted];
   for (const f of found) {
     f.text.data = "xxxxHHHH " + f.text.data.trimStart();
     // An underline or a shadow (a link item) would add ink below the x-height band. A decoration
@@ -291,7 +302,12 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
       double: kind !== "native" && !!li && (kind !== "element" || host === li) && ownMarker(li),
     };
   });
-  return { probes, anchors: found.map((f) => f.mark ?? f.text.parentElement!) };
+  return {
+    probes,
+    anchors: found.map((f) => f.mark ?? f.text.parentElement!),
+    texts: found.map((f) => f.text.parentElement!),
+    excepted,
+  };
 }
 
 /** Runs in the page: the y in CSS px, from the top of the shot, of the ink's middle left of `split`
@@ -433,8 +449,17 @@ export async function open(page: Page, url: string, csp?: Csp) {
 }
 
 export type Refusal = { page: string; element: string; source: string; directive: string };
-/** `csp` renders every page under the consumer's policy; the refusals go to `refused`. */
-type Options = { scale?: number; width?: number; csp?: Csp; refused?: Refusal[] };
+/** `csp` renders every page under the consumer's policy; the refusals go to `refused`, and the
+ * page's url to `excepted` where it shows a marker inside a [data-hw-exception] whose name is in
+ * `exceptions`, brand-elements.json's "exceptions". */
+type Options = {
+  scale?: number;
+  width?: number;
+  csp?: Csp;
+  refused?: Refusal[];
+  exceptions?: string[];
+  excepted?: Set<string>;
+};
 type Recorded = { uri: string; directive: string; target: EventTarget | null };
 
 /** Runs before the page's own scripts: keeps every refusal of the page's policies. */
@@ -529,14 +554,18 @@ export async function measureMarkers(
     css = "",
     csp,
     refused,
+    exceptions = [],
+    excepted,
   }: Options & { newline?: boolean; css?: string } = {},
 ): Promise<Reading[]> {
-  const page = await prepare(browser, url, { scale, width, css, csp });
+  const { page, found } = await drawn(browser, url, { scale, width, css, csp }, [
+    newline,
+    MAX_SIDE,
+    false,
+    exceptions,
+  ]);
   try {
-    const found = (await page.evaluateHandle(collect, [newline, MAX_SIDE] as [
-      boolean,
-      number,
-    ])) as JSHandle<{ probes: Probe[]; anchors: Element[] }>;
+    if (excepted && (await found.evaluate((f) => f.excepted))) excepted.add(url);
     // Each box is shot inside the viewport, its host scrolled into view in every scroll container
     // it sits in, the window or an element such as a catalog's main: capturing beyond the viewport
     // resizes it, and a layout sized by the viewport's height then moves under the measured boxes.
@@ -628,6 +657,80 @@ export async function measureMarkers(
   }
 }
 
+/** The page with its lines rewritten, each probe's line drawn in the first family its font-family
+ * names where the page declares that family with @font-face: a line drawn in a fallback face reads
+ * the fallback's x-height. document.fonts.ready may resolve, and the face report loaded, while a
+ * line still shows the fallback; the page is opened afresh twice, then throws. */
+async function drawn(
+  browser: Browser | BrowserContext,
+  url: string,
+  options: Options & { css?: string },
+  args: Collect,
+) {
+  for (let tries = 1; ; tries++) {
+    const page = await prepare(browser, url, options);
+    try {
+      const found = (await page.evaluateHandle(collect, args)) as JSHandle<Found>;
+      const miss = await fallbackFace(page, found);
+      if (!miss) return { page, found };
+      if (tries === 3)
+        throw new Error(
+          `${url}: page drawn in fallback font ${miss.face}; ${miss.family} missed font-display's block period`,
+        );
+    } catch (e) {
+      await page.close();
+      throw e;
+    }
+    await page.close();
+  }
+}
+
+/** The first probe line drawn in no downloaded face although its first family is one the page
+ * declares, with the face Chrome drew it in; undefined where every line shows its web face. */
+async function fallbackFace(page: Page, found: JSHandle<Found>) {
+  // Each line's element marked with the first family it names, where the page declares that family:
+  // a node id comes from the CDP session alone, so the elements are found again by the mark.
+  const marked = await found.evaluate(({ texts }) => {
+    const name = (family: string) =>
+      family
+        .trim()
+        .replace(/^["']|["']$/g, "")
+        .toLowerCase();
+    const declared = new Set([...document.fonts].map((f) => name(f.family)));
+    let n = 0;
+    for (const el of new Set(texts)) {
+      const first = getComputedStyle(el).fontFamily.split(",")[0]!.trim();
+      if (!declared.has(name(first))) continue;
+      el.setAttribute("data-hw-font-probe", first.replace(/^["']|["']$/g, ""));
+      n++;
+    }
+    return n;
+  });
+  if (!marked) return;
+  const cdp = await page.createCDPSession();
+  try {
+    const { root } = await cdp.send("DOM.getDocument", { depth: 0 });
+    const { nodeIds } = await cdp.send("DOM.querySelectorAll", {
+      nodeId: root.nodeId,
+      selector: "[data-hw-font-probe]",
+    });
+    await cdp.send("CSS.enable");
+    for (const nodeId of nodeIds) {
+      const { fonts } = await cdp.send("CSS.getPlatformFontsForNode", { nodeId });
+      if (fonts.length && !fonts.some((f) => f.isCustomFont)) {
+        const { attributes } = await cdp.send("DOM.getAttributes", { nodeId });
+        const family = attributes[attributes.indexOf("data-hw-font-probe") + 1];
+        return { face: fonts[0]!.familyName, family };
+      }
+    }
+  } finally {
+    await cdp.detach();
+    await found.evaluate(({ texts }) => {
+      for (const el of texts) el.removeAttribute("data-hw-font-probe");
+    });
+  }
+}
+
 /** A new tab on `url` as both passes read it: settled (reduced motion), `css` added, fonts loaded
  * and every fold open, as a closed panel's lists are markers too. */
 
@@ -658,15 +761,18 @@ async function prepare(
 export async function hasMarkers(
   browser: Browser | BrowserContext,
   url: string,
-  { scale = 4, width = 1280, csp, refused }: Options = {},
+  { scale = 4, width = 1280, csp, refused, exceptions = [], excepted }: Options = {},
 ) {
   const page = await prepare(browser, url, { scale, width, csp });
   try {
     if (refused) refused.push(...(await refusals(page, url)));
     // The newline only adds blank text, so the second count runs on the same page.
-    for (const newline of [false, true])
-      if (await page.evaluate(collect, [newline, MAX_SIDE, true] as [boolean, number, boolean]))
-        return true;
+    for (const newline of [false, true]) {
+      const args: Collect = [newline, MAX_SIDE, true, exceptions];
+      const [n, e] = (await page.evaluate(collect, args)) as [number, boolean];
+      if (n) return true;
+      if (e) excepted?.add(url);
+    }
     return false;
   } finally {
     await page.close();
@@ -897,6 +1003,8 @@ if (import.meta.main) {
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, base));
   const refused: Refusal[] = [];
+  const exceptions = Object.keys(config.exceptions ?? {});
+  const excepted = new Set<string>();
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
   // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass, one load per story at the
   // first scale, finds the stories with a marker, most having none; only those, and every page
@@ -915,6 +1023,8 @@ if (import.meta.main) {
         width,
         csp: config.csp,
         refused,
+        exceptions,
+        excepted,
       }),
     );
     const runs = [...pages.slice(0, named.length), ...stories.filter((_, i) => marked[i])].flatMap(
@@ -931,6 +1041,8 @@ if (import.meta.main) {
             options.scale === scales[0] && !options.newline && !stories.includes(url)
               ? refused
               : undefined,
+          exceptions,
+          excepted,
         }),
       )
     ).flat();
@@ -938,9 +1050,12 @@ if (import.meta.main) {
     await browser.close();
     await server?.stop(true);
   }
-  const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
+  // A marker inside a declared [data-hw-exception] counts as found: the page names its own marks.
+  const empty = pages
+    .slice(0, named.length)
+    .filter((url) => !readings.some((r) => r.page === url) && !excepted.has(url));
   // Only searched pages, none showing a marker: a run that measures nothing passes nothing.
-  const nothing = searched.length > 0 && !readings.length;
+  const nothing = searched.length > 0 && !readings.length && !excepted.size;
   if (nothing)
     console.error(
       `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,

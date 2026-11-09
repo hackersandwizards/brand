@@ -746,3 +746,105 @@ test("marker exceptions keep their readings, fail over their count and report a 
   ]);
   expect(applyExceptions(readings).bad.length).toBe(3);
 });
+
+// A named page whose only markers sit inside a [data-hw-exception] brand-elements.json declares
+// shows its marks, declared as its own: both empty-page guards count them as found. The controls: a
+// page without any marker fails, and so does a page whose exception name is not declared.
+describe("a page whose markers are all declared exceptions", () => {
+  const own = file(
+    "only-exception.html",
+    `<!doctype html><ol class="track" data-hw-exception="track" style="list-style:none"><li><span style="width:8px;height:8px;display:inline-block;background:teal"></span> Stop</li></ol>`,
+  );
+  const none = file("no-marker.html", `<!doctype html><p>No list here</p>`);
+  // brand-markers at 2x in a folder holding `config` as brand-elements.json.
+  const cli = (args: string[], config: object) => {
+    const cwd = mkdtempSync(join(tmpdir(), "brand-markers-cli-"));
+    try {
+      writeFileSync(join(cwd, "brand-elements.json"), JSON.stringify(config));
+      const run = Bun.spawnSync(["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", ...args], {
+        cwd,
+      });
+      return { code: run.exitCode, err: run.stderr.toString() };
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  };
+  const declared = { exceptions: { track: "The system's own timeline." } };
+
+  test("passes when named on the command line; no marker or an undeclared name fails", () => {
+    expect(cli([own], declared).code).toBe(0);
+    for (const [url, config] of [
+      [none, declared],
+      [own, {}],
+    ] as const) {
+      const run = cli([url], config);
+      expect(run.code).toBe(1);
+      expect(run.err).toContain(`${url}: no marker found`);
+    }
+  }, 60_000);
+
+  test('passes when listed in brand-elements.json "pages"; no marker or an undeclared name fails', () => {
+    expect(cli([], { ...declared, pages: [own] }).code).toBe(0);
+    for (const config of [{ ...declared, pages: [none] }, { pages: [own] }]) {
+      const run = cli([], config);
+      expect(run.code).toBe(1);
+      expect(run.err).toContain('no marker on any page of brand-elements.json "pages"');
+    }
+  }, 60_000);
+});
+
+// A line drawn in a fallback face reads that face's x-height, so a page whose web face is late or
+// missing is opened again, then fails rather than measuring the fallback.
+describe("a page drawn in a fallback face", () => {
+  const html = `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="/generated/tokens.root.css"><link rel="stylesheet" href="/tokens/fonts.css">
+<link rel="stylesheet" href="/tokens/marker.css">
+<style>body { margin: 40px; max-width: 420px; font-family: var(--font-sans); } ul { margin: 0; padding: 0; }</style>
+</head><body><ul class="hw-marker-list" style="font-size:16px;line-height:1.6"><li>Short item</li><li>Another item</li></ul></body></html>`;
+  // The brand's files, every .woff2 answered after `delay` ms, or 404 where it is negative.
+  const site = (delay: number) =>
+    Bun.serve({
+      hostname: "127.0.0.1",
+      port: 0,
+      async fetch(request) {
+        const path = new URL(request.url).pathname;
+        if (path === "/") return new Response(html, { headers: { "content-type": "text/html" } });
+        if (path.endsWith(".woff2")) {
+          if (delay < 0) return new Response("gone", { status: 404 });
+          await Bun.sleep(delay);
+        }
+        const f = Bun.file(join(ROOT, path));
+        return (await f.exists()) ? new Response(f) : new Response("gone", { status: 404 });
+      },
+    });
+  const measure = async (delay: number) => {
+    const server = site(delay);
+    try {
+      return await measureMarkers(browser, server.url.href, { scale: 2 });
+    } finally {
+      await server.stop(true);
+    }
+  };
+  const MISSED =
+    /page drawn in fallback font .+; Inter Variable missed font-display's block period/;
+
+  test("a face that never arrives fails with the fallback named", async () => {
+    await expect(measure(-1)).rejects.toThrow(MISSED);
+  }, 60_000);
+
+  test("a face 400 ms late fails so or passes once reloaded", async () => {
+    try {
+      const rs = await measure(400);
+      expect(rs.length).toBe(2);
+      expect(show(rs.filter(failing))).toEqual([]);
+    } catch (e) {
+      expect(String(e)).toMatch(MISSED);
+    }
+  }, 60_000);
+
+  test("the same page served at once reads 0 off", async () => {
+    const rs = await measure(0);
+    expect(rs.length).toBe(2);
+    expect(show(rs.filter(failing))).toEqual([]);
+  }, 60_000);
+});
