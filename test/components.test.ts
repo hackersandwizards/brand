@@ -114,3 +114,19 @@ test("SpaceNav takes its words from labels, English by default", async () => {
   for (const text of ["Browse", "pages", "home", "Overview", "sections"])
     expect(german).not.toContain(text);
 }, 30_000);
+
+test("ListFilter's Filters button names the chosen values the server renders", async () => {
+  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+  const component = (await server.ssrLoadModule("/expert/components/ListFilter.astro")).default;
+  const container = await experimental_AstroContainer.create();
+  const facets = [{ param: "t", legend: P, options: [{ value: "a", label: "Alpha" }] }];
+  const render = (t: string) =>
+    container.renderToString(component, {
+      props: { ...props.ListFilter, facets, state: { q: "", facets: { t } } },
+    });
+  const chosen: string = await render("a");
+  expect(chosen).toContain('aria-label="Filters: Alpha"');
+  expect(chosen).toMatch(/data-filter-label[^>]*>Alpha</);
+  // Control: nothing chosen, the button says Filters.
+  expect(await render("")).toMatch(/data-filter-label[^>]*>Filters</);
+}, 30_000);

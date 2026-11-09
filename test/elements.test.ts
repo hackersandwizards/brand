@@ -705,6 +705,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-avatar-hue",
     "--hw-zoom",
     "--hw-touch-floor",
+    "--hw-list-filter-row",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });

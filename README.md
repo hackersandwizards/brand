@@ -484,7 +484,11 @@ a select; an empty list shows the search alone, without the phone's Filters butt
 facets that split the rows. `browse="active"` lists rows only while a filter is
 set; on a static page its rows then wait in a template without JavaScript, or load on first use from
 the page `source` names, or stay in the page with `listed`. `inline` sets the first select beside
-the search from 64rem. Should the script fail, the phone's facets and the search button stay usable. A row is `expert/components/ListRow.astro` on `hw-row`
+the search from 64rem. Ctrl+K or Cmd+K focuses the search, unless a command palette (`data-hw-shortcut="k"`)
+takes the key. On a phone the facets fold behind a
+Filters button that names the chosen values, and a tapped choice folds them again. A row off screen
+skips layout (`content-visibility: auto`): set `--hw-list-filter-row` on the root to a row's usual
+height (3rem). Should the script fail, the phone's facets and the search button stay usable. A row is `expert/components/ListRow.astro` on `hw-row`
 (`stripeColor`, the slots `lead` and `trail`, every further attribute passed to the row, `current`
 for the record open beside the list).
 

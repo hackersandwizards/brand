@@ -67,6 +67,13 @@ export const countLine = (template: CountCopy, shown: number, total: number) =>
     .replace("{shown}", String(shown))
     .replace("{total}", String(total));
 
+/** The phone's Filters button: the chosen values' labels in the facets' order, else its own word,
+ *  and the accessible name joining the two once a value is chosen. */
+export function filtersLabel(filters: string, chosen: (string | undefined)[]) {
+  const picked = chosen.filter(Boolean).join(", ");
+  return { text: picked || filters, aria: picked ? `${filters}: ${picked}` : undefined };
+}
+
 /** The full-text search's address for a query, keeping any parameter the base already has. */
 export const fullTextUrl = (base: string, q: string) =>
   `${base}${base.includes("?") ? "&" : "?"}q=${encodeURIComponent(q)}`;
@@ -130,6 +137,8 @@ export function highlight(text: string, words: string[]): string {
  *  "always" or "active"): typing (200 ms debounce), each facet's choice or select filter in place, the
  *  state lives in `?q=` and each facet's parameter, Back and Forward restore it, and the counts
  *  follow the search. One search is one history entry, arrowing across one facet's choices is one too.
+ *  Ctrl+K or Cmd+K focuses the search; on a phone a tapped choice folds the facets, and the Filters
+ *  button names the chosen values.
  *  Rows in a template[data-filter-rows] enter the list; with data-source on the root, the rows of
  *  that page load on first use, and until they do the form's submit goes there. Once wired the
  *  root carries data-ready. */
@@ -144,6 +153,10 @@ export function initListFilter(root: HTMLElement) {
   const clears = root.querySelectorAll<HTMLElement>("[data-filter-clear]");
   const fullTexts = root.querySelectorAll<HTMLAnchorElement>("[data-filter-fulltext]");
   const toggle = root.querySelector<HTMLButtonElement>("[data-filter-toggle]");
+  // The button's text sits in its [data-filter-label], its own word in data-filters; markup
+  // without them keeps the button's text as that word.
+  const toggleLabel = toggle?.querySelector<HTMLElement>("[data-filter-label]");
+  const filtersWord = toggle?.dataset.filters ?? toggle?.textContent?.trim() ?? "";
   const panel = root.querySelector<HTMLElement>("[data-filter-panel]")!;
   const overview = root.dataset.overview ? document.getElementById(root.dataset.overview) : null;
   const browseAlways = root.dataset.listFilter !== "active";
@@ -277,9 +290,24 @@ export function initListFilter(root: HTMLElement) {
       for (const option of select.options)
         option.textContent = `${option.dataset.label} (${counts.get(option.value) ?? 0})`;
     }
-    // A set facet fills the phone's Filters button: its facets are folded away behind it.
-    if (faceted) toggle?.removeAttribute("data-variant");
-    else toggle?.setAttribute("data-variant", "secondary");
+    // A set facet fills the phone's Filters button and names itself there: its facets are folded
+    // away behind it.
+    if (!toggle) return;
+    if (faceted) toggle.removeAttribute("data-variant");
+    else toggle.setAttribute("data-variant", "secondary");
+    const { text, aria } = filtersLabel(
+      filtersWord,
+      [
+        ...form.querySelectorAll<HTMLInputElement | HTMLOptionElement>(
+          'input[type="radio"]:checked, option:checked',
+        ),
+      ]
+        .filter((el) => el.value)
+        .map((el) => el.dataset.label),
+    );
+    (toggleLabel ?? toggle).textContent = text;
+    if (aria) toggle.setAttribute("aria-label", aria);
+    else toggle.removeAttribute("aria-label");
   };
 
   const restore = () => {
@@ -293,6 +321,8 @@ export function initListFilter(root: HTMLElement) {
   let timer = 0;
   // "typing", or "picking" and the facet's parameter: arrowing across one facet's choices.
   let session = "";
+  // A pick by pointer, which folds the phone's facets; a pick by key keeps them open.
+  let tapped = false;
   const record = (kind: string) => {
     const next = stateUrl(location.href, state());
     if (next === location.href) return;
@@ -314,7 +344,10 @@ export function initListFilter(root: HTMLElement) {
       record("typing");
     }, 200);
   });
-  panel.addEventListener("pointerdown", () => (session = ""));
+  panel.addEventListener("pointerdown", () => {
+    session = "";
+    tapped = true;
+  });
   for (const radio of radios)
     radio.addEventListener("change", () => {
       apply();
@@ -354,8 +387,29 @@ export function initListFilter(root: HTMLElement) {
   else apply();
   history.replaceState(history.state, "", stateUrl(location.href, state()));
 
+  // Ctrl+K or Cmd+K outside a text field puts the cursor in the search, unless the page's command
+  // palette (dialog[data-hw-shortcut="k"], command.css) takes the key. A single key such as "/"
+  // would need a switch to turn it off (WCAG 2.1.4); one with a modifier does not.
+  document.addEventListener("keydown", (event) => {
+    const target = event.target as HTMLElement;
+    if (
+      event.key?.toLowerCase() !== "k" ||
+      !(event.ctrlKey || event.metaKey) ||
+      event.altKey ||
+      event.shiftKey ||
+      target.isContentEditable ||
+      target.matches("textarea, select, input:not([type=radio], [type=checkbox])") ||
+      !input.checkVisibility() ||
+      document.querySelector('dialog[data-hw-shortcut="k"]')
+    )
+      return;
+    event.preventDefault();
+    input.focus();
+  });
+
   // The phone's facets: the toggle opens and closes them, Escape and a click outside close them,
-  // Escape returning focus to the toggle.
+  // Escape returning focus to the toggle. A pick by pointer closes them too, so the rows show,
+  // the focus on the toggle; a pick by key keeps them open, the focus where it was.
   root.dataset.js = "";
   root.dataset.ready = "";
   if (!toggle) return;
@@ -365,6 +419,14 @@ export function initListFilter(root: HTMLElement) {
   };
   open(false);
   toggle.addEventListener("click", () => open(root.hasAttribute("data-closed")));
+  panel.addEventListener("keydown", () => (tapped = false));
+  panel.addEventListener("change", () => {
+    if (tapped && toggle.checkVisibility()) {
+      open(false);
+      toggle.focus();
+    }
+    tapped = false;
+  });
   root.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || root.hasAttribute("data-closed")) return;
     open(false);

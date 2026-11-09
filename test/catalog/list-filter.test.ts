@@ -261,3 +261,104 @@ test("no facet shows the search alone, with no fieldset and no Filters button", 
   expect(await p.$("[data-filter-toggle]")).not.toBeNull();
   await p.close();
 }, 60_000);
+
+test("Ctrl+K or Cmd+K outside a text field focuses the search; K alone or a palette page not", async () => {
+  const p = await browser.newPage();
+  await p.goto(story("dense"), { waitUntil: "networkidle0" });
+  const focused = () => p.evaluate(() => document.activeElement?.getAttribute("name"));
+  await p.click("body");
+  await p.keyboard.press("k");
+  expect(await focused()).toBeNull();
+  for (const modifier of ["Control", "Meta"] as const) {
+    await p.click("body");
+    await p.keyboard.down(modifier);
+    await p.keyboard.press("k");
+    await p.keyboard.up(modifier);
+    expect(await focused()).toBe("q");
+  }
+  // A page's command palette keeps the key.
+  await p.evaluate(() =>
+    document.body.insertAdjacentHTML("beforeend", '<dialog data-hw-shortcut="k"></dialog>'),
+  );
+  await p.click("body");
+  await p.keyboard.down("Control");
+  await p.keyboard.press("k");
+  await p.keyboard.up("Control");
+  expect(await focused()).not.toBe("q");
+  await p.close();
+}, 60_000);
+
+test("on a phone a tapped choice folds the facets and the button names it; a key pick keeps them", async () => {
+  const p = await browser.newPage();
+  await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
+  await p.goto(story("listed"), { waitUntil: "networkidle0" });
+  const panel = () => p.$eval("[data-filter-panel]", (e) => e.checkVisibility());
+  const toggle = "[data-filter-toggle]";
+  expect(await text(p, toggle)).toBe("Filter");
+  await p.tap(toggle);
+  await p.tap('label.hw-choice:has(input[name="topic"][value="tools"])');
+  expect(await panel()).toBe(false);
+  expect(await text(p, toggle)).toBe("Werkzeuge");
+  expect(await p.$eval(toggle, (e) => e.getAttribute("aria-label"))).toBe("Filter: Werkzeuge");
+  expect(await p.evaluate(() => document.activeElement?.hasAttribute("data-filter-toggle"))).toBe(
+    true,
+  );
+  // Control: a pick by arrow key keeps them open.
+  await p.tap(toggle);
+  await p.focus('input[name="days"][value=""]');
+  await p.keyboard.press("ArrowRight");
+  expect(await panel()).toBe(true);
+  expect(await text(p, toggle)).toBe("Werkzeuge, 1 Tag");
+  // A shared link names its chosen values.
+  await p.goto(`${story("listed")}?topic=practice`, { waitUntil: "networkidle0" });
+  expect(await text(p, toggle)).toBe("Praxis");
+  await p.close();
+}, 60_000);
+
+test("rows off screen skip layout, the focused row renders in full", async () => {
+  const p = await browser.newPage();
+  await p.goto(story("dense"), { waitUntil: "networkidle0" });
+  const visibility = () =>
+    p.$$eval("[data-filter-item]", (rows) =>
+      rows.map((r) => getComputedStyle(r).contentVisibility),
+    );
+  expect(await visibility()).toEqual(["auto", "auto", "auto", "auto"]);
+  await p.$eval("[data-filter-item]", (row) => {
+    (row as HTMLElement).tabIndex = 0;
+    (row as HTMLElement).focus();
+  });
+  expect(await visibility()).toEqual(["visible", "auto", "auto", "auto"]);
+  await p.close();
+}, 60_000);
+
+test("under browse active and listed, no count line shows before the script runs", async () => {
+  for (const [name, first] of [
+    ["listed", ""],
+    ["dense", "4 von 4 Einheiten"],
+  ] as const) {
+    const p = await browser.newPage();
+    // The module waits until the first frame's count line is read.
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await p.setRequestInterception(true);
+    p.on("request", async (r) => {
+      if (r.url().includes("ListFilter.astro_astro_type_script")) await held;
+      void r.continue();
+    });
+    // A module script holds DOMContentLoaded, so the page is read while it loads.
+    const loaded = p.goto(story(name));
+    await p.waitForSelector("[data-filter-count]");
+    const seen = await p.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() =>
+            resolve(document.querySelector("[data-filter-count]")!.textContent),
+          ),
+        ),
+    );
+    release();
+    await loaded;
+    expect(seen).toBe(first);
+    await p.close();
+  }
+}, 60_000);

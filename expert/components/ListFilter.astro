@@ -7,6 +7,8 @@
  *  (hw-search, hw-choice, hw-field, hw-button) placed by elements/list-filter.css, sized by the
  *  page's data-hw-scale. Each facet shows as choices, "All" first, unless its labels run past
  *  `budget` characters, then as a select; no facet shows the search alone, without Filters button.
+ *  On a phone the facets fold behind that button, which names the chosen values, and a tapped
+ *  choice folds them again. Ctrl+K or Cmd+K focuses the search.
  *  `browse="active"` shows the list only while a filter is set, in place of the element `overview`
  *  names. Under it a static page keeps its rows out of the page without JavaScript: in an inert
  *  template, the form showing only once the script runs; `source` names a page listing every row,
@@ -14,6 +16,7 @@
  *  instead. Copy is a prop, so a page in another language passes its own. */
 import {
   countLine,
+  filtersLabel,
   fullTextUrl,
   isActive,
   matches,
@@ -97,6 +100,13 @@ const shown = items.filter((item) => matches(item, state)).length;
 const countText = listed ? countLine(count, shown, items.length) : "";
 
 const faceted = Object.values(state.facets).some(Boolean);
+// The phone's Filters button names what is picked, since its panel closes over it.
+const filtersButton = filtersLabel(
+  copy.filters,
+  facets.map(
+    (facet) => facet.options.find((option) => option.value === state.facets[facet.param])?.label,
+  ),
+);
 ---
 
 <div
@@ -105,7 +115,7 @@ const faceted = Object.values(state.facets).some(Boolean);
   data-count={JSON.stringify(count)}
   data-overview={overview}
   data-source={source}
-  data-listed={keep ? "" : undefined}
+  data-listed={keep && browse === "active" ? "" : undefined}
   data-inline={inline ? "" : undefined}
 >
   <form role="search" action={source ?? action} hidden={inert}>
@@ -119,6 +129,7 @@ const faceted = Object.values(state.facets).some(Boolean);
           value={state.q}
           placeholder={label}
           aria-label={label}
+          aria-keyshortcuts="Control+K Meta+K"
           autocomplete="off"
           enterkeyhint="search"
         />
@@ -133,9 +144,11 @@ const faceted = Object.values(state.facets).some(Boolean);
           data-variant={faceted ? undefined : "secondary"}
           aria-expanded="false"
           aria-controls={`${id}-facets`}
+          aria-label={filtersButton.aria}
           data-filter-toggle
+          data-filters={copy.filters}
         >
-          {copy.filters}
+          <span data-filter-label>{filtersButton.text}</span>
         </button>
       )}
     </div>
@@ -155,6 +168,7 @@ const faceted = Object.values(state.facets).some(Boolean);
                     name={facet.param}
                     value={option.value}
                     checked={chosen === option.value}
+                    data-label={option.label}
                   />
                   {option.label}
                   <span class="hw-choice-count" data-facet-count={option.value}>
@@ -217,7 +231,7 @@ const faceted = Object.values(state.facets).some(Boolean);
 </div>
 {
   /* Before first paint: the phone's facets start closed, the form shows, and under an overview the
-   listed rows wait for a filter. Should the module never mark the filter ready, the page returns
+   listed rows and their count line wait for a filter. Should the module never mark the filter ready, the page returns
    to its state without script, so the facets and the search button stay usable. */
 }
 <script is:inline>
@@ -225,20 +239,24 @@ const faceted = Object.values(state.facets).some(Boolean);
     const root = document.currentScript.previousElementSibling;
     const form = root.querySelector("form");
     const list = root.querySelector("[data-filter-list]");
+    const count = root.querySelector("[data-filter-count]");
     const overview = root.dataset.overview && document.getElementById(root.dataset.overview);
-    const was = [form.hidden, list.hidden, overview && overview.hidden];
+    const was = [form.hidden, list.hidden, overview && overview.hidden, count.textContent];
     const params = new URLSearchParams(location.search);
     const set = [...form.querySelectorAll("[name]")].some((field) => params.get(field.name));
     root.dataset.js = "";
     root.dataset.closed = "";
     form.hidden = false;
-    if ("listed" in root.dataset && !set) list.hidden = true;
+    if ("listed" in root.dataset && !set) {
+      list.hidden = true;
+      count.textContent = "";
+    }
     if (set && overview) overview.hidden = true;
     addEventListener("DOMContentLoaded", () => {
       if ("ready" in root.dataset) return;
       delete root.dataset.js;
       delete root.dataset.closed;
-      [form.hidden, list.hidden] = was;
+      [form.hidden, list.hidden, , count.textContent] = was;
       if (overview) overview.hidden = was[2];
     });
   }
