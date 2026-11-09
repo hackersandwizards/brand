@@ -280,6 +280,13 @@ in full with its reason, `<section data-hw-exception="<name>">`. List both in
 
 A system whose pages never turn to night adds `"lightOnly": true`: the tokens only an element's
 night rules read may then stay undefined there. `"site": "<dir>"` is `brand-markers --site` (below).
+`"csp": "<policy>"` is the Content-Security-Policy your host sends, as one string: both measuring
+scans add it to every page they open, a file's included, and fail on each source it refuses, naming
+page, element and source (`p.hw-form-error::before: ... refuses data (img-src)`). Leave out a
+per-response nonce, which no page on disk carries. Brand's icons (form field, password toggle, error summary, check,
+select, pill, toast, menu, search, disclosure, accordion, tree, the list marker icons) are `data:`
+SVG images, so the policy needs `img-src data:` where a page shows one. A host that builds its
+header in code can read the policy from this file, so it is stated once.
 A gate that starts its own server on a free port names each page as a path from the server's root,
 starting with `/`, and runs `brand-elements --base <server url>`, so two gates at once never collide on a port.
 

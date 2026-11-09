@@ -14,6 +14,7 @@ import {
   serve,
   toUrl,
   type Reading,
+  type Refusal,
 } from "../scan/markers";
 
 // marker.css on lists at five text sizes, wrapped and not, and on element markers in baseline rows,
@@ -306,6 +307,23 @@ test("the first pass finds a page with a marker and passes over one without", as
     true,
     false,
   ]);
+}, 30_000);
+
+// brand-markers renders under the consumer's policy too, and reports what it refuses.
+test("a policy refusing data: images is red on a page's data: icon, green with img-src data:", async () => {
+  const url = file(
+    "csp.html",
+    `<!doctype html><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
+  );
+  const policy = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
+  const refused: Refusal[] = [];
+  await hasMarkers(browser, url, { csp: policy, refused });
+  expect(refused).toEqual([
+    { page: url, element: "p.hw-form-error::before", source: "data", directive: "img-src" },
+  ]);
+  refused.length = 0;
+  await hasMarkers(browser, url, { csp: `${policy} data:`, refused });
+  expect(refused).toEqual([]);
 }, 30_000);
 
 // An area mark opening a list item is an icon, not a list marker. The control: the same box

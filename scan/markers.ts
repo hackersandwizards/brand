@@ -27,6 +27,8 @@
 // The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
 // its reason and how many off readings it keeps at most:
 //   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
+// The "csp" of brand-elements.json, the policy the consumer's host sends, applies to every page, and
+// each source it refuses fails.
 // An off reading on a page the glob matches is kept, printed as kept; more off readings there than
 // "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so a
 // fixed page drops its exception. An item with two markers is never kept.
@@ -305,7 +307,38 @@ async function inkMiddle(png: string, scale: number, split: number): Promise<[nu
  *  stylesheets does when served over http with --site. A third party's sheet, such as a web font
  *  service's, may fail offline without reddening the run. A page answering 4xx or 5xx throws too:
  *  a missing story would otherwise pass as one showing nothing. */
-export async function open(page: Page, url: string) {
+/** `csp`, the policy the consumer's host sends (brand-elements.json "csp"), is added to every
+ *  document's response, a file's included, and each refusal recorded for `refusals`. */
+export async function open(page: Page, url: string, csp?: string) {
+  if (csp) {
+    const cdp = await page.createCDPSession();
+    // Fetch.continueResponse drops added headers on http; fulfilling with the body keeps them.
+    cdp.on("Fetch.requestPaused", async (e) => {
+      const status = e.responseStatusCode ?? 200;
+      try {
+        if (e.responseErrorReason || (status >= 300 && status < 400))
+          return await cdp.send("Fetch.continueRequest", { requestId: e.requestId });
+        const { body, base64Encoded } = await cdp.send("Fetch.getResponseBody", {
+          requestId: e.requestId,
+        });
+        await cdp.send("Fetch.fulfillRequest", {
+          requestId: e.requestId,
+          responseCode: status,
+          responseHeaders: [
+            ...(e.responseHeaders ?? []),
+            { name: "Content-Security-Policy", value: csp },
+          ],
+          body: base64Encoded ? body : Buffer.from(body).toString("base64"),
+        });
+      } catch {
+        // The page closed while its request was paused.
+      }
+    });
+    await cdp.send("Fetch.enable", {
+      patterns: [{ resourceType: "Document", requestStage: "Response" }],
+    });
+    await page.evaluateOnNewDocument(recordRefusals);
+  }
   const origin = new URL(url).origin;
   const missing: string[] = [];
   const failed = (r: HTTPRequest) => {
@@ -324,6 +357,73 @@ export async function open(page: Page, url: string) {
   if (missing.length) throw new Error(`${url}: stylesheet not loaded: ${missing.join(", ")}`);
 }
 
+export type Refusal = { page: string; element: string; source: string; directive: string };
+
+/** Runs before the page's own scripts: keeps every refusal of the page's policy. */
+function recordRefusals() {
+  const list: { uri: string; directive: string; target: EventTarget | null }[] = [];
+  Object.defineProperty(window, "__hwRefused", { value: list });
+  document.addEventListener(
+    "securitypolicyviolation",
+    (e) => list.push({ uri: e.blockedURI, directive: e.effectiveDirective, target: e.target }),
+    true,
+  );
+}
+
+/** Each refusal `open` recorded, with the element it hit: the event's target where it is one,
+ *  else, for a stylesheet's image, which the browser reports on the document, every element or
+ *  pseudo-element whose computed style draws a url() from the refused source. */
+function readRefusals() {
+  const list =
+    (window as unknown as { __hwRefused?: { uri: string; directive: string; target: unknown }[] })
+      .__hwRefused ?? [];
+  const name = (el: Element, pseudo = "") => {
+    const cls = [...el.classList].find((c) => c.startsWith("hw-")) ?? el.classList[0];
+    return `${el.tagName.toLowerCase()}${cls ? "." + cls : ""}${pseudo}`;
+  };
+  const PROPS = [
+    "background-image",
+    "mask-image",
+    "list-style-image",
+    "border-image-source",
+    "content",
+    "cursor",
+  ];
+  const PSEUDOS = ["", "::before", "::after", "::marker"];
+  const all = [...document.querySelectorAll("body *")];
+  return list.flatMap(({ uri, directive, target }) => {
+    if (target instanceof Element) return [{ element: name(target), source: uri, directive }];
+    const want = `url("${/^[a-z-]+$/.test(uri) ? uri + ":" : uri}`;
+    const hits = all.flatMap((el) =>
+      PSEUDOS.filter((p) => {
+        const g = getComputedStyle(el, p || null);
+        return PROPS.some((k) => g.getPropertyValue(k).includes(want));
+      }).map((p) => name(el, p)),
+    );
+    return (hits.length ? hits : ["the page"]).map((element) => ({
+      element,
+      source: uri,
+      directive,
+    }));
+  });
+}
+
+export const refusalLine = (r: Refusal) =>
+  `${r.page} ${r.element}: the policy in brand-elements.json "csp" refuses ${r.source} (${r.directive}); allow it in the policy the host sends and in "csp", or draw the element without it`;
+
+/** The refusals on `page`, opened with a policy, each once, two frames after its last change so
+ *  the images its styles now draw have been requested. */
+export const refusals = async (page: Page, url: string): Promise<Refusal[]> => {
+  await page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
+  );
+  return [
+    ...new Map(
+      (await page.evaluate(readRefusals)).map((r) => [JSON.stringify(r), { page: url, ...r }]),
+    ).values(),
+  ];
+};
+
 export const launch = () =>
   puppeteer.launch({ executablePath: findChrome(), headless: true, args: NO_KEYCHAIN });
 
@@ -332,9 +432,16 @@ export const launch = () =>
 export async function measureMarkers(
   browser: Browser | BrowserContext,
   url: string,
-  { scale = 4, width = 1280, newline = false, css = "" } = {},
+  {
+    scale = 4,
+    width = 1280,
+    newline = false,
+    css = "",
+    csp,
+    refused,
+  }: Options & { newline?: boolean; css?: string } = {},
 ): Promise<Reading[]> {
-  const page = await prepare(browser, url, { scale, width, css });
+  const page = await prepare(browser, url, { scale, width, css, csp });
   try {
     const found = (await page.evaluateHandle(collect, [newline, MAX_SIDE] as [
       boolean,
@@ -424,25 +531,30 @@ export async function measureMarkers(
         double: p.double,
       });
     }
+    if (csp) refused?.push(...(await refusals(page, url)));
     return out;
   } finally {
     await page.close();
   }
 }
 
+/** `csp` renders every page under the consumer's policy; its refusals go to `refused`. */
+type Options = { scale?: number; width?: number; csp?: string; refused?: Refusal[] };
+
 /** A new tab on `url` as both passes read it: settled (reduced motion), `css` added, fonts loaded
  * and every fold open, as a closed panel's lists are markers too. */
+
 async function prepare(
   browser: Browser | BrowserContext,
   url: string,
-  { scale = 4, width = 1280, css = "" } = {},
+  { scale = 4, width = 1280, css = "", csp }: Options & { css?: string } = {},
 ) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
     // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
-    await open(page, url);
+    await open(page, url, csp);
     if (css) await page.addStyleTag({ content: css });
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     await page.evaluate(openFolds);
@@ -459,10 +571,11 @@ async function prepare(
 export async function hasMarkers(
   browser: Browser | BrowserContext,
   url: string,
-  { scale = 4, width = 1280 } = {},
+  { scale = 4, width = 1280, csp, refused }: Options = {},
 ) {
-  const page = await prepare(browser, url, { scale, width });
+  const page = await prepare(browser, url, { scale, width, csp });
   try {
+    if (csp) refused?.push(...(await refusals(page, url)));
     // The newline only adds blank text, so the second count runs on the same page.
     for (const newline of [false, true])
       if (await page.evaluate(collect, [newline, MAX_SIDE, true] as [boolean, number, boolean]))
@@ -690,6 +803,8 @@ if (import.meta.main) {
   const base = server?.url ?? (flagBase ? new URL(flagBase) : undefined);
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, base));
+  const csp: string | undefined = config.csp;
+  const refused: Refusal[] = [];
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
   // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass, one load per story at the
   // first scale, finds the stories with a marker, most having none; only those, and every page
@@ -703,14 +818,14 @@ if (import.meta.main) {
     );
     const stories = pages.slice(named.length);
     const marked = await pool(stories, 4 * workers, (url, w) =>
-      hasMarkers(contexts[w % workers]!, url, { scale: scales[0], width }),
+      hasMarkers(contexts[w % workers]!, url, { scale: scales[0], width, csp, refused }),
     );
     const runs = [...pages.slice(0, named.length), ...stories.filter((_, i) => marked[i])].flatMap(
       (url) => scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
     );
     readings = (
       await pool(runs, workers, ({ url, ...options }, w) =>
-        measureMarkers(contexts[w]!, url, { ...options, width }),
+        measureMarkers(contexts[w]!, url, { ...options, width, csp, refused }),
       )
     ).flat();
   } finally {
@@ -720,6 +835,8 @@ if (import.meta.main) {
   const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
   const { bad, kept, findings } = applyExceptions(readings.filter(failing), config.markers, pages);
   for (const f of findings) console.error(f);
+  const refusedOnce = [...new Map(refused.map((r) => [JSON.stringify(r), r])).values()];
+  for (const r of refusedOnce) console.error(refusalLine(r));
   if (json) console.log(JSON.stringify(readings, null, 2));
   else {
     for (const r of kept)
@@ -737,5 +854,5 @@ if (import.meta.main) {
       `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px, ${kept.length} kept`,
     );
   }
-  process.exit(bad.length || empty.length || findings.length ? 1 : 0);
+  process.exit(bad.length || empty.length || findings.length || refusedOnce.length ? 1 : 0);
 }

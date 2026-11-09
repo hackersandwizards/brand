@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -932,6 +932,51 @@ test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
   const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
   expect(r.exitCode).toBe(2);
 });
+
+// The consumer's policy (brand-elements.json "csp") applies while a page renders: the form field's
+// error icon is a data: image, which a policy whose img-src leaves out data: refuses.
+const POLICY = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
+const formPage = () =>
+  file(
+    "csp.html",
+    only(
+      `<div data-hw-tile="form-field" data-hw-version="${own.version}">${DEMOS["form-field"]}</div>`,
+    ),
+  );
+test("a policy refusing data: images is red on the form field's error icon, green with img-src data:", async () => {
+  const url = formPage();
+  const red = await measurePage(browser, url, "", false, undefined, POLICY);
+  expect(red.refused).toContainEqual({
+    page: url,
+    element: "p.hw-form-error::before",
+    source: "data",
+    directive: "img-src",
+  });
+  const green = await measurePage(browser, url, "", false, undefined, `${POLICY} data:`);
+  expect(green.refused).toEqual([]);
+  expect(green.findings).toEqual([]);
+}, 60_000);
+
+test("brand-elements fails on a source the policy in brand-elements.json refuses, naming page, element and source", () => {
+  const url = formPage();
+  // The CLI reads the consumer's tree from git.
+  const repo = join(dir, "csp-repo");
+  mkdirSync(repo);
+  Bun.spawnSync(["git", "init", "-q"], { cwd: repo });
+  const run = (csp: string) => {
+    writeFileSync(
+      join(repo, "brand-elements.json"),
+      JSON.stringify({ pages: [url], uses: ["form-field"], csp }),
+    );
+    return Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: repo });
+  };
+  const red = run(POLICY);
+  expect(red.exitCode).toBe(1);
+  expect(red.stderr.toString()).toContain(
+    `${url} p.hw-form-error::before: the policy in brand-elements.json "csp" refuses data (img-src)`,
+  );
+  expect(run(`${POLICY} data:`).stderr.toString()).not.toContain("refuses");
+}, 60_000);
 
 test("a keycap leaves a line of UI text as high as an inline keycap does, in the screen, dense and print scales", async () => {
   const p = await browser.newPage();

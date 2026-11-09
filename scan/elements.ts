@@ -8,6 +8,8 @@
 //     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
 //                     | { "reason": "...", "files": ["<path>", ...] }, ... },
 //     "lightOnly": true,                              optional: the pages never turn to night
+//     "csp": "<policy>",                              optional: the Content-Security-Policy the
+//                                                     host sends, added to every page opened
 //     "site": "<folder>",                             optional: a built site, served on a free
 //                                                     port, which a page starting with / names
 //     "catalog": "<folder>"                           optional: a built catalog, every story page
@@ -44,6 +46,7 @@
 //    does a component file of such a name, unless it carries the hw-* class, its name is an
 //    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
 //    medium, such as a slide deck's).
+//    With "csp", each source the policy refuses fails, with the element it hit (brand-markers too).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it), every
 //    such tile's data-hw-version is this package's version (a page built from another brand
 //    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, and every hub
@@ -65,6 +68,8 @@ import {
   open,
   openFolds,
   pool,
+  refusalLine,
+  refusals,
   serve,
   toUrl,
 } from "./markers";
@@ -78,6 +83,7 @@ export type Config = {
   lightOnly?: boolean;
   site?: string;
   catalog?: Catalog;
+  csp?: string;
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
@@ -550,6 +556,9 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
         ? { got: active, want: counterpart(el, clones[i]!, active), visible }
         : null,
   );
+  // A constructed sheet, which no page policy's style-src refuses, as it would a <style>.
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(css);
   const pairs = found.map(({ element, el, set }, i) => {
     seen.push(element);
     const clone = clones[i]!;
@@ -605,9 +614,8 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
       el.parentElement?.closest(".hw-check-target");
     (outer || el).after(host);
     const root = host.attachShadow({ mode: "open" });
-    const style = document.createElement("style");
-    style.textContent = css;
-    root.append(style, frame);
+    root.adoptedStyleSheets = [sheet];
+    root.append(frame);
     return { element, el, clone, host, target: targets[i] };
   });
   try {
@@ -675,6 +683,7 @@ export async function measurePage(
   css = "",
   lightOnly = false,
   site?: URL,
+  csp?: string,
 ) {
   const page = await browser.newPage();
   try {
@@ -683,7 +692,7 @@ export async function measurePage(
     // Every tab holds focus as the one in front does, so the focus ring reads in pages run side by side.
     const cdp = await page.createCDPSession();
     await cdp.send("Emulation.setFocusEmulationEnabled", { enabled: true });
-    await open(page, toUrl(url, site));
+    await open(page, toUrl(url, site), csp);
     if (css) await page.addStyleTag({ content: css });
     // Every sheet's text, another origin's and an imported one's too, which the page's own script
     // may not read: an element carrying a brand class no rule names draws unstyled.
@@ -719,6 +728,8 @@ export async function measurePage(
       .map(([cls, label]) => ({ page: url, cls, label }));
     await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    // Before the references, which draw brand's own images.
+    const refused = csp ? await refusals(page, url) : [];
     const out = await page.evaluate(compare, [
       ELEMENT_CSS,
       ELEMENTS,
@@ -732,6 +743,7 @@ export async function measurePage(
       page: url,
       findings: out.findings.map((f) => ({ page: url, ...f })),
       unstyled,
+      refused,
     };
   } finally {
     await page.close();
@@ -1020,7 +1032,7 @@ if (import.meta.main) {
     // Eight tabs side by side: each page waits for the network to go quiet.
     results.push(
       ...(await pool(pages, 8, (url) =>
-        measurePage(browser, url, "", config.lightOnly === true, base),
+        measurePage(browser, url, "", config.lightOnly === true, base, config.csp),
       )),
     );
   } finally {
@@ -1029,12 +1041,15 @@ if (import.meta.main) {
   }
   const rendered = results.flatMap((r) => r.findings);
   const unstyled = results.flatMap((r) => r.unstyled);
+  const refused = results.flatMap((r) => r.refused);
   const empty = named.filter((_, i) => !results[i]!.seen.length);
   const tree = listTree("brand-elements");
   const source = sourceFindings(tree, (p) => readFileSync(p, "utf8"), config.exceptions ?? {});
   const covered = coverage(config, results);
   if (json)
-    console.log(JSON.stringify({ rendered, unstyled, source, coverage: covered, empty }, null, 2));
+    console.log(
+      JSON.stringify({ rendered, unstyled, refused, source, coverage: covered, empty }, null, 2),
+    );
   else {
     const report = skippedReport("brand-elements", tree);
     if (report) console.log(report);
@@ -1050,14 +1065,22 @@ if (import.meta.main) {
       console.error(
         `${u.page} ${u.label}: carries .${u.cls}, which no stylesheet on the page defines, so it draws unstyled: take the hw-* element brand defines now, or define the class in your own CSS`,
       );
+    for (const r of refused) console.error(refusalLine(r));
     for (const line of [...source, ...covered]) console.error(line);
     for (const url of empty) console.error(`${url}: no shared element found`);
     const shown = new Set(results.flatMap((r) => r.seen));
     console.log(
-      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${source.length} source findings, ${covered.length} coverage findings`,
+      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${refused.length} refused by the policy, ${source.length} source findings, ${covered.length} coverage findings`,
     );
   }
   process.exit(
-    rendered.length || unstyled.length || source.length || covered.length || empty.length ? 1 : 0,
+    rendered.length ||
+      unstyled.length ||
+      refused.length ||
+      source.length ||
+      covered.length ||
+      empty.length
+      ? 1
+      : 0,
   );
 }

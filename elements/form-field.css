@@ -3,7 +3,8 @@
    text at medium weight, the field's own size; the hint is muted, at the scale's small size (on
    dense the UI size, the apps' smallest reading text, so only colour and weight set it off); the error
    message is the error red (an app's --error where it has one) at medium weight, behind a circled
-   exclamation mark drawn by the element, so the message never relies on colour alone. A <fieldset>
+   exclamation mark drawn by the element, so the message never relies on colour alone. The marks
+   are data: SVG images: a page's Content-Security-Policy needs img-src data:, or they draw nothing. A <fieldset>
    with its <legend> takes the same class for a group of checkboxes or radios; each option is a
    <label> round its hw-check, 0.5em from its text.
 
