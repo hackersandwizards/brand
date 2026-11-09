@@ -12,19 +12,17 @@ const BRAND = resolve(import.meta.dir, "../..");
 export const brandPath = (file: string) => join(BRAND, file);
 
 function inlineCss(path: string): string {
-  return readFileSync(path, "utf-8")
-    .replace(/@theme\s*\{/g, ":root {")
-    .replace(
-      /url\("(fonts\/[^"]+)"\)/g,
-      (_, file: string) =>
-        `url(data:font/woff2;base64,${readFileSync(join(BRAND, "tokens", file)).toString("base64")})`,
-    );
+  return readFileSync(path, "utf-8").replace(
+    /url\("(fonts\/[^"]+)"\)/g,
+    (_, file: string) =>
+      `url(data:font/woff2;base64,${readFileSync(join(BRAND, "tokens", file)).toString("base64")})`,
+  );
 }
 
 // The faces and the print sizes of the type roles, then the screen tokens, which restore the
 // screen sizes.
 export const linkedinCss = () =>
-  ["tokens/print.css", "tokens/tokens.css"].map((f) => inlineCss(brandPath(f))).join("\n");
+  ["tokens/print.css", "generated/tokens.root.css"].map((f) => inlineCss(brandPath(f))).join("\n");
 
 export const escHtml = (s: string) =>
   s

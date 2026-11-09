@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fontFaceRules } from "../generated/font-faces";
+import { compile } from "tailwindcss";
+import { fontFaceRules, preloadFiles } from "../generated/font-faces";
 import fonts from "../generated/fonts.json";
 import { ROOT } from "../scripts/git";
 import {
@@ -154,13 +155,15 @@ test("static-fonts.css holds print.css's faces, each url reaching its file from 
 // file declares it.
 test("each stack names its fallback face after the web face, and both font files declare it", () => {
   const screen = fallbackFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8"));
+  const stacked = new Set<string>();
   for (const stack of ["--font-sans", "--font-mono", "--font-code"]) {
     const names = tokens[stack]!.split(",").map((f) => f.trim());
     const fallback = names[0]!.replace(" Variable", " Fallback");
     const at = names.indexOf(fallback);
     expect(names.slice(0, at).every((n) => n.startsWith(names[0]!.split(" ")[0]!))).toBe(at > 0);
-    expect(screen.some((face) => face.includes(`font-family: ${fallback};`))).toBe(true);
+    for (let i = at; names[i]?.startsWith(fallback.slice(0, -1)); i++) stacked.add(names[i]!);
   }
+  expect(new Set(screen.map((face) => face.match(/font-family: ("[^"]+")/)![1]))).toEqual(stacked);
   for (const face of screen)
     for (const d of [
       "size-adjust",
@@ -194,6 +197,32 @@ test("fontFaceRules gives fonts.css's rules, each url the base or the function's
       rules,
     ),
   );
+});
+
+// A stylesheet Tailwind does not compile reads the measures with var(): every build writes them,
+// while a token no utility or rule names stays out.
+test("a Tailwind build that names no utility writes the measures and no other token", async () => {
+  const built = (
+    await compile(`@import "./tokens.css";`, {
+      base: join(ROOT, "tokens"),
+      loadStylesheet: async (_id, base) => ({ path: SOURCE, base, content: css }),
+    })
+  ).build([]);
+  for (const k of ["--container-measure", "--container-measure-h1", "--container-measure-h2"])
+    expect(built).toContain(`${k}: ${tokens[k]};`);
+  expect(built).not.toContain("--color-teal:");
+});
+
+// A surface preloads preloadFiles and writes fontFaceRules: a preload no rule draws, or a face every
+// page draws left unpreloaded, costs a request or a swap.
+test("preloadFiles names the files of fontFaceRules' and fonts.json's faces without a unicode-range", () => {
+  const unranged = faceRules(fontFaceRules("/x/"))
+    .filter((face) => !face.includes("unicode-range") && face.includes("url("))
+    .map((face) => face.match(/url\("\/x\/([^"]+)"\)/)![1]);
+  expect(unranged.length).toBeGreaterThan(0);
+  expect(unranged).toEqual([...preloadFiles]);
+  expect(fonts.faces.filter((f) => !("unicodeRange" in f)).map((f) => f.file)).toEqual(unranged);
+  for (const file of preloadFiles) expect(existsSync(join(ROOT, "tokens/fonts", file))).toBe(true);
 });
 
 // Tailwind v4 resolves a utility such as text-<name> against two theme namespaces: text-label is

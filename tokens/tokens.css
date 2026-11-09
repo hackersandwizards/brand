@@ -2,7 +2,8 @@
    scale and its roles, spacing, three radii, two shadows and the gradient. The one source for every
    h&w repository: the brand repository ships it, with the values it generates from it, in the
    package the other repositories install, so edit it here, never in a copy. A plain-CSS consumer
-   rewrites @theme to :root. Print values live beside it in print.css. */
+   takes generated/tokens.root.css (./tokens.root.css), every token on :root. Print values live
+   beside it in print.css. */
 @theme {
   /* Three radii and a square, one job each, on every surface:
      brand  the brand corner, large top-left and bottom-right: everything that holds content or
@@ -117,8 +118,8 @@
     "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SF Mono", "Cascadia Code", Menlo,
     monospace;
   --font-sans:
-    "Inter Variable", "Inter", "Inter Fallback", system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+    "Inter Variable", "Inter", "Inter Fallback", "Inter Fallback Roboto", system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   /* One fluid scale, 360px -> 1280px, one step per type role. Every preferred
      value keeps a rem term so text still grows with browser zoom (WCAG 1.4.4). */
@@ -259,9 +260,6 @@
 
   --container-content: 72rem;
   --container-wide: 84rem;
-  --container-measure: 33em;
-  --container-measure-h1: 18ch;
-  --container-measure-h2: 26ch;
 
   --breakpoint-xs: 25rem;
   /* Where wordmark, header CTA and menu button fit one row (Nav.astro). */
@@ -323,4 +321,13 @@
     var(--color-purple) 100%
   );
   --gradient-strip: linear-gradient(to right, var(--color-teal), var(--color-purple));
+}
+
+/* The reading measures: a line of running text, an h1, an h2. Static, so every Tailwind build
+   writes them to :root whether or not a utility names them, and a stylesheet Tailwind does not
+   compile reads them with var() and no fallback. */
+@theme static {
+  --container-measure: 33em;
+  --container-measure-h1: 18ch;
+  --container-measure-h2: 26ch;
 }

@@ -13,10 +13,14 @@
    no layer: Typography's prose rules come in Tailwind's utilities layer, which a layered rule would
    lose to. A list marked not-prose keeps its own start.
 
+   Running text (a paragraph, a list, a quote, a definition list) keeps the brand measure,
+   --container-measure, in its own em, so a line holds about 65 characters; headings with their
+   hairline, tables and code take the block's width.
+
    Settings:
-     --hw-prose-width  the reading width, Tailwind's 3xl container (48rem); none fills the column.
-                       Set it here, not with a max-w-* utility: the rule sits in no layer, so it
-                       wins over every utility */
+     --hw-prose-width  the block's width, Tailwind's 3xl container (48rem); none fills the column,
+                       and running text still keeps the measure. Set it here, not with a max-w-*
+                       utility: the rule sits in no layer, so it wins over every utility */
 @import "./check.css";
 
 .hw-prose {
@@ -37,6 +41,9 @@
   --tw-prose-th-borders: var(--border, var(--color-border));
   --tw-prose-td-borders: var(--border, var(--color-border));
   --tw-prose-captions: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
+}
+.hw-prose :is(p, ul, ol, blockquote, dl):not(.not-prose, .not-prose *) {
+  max-width: var(--container-measure);
 }
 .hw-prose :is(table, pre) {
   max-width: none;

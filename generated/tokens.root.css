@@ -39,7 +39,7 @@
   --color-subtle: var(--color-muted);
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
   --font-code: "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
-  --font-sans: "Inter Variable", "Inter", "Inter Fallback", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Inter Variable", "Inter", "Inter Fallback", "Inter Fallback Roboto", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --text-display: clamp(1.875rem, 1.413rem + 2.6087vw, 3.5rem);
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.04em;
@@ -141,9 +141,6 @@
   --spacing-card: min(clamp(1.25rem, 0.9565rem + 1.3043vw, 2rem), clamp(20px, 15.304px + 1.3043vw, 32px));
   --container-content: 72rem;
   --container-wide: 84rem;
-  --container-measure: 33em;
-  --container-measure-h1: 18ch;
-  --container-measure-h2: 26ch;
   --breakpoint-xs: 25rem;
   --breakpoint-header-cta: 30rem;
   --logo-wizard-lift: -7.8%;
@@ -169,6 +166,9 @@
   --motion-ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
   --gradient-magic: linear-gradient(135deg, var(--color-teal) 0%, var(--color-purple) 100%);
   --gradient-strip: linear-gradient(to right, var(--color-teal), var(--color-purple));
+  --container-measure: 33em;
+  --container-measure-h1: 18ch;
+  --container-measure-h2: 26ch;
 }
 :where([data-hw-night] [data-theme="light"]) {
   --color-bg: #f7f9fa;

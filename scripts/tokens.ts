@@ -28,13 +28,19 @@ const declarations = (body: string) => {
   return out;
 };
 
-/** The custom properties of tokens.css in source order. */
-export const parseTokens = (css: string) =>
-  Object.fromEntries(
-    Object.entries(
-      declarations(css.replace(/\/\*[\s\S]*?\*\//g, "").match(/@theme\s*\{([\s\S]*)\}/)![1]),
-    ).filter(([k]) => k.startsWith("--")),
+/** The custom properties of tokens.css's theme blocks, static ones included, in source order.
+ *  Throws on a theme block it cannot read, such as one holding a nested rule. */
+export const parseTokens = (css: string) => {
+  const bare = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const blocks = [...bare.matchAll(/@theme(?:\s+static)?\s*\{([^{}]*)\}/g)];
+  if (blocks.length !== bare.match(/@theme\b/g)?.length)
+    throw new Error("tokens.css: a @theme block parseTokens cannot read");
+  return Object.fromEntries(
+    Object.entries(declarations(blocks.map((m) => m[1]).join(";"))).filter(([k]) =>
+      k.startsWith("--"),
+    ),
   );
+};
 
 /** The two palettes, tables in tokens.css's comments: the neutrals (job | day | night, "-" where
  *  one ground alone has the job) and the hues (base | text on light | night | job). */
@@ -318,6 +324,14 @@ export const fontFaceRules = (base: string | ((file: string) => string)) => {
   const url = typeof base === "string" ? (file: string) => base + file : base;
   return \`${rules.replace(/url\("fonts\/([^"]+)"\)/g, (_, file: string) => `url("\${url(${JSON.stringify(file)})}")`)}\`;
 };
+
+/** The font files to preload: the web faces without unicode-range, which every page draws. A
+ *  surface preloads each at the url its fontFaceRules base gives the file. */
+export const preloadFiles = ${JSON.stringify(
+    fontFaces(screen)
+      .filter((face) => !face.unicodeRange)
+      .map((face) => face.file),
+  )} as const;
 `;
 };
 
