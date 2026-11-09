@@ -24,9 +24,10 @@
 // instead. --catalog adds every story page of a built catalog folder (catalogPages), each named
 // below --catalog-at, by default the folder itself, or its path on --site. brand-elements.json in
 // the working directory gives the rest, so a consumer names its pages once: its "site" where
-// neither --site nor --base is given, its "catalog" with its "exclude" (listedCatalog) where
-// --catalog is not, and its "pages" where no page is named, each measured where it shows a marker,
-// as a story is; a run of those that finds no marker at all fails.
+// none of --site, --base and --catalog is given, its "catalog" with its "exclude" (listedCatalog)
+// where --catalog is not, and its "pages" where no page is named, each measured where it shows a
+// marker, as a story is (a site path only where a site or --base serves it); a run of those that
+// finds no marker at all fails.
 // The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
 // its reason and how many off readings it keeps at most:
 //   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
@@ -228,44 +229,18 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
     range.setEnd(node, start + 4);
     return range.getClientRects()[0]!;
   };
-  // An absolutely placed ::before on its own item, such as a timeline's waypoint, may sit anywhere
-  // left of the text and be turned: its box, from the item's padding box and its own offsets, size
-  // and transform, 1 px wider on each side. Null where the item is not its containing block or an
-  // offset is auto.
+  // An absolutely placed ::before, such as a timeline's waypoint, may sit anywhere left of the text
+  // and be turned or moved: its box is that of an element appended to the item with the pseudo's
+  // computed style, which the browser places, transforms and zooms alike, 1 px wider on each side.
   const placed = (host: Element) => {
     const b = getComputedStyle(host, "::before");
-    const h = getComputedStyle(host);
-    if (b.position !== "absolute" || h.position === "static") return null;
-    if (b.left === "auto" || b.top === "auto") return null;
-    const z = host.currentCSSZoom;
-    const px = (...v: string[]) => v.reduce((s, x) => s + (parseFloat(x) || 0), 0);
-    const r = host.getBoundingClientRect();
-    const x0 = r.left + px(h.borderLeftWidth, b.left, b.marginLeft) * z;
-    const y0 = r.top + px(h.borderTopWidth, b.top, b.marginTop) * z;
-    const frame =
-      b.boxSizing === "border-box"
-        ? [0, 0]
-        : [
-            px(b.paddingLeft, b.paddingRight, b.borderLeftWidth, b.borderRightWidth),
-            px(b.paddingTop, b.paddingBottom, b.borderTopWidth, b.borderBottomWidth),
-          ];
-    const [w, ht] = [px(b.width) + frame[0]!, px(b.height) + frame[1]!];
-    const m = b.transform === "none" ? new DOMMatrix() : new DOMMatrix(b.transform);
-    const [ox, oy] = b.transformOrigin.split(" ").map(parseFloat);
-    const corners = [
-      [0, 0],
-      [w, 0],
-      [0, ht],
-      [w, ht],
-    ].map(([x, y]) => m.transformPoint(new DOMPoint(x! - ox!, y! - oy!)));
-    const xs = corners.map((c) => x0 + (ox! + c.x) * z);
-    const ys = corners.map((c) => y0 + (oy! + c.y) * z);
-    return {
-      left: Math.min(...xs) - 1,
-      right: Math.max(...xs) + 1,
-      top: Math.min(...ys) - 1,
-      bottom: Math.max(...ys) + 1,
-    };
+    if (b.position !== "absolute") return null;
+    const twin = document.createElement("span");
+    for (const p of b) twin.style.setProperty(p, b.getPropertyValue(p));
+    host.append(twin);
+    const r = twin.getBoundingClientRect();
+    twin.remove();
+    return { left: r.left - 1, right: r.right + 1, top: r.top - 1, bottom: r.bottom + 1 };
   };
   const probes = found.map(({ host, text, kind, mark }): Probe => {
     const at = (mark ?? text.parentElement!).getBoundingClientRect();
@@ -285,8 +260,11 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
     let right = start - 0.5;
     const own = kind === "before" ? placed(host) : null;
     if (own)
-      // Not wholly left of the line (a square above the item): decoration, skipped below.
-      [left, right] = [own.left, own.right <= start ? own.right : own.left];
+      // Starting at or right of the line (a square above the item): decoration, skipped below.
+      [left, right] = [
+        own.left,
+        own.left + 1 < start ? Math.min(own.right, start - 0.5) : own.left,
+      ];
     else if (mark) {
       const m = mark.getBoundingClientRect();
       [left, right] = [m.left - 1, m.right + 1];
@@ -893,13 +871,18 @@ if (import.meta.main) {
   const listed = flagCatalog ? {} : listedCatalog(config);
   const catalog = flagCatalog || listed.dir;
   const at = flagAt || listed.at;
-  const site = flagSite || (flagBase ? undefined : config.site);
-  // The config's pages where none is named, each measured, like a story, where it shows a marker.
-  const searched: string[] = named.length ? [] : (config.pages ?? []);
+  const site = flagSite || (flagBase || flagCatalog ? undefined : config.site);
+  // The config's pages where none is named, each measured, like a story, where it shows a marker;
+  // a site path only where a site or --base serves it, as brand-elements takes --base from its gate.
+  const listedPages: string[] = named.length ? [] : (config.pages ?? []);
+  const served = !!site || !!flagBase;
+  const searched = listedPages.filter((p) => served || !p.startsWith("/"));
+  for (const p of listedPages.filter((p) => !searched.includes(p)))
+    console.error(`brand-markers: ${p}: a site path, but no site or --base; not measured`);
   let stories: string[] = [];
   try {
     if (config.csp !== undefined) policies(config.csp);
-    if (catalog) stories = catalogPages(catalog, at, site, !!site || !!flagBase, listed.exclude);
+    if (catalog) stories = catalogPages(catalog, at, site, served, listed.exclude);
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);
@@ -957,7 +940,7 @@ if (import.meta.main) {
   }
   const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
   // Only searched pages, none showing a marker: a run that measures nothing passes nothing.
-  const nothing = !named.length && searched.length > 0 && !readings.length;
+  const nothing = searched.length > 0 && !readings.length;
   if (nothing)
     console.error(
       `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,

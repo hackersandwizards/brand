@@ -548,8 +548,9 @@ page whose stylesheet does not load, such as a build linking `file://` styleshee
 pages as files instead. A test of your own that measures markers brand-markers leaves out takes its
 target and tolerance from the package: `import { CAP_SHARE, TOLERANCE } from
 "@hackersandwizards/brand/markers"`. It measures every story page of the catalog that the
-`catalog` key of your `brand-elements.json` names, every page on its `"site"` where neither
-`--site` nor `--base <server url>` is given, so you name your catalog once. `--catalog <dir>` names another
+`catalog` key of your `brand-elements.json` names, every page on its `"site"` where none of
+`--site`, `--base <server url>` and `--catalog` is given, so you name your catalog once; a listed page
+starting with `/` and no site or `--base` to serve it is named and left out. `--catalog <dir>` names another
 instead, `--catalog-at <page>` where it is served; a story page without a list passes. Readings
 you keep go in the `"markers"` block of the same file, each glob over a page's path with its
 reason and how many off readings it keeps: `"markers": { "**/content-slide/at-rest/": { "reason":

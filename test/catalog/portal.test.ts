@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import { closeSync, openSync, readdirSync, readSync } from "node:fs";
 import { join } from "node:path";
-import { ELEMENTS, measurePage } from "../../scan/elements";
+import { ELEMENTS, kebab, measurePage } from "../../scan/elements";
 import { ROOT } from "../../scripts/git";
 import { lfsOid } from "../../scan/colours";
 import { failing, launch, measureMarkers } from "../../scan/markers";
@@ -13,6 +13,9 @@ import catalogs from "../../expert/catalogs.json";
 import { tokens } from "../../generated/tokens";
 
 const html = page("index.html");
+const COMPONENTS = readdirSync(join(ROOT, "expert/components"))
+  .filter((f) => f.endsWith(".astro"))
+  .map((f) => f.slice(0, -6));
 
 test("the portal has no duplicate id", () => {
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
@@ -20,22 +23,33 @@ test("the portal has no duplicate id", () => {
 });
 
 test("the portal shows every shared element and every expert component", () => {
-  const components = readdirSync(join(ROOT, "expert/components"))
-    .filter((f) => f.endsWith(".astro"))
-    .map((f) => f.slice(0, -6));
   expect(Object.keys(ELEMENTS).filter((name) => !html.includes(`id="hw-${name}"`))).toEqual([]);
-  expect(components.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
+  expect(COMPONENTS.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
+});
+
+// A slot a page passes only on a condition counts as filled while empty: PageHeader draws a
+// subtitle or an action box only where one holds something.
+test("PageHeader draws no empty subtitle or action box", () => {
+  const story = (s: string) => page(`catalog/stories/Navigation/page-header/${s}/index.html`);
+  const boxes = (html: string) =>
+    [
+      ...html.matchAll(
+        /class="(page-subtitle|page-title-action)[^"]*"[^>]*>([^]*?)<\/(span|div)>/g,
+      ),
+    ].map((m) => [m[1], m[2]!.replace(/<[^>]+>/g, "").trim()]);
+  expect(boxes(story("title-only"))).toEqual([]);
+  expect(boxes(story("subtitle-text"))).toEqual([["page-subtitle", "6 hubs · 41 pages"]]);
+  expect(boxes(story("with-action")).map(([cls]) => cls)).toEqual([
+    "page-subtitle",
+    "page-title-action",
+  ]);
 });
 
 // The portal sends a reader to the catalog for the expert components: each has its stories there.
 test("every expert component has its stories in the catalog, which the portal links", () => {
   const stories = join(DIST, "catalog/stories");
   const shown = new Set(readdirSync(stories).flatMap((group) => readdirSync(join(stories, group))));
-  const kebab = (c: string) => c.replace(/(?<=[a-z])(?=[A-Z])/g, "-").toLowerCase();
-  const components = readdirSync(join(ROOT, "expert/components"))
-    .filter((f) => f.endsWith(".astro"))
-    .map((f) => f.slice(0, -6));
-  expect(components.filter((c) => !shown.has(kebab(c)))).toEqual([]);
+  expect(COMPONENTS.filter((c) => !shown.has(kebab(c)))).toEqual([]);
   expect(/id="expert-group"[^]*?<a href="catalog\/">/.test(html)).toBe(true);
 });
 

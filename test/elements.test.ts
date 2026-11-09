@@ -226,10 +226,10 @@ test("an element of the catalog shell is not measured and needs no uses entry", 
   );
 }, 60_000);
 
-// A focus-ring tile names its source beside the sample, a link to the element's entry in brand's
-// catalogue: the sample is measured and holds the tile, that link neither.
+// A focus-ring tile names its source beside the sample, a link into brand's published portal or to
+// the element's entry on any host: the sample is measured and holds the tile, those links neither.
 test("the focus-ring tile measures its sample, not the link to brand's catalogue beside it", async () => {
-  const meta = `<p>from brand · <a href="https://hackersandwizards.github.io/brand/#elements/hw-focus-ring">brand</a></p>`;
+  const meta = `<p>from brand · <a href="https://hackersandwizards.github.io/brand/#elements/hw-focus-ring">entry</a> · <a href="https://hackersandwizards.github.io/brand/catalog/">catalog</a> · <a href="http://brand.localhost/#elements/hw-focus-ring">local</a></p>`;
   const tile = (sample: string) =>
     `<div data-hw-tile="focus-ring" data-hw-version="${own.version}">${meta}<div class="body">${sample}</div></div>`;
   const run = async (name: string, sample: string, css = "") => {

@@ -20,15 +20,17 @@ interface Props {
   settings?: string;
   /** Where the page uses the element, after the caption. */
   note?: string;
-  /** The caption's language, the page's own. */
-  lang?: "en" | "de";
+  /** The caption's language, the page's own: German for "de" and its regions, else English. */
+  lang?: string;
 }
 
 const { name, scale = "screen", night = false, settings, note, lang = "en" } = Astro.props;
 const brand = catalogs.find((c) => c.name === "Brand")!;
 const entry = brand.portal! + brand.anchors!.element.replace("<element>", name);
 const own = Astro.slots.has("default");
-const words = { en: ["from brand", "catalogue"], de: ["aus brand", "Katalog"] }[lang];
+if (!own && !(name in DEMOS))
+  throw new Error(`Element: "${name}" is no shared element with a brand sample; pass your own`);
+const words = /^de\b/.test(lang) ? ["aus brand", "Katalog"] : ["from brand", "catalogue"];
 ---
 
 <div class="tile" data-hw-tile={name} data-hw-version={pkg.version}>

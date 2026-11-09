@@ -182,6 +182,13 @@ test("brand-markers: without pages named, the pages and site of brand-elements.j
   // Pages without any marker measure nothing, which proves nothing.
   const none = markers({ pages: [plain] });
   expect([none.code, none.err]).toEqual([1, expect.stringContaining("no marker on any page")]);
+  // A site path with no site to serve it is left out, named, rather than opened as a file.
+  const unserved = markers({ pages: ["/design-system/", plain], catalog: "site/catalog" });
+  expect(unserved.err).toContain("/design-system/: a site path, but no site or --base");
+  expect(unserved.pages).toEqual([expect.stringMatching(lifted)]);
+  // --catalog names its own folder, read as files: the config's site stays unserved.
+  const flagged = markers({ site: "site", pages: [] }, ["--catalog", "site/catalog"]);
+  expect(flagged.pages).toEqual([expect.stringMatching(/^file:.*\/Lifted\/default\/index\.html$/)]);
   // Control: a page named on the command line replaces the list.
   const named = markers({ site: "site", pages: ["/catalog/stories/Lists/Lifted/default/"] }, [
     "site/catalog/index.html",

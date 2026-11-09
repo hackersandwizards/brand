@@ -310,7 +310,7 @@
     },
     {
       "path": "expert/components/PageHeader.astro",
-      "sha256": "1ec69298571995154a8f5dd64fb6bc79f327e758f122d7f066c60ec35faf6fb9"
+      "sha256": "c4f5dc1531d182e90a2b1addaddf32c91c17cd3683d517f45991936b38d811da"
     },
     {
       "path": "expert/components/Pill.astro",

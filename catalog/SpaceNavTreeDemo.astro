@@ -1,15 +1,10 @@
 ---
-// SpaceNavTree inside the hw-nav it renders into, as SpaceNav places it; bare, inside the list a
-// branch already opened.
+// SpaceNavTree inside the hw-nav it renders into, as SpaceNav places it.
 import SpaceNavTree from "../expert/components/SpaceNavTree.astro";
 
 type Props = Parameters<typeof SpaceNavTree>[0];
-const props = Astro.props;
-const List = props.bare ? "ul" : Fragment;
 ---
 
 <nav class="hw-nav" aria-label="Knowledge base sections">
-  <List>
-    <SpaceNavTree {...props} />
-  </List>
+  <SpaceNavTree {...Astro.props} />
 </nav>

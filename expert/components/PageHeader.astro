@@ -5,26 +5,28 @@ interface Props {
 }
 
 const { title, subtitleText } = Astro.props;
-const hasSubtitleSlot = Astro.slots.has("subtitle");
-const hasAction = Astro.slots.has("action");
-const hasLegend = Astro.slots.has("legend");
+// A slot a page passes on a condition (`{x && <span slot="subtitle">}`) counts as filled while
+// empty: each is drawn only where it renders something.
+const filled = async (name: string) =>
+  Astro.slots.has(name) ? (await Astro.slots.render(name)).trim() : "";
+const subtitle = await filled("subtitle");
+const legend = await filled("legend");
+const action = await filled("action");
 ---
 
 <div class="page-title-row">
   <div class="page-title-lead">
     <h1 class="page-title">{title}</h1>
-    {hasSubtitleSlot ? (
-      <span class="page-subtitle">
-        <slot name="subtitle" />
-      </span>
+    {subtitle ? (
+      <span class="page-subtitle" set:html={subtitle} />
     ) : subtitleText ? (
       <span class="page-subtitle">{subtitleText}</span>
     ) : null}
   </div>
-  {(hasAction || hasLegend) && (
+  {(legend || action) && (
     <div class="page-title-action flex items-center gap-2">
-      <slot name="legend" />
-      <slot name="action" />
+      <Fragment set:html={legend} />
+      <Fragment set:html={action} />
     </div>
   )}
 </div>
