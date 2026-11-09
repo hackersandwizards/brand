@@ -26,25 +26,30 @@ function onPage(text: string) {
 }
 
 // A live region is only announced if it exists before its first message, so it moves into a
-// modal as the modal opens, not as a copy inside it is announced.
+// modal as the modal opens, not as a copy inside it is announced. The region is kept, so the page
+// is searched for it only once it has left the document.
+let status: HTMLElement | null = null;
 let following = false;
 function copyStatus() {
-  let box = document.querySelector<HTMLElement>("[data-hw-copy-status]");
-  if (!box) {
-    box = document.createElement("div");
-    box.className = "hw-sr-only";
-    box.setAttribute("role", "status");
-    box.setAttribute("aria-live", "polite");
-    box.setAttribute("data-hw-copy-status", "");
+  if (!status?.isConnected) {
+    status = document.querySelector<HTMLElement>("[data-hw-copy-status]");
+    if (!status) {
+      status = document.createElement("div");
+      status.className = "hw-sr-only";
+      status.setAttribute("role", "status");
+      status.setAttribute("aria-live", "polite");
+      status.setAttribute("data-hw-copy-status", "");
+    }
   }
-  if (box.parentElement !== modalOrBody()) modalOrBody().append(box);
+  const home = modalOrBody();
+  if (status.parentElement !== home) home.append(status);
   if (!following) {
     following = true;
     const follow = (e: Event) => e.target instanceof HTMLDialogElement && copyStatus();
     document.addEventListener("toggle", follow, true);
     document.addEventListener("close", follow, true);
   }
-  return box;
+  return status;
 }
 
 /** Writes `text` to the clipboard, through a hidden field where the Clipboard API is missing or
@@ -85,10 +90,14 @@ function restore(button: HTMLElement) {
  *  itself in words, its own content coming back once another copy succeeds. A button that starts
  *  hidden shows once wired, so a page without script never offers it. */
 export function copyButton(button: HTMLElement) {
+  copyStatus();
+  wire(button);
+}
+
+function wire(button: HTMLElement) {
   if (labels.has(button)) return;
   labels.set(button, [...button.childNodes]);
   button.hidden = false;
-  copyStatus();
   button.addEventListener("click", async () => {
     const press = ++presses;
     latest.set(button, press);
@@ -118,5 +127,7 @@ export function copyButton(button: HTMLElement) {
 
 /** Wires every copy button in `root`. Safe to call again after adding markup. */
 export function copyButtons(root: ParentNode = document) {
-  for (const button of root.querySelectorAll<HTMLElement>("[data-hw-copy]")) copyButton(button);
+  const buttons = root.querySelectorAll<HTMLElement>("[data-hw-copy]");
+  if (buttons.length) copyStatus();
+  for (const button of buttons) wire(button);
 }

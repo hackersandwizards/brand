@@ -551,14 +551,24 @@ test("a failure points at the text only where it stands outside the copy button"
   await p.close();
 }, 30_000);
 
-test("copy.ts alone wires copy buttons with sr-only.css as its only stylesheet", async () => {
+/** A page with only copy.js and `head`, `script` running once it is parsed. */
+const copyPage = async (body: string, script: string, head = "") => {
   const p = await browser.newPage();
-  const f = join(dir, "copy-only.html");
+  const f = join(dir, `${Math.random().toString(36).slice(2)}.html`);
   writeFileSync(
     f,
-    `<!doctype html><html lang="de"><head><link rel="stylesheet" href="${brand("elements/sr-only.css")}"></head><body>${TWO}<script src="copy.js"></script><script>HWCopy.copyButtons();</script></body></html>`,
+    `<!doctype html><html lang="de"><head>${head}</head><body>${body}<script src="copy.js"></script><script>${script}</script></body></html>`,
   );
   await open(p, pathToFileURL(f).href);
+  return p;
+};
+
+test("copy.ts alone wires copy buttons with sr-only.css as its only stylesheet", async () => {
+  const p = await copyPage(
+    TWO,
+    "HWCopy.copyButtons();",
+    `<link rel="stylesheet" href="${brand("elements/sr-only.css")}">`,
+  );
   await p.evaluate(CLIPBOARD);
   await p.click("#a");
   await settled(p, 1);
@@ -569,6 +579,48 @@ test("copy.ts alone wires copy buttons with sr-only.css as its only stylesheet",
     r.getBoundingClientRect().width,
   ]);
   expect(region).toEqual(["hw-sr-only", 1]);
+  await p.close();
+}, 30_000);
+
+test("wiring copy buttons looks up the page a fixed number of times, however many there are", async () => {
+  const lookups = async (n: number) => {
+    const p = await copyPage(
+      `<button data-hw-copy="x" hidden>Copy</button>`.repeat(n),
+      `let calls = 0; for (const t of [Document.prototype, Element.prototype]) for (const k of ["querySelector", "querySelectorAll"]) { const q = t[k]; t[k] = function (...a) { calls++; return q.apply(this, a); }; } HWCopy.copyButtons(); window.calls = calls;`,
+    );
+    const calls = await p.evaluate(() => (window as unknown as { calls: number }).calls);
+    await p.close();
+    return calls;
+  };
+  const few = await lookups(2);
+  expect(few).toBeGreaterThan(0);
+  expect(await lookups(1000)).toBe(few);
+}, 30_000);
+
+test("the copy live region exists before the first copy and moves into a modal as it opens", async () => {
+  const p = await page(
+    `${TWO}<dialog id="d"><button id="c" data-hw-copy="c" hidden>Copy</button></dialog>`,
+  );
+  // The region moves in the dialog's toggle and close events, which run after the call.
+  const inside = (tag: string) =>
+    p.waitForFunction(
+      (t) => document.querySelector("[data-hw-copy-status]")?.parentElement?.tagName === t,
+      { timeout: 5000 },
+      tag,
+    );
+  expect(await p.$$eval("[data-hw-copy-status]", (r) => r.length)).toBe(1);
+  await inside("BODY");
+  await p.evaluate(() => (document.getElementById("d") as HTMLDialogElement).showModal());
+  await inside("DIALOG");
+  await p.evaluate(() => (document.getElementById("d") as HTMLDialogElement).close());
+  await inside("BODY");
+  await p.close();
+}, 30_000);
+
+test("a lone copyButton call wires its button and sets up the live region", async () => {
+  const p = await copyPage(TWO, `HWCopy.copyButton(document.getElementById("a"));`);
+  expect(await p.$$eval("[data-hw-copy-status]", (r) => r.length)).toBe(1);
+  expect(await p.$$eval("button", (b) => b.map((x) => x.hidden))).toEqual([false, true]);
   await p.close();
 }, 30_000);
 
