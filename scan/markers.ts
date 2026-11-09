@@ -27,8 +27,9 @@
 // The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
 // its reason and how many off readings it keeps at most:
 //   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
-// The "csp" of brand-elements.json, the policy the consumer's host sends, applies to every page, and
-// each source a page's policy refuses fails, "csp" or the page's own.
+// The "csp" of brand-elements.json states the policy the consumer's host sends, for every page or
+// by the glob over each page's path (elements.ts), and each source a page's policy refuses fails,
+// "csp" or the page's own.
 // An off reading on a page the glob matches is kept, printed as kept; more off readings there than
 // "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so a
 // fixed page drops its exception. An item with two markers is never kept.
@@ -303,18 +304,48 @@ async function inkMiddle(png: string, scale: number, split: number): Promise<[nu
   return [middle(0), middle(1)];
 }
 
+/** The "csp" of brand-elements.json: one policy for every page, or a policy per glob over a page's
+ *  decoded path. */
+export type Csp = string | Record<string, string>;
+
+const pathOf = (page: string) => {
+  const path = URL.parse(page)?.pathname ?? page;
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path; // a malformed escape, which a glob reads as written
+  }
+};
+
+/** The lookup of a document's policy in `csp`: the first listed glob matching its path decides, and
+ *  a path none matches has none. Throws on a malformed value. */
+export function policies(csp: Csp) {
+  const valid = (p: unknown): p is string =>
+    typeof p === "string" && !!p.trim() && !/[\r\n]/.test(p);
+  if (valid(csp)) return () => csp;
+  const entries = typeof csp === "object" && !Array.isArray(csp) ? Object.entries(csp ?? {}) : [];
+  if (!entries.length || !entries.every(([, p]) => valid(p)))
+    throw new Error(
+      `brand-elements.json "csp": one line of policy or { "<glob>": "<policy>" }, not ${JSON.stringify(csp)}`,
+    );
+  const globs = entries.map(([glob, p]) => [new Bun.Glob(glob), p] as const);
+  return (url: string) => globs.find(([glob]) => glob.match(pathOf(url)))?.[1];
+}
+
 /** Opens `url` and throws where a stylesheet of its own (its origin's or a file) fails to load: an
  *  unstyled page shows the browser's own list markers and spacing, as a build linking file://
  *  stylesheets does when served over http with --site. A third party's sheet, such as a web font
  *  service's, may fail offline without reddening the run. A page answering 4xx or 5xx throws too:
  *  a missing story would otherwise pass as one showing nothing. `csp`, the policy the consumer's
  *  host sends (brand-elements.json "csp"), is added to every document's response, a file's
- *  included. Each refusal of the page's policies is recorded for `refusals`. */
-export async function open(page: Page, url: string, csp?: string) {
+ *  included, by the document's own path where it names globs; a document of this page's origin no
+ *  glob matches throws, as it would otherwise pass under no policy. Each refusal of the page's policies is recorded for `refusals`. */
+export async function open(page: Page, url: string, csp?: Csp) {
   await page.evaluateOnNewDocument(recordRefusals);
+  const origin = new URL(url).origin;
+  const unmatched: string[] = [];
   if (csp !== undefined) {
-    if (typeof csp !== "string" || !csp.trim() || /[\r\n]/.test(csp))
-      throw new Error(`brand-elements.json "csp": one line of policy, not ${JSON.stringify(csp)}`);
+    const policy = policies(csp);
     const cdp = await page.createCDPSession();
     // Fetch.continueResponse drops added headers on http; fulfilling with the body keeps them.
     cdp.on("Fetch.requestPaused", async (e) => {
@@ -322,6 +353,11 @@ export async function open(page: Page, url: string, csp?: string) {
       try {
         if (e.responseErrorReason || (status >= 300 && status < 400))
           return await cdp.send("Fetch.continueRequest", { requestId: e.requestId });
+        const value = policy(e.request.url);
+        if (!value) {
+          if (new URL(e.request.url).origin === origin) unmatched.push(pathOf(e.request.url));
+          return await cdp.send("Fetch.continueRequest", { requestId: e.requestId });
+        }
         const { body, base64Encoded } = await cdp.send("Fetch.getResponseBody", {
           requestId: e.requestId,
         });
@@ -333,7 +369,7 @@ export async function open(page: Page, url: string, csp?: string) {
             ...(e.responseHeaders ?? []).filter(
               (h) => !/^content-(encoding|length)$/i.test(h.name),
             ),
-            { name: "Content-Security-Policy", value: csp },
+            { name: "Content-Security-Policy", value },
           ],
           body: base64Encoded ? body : Buffer.from(body).toString("base64"),
         });
@@ -349,7 +385,6 @@ export async function open(page: Page, url: string, csp?: string) {
       patterns: [{ resourceType: "Document", requestStage: "Response" }],
     });
   }
-  const origin = new URL(url).origin;
   const missing: string[] = [];
   const failed = (r: HTTPRequest) => {
     const u = new URL(r.url());
@@ -361,6 +396,10 @@ export async function open(page: Page, url: string, csp?: string) {
   try {
     const answer = await page.goto(url, { waitUntil: "networkidle0" });
     if (answer && answer.status() >= 400) throw new Error(`${url}: HTTP ${answer.status()}`);
+    if (unmatched.length)
+      throw new Error(
+        `brand-elements.json "csp": no glob matches ${unmatched.join(", ")}; name the policy your host sends there`,
+      );
   } finally {
     page.off("requestfailed", failed).off("response", status);
   }
@@ -369,7 +408,7 @@ export async function open(page: Page, url: string, csp?: string) {
 
 export type Refusal = { page: string; element: string; source: string; directive: string };
 /** `csp` renders every page under the consumer's policy; the refusals go to `refused`. */
-type Options = { scale?: number; width?: number; csp?: string; refused?: Refusal[] };
+type Options = { scale?: number; width?: number; csp?: Csp; refused?: Refusal[] };
 type Recorded = { uri: string; directive: string; target: EventTarget | null };
 
 /** Runs before the page's own scripts: keeps every refusal of the page's policies. */
@@ -630,7 +669,6 @@ export function applyExceptions(
     e,
     g: new Bun.Glob(glob),
   }));
-  const pathOf = (page: string) => decodeURIComponent(URL.parse(page)?.pathname ?? page);
   const by = new Map<string, Reading[]>(entries.map(({ glob }) => [glob, []]));
   const bad: Reading[] = [];
   for (const r of off) {
@@ -812,6 +850,7 @@ if (import.meta.main) {
   const site = flagSite || (flagBase ? undefined : listed.site);
   let stories: string[] = [];
   try {
+    if (config.csp !== undefined) policies(config.csp);
     if (catalog) stories = catalogPages(catalog, at, site, !!site || !!flagBase, listed.exclude);
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);

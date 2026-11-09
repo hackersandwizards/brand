@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -298,6 +298,12 @@ test.each([2, 4])(
   60_000,
 );
 
+test("a page path with a malformed escape is matched as it stands", () => {
+  const reading = { page: "http://h/caf%E9/", offset: 3, indent: null, double: false } as Reading;
+  const { kept } = applyExceptions([reading], { "/caf*/": { reason: "kept", off: 1 } });
+  expect(kept).toEqual([reading]);
+});
+
 test("the first pass finds a page with a marker and passes over one without", async () => {
   const none = file(
     "none.html",
@@ -309,13 +315,15 @@ test("the first pass finds a page with a marker and passes over one without", as
   ]);
 }, 30_000);
 
+const STRICT = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
+
 // brand-markers renders under the consumer's policy too, and reports what it refuses.
 test("a policy refusing data: images is red on a page's data: icon, green with img-src data:", async () => {
   const url = file(
     "csp.html",
     `<!doctype html><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
   );
-  const policy = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
+  const policy = STRICT;
   const refused: Refusal[] = [];
   await hasMarkers(browser, url, { csp: policy, refused });
   expect(refused).toEqual([
@@ -329,7 +337,7 @@ test("a policy refusing data: images is red on a page's data: icon, green with i
 // The run reads its own screenshots inside the page, which a policy refusing data: images must not
 // stop or see.
 test("markers measure the same under a policy refusing data: images", async () => {
-  const csp = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
+  const csp = STRICT;
   const refused: Refusal[] = [];
   const under = await measureMarkers(browser, NEW, { scale: 2, csp, refused });
   expect(under).toEqual(await measureMarkers(browser, NEW, { scale: 2 }));
@@ -352,6 +360,79 @@ test("a page's own policy and an iframe's refusals are reported", async () => {
     ]);
   }
 }, 30_000);
+
+// A host sending different policies by path: "csp" as globs over the page's path, each document,
+// an iframe's too, under the policy of its own path.
+describe("a policy per path", () => {
+  const OPEN = `${STRICT} data:`;
+  const form = (name: string) =>
+    file(
+      name,
+      `<!doctype html><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
+    );
+  const refusedOn = async (url: string, csp: Record<string, string>) => {
+    const refused: Refusal[] = [];
+    await hasMarkers(browser, url, { csp, refused });
+    return refused.map((r) => `${r.element} ${r.directive}`);
+  };
+  const ICON = "p.hw-form-error::before img-src";
+
+  test("each page is rendered under the policy its path matches", async () => {
+    const csp = { "**/path-strict.html": STRICT, "**/path-open.html": OPEN };
+    expect(await refusedOn(form("path-strict.html"), csp)).toEqual([ICON]);
+    expect(await refusedOn(form("path-open.html"), csp)).toEqual([]);
+  }, 30_000);
+
+  test("the first listed glob matching a path decides", async () => {
+    const url = form("path-both.html");
+    expect(await refusedOn(url, { "**/path-both.html": OPEN, "**": STRICT })).toEqual([]);
+    expect(await refusedOn(url, { "**/path-both.html": STRICT, "**": OPEN })).toEqual([ICON]);
+  }, 30_000);
+
+  test("an iframe takes the policy of its own path", async () => {
+    const framed = form("path-framed.html");
+    const url = file("path-outer.html", `<!doctype html><iframe src="${framed}"></iframe>`);
+    const csp = { "**/path-outer.html": OPEN, "**/path-framed.html": STRICT };
+    expect(await refusedOn(url, csp)).toEqual([ICON]);
+    expect(
+      await refusedOn(url, { "**/path-outer.html": STRICT, "**/path-framed.html": OPEN }),
+    ).toEqual([]);
+  }, 30_000);
+
+  test("a page no glob matches throws, naming its path", async () => {
+    await expect(
+      refusedOn(form("path-none.html"), { "**/elsewhere.html": STRICT }),
+    ).rejects.toThrow(/"csp": no glob matches .*path-none\.html/);
+  }, 30_000);
+
+  test("a frame of the page's own origin no glob matches throws, another origin's does not", async () => {
+    const framed = form("path-unlisted.html");
+    const csp = { "**/path-own.html": OPEN };
+    const own = file("path-own.html", `<!doctype html><iframe src="${framed}"></iframe>`);
+    await expect(refusedOn(own, csp)).rejects.toThrow(/no glob matches .*path-unlisted\.html/);
+    file("path-bare.html", "<!doctype html><p>A frame</p>");
+    const server = serve(dir);
+    try {
+      const away = file(
+        "path-away.html",
+        `<!doctype html><iframe src="${new URL("path-bare.html", server.url).href}"></iframe>`,
+      );
+      expect(await refusedOn(away, { "**/path-away.html": `${OPEN}; frame-src *` })).toEqual([]);
+    } finally {
+      await server.stop(true);
+    }
+  }, 30_000);
+
+  test.each([[{}], [{ "**": "" }], [{ "**": 1 }], [{ "**": "a\nb" }], [["a"]], [""]])(
+    "a malformed value throws: %j",
+    async (csp) => {
+      await expect(hasMarkers(browser, NEW, { csp: csp as unknown as string })).rejects.toThrow(
+        /"csp"/,
+      );
+    },
+    30_000,
+  );
+});
 
 // An area mark opening a list item is an icon, not a list marker. The control: the same box
 // without the class is measured.

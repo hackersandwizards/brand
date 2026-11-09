@@ -38,8 +38,9 @@ const folds = new Map<string, [string, string]>();
 
 /** A text's two search forms, lowercase with ß as ss: accents dropped (Müller: muller) and German
  *  umlauts spelled out (Müller: mueller). A word is found where one of its forms sits in one of the
- *  text's, so muller, mueller and müller each find Müller and Mueller. Each text folds once: a
- *  keystroke matches every row again. */
+ *  text's, so muller, mueller and müller each find Müller, and mueller and müller find Mueller;
+ *  muller does not, as ue stays two letters (blue). Each text folds once: a keystroke matches every
+ *  row again. */
 function searchForms(text: string): [string, string] {
   let forms = folds.get(text);
   if (forms) return forms;

@@ -8,8 +8,9 @@
 //     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
 //                     | { "reason": "...", "files": ["<path>", ...] }, ... },
 //     "lightOnly": true,                              optional: the pages never turn to night
-//     "csp": "<policy>",                              optional: the Content-Security-Policy the
-//                                                     host sends, added to every page opened
+//     "csp": "<policy>"                               optional: the Content-Security-Policy the
+//            | { "<glob>": "<policy>", ... },         host sends, added to every page opened, or
+//                                                     by path (README)
 //     "site": "<folder>",                             optional: a built site, served on a free
 //                                                     port, which a page starting with / names
 //     "catalog": "<folder>"                           optional: a built catalog, every story page
@@ -65,10 +66,12 @@ import {
   addCss,
   catalogPages,
   type Catalog,
+  type Csp,
   launch,
   listedCatalog,
   open,
   openFolds,
+  policies,
   pool,
   refusalLine,
   refusals,
@@ -85,7 +88,7 @@ export type Config = {
   lightOnly?: boolean;
   site?: string;
   catalog?: Catalog;
-  csp?: string;
+  csp?: Csp;
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 export const TOLERANCE = 0.02; // CSS px
@@ -685,7 +688,7 @@ export async function measurePage(
   css = "",
   lightOnly = false,
   site?: URL,
-  csp?: string,
+  csp?: Csp,
 ) {
   const page = await browser.newPage();
   try {
@@ -1014,6 +1017,7 @@ if (import.meta.main) {
   const { dir, at, exclude } = listedCatalog(config);
   let stories: string[] = [];
   try {
+    if (config.csp !== undefined) policies(config.csp);
     if (dir) stories = catalogPages(dir, at, config.site, !!config.site || i >= 0, exclude);
   } catch (e) {
     console.error(`brand-elements: ${(e as Error).message}`);

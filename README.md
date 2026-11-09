@@ -282,7 +282,11 @@ A system whose pages never turn to night adds `"lightOnly": true`: the tokens on
 night rules read may then stay undefined there. `"site": "<dir>"` is `brand-markers --site` (below).
 `"csp": "<policy>"` is the Content-Security-Policy your host sends, as one string: both measuring
 scans add it to every page they open, a file's included, and fail on each source it refuses, naming
-page, element and source (`p.hw-form-error::before: ... refuses data (img-src)`). A policy the page
+page, element and source (`p.hw-form-error::before: ... refuses data (img-src)`). A host sending
+different policies by path writes `"csp": { "/catalog/**": "<policy>", "/app/**": "<policy>" }`:
+each glob runs over a page's decoded path, as in `"markers"` (a page opened as a file has its
+absolute path, so write `**/catalog/**` there), the first listed match decides, an iframe takes the
+policy of its own path, and a page or same-origin iframe no glob matches fails the run. A policy the page
 carries itself, in a `<meta>` or from a server named with `--base`, is checked too. Leave out a
 per-response nonce, which no page on disk carries. Brand's icons (form field, password toggle, error summary, check,
 select, pill, toast, menu, search, disclosure, accordion, tree, the list marker icons) are `data:`

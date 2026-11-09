@@ -17,7 +17,7 @@ import {
   sourceFindings,
   type Config,
 } from "../scan/elements";
-import { launch, open } from "../scan/markers";
+import { type Csp, launch, open } from "../scan/markers";
 import { DEMOS } from "../scripts/element-demos";
 import { tokens } from "../generated/tokens";
 import { packed, ROOT } from "../scripts/git";
@@ -963,7 +963,7 @@ test("brand-elements fails on a source the policy in brand-elements.json refuses
   const repo = join(dir, "csp-repo");
   mkdirSync(repo);
   Bun.spawnSync(["git", "init", "-q"], { cwd: repo });
-  const run = (csp: string) => {
+  const run = (csp: Csp) => {
     writeFileSync(
       join(repo, "brand-elements.json"),
       JSON.stringify({ pages: [url], uses: ["form-field"], csp }),
@@ -976,7 +976,22 @@ test("brand-elements fails on a source the policy in brand-elements.json refuses
     `${url} p.hw-form-error::before: the page's Content-Security-Policy refuses data (img-src)`,
   );
   expect(run(`${POLICY} data:`).stderr.toString()).not.toContain("refuses");
+  const outside = run({ "**/elsewhere.html": POLICY });
+  expect(outside.exitCode).not.toBe(0);
+  expect(outside.stderr.toString()).toContain('"csp": no glob matches');
 }, 60_000);
+
+test.each(["elements", "markers"])("brand-%s exits 2 on a malformed csp", (scan) => {
+  const repo = mkdtempSync(join(tmpdir(), "csp-malformed-"));
+  writeFileSync(join(repo, "brand-elements.json"), JSON.stringify({ pages: ["a.html"], csp: {} }));
+  Bun.spawnSync(["git", "init", "-q"], { cwd: repo });
+  const r = Bun.spawnSync(["bun", join(import.meta.dir, `../scan/${scan}.ts`), "a.html"], {
+    cwd: repo,
+  });
+  rmSync(repo, { recursive: true });
+  expect(r.exitCode).toBe(2);
+  expect(r.stderr.toString()).toContain(`brand-${scan}: brand-elements.json "csp"`);
+});
 
 test("a keycap leaves a line of UI text as high as an inline keycap does, in the screen, dense and print scales", async () => {
   const p = await browser.newPage();
