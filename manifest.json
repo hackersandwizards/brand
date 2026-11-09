@@ -262,7 +262,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "eff59eddda1e780cbff60a600300e78fa7bd1ac0e0b6fcdeb0d3a1828d784c30"
+      "sha256": "64316c69f3fb90c42c898ef82b230c71b8014a1a750885cf33b1aa086f7189ec"
     },
     {
       "path": "expert/catalogs.json",
@@ -378,7 +378,7 @@
     },
     {
       "path": "elements/link.css",
-      "sha256": "dc35716feaa02f067d1300c79807a673c5359778312883a7d03587c07345a8d4"
+      "sha256": "d20345ba9b417f0b132eba86077e213f9de0855b7f5892c0168f687b840dc8b3"
     },
     {
       "path": "elements/pill.css",

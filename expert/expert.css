@@ -268,24 +268,6 @@ html[data-theme="dark"] {
   flex-shrink: 0;
 }
 
-/* A link to a record or out of the app, beside labels: teal text after an icon naming where it
-   leads, never a pill. A value only read is hw-pill data-tone="neutral". */
-.chip-link {
-  @apply inline-flex items-center gap-1 text-ui text-accent transition-colors hover:text-accent-light;
-}
-/* A link that names no kind of its own gets the arrow, so links in a row stay apart. */
-.chip-link:not(:has(svg))::before {
-  content: "";
-  flex: none;
-  width: 0.875em;
-  height: 0.875em;
-  background-color: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E")
-    center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E")
-    center / contain no-repeat;
-}
-
 /* Shape only; width is the caller's. The 40px min-height matches a native `<select>`, which
    reserves room for its arrow: unpinned a row renders 38/40/40. */
 .form-input {
