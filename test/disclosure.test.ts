@@ -111,3 +111,29 @@ test("the chevron sits in the middle of the label's first line", async () => {
   expect(centres).toHaveLength(6);
   for (const off of centres) expect(off).toBeLessThan(0.5);
 }, 30_000);
+
+// The count pill takes night ink in a night island, also where the page's root sets --foreground
+// to ink, as expert.css does.
+test("the count pill reads night ink on night under a root --foreground", async () => {
+  const file = join(dir, "count-night.html");
+  writeFileSync(
+    file,
+    doc(
+      [],
+      `<style>:root{--foreground:var(--color-ink)}</style><div data-theme="dark" style="background:var(--color-night)"><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary></details></div>`,
+    ),
+  );
+  const tab = await browser.newPage();
+  await open(tab, pathToFileURL(file).href);
+  const [count, nightInk] = await tab.evaluate(() => {
+    const probe = document.createElement("i");
+    probe.style.color = "color-mix(in srgb, var(--color-night-ink) 70%, transparent)";
+    document.body.append(probe);
+    return [
+      getComputedStyle(document.querySelector(".hw-disclosure-count")!).color,
+      getComputedStyle(probe).color,
+    ];
+  });
+  await tab.close();
+  expect(count).toBe(nightInk);
+}, 30_000);

@@ -60,7 +60,7 @@ const rows =
     : four.map((r) => ({ ...r, summary: undefined }));
 const both = mode === "listed" || mode === "many";
 const items = rows.map((r) => ({
-  text: r.title.toLowerCase(),
+  text: r.title,
   facets: both ? { topic: [r.topic], days: [r.days[0]!] } : { topic: [r.topic] },
 }));
 const topic = { param: "topic", legend: "Thema", options: facetOptions };

@@ -124,7 +124,7 @@ const DRIFT: Record<string, string> = {
   skeleton: ".hw-skeleton { border-radius: 0 }",
   empty: ".hw-empty { border-style: solid }",
   accordion: ".hw-accordion { border-top-width: 3px }",
-  disclosure: ".hw-disclosure > summary { display: block }",
+  disclosure: ".hw-disclosure > summary { list-style: disclosure-closed }",
   avatar: ".hw-avatar { border-radius: 0 }",
   pagination: ".hw-pagination a { border-radius: 0 }",
   stepper: ".hw-stepper { font-size: 30px }",

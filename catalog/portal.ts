@@ -708,9 +708,9 @@ const SYSTEMS = [
 const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub]) => [url, pub]));
 
 // A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
-const sampleFrame = (body: string, css = "") =>
+const sampleFrame = (body: string) =>
   frame(
-    `<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`,
+    `<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}</style></head><body data-hw-scale="screen">${body}</body></html>`,
     'tabindex="-1" aria-hidden="true" title=""',
   );
 // An image under applications/ is in Git LFS and a pointer in a checkout without it: the preview
@@ -1125,7 +1125,6 @@ ${inline(catalogCss)}</style>
     .portal .words-cols tr { border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
   }
 </style>
-<style>${ownCss("elements/disclosure.css")}</style>
 </head>
 <body class="hw-focus-ring">
 <header class="hw-header">

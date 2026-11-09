@@ -105,6 +105,9 @@ describe("list filter", () => {
     expect(hits("josé straße")).toEqual([2]);
     expect(hits("strase")).toEqual([]);
     expect(hasWords("Café Zoë", searchWords("cafe zoe"))).toBe(true);
+    expect(hasWords("Søren Łukasz Kærgaard", searchWords("soren lukasz kaergaard"))).toBe(true);
+    expect(highlight("Søren", ["soren"])).toBe("<mark>Søren</mark>");
+    expect(highlight("a & b", [])).toBe("a &amp; b");
     expect(highlight("Anna Müller", ["muller"])).toBe("Anna <mark>Müller</mark>");
     expect(highlight("Anna Müller", ["mueller"])).toBe("Anna <mark>Müller</mark>");
     expect(highlight("Straße & Weg", ["strasse"])).toBe("<mark>Straße</mark> &amp; Weg");
@@ -113,6 +116,11 @@ describe("list filter", () => {
     expect(ranked(["Anna Mueller", "Müller"], (t) => t, "müller")).toEqual([
       "Müller",
       "Anna Mueller",
+    ]);
+    // A title equal to the query in either form ranks as the exact title, above a shorter one.
+    expect(ranked(["Müllerhans", "Mueller Hans"], (t) => t, "müller hans")).toEqual([
+      "Mueller Hans",
+      "Müllerhans",
     ]);
   });
 });

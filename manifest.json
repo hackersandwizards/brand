@@ -258,7 +258,7 @@
     },
     {
       "path": "elements/disclosure.css",
-      "sha256": "b868ba1c853869e0a6ad225ea98c5130132700dfdca242a831871aecfcaa1937"
+      "sha256": "c1cec55d2d15bffe12de5a3939ab36665a74a0ccff2373886694223d14aa5d15"
     },
     {
       "path": "expert/expert.css",
@@ -542,7 +542,7 @@
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "8d201a79b69f0f2ccea571c147b0ea18bab641a3cc0e585c35b09bc78cdd95bb"
+      "sha256": "f6b807bd563bc082d3b1d11fe87c0544c537b116277c8f76e7bbbf6862779a6d"
     },
     {
       "path": "elements/choice.css",

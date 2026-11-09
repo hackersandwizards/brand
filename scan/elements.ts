@@ -333,15 +333,9 @@ const OWNS: Record<string, string[]> = {
   breadcrumb: ["font-size", "color"],
   "breadcrumb a": ["color", "text-decoration-line"],
   disclosure: [],
-  "disclosure summary": ["display", "column-gap", "list-style-type", "cursor"],
-  "disclosure .hw-disclosure-count": [
-    ...CORNER,
-    ...FILL,
-    ...PAD,
-    "font-family",
-    "font-size",
-    "color",
-  ],
+  // The marker's removal and the count pill: the summary's layout, type and colour are the surface's.
+  "disclosure summary": ["list-style-type"],
+  "disclosure .hw-disclosure-count": [...CORNER, ...FILL, "font-family"],
   status: [...CORNER, ...FILL, ...borders(), ...PAD],
   frame: [...CORNER, ...FILL, ...borders()],
   kpi: ["display", "flex-direction", "row-gap"],

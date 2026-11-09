@@ -23,25 +23,46 @@ export interface FilterState {
 export const searchWords = (q: string) => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
 // Quoted keys: a page may load this script without a charset, and a bare non-ASCII key then breaks
-// the parse.
+// the parse. LETTERS are those without a decomposition to drop an accent from (ø, æ, œ, ł, đ, ı).
 const SPELLED: Record<string, string> = { "\u00e4": "ae", "\u00f6": "oe", "\u00fc": "ue" };
+const LETTERS: Record<string, string> = {
+  "\u00df": "ss",
+  "\u00f8": "o",
+  "\u00e6": "ae",
+  "\u0153": "oe",
+  "\u0142": "l",
+  "\u0111": "d",
+  "\u0131": "i",
+};
+const folds = new Map<string, [string, string]>();
 
 /** A text's two search forms, lowercase with ß as ss: accents dropped (Müller: muller) and German
  *  umlauts spelled out (Müller: mueller). A word is found where one of its forms sits in one of the
- *  text's, so muller, mueller and müller each find Müller and Mueller. */
+ *  text's, so muller, mueller and müller each find Müller and Mueller. Each text folds once: a
+ *  keystroke matches every row again. */
 function searchForms(text: string): [string, string] {
-  const lower = text.toLowerCase().normalize("NFC").replaceAll("\u00df", "ss");
+  let forms = folds.get(text);
+  if (forms) return forms;
+  const lower = text
+    .toLowerCase()
+    .normalize("NFC")
+    .replace(/[\u00df\u00f8\u00e6\u0153\u0142\u0111\u0131]/g, (char) => LETTERS[char]!);
   const bare = (form: string) => form.normalize("NFD").replace(/\p{M}/gu, "");
-  return [bare(lower), bare(lower.replace(/[\u00e4\u00f6\u00fc]/g, (char) => SPELLED[char]!))];
+  forms = [bare(lower), bare(lower.replace(/[\u00e4\u00f6\u00fc]/g, (char) => SPELLED[char]!))];
+  if (folds.size > 10_000) folds.clear();
+  folds.set(text, forms);
+  return forms;
 }
 
-/** Whether every search word sits in the text, accents, umlauts and ß folded. */
-export function hasWords(text: string, words: string[]): boolean {
+/** Whether one of a word's forms meets one of the text's forms by `test`. */
+const meets = (text: string, word: string, test: (form: string, part: string) => boolean) => {
   const forms = searchForms(text);
-  return words.every((word) =>
-    searchForms(word).some((form) => forms.some((each) => each.includes(form))),
-  );
-}
+  return searchForms(word).some((part) => forms.some((form) => test(form, part)));
+};
+
+/** Whether every search word sits in the text, accents, umlauts and ß folded. */
+export const hasWords = (text: string, words: string[]) =>
+  words.every((word) => meets(text, word, (form, part) => form.includes(part)));
 
 /** The state a URL carries: `q` and each facet's parameter, a value no option offers read as "". */
 export function readState(
@@ -103,12 +124,11 @@ export const fullTextUrl = (base: string, q: string) =>
  *  outright, then each word found in the title, more for a title starting with it. Searching
  *  "context engineering" wants the page of that name above the pages that mention it. */
 function rank(title: string, q: string): number {
-  const [lower] = searchForms(title);
-  let score = q.trim() && lower === searchForms(q.trim())[0] ? 100 : 0;
+  const query = q.trim();
+  let score = query && meets(title, query, (form, part) => form === part) ? 100 : 0;
   for (const word of searchWords(q)) {
     if (hasWords(title, [word])) score += 10;
-    if (searchForms(word).some((form) => searchForms(title).some((each) => each.startsWith(form))))
-      score += 5;
+    if (meets(title, word, (form, part) => form.startsWith(part))) score += 5;
   }
   return score;
 }
@@ -141,33 +161,31 @@ const escapeMarkup = (text: string) =>
 /** The text as HTML with each search word in a <mark>, every part escaped. A word matches as
  *  `hasWords` finds it, so "muller" marks "Müller". */
 export function highlight(text: string, words: string[]): string {
+  if (!words.length) return escapeMarkup(text);
   const source = text.normalize("NFC");
-  // Each form of the text character by character, with the source index each character came from.
-  const forms = [0, 1].map((index) => {
-    let folded = "";
-    const from: number[] = [];
-    let at = 0;
-    for (const char of source) {
-      const form = searchForms(char)[index]!;
-      folded += form;
-      for (let i = 0; i < form.length; i++) from.push(at);
-      at += char.length;
-    }
-    from.push(source.length);
-    return { folded, from };
-  });
+  // Each form of the text character by character, with where in the source each folded character
+  // starts and ends.
+  const forms = [0, 1].map(() => ({ folded: "", from: [] as number[], to: [] as number[] }));
+  let at = 0;
+  for (const char of source) {
+    searchForms(char).forEach((form, index) => {
+      const each = forms[index]!;
+      each.folded += form;
+      for (let i = 0; i < form.length; i++) {
+        each.from.push(at);
+        each.to.push(at + char.length);
+      }
+    });
+    at += char.length;
+  }
   const marked = new Array<boolean>(source.length).fill(false);
   for (const word of words)
-    for (const needle of searchForms(word))
-      for (const { folded, from } of forms) {
-        if (!needle) continue;
-        for (let hit = folded.indexOf(needle); hit !== -1; hit = folded.indexOf(needle, hit + 1)) {
-          // The match runs to the end of the source character holding its last folded character.
-          const last = from[hit + needle.length - 1]!;
-          const end = from.find((index) => index > last) ?? source.length;
-          marked.fill(true, from[hit], end);
-        }
-      }
+    for (const needle of searchForms(word)) {
+      if (!needle) continue;
+      for (const { folded, from, to } of forms)
+        for (let hit = folded.indexOf(needle); hit !== -1; hit = folded.indexOf(needle, hit + 1))
+          marked.fill(true, from[hit], to[hit + needle.length - 1]);
+    }
   let html = "";
   for (let start = 0; start < source.length;) {
     let end = start;

@@ -79,7 +79,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-disclosure-count {
-      --_hw-count-ink: var(--foreground, var(--color-night-ink));
+      --_hw-count-ink: var(--color-night-ink);
     }
   }
 }
