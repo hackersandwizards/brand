@@ -339,8 +339,18 @@ test("a policy refusing data: images is red on a page's data: icon, green with i
 test("markers measure the same under a policy refusing data: images", async () => {
   const csp = STRICT;
   const refused: Refusal[] = [];
+  // Two runs without a policy differ by about 1e-4 px; brand-markers reports two decimals.
+  const near = (a: number | null, b: number | null | undefined) =>
+    a !== null && b != null && Math.abs(a - b) < 0.01 ? b : a;
+  const plain = await measureMarkers(browser, NEW, { scale: 2 });
   const under = await measureMarkers(browser, NEW, { scale: 2, csp, refused });
-  expect(under).toEqual(await measureMarkers(browser, NEW, { scale: 2 }));
+  expect(
+    under.map((r, i) => ({
+      ...r,
+      offset: near(r.offset, plain[i]?.offset),
+      indent: near(r.indent, plain[i]?.indent),
+    })),
+  ).toEqual(plain);
   expect(refused).toEqual([]);
 }, 60_000);
 
