@@ -27,6 +27,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
+import { optimize, type Config } from "svgo";
 import manifest from "../manifest.json";
 import { colors } from "../generated/tokens";
 import { ROOT, sha256 } from "./git";
@@ -327,21 +328,43 @@ for (const base of Object.keys(LIFT))
 for (const kind of ["white", "black"] as const) await writeCut("wordmark", kind);
 
 // The small cuts of the lockup, for a header up to 40 px tall on screen or in print: lockup-screen
-// and lockup-screen-night carry every embedded raster at half its pixels, the wizard at 256 px,
-// sharp to 6x at 40 px, past 384 dpi in a PDF. Same geometry and colours, so a page needs no
-// rebuild of its own.
+// and lockup-screen-night carry the wizard at half its pixels, 256 px, sharp to 6x at 40 px, past
+// 384 dpi in a PDF, and the night edge at the same density, which writeCut draws at twice the
+// wizard's. svgo then shortens the paths; mergePaths stays off, since merged letters render their
+// shared edges differently. Same geometry and colours, so a page needs no rebuild of its own.
 const SCREEN = 2;
+const SVGO: Config = {
+  plugins: [
+    {
+      name: "preset-default",
+      params: {
+        overrides: {
+          removeComments: false,
+          removeUnknownsAndDefaults: false,
+          convertColors: false,
+          sortAttrs: false,
+          cleanupNumericValues: false,
+          mergePaths: false,
+        },
+      },
+    },
+    "removeXlink",
+  ],
+};
 for (const [from, to] of [
   ["lockup", "lockup-screen"],
   ["lockup-night", "lockup-screen-night"],
 ]) {
   let svg = readFileSync(join(ROOT, "logos", `${from}.svg`), "utf8");
-  for (const [, b64] of svg.matchAll(/href="data:image\/png;base64,([^"]+)"/g)) {
+  for (const [, edge, b64] of svg.matchAll(
+    /<image (class="wizard-edge" )?[^>]*href="data:image\/png;base64,([^"]+)"/g,
+  )) {
     const png = Buffer.from(b64, "base64");
     const { width } = await sharp(png).metadata();
-    const small = await shrink(png, Math.round(width / SCREEN)).toBuffer();
+    const small = await shrink(png, Math.round(width / (edge ? 2 * SCREEN : SCREEN))).toBuffer();
     svg = svg.replace(b64, small.toString("base64"));
   }
+  svg = optimize(svg, SVGO).data;
   const path = `logos/${to}.svg`;
   writeFileSync(join(ROOT, path), svg);
   rehash(path);

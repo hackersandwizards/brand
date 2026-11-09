@@ -60,8 +60,12 @@ had one line of text.
 | brand portal, dark (LCP is a list item) | 1736 ms         |        |                              |
 
 Loading eagerly saves a night page about 170 ms but costs a light page about 116 ms, because the
-hidden 34 KB night SVG shares the bandwidth. The header stays `lazy`. The fix that serves both
-themes is a smaller night lockup (24 KB by day), or a single image whose source the theme switches.
+hidden 34 KB night SVG shares the bandwidth. The header stays `lazy`. The night lockup is now
+29 KB and the day lockup 22 KB (were 34 and 24.5 KB): the night edge raster at the wizard's density,
+280 px instead of 559, and svgo on the paths. The wizard stays at 256 px, the floor the v1.34.0 blind
+review set for print. At 1.6 Mbit/s the 5 KB saved is about 25 ms of the 116 ms a light page lost
+(computed, not measured), so eager loading still costs a light page and `lazy` stays. A single image
+whose source the theme switches is the remaining fix for both themes.
 
 ## Checked and already done on main
 
