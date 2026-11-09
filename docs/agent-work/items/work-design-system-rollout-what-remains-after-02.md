@@ -27,8 +27,8 @@ evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, tea
 4. **From the spoke switches**, not yet measured: a setting naming an undefined token falls back
    silently; night pills lose hue distinction; a hue setting for card, label and callout; a
    line-height setting on the pill.
-5. **Left from the 07./08.11. runs.** `--slide-measure-overview` in `tokens/stage.css` stays until
-   talks, trainer-hub and hycle-private all pin slides v1.22.0 or later, then goes. A ring setting
+5. **Left from the 07./08.11. runs.** `--slide-measure-overview` in `tokens/stage.css` can go: talks and
+   hycle-private pin slides v2.12.0 and trainer-hub v2.11.0 (09.11.), all past v1.22.0. A ring setting
    beside `--hw-focus-width` would remove four off-token shadows in os (`ListRow.css`,
    `PipelineCard.css`, `StageHero.css`, `StageDots.astro`). A compact `hw-row` variant a header row
    can read would remove os's two copies of the compact values (`ListRow.css`, `DetailPane.css`).

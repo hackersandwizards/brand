@@ -2,7 +2,7 @@
 kind: decision
 status: open
 priority: 1
-order: 3
+order: 10
 area: brand
 owner: Benedikt
 evidence: "Blind panel, reader's path and cold reads 08.11., 396 runs; controls, path and panel with q6 09.11., 100 runs. Reports: docs/agent-work/2026-11-08-claim-tune.md, docs/agent-work/2026-11-09-claim-flow.md."

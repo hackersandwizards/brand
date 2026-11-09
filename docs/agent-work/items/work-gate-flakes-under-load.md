@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 900
+order: 1825
 area: engineering
 owner: Ada
 evidence: "brand-next run 08.11., gate under load: a hook in test/header.test.ts timed out at 5 s once, one check:catalog test failed once (not captured); both passed on rerun, final gate clean (72ec40e)."
