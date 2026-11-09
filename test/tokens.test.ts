@@ -3,7 +3,15 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import fonts from "../generated/fonts.json";
 import { ROOT } from "../scripts/git";
-import { fontFaces, palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
+import {
+  fallbackFaces,
+  fontFaces,
+  palettes,
+  parseTokens,
+  resolveColors,
+  rgb,
+  SOURCE,
+} from "../scripts/tokens";
 
 const css = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(css);
@@ -140,23 +148,32 @@ test("static-fonts.css holds print.css's faces, each url reaching its file from 
 });
 
 // A face drawn before its web face arrives keeps the web face's lines only if the stack names a
-// metric-matched fallback right after it, and every page loading either font file declares it.
-test("each stack names its fallback face second, and both font files declare its faces", () => {
-  const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");
-  const local = (text: string) =>
-    [...text.matchAll(/@font-face\s*\{[^}]*src: local\([^}]*\}/g)].map(([face]) => face);
+// metric-matched fallback right after the web face's own names, and every page loading either font
+// file declares it.
+test("each stack names its fallback face after the web face, and both font files declare it", () => {
+  const screen = fallbackFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8"));
   for (const stack of ["--font-sans", "--font-mono", "--font-code"]) {
-    const fallback = tokens[stack]!.split(",")
-      .map((f) => f.trim())
-      .find((f) => f.endsWith(' Fallback"'))!;
-    expect(fallback).toBe(tokens[stack]!.split(",")[0]!.replace(" Variable", " Fallback"));
-    expect(local(screen).some((face) => face.includes(`font-family: ${fallback};`))).toBe(true);
+    const names = tokens[stack]!.split(",").map((f) => f.trim());
+    const fallback = names[0]!.replace(" Variable", " Fallback");
+    const at = names.indexOf(fallback);
+    expect(names.slice(0, at).every((n) => n.startsWith(names[0]!.split(" ")[0]!))).toBe(at > 0);
+    expect(screen.some((face) => face.includes(`font-family: ${fallback};`))).toBe(true);
   }
-  for (const face of local(screen))
-    for (const d of ["size-adjust", "ascent-override", "descent-override", "line-gap-override"])
+  for (const face of screen)
+    for (const d of [
+      "size-adjust",
+      "ascent-override",
+      "descent-override",
+      "line-gap-override",
+      "unicode-range",
+    ])
       expect(face).toContain(`${d}: `);
-  const fallbacks = local(readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8"));
-  expect(fallbacks).toEqual(local(screen));
+  expect(fallbackFaces(readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8"))).toEqual(
+    screen,
+  );
+  expect(fonts.fallbacks.map((f) => f.fontFamily)).toEqual(
+    screen.map((face) => face.match(/font-family: "([^"]+)"/)![1]),
+  );
 });
 
 // Tailwind v4 resolves a utility such as text-<name> against two theme namespaces: text-label is

@@ -2,10 +2,10 @@
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
 // generated/tokens.root.css (the @theme block as :root and on a light element under night),
 // tokens.json, tokens.ts and tokens.py, and code-theme.json, the Shiki theme of the --code-* tokens
-// and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces, for a surface
-// that writes its own @font-face; and from tokens/print.css static-fonts.css, its @font-face rules
-// alone, for a surface that needs the static faces without the print scale; and cursor.svg, the
-// slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6; and
+// and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces and fallback
+// faces, for a surface that writes its own @font-face; and static-fonts.css, tokens/print.css's
+// @font-face rules and fonts.css's fallback faces, for a surface that needs the static faces without
+// the print scale; and cursor.svg, the slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6; and
 // elements.css and document.css, elements/elements.css and tokens/document.css with every
 // @import resolved in place, for a page that links them and must not wait on a request chain.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
@@ -221,31 +221,51 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
 };
 
 const FONT_FACE = /@font-face\s*\{([^}]*)\}/g;
-const LOCAL = /src: local\(/;
+/** A src of local() fonts alone: a fallback face. A src mixing local() and url() is no fallback. */
+const LOCAL = /src:(?:\s*local\("[^"]+"\),?)+;/;
 
-/** fonts.css's fallback faces, the ones whose src is a local() font. */
-const fallbackFaces = (css: string) =>
+/** The fallback faces of fonts.css, as written. */
+export const fallbackFaces = (css: string) =>
   [...css.matchAll(FONT_FACE)].map(([face]) => face).filter((face) => LOCAL.test(face));
 
 /** The @font-face rules of fonts.css (or print.css), each descriptor camel-cased (fontFamily
  *  unquoted, unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
- *  unicodeRange takes every character. A fallback face (src: local()) is left out. */
+ *  unicodeRange takes every character. A fallback face (a src of local() fonts alone) is left
+ *  out: fallbackData lists those. */
 export const fontFaces = (css: string) =>
   [...css.matchAll(FONT_FACE)]
     .filter(([face]) => !LOCAL.test(face))
-    .map(([, body]) => {
+    .map(([, body]): Record<string, string> => {
       const { src, ...rest } = declarations(body);
       const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
-      const face: Record<string, string> = { file, format };
-      for (const [k, v] of Object.entries(rest))
-        face[k.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())] =
-          k === "font-family"
-            ? v.replace(/^"|"$/g, "")
-            : k === "unicode-range"
-              ? v.replace(/ /g, "")
-              : v;
-      return face;
+      return { file, format, ...camelCased(rest) };
     });
+
+/** fonts.css's fallback faces as data, descriptors as fontFaces gives them, src as the local font
+ *  names in order. */
+const fallbackData = (css: string) =>
+  [...css.matchAll(FONT_FACE)]
+    .filter(([face]) => LOCAL.test(face))
+    .map(([, body]): Record<string, string | string[]> => {
+      const { src, ...rest } = declarations(body);
+      return {
+        local: [...src.matchAll(/local\("([^"]+)"\)/g)].map((m) => m[1]),
+        ...camelCased(rest),
+      };
+    });
+
+/** @font-face descriptors camel-cased, fontFamily unquoted, unicodeRange unspaced. */
+const camelCased = (descriptors: Record<string, string>): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(descriptors).map(([k, v]) => [
+      k.replace(/-(\w)/g, (_, c: string) => c.toUpperCase()),
+      k === "font-family"
+        ? v.replace(/^"|"$/g, "")
+        : k === "unicode-range"
+          ? v.replace(/ /g, "")
+          : v,
+    ]),
+  );
 
 /** The --color-* tokens and every token whose value reads one of them, however indirectly. */
 const dayAgain = (tokens: Record<string, string>) => {
@@ -288,6 +308,7 @@ ${flat(join(ROOT, source))}`;
 
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
+  const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");
   const tokens = parseTokens(css);
   const declare = (names: string[]) => names.map((k) => `  ${k}: ${tokens[k]};`).join("\n");
   const colors = resolveColors(tokens);
@@ -304,18 +325,14 @@ const generate = () => {
     "tokens.py": `# ${head}\nTOKENS = ${JSON.stringify(tokens, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
     "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
     "fonts.json":
-      JSON.stringify(
-        { faces: fontFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8")) },
-        null,
-        2,
-      ) + "\n",
-    "static-fonts.css": `/* Generated from tokens/print.css by scripts/tokens.ts. Edit the source, never this file.
-   print.css's static faces alone, without the print scale: static files, never variable ones, so
-   Chrome embeds real glyphs in a PDF, followed by fonts.css's metric-matched fallback faces.
+      JSON.stringify({ faces: fontFaces(screen), fallbacks: fallbackData(screen) }, null, 2) + "\n",
+    "static-fonts.css": `/* Generated from tokens/print.css and tokens/fonts.css by scripts/tokens.ts. Edit the
+   sources, never this file. print.css's static faces without the print scale (static files, never
+   variable ones, so Chrome embeds real glyphs in a PDF), then fonts.css's fallback faces.
    Import it as @hackersandwizards/brand/static-fonts.css. */
 ${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(FONT_FACE)]
   .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
-  .concat(fallbackFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8")))
+  .concat(fallbackFaces(screen))
   .join("\n\n")}
 `,
     "elements.css": FLAT("elements/elements.css"),
