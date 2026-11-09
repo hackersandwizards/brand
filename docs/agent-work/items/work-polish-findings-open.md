@@ -19,3 +19,7 @@ evidence: "polish runs 08.11. (v1.37.0) and 09.11.: review findings left unfixed
 3. **Channel banner greys.** `applications/channel-banners/render.py` keeps `WHITE` and `SUBLINE`
    as typed RGB, with no token named for either; naming one changes the committed banners, so it
    needs a render diff.
+4. **Dim floor below /20.** `expert/expert.css` floors every `text-foreground/<n>` from `/20` to
+   `/65` (`test/expert.test.ts` holds the list), but not `/5` to `/15` nor an arbitrary value such
+   as `/[0.33]`, which render below the floor unchecked. A `brand-colours` finding on such a class
+   in a consumer's source would close it.

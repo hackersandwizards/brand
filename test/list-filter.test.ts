@@ -7,6 +7,7 @@ import {
   matches,
   ranked,
   readState,
+  rebaseSrcset,
   stateUrl,
   tally,
 } from "../elements/list-filter";
@@ -84,5 +85,21 @@ describe("list filter", () => {
       "Pricing agentic coding",
     ]);
     expect(ranked(titles, (t) => t, " ")).toBe(titles);
+  });
+});
+
+describe("rebaseSrcset", () => {
+  const at = (url: string) => `B/${url}`;
+  it("rebases each candidate and keeps its descriptor and spacing", () => {
+    expect(rebaseSrcset("a.png 1x, b.png 2x", at)).toBe("B/a.png 1x, B/b.png 2x");
+    expect(rebaseSrcset("a.png, b.png 2x", at)).toBe("B/a.png, B/b.png 2x");
+  });
+  it("keeps a comma inside an address", () => {
+    expect(rebaseSrcset("w_100,h_100/a.png 1x,c.png 2x", at)).toBe(
+      "B/w_100,h_100/a.png 1x,B/c.png 2x",
+    );
+    expect(rebaseSrcset("data:image/png;base64,AAAA 1x", at)).toBe(
+      "B/data:image/png;base64,AAAA 1x",
+    );
   });
 });

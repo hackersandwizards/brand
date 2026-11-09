@@ -133,6 +133,25 @@ export function highlight(text: string, words: string[]): string {
     .join("");
 }
 
+/** A srcset with each candidate's address passed through `at`, split as the HTML parser does:
+ *  an address runs to whitespace, and a comma inside it stays, as in a data: or CDN URL. */
+export function rebaseSrcset(srcset: string, at: (url: string) => string) {
+  let out = "";
+  let rest = srcset;
+  while (rest) {
+    const gap = /^[\s,]*/.exec(rest)![0];
+    const url = /^\S*/.exec(rest.slice(gap.length))![0];
+    const commas = /,*$/.exec(url)![0];
+    rest = rest.slice(gap.length + url.length);
+    // Without a trailing comma, descriptors such as "2x" run to the next comma.
+    const descriptors = commas ? "" : /^[^,]*/.exec(rest)![0];
+    rest = rest.slice(descriptors.length);
+    const bare = url.slice(0, url.length - commas.length);
+    out += gap + (bare ? at(bare) : "") + commas + descriptors;
+  }
+  return out;
+}
+
 /** The rows from which a list skips the layout of its rows off screen (data-long, list-filter.css):
  *  from here, rendering every row, one filter step on a slow phone takes longer than a frame. */
 export const LONG_LIST = 100;
@@ -252,25 +271,34 @@ export function initListFilter(root: HTMLElement) {
       })
       .then(({ html, base }) => {
         const page = new DOMParser().parseFromString(html, "text/html");
-        // Relative addresses resolve against the source page, not this one.
-        const at = (url: string) => new URL(url, base).href;
-        for (const el of page.querySelectorAll("[href], [src], [srcset]")) {
-          for (const name of ["href", "src"])
-            if (el.hasAttribute(name)) el.setAttribute(name, at(el.getAttribute(name)!));
-          const srcset = el.getAttribute("srcset");
-          if (srcset)
-            el.setAttribute(
-              "srcset",
-              srcset.replace(
-                /(^|,)(\s*)([^\s,]+)/g,
-                (_, sep: string, space: string, url: string) => `${sep}${space}${at(url)}`,
-              ),
-            );
-        }
         // The source's list as it stands, groups included, else its rows alone.
         const from = page.querySelector("[data-filter-list]");
-        if (from) list.replaceChildren(...from.childNodes);
-        else list.append(...page.querySelectorAll("[data-filter-item]"));
+        const nodes = from
+          ? [...from.childNodes]
+          : [...page.querySelectorAll("[data-filter-item]")];
+        // Relative addresses resolve against the source page, not this one; a fragment (an SVG
+        // sprite's #icon) and an address that does not parse stay as written.
+        const at = (url: string) => {
+          if (url.startsWith("#")) return url;
+          try {
+            return new URL(url, base).href;
+          } catch {
+            return url;
+          }
+        };
+        for (const node of nodes) {
+          if (!(node instanceof Element)) continue;
+          for (const el of [node, ...node.querySelectorAll("[href], [src], [srcset]")]) {
+            for (const name of ["href", "src"]) {
+              const value = el.getAttribute(name);
+              if (value !== null) el.setAttribute(name, at(value));
+            }
+            const srcset = el.getAttribute("srcset");
+            if (srcset) el.setAttribute("srcset", rebaseSrcset(srcset, at));
+          }
+        }
+        if (from) list.replaceChildren(...nodes);
+        else list.append(...nodes);
         collect();
         loaded = true;
         apply();

@@ -294,12 +294,6 @@ html[data-theme="dark"] {
   cursor: not-allowed;
 }
 
-/* ThemeToggle shows the theme it turns to, from the first paint: the moon by day, the sun by night. */
-html:not([data-theme="dark"]) #theme-toggle #sun-icon,
-html[data-theme="dark"] #theme-toggle #moon-icon {
-  display: none;
-}
-
 /* ThemeToggle freezes transitions across a theme flip, or 1k+ of them cascade-fade the page. */
 html.theme-switching,
 html.theme-switching *,

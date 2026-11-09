@@ -553,8 +553,8 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
   },
   "ipad-home": {
     "logo-band": [["l", 62, 521, 960]],
-    // Measured on the iPad: landscape home shows rows 219-1251 unscaled. Free band between the
-    // widgets (to y 1052) and the Dock (from y 1153).
+    // Measured on the iPad: landscape home shows rows 219-1251 unscaled; the lockup sat behind the
+    // last icon row. Free band between the widgets (to y 1052) and the Dock (from y 1153).
     "logo-gap": [["l", 44, 570, 1081]],
     // Landscape home shows rows 275-1298 unscaled; the lockup centred between the
     // last app labels (y 1064) and the Dock (y 1201).

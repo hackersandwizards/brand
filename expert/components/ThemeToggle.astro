@@ -35,7 +35,7 @@ import { MOON, SUN } from "./theme-icons";
     const toggle = document.getElementById("theme-toggle");
     if (!toggle) return;
 
-    // expert.css picks the icon from data-theme; the script keeps aria-pressed in step.
+    // header.css picks the icon from data-theme; the script keeps aria-pressed in step.
     function updatePressed() {
       const isDark = document.documentElement.getAttribute("data-theme") === "dark";
       toggle!.setAttribute("aria-pressed", isDark ? "true" : "false");

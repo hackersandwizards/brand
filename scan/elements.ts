@@ -695,30 +695,23 @@ export async function measurePage(
         )
       ).flatMap(definedClasses),
     );
-    // The catalog shell's markup is the shell's (scaffolding's), as for the elements.
-    const used = await page.evaluate(() => [
-      ...new Set(
-        [...document.querySelectorAll("[class]")]
-          .filter((el) => !el.closest("[data-hw-shell]"))
-          .flatMap((el) => [...el.classList]),
-      ),
-    ]);
-    // One finding per class, labelled by its first element.
-    const unstyled = (
-      await page.evaluate(
-        (classes) =>
-          classes.map((cls) => {
-            const el = [...document.getElementsByClassName(cls)].find(
-              (e) => !e.closest("[data-hw-shell]"),
-            )!;
-            return {
-              cls,
-              label: `${el.tagName.toLowerCase()} "${(el.textContent ?? "").trim().slice(0, 30)}"`,
-            };
-          }),
-        used.filter((c) => isBrandClass(c) && !defined.has(c)),
-      )
-    ).map((u) => ({ page: url, ...u }));
+    // Each class with the element it first appears on. The catalog shell's markup is the shell's
+    // (scaffolding's), as for the elements.
+    const used = await page.evaluate(() => {
+      const first = new Map<string, string>();
+      for (const el of document.querySelectorAll("[class]"))
+        if (!el.closest("[data-hw-shell]"))
+          for (const c of el.classList)
+            if (!first.has(c))
+              first.set(
+                c,
+                `${el.tagName.toLowerCase()} "${(el.textContent ?? "").trim().slice(0, 30)}"`,
+              );
+      return [...first];
+    });
+    const unstyled = used
+      .filter(([cls]) => isBrandClass(cls) && !defined.has(cls))
+      .map(([cls, label]) => ({ page: url, cls, label }));
     await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     const out = await page.evaluate(compare, [

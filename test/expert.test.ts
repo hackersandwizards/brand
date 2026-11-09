@@ -111,10 +111,11 @@ test("every text-foreground step from /20 to /65 takes the dim floor", () => {
 });
 
 // The theme switch shows one icon before any script runs: the moon by day, the sun by night.
+const header = readFileSync(join(ROOT, "expert/header.css"), "utf8");
 test("ThemeToggle shows the moon by day and the sun by night without its script", async () => {
   const tab = await browser.newPage();
   const shown = async (theme: string) => {
-    await tab.setContent(`<!doctype html><html data-theme="${theme}"><head><style>${css}</style></head>
+    await tab.setContent(`<!doctype html><html data-theme="${theme}"><head><style>${header}</style></head>
 <body><button id="theme-toggle"><svg id="sun-icon"></svg><svg id="moon-icon"></svg></button></body></html>`);
     return tab.evaluate(() =>
       ["sun-icon", "moon-icon"].filter(

@@ -129,6 +129,12 @@
   }
 }
 
+/* ThemeToggle shows the theme it turns to, from the first paint: the moon by day, the sun by night. */
+html:not([data-theme="dark"]) #theme-toggle #sun-icon,
+html[data-theme="dark"] #theme-toggle #moon-icon {
+  display: none;
+}
+
 @media (prefers-color-scheme: dark) {
   @scope (html[data-theme="auto"]) to ([data-theme="light"]) {
     :scope .hw-header {

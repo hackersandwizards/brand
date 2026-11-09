@@ -141,8 +141,9 @@ or inlines it as an icon. Its 4096 px master `emoji-logo-short.png` and the CMYK
 Git LFS outside the package; `bun scripts/outline.ts` writes the 256 px file from the master.
 
 The & sits optically centred between the s and the w, its mean row-wise gap equal on both sides.
-`bun scripts/ampersand.ts` writes that offset into every one-line logo,
-renders its PNG and rehashes both in `manifest.json`.
+`bun scripts/ampersand.ts` writes that offset into every day logo carrying the one-line wordmark,
+renders its PNG and rehashes both in `manifest.json`; `bun scripts/outline.ts` then writes the
+night, outline, white and black cuts from them.
 
 ### Serve the favicon
 

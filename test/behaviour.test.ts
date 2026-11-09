@@ -11,24 +11,19 @@ import { ROOT } from "../scripts/git";
 let browser: Browser;
 const dir = mkdtempSync(join(tmpdir(), "brand-behaviour-"));
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
-writeFileSync(
-  join(dir, "entry.ts"),
-  `import * as HW from ${JSON.stringify(join(ROOT, "elements/behaviour.ts"))}; Object.assign(window, { HW });`,
-);
-const js = await Bun.build({ entrypoints: [join(dir, "entry.ts")], format: "iife" });
-writeFileSync(join(dir, "b.js"), await js.outputs[0]!.text());
-writeFileSync(
-  join(dir, "copy-entry.ts"),
-  `import * as HWCopy from ${JSON.stringify(join(ROOT, "elements/copy.ts"))}; Object.assign(window, { HWCopy });`,
-);
-const copyJs = await Bun.build({ entrypoints: [join(dir, "copy-entry.ts")], format: "iife" });
-writeFileSync(join(dir, "copy.js"), await copyJs.outputs[0]!.text());
-writeFileSync(
-  join(dir, "form-entry.ts"),
-  `import * as HWForm from ${JSON.stringify(join(ROOT, "elements/form.ts"))}; Object.assign(window, { HWForm });`,
-);
-const formJs = await Bun.build({ entrypoints: [join(dir, "form-entry.ts")], format: "iife" });
-writeFileSync(join(dir, "form.js"), await formJs.outputs[0]!.text());
+/** Bundles an elements/ script into dir/`out`, its exports on window as `global`. */
+const bundle = async (src: string, global: string, out: string) => {
+  const entry = join(dir, `${out}.entry.ts`);
+  writeFileSync(
+    entry,
+    `import * as ${global} from ${JSON.stringify(join(ROOT, src))}; Object.assign(window, { ${global} });`,
+  );
+  const built = await Bun.build({ entrypoints: [entry], format: "iife" });
+  writeFileSync(join(dir, out), await built.outputs[0]!.text());
+};
+await bundle("elements/behaviour.ts", "HW", "b.js");
+await bundle("elements/copy.ts", "HWCopy", "copy.js");
+await bundle("elements/form.ts", "HWForm", "form.js");
 const css = ["generated/tokens.root.css", "elements/elements.css"]
   .map((f) => `<link rel="stylesheet" href="${brand(f)}">`)
   .join("");
