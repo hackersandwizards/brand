@@ -973,7 +973,7 @@ test("brand-elements fails on a source the policy in brand-elements.json refuses
   const red = run(POLICY);
   expect(red.exitCode).toBe(1);
   expect(red.stderr.toString()).toContain(
-    `${url} p.hw-form-error::before: the policy in brand-elements.json "csp" refuses data (img-src)`,
+    `${url} p.hw-form-error::before: the page's Content-Security-Policy refuses data (img-src)`,
   );
   expect(run(`${POLICY} data:`).stderr.toString()).not.toContain("refuses");
 }, 60_000);

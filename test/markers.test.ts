@@ -326,6 +326,33 @@ test("a policy refusing data: images is red on a page's data: icon, green with i
   expect(refused).toEqual([]);
 }, 30_000);
 
+// The run reads its own screenshots inside the page, which a policy refusing data: images must not
+// stop or see.
+test("markers measure the same under a policy refusing data: images", async () => {
+  const csp = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
+  const refused: Refusal[] = [];
+  const under = await measureMarkers(browser, NEW, { scale: 2, csp, refused });
+  expect(under).toEqual(await measureMarkers(browser, NEW, { scale: 2 }));
+  expect(refused).toEqual([]);
+}, 60_000);
+
+// A policy the page carries itself, as a <meta> or its server's header under --base, is read
+// without "csp"; a refusal inside an iframe counts too.
+test("a page's own policy and an iframe's refusals are reported", async () => {
+  const meta = file(
+    "csp-meta.html",
+    `<!doctype html><meta http-equiv="Content-Security-Policy" content="img-src 'self'"><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
+  );
+  const framed = file("csp-frame.html", `<!doctype html><iframe src="${meta}"></iframe>`);
+  for (const url of [meta, framed]) {
+    const refused: Refusal[] = [];
+    await hasMarkers(browser, url, { refused });
+    expect(refused).toEqual([
+      { page: url, element: "p.hw-form-error::before", source: "data", directive: "img-src" },
+    ]);
+  }
+}, 30_000);
+
 // An area mark opening a list item is an icon, not a list marker. The control: the same box
 // without the class is measured.
 test("an area mark opening a list item is no marker", async () => {

@@ -39,6 +39,8 @@
 //    fails too: the brand corner sits on the outermost block only (tokens.css). So does an element
 //    carrying an hw-* class, or one of BRAND_CLASSES, that no rule of a loaded stylesheet names (but
 //    inside :not()) draws unstyled; not one inside [data-hw-shell].
+//    Each source the page's policy refuses fails ("csp" or its own), with the element it hit;
+//    brand-markers too.
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
 //    button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
@@ -46,7 +48,6 @@
 //    does a component file of such a name, unless it carries the hw-* class, its name is an
 //    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
 //    medium, such as a slide deck's).
-//    With "csp", each source the policy refuses fails, with the element it hit (brand-markers too).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it), every
 //    such tile's data-hw-version is this package's version (a page built from another brand
 //    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, and every hub
@@ -61,6 +62,7 @@ import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
 import {
+  addCss,
   catalogPages,
   type Catalog,
   launch,
@@ -693,7 +695,7 @@ export async function measurePage(
     const cdp = await page.createCDPSession();
     await cdp.send("Emulation.setFocusEmulationEnabled", { enabled: true });
     await open(page, toUrl(url, site), csp);
-    if (css) await page.addStyleTag({ content: css });
+    if (css) await addCss(page, css);
     // Every sheet's text, another origin's and an imported one's too, which the page's own script
     // may not read: an element carrying a brand class no rule names draws unstyled.
     const sheets: string[] = [];
@@ -729,7 +731,7 @@ export async function measurePage(
     await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     // Before the references, which draw brand's own images.
-    const refused = csp ? await refusals(page, url) : [];
+    const refused = await refusals(page, url);
     const out = await page.evaluate(compare, [
       ELEMENT_CSS,
       ELEMENTS,
@@ -1070,17 +1072,8 @@ if (import.meta.main) {
     for (const url of empty) console.error(`${url}: no shared element found`);
     const shown = new Set(results.flatMap((r) => r.seen));
     console.log(
-      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${refused.length} refused by the policy, ${source.length} source findings, ${covered.length} coverage findings`,
+      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${refused.length} refused by the page's policy, ${source.length} source findings, ${covered.length} coverage findings`,
     );
   }
-  process.exit(
-    rendered.length ||
-      unstyled.length ||
-      refused.length ||
-      source.length ||
-      covered.length ||
-      empty.length
-      ? 1
-      : 0,
-  );
+  process.exit([rendered, unstyled, refused, source, covered, empty].some((a) => a.length) ? 1 : 0);
 }
