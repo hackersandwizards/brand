@@ -221,24 +221,31 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
 };
 
 const FONT_FACE = /@font-face\s*\{([^}]*)\}/g;
+const LOCAL = /src: local\(/;
+
+/** fonts.css's fallback faces, the ones whose src is a local() font. */
+const fallbackFaces = (css: string) =>
+  [...css.matchAll(FONT_FACE)].map(([face]) => face).filter((face) => LOCAL.test(face));
 
 /** The @font-face rules of fonts.css (or print.css), each descriptor camel-cased (fontFamily
  *  unquoted, unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
- *  unicodeRange takes every character. */
+ *  unicodeRange takes every character. A fallback face (src: local()) is left out. */
 export const fontFaces = (css: string) =>
-  [...css.matchAll(FONT_FACE)].map(([, body]) => {
-    const { src, ...rest } = declarations(body);
-    const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
-    const face: Record<string, string> = { file, format };
-    for (const [k, v] of Object.entries(rest))
-      face[k.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())] =
-        k === "font-family"
-          ? v.replace(/^"|"$/g, "")
-          : k === "unicode-range"
-            ? v.replace(/ /g, "")
-            : v;
-    return face;
-  });
+  [...css.matchAll(FONT_FACE)]
+    .filter(([face]) => !LOCAL.test(face))
+    .map(([, body]) => {
+      const { src, ...rest } = declarations(body);
+      const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
+      const face: Record<string, string> = { file, format };
+      for (const [k, v] of Object.entries(rest))
+        face[k.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())] =
+          k === "font-family"
+            ? v.replace(/^"|"$/g, "")
+            : k === "unicode-range"
+              ? v.replace(/ /g, "")
+              : v;
+      return face;
+    });
 
 /** The --color-* tokens and every token whose value reads one of them, however indirectly. */
 const dayAgain = (tokens: Record<string, string>) => {
@@ -304,9 +311,11 @@ const generate = () => {
       ) + "\n",
     "static-fonts.css": `/* Generated from tokens/print.css by scripts/tokens.ts. Edit the source, never this file.
    print.css's static faces alone, without the print scale: static files, never variable ones, so
-   Chrome embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
+   Chrome embeds real glyphs in a PDF, followed by fonts.css's metric-matched fallback faces.
+   Import it as @hackersandwizards/brand/static-fonts.css. */
 ${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(FONT_FACE)]
   .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
+  .concat(fallbackFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8")))
   .join("\n\n")}
 `,
     "elements.css": FLAT("elements/elements.css"),

@@ -111,13 +111,13 @@
   /* Headings, labels and stats. Code has its own family, so swapping this
      one leaves code as it is. */
   --font-mono:
-    "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Menlo,
+    "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SF Mono", "Cascadia Code", Menlo,
     monospace;
   --font-code:
-    "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Menlo,
+    "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SF Mono", "Cascadia Code", Menlo,
     monospace;
   --font-sans:
-    "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Inter Variable", "Inter", "Inter Fallback", system-ui, -apple-system, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
 
   /* One fluid scale, 360px -> 1280px, one step per type role. Every preferred

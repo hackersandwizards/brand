@@ -122,7 +122,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "1c8bb0806e470ee94cbb9efcdefa4e0ea95aca27f2669a4b21f2dd18c5f43dd6"
+      "sha256": "f0d95fdf97a683c8577b58a86effa4cde119de5a9a20cbfdd37d68f654c26c16"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",
@@ -510,7 +510,7 @@
     },
     {
       "path": "tokens/fonts.css",
-      "sha256": "946fc42216c8308906a993c0f8fde708ba625747a38d32edd6d8b403148563a5"
+      "sha256": "3195c559eea815463d55f6de1816022fb13f590a59c8c211dd27b126cb3ecb2b"
     },
     {
       "path": "tokens/night.css",

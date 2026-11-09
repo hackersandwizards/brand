@@ -46,3 +46,69 @@
     U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
     U+2C60-2C7F, U+A720-A7FF;
 }
+
+/* The fallback faces tokens.css's stacks name after each web face: a local system font scaled to
+   the web face's width, averaged over h&w slide and brand text, and set to its ascent, descent and
+   line gap, so text drawn before the web face arrives keeps its lines when it swaps in. Inter takes
+   Arial below weight 550 and Arial Bold from 550, each scaled at the weight it stands for;
+   JetBrains Mono takes Courier New, whose advance is the web face's at every weight. A system
+   without the local font skips the face. */
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 100 449;
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 107.14%;
+  ascent-override: 90.42%;
+  descent-override: 22.51%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 450 549;
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 108.28%;
+  ascent-override: 89.47%;
+  descent-override: 22.28%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 550 649;
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  size-adjust: 101.38%;
+  ascent-override: 95.56%;
+  descent-override: 23.79%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 650 900;
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  size-adjust: 102.41%;
+  ascent-override: 94.60%;
+  descent-override: 23.55%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  font-weight: 100 549;
+  src: local("Courier New"), local("CourierNewPSMT");
+  size-adjust: 99.98%;
+  ascent-override: 102.02%;
+  descent-override: 30.00%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  font-weight: 550 900;
+  src: local("Courier New Bold"), local("CourierNewPS-BoldMT");
+  size-adjust: 99.98%;
+  ascent-override: 102.02%;
+  descent-override: 30.00%;
+  line-gap-override: 0%;
+}

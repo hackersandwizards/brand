@@ -139,6 +139,26 @@ test("static-fonts.css holds print.css's faces, each url reaching its file from 
     expect(existsSync(join(ROOT, "generated", url))).toBe(true);
 });
 
+// A face drawn before its web face arrives keeps the web face's lines only if the stack names a
+// metric-matched fallback right after it, and every page loading either font file declares it.
+test("each stack names its fallback face second, and both font files declare its faces", () => {
+  const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");
+  const local = (text: string) =>
+    [...text.matchAll(/@font-face\s*\{[^}]*src: local\([^}]*\}/g)].map(([face]) => face);
+  for (const stack of ["--font-sans", "--font-mono", "--font-code"]) {
+    const fallback = tokens[stack]!.split(",")
+      .map((f) => f.trim())
+      .find((f) => f.endsWith(' Fallback"'))!;
+    expect(fallback).toBe(tokens[stack]!.split(",")[0]!.replace(" Variable", " Fallback"));
+    expect(local(screen).some((face) => face.includes(`font-family: ${fallback};`))).toBe(true);
+  }
+  for (const face of local(screen))
+    for (const d of ["size-adjust", "ascent-override", "descent-override", "line-gap-override"])
+      expect(face).toContain(`${d}: `);
+  const fallbacks = local(readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8"));
+  expect(fallbacks).toEqual(local(screen));
+});
+
 // Tailwind v4 resolves a utility such as text-<name> against two theme namespaces: text-label is
 // a colour wherever --color-label exists, and the element loses the --text-label size. No name may
 // sit in both namespaces of such a utility, in any CSS file the package ships, a consumer's @theme

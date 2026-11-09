@@ -1,6 +1,7 @@
 /* Generated from tokens/print.css by scripts/tokens.ts. Edit the source, never this file.
    print.css's static faces alone, without the print scale: static files, never variable ones, so
-   Chrome embeds real glyphs in a PDF. Import it as @hackersandwizards/brand/static-fonts.css. */
+   Chrome embeds real glyphs in a PDF, followed by fonts.css's metric-matched fallback faces.
+   Import it as @hackersandwizards/brand/static-fonts.css. */
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
@@ -231,4 +232,64 @@
   font-weight: 700;
   src: url("../tokens/fonts/jetbrains-mono-symbols-700-normal.woff2") format("woff2");
   unicode-range: U+2190-21FF, U+2500-257F;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 100 449;
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 107.14%;
+  ascent-override: 90.42%;
+  descent-override: 22.51%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 450 549;
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 108.28%;
+  ascent-override: 89.47%;
+  descent-override: 22.28%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 550 649;
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  size-adjust: 101.38%;
+  ascent-override: 95.56%;
+  descent-override: 23.79%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-weight: 650 900;
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  size-adjust: 102.41%;
+  ascent-override: 94.60%;
+  descent-override: 23.55%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  font-weight: 100 549;
+  src: local("Courier New"), local("CourierNewPSMT");
+  size-adjust: 99.98%;
+  ascent-override: 102.02%;
+  descent-override: 30.00%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  font-weight: 550 900;
+  src: local("Courier New Bold"), local("CourierNewPS-BoldMT");
+  size-adjust: 99.98%;
+  ascent-override: 102.02%;
+  descent-override: 30.00%;
+  line-gap-override: 0%;
 }
