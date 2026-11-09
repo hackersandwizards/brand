@@ -42,7 +42,7 @@
 @import "./segmented.css";
 @import "./row.css";
 @import "./breadcrumb.css";
-@import "../expert/disclosure.css";
+@import "./disclosure.css";
 @import "./nav.css";
 @import "./choice.css";
 @import "./search.css";

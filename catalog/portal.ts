@@ -586,16 +586,6 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
     return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${cut ? `, <a href="press/${cut}" download>${code(cut)}</a>` : ""}</figcaption></figure>`;
   })
   .join("")}</div>`;
-const disclosureDemo = `<details class="hw-disclosure" open><summary>Meetings <span class="hw-disclosure-count">3</span></summary><p>Kick-off, 12 Oct</p></details><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary><p>Hidden while closed</p></details>`;
-// The disclosure demo's spacing, the same in the night frame, the tile and the inline demo.
-const DISCLOSURE_SPACING = "summary{padding:0.25rem 0}details p{margin:0.25rem 0 0.5rem 1.5rem}";
-const nightDisclosure = `<!doctype html><html data-theme="dark"><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{--foreground:var(--color-night-ink);margin:0;padding:1rem;background:var(--color-night);color:var(--color-night-ink);font:400 0.875rem/1.5 var(--type-body-family)}${DISCLOSURE_SPACING}</style></head><body>${disclosureDemo}</body></html>`;
-index.push({
-  t: "disclosure",
-  k: "element",
-  h: "elements/disclosure",
-  x: "details summary chevron hw-disclosure collapse expand",
-});
 // The shared elements: each file's own words (its first paragraph and its settings), then its
 // sample live in a matrix of the four scales by light and night. Every cell loads the same file;
 // only the data-hw-scale on the cell changes.
@@ -652,6 +642,7 @@ const KEYWORDS: Record<string, string> = {
   spinner: "loading",
   skeleton: "placeholder loading",
   empty: "blank state nothing yet",
+  disclosure: "details summary chevron collapse expand fold",
   accordion: "faq collapse details",
   avatar: "person initials portrait",
   pagination: "pages prev next sequence",
@@ -691,17 +682,12 @@ const EXPERT_COMPONENTS = readdirSync(join(ROOT, "expert/components"))
   .flatMap((f) => f.match(/^(\w+)\.astro$/)?.[1] ?? []);
 const sharedIntro = `<p>Every element two or more systems show lives here once: one CSS file, shown live in light and night at each of the four scales. A system sets the scale, never a colour or a shape, and shows its exceptions in full on its own design-system page, beside a tile per hub element it uses. ${code('@import "@hackersandwizards/brand/elements.css";')} takes them all, ${code("elements/<name>.css")} with ${code("elements/scales.css")} one each; the scale is ${code('data-hw-scale="screen | dense | print | stage"')} on any container. ${code("brand-elements")} measures each element on the system's own page against this rule, in that system's gate.</p>
 <p>The list marker is ${code("tokens/marker.css")}. Staying with each system, since they only look alike: total band, section band, stage and status markers, chart bars, slide table, header bars, ghost button. The slide engine's number tile, a step's number on a square, is a slide part.</p>`;
-// The disclosure is the expert layer's plain CSS, which any surface may take, shown in Navigation.
-const disclosureHtml = `<h4 id="disclosure">Disclosure <code>.hw-disclosure</code></h4>
-<p class="meta">${code("expert/disclosure.css")} · brand v${pkg.version}</p>
-<p>A native ${code("<details>")} with the brand chevron in place of the browser's triangle: Lucide's chevron-right in the summary's text colour, turned down while open. ${code('@import "@hackersandwizards/brand/disclosure.css";')} and the class ${code("hw-disclosure")}, or the expert layer, which imports it. ${code("hw-disclosure-chevron")} places the chevron inside the summary instead, ${code("hw-disclosure-count")} is the count pill. Type, colour and padding stay the surface's.</p>
-<div class="disclosures"><figure><span class="label">Light</span><div class="disclosure-demo">${disclosureDemo}</div></figure><figure><span class="label">Night</span>${frame(nightDisclosure, 'title="disclosure on night"')}</figure></div>`;
 const elementsHtml = `${sharedIntro}
 ${SECTIONS.map(
   ([section, els]) =>
     `<h3 id="${sectionId(section)}">${section}</h3>\n${els
       .map(([name, title, file]) => elementHtml({ name, title, file }))
-      .join("\n")}${section === "Navigation" ? `\n${disclosureHtml}` : ""}`,
+      .join("\n")}`,
 ).join("\n")}
 <h3 id="expert-group">Expert: the apps</h3>
 <p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), shown on each app's design-system page. Their field is ${code("form-input")}, which takes the field's states and the form field's parts above.</p>`;
@@ -724,7 +710,7 @@ const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub])
 // A tile's preview of a shared element is its sample in a frame of its own, as a story draws it.
 const sampleFrame = (body: string, css = "") =>
   frame(
-    `<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><link rel="stylesheet" href="expert/disclosure.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`,
+    `<!doctype html><html><head><link rel="stylesheet" href="generated/tokens.root.css"><link rel="stylesheet" href="${ASSETS}/elements.css"><style>body{margin:0;padding:1.5rem;color:var(--color-ink);font:400 var(--text-body)/var(--text-body--line-height) var(--type-body-family)}body>*+*{margin-top:0.5em}:is(p,blockquote,pre){margin-block:0}${css}</style></head><body data-hw-scale="screen">${body}</body></html>`,
     'tabindex="-1" aria-hidden="true" title=""',
   );
 // An image under applications/ is in Git LFS and a pointer in a checkout without it: the preview
@@ -808,26 +794,13 @@ const groups: CatalogGroup[] = [
   {
     name: "Elements",
     items: [
-      ...ELEMENT_ORDER.flatMap(({ section, name, title, file }) => [
-        {
-          name: title,
-          href: `#elements/hw-${name}`,
-          note: `${CLASS[name] ?? `.hw-${name}`} · elements/${file}.css`,
-          pill: section,
-          html: sampleFrame(DEMOS[name]!),
-        },
-        ...(name === "breadcrumb"
-          ? [
-              {
-                name: "Disclosure",
-                href: "#elements/disclosure",
-                note: ".hw-disclosure · expert/disclosure.css",
-                pill: section,
-                html: sampleFrame(disclosureDemo, DISCLOSURE_SPACING),
-              },
-            ]
-          : []),
-      ]),
+      ...ELEMENT_ORDER.map(({ section, name, title, file }) => ({
+        name: title,
+        href: `#elements/hw-${name}`,
+        note: `${CLASS[name] ?? `.hw-${name}`} · elements/${file}.css`,
+        pill: section,
+        html: sampleFrame(DEMOS[name]!),
+      })),
     ],
   },
   {
@@ -1125,10 +1098,6 @@ ${inline(catalogCss)}</style>
     .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
     .asset img[src$=".png"] { object-fit: scale-down; }
     .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
-    .disclosures { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: start; }
-    .disclosures figure { display: grid; gap: 0.5rem; margin: 0; }
-    .disclosures iframe { width: 18rem; height: 7rem; border: 0; border-radius: var(--radius-brand); }
-    .disclosure-demo { width: 16rem; ${DISCLOSURE_SPACING} }
     .el-matrix { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
     .el-head { align-self: end; }
     .el-row { align-self: center; }
@@ -1156,7 +1125,7 @@ ${inline(catalogCss)}</style>
     .portal .words-cols tr { border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
   }
 </style>
-<style>${ownCss("expert/disclosure.css")}</style>
+<style>${ownCss("elements/disclosure.css")}</style>
 </head>
 <body class="hw-focus-ring">
 <header class="hw-header">

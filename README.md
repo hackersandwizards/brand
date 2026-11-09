@@ -191,7 +191,9 @@ catalog renders its nav from it (`import catalogs from "@hackersandwizards/brand
 the current one with `aria-current="page"` on its home and `aria-current="true"` on a page below
 it, in an element with `data-hw-catalogs`. Below 30rem that header puts the nav on a row of its own under
 the lockup, so no catalog sits off-screen, and `--spacing-app-header` grows by the row. A new
-catalog is one line in `catalogs.json`, a release, and a pin bump in every catalog. The products'
+catalog is one line in `catalogs.json`, a release, and a pin bump in every catalog. The Brand entry's `anchors` give the
+portal's address forms: `element` (`#elements/hw-card`), `colour` (`#colours/color-teal`) and
+`palette` (`#colours/neutrals`, `#colours/hues`). The products'
 own design systems stay in the portal's Systems group.
 
 ### The catalog
@@ -212,7 +214,7 @@ a `data-theme="light"` element.
 ### The disclosure
 
 A native `<details>` wears the brand chevron in place of the browser's triangle: import
-`disclosure.css`, or the expert layer, which imports it, and give the details the class
+`disclosure.css` (`elements/disclosure.css`), or `elements.css` or the expert layer, which import it, and give the details the class
 `hw-disclosure`. The chevron is Lucide's chevron-right in the summary's text colour, 1em wide,
 0.5rem before the label, in the middle of its first line where the summary aligns on the baseline
 or the start, and turns down while open (150 ms, at once under reduced motion). Where
@@ -228,7 +230,7 @@ padding and Tailwind utilities win.
 Every element two or more systems show lives in `elements/`, one plain-CSS file each: label, label box,
 pill, card, callout, quote, ruled table, link in text, focus ring, round icon control, gradient
 strip, accent rule, code block (and its panel), inline code, button, arrow link, field (text field, field with button, textarea, select, combobox, date, file, password, read-only, warning and success, sizes), checkbox and radio, form field (label, optional mark, hint, error, warning and success message, character count, floating label, fieldset), switch, range, error summary, facts list, dot list, segmented
-control, list row, breadcrumb, navigation list, filter value, search field, status box, dashed frame, key figure, prose block, dialog, drawer, menu, popover, tooltip, command palette, toast, tabs, progress bar, spinner, skeleton, empty state, accordion, avatar, pagination, stepper, tree view, carousel, and the screen-reader-only text `hw-sr-only`. The chosen value of a filter value, segmented control or pressed icon control takes one fill, `elements/chosen.css`, which each imports. The catalog groups them in sections as mature UI
+control, list row, breadcrumb, disclosure, navigation list, filter value, search field, status box, dashed frame, key figure, prose block, dialog, drawer, menu, popover, tooltip, command palette, toast, tabs, progress bar, spinner, skeleton, empty state, accordion, avatar, pagination, stepper, tree view, carousel, and the screen-reader-only text `hw-sr-only`. The chosen value of a filter value, segmented control or pressed icon control takes one fill, `elements/chosen.css`, which each imports. The catalog groups them in sections as mature UI
 libraries do: Forms, Actions, Navigation, Feedback, Overlays, Data display, Typography, Containers, Utilities. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
 attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
@@ -479,8 +481,8 @@ A list with a search and a facet is `expert/components/ListFilter.astro`: a GET 
 are `hw-choice` (a label around a radio, a link with `aria-current` or a button with
 `aria-pressed`, with its count) and whose field is `hw-search`, sized by your `data-hw-scale` (44 px
 targets on `screen`). Its browser side is `initListFilter` in `elements/list-filter.ts`, which a
-page without Astro runs over the same markup; each row carries `data-filter-item`, its lowercase
-text in `data-filter-text`, its facet values as JSON in `data-filter-facets`
+page without Astro runs over the same markup; each row carries `data-filter-item`, its search
+text in `data-filter-text` (case, accents, umlauts and ß fold, so "muller" finds Müller), its facet values as JSON in `data-filter-facets`
 (`{"topic":["tools"]}`), its place in `data-filter-order`; a `[data-filter-title]` gets the matches
 marked and a `[data-filter-group]` hides while none of its rows shows. `facets` lists any number of
 facets in order, each shown as choices unless its labels sum past `budget` characters (160), then as

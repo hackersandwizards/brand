@@ -4,7 +4,7 @@
 // Call enhance() once the page is parsed, or enhance(root) after adding markup; listeners on the
 // document are installed once, per-element state is set up per call.
 import { copyButtons, german, modalOrBody } from "./copy.ts";
-import { searchWords } from "./list-filter.ts";
+import { hasWords, searchWords } from "./list-filter.ts";
 
 export { copyButton } from "./copy.ts";
 
@@ -405,8 +405,7 @@ function filterCommand(input: HTMLInputElement) {
   const words = searchWords(input.value);
   let shown = 0;
   for (const o of list.querySelectorAll<HTMLElement>('[role="option"]')) {
-    const text = (o.textContent ?? "").toLowerCase();
-    o.hidden = !words.every((w) => text.includes(w));
+    o.hidden = !hasWords(o.textContent ?? "", words);
     shown += Number(!o.hidden);
   }
   for (const g of list.querySelectorAll<HTMLElement>(".hw-command-group")) {

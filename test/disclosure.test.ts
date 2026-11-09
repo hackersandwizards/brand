@@ -9,7 +9,7 @@ import { launch, open } from "../scan/markers";
 
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
 const doc = (sheets: string[], body: string, cls = "") =>
-  `<!doctype html><html class="${cls}"><head><meta charset="utf-8">${["generated/tokens.root.css", ...sheets, "expert/disclosure.css"].map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${body}</body></html>`;
+  `<!doctype html><html class="${cls}"><head><meta charset="utf-8">${["generated/tokens.root.css", ...sheets, "elements/disclosure.css"].map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${body}</body></html>`;
 const page = (cls: string) =>
   doc(
     ["elements/focus.css"],

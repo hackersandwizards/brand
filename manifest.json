@@ -257,16 +257,16 @@
       "sha256": "0347249c704a8bf5786f8511d6f83b50afe7ea21a59be6f30ef3ba7dfdb651aa"
     },
     {
-      "path": "expert/disclosure.css",
-      "sha256": "3a50ebcfe70d8cf9fea06a7694fdcadd3de8f86e6198245a19ac4a6324706112"
+      "path": "elements/disclosure.css",
+      "sha256": "b868ba1c853869e0a6ad225ea98c5130132700dfdca242a831871aecfcaa1937"
     },
     {
       "path": "expert/expert.css",
-      "sha256": "0ebe4ea450783a1123ed1a0a843e5595c65d7909c1e6f36af1fe8f6b5c5e2c36"
+      "sha256": "1be948bd8e47938fa579eb5023119534e44d566156013178332c8badce4d6908"
     },
     {
       "path": "expert/catalogs.json",
-      "sha256": "efd4b5db7bd440e859b2094c7d6280d5c647949f79bf4ebf89b3b737f3768660"
+      "sha256": "60ecfb0715b8e905e2431c3a7773a2c5ecc5ea1f7aef8b48018d8a30c1fde706"
     },
     {
       "path": "expert/header.css",
@@ -358,7 +358,7 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "56685619b2a2a2b65b63565b69541a9021d3534dc3f2175233092f22c7e25e62"
+      "sha256": "1495f82501cf97998eed643f73824106e12559ab3ee7bc747c06b9a8b8708f1c"
     },
     {
       "path": "elements/focus.css",
@@ -542,7 +542,7 @@
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "73a4549449f7299b681933337ad541579ccc4e363df068db9911abc4e3cf697d"
+      "sha256": "8d201a79b69f0f2ccea571c147b0ea18bab641a3cc0e585c35b09bc78cdd95bb"
     },
     {
       "path": "elements/choice.css",
@@ -558,7 +558,7 @@
     },
     {
       "path": "elements/accordion.css",
-      "sha256": "ce90c375885dd959cd7752d9870ce9c46260d354d5d9158b38a4c3d6bec43bbd"
+      "sha256": "1cfe7a0d864b5951ac2d27aec3dfc71a34b94e434ad7d60577b72d2f30c2f9c0"
     },
     {
       "path": "elements/avatar.css",
@@ -566,7 +566,7 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "6baae7414b498482cdf3464e243037d2094e71021a79596ae14a3ea3fb89cd3d"
+      "sha256": "f7a67914b0eb089831f88a6ceee0e7bb6c161917614194f6db8c23f5eaed02b9"
     },
     {
       "path": "elements/carousel.css",

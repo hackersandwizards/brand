@@ -1,6 +1,8 @@
 /* The disclosure: a native <details> whose <summary> wears the brand chevron in place of the
    browser's triangle. Plain CSS, no Tailwind, so every surface takes it: a page puts class
-   hw-disclosure on its details, and expert.css imports this file.
+   hw-disclosure on its details, and elements.css and expert.css import this file.
+
+   Markup: <details class="hw-disclosure"><summary>Notizen <span class="hw-disclosure-count">8</span></summary><p>…</p></details>
 
    The chevron is Lucide's chevron-right. Its box holds a zero-width space, so it is one line high and has the label's baseline:
    on the baseline or the start it sits in the middle of the label's first line, on the default
@@ -71,7 +73,13 @@
     line-height: var(--text-micro--line-height, calc(16 / 12));
     padding: 0.0625rem 0.375rem;
     border-radius: var(--radius-pill);
-    color: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
-    background: color-mix(in srgb, var(--foreground, var(--color-ink)) 7%, transparent);
+    --_hw-count-ink: var(--foreground, var(--color-ink));
+    color: color-mix(in srgb, var(--_hw-count-ink) 70%, transparent);
+    background: color-mix(in srgb, var(--_hw-count-ink) 7%, transparent);
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-disclosure-count {
+      --_hw-count-ink: var(--foreground, var(--color-night-ink));
+    }
   }
 }

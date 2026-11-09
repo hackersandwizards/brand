@@ -39,6 +39,7 @@ export const DEMOS: Record<string, string> = {
   choice: `<div class="hw-choices" role="radiogroup" aria-label="Thema"><label class="hw-choice"><input type="radio" name="demo-topic" value="" checked>Alle<span class="hw-choice-count">24</span></label><label class="hw-choice"><input type="radio" name="demo-topic" value="tools">Werkzeuge<span class="hw-choice-count">9</span></label><label class="hw-choice"><input type="radio" name="demo-topic" value="evidence">Belege<span class="hw-choice-count">6</span></label></div><div class="hw-choices"><a class="hw-choice" href="#elements" aria-current="true">Remote<span class="hw-choice-count">4</span></a><button type="button" class="hw-choice" aria-pressed="false">Vor Ort<span class="hw-choice-count">2</span></button></div>`,
   search: `<div class="hw-search"><input class="hw-field" type="search" aria-label="Suchen" placeholder="Einheiten suchen"></div><div class="hw-field-row"><div class="hw-search"><input class="hw-field" type="search" aria-label="Trainings suchen" value="context"></div><button type="submit" class="hw-button" data-variant="secondary">Suchen</button></div>`,
   breadcrumb: `<nav class="hw-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="#elements">Trainings</a></li><li><span aria-current="page">Foundations</span></li></ol></nav>`,
+  disclosure: `<details class="hw-disclosure" open><summary>Termine <span class="hw-disclosure-count">3</span></summary><p style="margin: 0.25rem 0 0.5rem 1.5rem">Kick-off am 12. Oktober</p></details><details class="hw-disclosure"><summary>Notizen <span class="hw-disclosure-count">8</span></summary><p>Verborgen, solange zu</p></details>`,
   status: `<div class="hw-status"><strong>2 Lücken</strong><br>Trainer fehlt</div><div class="hw-status" data-tone="success">Bestätigt</div><div class="hw-status" data-tone="error"><span class="hw-label" data-hue="red">Schlecht</span><br>Ohne Plan losgelegt</div><div class="hw-status" data-tone="success"><span class="hw-label" data-hue="green">Gut</span><br>Erst der Plan</div><div class="hw-status" data-tone="info"><span class="hw-label" data-hue="amber">Offen</span> <span class="hw-label" data-hue="purple">Teil zwei</span></div>`,
   frame: `<div class="hw-frame" style="padding: 1rem">Noch kein Eintrag</div>`,
   kpi: `<div class="hw-kpi"><span class="hw-label" data-tone="muted">Pipeline</span><span class="hw-kpi-value">12</span></div>`,
@@ -95,6 +96,7 @@ export const SECTIONS: [string, [string, string, string][]][] = [
     [
       ["link", "Link in text", "link"],
       ["breadcrumb", "Breadcrumb", "breadcrumb"],
+      ["disclosure", "Disclosure", "disclosure"],
       ["nav", "Navigation list", "nav"],
       ["tabs", "Tabs", "tabs"],
       ["pagination", "Pagination", "pagination"],

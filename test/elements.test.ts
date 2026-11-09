@@ -124,6 +124,7 @@ const DRIFT: Record<string, string> = {
   skeleton: ".hw-skeleton { border-radius: 0 }",
   empty: ".hw-empty { border-style: solid }",
   accordion: ".hw-accordion { border-top-width: 3px }",
+  disclosure: ".hw-disclosure > summary { display: block }",
   avatar: ".hw-avatar { border-radius: 0 }",
   pagination: ".hw-pagination a { border-radius: 0 }",
   stepper: ".hw-stepper { font-size: 30px }",
@@ -627,7 +628,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
   expect(out).toEqual([
     `card: the tile on b.html says brand v0.1.0, the installed package is v${own.version}; rebuild that page`,
     'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, kbd, button, arrow-link, field, check, form-field, switch, range, error-summary, facts, dot-list, segmented, row, breadcrumb, nav, choice, search, status, frame, kpi, prose, dialog, drawer, menu, popover, tooltip, command, toast, tabs, progress, spinner, skeleton, empty, accordion, avatar, pagination, stepper, tree, carousel)',
+    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, kbd, button, arrow-link, field, check, form-field, switch, range, error-summary, facts, dot-list, segmented, row, breadcrumb, disclosure, nav, choice, search, status, frame, kpi, prose, dialog, drawer, menu, popover, tooltip, command, toast, tabs, progress, spinner, skeleton, empty, accordion, avatar, pagination, stepper, tree, carousel)',
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',

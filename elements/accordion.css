@@ -2,7 +2,7 @@
    by one. Each row is a native <details> in hw-accordion, ruled between rows, its label left and
    the chevron at the end turning when open. Giving the rows one name makes them exclusive
    natively; no script. Rows are as tall as --hw-item-height, at least 44 px on a touch screen.
-   A single row is hw-disclosure (expert/disclosure.css).
+   A single row is hw-disclosure (elements/disclosure.css).
 
    Markup: <div class="hw-accordion"><details name="faq"><summary>Wie lange dauert es?</summary><div class="hw-accordion-body">Zwei Tage.</div></details></div>
 

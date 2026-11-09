@@ -1,9 +1,9 @@
 // The list filter's protocol, framework-free: the matching a server render and the browser share,
 // so a shared link renders the rows the typing showed, and `initListFilter`, the browser side of
 // expert/components/ListFilter.astro, which a page without Astro can run over the same markup.
-// An item is its lowercase text and, per facet parameter, the values it carries; the state is the
+// An item is its text and, per facet parameter, the values it carries; the state is the
 // search words and one chosen value per facet, "" for all. Each row of the list carries
-// data-filter-item, its lowercase text in data-filter-text, its facet values as JSON in
+// data-filter-item, its text in data-filter-text, its facet values as JSON in
 // data-filter-facets ({"topic":["tools"]}), its place in the server's order in data-filter-order;
 // a [data-filter-title] inside, holding text only, gets the matched words marked, and a
 // [data-filter-group] hides while none of its rows shows. A server render sets `hidden` on each row
@@ -21,6 +21,27 @@ export interface FilterState {
 
 /** The search words of a query: every word counts from its first character. */
 export const searchWords = (q: string) => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+
+// Quoted keys: a page may load this script without a charset, and a bare non-ASCII key then breaks
+// the parse.
+const SPELLED: Record<string, string> = { "\u00e4": "ae", "\u00f6": "oe", "\u00fc": "ue" };
+
+/** A text's two search forms, lowercase with ß as ss: accents dropped (Müller: muller) and German
+ *  umlauts spelled out (Müller: mueller). A word is found where one of its forms sits in one of the
+ *  text's, so muller, mueller and müller each find Müller and Mueller. */
+function searchForms(text: string): [string, string] {
+  const lower = text.toLowerCase().normalize("NFC").replaceAll("\u00df", "ss");
+  const bare = (form: string) => form.normalize("NFD").replace(/\p{M}/gu, "");
+  return [bare(lower), bare(lower.replace(/[\u00e4\u00f6\u00fc]/g, (char) => SPELLED[char]!))];
+}
+
+/** Whether every search word sits in the text, accents, umlauts and ß folded. */
+export function hasWords(text: string, words: string[]): boolean {
+  const forms = searchForms(text);
+  return words.every((word) =>
+    searchForms(word).some((form) => forms.some((each) => each.includes(form))),
+  );
+}
 
 /** The state a URL carries: `q` and each facet's parameter, a value no option offers read as "". */
 export function readState(
@@ -42,7 +63,7 @@ export const isActive = (state: FilterState) =>
  *  which is how that facet's own counts are taken. */
 export function matches(item: FilterItem, state: FilterState, except?: string): boolean {
   const words = searchWords(state.q);
-  if (!words.every((word) => item.text.includes(word))) return false;
+  if (!hasWords(item.text, words)) return false;
   return Object.entries(state.facets).every(
     ([param, value]) => param === except || !value || (item.facets[param] ?? []).includes(value),
   );
@@ -82,12 +103,12 @@ export const fullTextUrl = (base: string, q: string) =>
  *  outright, then each word found in the title, more for a title starting with it. Searching
  *  "context engineering" wants the page of that name above the pages that mention it. */
 function rank(title: string, q: string): number {
-  const lower = title.toLowerCase();
-  const query = q.trim().toLowerCase();
-  let score = query && lower === query ? 100 : 0;
+  const [lower] = searchForms(title);
+  let score = q.trim() && lower === searchForms(q.trim())[0] ? 100 : 0;
   for (const word of searchWords(q)) {
-    if (lower.includes(word)) score += 10;
-    if (lower.startsWith(word)) score += 5;
+    if (hasWords(title, [word])) score += 10;
+    if (searchForms(word).some((form) => searchForms(title).some((each) => each.startsWith(form))))
+      score += 5;
   }
   return score;
 }
@@ -117,20 +138,45 @@ const escapeMarkup = (text: string) =>
     (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!,
   );
 
-/** The text as HTML with each search word in a <mark>, every part escaped. */
+/** The text as HTML with each search word in a <mark>, every part escaped. A word matches as
+ *  `hasWords` finds it, so "muller" marks "Müller". */
 export function highlight(text: string, words: string[]): string {
-  if (words.length === 0) return escapeMarkup(text);
-  const pattern = new RegExp(
-    `(${[...words]
-      .sort((a, b) => b.length - a.length)
-      .map((word) => word.replace(/[.*+?^$()|[\]\\{}]/g, "\\$&"))
-      .join("|")})`,
-    "gi",
-  );
-  return text
-    .split(pattern)
-    .map((part, index) => (index % 2 ? `<mark>${escapeMarkup(part)}</mark>` : escapeMarkup(part)))
-    .join("");
+  const source = text.normalize("NFC");
+  // Each form of the text character by character, with the source index each character came from.
+  const forms = [0, 1].map((index) => {
+    let folded = "";
+    const from: number[] = [];
+    let at = 0;
+    for (const char of source) {
+      const form = searchForms(char)[index]!;
+      folded += form;
+      for (let i = 0; i < form.length; i++) from.push(at);
+      at += char.length;
+    }
+    from.push(source.length);
+    return { folded, from };
+  });
+  const marked = new Array<boolean>(source.length).fill(false);
+  for (const word of words)
+    for (const needle of searchForms(word))
+      for (const { folded, from } of forms) {
+        if (!needle) continue;
+        for (let hit = folded.indexOf(needle); hit !== -1; hit = folded.indexOf(needle, hit + 1)) {
+          // The match runs to the end of the source character holding its last folded character.
+          const last = from[hit + needle.length - 1]!;
+          const end = from.find((index) => index > last) ?? source.length;
+          marked.fill(true, from[hit], end);
+        }
+      }
+  let html = "";
+  for (let start = 0; start < source.length;) {
+    let end = start;
+    while (end < source.length && marked[end] === marked[start]) end++;
+    const part = escapeMarkup(source.slice(start, end));
+    html += marked[start] ? `<mark>${part}</mark>` : part;
+    start = end;
+  }
+  return html;
 }
 
 /** A srcset with each candidate's address passed through `at`, split as the HTML parser does:

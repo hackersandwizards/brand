@@ -2,12 +2,14 @@ import { describe, expect, it } from "bun:test";
 import {
   countLine,
   fullTextUrl,
+  hasWords,
   highlight,
   isActive,
   matches,
   ranked,
   readState,
   rebaseSrcset,
+  searchWords,
   stateUrl,
   tally,
 } from "../elements/list-filter";
@@ -85,6 +87,33 @@ describe("list filter", () => {
       "Pricing agentic coding",
     ]);
     expect(ranked(titles, (t) => t, " ")).toBe(titles);
+  });
+
+  it("finds a name however its umlaut, accent or ß is typed, and marks it", () => {
+    const people = [
+      { text: "müller", facets: {} },
+      { text: "Mueller", facets: {} },
+      { text: "José Straße", facets: {} },
+      { text: "miller", facets: {} },
+    ];
+    const hits = (q: string) =>
+      people.flatMap((item, i) => (matches(item, { q, facets: {} }) ? [i] : []));
+    for (const q of ["mueller", "müller", "MÜLLER", "Muell"]) expect(hits(q)).toEqual([0, 1]);
+    // "ue" is no umlaut in "blue", so a name written Mueller needs the e.
+    expect(hits("muller")).toEqual([0]);
+    expect(hits("jose strasse")).toEqual([2]);
+    expect(hits("josé straße")).toEqual([2]);
+    expect(hits("strase")).toEqual([]);
+    expect(hasWords("Café Zoë", searchWords("cafe zoe"))).toBe(true);
+    expect(highlight("Anna Müller", ["muller"])).toBe("Anna <mark>Müller</mark>");
+    expect(highlight("Anna Müller", ["mueller"])).toBe("Anna <mark>Müller</mark>");
+    expect(highlight("Straße & Weg", ["strasse"])).toBe("<mark>Straße</mark> &amp; Weg");
+    expect(highlight("Mueller", ["müller"])).toBe("<mark>Mueller</mark>");
+    expect(highlight("Grüße", ["grü"])).toBe("<mark>Grü</mark>ße");
+    expect(ranked(["Anna Mueller", "Müller"], (t) => t, "müller")).toEqual([
+      "Müller",
+      "Anna Mueller",
+    ]);
   });
 });
 

@@ -27,7 +27,7 @@ test("the portal shows every shared element and every expert component", () => {
   expect(components.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
 });
 
-test("catalogs.json's portal anchors lead to every element and every colour", () => {
+test("catalogs.json's portal anchors lead to every element, every colour and every palette", () => {
   const { portal, anchors } = catalogs.find((c) => c.name === "Brand")!;
   expect(portal).toBe("https://hackersandwizards.github.io/brand/");
   // Every colour with a value of its own; an alias or a role (var() of another) has no swatch.
@@ -35,8 +35,9 @@ test("catalogs.json's portal anchors lead to every element and every colour", ()
     .filter(([k, v]) => k.startsWith("--color-") && !v.startsWith("var("))
     .map(([k]) => anchors!.colour.replace("<colour>", k.slice("--color-".length)));
   const elements = Object.keys(ELEMENTS).map((n) => anchors!.element.replace("<element>", n));
+  const palettes = ["neutrals", "hues"].map((p) => anchors!.palette.replace("<palette>", p));
   // A link opens the view, then the id inside it: #<view>/<id>.
-  const missing = [...colours, ...elements].filter((a) => {
+  const missing = [...colours, ...elements, ...palettes].filter((a) => {
     const [view, id] = a.slice(1).split("/");
     // The view runs to the next view's opening tag.
     const [, body = ""] = html.split(new RegExp(`<section[^>]* data-page="${view}"`));
