@@ -451,11 +451,11 @@ const walk = (dir: string): string[] =>
         .filter((f) => statSync(join(PKG, f)).isFile())
     : [];
 /** Every file this package ships as a brand asset, by sha256: manifest.json's files (the print
- *  masters among them by hash alone) plus the generated token formats, the client marks and the
- *  mail signature template. Files under 64 bytes are left out: too small to be a copy. */
+ *  masters among them by hash alone) plus the generated token formats and the mail signature
+ *  template. Files under 64 bytes are left out: too small to be a copy. */
 export const brandFiles = () => {
   const out = new Map<string, string>(manifest.files.map((f) => [f.sha256, f.path]));
-  for (const f of ["generated", "clients", "applications/mail-signature"].flatMap(walk))
+  for (const f of ["generated", "applications/mail-signature"].flatMap(walk))
     if (statSync(join(PKG, f)).size >= 64) out.set(contentHash(readFileSync(join(PKG, f))), f);
   return out;
 };

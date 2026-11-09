@@ -12,7 +12,6 @@ applications/**/*.ai filter=lfs diff=lfs merge=lfs -text export-ignore
 /expert -export-ignore
 /elements -export-ignore
 /logos -export-ignore
-/clients -export-ignore
 /press -export-ignore
 /verbal -export-ignore
 /scan -export-ignore

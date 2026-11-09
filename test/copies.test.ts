@@ -19,11 +19,10 @@ test("an LFS pointer names its object through ext lines and CRLF; other text nam
   expect(lfsOid(Buffer.from(`version 2\noid sha256:${oid}\n`))).toBeUndefined();
 });
 
-test("knows every manifest file, the generated formats and the client marks", () => {
+test("knows every manifest file and the generated formats", () => {
   const paths = new Set(brand.values());
   for (const p of ["logos/lockup.svg", "tokens/tokens.css", "generated/tokens.ts"])
     expect({ p, known: paths.has(p) }).toEqual({ p, known: true });
-  expect([...paths].some((p) => p.startsWith("clients/"))).toBe(true);
   expect(signatures.size).toBeGreaterThan(2);
 });
 

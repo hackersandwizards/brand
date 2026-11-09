@@ -23,7 +23,6 @@ const git = (args: string[]) => {
 };
 const BRAND = [
   "applications",
-  "clients",
   "elements",
   "expert",
   "generated",

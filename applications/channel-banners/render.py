@@ -8,7 +8,8 @@ Run from the brand repo root:
 
     uv run applications/channel-banners/render.py
 
-The banners with client logos (profile slide 2, the Featured link) take their marks from clients/.
+The banners with client logos (profile slide 2, the Featured link) take their marks from
+@hackersandwizards/testimonials, a devDependency: run `bun install` first.
 The profile banners take the claim from verbal/verbal.json in two rows: after a claim change, run
 this and read each of them for the safe area.
 Layout values are measured from the airy set as shipped; an ink box in a comment is this render's
@@ -52,7 +53,10 @@ ACCENTS = {"teal": COLORS["--color-teal-night"], "purple": COLORS["--color-purpl
 BASE = tuple(int(COLORS["--color-night"][i : i + 2], 16) for i in (1, 3, 5))
 TEAL_GLOW, PURPLE_GLOW = (7, 41, 46), (35, 9, 54)
 
-CLIENTS = BRAND / "clients"
+TESTIMONIALS = BRAND / "node_modules/@hackersandwizards/testimonials"
+CLIENTS = TESTIMONIALS / "marks"
+# A file may sit under several companies; one allowed entry releases it.
+SHOWN = {m["file"] for m in json.loads((TESTIMONIALS / "data/marks.json").read_text()) if m["surface"] == "allowed"}
 
 
 def corner_glows(w, h):
@@ -287,6 +291,8 @@ PROFILE_LINES = claim_lines()
 DESCRIPTOR = ("Training and mentoring in agentic engineering", 0.62, 1.11)
 PROFILE_LOGOS = [("mercedes-benz.webp", 569, 63), ("dm.svg", 682.5, 71), ("tchibo.svg", 842, 47), ("vorwerk.svg", 1025, 53), ("bonprix.webp", 1201.5, 45)]
 FEATURED_LOGOS = [("mercedes-benz.webp", 188, 78), ("dm.svg", 327.5, 88), ("tchibo.svg", 522.5, 57), ("vorwerk.svg", 747, 64), ("bonprix.webp", 963.5, 55)]
+for _file in {f for f, *_ in PROFILE_LOGOS + FEATURED_LOGOS} - SHOWN:
+    raise SystemExit(f"{_file}: testimonials' marks.json allows no surface to show it")
 
 
 # file name -> (surface, scale)

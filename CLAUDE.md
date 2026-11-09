@@ -29,12 +29,9 @@ data or secret.
   `src/data/profiles.ts` and os `src/content/documents/people/`, the company description in the website's copy.
 - `verbal/verbal.json`: the verbal identity (name, claim, home headline, the words it retires), exported as
   `./verbal.json` and in `manifest.json`; the hub sync copies it into the voice skill.
-- `clients/`: the client marks h&w may show, this repo's own: `clients.json` lists each client's
-  name and mark file in display order, keeping neighbours from different industries, with the
-  mark's source where known. `"onepager": false` keeps a mark off the os onepagers' client row,
-  which shows every other entry. `bun scripts/clients.ts` writes each mark's `height` (README);
-  `test/clients.test.ts` fails on a stale one or a mark whose box does not end on its drawn edge.
-  Outside `manifest.json`.
+- Client marks are not brand's: `@hackersandwizards/testimonials` holds every company mark, with
+  `surface` deciding which a surface may show. Brand draws marks only in the channel banners,
+  reading them from that devDependency's `marks/`; `render.py` stops on a file no `allowed` entry names.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
   device and call backgrounds, channel banners, LinkedIn post images, avatars, GitHub social previews, booth banners,
   gradients, merch print files, device stickers, mail signatures. Where a script builds a family it sits beside the files and writes
@@ -107,7 +104,7 @@ data or secret.
   design-system page, whose URL `catalog/portal.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
   their OFL texts, the area marks with their Lucide licence, small logos,
-  the client marks, the press photos, `verbal/`, `manifest.json`, the LinkedIn post renderers and prompts
+  the press photos, `verbal/`, `manifest.json`, the LinkedIn post renderers and prompts
   `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core`, and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an

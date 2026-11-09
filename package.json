@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "1.68.0",
+  "version": "2.0.0",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the verbal identity (claim, home headline, mission, vision, values, terms, retired slogans), the LinkedIn post renderers with their sketch prompt, the mail signature template, and the colour, copy, component, list-marker, element and retired-line checks a consumer runs in its gate, the list marker rule and the shared elements.",
   "keywords": [
@@ -44,7 +44,6 @@
     "./elements/*": "./elements/*",
     "./expert/components/*": "./expert/components/*",
     "./logos/*": "./logos/*",
-    "./clients/*": "./clients/*",
     "./press/*": "./press/*",
     "./verbal.json": "./verbal/verbal.json",
     "./mail-signature/*": "./applications/mail-signature/*",
@@ -77,7 +76,6 @@
     "logos/apple-touch-icon.png",
     "logos/icon-*.png",
     "logos/emoji-256.png",
-    "clients",
     "press",
     "verbal",
     "applications/linkedin-visuals/*.ts",
@@ -106,8 +104,9 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.20.1",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.5.1",
+    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.20.2",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.6.1",
+    "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v2.0.2",
     "@types/bun": "1.4.4",
     "@typescript/native": "npm:typescript@7.0.2",
     "astro": "7.4.7",
@@ -136,7 +135,13 @@
     ]
   },
   "scaffolding": {
-    "allow": [],
+    "allow": [
+      {
+        "check": "coupling",
+        "path": "applications/channel-banners/render.py",
+        "reason": "Python reads the testimonials marks at their installed path: it cannot resolve package exports"
+      }
+    ],
     "test": "test",
     "uniqueNames": [
       "GET",

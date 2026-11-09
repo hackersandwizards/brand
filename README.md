@@ -61,14 +61,9 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`                                                                                                                                                                  |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                                                                                                                                                                                 |
 | `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, `logos.json`                                                                                                                                                                     |
-| `@hackersandwizards/brand/clients/<file>`                 | client marks and `clients.json`                                                                                                                                                                      |
 | `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                                                                                                                                                                        |
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                                                                                                                                                                     |
 | `@hackersandwizards/brand/package.json`                   | the installed brand version, `version`                                                                                                                                                               |
-
-A client mark's box ends on its drawn edge and its ground is transparent. `clients.json` gives
-each mark's `height`: the share of a row's height at which it reads as heavy as the others; its
-width follows from the file's aspect.
 
 Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
@@ -446,7 +441,7 @@ which the engine renders from this package.
 
 Never commit a copy of a brand file: read it from the installed package. `brand-copies` fails on a
 file in your tree that is byte-identical to a file the package ships (the logos, tokens, fonts,
-expert components, press photos, client marks, generated token formats and the signature
+expert components, press photos, generated token formats and the signature
 template, through a Git LFS pointer too), on a file named like one of `logos/` that differs from
 it, and on a text file carrying a logo's path data or embedded wizard, such as a recoloured
 wordmark or an inlined SVG. An exception goes in `brand-copies.json` beside your `package.json`,
