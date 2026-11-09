@@ -1,7 +1,17 @@
 import { expect, test } from "bun:test";
 import theme from "../generated/code-theme.json";
-import { codeClasses } from "../elements/code";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { codeClasses, codeTokenClasses } from "../elements/code";
 import { colors } from "../generated/tokens";
+import { definedClasses } from "../scan/elements";
+import { ROOT } from "../scripts/git";
+
+test("codeTokenClasses are exactly the token selectors of code.css", () => {
+  const css = readFileSync(join(ROOT, "elements/code.css"), "utf8");
+  const selectors = definedClasses(css).filter((c) => c.startsWith("hw-code-"));
+  expect(new Set(codeTokenClasses)).toEqual(new Set(selectors));
+});
 
 const span = (color: string, fontStyle = 0) => {
   const node = { properties: { style: `color:${color}` } as Record<string, unknown> };
@@ -15,6 +25,13 @@ test("every colour of code-theme.json becomes a class, never an inline style", (
   for (const colour of colours) expect(span(colour).style).toBeUndefined();
   expect(span("#B97AF1", 3)).toEqual({ class: "hw-code-keyword hw-code-italic hw-code-bold" });
   expect(span(theme.colors["editor.foreground"])).toEqual({});
+});
+
+test("codeTokenClasses are exactly the classes the transformer puts on a token", () => {
+  const emitted = theme.tokenColors.flatMap((t) =>
+    String(span(t.settings.foreground, 7).class).split(" "),
+  );
+  expect(new Set(codeTokenClasses)).toEqual(new Set(emitted));
 });
 
 test("a colour outside the code palette fails instead of turning grey", () => {

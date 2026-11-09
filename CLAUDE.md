@@ -9,8 +9,9 @@ Consumers install it as a Git dependency pinned to a tag,
 `git+https://github.com/hackersandwizards/brand.git#v<version>`, which needs no GitHub access. No
 registry. The rollout is staged: this core first, component packages from talks and os later,
 moving into the core only once two surfaces share them. `"private": true` stays: nothing is ever
-published to a registry. A release is a tag `v<version>` matching `package.json`. Nothing here
-writes into another repo: no sync, no copy script.
+published to a registry. A release is a lightweight tag `v<version>` matching `package.json`
+(`git tag v<version>`, never `-a`), so a consumer's `bun.lock` records the commit rather than a tag
+object. Nothing here writes into another repo: no sync, no copy script.
 
 **Anyone can read this whole repo, its history included.** Nothing goes in that may not be
 public: no price, rate, discount, margin, offer, invoice, client term, client document, personal

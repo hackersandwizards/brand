@@ -28,6 +28,16 @@ const STYLES = [
   [4, "underline"],
 ] as const;
 
+const CLASSED_ROLES: readonly string[] = ROLES.filter((role) => role !== "fg");
+const tokenClass = (name: string) => `hw-code-${name}`;
+
+/** Every class codeClasses puts on a token, for a sanitizer's list of allowed classes. The block's
+ *  own hw-code is not one of them, and a terminal colour outside the roles stays an inline style. */
+export const codeTokenClasses: readonly string[] = [
+  ...CLASSED_ROLES,
+  ...STYLES.map(([, style]) => style),
+].map(tokenClass);
+
 function addClasses(node: Node, add: string[]) {
   const own = node.properties.class;
   const have = Array.isArray(own) ? own.map(String) : own ? String(own).split(/\s+/) : [];
@@ -50,8 +60,8 @@ export const codeClasses = {
     if (token.color && !role && !ansi)
       throw new Error(`${token.color} is no code palette colour: highlight with code-theme.json`);
     const add = [
-      ...(role && role !== "fg" ? [`hw-code-${role}`] : []),
-      ...STYLES.filter(([flag]) => (token.fontStyle ?? 0) & flag).map(([, s]) => `hw-code-${s}`),
+      ...(role && CLASSED_ROLES.includes(role) ? [tokenClass(role)] : []),
+      ...STYLES.filter(([flag]) => (token.fontStyle ?? 0) & flag).map(([, s]) => tokenClass(s)),
     ];
     if (add.length) addClasses(node, add);
     if (!ansi) delete node.properties.style;
