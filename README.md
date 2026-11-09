@@ -97,7 +97,7 @@ The logo is one line, with no line under it: the wizard beside the pixel wordmar
 (shirts, hoodie) and stickers; the stacked `logos/lockup-compact.svg` on small spots such as the mug.
 A header up to 40 px tall, on screen or in print, takes `logos/lockup-screen.svg`, on night
 `logos/lockup-screen-night.svg`: the same lockup with the wizard at 256 px, sharp to 6x, past 384 dpi
-in a PDF, 22 KB (29 KB on night) where the lockup weighs 50 KB (59 KB). Larger, the lockup itself. Slides carry the lockup on the title and the closing slide and the wordmark alone on
+in a PDF, at under half the lockup's weight. Larger, the lockup itself. Slides carry the lockup on the title and the closing slide and the wordmark alone on
 every other slide. The mail signature keeps its typed wordmark. Each has a `-night`
 cut for night, black and black textile, and an `-outline` cut, a white outline round the letters,
 for Purple Love, Stargazer and the gradient. The package ships the SVGs and, for a tool that cannot

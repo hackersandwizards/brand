@@ -329,8 +329,7 @@ for (const kind of ["white", "black"] as const) await writeCut("wordmark", kind)
 
 // The small cuts of the lockup, for a header up to 40 px tall on screen or in print: lockup-screen
 // and lockup-screen-night carry the wizard at half its pixels, 256 px, sharp to 6x at 40 px, past
-// 384 dpi in a PDF, and the night edge at the same density, which writeCut draws at twice the
-// wizard's. svgo then shortens the paths; mergePaths stays off, since merged letters render their
+// 384 dpi in a PDF, and every other raster, the night edge, at the wizard's density. svgo then shortens the paths; mergePaths stays off, since merged letters render their
 // shared edges differently. Same geometry and colours, so a page needs no rebuild of its own.
 const SCREEN = 2;
 const SVGO: Config = {
@@ -343,12 +342,10 @@ const SVGO: Config = {
           removeUnknownsAndDefaults: false,
           convertColors: false,
           sortAttrs: false,
-          cleanupNumericValues: false,
           mergePaths: false,
         },
       },
     },
-    "removeXlink",
   ],
 };
 for (const [from, to] of [
@@ -356,12 +353,14 @@ for (const [from, to] of [
   ["lockup-night", "lockup-screen-night"],
 ]) {
   let svg = readFileSync(join(ROOT, "logos", `${from}.svg`), "utf8");
-  for (const [, edge, b64] of svg.matchAll(
-    /<image (class="wizard-edge" )?[^>]*href="data:image\/png;base64,([^"]+)"/g,
-  )) {
-    const png = Buffer.from(b64, "base64");
-    const { width } = await sharp(png).metadata();
-    const small = await shrink(png, Math.round(width / (edge ? 2 * SCREEN : SCREEN))).toBuffer();
+  const images = [...svg.matchAll(/<image ([^>]*)href="data:image\/png;base64,([^"]+)"/g)].map(
+    ([, attrs, b64]) => ({ attrs, b64, units: Number(/width="([\d.]+)"/.exec(attrs)![1]) }),
+  );
+  const wizard = images.find((i) => !i.attrs.includes("wizard-edge"))!;
+  const { width } = await sharp(Buffer.from(wizard.b64, "base64")).metadata();
+  const perUnit = width / wizard.units / SCREEN;
+  for (const { b64, units } of images) {
+    const small = await shrink(Buffer.from(b64, "base64"), Math.round(units * perUnit)).toBuffer();
     svg = svg.replace(b64, small.toString("base64"));
   }
   svg = optimize(svg, SVGO).data;
