@@ -1,6 +1,6 @@
 # Preloads, the measure token and fallback faces without Arial, 10.11.2026
 
-Three consumer findings from 09.11.2026, measured and changed in brand v2.4.0.
+Three consumer findings from 09.11.2026, measured and changed in brand v2.4.0 and v2.4.1.
 
 ## Preloads from the rules' source
 
@@ -15,8 +15,9 @@ faces and not the list fails the gate.
 `--container-measure` (33em) and its heading twins sit in an `@theme static` block of their own,
 so every Tailwind build writes them to `:root`. Tailwind 4.3.5, built with no utility named: the
 measures are written, `--color-teal` stays out; the same build over the previous `tokens.css`
-writes no measure. `parseTokens` reads every `@theme` block, and the LinkedIn renderer rewrites
-both openings to `:root`.
+writes no measure; the catalog's own Tailwind build of `tokens.css` carries the measures and no
+`--color-teal`. `parseTokens` reads every `@theme` block and throws on one it cannot read. A
+plain-CSS reader takes `tokens.root.css`, as the LinkedIn renderer now does.
 
 `hw-prose` ran a 768 px block at 1440 px, which held 98 characters a line (median, maximum 109;
 Inter at 16 px). A handbook page in an app frame at 1440 px, three variants, blind:
@@ -35,12 +36,20 @@ reviewer per model, headings and their hairline at the block's width against at 
 7.0 against 6.8 and 8.67 against 8.17. That version shipped: a paragraph, list, quote or
 definition list anywhere in `hw-prose`, outside `not-prose`, takes
 `max-width: var(--container-measure)`, 528 px at 16 px, 67 characters a line (median, maximum
-75); a `not-prose` list keeps the block's 768 px.
+75); a `not-prose` list keeps the block's 768 px. v2.4.1 gives running text that holds an
+image, video, code block, table or figure the block's width too: in v2.4.0 an image in a paragraph
+shrank from 768 to 528 px and a code block in a numbered step to 502 px, neither of which the
+review had scored. A paragraph inside such a step keeps the measure.
 
 Scored on the handbook page alone, at 1440 px and the app scale. Not scored: the hub's knowledge
 articles, os notes and posts, which set the element in the same app frame, and the dense scale,
 where the measure is 429 px at 13 px, still about 65 characters. A surface that wants running text
 wider sets nothing today: `--hw-prose-width: none` widens the block, not the text.
+
+One reviewer's prompt, verbatim (the other personas: a trainer preparing from the trainers' web
+app, a UX designer of reading interfaces for internal tools; labels shuffled per reviewer):
+
+> You are a senior software consultant at a small engineering consultancy. Several times a day you open pages of the company's internal handbook in its internal web app on a 14-inch laptop (browser window 1440 CSS px wide) to look up how a process runs, often reading a whole page before acting on it. Below are three versions of the same handbook page in that app, each screenshot at full size as it appears in the browser window (labels: x y z). Medium: internal web app; audience: the staff and trainers who read it; display: a laptop browser window 1440 CSS px wide, images at 1:1. Files: page-x.png page-y.png page-z.png. Criteria, each scored 1 to 10: (1) reading comfort of the running text, (2) how easily you scan for a section or a fact, (3) legibility of the table and the command block, (4) breathing room, not cramped, (5) visual calm, (6) overall fit for this page. Answer with one block per page: the page label, the six scores, a mean, and one sentence per criterion on what keeps it below 10. Then name the page you would ship.
 
 ## Fallback faces for a device without Arial
 

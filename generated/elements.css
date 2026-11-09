@@ -2630,7 +2630,12 @@ select.form-input {
   --tw-prose-td-borders: var(--border, var(--color-border));
   --tw-prose-captions: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
 }
-.hw-prose :is(p, ul, ol, blockquote, dl):not(.not-prose, .not-prose *) {
+.hw-prose
+  :is(p, ul, ol, blockquote, dl):not(
+    .not-prose,
+    .not-prose *,
+    :has(img, video, pre, table, figure)
+  ) {
   max-width: var(--container-measure);
 }
 .hw-prose :is(table, pre) {

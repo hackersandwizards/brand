@@ -15,7 +15,8 @@
 
    Running text (a paragraph, a list, a quote, a definition list) keeps the brand measure,
    --container-measure, in its own em, so a line holds about 65 characters; headings with their
-   hairline, tables and code take the block's width.
+   hairline, tables, code and pictures take the block's width, and so does running text holding
+   one of them, such as a list whose step shows a code block.
 
    Settings:
      --hw-prose-width  the block's width, Tailwind's 3xl container (48rem); none fills the column,
@@ -42,7 +43,12 @@
   --tw-prose-td-borders: var(--border, var(--color-border));
   --tw-prose-captions: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
 }
-.hw-prose :is(p, ul, ol, blockquote, dl):not(.not-prose, .not-prose *) {
+.hw-prose
+  :is(p, ul, ol, blockquote, dl):not(
+    .not-prose,
+    .not-prose *,
+    :has(img, video, pre, table, figure)
+  ) {
   max-width: var(--container-measure);
 }
 .hw-prose :is(table, pre) {
