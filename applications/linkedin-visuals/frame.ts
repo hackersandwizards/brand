@@ -23,7 +23,6 @@ import { brandPath, escHtml, linkedinCss, screenshot } from "./render";
 const LOCKUP_HEIGHT = 36; // CSS px
 // The headline at 36 px reads about 26 pt on a phone, 22 characters to the line.
 const HEADLINE_SIZE = 36; // CSS px
-// How far the card reaches up into the band.
 const OVERLAP = 30; // CSS px
 // Laid out at 540 CSS px, about the width the feed shows the image at, and captured at twice that,
 // so every type role renders at the size the website gives it on a phone.

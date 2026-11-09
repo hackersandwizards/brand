@@ -168,7 +168,8 @@ export const definedClasses = (css: string) =>
       let s = sel;
       for (let i = s.indexOf(":not("); i >= 0; i = s.indexOf(":not(")) {
         let j = i + 5;
-        for (let depth = 1; depth; j++) depth += s[j] === "(" ? 1 : s[j] === ")" ? -1 : 0;
+        for (let depth = 1; depth && j < s.length; j++)
+          depth += s[j] === "(" ? 1 : s[j] === ")" ? -1 : 0;
         s = s.slice(0, i) + s.slice(j);
       }
       return [...s.matchAll(/\.((?:\\.|[\w-])+)/g)].map((m) => m[1]!.replace(/\\(.)/g, "$1"));
@@ -695,21 +696,29 @@ export async function measurePage(
       ).flatMap(definedClasses),
     );
     // The catalog shell's markup is the shell's (scaffolding's), as for the elements.
-    const used = await page.evaluate(() =>
-      [...document.querySelectorAll("[class]")]
-        .filter((el) => !el.closest("[data-hw-shell]"))
-        .flatMap((el) =>
-          [...el.classList].map((c) => [
-            c,
-            `${el.tagName.toLowerCase()} "${(el.textContent ?? "").trim().slice(0, 30)}"`,
-          ]),
-        ),
-    );
-    // One finding per class, at its first element.
-    const first = new Map<string, string>();
-    for (const [c, label] of used)
-      if (isBrandClass(c!) && !defined.has(c!) && !first.has(c!)) first.set(c!, label!);
-    const unstyled = [...first].map(([cls, label]) => ({ page: url, cls, label }));
+    const used = await page.evaluate(() => [
+      ...new Set(
+        [...document.querySelectorAll("[class]")]
+          .filter((el) => !el.closest("[data-hw-shell]"))
+          .flatMap((el) => [...el.classList]),
+      ),
+    ]);
+    // One finding per class, labelled by its first element.
+    const unstyled = (
+      await page.evaluate(
+        (classes) =>
+          classes.map((cls) => {
+            const el = [...document.getElementsByClassName(cls)].find(
+              (e) => !e.closest("[data-hw-shell]"),
+            )!;
+            return {
+              cls,
+              label: `${el.tagName.toLowerCase()} "${(el.textContent ?? "").trim().slice(0, 30)}"`,
+            };
+          }),
+        used.filter((c) => isBrandClass(c) && !defined.has(c)),
+      )
+    ).map((u) => ({ page: url, ...u }));
     await page.evaluate(openFolds);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     const out = await page.evaluate(compare, [
@@ -869,7 +878,7 @@ export const rules = (css: string) => {
     }
     own += s.slice(i);
     const props = [
-      ...[...own.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)].map((m) => m[1]!),
+      ...[...own.matchAll(/(?:^|;)\s*([\w-]+)\s*:/g)].map((m) => m[1]!),
       ...[...own.matchAll(/@apply\s+([^;]+)/g)].flatMap((m) =>
         m[1]!.trim().split(/\s+/).flatMap(utility),
       ),

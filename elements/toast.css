@@ -81,6 +81,9 @@
     border-color: color-mix(in srgb, var(--_hw-tone) 70%, transparent);
     background: color-mix(in srgb, var(--_hw-tone) 7%, var(--_hw-ground));
   }
+  .hw-toast-text {
+    grid-column: 2;
+  }
   .hw-toast-action {
     grid-column: 2;
     justify-self: start;

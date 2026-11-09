@@ -678,11 +678,14 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
 <p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
 };
 // The element samples' script, unminified so its export `enhance` keeps that name.
-const BEHAVIOUR = spawnSync(
+const bundle = spawnSync(
   process.execPath,
   ["build", join(ROOT, "elements/behaviour.ts"), "--format=esm"],
   { encoding: "utf8" },
-).stdout.replace(/<\/script/g, "<\\/script");
+);
+if (bundle.status !== 0)
+  throw new Error(`portal: bun build elements/behaviour.ts: ${bundle.stderr}`);
+const BEHAVIOUR = bundle.stdout.replace(/<\/script/g, "<\\/script");
 const EXPERT_COMPONENTS = readdirSync(join(ROOT, "expert/components"))
   .sort()
   .flatMap((f) => f.match(/^(\w+)\.astro$/)?.[1] ?? []);

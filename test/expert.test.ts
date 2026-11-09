@@ -102,3 +102,45 @@ body { color: var(--foreground) }</style></head><body><div data-theme="${inner}"
   expect(await read("light", "dark")).toEqual(day);
   await tab.close();
 });
+
+test("every text-foreground step from /20 to /65 takes the dim floor", () => {
+  const listed = [
+    ...css.matchAll(/\.text-foreground\\\/(\d+) \{\s*color: [^;]*max\(\1%, var\(--dim-floor\)\)/g),
+  ].map((m) => Number(m[1]));
+  expect(listed).toEqual([20, 25, 30, 35, 40, 45, 50, 55, 60, 65]);
+});
+
+// The theme switch shows one icon before any script runs: the moon by day, the sun by night.
+test("ThemeToggle shows the moon by day and the sun by night without its script", async () => {
+  const tab = await browser.newPage();
+  const shown = async (theme: string) => {
+    await tab.setContent(`<!doctype html><html data-theme="${theme}"><head><style>${css}</style></head>
+<body><button id="theme-toggle"><svg id="sun-icon"></svg><svg id="moon-icon"></svg></button></body></html>`);
+    return tab.evaluate(() =>
+      ["sun-icon", "moon-icon"].filter(
+        (id) => getComputedStyle(document.getElementById(id)!).display !== "none",
+      ),
+    );
+  };
+  expect(await shown("light")).toEqual(["moon-icon"]);
+  expect(await shown("dark")).toEqual(["sun-icon"]);
+  await tab.close();
+});
+
+// night.css serves pages without expert.css, so it repeats the day roles for a light island.
+test("night.css gives a light island inside night expert.css's day roles", () => {
+  const nightCss = readFileSync(join(ROOT, "tokens/night.css"), "utf8");
+  const island = parseTokens(
+    `@theme {${/\[data-hw-night\] \[data-theme="light"\]\s*\{([^}]*)\}/.exec(nightCss)![1]}}`,
+  );
+  const roles = ["--background", "--foreground", "--accent", "--muted", "--border"];
+  expect(roles.filter((k) => !(k in island))).toEqual([]);
+  // Resolved from the tokens alone, as on a page without Tailwind.
+  const copy = resolveColors({
+    ...parseTokens(readFileSync(SOURCE, "utf8")),
+    ...island,
+    ...Object.fromEntries(roles.map((k) => [`--color-role${k}`, `var(${k})`])),
+  });
+  const day = root(light);
+  for (const k of roles) expect([k, copy[`--color-role${k}`]]).toEqual([k, day(k)]);
+});

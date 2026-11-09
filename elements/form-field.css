@@ -20,9 +20,9 @@
    hw-form-warning and hw-form-success are the message for a field's data-state (field.css): the
    same place and weight as the error, amber-dark behind a triangle, green-dark behind a tick
    (amber and green on night). Neither sets aria-invalid: the answer is accepted.
-   hw-form-count under a textarea counts its characters: muted; with data-over it reads as an
-   error message, red behind the circled mark. form.ts fills it from data-max and its two texts, data-left and data-over,
-   where {n} stands for the number, and sets aria-invalid on the field while it is over (name it
+   hw-form-count under a textarea counts its characters: muted; with data-state="over" it reads as
+   an error message, red behind the circled mark. form.ts fills it from data-max and its two texts, data-left and data-over,
+   where {n} stands for the number, and sets data-state="over" on the count and aria-invalid on the field while it is over (name it
    in the field's aria-describedby). It announces the count to a screen reader once typing pauses
    for a second, not at every key. Without the script it states the limit.
    hw-form-float holds a field and its label after it: the label, muted at regular weight like a
@@ -93,7 +93,6 @@
       --_hw-target: var(--hw-check-target-touch, 44px);
     }
   }
-  /* A disabled option's text dims with its control. */
   .hw-form-field > label:has(> :disabled:not([data-readonly])) {
     color: var(--hw-muted, var(--color-muted));
   }
@@ -120,7 +119,7 @@
     color: var(--_hw-quiet);
   }
   /* The icon hangs in the message's left padding, so the message stays one run of text. */
-  .hw-form-count[data-over],
+  .hw-form-count[data-state="over"],
   .hw-form-error,
   .hw-form-warning,
   .hw-form-success {
@@ -139,7 +138,7 @@
     margin-top: var(--hw-form-gap, 0.375rem);
   }
   .hw-form-error::before,
-  .hw-form-count[data-over]::before,
+  .hw-form-count[data-state="over"]::before,
   .hw-form-warning::before,
   .hw-form-success::before {
     content: "";

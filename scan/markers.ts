@@ -616,10 +616,10 @@ export const catalogPages = (
   return states.map((s) => `${root.replace(/\/?$/, "/")}${file ? `${s}index.html` : encoded(s)}`);
 };
 
-/** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
- * brand-elements measures without a flag. Empty where it names no catalog. */
 /** The "catalog" of brand-elements.json. */
 export type Catalog = string | { dir: string; at?: string; exclude?: string[] };
+/** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
+ * brand-elements measures without a flag. Empty where it names no catalog. */
 export const listedCatalog = (config: {
   catalog?: Catalog;
   site?: string;
@@ -701,11 +701,11 @@ if (import.meta.main) {
     const contexts = await Promise.all(
       Array.from({ length: workers }, () => browser.createBrowserContext()),
     );
-    const listed = pages.slice(named.length);
-    const marked = await pool(listed, 4 * workers, (url, w) =>
+    const stories = pages.slice(named.length);
+    const marked = await pool(stories, 4 * workers, (url, w) =>
       hasMarkers(contexts[w % workers]!, url, { scale: scales[0], width }),
     );
-    const runs = [...pages.slice(0, named.length), ...listed.filter((_, i) => marked[i])].flatMap(
+    const runs = [...pages.slice(0, named.length), ...stories.filter((_, i) => marked[i])].flatMap(
       (url) => scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
     );
     readings = (

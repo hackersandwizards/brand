@@ -64,8 +64,8 @@ function gradientTall() {
 }
 
 // The wordmark near full width, the offer line on two lines, the large wizard with the outline cut's
-// white edge below, moved 30 mm left (40 mm on a 600 mm wizard, scaled). The
-// wizard and its edge stay whole inside the padding, one line pitch of the offer clear below it.
+// white edge below, moved 30 mm left. The wizard and its edge stay whole inside the padding, one
+// line pitch of the offer clear below it.
 function gradientSquare() {
   const mascot = edgedWizard(WIZARD_1X1, "translate:calc(-30 * var(--mm)) 0");
   return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:60;--pad-y:90;--h2:62;--wm:110"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${brand.wordmarkOutline}" alt="hackers&amp;wizards">${space(32)}<p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;

@@ -205,8 +205,9 @@ export function initListFilter(root: HTMLElement) {
         return { el, title, plain: title?.textContent ?? "", item };
       });
     items = rows.map((row) => row.item);
+    const rowOf = new Map(rows.map((row) => [row.el, row]));
     placed = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")].map((el) =>
-      rows.find((row) => row.el === el)!,
+      rowOf.get(el)!,
     );
     groups = [...list.querySelectorAll<HTMLElement>("[data-filter-group]")];
     list.toggleAttribute("data-long", rows.length >= LONG_LIST);
@@ -251,8 +252,21 @@ export function initListFilter(root: HTMLElement) {
       })
       .then(({ html, base }) => {
         const page = new DOMParser().parseFromString(html, "text/html");
-        for (const link of page.querySelectorAll<HTMLAnchorElement>("[data-filter-item] a[href]"))
-          link.href = new URL(link.getAttribute("href")!, base).href;
+        // Relative addresses resolve against the source page, not this one.
+        const at = (url: string) => new URL(url, base).href;
+        for (const el of page.querySelectorAll("[href], [src], [srcset]")) {
+          for (const name of ["href", "src"])
+            if (el.hasAttribute(name)) el.setAttribute(name, at(el.getAttribute(name)!));
+          const srcset = el.getAttribute("srcset");
+          if (srcset)
+            el.setAttribute(
+              "srcset",
+              srcset.replace(
+                /(^|,)(\s*)([^\s,]+)/g,
+                (_, sep: string, space: string, url: string) => `${sep}${space}${at(url)}`,
+              ),
+            );
+        }
         // The source's list as it stands, groups included, else its rows alone.
         const from = page.querySelector("[data-filter-list]");
         if (from) list.replaceChildren(...from.childNodes);
@@ -315,7 +329,9 @@ export function initListFilter(root: HTMLElement) {
     }
     for (const { el, title, plain, item } of order) {
       el.hidden = !matches(item, current);
-      if (!el.hidden) shown += 1;
+      if (el.hidden) continue;
+      shown += 1;
+      // A hidden row's title is rewritten when it shows again.
       if (title) title.innerHTML = highlight(plain, words);
     }
     for (const group of groups)

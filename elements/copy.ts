@@ -2,8 +2,6 @@
 // the page is parsed. Its only stylesheet is sr-only.css, for the live region that announces the
 // result. Each press dispatches a bubbling "hw-copy" event on the button, detail { ok }, so a page
 // records a copy only where ok is true.
-// A copy button says its result on itself, where the eye already is. One button at a time reads as
-// copied: only that one says what the clipboard holds. A failure shows on the failed button only.
 
 const labels = new WeakMap<HTMLElement, Node[]>();
 const latest = new WeakMap<HTMLElement, number>();

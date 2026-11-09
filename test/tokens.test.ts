@@ -31,7 +31,7 @@ test("reads every declaration of tokens.css", () => {
 
 test("mixes color-mix() tokens in sRGB", () => {
   expect(colors["--color-night-ink"]).toBe("#ebeced"); // white 92 % on night
-  expect(colors["--color-subtle"]).toBe(colors["--color-muted"]); // an alias
+  expect(colors["--color-subtle"]).toBe(colors["--color-muted"]);
 });
 
 test("ampersand-light, written out against night.css's loop, stays ampersand 60 % on white", () => {

@@ -496,7 +496,7 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
       ["l", 60, 64, 907],
     ],
     "lw-stack-c": [["k", 520, 604, 430]],
-    // The one-line lockup, its wordmark as large as in the 440 pt compact lockup it replaced
+    // The one-line lockup, its wordmark as large as in a 440 pt compact lockup
     // (99.7 = 440 x 1489 / 6571), its ink 130 pt from the right and the bottom edge.
     "logo-r": [["l", 99.7, 1063.1, 883.3]],
     "logo-ll": [["l", 56, 64, 880]],
@@ -523,7 +523,7 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // top left at file point (91, 91), so the clock axis lies at file x 625, the clock ends at y 256
     // and a notification starts at y 800. The stack on that axis, a third of the way down the gap.
     "lw-stack-axis": [["k", 360, 445, 350]],
-    // 21:13, after setting lw-stack-axis: 1.146 times, horizontally centred, top at file y 153; clock
+    // After setting lw-stack-axis: 1.146 times, horizontally centred, top at file y 153; clock
     // ends at y 337, the notifications start at y 945. iPadOS picks a new crop each time the file is
     // set, so the stack sits on the file's centre axis and inside the band both crops keep clear
     // (y 337-800).
@@ -553,13 +553,13 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
   },
   "ipad-home": {
     "logo-band": [["l", 62, 521, 960]],
-    // Measured on the iPad: landscape home shows rows 219-1251 unscaled; the lockup sat behind the
-    // last icon row. Free band between the widgets (to y 1052) and the Dock (from y 1153).
+    // Measured on the iPad: landscape home shows rows 219-1251 unscaled. Free band between the
+    // widgets (to y 1052) and the Dock (from y 1153).
     "logo-gap": [["l", 44, 570, 1081]],
-    // Same evening: landscape home shows rows 275-1298 unscaled; the lockup centred between the
+    // Landscape home shows rows 275-1298 unscaled; the lockup centred between the
     // last app labels (y 1064) and the Dock (y 1201).
     "logo-gap-c": [["l", 44, 570, 1110]],
-    // 21:13: rows 352-1374. The two measured crops differ by 77 points, so a smaller lockup sits
+    // Rows 352-1374. The two measured crops differ by 77 points, so a smaller lockup sits
     // where it clears the app labels and the Dock under both.
     "logo-gap-r": [["l", 36, 591.4, 1153]],
     // The third landscape screenshot with logo-gap-r set: rows 344-1376 unscaled (bottom-aligned,

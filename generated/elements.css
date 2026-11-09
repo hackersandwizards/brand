@@ -1519,7 +1519,7 @@ select.form-input {
   .hw-form-count {
     color: var(--_hw-quiet);
   }
-  .hw-form-count[data-over],
+  .hw-form-count[data-state="over"],
   .hw-form-error,
   .hw-form-warning,
   .hw-form-success {
@@ -1538,7 +1538,7 @@ select.form-input {
     margin-top: var(--hw-form-gap, 0.375rem);
   }
   .hw-form-error::before,
-  .hw-form-count[data-over]::before,
+  .hw-form-count[data-state="over"]::before,
   .hw-form-warning::before,
   .hw-form-success::before {
     content: "";
@@ -3252,6 +3252,9 @@ select.form-input {
     --_hw-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 8v4M12 16h.01'/%3E%3C/svg%3E");
     border-color: color-mix(in srgb, var(--_hw-tone) 70%, transparent);
     background: color-mix(in srgb, var(--_hw-tone) 7%, var(--_hw-ground));
+  }
+  .hw-toast-text {
+    grid-column: 2;
   }
   .hw-toast-action {
     grid-column: 2;

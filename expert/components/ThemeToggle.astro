@@ -12,7 +12,7 @@ import { MOON, SUN } from "./theme-icons";
   aria-pressed="false"
   type="button"
 >
-  <svg id="sun-icon" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg id="sun-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -20,7 +20,7 @@ import { MOON, SUN } from "./theme-icons";
       d={SUN}
     ></path>
   </svg>
-  <svg id="moon-icon" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg id="moon-icon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -33,26 +33,17 @@ import { MOON, SUN } from "./theme-icons";
 <script>
   function initThemeToggle() {
     const toggle = document.getElementById("theme-toggle");
-    const sunIcon = document.getElementById("sun-icon");
-    const moonIcon = document.getElementById("moon-icon");
     if (!toggle) return;
 
-    function updateIcons() {
-      const theme = document.documentElement.getAttribute("data-theme");
-      const isDark = theme === "dark";
-      if (isDark) {
-        sunIcon?.classList.remove("hidden");
-        moonIcon?.classList.add("hidden");
-      } else {
-        sunIcon?.classList.add("hidden");
-        moonIcon?.classList.remove("hidden");
-      }
+    // expert.css picks the icon from data-theme; the script keeps aria-pressed in step.
+    function updatePressed() {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
       toggle!.setAttribute("aria-pressed", isDark ? "true" : "false");
     }
 
-    updateIcons();
+    updatePressed();
 
-    // After updateIcons: a re-init must refresh the icons but not stack listeners.
+    // After updatePressed: a re-init must refresh the state but not stack listeners.
     if (toggle.dataset.themeInit) return;
     toggle.dataset.themeInit = "1";
 
@@ -68,7 +59,7 @@ import { MOON, SUN } from "./theme-icons";
       try {
         localStorage.setItem("theme", newTheme);
       } catch {}
-      updateIcons();
+      updatePressed();
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           root.classList.remove("theme-switching");

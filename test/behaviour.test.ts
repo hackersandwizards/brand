@@ -23,6 +23,12 @@ writeFileSync(
 );
 const copyJs = await Bun.build({ entrypoints: [join(dir, "copy-entry.ts")], format: "iife" });
 writeFileSync(join(dir, "copy.js"), await copyJs.outputs[0]!.text());
+writeFileSync(
+  join(dir, "form-entry.ts"),
+  `import * as HWForm from ${JSON.stringify(join(ROOT, "elements/form.ts"))}; Object.assign(window, { HWForm });`,
+);
+const formJs = await Bun.build({ entrypoints: [join(dir, "form-entry.ts")], format: "iife" });
+writeFileSync(join(dir, "form.js"), await formJs.outputs[0]!.text());
 const css = ["generated/tokens.root.css", "elements/elements.css"]
   .map((f) => `<link rel="stylesheet" href="${brand(f)}">`)
   .join("");
@@ -589,3 +595,37 @@ test("the behaviour files hold no markup built from strings they did not create"
   for (const f of ["elements/behaviour.ts", "elements/copy.ts"])
     expect(readFileSync(join(ROOT, f), "utf8")).not.toMatch(/innerHTML|insertAdjacentHTML/);
 });
+
+test("the character count reads the limit, then the overrun as an error, and back", async () => {
+  const p = await browser.newPage();
+  const f = join(dir, "count.html");
+  writeFileSync(
+    f,
+    `<!doctype html><html lang="de"><head>${css}</head><body data-hw-scale="screen"><textarea class="hw-field" id="n" aria-describedby="n-count">abc</textarea><p class="hw-form-count" id="n-count" data-for="n" data-max="5" data-left="Noch {n} Zeichen" data-over="{n} Zeichen zu viel">Höchstens 5 Zeichen</p><script src="form.js"></script></body></html>`,
+  );
+  await open(p, pathToFileURL(f).href);
+  const errors: string[] = [];
+  p.on("pageerror", (e) => errors.push(String(e)));
+  const before = await p.$eval("#n-count", (c) => getComputedStyle(c).color);
+  await p.evaluate(() =>
+    (window as unknown as { HWForm: { enhanceForms(): void } }).HWForm.enhanceForms(),
+  );
+  const read = () =>
+    p.evaluate(() => [
+      document.getElementById("n-count")!.textContent,
+      document.getElementById("n-count")!.dataset.state ?? null,
+      document.getElementById("n")!.getAttribute("aria-invalid"),
+      getComputedStyle(document.getElementById("n-count")!).color,
+    ]);
+  const [left, , , quiet] = await read();
+  expect([left, quiet]).toEqual(["Noch 2 Zeichen", before]);
+  await p.type("#n", "defg");
+  const [overText, state, invalid, red] = await read();
+  expect([overText, state, invalid]).toEqual(["2 Zeichen zu viel", "over", "true"]);
+  expect(red).not.toBe(quiet);
+  await p.keyboard.press("Backspace");
+  await p.keyboard.press("Backspace");
+  expect((await read()).slice(0, 3)).toEqual(["Noch 0 Zeichen", null, null]);
+  expect(errors).toEqual([]);
+  await p.close();
+}, 30_000);

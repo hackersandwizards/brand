@@ -30,6 +30,7 @@ test("every element story passes brand-elements", async () => {
   const results = await pool(pages, 8, (p) => measurePage(browser, p));
   expect(pages.filter((_, i) => !results[i]!.seen.length)).toEqual([]);
   expect(results.flatMap((r) => r.findings)).toEqual([]);
+  expect(results.flatMap((r) => r.unstyled)).toEqual([]);
   expect(coverage({ pages, uses: Object.keys(ELEMENTS) }, results)).toEqual([]);
 }, 300_000);
 

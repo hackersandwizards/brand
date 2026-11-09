@@ -14,7 +14,7 @@ import { ROOT, sha256 } from "./git";
 
 // SVG units. The & ink sits 115 from the s and 84 from the w, row means 198 and 197.
 const AMPERSAND_DX = -29;
-const LOGOS = ["wordmark", "lockup", "lockup-compact"].flatMap((n) => [n, `${n}-night`]);
+const LOGOS = ["wordmark", "lockup", "lockup-compact"];
 // The & is the first group inside the "&wizards" block, which the wordmark shifts as one.
 const AMPERSAND =
   /(<g transform="translate\(2803 -672\)"><g fill="#[0-9A-F]{6}")( transform="[^"]*")?>/;

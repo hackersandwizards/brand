@@ -1205,8 +1205,7 @@ test("a focused node after an element in the same parent is read at its own plac
   ).toEqual(["width", "height"]);
 }, 60_000);
 
-// admin, 08.11.: brand v1.43.0 removed .btn-primary and .btn-secondary, and three buttons lost
-// their styling under a green gate.
+// A class whose rule is gone leaves its element unstyled, which no other check sees.
 test("a class brand once defined, or an hw-* class, that no loaded sheet defines is red", async () => {
   const buttons = `<button class="hw-button">Copy answers</button><button class="pick btn-secondary">Pick recommended</button><button class="btn-primary">Copy answers</button><span class="hw-buton">x</span><p class="flex mt-2 own">Utility and own classes</p><div data-hw-shell><span class="hw-shell-only">shell</span></div>`;
   const [bare, own, negated] = await Promise.all([
@@ -1232,6 +1231,11 @@ test("a class brand once defined, or an hw-* class, that no loaded sheet defines
   expect(own.unstyled).toEqual([]);
   expect(negated.unstyled.map((u) => u.cls)).toEqual(["btn-secondary", "btn-primary", "hw-buton"]);
 }, 30_000);
+
+test("a rule setting only private custom properties defines its class; an unclosed :not( ends", () => {
+  expect(definedClasses(".hw-x { --_hw-tray: 1rem; --space-2: 0 }")).toEqual(["hw-x"]);
+  expect(definedClasses(".a:not(.b { color: red }")).toEqual(["a"]);
+});
 
 test("every class brand's stylesheets define is listed as one brand defines", () => {
   const defined = packed()

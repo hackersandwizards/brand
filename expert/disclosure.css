@@ -2,11 +2,9 @@
    browser's triangle. Plain CSS, no Tailwind, so every surface takes it: a page puts class
    hw-disclosure on its details, and expert.css imports this file.
 
-   The chevron is Lucide's chevron-right in the summary's text colour, 1em wide, 0.5rem before
-   the label, centred in a box holding a zero-width space, so the box is one line high and has the
-   label's baseline: on the baseline or the start it sits in the middle of the label's first line,
-   on the default centre in the middle of the label. It turns down (90 degrees, 150 ms) while
-   the details is open; without motion it turns at once. A summary that needs the chevron elsewhere, inside its heading for one, holds a
+   The chevron is Lucide's chevron-right. Its box holds a zero-width space, so it is one line high and has the label's baseline:
+   on the baseline or the start it sits in the middle of the label's first line, on the default
+   centre in the middle of the label. A summary that needs the chevron elsewhere, inside its heading for one, holds a
    <span class="hw-disclosure-chevron" aria-hidden="true"></span> there and the summary draws none
    of its own. hw-disclosure-count is the neutral count pill beside the label.
 

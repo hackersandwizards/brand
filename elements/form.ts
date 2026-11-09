@@ -35,7 +35,8 @@ export function enhanceForms(root: ParentNode = document) {
         count.setAttribute("aria-live", "polite");
         count.textContent = text;
       }, 1000);
-      count.toggleAttribute("data-over", over);
+      if (over) count.dataset.state = "over";
+      else delete count.dataset.state;
       // The count clears only the invalid state it set, never one the page set.
       if (over && field.getAttribute("aria-invalid") !== "true") {
         field.dataset.hwCountInvalid = "";

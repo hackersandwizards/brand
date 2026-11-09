@@ -180,6 +180,9 @@ html[data-theme="dark"] {
   .text-foreground\/30 {
     color: color-mix(in oklab, var(--foreground) max(30%, var(--dim-floor)), transparent);
   }
+  .text-foreground\/35 {
+    color: color-mix(in oklab, var(--foreground) max(35%, var(--dim-floor)), transparent);
+  }
   .text-foreground\/40 {
     color: color-mix(in oklab, var(--foreground) max(40%, var(--dim-floor)), transparent);
   }
@@ -188,6 +191,9 @@ html[data-theme="dark"] {
   }
   .text-foreground\/50 {
     color: color-mix(in oklab, var(--foreground) max(50%, var(--dim-floor)), transparent);
+  }
+  .text-foreground\/55 {
+    color: color-mix(in oklab, var(--foreground) max(55%, var(--dim-floor)), transparent);
   }
   .text-foreground\/60 {
     color: color-mix(in oklab, var(--foreground) max(60%, var(--dim-floor)), transparent);
@@ -286,6 +292,12 @@ html[data-theme="dark"] {
 .form-input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ThemeToggle shows the theme it turns to, from the first paint: the moon by day, the sun by night. */
+html:not([data-theme="dark"]) #theme-toggle #sun-icon,
+html[data-theme="dark"] #theme-toggle #moon-icon {
+  display: none;
 }
 
 /* ThemeToggle freezes transitions across a theme flip, or 1k+ of them cascade-fade the page. */

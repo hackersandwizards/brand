@@ -178,6 +178,32 @@ test("a source page's rows load on first use; should they fail, the search goes 
   await q.close();
 }, 60_000);
 
+test("a source page's relative links and images resolve against that page", async () => {
+  const p = await browser.newPage();
+  await p.setRequestInterception(true);
+  p.on("request", (r) =>
+    r.resourceType() === "fetch"
+      ? r.respond({
+          status: 200,
+          contentType: "text/html",
+          body: `<ul data-filter-list><li data-filter-item data-filter-text="context"><a href="talk/" data-filter-title>Context</a><img src="t.png" srcset="t.png 1x, t2.png 2x" alt=""></li></ul>`,
+        })
+      : r.continue(),
+  );
+  await p.goto(story("source"), { waitUntil: "networkidle0" });
+  await p.type('input[name="q"]', "context");
+  await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 1);
+  const dense = new URL("../dense/", p.url()).href;
+  expect(
+    await p.$eval("[data-filter-item]", (row) => [
+      row.querySelector("a")!.getAttribute("href"),
+      row.querySelector("img")!.getAttribute("src"),
+      row.querySelector("img")!.getAttribute("srcset"),
+    ]),
+  ).toEqual([`${dense}talk/`, `${dense}t.png`, `${dense}t.png 1x, ${dense}t2.png 2x`]);
+  await p.close();
+}, 60_000);
+
 test("on a phone a topic tapped while the source loads names itself on the Filters button", async () => {
   const p = await browser.newPage();
   await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
@@ -251,7 +277,6 @@ test("two facets as choices filter together, each counting under the other", asy
   expect(await shown(p)).toEqual(["Agenten im Team"]);
   expect(new URL(p.url()).search).toBe("?topic=practice&days=2");
   expect(await text(p, 'fieldset:last-of-type [data-facet-count="1"]')).toBe("0");
-  // Clear resets both.
   await p.click("form [data-filter-clear]");
   expect(
     await p.$$eval("input:checked", (r) => r.map((x) => (x as HTMLInputElement).value)),
