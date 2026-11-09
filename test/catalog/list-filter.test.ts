@@ -181,24 +181,29 @@ test("a source page's rows load on first use; should they fail, the search goes 
 test("on a phone a topic tapped while the source loads names itself on the Filters button", async () => {
   const p = await browser.newPage();
   await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
-  let release = () => {};
-  const held = new Promise<void>((r) => (release = r));
+  const { promise: held, resolve: release } = Promise.withResolvers<void>();
   await p.setRequestInterception(true);
   p.on("request", async (r) => {
     if (r.resourceType() === "fetch") await held;
-    void r.continue();
+    r.continue().catch(() => {});
   });
-  await p.goto(story("source"), { waitUntil: "load" });
-  const toggle = "[data-filter-toggle]";
-  await p.tap(toggle);
-  await p.tap('label.hw-choice:has(input[value="tools"])');
-  expect(await text(p, toggle)).toBe("Werkzeuge");
-  expect(await p.$eval(toggle, (e) => e.hasAttribute("data-variant"))).toBe(false);
-  release();
-  await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
-  expect(await shown(p)).toEqual(["Context Engineering", "Spec-driven Development"]);
-  expect(await text(p, toggle)).toBe("Werkzeuge");
-  await p.close();
+  try {
+    await p.goto(story("source"), { waitUntil: "load" });
+    const toggle = "[data-filter-toggle]";
+    await p.tap(toggle);
+    await p.tap('label.hw-choice:has(input[value="tools"])');
+    expect(await text(p, toggle)).toBe("Werkzeuge");
+    expect(await p.$eval(toggle, (e) => e.hasAttribute("data-variant"))).toBe(false);
+    // The way back shows while the rows load.
+    expect(await p.$eval("form [data-filter-clear]", (e) => (e as HTMLElement).hidden)).toBe(false);
+    release();
+    await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
+    expect(await shown(p)).toEqual(["Context Engineering", "Spec-driven Development"]);
+    expect(await text(p, toggle)).toBe("Werkzeuge");
+  } finally {
+    release();
+    await p.close();
+  }
 }, 60_000);
 
 test("inline sets the select beside the search from 64rem; a select filters with the choices", async () => {
@@ -332,16 +337,17 @@ test("on a phone a tapped choice folds the facets and the button names it; a key
   await p.keyboard.press("ArrowRight");
   expect(await panel()).toBe(true);
   expect(await text(p, toggle)).toBe("Werkzeuge, 1 Tag");
-  // The button has its own row under the search, so the chosen values show in full.
+  // The button has its own row under the search, the row's width for the chosen values.
   expect(
     await p.$eval(toggle, (t) => {
       const label = t.querySelector("[data-filter-label]")!;
+      const box = t.getBoundingClientRect();
       const row = t.parentElement!.getBoundingClientRect();
       const search = t.parentElement!.querySelector(".hw-search")!.getBoundingClientRect();
       return {
         full: label.scrollWidth <= label.clientWidth,
-        width: t.getBoundingClientRect().width === row.width,
-        below: t.getBoundingClientRect().top >= search.bottom,
+        width: Math.abs(box.width - row.width) < 0.5,
+        below: box.top >= search.bottom,
       };
     }),
   ).toEqual({ full: true, width: true, below: true });
@@ -416,8 +422,7 @@ test("under browse active and listed, no count line shows before the script runs
   ] as const) {
     const p = await browser.newPage();
     // The module waits until the first frame's count line is read.
-    let release = () => {};
-    const held = new Promise<void>((resolve) => (release = resolve));
+    const { promise: held, resolve: release } = Promise.withResolvers<void>();
     await p.setRequestInterception(true);
     p.on("request", async (r) => {
       if (r.url().includes("ListFilter.astro_astro_type_script")) await held;

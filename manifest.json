@@ -538,11 +538,11 @@
     },
     {
       "path": "elements/list-filter.css",
-      "sha256": "6514166f72a929d7ba6136962332e8a001a12f116f13fbf3c9465d9c1de438a0"
+      "sha256": "195d892ad0a956142eadae7272f66ef2dfae1693ac50285d5a1ab6934b8c8afd"
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "f1d6b2830ca6ada6124736e2f6b5db78527202549058f21f8e5217ebbb954eb0"
+      "sha256": "cf677bc98ec7fb994d05bdec4d984ff5f5533808974b22c1d04e5b95c48ce56a"
     },
     {
       "path": "elements/choice.css",

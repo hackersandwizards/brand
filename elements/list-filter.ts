@@ -302,6 +302,7 @@ export function initListFilter(root: HTMLElement) {
       if (active && failed) form.submit();
       else if (active) void load();
       list.hidden = true;
+      for (const clear of clears) if (clear.closest("form")) clear.hidden = !active;
       return;
     }
     let shown = 0;

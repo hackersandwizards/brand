@@ -3,8 +3,8 @@
    its links, the list, and the empty line. The parts are shared elements (hw-search, hw-field,
    hw-choice, hw-button, hw-form-field); this file only places them, in the scale's form gap, and
    marks the matched words in the accent's 20 % tint. Below 48rem, once the script runs, the facets
-   fold behind the Filters button, on its own row under the search so it names the chosen values
-   in full, and the submit button goes, as Enter submits. data-inline on the
+   fold behind the Filters button, on its own row under the search, so the chosen values it names
+   have the row's width, and the submit button goes, as Enter submits. data-inline on the
    root sets the first select beside the search from 64rem, for a shorter block. In a long list
    (data-long on the list, from list-filter.ts's LONG_LIST rows) a row off screen skips layout, so
    filtering holds a phone's main thread for under a frame; an unrendered row stands in at
