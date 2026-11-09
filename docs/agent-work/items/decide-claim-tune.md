@@ -78,3 +78,7 @@ The H1 "Once all roles are in tune" scores above "Once every role is in step" wi
 - DPMA, EUIPO and USPTO are not queried for any line yet; a chosen line gets that check before release.
 
 Keeping u1 changes nothing.
+
+## Website, measured 09.11. after the rollout on u1
+
+The website now reads claim and headline from `verbal.json` (website `82a5d43e..55e5d975`), so a switch here reaches it with the next brand pin and two regenerate commands, no source edit. In its in-context panel (12 runs, noise 2) the retired home H1 "Your teams have agents. Once every role is in step, your releases speed up." scored 87.7 on the first screen against 76.4 for the decided headline with its forced break and 70.0 without. No candidate changed the headline's words. Report: website `docs/agent-work/2026-11-09-claim-and-headline.md`.
