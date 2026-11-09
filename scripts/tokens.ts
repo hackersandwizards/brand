@@ -222,12 +222,13 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
 };
 
 const FONT_FACE = /@font-face\s*\{([^}]*)\}/g;
+/** The @font-face rules of a stylesheet, as written. */
+export const faceRules = (css: string) => [...css.matchAll(FONT_FACE)].map(([face]) => face);
 /** A src of local() fonts alone: a fallback face. A src mixing local() and url() is no fallback. */
 const LOCAL = /src:(?:\s*local\("[^"]+"\),?)+;/;
 
 /** The fallback faces of fonts.css, as written. */
-export const fallbackFaces = (css: string) =>
-  [...css.matchAll(FONT_FACE)].map(([face]) => face).filter((face) => LOCAL.test(face));
+export const fallbackFaces = (css: string) => faceRules(css).filter((face) => LOCAL.test(face));
 
 /** The @font-face rules of fonts.css (or print.css), each descriptor camel-cased (fontFamily
  *  unquoted, unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
@@ -303,9 +304,11 @@ export const flat = (path: string): string => {
 
 /** generated/font-faces.ts: fonts.css's rules, as written, in a function of the font files' url. */
 const fontFaceModule = (screen: string) => {
-  const rules = [...screen.matchAll(FONT_FACE)].map(([face]) => face).join("\n\n");
+  const rules = faceRules(screen).join("\n\n");
   if (/[`\\]|\$\{/.test(rules))
     throw new Error("tokens/fonts.css: a rule a template literal would alter");
+  if (rules.match(/url\(/g)?.length !== rules.match(/url\("fonts\/[^"]+"\)/g)?.length)
+    throw new Error('tokens/fonts.css: a url() not written url("fonts/<file>")');
   return `// Generated from tokens/fonts.css by scripts/tokens.ts. Edit the source, never this file.
 
 /** fonts.css's @font-face rules, its web faces and fallback faces with every descriptor, for a
@@ -349,8 +352,8 @@ const generate = () => {
    sources, never this file. print.css's static faces without the print scale (static files, never
    variable ones, so Chrome embeds real glyphs in a PDF), then fonts.css's fallback faces.
    Import it as @hackersandwizards/brand/static-fonts.css. */
-${[...readFileSync(join(ROOT, "tokens/print.css"), "utf8").matchAll(FONT_FACE)]
-  .map(([face]) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
+${faceRules(readFileSync(join(ROOT, "tokens/print.css"), "utf8"))
+  .map((face) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
   .concat(fallbackFaces(screen))
   .join("\n\n")}
 `,

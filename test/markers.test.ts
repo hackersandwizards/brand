@@ -866,6 +866,30 @@ describe("a page drawn in a fallback face", () => {
     }
   }, 60_000);
 
+  // A policy refusing the font is the cause of the fallback, so the run names the refusal too.
+  test("a page left in a fallback by its policy reports the refused font", async () => {
+    const served = site(0);
+    const cwd = mkdtempSync(join(tmpdir(), "brand-markers-csp-"));
+    try {
+      writeFileSync(join(cwd, "brand-elements.json"), JSON.stringify({ csp: "font-src 'none'" }));
+      const run = Bun.spawn(
+        ["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", served.url.href],
+        {
+          cwd,
+          stdout: "pipe",
+          stderr: "pipe",
+        },
+      );
+      const [code, err] = await Promise.all([run.exited, new Response(run.stderr).text()]);
+      expect(code).toBe(1);
+      expect(err).toContain(`${served.url.href}: page drawn in fallback font`);
+      expect(err).toMatch(/refuses \S+\.woff2 \(font-src\)/);
+    } finally {
+      await served.stop(true);
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }, 60_000);
+
   test("the same page served at once reads 0 off", async () => {
     const rs = await measure(0);
     expect(rs.length).toBe(2);

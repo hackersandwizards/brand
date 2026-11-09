@@ -677,6 +677,7 @@ async function drawn(
       if (tries === 3)
         throw new FallbackFace(
           `${url}: page drawn in fallback font ${miss.face}; ${miss.family} missed font-display's block period`,
+          await refusals(page, url),
         );
     } catch (e) {
       await page.close();
@@ -686,8 +687,15 @@ async function drawn(
   }
 }
 
-/** A page still drawn in a fallback face after three loads: a finding on that page alone. */
-export class FallbackFace extends Error {}
+/** A page still drawn in a fallback face after three loads: a finding on that page alone, with the
+ *  sources its policy refused, a blocked font among them. */
+export class FallbackFace extends Error {
+  readonly refused: Refusal[];
+  constructor(message: string, refused: Refusal[]) {
+    super(message);
+    this.refused = refused;
+  }
+}
 
 /** The first probe line drawn in no downloaded face although its first family is one the page
  * declares, with the face Chrome drew it in; undefined where every line shows its web face. */
@@ -1036,23 +1044,27 @@ if (import.meta.main) {
       (url) => scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
     );
     readings = (
-      await pool(runs, workers, ({ url, ...options }, w) =>
-        measureMarkers(contexts[w]!, url, {
-          ...options,
-          width,
-          csp: config.csp,
-          // Once per page: a story's in the first pass, a named page's in its first run.
-          refused:
-            options.scale === scales[0] && !options.newline && !stories.includes(url)
-              ? refused
-              : undefined,
-          exceptions,
-          excepted,
-        }).catch((e) => {
-          if (!(e instanceof FallbackFace)) throw e;
-          fallbacks.set(url, e.message);
-          return [];
-        }),
+      await pool(runs, workers, async ({ url, ...options }, w) =>
+        fallbacks.has(url)
+          ? []
+          : measureMarkers(contexts[w]!, url, {
+              ...options,
+              width,
+              csp: config.csp,
+              // Once per page: a story's in the first pass, a named page's in its first run.
+              refused:
+                options.scale === scales[0] && !options.newline && !stories.includes(url)
+                  ? refused
+                  : undefined,
+              exceptions,
+              excepted,
+            }).catch((e) => {
+              if (!(e instanceof FallbackFace)) throw e;
+              // A story's refusals came from the first pass.
+              if (!fallbacks.has(url) && !stories.includes(url)) refused.push(...e.refused);
+              fallbacks.set(url, e.message);
+              return [];
+            }),
       )
     ).flat();
   } finally {
@@ -1066,7 +1078,11 @@ if (import.meta.main) {
       (url) => !readings.some((r) => r.page === url) && !excepted.has(url) && !fallbacks.has(url),
     );
   // Only searched pages, none showing a marker: a run that measures nothing passes nothing.
-  const nothing = searched.length > 0 && !readings.length && !excepted.size && !fallbacks.size;
+  const nothing =
+    searched.length > 0 &&
+    !readings.length &&
+    !excepted.size &&
+    !searched.some((p) => fallbacks.has(toUrl(p, base)));
   if (nothing)
     console.error(
       `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,
