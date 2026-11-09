@@ -97,7 +97,7 @@ Ansichtswechsel zwei Klicks brauchte. Runde 2, eine Gruppe pro Ansicht: nachher 
 7,6 (Claude 8,0 gegen 6,5, Codex 8,0 gegen 8,75). Rauschen: höchstens 1 Punkt zwischen zwei Läufen
 desselben Reviewers, der Codex-Vorsprung für vorher liegt darin. Was die Reviewer nachher noch
 bemängeln: die lange Übersicht, den schmalen rechten Rand der Form und die blasse Markierung der
-offenen Ansicht. Bilder, nur hell (die Seite hat keine Nacht): `2026-11-02-design-system-phase2/catalogue/`.
+offenen Ansicht. Bilder, nur hell (die Seite hat keine Nacht): `2026-11-02-design-system-phase2/catalog/`.
 
 ## Offen
 
