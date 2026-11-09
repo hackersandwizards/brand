@@ -82,3 +82,9 @@ Keeping u1 changes nothing.
 ## Website, measured 09.11. after the rollout on u1
 
 The website now reads claim and headline from `verbal.json` (website `82a5d43e..55e5d975`), so a switch here reaches it with the next brand pin and two regenerate commands, no source edit. In its in-context panel (12 runs, noise 2) the line the hero showed until then, "Agents bring the speed. Flow needs teams in tune." (retired 07.11.), scored 87.7 on the first screen against 76.4 for the decided headline with its forced break and 70.0 without. No candidate changed the headline's words. Report: website `docs/agent-work/2026-11-09-claim-and-headline.md`.
+
+## Benedikt's question, 09.11.
+
+"und warum nicht "Agents bring the speed. Flow needs teams in tune." wenn das so viele punkte bekommt? oder ist das dann die headline? das könnte sowohl headline als auch claim sein."
+
+A blind round tests that line as claim and as home headline against the current candidates (run `claim-flow`); the decision stays open until it reports.
