@@ -19,6 +19,7 @@ import {
   filtersLabel,
   fullTextUrl,
   isActive,
+  LONG_LIST,
   matches,
   tally,
   type CountCopy,
@@ -213,7 +214,7 @@ const filtersButton = filtersLabel(
       )}
     </p>
   </form>
-  <div data-filter-list hidden={!listed || shown === 0}>
+  <div data-filter-list data-long={items.length >= LONG_LIST || undefined} hidden={!listed || shown === 0}>
     {
       inert ? (
         <template data-filter-rows>

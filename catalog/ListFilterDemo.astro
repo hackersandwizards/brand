@@ -3,14 +3,16 @@
 // on light or night, as an app's or the website's list page renders it. `mode` shows the ways a
 // static page keeps its rows under an overview: in a template, listed, or loaded from a source page
 // (the dense story); "listed" adds a second facet as choices, "many" gives the topic more labels
-// than its budget holds, so it shows as a select beside the search, and "none" passes no facet.
+// than its budget holds, so it shows as a select beside the search, "none" passes no facet, and
+// "long" lists 120 rows, a long list, each with a summary that wraps, so a row's height follows the
+// column's width.
 import ListFilter from "../expert/components/ListFilter.astro";
 import ListRow from "../expert/components/ListRow.astro";
 
 interface Props {
   scale?: "screen" | "dense";
   night?: boolean;
-  mode?: "inert" | "listed" | "source" | "many" | "none";
+  mode?: "inert" | "listed" | "source" | "many" | "none" | "long";
 }
 
 const { scale = "dense", night = false, mode } = Astro.props;
@@ -37,12 +39,25 @@ const facetOptions =
           .map((label) => ({ value: label.toLowerCase(), label })),
       ]
     : topics;
-const rows = [
+const four = [
   { title: "Context Engineering", topic: "tools", days: "2 Tage", hue: "teal" },
   { title: "Spec-driven Development", topic: "tools", days: "1 Tag", hue: "teal" },
   { title: "Messbare Produktivität", topic: "evidence", days: "1 Tag", hue: "purple" },
   { title: "Agenten im Team", topic: "practice", days: "2 Tage", hue: "amber" },
 ];
+const summaries = [
+  "Was ein Agent wissen muss, bevor er anfängt.",
+  "Vom Ticket zur Spezifikation, die ein Agent abarbeitet, und zurück zur Abnahme durch das Team.",
+  "Welche Zahlen zeigen, ob ein Team mit Agenten schneller wird, welche nur so aussehen, und wie man sie über ein Quartal erhebt, ohne die Arbeit zu stören.",
+];
+const rows =
+  mode === "long"
+    ? Array.from({ length: 120 }, (_, i) => ({
+        ...four[i % 4]!,
+        title: `${four[i % 4]!.title} ${Math.floor(i / 4) + 1}`,
+        summary: summaries[i % 3],
+      }))
+    : four.map((r) => ({ ...r, summary: undefined }));
 const both = mode === "listed" || mode === "many";
 const items = rows.map((r) => ({
   text: r.title.toLowerCase(),
@@ -94,9 +109,16 @@ const facets = mode === "none" ? [] : both ? [topic, days] : [topic];
           data-filter-order={i}
           current={i === 0}
         >
-          <span slot="lead" data-filter-title>
-            {r.title}
-          </span>
+          {r.summary ? (
+            <span slot="lead" class="summary">
+              <span data-filter-title>{r.title}</span>
+              <span>{r.summary}</span>
+            </span>
+          ) : (
+            <span slot="lead" data-filter-title>
+              {r.title}
+            </span>
+          )}
           <span slot="trail">{r.days}</span>
         </ListRow>
       ))
@@ -114,6 +136,10 @@ const facets = mode === "none" ? [] : both ? [topic, days] : [topic];
   .demo[data-theme="dark"] {
     color: var(--color-night-ink);
     background: var(--color-night);
+  }
+  .summary {
+    display: flex;
+    flex-direction: column;
   }
   .demo :global(.stripe-teal) {
     background: var(--color-teal);

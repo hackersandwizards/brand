@@ -538,11 +538,11 @@
     },
     {
       "path": "elements/list-filter.css",
-      "sha256": "8de4c5c45dfc71379a49f22ed9a9a3391d468eb36f97a03d0d35d5b9ee76cf1f"
+      "sha256": "7cc269a19a5da6973b9645630460fa3f1de565931ad4de429b64c1698a700ebe"
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "7e03a070d66ef8a6df8e9362e13fedb18ded9c78c3080e5f8dd5418cee42c4dd"
+      "sha256": "b7054fe1f021a4f041fd1f4d4d9faa9a85bb2d72d2cab639d08e9c5e75876eb4"
     },
     {
       "path": "elements/choice.css",
@@ -554,7 +554,7 @@
     },
     {
       "path": "expert/components/ListFilter.astro",
-      "sha256": "7559ef4c1c89dcb1437cc68efc772cba8f42b4e97e580df62a69a4cb54b47fc4"
+      "sha256": "f8821c523e63f2b95f9b0f8b06fb4d5180a2feb66d766b06a2d41a381f2878f1"
     },
     {
       "path": "elements/accordion.css",

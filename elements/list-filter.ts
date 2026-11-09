@@ -133,6 +133,10 @@ export function highlight(text: string, words: string[]): string {
     .join("");
 }
 
+/** The rows from which a list skips the layout of its rows off screen (data-long, list-filter.css):
+ *  from here, rendering every row, one filter step on a slow phone takes longer than a frame. */
+export const LONG_LIST = 100;
+
 /** The browser side of ListFilter.astro, over its markup (root [data-list-filter], its value
  *  "always" or "active"): typing (200 ms debounce), each facet's choice or select filter in place, the
  *  state lives in `?q=` and each facet's parameter, Back and Forward restore it, and the counts
@@ -205,7 +209,32 @@ export function initListFilter(root: HTMLElement) {
       rows.find((row) => row.el === el)!,
     );
     groups = [...list.querySelectorAll<HTMLElement>("[data-filter-group]")];
+    list.toggleAttribute("data-long", rows.length >= LONG_LIST);
   };
+  // In a long list a row off screen skips layout (list-filter.css) and stands in at the mean
+  // content height of the rows the browser renders, measured whenever the list's width changes
+  // (from 0 too, as a hidden list shows); a row once rendered keeps its own height.
+  let width = -1;
+  new ResizeObserver(([entry]) => {
+    if (entry!.contentRect.width === width) return;
+    width = entry!.contentRect.width;
+    if (!list.hasAttribute("data-long")) return;
+    const rendered = rows.filter(
+      ({ el }) =>
+        !el.hidden &&
+        [...el.children].some((child) => child.checkVisibility?.({ contentVisibilityAuto: true })),
+    );
+    if (!rendered.length) return;
+    // The stand-in is the content box's height: padding and border come on top.
+    const box = getComputedStyle(rendered[0]!.el);
+    const inset = [box.paddingTop, box.paddingBottom, box.borderTopWidth, box.borderBottomWidth]
+      .map(parseFloat)
+      .reduce((a, b) => a + b);
+    const mean =
+      rendered.reduce((sum, { el }) => sum + el.getBoundingClientRect().height, 0) /
+      rendered.length;
+    list.style.setProperty("--hw-list-filter-row", `${mean - inset}px`);
+  }).observe(list);
   collect();
 
   // The source page's rows arrive on first use; until then nothing filters, and should they never

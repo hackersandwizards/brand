@@ -4,10 +4,13 @@
    hw-choice, hw-button, hw-form-field); this file only places them, in the scale's form gap, and
    marks the matched words in the accent's 20 % tint. Below 48rem, once the script runs, the facets
    fold behind the Filters button and the submit button goes, as Enter submits. data-inline on the
-   root sets the first select beside the search from 64rem, for a shorter block. A row off screen
-   skips layout, so a long list filters without holding a phone's main thread; set
-   --hw-list-filter-row on the root to a row's usual height, which an unrendered row stands in for.
-   The row holding the focus renders in full, above its neighbours, its focus ring unclipped. */
+   root sets the first select beside the search from 64rem, for a shorter block. In a long list
+   (data-long on the list, from list-filter.ts's LONG_LIST rows) a row off screen skips layout, so
+   filtering holds a phone's main thread for under a frame; an unrendered row stands in at
+   --hw-list-filter-row, the mean content height of the rendered rows, which the script sets on
+   the list. The row holding the focus renders in full, above its neighbours, its focus ring
+   unclipped. A shorter list renders every row: a skipping row paints from a whole pixel, which
+   between rows of a fractional height leaves a 1 px seam or hides a hairline. */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
@@ -55,11 +58,11 @@
   .hw-list-filter [data-filter-empty] > p {
     margin: 0 0 0.25rem;
   }
-  .hw-list-filter [data-filter-item] {
+  .hw-list-filter [data-long] [data-filter-item] {
     content-visibility: auto;
     contain-intrinsic-block-size: auto var(--hw-list-filter-row, 3rem);
   }
-  .hw-list-filter [data-filter-item]:focus-within {
+  .hw-list-filter [data-long] [data-filter-item]:focus-within {
     position: relative;
     z-index: 1;
     content-visibility: visible;

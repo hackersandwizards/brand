@@ -9,3 +9,4 @@ export const Listed = { args: { scale: "screen", mode: "listed" } };
 export const Source = { args: { scale: "screen", mode: "source" } };
 export const Many = { args: { scale: "screen", mode: "many" } };
 export const None = { args: { scale: "screen", mode: "none" } };
+export const Long = { args: { scale: "screen", mode: "long" } };

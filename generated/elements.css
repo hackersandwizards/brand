@@ -2361,11 +2361,11 @@ select.form-input {
   .hw-list-filter [data-filter-empty] > p {
     margin: 0 0 0.25rem;
   }
-  .hw-list-filter [data-filter-item] {
+  .hw-list-filter [data-long] [data-filter-item] {
     content-visibility: auto;
     contain-intrinsic-block-size: auto var(--hw-list-filter-row, 3rem);
   }
-  .hw-list-filter [data-filter-item]:focus-within {
+  .hw-list-filter [data-long] [data-filter-item]:focus-within {
     position: relative;
     z-index: 1;
     content-visibility: visible;

@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import type { Browser, Page } from "puppeteer-core";
 import { launch } from "../../scan/markers";
-import { BASE, serveSite } from "./site";
+import { BASE, page, serveSite } from "./site";
 
 // The list filter's story driven as a reader would: the website's e2e cases
 // (e2e/components/list-filter.spec.ts) and the trainer hub's, on brand's component.
@@ -315,19 +315,61 @@ test("on a phone a tapped choice folds the facets and the button names it; a key
   await p.close();
 }, 60_000);
 
-test("rows off screen skip layout, the focused row renders in full", async () => {
+test("a short list renders every row: none paints from a whole pixel, so no seam shows", async () => {
+  // The server marks only a long list, so a page whose script fails keeps every row rendered.
+  const html = (name: string) => page(`catalog/stories/Forms/list-filter/${name}/index.html`);
+  expect(html("dense")).not.toContain("data-long");
+  expect(html("long")).toContain("data-long");
   const p = await browser.newPage();
   await p.goto(story("dense"), { waitUntil: "networkidle0" });
+  expect(await p.$eval("[data-filter-list]", (l) => l.hasAttribute("data-long"))).toBe(false);
+  expect(
+    await p.$$eval("[data-filter-item]", (rows) =>
+      rows.map((r) => getComputedStyle(r).contentVisibility),
+    ),
+  ).toEqual(["visible", "visible", "visible", "visible"]);
+  await p.close();
+}, 60_000);
+
+test("a long list's rows off screen skip layout at their rendered height; the focused row renders", async () => {
+  const p = await browser.newPage();
+  await p.setViewport({ width: 390, height: 844 });
+  await p.goto(story("long"), { waitUntil: "networkidle0" });
   const visibility = () =>
     p.$$eval("[data-filter-item]", (rows) =>
-      rows.map((r) => getComputedStyle(r).contentVisibility),
+      rows.slice(0, 2).map((r) => getComputedStyle(r).contentVisibility),
     );
-  expect(await visibility()).toEqual(["auto", "auto", "auto", "auto"]);
+  expect(await visibility()).toEqual(["auto", "auto"]);
+  const skipped = () =>
+    p.$eval(
+      "[data-filter-item]:last-child",
+      (row) => !row.firstElementChild!.checkVisibility({ contentVisibilityAuto: true }),
+    );
+  expect(await skipped()).toBe(true);
+  expect(
+    await p.$eval("[data-filter-list]", (l) =>
+      (l as HTMLElement).style.getPropertyValue("--hw-list-filter-row"),
+    ),
+  ).toMatch(/^\d+(\.\d+)?px$/);
+  // The page holds its height while scrolling: a fixed 3rem stand-in grew it by a third.
+  const heights = await p.$eval("[data-filter-list]", async (list) => {
+    let el: HTMLElement | null = list as HTMLElement;
+    while (el && !/(auto|scroll)/.test(getComputedStyle(el).overflowY)) el = el.parentElement;
+    const scroller = el ?? document.documentElement;
+    const seen = [scroller.scrollHeight];
+    for (let y = 0; y < scroller.scrollHeight; y += scroller.clientHeight * 0.8) {
+      scroller.scrollTop = y;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      seen.push(scroller.scrollHeight);
+    }
+    return seen;
+  });
+  expect(Math.max(...heights) / Math.min(...heights)).toBeLessThan(1.01);
   await p.$eval("[data-filter-item]", (row) => {
     (row as HTMLElement).tabIndex = 0;
     (row as HTMLElement).focus();
   });
-  expect(await visibility()).toEqual(["visible", "auto", "auto", "auto"]);
+  expect(await visibility()).toEqual(["visible", "auto"]);
   await p.close();
 }, 60_000);
 
