@@ -1,9 +1,10 @@
 // The Pages workflow publishes dist/ at https://hackersandwizards.github.io/brand/, hence the base.
 import { defineConfig } from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
 import { catalog } from "@hackersandwizards/scaffolding/catalog";
 import { files } from "./files.ts";
 import catalogs from "../expert/catalogs.json";
-import { SECTIONS } from "../scripts/element-demos";
+import { SECTIONS } from "./element-demos";
 
 const own = (f: string) => new URL(`../${f}`, import.meta.url).pathname;
 
@@ -11,6 +12,8 @@ export default defineConfig({
   base: "/brand",
   srcDir: ".",
   devToolbar: { enabled: false },
+  // Compiles the expert stories' stylesheet (expert.css), the only one with Tailwind directives.
+  vite: { plugins: [tailwindcss()] },
   server: { host: "127.0.0.1", port: 4326 },
   integrations: [
     catalog({

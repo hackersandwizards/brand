@@ -453,6 +453,19 @@ test("an area mark opening a list item is no marker", async () => {
   expect(await Promise.all(urls.map((url) => hasMarkers(browser, url)))).toEqual([false, true]);
 }, 30_000);
 
+// A system's own mark, declared as an exception in brand-elements.json, is no brand marker: its
+// instance inside [data-hw-exception] is left out, as brand-elements leaves it out. The control: the
+// same list outside it is measured.
+test("a marker inside [data-hw-exception] is not measured", async () => {
+  const list = (attr: string) =>
+    `<div ${attr}><ul style="list-style:none"><li><span style="width:8px;height:8px;display:inline-block;background:teal"></span> Stop</li></ul></div>`;
+  const urls = [
+    file("exception.html", `<!doctype html>${list('data-hw-exception="track"')}`),
+    file("own.html", `<!doctype html>${list("")}`),
+  ];
+  expect(await Promise.all(urls.map((url) => hasMarkers(browser, url)))).toEqual([false, true]);
+}, 30_000);
+
 test.each([2, 4])(
   "under a CSS zoom of 0.96897, --hw-zoom holds marker.css within 0.25 px at %dx, and leaving it out fails",
   async (scale) => {
@@ -523,6 +536,32 @@ test("a page that refits itself after the lines are rewritten is measured once i
   const rs = await all(REFIT, 2);
   expect(rs.length).toBe(8);
   expect(show(rs.filter(failing))).toEqual([]);
+}, 60_000);
+
+// A timeline's waypoint: a square ::before placed on the item's left edge, far left of its text,
+// turned into a diamond or not. It is read in its own box: turning it about its middle or moving the
+// text away leaves the reading, moving it down 2 px moves the reading 2 px.
+test("an absolutely placed ::before is read whole, however far left of its text and turned", async () => {
+  const stop = (pad: string, turn: string, top = "6px") =>
+    `<li style="padding-left:${pad}" class="${turn}" data-top="${top}"><p>2025 to now</p><h3 style="margin:0">Co-founder</h3></li>`;
+  const url = file(
+    "stops.html",
+    `<!doctype html><style>body{margin:40px;font:16px/1.5 sans-serif}ol{list-style:none;padding:0}
+li{position:relative;height:80px}li::before{content:"";position:absolute;left:1px;top:6px;width:11px;height:11px;background:#fff;border:1px solid #000}
+li.turn::before{transform:rotate(45deg)}li[data-top="8px"]::before{top:8px}
+p{font-size:.8rem;text-transform:uppercase;margin:0}</style><ol>${[
+      stop("2.6rem", "turn"),
+      stop("2.6rem", ""),
+      stop("1.4rem", "turn"),
+      stop("1.4rem", ""),
+      stop("2.6rem", "turn", "8px"),
+    ].join("")}</ol>`,
+  );
+  const [far, square, near, nearSquare, lower] = (
+    await measureMarkers(browser, url, { scale: 2 })
+  ).map((r) => r.offset);
+  for (const o of [square, near, nearSquare]) expect(Math.abs(o! - far!)).toBeLessThan(0.25);
+  expect(Math.abs(lower! - far! - 2)).toBeLessThan(0.25);
 }, 60_000);
 
 test("the old fixed checkbox top fails", async () => {

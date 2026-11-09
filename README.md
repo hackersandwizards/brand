@@ -60,6 +60,7 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/elements.flat.css`              | `elements.css` with every import resolved in place, for a page that links it                                                                                                                         |
 | `@hackersandwizards/brand/elements/<name>.css`            | one shared element, or `scales.css`                                                                                                                                                                  |
 | `@hackersandwizards/brand/expert/components/<name>.astro` | expert UI components                                                                                                                                                                                 |
+| `@hackersandwizards/brand/Element.astro`                  | a shared element's tile for your design-system page, below                                                                                                                                           |
 | `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, `logos.json`                                                                                                                                                                     |
 | `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                                                                                                                                                                        |
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                                                                                                                                                                     |
@@ -69,19 +70,19 @@ Run a command the package ships from your repo's root with `bun run <name>`. Nev
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
 with `Script not found`.
 
-| Command                                                                                                                      | Does                                                                  |
-| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                                | frames an image as a 1080 x 1350 LinkedIn post image                  |
-| `brand-linkedin-terminal <spec.json> <out.png>`                                                                              | renders a terminal snippet for the frame; no arguments print the spec |
-| `brand-linkedin-sketch-prompt`                                                                                               | prints the prompt for a generated sketch and its worked examples      |
-| `brand-slide-sketch-prompt`                                                                                                  | prints the prompt for a slide sketch and its worked example           |
-| `brand-mail-signature --name <n> --role <r> --out <path>`                                                                    | writes a mail signature as HTML and text; all flags in `cli.ts`       |
-| `brand-colours [--tighten]`                                                                                                  | the colour, radius and shadow scan for your gate, below               |
-| `brand-copies [--tighten]`                                                                                                   | flags a copy of a brand file in your tree, below                      |
-| `brand-scan [--tighten]`                                                                                                     | flags a fork of an expert component, below                            |
-| `brand-markers [--scale 2,4] [--site <dir> \| --base <url>] [--catalog <dir> [--catalog-at <page>]] <url, file or /path>...` | measures every list marker on your pages and catalog stories, below   |
-| `brand-elements [--base <url>] [--json]`                                                                                     | measures the shared elements on your design-system page, below        |
-| `brand-retired <dir or file>...`                                                                                             | fails on a retired slogan in what your build wrote, below             |
+| Command                                                                                                                        | Does                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                                  | frames an image as a 1080 x 1350 LinkedIn post image                  |
+| `brand-linkedin-terminal <spec.json> <out.png>`                                                                                | renders a terminal snippet for the frame; no arguments print the spec |
+| `brand-linkedin-sketch-prompt`                                                                                                 | prints the prompt for a generated sketch and its worked examples      |
+| `brand-slide-sketch-prompt`                                                                                                    | prints the prompt for a slide sketch and its worked example           |
+| `brand-mail-signature --name <n> --role <r> --out <path>`                                                                      | writes a mail signature as HTML and text; all flags in `cli.ts`       |
+| `brand-colours [--tighten]`                                                                                                    | the colour, radius and shadow scan for your gate, below               |
+| `brand-copies [--tighten]`                                                                                                     | flags a copy of a brand file in your tree, below                      |
+| `brand-scan [--tighten]`                                                                                                       | flags a fork of an expert component, below                            |
+| `brand-markers [--scale 2,4] [--site <dir> \| --base <url>] [--catalog <dir> [--catalog-at <page>]] [<url, file or /path>...]` | measures every list marker on your pages and catalog stories, below   |
+| `brand-elements [--base <url>] [--json]`                                                                                       | measures the shared elements on your design-system page, below        |
+| `brand-retired <dir or file>...`                                                                                               | fails on a retired slogan in what your build wrote, below             |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -258,8 +259,12 @@ Your design-system page shows each hub element you use as a tile,
 `<div data-hw-tile="card" data-hw-version="<brand version>">` holding the element in your medium,
 the version read from `@hackersandwizards/brand/package.json` when the page is built,
 marked in the page's own language, "from brand v<version>" on an English page and "aus brand
-v<version>" on a German one, with a link to the brand catalog, and each element you keep as your own
-in full with its reason, `<section data-hw-exception="<name>">`. List both in
+v<version>" on a German one, with a link to the element's entry in the brand catalog, and each element you keep as your own
+in full with its reason, `<section data-hw-exception="<name>">`. On an Astro page the tile is
+`@hackersandwizards/brand/Element.astro`: `<Element name="pill" scale="dense" lang="de"
+note="..."><span class="hw-pill">...</span></Element>` draws the caption, the version and the link,
+your sample in its slot at the scale, `night` for night, or brand's own sample without one. In a focus-ring tile
+`brand-elements` focuses every link and control but that link to the element's entry. List both in
 `brand-elements.json` at your repo's root:
 
 ```json
@@ -524,8 +529,14 @@ are listed at the top of its block in the file.
 `brand-markers` opens each page you name headless at 2x and 4x, as served and with a newline opening
 every list item, and fails on a marker more than 0.25 px off its line, on a first line not starting
 where the wrapped lines start, on an item that draws the square and keeps the browser's own marker,
-and on a page with no marker. A first pass loads each catalog story once at the first scale to
-find those showing a marker, and only they and the pages you name take the measured runs, side by side, one per core, at most 8. Run it in your gate on the pages or
+and on a page you name with no marker. Name no page and it takes the `"pages"` of your
+`brand-elements.json`, so you list them once. A first pass loads each of those pages and each
+catalog story once at the first scale to find those showing a marker, and only they and the pages
+you name take the measured runs, side by side, one per core, at most 8; a run of listed pages and
+stories that finds no marker at all fails. A square `::before` placed absolutely on its item is
+read in its own box, however far left of the text it sits and however it is turned. A list inside
+a `[data-hw-exception]`, the system's own element your `brand-elements.json` names with its reason,
+is left out, as `brand-elements` leaves it out. Run it in your gate on the pages or
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first,
 and scrolls each list into view in every container that scrolls it, the window or an element such
 as a catalog's `main`.
@@ -537,8 +548,8 @@ page whose stylesheet does not load, such as a build linking `file://` styleshee
 pages as files instead. A test of your own that measures markers brand-markers leaves out takes its
 target and tolerance from the package: `import { CAP_SHARE, TOLERANCE } from
 "@hackersandwizards/brand/markers"`. It measures every story page of the catalog that the
-`catalog` key of your `brand-elements.json` names, on its `"site"` where neither `--site` nor
-`--base <server url>` is given, so you name your catalog once. `--catalog <dir>` names another
+`catalog` key of your `brand-elements.json` names, every page on its `"site"` where neither
+`--site` nor `--base <server url>` is given, so you name your catalog once. `--catalog <dir>` names another
 instead, `--catalog-at <page>` where it is served; a story page without a list passes. Readings
 you keep go in the `"markers"` block of the same file, each glob over a page's path with its
 reason and how many off readings it keeps: `"markers": { "**/content-slide/at-rest/": { "reason":

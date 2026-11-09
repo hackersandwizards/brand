@@ -14,16 +14,19 @@
 // by text in its row that is the brand's .hw-marker or an item's first element, a bullet glyph as a
 // ul item's ::before content, and the browser's own marker in a ul. A drawn marker on an item that
 // also keeps the browser's own fails, whatever its offset. Not measured: a heading's or
-// link's swatch outside a list, an area mark (.hw-mark), and ol numerals, whose digits stand on the baseline.
+// link's swatch outside a list, an area mark (.hw-mark), ol numerals, whose digits stand on the
+// baseline, and anything inside [data-hw-exception], a system's own element brand-elements.json
+// names with its reason.
 //
 // Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder>
-// [--catalog-at <page>]] [--json] <url, html file or site path>... --site serves a built folder on a
-// free port, and a page starting with / is a path on it; --base names a server the gate started
+// [--catalog-at <page>]] [--json] [<url, html file or site path>...] --site serves a built folder on
+// a free port, and a page starting with / is a path on it; --base names a server the gate started
 // instead. --catalog adds every story page of a built catalog folder (catalogPages), each named
-// below --catalog-at, by default the folder itself, or its path on --site. Without --catalog, the
-// "catalog" of brand-elements.json in the working directory is measured, with its "site" where
-// neither --site nor --base is given and its "exclude" (listedCatalog), so a consumer names its
-// catalog once.
+// below --catalog-at, by default the folder itself, or its path on --site. brand-elements.json in
+// the working directory gives the rest, so a consumer names its pages once: its "site" where
+// neither --site nor --base is given, its "catalog" with its "exclude" (listedCatalog) where
+// --catalog is not, and its "pages" where no page is named, each measured where it shows a marker,
+// as a story is; a run of those that finds no marker at all fails.
 // The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
 // its reason and how many off readings it keeps at most:
 //   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
@@ -34,7 +37,8 @@
 // "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so a
 // fixed page drops its exception. An item with two markers is never kept.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
-// two markers, or a named page with no marker (a zero proves nothing; a story page may show none).
+// two markers, or a page named on the command line with no marker (a zero proves nothing; a story
+// page may show none).
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { availableParallelism } from "node:os";
@@ -167,7 +171,8 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
     found.push({ host, text, kind, mark });
   };
   for (const host of document.querySelectorAll("body *")) {
-    if (!visible(host)) continue;
+    // A system's own mark, declared in brand-elements.json, as brand-elements leaves it out.
+    if (!visible(host) || host.closest("[data-hw-exception]")) continue;
     const before = getComputedStyle(host, "::before");
     const side = parseFloat(before.width);
     const item =
@@ -223,6 +228,45 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
     range.setEnd(node, start + 4);
     return range.getClientRects()[0]!;
   };
+  // An absolutely placed ::before on its own item, such as a timeline's waypoint, may sit anywhere
+  // left of the text and be turned: its box, from the item's padding box and its own offsets, size
+  // and transform, 1 px wider on each side. Null where the item is not its containing block or an
+  // offset is auto.
+  const placed = (host: Element) => {
+    const b = getComputedStyle(host, "::before");
+    const h = getComputedStyle(host);
+    if (b.position !== "absolute" || h.position === "static") return null;
+    if (b.left === "auto" || b.top === "auto") return null;
+    const z = host.currentCSSZoom;
+    const px = (...v: string[]) => v.reduce((s, x) => s + (parseFloat(x) || 0), 0);
+    const r = host.getBoundingClientRect();
+    const x0 = r.left + px(h.borderLeftWidth, b.left, b.marginLeft) * z;
+    const y0 = r.top + px(h.borderTopWidth, b.top, b.marginTop) * z;
+    const frame =
+      b.boxSizing === "border-box"
+        ? [0, 0]
+        : [
+            px(b.paddingLeft, b.paddingRight, b.borderLeftWidth, b.borderRightWidth),
+            px(b.paddingTop, b.paddingBottom, b.borderTopWidth, b.borderBottomWidth),
+          ];
+    const [w, ht] = [px(b.width) + frame[0]!, px(b.height) + frame[1]!];
+    const m = b.transform === "none" ? new DOMMatrix() : new DOMMatrix(b.transform);
+    const [ox, oy] = b.transformOrigin.split(" ").map(parseFloat);
+    const corners = [
+      [0, 0],
+      [w, 0],
+      [0, ht],
+      [w, ht],
+    ].map(([x, y]) => m.transformPoint(new DOMPoint(x! - ox!, y! - oy!)));
+    const xs = corners.map((c) => x0 + (ox! + c.x) * z);
+    const ys = corners.map((c) => y0 + (oy! + c.y) * z);
+    return {
+      left: Math.min(...xs) - 1,
+      right: Math.max(...xs) + 1,
+      top: Math.min(...ys) - 1,
+      bottom: Math.max(...ys) + 1,
+    };
+  };
   const probes = found.map(({ host, text, kind, mark }): Probe => {
     const at = (mark ?? text.parentElement!).getBoundingClientRect();
     const box = (left: number, right: number, top: number, bottom: number): Box => ({
@@ -239,7 +283,11 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
     const start = mark ? t.left : lineStart(host);
     let left: number;
     let right = start - 0.5;
-    if (mark) {
+    const own = kind === "before" ? placed(host) : null;
+    if (own)
+      // Not wholly left of the line (a square above the item): decoration, skipped below.
+      [left, right] = [own.left, own.right <= start ? own.right : own.left];
+    else if (mark) {
       const m = mark.getBoundingClientRect();
       [left, right] = [m.left - 1, m.right + 1];
     } else if (kind === "native" || kind === "glyph")
@@ -256,7 +304,7 @@ async function collect([newline, maxSide, count]: [boolean, number, boolean?]): 
     return {
       label: label(host),
       kind,
-      marker: box(left, right, t.top - 3, t.bottom + 3),
+      marker: box(left, right, own?.top ?? t.top - 3, own?.bottom ?? t.bottom + 3),
       text: box(t.left, c.right, t.top, t.bottom),
       split: c.left - t.left,
       indent: host === li && kind === "before" ? start - contentLeft(host) : null,
@@ -795,13 +843,11 @@ export type Catalog = string | { dir: string; at?: string; exclude?: string[] };
  * brand-elements measures without a flag. Empty where it names no catalog. */
 export const listedCatalog = (config: {
   catalog?: Catalog;
-  site?: string;
-}): { dir?: string; at?: string; exclude?: string[]; site?: string } =>
+}): { dir?: string; at?: string; exclude?: string[] } =>
   config.catalog
-    ? {
-        ...(typeof config.catalog === "string" ? { dir: config.catalog } : config.catalog),
-        site: config.site,
-      }
+    ? typeof config.catalog === "string"
+      ? { dir: config.catalog }
+      : config.catalog
     : {};
 
 /** `run` over `items`, at most `limit` at a time, each call told which of the `limit` workers runs it;
@@ -836,7 +882,7 @@ if (import.meta.main) {
   const json = args.includes("--json");
   const named = args.filter((a) => a !== "--json");
   const usage =
-    "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] <url, html file or site path>...";
+    "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site path>...]";
   if (flagBase && !/^https?:$/.test(URL.parse(flagBase)?.protocol ?? "")) {
     console.error(usage);
     process.exit(2);
@@ -847,7 +893,9 @@ if (import.meta.main) {
   const listed = flagCatalog ? {} : listedCatalog(config);
   const catalog = flagCatalog || listed.dir;
   const at = flagAt || listed.at;
-  const site = flagSite || (flagBase ? undefined : listed.site);
+  const site = flagSite || (flagBase ? undefined : config.site);
+  // The config's pages where none is named, each measured, like a story, where it shows a marker.
+  const searched: string[] = named.length ? [] : (config.pages ?? []);
   let stories: string[] = [];
   try {
     if (config.csp !== undefined) policies(config.csp);
@@ -856,6 +904,7 @@ if (import.meta.main) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);
   }
+  stories = [...searched, ...stories];
   if (!named.length && !stories.length) {
     console.error(usage);
     process.exit(2);
@@ -907,6 +956,12 @@ if (import.meta.main) {
     await server?.stop(true);
   }
   const empty = pages.slice(0, named.length).filter((url) => !readings.some((r) => r.page === url));
+  // Only searched pages, none showing a marker: a run that measures nothing passes nothing.
+  const nothing = !named.length && searched.length > 0 && !readings.length;
+  if (nothing)
+    console.error(
+      `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,
+    );
   const { bad, kept, findings } = applyExceptions(readings.filter(failing), config.markers, pages);
   for (const f of findings) console.error(f);
   for (const r of refused) console.error(refusalLine(r));
@@ -927,5 +982,5 @@ if (import.meta.main) {
       `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px, ${kept.length} kept`,
     );
   }
-  process.exit(bad.length || empty.length || findings.length || refused.length ? 1 : 0);
+  process.exit(bad.length || empty.length || findings.length || refused.length || nothing ? 1 : 0);
 }

@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { packed as listPacked, ROOT } from "../scripts/git";
 
 const SHIPPED =
-  /^(package\.json|manifest\.json|README\.md|LICENSE|(tokens|generated|expert|elements|logos|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(colours|copies|components|markers|elements|retired)\.ts)$/;
+  /^(package\.json|manifest\.json|README\.md|LICENSE|(tokens|generated|expert|elements|logos|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(colours|copies|components|markers|elements|retired)\.ts|catalog\/(Element\.astro|ElementScript\.astro|element-demos\.ts))$/;
 const PRINT_MASTERS = /\.tif$|emoji-logo-short\.png$/;
 
 const packed = listPacked();

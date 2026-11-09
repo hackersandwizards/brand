@@ -1,0 +1,21 @@
+---
+// An expert component's story (expert/components) at the apps' dense scale, on the stylesheet an
+// expert app compiles (expert.css). `data-story-of` names the component.
+import "./expert.css";
+
+interface Props {
+  component: string;
+}
+const { component } = Astro.props;
+---
+
+<div class="expert-frame" data-hw-scale="dense" data-story-of={component}>
+  <slot />
+</div>
+
+<style>
+  .expert-frame {
+    padding: 1.5rem 1rem;
+    color: var(--foreground);
+  }
+</style>

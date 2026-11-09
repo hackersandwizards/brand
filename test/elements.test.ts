@@ -18,7 +18,7 @@ import {
   type Config,
 } from "../scan/elements";
 import { type Csp, launch, open } from "../scan/markers";
-import { DEMOS } from "../scripts/element-demos";
+import { DEMOS } from "../catalog/element-demos";
 import { tokens } from "../generated/tokens";
 import { packed, ROOT } from "../scripts/git";
 
@@ -224,6 +224,37 @@ test("an element of the catalog shell is not measured and needs no uses entry", 
   expect(coverage({ pages: [], uses: ["label"] }, [bare])).toContain(
     'card: a page shows it, but brand-elements.json does not list it in "uses"',
   );
+}, 60_000);
+
+// A focus-ring tile names its source beside the sample, a link to the element's entry in brand's
+// catalogue: the sample is measured and holds the tile, that link neither.
+test("the focus-ring tile measures its sample, not the link to brand's catalogue beside it", async () => {
+  const meta = `<p>from brand · <a href="https://hackersandwizards.github.io/brand/#elements/hw-focus-ring">brand</a></p>`;
+  const tile = (sample: string) =>
+    `<div data-hw-tile="focus-ring" data-hw-version="${own.version}">${meta}<div class="body">${sample}</div></div>`;
+  const run = async (name: string, sample: string, css = "") => {
+    const r = await measurePage(
+      browser,
+      file(name, only(`<style>${css}</style>${tile(sample)}`, "hw-focus-ring")),
+    );
+    return { labels: [...new Set(r.findings.map((f) => f.label))], tiles: r.tiles };
+  };
+  const styled = await run(
+    "meta-styled.html",
+    '<a href="#">A link to focus</a>',
+    "p a { outline: none !important }",
+  );
+  expect(styled.labels).toEqual([]);
+  // Control: the sample's own ring broken fails, naming the sample.
+  const broken = await run(
+    "sample-broken.html",
+    '<a href="#">A link to focus</a>',
+    ".body a { outline: none !important }",
+  );
+  expect(broken.labels).toEqual(['a "A link to focus"']);
+  // A tile holding only the link shows no focus ring.
+  const empty = await run("meta-only.html", "<span>No sample</span>");
+  expect(empty.tiles).toEqual([{ name: "focus-ring", version: own.version, holds: false }]);
 }, 60_000);
 
 // A closed fold draws its elements once opened, so they are measured open: a focusable in a shut

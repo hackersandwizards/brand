@@ -24,8 +24,9 @@
 // started on a free port, instead of "site".
 //
 // 1. Rendered. Every closed <details> outside a header or nav is opened, as brand-markers does. Every
-//    hub element on the pages (an hw-* class; for the focus ring, the first focusable inside
-//    [data-hw-tile="focus-ring"], focused; not one inside a [data-hw-exception], which is that
+//    hub element on the pages (an hw-* class; for the focus ring, each focusable inside
+//    [data-hw-tile="focus-ring"] but a link to its entry in brand's catalogue (catalogs.json),
+//    focused; not one inside a [data-hw-exception], which is that
 //    exception's instance, nor one inside [data-hw-shell], the scaffolding catalog shell's own
 //    card and pill, nor one carrying or inside [hidden], which draws nothing) is compared with a
 //    reference: the same markup in a shadow root beside it, styled only by this package's element
@@ -60,6 +61,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
+import catalogs from "../expert/catalogs.json";
 import own from "../package.json";
 import { listTree, scanned, skippedReport } from "./colours";
 import {
@@ -91,6 +93,10 @@ export type Config = {
   csp?: Csp;
 };
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
+// A tile's link to the element's entry in brand's catalogue, which names the sample's source.
+const ENTRY = catalogs
+  .find((c) => c.name === "Brand")!
+  .anchors!.element.replace("<element>", "focus-ring");
 export const TOLERANCE = 0.02; // CSS px
 
 const DIR = join(import.meta.dir, "../elements");
@@ -104,7 +110,7 @@ export const ELEMENTS: Record<string, string> = {
   quote: ".hw-quote",
   table: ".hw-table",
   link: ".hw-link, .hw-links a",
-  "focus-ring": '[data-hw-tile="focus-ring"] :is(a[href], button, [tabindex])',
+  "focus-ring": `[data-hw-tile="focus-ring"] :is(a[href], button, [tabindex]):not([href$="${ENTRY}"])`,
   "icon-button": ".hw-icon-button",
   strip: ".hw-strip",
   rule: ".hw-rule",

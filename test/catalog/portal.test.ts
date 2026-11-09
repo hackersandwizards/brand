@@ -27,6 +27,18 @@ test("the portal shows every shared element and every expert component", () => {
   expect(components.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
 });
 
+// The portal sends a reader to the catalog for the expert components: each has its stories there.
+test("every expert component has its stories in the catalog, which the portal links", () => {
+  const stories = join(DIST, "catalog/stories");
+  const shown = new Set(readdirSync(stories).flatMap((group) => readdirSync(join(stories, group))));
+  const kebab = (c: string) => c.replace(/(?<=[a-z])(?=[A-Z])/g, "-").toLowerCase();
+  const components = readdirSync(join(ROOT, "expert/components"))
+    .filter((f) => f.endsWith(".astro"))
+    .map((f) => f.slice(0, -6));
+  expect(components.filter((c) => !shown.has(kebab(c)))).toEqual([]);
+  expect(/id="expert-group"[^]*?<a href="catalog\/">/.test(html)).toBe(true);
+});
+
 test("catalogs.json's portal anchors lead to every element, every colour and every palette", () => {
   const { portal, anchors } = catalogs.find((c) => c.name === "Brand")!;
   expect(portal).toBe("https://hackersandwizards.github.io/brand/");

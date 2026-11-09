@@ -24,3 +24,8 @@ applications/**/*.ai filter=lfs diff=lfs merge=lfs -text export-ignore
 /applications/linkedin-visuals -export-ignore
 /applications/slide-visuals -export-ignore
 /applications/mail-signature -export-ignore
+/catalog -export-ignore
+/catalog/* export-ignore
+/catalog/Element.astro -export-ignore
+/catalog/ElementScript.astro -export-ignore
+/catalog/element-demos.ts -export-ignore

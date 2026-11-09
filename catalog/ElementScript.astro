@@ -1,0 +1,11 @@
+---
+// The behaviour brand's own samples need (elements/form.ts, elements/behaviour.ts), wired once per
+// page. Element.astro renders it only around brand's sample: a page's own sample is the page's to wire.
+---
+
+<script>
+  import { enhanceForms } from "../elements/form";
+  import { enhance } from "../elements/behaviour";
+  enhanceForms();
+  enhance();
+</script>

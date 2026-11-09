@@ -48,6 +48,7 @@
     "./verbal.json": "./verbal/verbal.json",
     "./mail-signature/*": "./applications/mail-signature/*",
     "./markers": "./scan/markers.ts",
+    "./Element.astro": "./catalog/Element.astro",
     "./package.json": "./package.json"
   },
   "bin": {
@@ -83,6 +84,9 @@
     "applications/slide-visuals/*.ts",
     "applications/slide-visuals/*.txt",
     "applications/mail-signature",
+    "catalog/Element.astro",
+    "catalog/ElementScript.astro",
+    "catalog/element-demos.ts",
     "scan/*.ts",
     "manifest.json"
   ],
@@ -107,6 +111,7 @@
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.20.2",
     "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.6.1",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v2.0.2",
+    "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.4",
     "@typescript/native": "npm:typescript@7.0.2",
     "astro": "7.4.7",
@@ -118,6 +123,7 @@
     "prettier": "3.9.10",
     "sharp": "0.35.5",
     "stylelint": "18.0.0",
+    "tailwindcss": "4.3.5",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.72.1"
   },

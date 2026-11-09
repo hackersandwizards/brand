@@ -1,9 +1,16 @@
 ---
-// One shared element's sample (scripts/element-demos.ts) at one scale, on light or night, in the
-// tile brand-elements counts (data-hw-tile, data-hw-version), with the focus ring turned on and the
-// behaviour the elements need (elements/form.ts, elements/behaviour.ts) wired.
+// A shared element's tile on a design-system page, the one brand-elements counts (data-hw-tile,
+// data-hw-version): a caption naming its source, brand's version and its entry in brand's
+// catalogue, then the sample at one scale, on light or night, with the focus ring turned on. The
+// sample is the page's own markup in the default slot, else brand's (element-demos.ts) with the
+// behaviour it needs.
+//
+//   import Element from "@hackersandwizards/brand/Element.astro";
+//   <Element name="pill" scale="dense" note="A deal's stage"><span class="hw-pill">Won</span></Element>
+import catalogs from "../expert/catalogs.json";
 import pkg from "../package.json";
-import { DEMOS } from "../scripts/element-demos";
+import { DEMOS } from "./element-demos";
+import ElementScript from "./ElementScript.astro";
 
 interface Props {
   name: string;
@@ -11,30 +18,43 @@ interface Props {
   night?: boolean;
   /** Element settings the surface sets, as a style attribute ("--hw-prose-width: 32rem"). */
   settings?: string;
+  /** Where the page uses the element, after the caption. */
+  note?: string;
+  /** The caption's language, the page's own. */
+  lang?: "en" | "de";
 }
 
-const { name, scale = "screen", night = false, settings } = Astro.props;
+const { name, scale = "screen", night = false, settings, note, lang = "en" } = Astro.props;
+const brand = catalogs.find((c) => c.name === "Brand")!;
+const entry = brand.portal! + brand.anchors!.element.replace("<element>", name);
+const own = Astro.slots.has("default");
+const words = { en: ["from brand", "catalogue"], de: ["aus brand", "Katalog"] }[lang];
 ---
 
-<div
-  class="sample hw-focus-ring"
-  data-hw-tile={name}
-  data-hw-version={pkg.version}
-  data-hw-scale={scale}
-  data-theme={night ? "dark" : undefined}
-  style={settings}
->
-  <Fragment set:html={DEMOS[name]} />
+<div class="tile" data-hw-tile={name} data-hw-version={pkg.version}>
+  <p class="caption">
+    {words[0]} v{pkg.version} · <code>hw-{name}</code> · <a href={entry}>{words[1]}</a>
+    {note && <span class="note">{note}</span>}
+  </p>
+  <div
+    class="sample hw-focus-ring"
+    data-hw-scale={scale}
+    data-theme={night ? "dark" : undefined}
+    style={settings}
+  >
+    {own ? <slot /> : <Fragment set:html={DEMOS[name]} />}
+  </div>
 </div>
-
-<script>
-  import { enhanceForms } from "../elements/form";
-  import { enhance } from "../elements/behaviour";
-  enhanceForms();
-  enhance();
-</script>
+{!own && <ElementScript />}
 
 <style>
+  .caption {
+    margin: 0 0 0.5rem;
+    font-size: 0.875em;
+  }
+  .note {
+    display: block;
+  }
   .sample {
     padding: 1.5rem;
     background: var(--color-white);

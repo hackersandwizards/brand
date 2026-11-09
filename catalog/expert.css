@@ -1,0 +1,14 @@
+/* An expert component's story page on the stylesheet an expert app compiles: Tailwind over the
+   components' classes, then the tokens, the expert set with its base and header, the marker, the
+   shared elements and the fonts. ExpertFrame.astro imports it, so no other story loads it. */
+@import "tailwindcss" source(none);
+@source "../expert/components";
+@source "../tokens/tokens.css";
+@source "../elements";
+@import "../tokens/tokens.css";
+@import "../expert/expert.css";
+@import "../expert/app-base.css";
+@import "../expert/header.css";
+@import "../tokens/marker.css";
+@import "../elements/elements.css";
+@import "../tokens/fonts.css";

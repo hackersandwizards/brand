@@ -71,7 +71,9 @@ data or secret.
   repo's files only by `catalog/portal.ts`, which the route `pages/index.html.ts` runs in its own
   process, with `catalog-assets/` (the elements as one stylesheet and the
   PNGs the inlined SVGs embed) from their own route and the tracked files it links copied beside it
-  (`files.ts`). The element stories sit in `catalog/stories/` at `/catalog/`. The portal's former
+  (`files.ts`). The element stories sit in `catalog/stories/` at `/catalog/`, each in the tile
+  `catalog/Element.astro`, and the expert components' stories beside them, in `ExpertFrame.astro`,
+  whose stylesheet `catalog/expert.css` compiles the apps' Tailwind stack for those pages alone. The portal's former
   address `catalogue.html` (route `pages/[former].html.ts`) forwards to the root with its anchor.
   The tests in `test/catalog/` read `dist/` after the build.
 
@@ -105,7 +107,7 @@ data or secret.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
   their OFL texts, the area marks with their Lucide licence, small logos,
   the press photos, `verbal/`, `manifest.json`, the LinkedIn post renderers and prompts
-  `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core`, and `LICENSE`. `test/package.test.ts` fails on anything else.
+  `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the element tile a consumer's catalogue shows (`catalog/Element.astro`, exported as `./Element.astro`, with `ElementScript.astro` and the samples `element-demos.ts`), the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core`, and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an
   `exports` target names, imported or, from Python, HTML or a skill, read at its path in

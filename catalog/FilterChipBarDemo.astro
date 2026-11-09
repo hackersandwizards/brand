@@ -1,0 +1,16 @@
+---
+// FilterChipBar as a list page fills it: one FilterChip per applied filter.
+import FilterChipBar from "../expert/components/FilterChipBar.astro";
+import FilterChip from "../expert/components/FilterChip.astro";
+
+interface Props {
+  show: boolean;
+}
+const { show } = Astro.props;
+---
+
+<FilterChipBar show={show} clearHref="#">
+  <FilterChip label="Workshop" removeHref="#" />
+  <FilterChip label="Remote" removeHref="#" />
+</FilterChipBar>
+{!show && <p>Without an applied filter the bar renders nothing.</p>}

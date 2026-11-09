@@ -21,14 +21,20 @@ afterAll(async () => {
   await server?.stop(true);
 });
 
-test("every element story passes brand-elements", async () => {
+test("every story passes brand-elements, every element story shows its element", async () => {
   const pages = storyPages();
   // Five per element, three that show a setting (the prose block's reading width, the row's
-  // padding, the dialog in a narrow tile), the list filter's nine and the area marks' two.
-  expect(pages.length).toBe(Object.keys(ELEMENTS).length * 5 + 3 + 9 + 2);
+  // padding, the dialog in a narrow tile), the list filter's nine, the area marks' two and the
+  // expert components' seventeen (expert/components, each in ExpertFrame.astro).
+  const expert = pages.filter((p) => EXPERT.test(p));
+  expect([pages.length, expert.length]).toEqual([
+    Object.keys(ELEMENTS).length * 5 + 3 + 9 + 2 + 17,
+    17,
+  ]);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
   const results = await pool(pages, 8, (p) => measurePage(browser, p));
-  expect(pages.filter((_, i) => !results[i]!.seen.length)).toEqual([]);
+  // An expert component may hold no shared element, such as the header's frame.
+  expect(pages.filter((p, i) => !EXPERT.test(p) && !results[i]!.seen.length)).toEqual([]);
   expect(results.flatMap((r) => r.findings)).toEqual([]);
   expect(results.flatMap((r) => r.unstyled)).toEqual([]);
   expect(coverage({ pages, uses: Object.keys(ELEMENTS) }, results)).toEqual([]);
@@ -68,6 +74,10 @@ async function contrastFailures(url: string, css = "") {
   }
 }
 
+// The expert components' stories: those of AppHeader, ThemeToggle, PageHeader, SpaceNav,
+// SpaceNavTree, FilterChip and FilterChipBar, each named for its component.
+const EXPERT =
+  /\/(app-header|theme-toggle|page-header|space-nav|space-nav-tree|filter-chip|filter-chip-bar)\//;
 const storyPages = () =>
   catalogPages(join(DIST, "catalog"), `${server.url}${BASE.slice(1)}catalog`);
 

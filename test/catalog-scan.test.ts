@@ -162,6 +162,34 @@ test("brand-markers: the home alone misses a story's lifted list, --catalog or t
   rmSync(join(dir, "brand-elements.json"));
 }, 60_000);
 
+// A consumer names its pages once, in brand-elements.json: brand-markers measures those showing a
+// marker where no page is named on its command line, on the config's "site" with or without a
+// catalog. A page named on the command line still fails without a marker, and replaces the list.
+test("brand-markers: without pages named, the pages and site of brand-elements.json", () => {
+  const lifted = /\/stories\/Lists\/Lifted\/default\/(index\.html)?$/;
+  const markers = (config: object, args: string[] = []) => {
+    write("brand-elements.json", JSON.stringify(config));
+    const r = run("markers.ts", ["--scale", "2", "--json", ...args]);
+    return { code: r.code, err: r.err, pages: r.out ? forkPages(JSON.parse(r.out)) : [] };
+  };
+  const plain = "site/catalog/stories/Text/Plain/default/index.html";
+  const files = markers({ pages: ["site/catalog/stories/Lists/Lifted/default/index.html", plain] });
+  expect(files.code).toBe(1);
+  expect(files.pages).toEqual([expect.stringMatching(lifted)]);
+  const served = markers({ site: "site", pages: ["/catalog/stories/Lists/Lifted/default/"] });
+  expect(served.code).toBe(1);
+  expect(served.pages).toEqual([expect.stringMatching(/^http:\/\/[^/]+\/catalog\/stories\//)]);
+  // Pages without any marker measure nothing, which proves nothing.
+  const none = markers({ pages: [plain] });
+  expect([none.code, none.err]).toEqual([1, expect.stringContaining("no marker on any page")]);
+  // Control: a page named on the command line replaces the list.
+  const named = markers({ site: "site", pages: ["/catalog/stories/Lists/Lifted/default/"] }, [
+    "site/catalog/index.html",
+  ]);
+  expect([named.code, named.pages]).toEqual([0, [expect.stringContaining("index.html")]]);
+  rmSync(join(dir, "brand-elements.json"));
+}, 60_000);
+
 test("source: an @apply sets the properties its utilities stand for; btn names a button", () => {
   const files: Record<string, string> = {
     "src/a.css": `.my-card { @apply rounded-brand p-4 bg-muted; }

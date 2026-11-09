@@ -18,7 +18,7 @@ import press from "../press/press.json";
 import verbal from "../verbal/verbal.json";
 import catalogs from "../expert/catalogs.json";
 import { ROOT } from "../scripts/git";
-import { DEMOS, SECTIONS } from "../scripts/element-demos";
+import { DEMOS, SECTIONS } from "./element-demos";
 import { MARK } from "../applications/avatars/generate";
 import { escHtml } from "../applications/linkedin-visuals/render";
 import { stickerCaptions } from "../applications/device-stickers/devices";
@@ -690,7 +690,7 @@ ${SECTIONS.map(
       .join("\n")}`,
 ).join("\n")}
 <h3 id="expert-group">Expert: the apps</h3>
-<p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), shown on each app's design-system page. Their field is ${code("form-input")}, which takes the field's states and the form field's parts above.</p>`;
+<p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), each with its stories in <a href="catalog/">the catalog</a>. Their field is ${code("form-input")}, which takes the field's states and the form field's parts above.</p>`;
 
 // Each system's own design-system page, served by its dev server, and the public address its owner
 // publishes, which the Pages copy links instead; a system without a page is not listed.
