@@ -178,6 +178,29 @@ test("a source page's rows load on first use; should they fail, the search goes 
   await q.close();
 }, 60_000);
 
+test("on a phone a topic tapped while the source loads names itself on the Filters button", async () => {
+  const p = await browser.newPage();
+  await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
+  let release = () => {};
+  const held = new Promise<void>((r) => (release = r));
+  await p.setRequestInterception(true);
+  p.on("request", async (r) => {
+    if (r.resourceType() === "fetch") await held;
+    void r.continue();
+  });
+  await p.goto(story("source"), { waitUntil: "load" });
+  const toggle = "[data-filter-toggle]";
+  await p.tap(toggle);
+  await p.tap('label.hw-choice:has(input[value="tools"])');
+  expect(await text(p, toggle)).toBe("Werkzeuge");
+  expect(await p.$eval(toggle, (e) => e.hasAttribute("data-variant"))).toBe(false);
+  release();
+  await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
+  expect(await shown(p)).toEqual(["Context Engineering", "Spec-driven Development"]);
+  expect(await text(p, toggle)).toBe("Werkzeuge");
+  await p.close();
+}, 60_000);
+
 test("inline sets the select beside the search from 64rem; a select filters with the choices", async () => {
   const p = await browser.newPage();
   await p.setViewport({ width: 1280, height: 900 });
@@ -309,6 +332,19 @@ test("on a phone a tapped choice folds the facets and the button names it; a key
   await p.keyboard.press("ArrowRight");
   expect(await panel()).toBe(true);
   expect(await text(p, toggle)).toBe("Werkzeuge, 1 Tag");
+  // The button has its own row under the search, so the chosen values show in full.
+  expect(
+    await p.$eval(toggle, (t) => {
+      const label = t.querySelector("[data-filter-label]")!;
+      const row = t.parentElement!.getBoundingClientRect();
+      const search = t.parentElement!.querySelector(".hw-search")!.getBoundingClientRect();
+      return {
+        full: label.scrollWidth <= label.clientWidth,
+        width: t.getBoundingClientRect().width === row.width,
+        below: t.getBoundingClientRect().top >= search.bottom,
+      };
+    }),
+  ).toEqual({ full: true, width: true, below: true });
   // A shared link names its chosen values.
   await p.goto(`${story("listed")}?topic=practice`, { waitUntil: "networkidle0" });
   expect(await text(p, toggle)).toBe("Praxis");

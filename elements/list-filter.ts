@@ -279,6 +279,25 @@ export function initListFilter(root: HTMLElement) {
     const faceted = Object.values(current.facets).some(Boolean);
     const active = words.length > 0 || faceted;
     if (overview) overview.hidden = active;
+    // A set facet fills the phone's Filters button and names itself there: its facets are folded
+    // away behind it.
+    if (toggle) {
+      if (faceted) toggle.removeAttribute("data-variant");
+      else toggle.setAttribute("data-variant", "secondary");
+      const { text, aria } = filtersLabel(
+        filtersWord,
+        [
+          ...form.querySelectorAll<HTMLInputElement | HTMLOptionElement>(
+            'input[type="radio"]:checked, option:checked',
+          ),
+        ]
+          .filter((el) => el.value)
+          .map((el) => el.dataset.label),
+      );
+      (toggleLabel ?? toggle).textContent = text;
+      if (aria) toggle.setAttribute("aria-label", aria);
+      else toggle.removeAttribute("aria-label");
+    }
     if (!loaded) {
       if (active && failed) form.submit();
       else if (active) void load();
@@ -319,24 +338,6 @@ export function initListFilter(root: HTMLElement) {
       for (const option of select.options)
         option.textContent = `${option.dataset.label} (${counts.get(option.value) ?? 0})`;
     }
-    // A set facet fills the phone's Filters button and names itself there: its facets are folded
-    // away behind it.
-    if (!toggle) return;
-    if (faceted) toggle.removeAttribute("data-variant");
-    else toggle.setAttribute("data-variant", "secondary");
-    const { text, aria } = filtersLabel(
-      filtersWord,
-      [
-        ...form.querySelectorAll<HTMLInputElement | HTMLOptionElement>(
-          'input[type="radio"]:checked, option:checked',
-        ),
-      ]
-        .filter((el) => el.value)
-        .map((el) => el.dataset.label),
-    );
-    (toggleLabel ?? toggle).textContent = text;
-    if (aria) toggle.setAttribute("aria-label", aria);
-    else toggle.removeAttribute("aria-label");
   };
 
   const restore = () => {

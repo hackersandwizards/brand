@@ -486,9 +486,10 @@ set; on a static page its rows then wait in a template without JavaScript, or lo
 the page `source` names, or stay in the page with `listed`. `inline` sets the first select beside
 the search from 64rem. Ctrl+K or Cmd+K focuses the search, unless a command palette (`data-hw-shortcut="k"`)
 takes the key. On a phone the facets fold behind a
-Filters button that names the chosen values, and a tapped choice folds them again. From 100 rows (`LONG_LIST`) a row off
-screen skips layout (`content-visibility: auto`), standing in at the mean height of the rows on
-screen, which the script measures; a shorter list renders every row. Should the script fail, the phone's facets and the search button stay usable. A row is `expert/components/ListRow.astro` on `hw-row`
+Filters button on its own row under the search, which names the chosen values in full, and a tapped choice folds them again. From 100 rows (`LONG_LIST`) a row off
+screen skips layout (`content-visibility: auto`), standing in at the mean content height (padding and border
+excluded) of the rows the browser renders, which the script measures on each width change and
+sets on the list as `--hw-list-filter-row`, so a page sets no row height; a shorter list renders every row. Should the script fail, the phone's facets and the search button stay usable. A row is `expert/components/ListRow.astro` on `hw-row`
 (`stripeColor`, the slots `lead` and `trail`, every further attribute passed to the row, `current`
 for the record open beside the list).
 

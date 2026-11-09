@@ -2380,9 +2380,6 @@ select.form-input {
   }
   .hw-list-filter [data-filter-toggle] {
     display: none;
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: 40%;
   }
   .hw-list-filter [data-filter-label] {
     overflow: hidden;
@@ -2394,8 +2391,12 @@ select.form-input {
     .hw-list-filter[data-closed] [data-filter-panel] {
       display: none;
     }
+    .hw-list-filter[data-js] .hw-list-filter-search {
+      flex-wrap: wrap;
+    }
     .hw-list-filter[data-js] [data-filter-toggle] {
       display: inline-flex;
+      flex-basis: 100%;
     }
   }
   @media (min-width: 64rem) {
