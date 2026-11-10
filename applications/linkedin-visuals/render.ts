@@ -4,7 +4,7 @@
 import { execFile, execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
@@ -12,11 +12,15 @@ const BRAND = resolve(import.meta.dir, "../..");
 export const brandPath = (file: string) => join(BRAND, file);
 
 function inlineCss(path: string): string {
-  return readFileSync(path, "utf-8").replace(
-    /url\("(fonts\/[^"]+)"\)/g,
-    (_, file: string) =>
-      `url(data:font/woff2;base64,${readFileSync(join(BRAND, "tokens", file)).toString("base64")})`,
-  );
+  return readFileSync(path, "utf-8")
+    .replace(/^@import "(\.\.?\/[\w./-]+\.css)";$/gm, (_, file: string) =>
+      inlineCss(join(dirname(path), file)),
+    )
+    .replace(
+      /url\("(fonts\/[^"]+)"\)/g,
+      (_, file: string) =>
+        `url(data:font/woff2;base64,${readFileSync(join(dirname(path), file)).toString("base64")})`,
+    );
 }
 
 // The faces and the print sizes of the type roles, then the screen tokens, which restore the

@@ -207,6 +207,14 @@ test("each stack names its fallback face after the web face, and both font files
   );
 });
 
+// A page inlining print.css resolves its imports by this one-line, double-quoted, relative form,
+// and an @import after any other rule is dropped by the browser.
+test("print.css imports fonts.css's fallback faces before any rule", () => {
+  expect(print.replace(/\/\*[^]*?\*\//g, "").trimStart()).toStartWith(
+    '@import "../generated/fallback-faces.css";\n',
+  );
+});
+
 // A surface serving the font files from its own path writes fonts.css's rules with its own urls.
 test("fontFaceRules gives fonts.css's rules, each url the base or the function's answer", () => {
   const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");

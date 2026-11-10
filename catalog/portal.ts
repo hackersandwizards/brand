@@ -33,7 +33,9 @@ import {
   resolveColors,
   SOURCE,
 } from "../scripts/tokens";
+import { brandFallbacks } from "@hackersandwizards/scaffolding/catalog/fallbacks.ts";
 import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
+import { tokens as brandTokens } from "../generated/tokens";
 
 const source = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(source);
@@ -54,9 +56,14 @@ const assets: Record<string, string> = {};
 const writeAsset = (name: string, content: string | Buffer) => {
   assets[name] = Buffer.from(content).toString("base64");
 };
-const catalogCss = readFileSync(
-  createRequire(import.meta.url).resolve("@hackersandwizards/scaffolding/catalog/catalog.css"),
-  "utf8",
+// The shell's type steps are var()s of brand's tokens, which the catalog build fills in; this page
+// reads the file raw, so it fills them the same way.
+const catalogCss = brandFallbacks(
+  readFileSync(
+    createRequire(import.meta.url).resolve("@hackersandwizards/scaffolding/catalog/catalog.css"),
+    "utf8",
+  ),
+  brandTokens,
 );
 const elementsCss = flat(join(ROOT, "elements/elements.css"));
 writeAsset("elements.css", elementsCss);
@@ -962,7 +969,11 @@ const inline = (css: string, from = ".") =>
       /url\((["']?)(?!data:|https?:|\/)([^"')]+)\1\)/g,
       (_, _q: string, url: string) => `url("${join(from, url)}")`,
     );
-const ownCss = (path: string) => inline(readFileSync(join(ROOT, path), "utf8"), dirname(path));
+const ownCss = (path: string): string =>
+  inline(readFileSync(join(ROOT, path), "utf8"), dirname(path)).replace(
+    /^@import "(\.\.?\/[\w./-]+\.css)";$/gm,
+    (_, file: string) => ownCss(join(dirname(path), file)),
+  );
 const FONTS = [
   "inter-latin-400-normal",
   "inter-latin-500-normal",

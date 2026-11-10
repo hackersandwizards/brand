@@ -16,7 +16,11 @@
    the OFL files in fonts/. font-display: swap shows a screen the fallback
    face until a face arrives. A PDF was unchanged by it in Chrome 156, printed
    at load, after network idle and with text added at load; a renderer that
-   prints earlier awaits document.fonts.ready. */
+   prints earlier awaits document.fonts.ready. The import brings fonts.css's
+   fallback faces, which the font stacks name after these; a page inlining
+   this file resolves it beside the file. */
+@import "../generated/fallback-faces.css";
+
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;

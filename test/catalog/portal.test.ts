@@ -172,6 +172,15 @@ test("the portal's lists sit within 0.25 px", async () => {
   ).toEqual([]);
 }, 60_000);
 
+// The page title takes the shell's type step, which only brand's tokens set on this page.
+test("the portal's title is brand's --text-page", async () => {
+  const p = await browser.newPage();
+  await p.goto(url);
+  const size = await p.$eval("h1", (el) => getComputedStyle(el).fontSize);
+  expect(size).toBe(`${parseFloat(tokens["--text-page"]) * 16}px`);
+  await p.close();
+}, 60_000);
+
 // Brand asks for the quote to be marked not-prose, which the measure's own selector skips.
 test("a quote in the prose block keeps the running text's measure", async () => {
   const p = await browser.newPage();

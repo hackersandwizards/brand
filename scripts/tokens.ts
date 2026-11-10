@@ -7,7 +7,8 @@
 // faces, for a surface that writes its own @font-face; font-faces.ts, fonts.css's rules with the
 // url of each font file the caller's; and static-fonts.css, tokens/print.css's
 // @font-face rules and fonts.css's fallback faces, for a surface that needs the static faces without
-// the print scale; and cursor.svg, the slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6; and
+// the print scale; fallback-faces.css, fonts.css's fallback faces alone, which print.css imports;
+// and cursor.svg, the slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6; and
 // elements.css and document.css, elements/elements.css and tokens/document.css with every
 // @import resolved in place, for a page that links them and must not wait on a request chain.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
@@ -355,6 +356,7 @@ ${flat(join(ROOT, source))}`;
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
   const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");
+  const fallbacks = fallbackFaces(screen);
   const tokens = parseTokens(css);
   const declare = (names: string[]) => names.map((k) => `  ${k}: ${tokens[k]};`).join("\n");
   const colors = resolveColors(tokens);
@@ -385,8 +387,14 @@ const generate = () => {
    Import it as @hackersandwizards/brand/static-fonts.css. */
 ${faceRules(readFileSync(join(ROOT, "tokens/print.css"), "utf8"))
   .map((face) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
-  .concat(fallbackFaces(screen))
+  .concat(fallbacks)
   .join("\n\n")}
+`,
+    "fallback-faces.css": `/* Generated from tokens/fonts.css by scripts/tokens.ts. Edit the source, never this file.
+   fonts.css's fallback faces alone, the local fonts its stacks name after each web face, which
+   print.css imports so a printed page whose face is missing a character, or fails to load, keeps
+   the web face's widths. */
+${fallbacks.join("\n\n")}
 `,
     "elements.css": FLAT("elements/elements.css"),
     "document.css": FLAT("tokens/document.css"),
