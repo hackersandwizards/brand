@@ -102,7 +102,7 @@ Benedikt's words on x4, relayed in the round's brief, are the reason for it:
 
 The round scored 49 new claim pairs and 16 headline pairs with the same method, tpe-tune and x4 as anchors in every round, and one criterion more, reported apart from the overall score: the first thing the line makes you see is what gets better for the client (0 to 10), with a clause naming it, "nothing" allowed. Report: `docs/agent-work/2026-11-10-claim-positive.md`.
 
-No line beats both anchors on the path and on that criterion without losing the panel. The rule fixed before the first run keeps the line that changes nothing in that case, so `recommended` stays tpe-tune. The criterion adds a reason against x4: it scores lowest on what he asked for.
+No line beats both anchors on the path and on that criterion without losing the panel. The rule fixed before the first run keeps the line that changes nothing in that case, so `recommended` stays tpe-tune. The criterion adds a reason against x4: on the path it scores lowest of all claims on what he asked for (4.2 against 6.1 for tpe-tune); on the panel the two tie.
 
 | Option   | Client's change leads | Panel                                   | Path (with the decided H1) |
 | -------- | --------------------- | --------------------------------------- | -------------------------- |
@@ -111,7 +111,7 @@ No line beats both anchors on the path and on that criterion without losing the 
 | e5x      | 8.8                   | 71.2 (first wording; the pair unscored) | 79.3                       |
 | r1       | 9.2                   | 76.4                                    | 72.0                       |
 
-These rounds sit 1.8 to 5.0 points below the first round of the day on the panel, with other lines beside the anchors, so each new option's detail names what tpe-tune and x4 scored in its own rounds. The scores of tpe-tune and x4 in the options are the first round's.
+These rounds sit 1.8 to 5.0 points below the first round of the day on the panel, with other lines beside the anchors, so each new option's detail names what tpe-tune and x4 scored in its own rounds. The scores of tpe-tune and x4 in the options are the first round's. The scores of e5x and r1 are the mean of panel and path in their own rounds, e5x with the panel of its first wording. hb's score is its second hero round and compares only with the decided headline's 76.2 there.
 
 - e5x wins the criterion and beats tpe-tune on the path by 8.6 to 14.9 in every cell. It ties x4 on the path and loses the panel to x4. It drops the position's point that the gain depends on every role: the headline and the descriptor would have to carry it.
 - r1 is the decided claim with the gain in front. Codex puts it ahead of both anchors on the panel, Claude behind both, and it nearly repeats the decided headline.
