@@ -33,16 +33,19 @@ Overall, round 1:
 | Codex, offer reader        | 9.0 | 9.1 | 8.1 |
 | Codex, design lead         | 8.9 | 8.6 | 8.4 |
 
-Noise (the design lead's two Claude runs): 0.1 on the overall. K leads R by 0.85 (Claude) and 0.7
+Noise (the design lead's two Claude runs): 0.1 on the overall. "Told apart" alone, mean over every page:
+K 8.74, M 8.43, R 7.80 (Claude), K 9.93, M 9.79, R 8.57 (Codex). No reviewer outright named a
+callout a quote in any version (0 of 7 runs). Each read "Ergebnis" or "In return" as an outcome
+or note, helped by the label, and marked R down for it ("reads half like a quotation"). K leads R by 0.85 (Claude) and 0.7
 (Codex), outside the noise with both models. The reason every Claude reviewer named for K: a bar
 means someone's words, a tint means a box. Their reasons against K: without its rule the 7 % tint
 almost vanishes at night and is pale on a projector. Their reasons against M: the grey quote rule
 is too faint on a projector.
 
 Round 2 fixed that cause: **Z** is K with the fill at 10 % in day and 14 % at night. The current
-state was scored again as **T**, but its slide image was captured blank (a capture defect: it came
-first in the run, and slides' `dist` predates the capture), so T's round-2 scores are void and R's
-round-1 scores stand for it.
+state was scored again as **T**, but its slide image was captured blank, so T's round-2 scores
+are void and R's round-1 scores stand for it. The blank capture is not yet explained: the same
+page rendered in round 1, and no re-capture was run.
 
 | Reviewer                   | W (= K) | Z    |
 | -------------------------- | ------- | ---- |
@@ -53,10 +56,13 @@ round-1 scores stand for it.
 | Codex, design lead         | 9.4     | 9.4  |
 | Codex, operations lead     | 8.5     | 9.0  |
 
-Z leads in all four Claude runs by 0.75 to 1.0, at about the noise of this round (the design lead's
-runs differ by 1.0 for W and 0.75 for Z), and ties or leads with Codex. Neither variant is an
-exception to a shared value, so the tie rule does not decide. Z is built because it removes the
-cause round 1 named. What still keeps Z below 10 belongs to the slide's layout, not the element:
+Z leads in all four Claude runs by 0.75 to 1.0, at about the noise of this round (the design
+lead's runs differ by 1.0 for W and 0.75 for Z). Codex ties overall (9.4 and 9.4) or leads (9.0
+against 8.5). Per page, both models put Z's lead where round 1 named the cause: at night (Codex
+told apart 9 to 10, operations lead overall 8 to 9) and on the slide (fit 8 to 9 with both Codex
+reviewers), at a cost of one point of calm. Z adds a step to the hue table (10 %, 14 % on night) that
+W does not, so on the overall alone the tie rule would favour W. Z is built because both models
+lead with it on the two pages the cause was named for. What still keeps Z below 10 belongs to the slide's layout, not the element:
 the callout ends short of the card row and sits close under it.
 
 Skipped combinations: the website, the verifier, practitioners and mail at the screen scale; os and

@@ -82,7 +82,8 @@
 
      Hues, one row per hue: base | text on light | night | job. Text on light clears 4.5:1 on bg
      and white; night clears 4.5:1 on night and night-2. Each hue tints at 7 % (a wash, a card
-     fill) and 40 % (a chip, a highlight) on white, color-mix(in srgb, <base> 7%, white); teal
+     fill), 10 % (a callout, a box no rule marks; 14 % on night) and 40 % (a chip, a highlight)
+     on white, color-mix(in srgb, <base> 7%, white); teal
      and purple carry the 40 % tint as -light, teal its 7 % wash as teal-soft. Text on a 7 % wash takes its text colour mixed
      70 % with ink wherever that colour alone falls under 4.5:1 there: amber, green and red. Chart series take
      the hues in --chart-* order below.
