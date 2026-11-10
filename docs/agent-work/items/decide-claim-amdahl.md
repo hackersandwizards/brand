@@ -1,8 +1,8 @@
 ---
 kind: decision
 status: open
-priority: 1
-order: 10
+priority: 2
+order: 216
 area: brand
 owner: Benedikt
 evidence: "Blind review 10.11., 319 runs: text screen, rendered panel, cold reads with an f6 control, three hero rounds, four reader's-path rounds with u1 and d8 as anchors. Report: docs/agent-work/2026-11-10-claim-amdahl.md. Round on the client's change first, 10.11., 343 runs: docs/agent-work/2026-11-10-claim-positive.md."
