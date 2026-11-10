@@ -24,7 +24,8 @@ Gemessen ist der berechnete Farbwert, Kontrast gegen den Seitengrund:
 | `expert.css` mit dem Wert aus dem Trainer-Hub | Tinte 70 %, 5,5:1 | Nachttinte bei 51 %, 4,8:1 | `#545861`, 6,7:1 | night-muted, 12,2:1 |
 
 Der Hub-Wert auf Nacht ist mit dem Nacht-Boden aus `expert.css` gemessen. Ob der Hub auf Nacht einen
-eigenen Boden setzt, ist nicht geprüft. Bilder: `2026-11-10-review-fixes/quiet-expert-day-*.jpg`.
+eigenen Boden setzt, ist nicht geprüft. Bilder aller sieben Elemente, vorher und nachher, Tag und
+Nacht, ohne und mit `expert.css`: `2026-11-10-review-fixes/quiet-{plain,expert}-{day,night}-*.jpg`.
 Auf Nacht ohne eigene Variable ändert sich nichts.
 
 ### B-03: Fokusring am Schließen-Knopf des Toasts
@@ -119,7 +120,9 @@ zeigt sie heute (slides' `components/` und `catalog/` enthalten keines). Die Pr�
 verbundenen Feld trifft nicht zu: Auf Stage ist es vorher und nachher 72 px hoch, weil der Knopf die
 Zeile streckt. Mit einem festen `--text-ui` je Skala hätte slides' Inline-Code
 (`ContentSlide.tsx`, `lib/markdown.tsx`) eine feste Größe statt 0,875 em bekommen. Deshalb gibt es
-keinen Wert je Skala.
+keinen Wert je Skala. Wer `var(--text-ui)` ohne Rückfall liest (Tailwinds `text-ui`, `.form-input`), erbt
+in einem Papier- oder Bühnenblock jetzt die Größe des Blocks. Weder os noch der Trainer-Hub haben in
+ihrem Quelltext einen solchen Block (dieselbe Suche findet ihr `data-hw-scale="dense"`).
 
 ### B-15: `.form-input` und `select.css` in der Komponenten-Ebene
 
@@ -128,16 +131,19 @@ Beide lagen außerhalb jeder Ebene und schlugen deshalb jede Utility. Jetzt lieg
 `.form-input`, wie um `hw-field` daneben. Außerhalb bleibt der eigene Ring. Gemessen mit kompiliertem
 Tailwind, `expert.css` vor und nach `elements.css` geladen, beide Reihenfolgen gleich:
 
-| Fall                                                       | vorher                 | nachher                   |
-| ---------------------------------------------------------- | ---------------------- | ------------------------- |
-| `select.form-input`                                        | rechts 32 px           | 32 px                     |
-| `select.form-input pr-10`                                  | 32 px                  | 40 px                     |
-| `textarea.form-input min-h-24` (os, `EntityDetailScripts`) | 56 px hoch             | 96 px                     |
-| `.form-input` fokussiert in `hw-focus-ring` (Trainer-Hub)  | kein Umriss            | 3 px Lila, wie `hw-field` |
-| `.form-input` fokussiert außerhalb                         | eigener Ring           | gleich                    |
-| `hw-field hw-select`, drei Größen                          | 28 / 28 / 30 px rechts | gleich                    |
+| Fall                                                          | vorher                 | nachher                   |
+| ------------------------------------------------------------- | ---------------------- | ------------------------- |
+| `select.form-input`                                           | rechts 32 px           | 32 px                     |
+| `select.form-input pr-10`                                     | 32 px                  | 40 px                     |
+| `textarea.form-input min-h-24` (os, `EntityDetailScripts`)    | 56 px hoch             | 96 px                     |
+| `.form-input` fokussiert in `hw-focus-ring` (os, Trainer-Hub) | kein Umriss            | 3 px Lila, wie `hw-field` |
+| `.form-input` fokussiert außerhalb                            | eigener Ring           | gleich                    |
+| `hw-field hw-select`, drei Größen                             | 28 / 28 / 30 px rechts | gleich                    |
 
-Unter erzwungenen Farben zeigt `.form-input` einen Fokusrahmen (vorher keinen).
+Unter erzwungenen Farben zeigt `.form-input` einen Fokusrahmen (vorher keinen). os und der
+Trainer-Hub setzen `hw-focus-ring` auf `html`, also bekommt dort jedes `.form-input` den Brand-Ring.
+Ihre eigenen Regeln ohne Ebene auf `input`, `select` und `textarea` (zwei in os, `FilterRow.astro`)
+sind spezifischer als `.form-input` und gewannen schon vorher.
 
 ### B-16: Textfarbe auf Füllung und die Listenmarke auf Nacht
 
@@ -206,7 +212,10 @@ documents (keine Nachtflächen).
   Test prüft jedes `exports`-Ziel gegen die gepackte Liste.
 - B-14: `hw-nav`, `hw-error-summary` und `hw-dot-list` schalten die Listenmarker aus. In `hw-prose`
   bekamen sie vorher teal Quadrate, und die Punktliste verlor ihren Mittelpunkt.
-- B-17: Der README sagt, dass `data-theme` auf einen Container gehört.
+- B-17: Der README sagt, dass `data-theme` auf einen Container gehört. Die Prämisse zur Kachel trifft
+  nicht zu: In einer Nachtkachel mit `hw-focus-ring` und `data-theme="dark"` auf demselben `div`
+  zeigt ein fokussierter Knopf den Nachtring (`#B97AF1`), gemessen auf 2.13.0. Zu trifft der andere
+  Teil: Eine `hw-card`, die `data-theme="dark"` selbst trägt, bleibt Tag.
 - B-19: `brand-elements` endet mit Exit 2 und einem Satz, wenn eine Seitenpfad-Angabe keinen
   Server hat (vorher ein unbehandelter Fehler). Die Reihenfolge der Seitenvorbereitung bleibt, wie
   sie war. Was sie an einer Messung ändert, ist nicht geklärt.
@@ -253,7 +262,14 @@ documents (keine Nachtflächen).
 - Adresszeile in `imprint.json`: Sie würde Straße, Postleitzahl und Ort ein zweites Mal halten. Ein
   Konsument fügt sie in einer Zeile zusammen.
 
+- B-06: Benedikt hat den Claim am Abend entschieden (r1, Startseiten-Überschrift hb, Commit
+  `bddb043`). Dieser Commit löscht `decide-claim-tune` und schreibt die beiden anderen Claim-Items
+  neu. Die Änderungen dieses Laufs an den drei Items sind damit überholt und nicht ausgeliefert.
+
 ### Was die Konsumenten beim Anheben auf 2.13.0 sehen
+
+Ein Konsument hebt direkt auf 2.13.0 und lässt 2.12.0 aus: Dessen `brand-colours` zählt die
+Fehlzählungen unten mit, und dessen `brand-markers` scheitert an weniger `off`-Lesungen als erlaubt.
 
 Keine Prüfung wird für einen Konsumenten strenger: Der neue Exit 2 von `brand-elements` trifft
 niemanden, denn admin setzt `site`, und os und der Trainer-Hub führen die Prüfung nicht aus.
