@@ -9,7 +9,7 @@ Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `p
 | `pre-commit`    | every commit that is not a conflict-free merge              | `bun run check:staged`: scaffolding's `check-staged` (gitleaks, coupling, confidential, prettier, eslint, stylelint on CSS and Astro; `check-licenses` when `package.json` or `bun.lock` is staged, `admin-check` when an item is) |
 | `commit-msg`    | every commit                                                | `check-confidential` on the message                                                                                                             |
 | `pre-push`      | every push                                                  | `check-confidential prepush`: refuses commits listed in `.confidential-purged.json`, then the LFS upload                                        |
-| `post-merge`    | a merge that changed `bun.lock` or `package.json`           | `bun install --frozen-lockfile` through `check-lock` without waiting, quiet; while a gate or build holds the lock the gate's own install does it, and a failure never fails the merge |
+| `post-merge`    | a merge that changed `bun.lock` or `package.json`           | `bun install --frozen-lockfile` through `check-lock` without waiting, quiet; a held lock skips it, and a failure never fails the merge |
 | `post-checkout` | a branch checkout that changed `bun.lock` or `package.json` | the same install                                                                                                                                |
 
 ## LFS

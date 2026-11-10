@@ -5,7 +5,7 @@ priority: 3
 order: 1825
 area: engineering
 owner: Ada
-evidence: "brand-next run 08.11.: a hook in test/header.test.ts timed out at 5 s once; which hook was not recorded. brand-gate run 10.11. 11:50, load average 36: the beforeAll of test/markers.test.ts, which only calls launch(), timed out at 5 s with a logging wrapper (bash and tee) in Chrome's launch path, and bun then killed the browser ('killed 1 dangling process'). Ten plain launch() calls at 12:44 took 1.0 to 2.4 s at load 53 to 75. Not yet explained."
+evidence: "brand-next run 08.11.: a hook in test/header.test.ts timed out at 5 s once; which hook was not recorded. brand-gate run 10.11. 11:50, load average 36: the beforeAll of test/markers.test.ts, which only calls launch(), timed out at 5 s with a logging wrapper (bash and tee) in Chrome's launch path, and bun then killed the browser ('killed 1 dangling process'). Ten plain launch() calls at 12:44 took 1.0 to 2.4 s at load 53 to 75. Not yet explained. fix-brand-a run 10.11.: brand's `test` and `check:catalog` now pass bun the gate's load-stretched per-test limit, which bun applies to hooks too (a 6 s beforeAll passed with --timeout 10000 and timed out without it); one gate at load 13.6 rising to 112.8 passed with no hook timeout."
 ---
 
 # A browser hook in brand's tests timed out at 5 s
