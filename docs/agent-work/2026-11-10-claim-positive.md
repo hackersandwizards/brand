@@ -1,6 +1,6 @@
 # The client's change first: more claims and headlines, 10.11.2026
 
-No. No line beats both anchors on the reader's path and on the new criterion without losing the panel. The decision stays with Benedikt in `decide-claim-amdahl`, with keeping tpe-tune recommended and three lines of this round as further options.
+No. No line beats both anchors on the reader's path and on the new criterion without losing the panel. The decision went to Benedikt in `decide-claim-amdahl`, with keeping tpe-tune recommended and three lines of this round as further options; he took two of them the same day, r1 as the claim and hb as the home headline.
 
 Keys used below: tpe is tpe-tune, the decided claim "Agents pay off when your people are in tune."; x4 is "Agents speed up code. Your handoffs set the pace."; dh is the decided headline "Your teams have agents. Once all roles are in tune, your releases speed up.".
 

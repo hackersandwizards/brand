@@ -13,7 +13,7 @@ Benedikt's texts take these forms:
 
 Each lead over the current text is outside the noise in both runs and with both models. The texts are in item `work-update-external-profiles-after-claim`, old against new. The practitioners bio is a brief below: that repository changes it in its own run. Live state of each field: Sessionize read live 08.11.; LinkedIn is blocked for an automated read, so its texts come from the 31.10. record (Company OS `docs/agent-work/2026-11-01-profile-texts.md`, sections 9, 11 and 12), confirmed against the 31.10. screenshots of the opening lines.
 
-Open: `decide-claim-tune`, created after this run started, recommends changing the claim to "in tune". Every text here carries u1; the item and every review of copy around the claim wait on that decision. If the claim changes, the banners are re-rendered, and one round scores the winners with the new line against the current text and a paste; a field that carries no claim keeps its text.
+Superseded on 10.11.: the claim changed to r1, "Faster releases with agents, when your people are in tune." (`decide-claim-amdahl`). Every text here carries u1, the claim before it. The banners are re-rendered and the texts redone for r1 in `work-update-external-profiles-after-claim`; this report stands as the measurement of 08.11.
 
 The brief's premise was out of date on one point: since 31.10. the company page tagline and the LinkedIn About carry the offer rather than a claim, so "the current text with the claim merely swapped" means the claim pasted onto them. It was scored as that, beside the unchanged live text.
 
@@ -100,7 +100,7 @@ Skipped and named: OMR, XING, X, YouTube, Brella and Facebook text fields stay "
 
 ## Brief for the practitioners repository
 
-Wait for `decide-claim-tune`: this bio carries u1. Change Benedikt's short bio to the text below, then `bun run export` and name the entry's `entry.json` in the commit. Scored in context as C. The bio changes only with his yes; his file is `status: draft`. In place: [English](2026-11-08-claim-rollout-holistic/practitioners-en-new.jpg), [German](2026-11-08-claim-rollout-holistic/practitioners-de-new.jpg).
+This bio carries u1 and is superseded with it. As briefed on 08.11.: change Benedikt's short bio to the text below, then `bun run export` and name the entry's `entry.json` in the commit. Scored in context as C. The bio changes only with his yes; his file is `status: draft`. In place: [English](2026-11-08-claim-rollout-holistic/practitioners-en-new.jpg), [German](2026-11-08-claim-rollout-holistic/practitioners-de-new.jpg).
 
 Benedikt's short bio, EN and DE, exact new text:
 
@@ -114,7 +114,7 @@ Benedikt Stemmildt ist Gründer und Co-CEO von hackers&wizards in Hamburg. Die F
 
 ## Consumers, for the stage-2 briefs
 
-Pin raises and H1 work can start. Each review of copy around the claim waits on `decide-claim-tune`, since a changed claim redoes it. Each brief carries the rule that a surface's copy around the claim or the headline is rewritten to fit it and blind-reviewed in that surface's context against the current copy, aiming at the highest score. What the copy around the claim needs, per repository:
+Pin raises and H1 work can start. Each review of copy around the claim is redone for r1, the claim since 10.11. Each brief carries the rule that a surface's copy around the claim or the headline is rewritten to fit it and blind-reviewed in that surface's context against the current copy, aiming at the highest score. What the copy around the claim needs, per repository:
 
 - **website**: home hero, lead and footer around the claim and H1 (v1.57.0 headline): `claimLines` splits at ". " and leaves an empty first line with a one-sentence claim, so the footer needs writing around one sentence. The lead and social cards need checking against the claim as one sentence.
 - **os**: the onepager header reads the claim as a one-liner under the title, so its own descriptor line around it needs a review; handbook `business-foundation.md` lines 152 and 313 and `linkedin/profile-and-page-drafts-2026-09.md` follow the texts in the profiles item, not a claim swap.

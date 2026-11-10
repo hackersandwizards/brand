@@ -1,6 +1,9 @@
 ---
 kind: decision
-status: open
+status: decided
+decision: "r1 as the claim, hb as the home headline"
+by: Benedikt
+quote: '"r1 is the best claim." and "hb is the best headline"'
 priority: 2
 order: 216
 area: brand
@@ -78,6 +81,13 @@ images:
 # Does the claim change to "Agents speed up code. Your handoffs set the pace."?
 
 Keep tpe-tune, or take x4, a claim that leads with the client's gain (e5x, r1), or a headline (hb, d1k-en).
+
+Decided on 10.11.2026, after the top five lines of the day's two rounds: r1 answers the claim and hb the home headline.
+
+- The claim: "Faster releases with agents, when your people are in tune." / "Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind."
+- The home headline: "Faster releases with the agents your teams already have. Once all roles are in tune." / "Schnellere Releases mit den Agenten, die eure Teams schon haben. Sobald alle Rollen zusammenspielen."
+
+This replaces the answer tpe-tune given the same morning in `decide-claim-tune`, which no release carried out: `verbal/verbal.json` still held the claim before it. What follows is the question as it stood, with `recommended` as the rounds left it. The release that ships both lines deletes this item; the uploads to the external profiles are `work-update-external-profiles-after-claim`.
 
 Amdahl's point is that the part you leave slow caps the whole speedup. x4 carries it without naming the law: agents speed up one step, and the rest of the path sets the pace. On the reader's path (LinkedIn profile, home page with the decided headline, footer) it beats tpe by 12.8 points: in all four model and run cells, in both languages, and still by 11.0 with the buyers' problem left out of the prompt. Two anchor lines repeat their 08.11. order on the same path: d8 above tpe, u1 below. So the path measures the same thing it did then. x4 also beats d8 there by 7.4.
 
