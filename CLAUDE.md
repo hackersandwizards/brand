@@ -83,7 +83,8 @@ data or secret.
 - `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
   structure, coupling, unique names, spaces, confidential, history, licenses, the unit tests, the catalog build and the item
   check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements` and
-  AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). No hook runs it: the
+  AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). Under load it
+  runs past the Bash tool's 600 s limit: start it in the background. No hook runs it: the
   hooks are scaffolding's skeleton hooks, and `.githooks/README.md` lists what each runs, the
   `pre-push` refusal of the 248 commits `.confidential-purged.json` lists included. `bun install`
   points `core.hooksPath` at `.githooks/`.
