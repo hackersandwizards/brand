@@ -18,8 +18,8 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    // In that nested loop the shared browser's DevTools socket broke ("Invalid WebSocket frame:
-    // RSV2 and RSV3 must be clear") and every later test failed with "Target closed".
+    // Inside bun's nested wait for expect().rejects the shared browser's DevTools socket broke
+    // ("Invalid WebSocket frame: RSV2 and RSV3 must be clear"); later tests failed "Target closed".
     files: ["test/**", "**/*.test.*"],
     rules: {
       "no-restricted-syntax": [

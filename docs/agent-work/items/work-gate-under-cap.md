@@ -12,12 +12,12 @@ evidence: "brand-gate run 10.11., three green gates in a worktree, one at a time
 
 Split `test` across processes and start `check:catalog` beside it once the machine's load allows two browser runs at once.
 
-Both steps of proposal P9 put a second browser-heavy process beside the first, so this run left them out at a load average of 20 to 120. What they would gain, from the times in `evidence`:
+Both steps, from the setup review of 10.11. (finding E2), put a second browser-heavy process beside the first, so this run left them out at a load average of 20 to 120. What they would gain, estimated by adding the times in `evidence`:
 
-| Change                                                                                                                        | Wall time of the gate                                                        | Owner                                                                     |
-| ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| None                                                                                                                          | `test` + `check:catalog`, 608 to 682 s                                       |                                                                           |
-| `test` in two processes, `markers` with `behaviour` and the small files (272 s) beside `elements` with `catalog-scan` (222 s) | about 272 s + `check:catalog`, 420 to 455 s, if neither half slows the other | brand's `test` script                                                     |
-| `check:catalog` starts once `catalog` (7 to 9 s) has built `dist/`, beside `test`                                             | the longer of `test` and 9 s + `check:catalog`                               | scaffolding: a `check` entry runs only after the whole shared group today |
+| Change                                                                                                                        | Wall time of the gate                                                                                                 | Owner                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| None                                                                                                                          | `test` + `check:catalog`, 608 to 682 s                                                                                |                                                                           |
+| `test` in two processes, `markers` with `behaviour` and the small files (272 s) beside `elements` with `catalog-scan` (222 s) | estimated 272 s + `check:catalog`, 420 to 455 s, if neither half slows the other (sums of one solo run, not measured) | brand's `test` script                                                     |
+| `check:catalog` starts once `catalog` (7 to 9 s) has built `dist/`, beside `test`                                             | the longer of `test` and 9 s + `check:catalog`                                                                        | scaffolding: a `check` entry runs only after the whole shared group today |
 
-Each half's time beside the other is not measured. Until one of them lands, run `bun run check` in the background.
+Each half's time beside the other is not measured. Once the gate fits under 600 s, drop the background line from `CLAUDE.md`.
