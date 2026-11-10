@@ -642,12 +642,13 @@
 }
 @layer components {
   .hw-table {
+    --_hw-table-line: var(--hw-line, var(--color-border));
     border-collapse: collapse;
     font-size: var(--hw-table-size, var(--type-small-size));
     line-height: var(--type-small-line-height);
   }
   .hw-table :is(th, td) {
-    border-bottom: var(--hw-hairline, 1px) solid var(--hw-line, var(--color-border));
+    border-bottom: var(--hw-hairline, 1px) solid var(--_hw-table-line);
     padding: var(--hw-cell-pad, 0.5rem 0.75rem 0.5rem 0);
     text-align: left;
     vertical-align: top;
@@ -681,17 +682,18 @@
   }
   .hw-table-scroll {
     --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-white)));
-    --_hw-table-line: var(--hw-line, var(--color-border));
     overflow-x: auto;
     margin: calc(-1 * var(--hw-focus-room, 5px));
     padding: var(--hw-focus-room, 5px);
   }
-  .hw-table-scroll > .hw-table {
-    margin-block: 0;
-  }
   @media screen and (max-width: 47.99rem) {
     @supports (animation-timeline: scroll()) {
+      .hw-table-scroll {
+        scroll-padding-inline-start: 40vw;
+      }
       .hw-table-scroll .hw-table :is(th, td):first-child {
+        max-width: 40vw;
+        overflow-wrap: break-word;
         position: sticky;
         left: 0;
         z-index: 1;
@@ -704,7 +706,9 @@
   @keyframes hw-table-held {
     to {
       background: var(--_hw-table-ground);
-      box-shadow: inset calc(-1 * var(--hw-hairline, 1px)) 0 0 var(--_hw-table-line);
+      box-shadow:
+        inset calc(-1 * var(--hw-hairline, 1px)) 0 0 var(--_hw-table-line),
+        calc(-1 * var(--hw-focus-room, 5px)) 0 0 var(--_hw-table-ground);
     }
   }
   [data-hw-scale="print"] .hw-table-scroll {
@@ -712,7 +716,6 @@
   }
   [data-hw-scale="print"] .hw-table-scroll .hw-table :is(th, td):first-child {
     position: static;
-    background: none;
     animation: none;
   }
   @media print {
@@ -721,15 +724,14 @@
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-table {
+      --_hw-table-line: color-mix(in srgb, white 15%, transparent);
+    }
     .hw-table-scroll {
       --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-night)));
-      --_hw-table-line: color-mix(in srgb, white 15%, transparent);
     }
     .hw-table th button:not([class], :disabled):hover {
       color: var(--color-white);
-    }
-    .hw-table :is(th, td) {
-      border-bottom-color: color-mix(in srgb, white 15%, transparent);
     }
     .hw-table th {
       color: var(--color-night-muted);
@@ -987,6 +989,7 @@
     line-height: normal;
     white-space: normal;
     overflow-wrap: anywhere;
+    text-decoration: inherit;
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-inline-code {
@@ -2722,6 +2725,12 @@ select.form-input {
 .hw-prose :is(.hw-table, .hw-code, .hw-quote) {
   margin-block: 1rem;
 }
+.hw-prose .hw-table-scroll {
+  margin-block: calc(1rem - var(--hw-focus-room, 5px));
+}
+.hw-prose .hw-table-scroll > .hw-table {
+  margin-block: 0;
+}
 .hw-prose .hw-quote > * + * {
   margin-top: 0.75em;
 }
@@ -2841,6 +2850,14 @@ select.form-input {
   font-weight: 400;
   font-variant-ligatures: none;
   background-color: color-mix(in srgb, var(--color-ink) 7%, transparent);
+}
+.hw-prose :not(pre) > code[data-whole] {
+  display: inline-block;
+  max-width: 100%;
+  line-height: normal;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-decoration: inherit;
 }
 .hw-prose :not(pre) > code::before,
 .hw-prose :not(pre) > code::after {

@@ -113,7 +113,9 @@ Mean Z 8.43, Y 5.86, K 2.86; noise 0.00; Z leads with both models. Decision: `hw
 first column held below 48rem. Once the table has scrolled, that column takes `--hw-table-ground`
 (the surface's `--background`, else white, on night the night ground) and a hairline at its right,
 through a scroll-driven animation. A table that fits keeps today's look, since os wraps every
-markdown table. Where a browser lacks scroll timelines, the table scrolls whole.
+markdown table. Where a browser lacks scroll timelines, the table scrolls whole. The held column
+takes at most 40 % of the view, wraps a long word only where it must, and covers the wrapper's ring
+room, so no scrolled cell shows at its left; a focused cell scrolls clear of it.
 Z as scored showed the line and a padded second column before the swipe too. The swipe state is the
 one shipped. It has ring room at its edges for a sortable head's
 button and does not scroll on paper.
@@ -158,6 +160,15 @@ The faint pill with a light hue has two causes:
   since G follows the hue table.
 - A surface that passes a light tone as the day hue gets a 15 % wash of an already light grey. That
   is the surface's choice, and the brief to os names it.
+
+## Left as found
+
+- The page title's lead and subtitle in `expert/expert.css` clip a focus ring the same way; not
+  measured in this round.
+- A whole chip at the full column width followed by a comma runs the comma past the column edge.
+- Inside a link, a whole chip shows the link's underline only through `text-decoration: inherit`.
+- Without `--background` on the surface, the held column's ground is white by day and night on
+  night: a card of another tone sets `--hw-table-ground`.
 
 ## Review method
 

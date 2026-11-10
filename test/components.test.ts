@@ -137,7 +137,7 @@ test("Pill takes the hue table's night tone: ampersand's light tone, teal's nigh
   const container = await experimental_AstroContainer.create();
   const night = async (color: string) =>
     /--hw-pill-hue-night: ([^"]*)/.exec(
-      await container.renderToString(component, { props: { label: P, color } }),
+      await container.renderToString(component, { props: { ...props.Pill, color } }),
     )?.[1];
   expect(await night("bg-ampersand/15")).toContain("var(--color-ampersand-light,");
   expect(await night("bg-teal/15")).toContain("var(--color-teal-night,");

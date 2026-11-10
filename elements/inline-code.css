@@ -30,10 +30,13 @@
   .hw-inline-code[data-whole] {
     display: inline-block;
     max-width: 100%;
-    /* As tall as the inline chip, so the line keeps its height and the text stays in the box. */
+    /* At least the face's own line height, so the text stays inside the box; a line set tighter
+       than that grows by under a pixel. */
     line-height: normal;
     white-space: normal;
     overflow-wrap: anywhere;
+    /* A link's underline does not reach into an inline block. */
+    text-decoration: inherit;
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-inline-code {

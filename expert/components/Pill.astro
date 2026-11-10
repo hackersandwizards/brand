@@ -65,9 +65,7 @@ else {
     // and Tailwind emits no --color-<role> for them; a brand colour has --color-<name> and its
     // night tone --color-<name>-night, or for ampersand and factory their light tone (the hue
     // table in tokens.css).
-    const night =
-      ({ ampersand: "ampersand-light", factory: "factory-light" } as Record<string, string>)[hue] ??
-      `${hue}-night`;
+    const night = `${hue}-${hue === "ampersand" || hue === "factory" ? "light" : "night"}`;
     attrs.style = `--hw-pill-hue: var(--${hue}, var(--color-${hue})); --hw-pill-hue-night: var(--${hue}, var(--color-${night}, var(--color-${hue})))`;
   }
 }

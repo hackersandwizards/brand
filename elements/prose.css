@@ -77,6 +77,13 @@
 .hw-prose :is(.hw-table, .hw-code, .hw-quote) {
   margin-block: 1rem;
 }
+/* A scrolling table: the wrapper takes the block's margin, its room for the ring taken back. */
+.hw-prose .hw-table-scroll {
+  margin-block: calc(1rem - var(--hw-focus-room, 5px));
+}
+.hw-prose .hw-table-scroll > .hw-table {
+  margin-block: 0;
+}
 .hw-prose .hw-quote > * + * {
   margin-top: 0.75em;
 }
@@ -205,6 +212,14 @@
   font-weight: 400;
   font-variant-ligatures: none;
   background-color: color-mix(in srgb, var(--color-ink) 7%, transparent);
+}
+.hw-prose :not(pre) > code[data-whole] {
+  display: inline-block;
+  max-width: 100%;
+  line-height: normal;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-decoration: inherit;
 }
 .hw-prose :not(pre) > code::before,
 .hw-prose :not(pre) > code::after {

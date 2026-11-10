@@ -26,12 +26,13 @@
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-table {
+    --_hw-table-line: var(--hw-line, var(--color-border));
     border-collapse: collapse;
     font-size: var(--hw-table-size, var(--type-small-size));
     line-height: var(--type-small-line-height);
   }
   .hw-table :is(th, td) {
-    border-bottom: var(--hw-hairline, 1px) solid var(--hw-line, var(--color-border));
+    border-bottom: var(--hw-hairline, 1px) solid var(--_hw-table-line);
     padding: var(--hw-cell-pad, 0.5rem 0.75rem 0.5rem 0);
     text-align: left;
     vertical-align: top;
@@ -65,17 +66,19 @@
   }
   .hw-table-scroll {
     --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-white)));
-    --_hw-table-line: var(--hw-line, var(--color-border));
     overflow-x: auto;
     margin: calc(-1 * var(--hw-focus-room, 5px));
     padding: var(--hw-focus-room, 5px);
   }
-  .hw-table-scroll > .hw-table {
-    margin-block: 0;
-  }
   @media screen and (max-width: 47.99rem) {
     @supports (animation-timeline: scroll()) {
+      /* A focused cell scrolls clear of the held column, which takes at most 40 % of the view. */
+      .hw-table-scroll {
+        scroll-padding-inline-start: 40vw;
+      }
       .hw-table-scroll .hw-table :is(th, td):first-child {
+        max-width: 40vw;
+        overflow-wrap: break-word;
         position: sticky;
         left: 0;
         z-index: 1;
@@ -85,12 +88,14 @@
       }
     }
   }
-  /* The held column's ground and hairline, once the table has scrolled: a table that fits keeps
-     its look. */
+  /* The second shadow lays the ground over the wrapper's ring room, so no scrolled cell shows
+     left of the held column. */
   @keyframes hw-table-held {
     to {
       background: var(--_hw-table-ground);
-      box-shadow: inset calc(-1 * var(--hw-hairline, 1px)) 0 0 var(--_hw-table-line);
+      box-shadow:
+        inset calc(-1 * var(--hw-hairline, 1px)) 0 0 var(--_hw-table-line),
+        calc(-1 * var(--hw-focus-room, 5px)) 0 0 var(--_hw-table-ground);
     }
   }
   [data-hw-scale="print"] .hw-table-scroll {
@@ -98,7 +103,6 @@
   }
   [data-hw-scale="print"] .hw-table-scroll .hw-table :is(th, td):first-child {
     position: static;
-    background: none;
     animation: none;
   }
   @media print {
@@ -107,15 +111,14 @@
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-table {
+      --_hw-table-line: color-mix(in srgb, white 15%, transparent);
+    }
     .hw-table-scroll {
       --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-night)));
-      --_hw-table-line: color-mix(in srgb, white 15%, transparent);
     }
     .hw-table th button:not([class], :disabled):hover {
       color: var(--color-white);
-    }
-    .hw-table :is(th, td) {
-      border-bottom-color: color-mix(in srgb, white 15%, transparent);
     }
     .hw-table th {
       color: var(--color-night-muted);
