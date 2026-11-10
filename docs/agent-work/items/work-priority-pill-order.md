@@ -2,6 +2,7 @@
 kind: work
 status: open
 priority: 3
+area: brand
 order: 2000
 owner: a brand session
 evidence: "docs/agent-work/2026-11-10-shared-element-fixes.md, section 4: the P2 to P4 steps shipped in v2.10.0 (F 7.66 against 6.74, noise 0.33); reviewers of both rounds name P0 and P1 as equally strong."

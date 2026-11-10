@@ -2,6 +2,7 @@
 kind: work
 status: open
 priority: 3
+area: brand
 order: 2015
 owner: a brand session
 evidence: "docs/agent-work/2026-11-10-quote-callout-pills-signature-review.md, section 1: the callout's 7 % fill without its rule almost vanished at night and on a projector, and 10 % (14 % on night) scored better there. elements/status.css and elements/card.css (data-variant=tint) still fill at 7 %."
