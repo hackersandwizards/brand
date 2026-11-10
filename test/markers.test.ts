@@ -258,6 +258,17 @@ const BOX_TICK = file(
   tasks(".hw-prose li.task-list-item input[data-readonly]:checked { mask-image: var(--_hw-tick) }"),
 );
 
+// A function throwing what `promise` rejected with, for expect().toThrow(): bun's
+// expect(promise).rejects waits in a nested event loop, where the shared browser's DevTools socket
+// broke ("RSV2 and RSV3 must be clear") and every later test lost the browser.
+const thrown = (promise: Promise<unknown>) =>
+  promise.then(
+    () => () => undefined,
+    (e: unknown) => () => {
+      throw e;
+    },
+  );
+
 let browser: Browser;
 beforeAll(async () => {
   browser = await launch();
@@ -410,16 +421,16 @@ describe("a policy per path", () => {
   }, 30_000);
 
   test("a page no glob matches throws, naming its path", async () => {
-    await expect(
-      refusedOn(form("path-none.html"), { "**/elsewhere.html": STRICT }),
-    ).rejects.toThrow(/"csp": no glob matches .*path-none\.html/);
+    expect(
+      await thrown(refusedOn(form("path-none.html"), { "**/elsewhere.html": STRICT })),
+    ).toThrow(/"csp": no glob matches .*path-none\.html/);
   }, 30_000);
 
   test("a frame of the page's own origin no glob matches throws, another origin's does not", async () => {
     const framed = form("path-unlisted.html");
     const csp = { "**/path-own.html": OPEN };
     const own = file("path-own.html", `<!doctype html><iframe src="${framed}"></iframe>`);
-    await expect(refusedOn(own, csp)).rejects.toThrow(/no glob matches .*path-unlisted\.html/);
+    expect(await thrown(refusedOn(own, csp))).toThrow(/no glob matches .*path-unlisted\.html/);
     file("path-bare.html", "<!doctype html><p>A frame</p>");
     const server = serve(dir);
     try {
@@ -436,7 +447,7 @@ describe("a policy per path", () => {
   test.each([[{}], [{ "**": "" }], [{ "**": 1 }], [{ "**": "a\nb" }], [["a"]], [""]])(
     "a malformed value throws: %j",
     async (csp) => {
-      await expect(hasMarkers(browser, NEW, { csp: csp as unknown as string })).rejects.toThrow(
+      expect(await thrown(hasMarkers(browser, NEW, { csp: csp as unknown as string }))).toThrow(
         /"csp"/,
       );
     },
@@ -696,7 +707,7 @@ test("a page whose stylesheet does not load throws rather than measuring the uns
     // The control: the same file:// link loads when the page is opened as a file.
     expect(await measureMarkers(browser, toUrl(join(site, "file.html")))).toEqual([]);
     for (const p of ["/file.html", "/gone.html"])
-      await expect(measureMarkers(browser, toUrl(p, server.url))).rejects.toThrow(
+      expect(await thrown(measureMarkers(browser, toUrl(p, server.url)))).toThrow(
         "stylesheet not loaded",
       );
   } finally {
@@ -829,7 +840,7 @@ describe("a page drawn in a fallback face", () => {
     /page drawn in fallback font .+; Inter Variable missed font-display's block period/;
 
   test("a face that never arrives fails with the fallback named", async () => {
-    await expect(measure(-1)).rejects.toThrow(MISSED);
+    expect(await thrown(measure(-1))).toThrow(MISSED);
   }, 60_000);
 
   test("a face 400 ms late fails so or passes once reloaded", async () => {
