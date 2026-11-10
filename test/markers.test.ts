@@ -258,11 +258,13 @@ const BOX_TICK = file(
   tasks(".hw-prose li.task-list-item input[data-readonly]:checked { mask-image: var(--_hw-tick) }"),
 );
 
-// What `promise` settled to, for expect().toMatch(): the error it rejected with, or what it
-// resolved to. eslint.config.js says why not expect().rejects.
-const outcome = (promise: Promise<unknown>) =>
+// The error `promise` rejected with, as text for expect().toMatch(); a promise that resolves fails
+// the test, naming its value. eslint.config.js says why not expect().rejects.
+const rejection = (promise: Promise<unknown>) =>
   promise.then(
-    (value) => `resolved with ${JSON.stringify(value)}`,
+    (value) => {
+      throw new Error(`expected a rejection, resolved with ${JSON.stringify(value)}`);
+    },
     (e: unknown) => String(e),
   );
 
@@ -419,7 +421,7 @@ describe("a policy per path", () => {
 
   test("a page no glob matches throws, naming its path", async () => {
     expect(
-      await outcome(refusedOn(form("path-none.html"), { "**/elsewhere.html": STRICT })),
+      await rejection(refusedOn(form("path-none.html"), { "**/elsewhere.html": STRICT })),
     ).toMatch(/"csp": no glob matches .*path-none\.html/);
   }, 30_000);
 
@@ -427,7 +429,7 @@ describe("a policy per path", () => {
     const framed = form("path-unlisted.html");
     const csp = { "**/path-own.html": OPEN };
     const own = file("path-own.html", `<!doctype html><iframe src="${framed}"></iframe>`);
-    expect(await outcome(refusedOn(own, csp))).toMatch(/no glob matches .*path-unlisted\.html/);
+    expect(await rejection(refusedOn(own, csp))).toMatch(/no glob matches .*path-unlisted\.html/);
     file("path-bare.html", "<!doctype html><p>A frame</p>");
     const server = serve(dir);
     try {
@@ -444,7 +446,7 @@ describe("a policy per path", () => {
   test.each([[{}], [{ "**": "" }], [{ "**": 1 }], [{ "**": "a\nb" }], [["a"]], [""]])(
     "a malformed value throws: %j",
     async (csp) => {
-      expect(await outcome(hasMarkers(browser, NEW, { csp: csp as unknown as string }))).toMatch(
+      expect(await rejection(hasMarkers(browser, NEW, { csp: csp as unknown as string }))).toMatch(
         /"csp"/,
       );
     },
@@ -704,7 +706,7 @@ test("a page whose stylesheet does not load throws rather than measuring the uns
     // The control: the same file:// link loads when the page is opened as a file.
     expect(await measureMarkers(browser, toUrl(join(site, "file.html")))).toEqual([]);
     for (const p of ["/file.html", "/gone.html"])
-      expect(await outcome(measureMarkers(browser, toUrl(p, server.url)))).toMatch(
+      expect(await rejection(measureMarkers(browser, toUrl(p, server.url)))).toMatch(
         "stylesheet not loaded",
       );
   } finally {
@@ -837,7 +839,7 @@ describe("a page drawn in a fallback face", () => {
     /page drawn in fallback font .+; Inter Variable missed font-display's block period/;
 
   test("a face that never arrives fails with the fallback named", async () => {
-    expect(await outcome(measure(-1))).toMatch(MISSED);
+    expect(await rejection(measure(-1))).toMatch(MISSED);
   }, 60_000);
 
   test("a face 400 ms late fails so or passes once reloaded", async () => {
