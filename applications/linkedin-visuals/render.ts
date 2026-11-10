@@ -1,5 +1,5 @@
-// What frame.ts and terminal.ts share: the brand CSS with its faces inlined, HTML escaping, and one
-// headless Chrome screenshot. Both run from this repo and, as the package's bins, from a consumer's
+// What frame.ts and terminal.ts share: the brand CSS with its faces inlined (inlineImports, the
+// package's one @import inliner), HTML escaping, and one headless Chrome screenshot. Both run from this repo and, as the package's bins, from a consumer's
 // install, so every brand file is read relative to this folder.
 import { execFile, execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -11,17 +11,25 @@ import { promisify } from "node:util";
 const BRAND = resolve(import.meta.dir, "../..");
 export const brandPath = (file: string) => join(BRAND, file);
 
-function inlineCss(path: string): string {
-  return readFileSync(path, "utf-8")
-    .replace(/^@import "(\.\.?\/[\w./-]+\.css)";$/gm, (_, file: string) =>
-      inlineCss(join(dirname(path), file)),
-    )
-    .replace(
+/** The stylesheet at `path` with each relative @import replaced by that file, recursively; `own`
+ *  rewrites each file's own text first, given the file's folder. */
+export const inlineImports = (
+  path: string,
+  own: (css: string, dir: string) => string = (css) => css,
+): string =>
+  own(readFileSync(path, "utf8"), dirname(path)).replace(
+    /^@import "(\.\.?\/[\w./-]+\.css)";$/gm,
+    (_, file: string) => inlineImports(join(dirname(path), file), own),
+  );
+
+const inlineCss = (path: string) =>
+  inlineImports(path, (css, dir) =>
+    css.replace(
       /url\("(fonts\/[^"]+)"\)/g,
       (_, file: string) =>
-        `url(data:font/woff2;base64,${readFileSync(join(dirname(path), file)).toString("base64")})`,
-    );
-}
+        `url(data:font/woff2;base64,${readFileSync(join(dir, file)).toString("base64")})`,
+    ),
+  );
 
 // The faces and the print sizes of the type roles, then the screen tokens, which restore the
 // screen sizes.

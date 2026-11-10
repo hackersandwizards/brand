@@ -1451,3 +1451,42 @@ test("hw-measure gives a container's running text the measure and nothing else",
   expect(h2).toBe("24px");
   await page.close();
 }, 60_000);
+
+// A list holding a code block, a table or a picture in one item keeps the measure in the others:
+// each ends where an item of the same list without one ends. Border-box, as under Tailwind.
+test("one wide list item leaves its siblings at the measure", async () => {
+  const p = await browser.newPage();
+  await p.setViewport({ width: 1440, height: 900 });
+  const lists = ["ul", "ol"]
+    .map(
+      (l) =>
+        `<${l}><li>One</li><li>Two</li></${l}><${l}><li>One</li><li><pre>code</pre></li><li>Four</li></${l}>`,
+    )
+    .join("");
+  const body = `<style>* { box-sizing: border-box } body { margin: 0 } ul { padding: 0 }</style><div class="prose hw-prose" style="font-size:16px">${lists}</div><div class="hw-measure" style="font-size:16px;width:768px">${lists}</div>`;
+  await open(p, pathToFileURL(file("wide-item.html", only(body))).href);
+  const rights = await p.$$eval(":is(.hw-prose, .hw-measure) > *", (lists) =>
+    lists.map((l) => [...l.children].map((li) => Math.round(li.getBoundingClientRect().right))),
+  );
+  await p.close();
+  const [ul, wideUl, ol, wideOl, mUl, mWideUl] = rights;
+  expect(wideUl).toEqual([ul![0]!, 768, ul![0]!]);
+  expect(wideOl).toEqual([ol![0]!, 768, ol![0]!]);
+  expect(ul![0]).toBe(528);
+  expect(mWideUl).toEqual([mUl![0]!, 768, mUl![0]!]);
+}, 60_000);
+
+// A priority's figures are tabular, so a column of P0 to P4 pills holds one width.
+test("the priority pills are one width", async () => {
+  const p = await browser.newPage();
+  const body = [0, 1, 2, 3, 4]
+    .map((n) => `<span class="hw-pill" data-priority="${n}">P${n}</span>`)
+    .join(" ");
+  await open(p, pathToFileURL(file("priority.html", only(body, "", ["tokens/fonts.css"]))).href);
+  await p.evaluate(() => document.fonts.ready);
+  const widths = await p.$$eval(".hw-pill", (els) =>
+    els.map((el) => el.getBoundingClientRect().width),
+  );
+  await p.close();
+  expect(new Set(widths).size).toBe(1);
+}, 60_000);

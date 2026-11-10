@@ -16,8 +16,8 @@
    Running text (a paragraph, a list, a quote, the hw-quote marked not-prose included, a
    definition list) keeps the brand measure, --container-measure, in its own em, so a line holds
    about 65 characters; headings with their hairline, tables, code and pictures take the block's
-   width, and so does running text holding one of them, such as a list whose step shows a code
-   block.
+   width, and so does running text holding one of them; in a list only the item holding one does,
+   its siblings keep the measure.
 
    The measure alone, without the block's type and spacing: hw-measure on a container holding
    rendered Markdown, such as a card's body, gives its top-level running text the same width and
@@ -32,7 +32,8 @@
 
 @layer properties, theme, base, components, utilities;
 @layer components {
-  .hw-measure > :is(p, ul, ol, blockquote, dl):not(:has(img, video, pre, table, figure)) {
+  .hw-measure > :is(p, ul, ol, blockquote, dl):not(:has(img, video, pre, table, figure)),
+  .hw-measure > :is(ul, ol) > li:not(:has(img, video, pre, table, figure)) {
     max-width: var(--container-measure);
   }
 }
@@ -61,6 +62,14 @@
     :has(img, video, pre, table, figure)
   ) {
   max-width: var(--container-measure);
+}
+.hw-prose ul:not(.not-prose, .not-prose *) > li:not(:has(img, video, pre, table, figure)) {
+  max-width: var(--container-measure);
+}
+/* A numbered item stands 1.25em inside its list (the ol rule below), so it ends where the
+   measured list would. */
+.hw-prose ol:not(.not-prose, .not-prose *) > li:not(:has(img, video, pre, table, figure)) {
+  max-width: calc(var(--container-measure) - 1.25em);
 }
 .hw-prose :is(table, pre) {
   max-width: none;

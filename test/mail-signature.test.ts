@@ -21,6 +21,11 @@ test("an h&w account carries wordmark, contact line (phone, website, LinkedIn) a
     "https://www.hackersandwizards.dev/",
     "https://www.linkedin.com/in/kim-beispiel",
   ]);
+  // A web link is underlined, so it reads as a link without its colour; the phone number is not.
+  const decoration = [...html.matchAll(/<a\s[^>]*>/g)].map(
+    (m) => m[0].match(/text-decoration: (\w+)/)?.[1],
+  );
+  expect(decoration).toEqual(["none", "underline", "underline"]);
   expect(fillSignature(template("txt"), EXAMPLE, "text")).toBe(
     "Kim Beispiel\nFreie Trainerin, hackers&wizards\n+49 40 1234 5678 | hackersandwizards.dev | linkedin.com/in/kim-beispiel\n\nhackers&wizards GmbH, Sitz Hamburg, Osterstraße 95, 20259 Hamburg\nAmtsgericht Hamburg, HRB 198840\nGeschäftsführer: Benedikt Stemmildt, Stefan Munz\n",
   );

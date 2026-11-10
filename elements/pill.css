@@ -13,7 +13,8 @@
      data-priority="0"-"4"  a priority, P0 to P4, the same wherever it shows: 0 red, 1 amber, 2
                             neutral, 3 and 4 the neutral fill fading (ink at 4 % and 2 %, their
                             text ink at 66 %, 4.8:1), so no set priority looks like the outline's
-                            "no value" (the hue rule in tokens.css)
+                            "no value" (the hue rule in tokens.css); tabular figures, so P0 to P4
+                            are one width
      data-state="draft"     a draft, not yet released: a dashed amber-dark line on no fill, its
                             text amber-dark mixed 75 % into ink; on night amber
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
@@ -74,6 +75,9 @@
     font-weight: var(--type-label-weight);
     letter-spacing: var(--type-label-tracking);
     text-transform: var(--type-label-case);
+  }
+  .hw-pill[data-priority] {
+    font-variant-numeric: tabular-nums;
   }
   .hw-pill[data-priority="0"] {
     --hw-pill-hue: var(--color-red);

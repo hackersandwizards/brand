@@ -4,7 +4,7 @@
    grey (a callout's label), data-tone="ink" in the text colour (a field's or group's name).
    data-hue sets it in a hue's text colour where its block carries that hue (a second part or speaker in purple, a
    meaning in amber, green or red), from the hue table in
-   tokens.css. On a 7 % wash (a status box, a callout, a tinted card) amber, green and red take
+   tokens.css. On a wash (a status box or tinted card at 7 %, a callout at 10 %) amber, green and red take
    their text colour mixed 70 % with ink, as the hue table says, so they clear 4.5:1 there. A button
    or select without a class inside the label (a sortable column head) keeps the label role and its
    colour, with no fill, border or padding of its own; an enabled button turns ink on hover, white

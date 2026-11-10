@@ -338,7 +338,7 @@
     },
     {
       "path": "elements/callout.css",
-      "sha256": "3f65a4c8bb7d3423a4c0aacabcc1e6d435a95c7e6a5017dcd18c19f2b34bd394"
+      "sha256": "acfa552ab0c3b8d13c53692c6ac50b13e45aa24f3d674752546faa2177fc1f8b"
     },
     {
       "path": "elements/card.css",
@@ -370,7 +370,7 @@
     },
     {
       "path": "elements/label.css",
-      "sha256": "2fbbd111b94e7d8984d5d7d7d7cce5d0743cd49407177f2ed5a95f7eee8d550f"
+      "sha256": "631d311b49142a7770ca0411dff94f3a1ee8b1caea0c79810b8a9f0034ac93be"
     },
     {
       "path": "elements/label-box.css",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "df557618518a37b512b5eb5df2bb751f02c65955b2126ad498aeaf35695da57b"
+      "sha256": "7c665a7a2be28de35abd3043f049cfadb17e09e774d6850cc1ca1dcb75dde8e4"
     },
     {
       "path": "elements/quote.css",
@@ -482,7 +482,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "80ed0f918bab2ce9688034bb288f06ac37c8084aab546c1b57c9e0d3ffe13536"
+      "sha256": "b10988b30ce3fea6690a0c50fd98b62041394544b892cb1b1e110703ee8b6946"
     },
     {
       "path": "elements/row.css",

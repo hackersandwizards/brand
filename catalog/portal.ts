@@ -10,7 +10,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { basename, dirname, join } from "node:path";
+import { basename, join, relative } from "node:path";
 import manifest from "../manifest.json";
 import pkg from "../package.json";
 import logoRules from "../logos/logos.json";
@@ -20,7 +20,7 @@ import catalogs from "../expert/catalogs.json";
 import { ROOT } from "../scripts/git";
 import { DEMOS, SECTIONS } from "./element-demos";
 import { MARK } from "../applications/avatars/generate";
-import { escHtml } from "../applications/linkedin-visuals/render";
+import { escHtml, inlineImports } from "../applications/linkedin-visuals/render";
 import { stickerCaptions } from "../applications/device-stickers/devices";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../applications/merch/mockup";
@@ -969,11 +969,8 @@ const inline = (css: string, from = ".") =>
       /url\((["']?)(?!data:|https?:|\/)([^"')]+)\1\)/g,
       (_, _q: string, url: string) => `url("${join(from, url)}")`,
     );
-const ownCss = (path: string): string =>
-  inline(readFileSync(join(ROOT, path), "utf8"), dirname(path)).replace(
-    /^@import "(\.\.?\/[\w./-]+\.css)";$/gm,
-    (_, file: string) => ownCss(join(dirname(path), file)),
-  );
+const ownCss = (path: string) =>
+  inlineImports(join(ROOT, path), (css, dir) => inline(css, relative(ROOT, dir)));
 const FONTS = [
   "inter-latin-400-normal",
   "inter-latin-500-normal",
