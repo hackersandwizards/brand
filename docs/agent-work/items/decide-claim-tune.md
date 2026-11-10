@@ -1,6 +1,9 @@
 ---
 kind: decision
-status: open
+status: decided
+decision: tpe-tune
+by: Benedikt
+quote: "tpe-tune (Agents pay off when your people are in tune. / KI-Agenten lohnen sich, wenn eure Leute eingespielt sind.)"
 priority: 1
 order: 10
 area: brand
