@@ -178,6 +178,55 @@ test("a source page's rows load on first use; should they fail, the search goes 
   await q.close();
 }, 60_000);
 
+/** The source page on a load that fails when the page calls failLoad(), its search box focused. */
+const held = async () => {
+  const q = await browser.newPage();
+  await q.evaluateOnNewDocument(() => {
+    const fetch = () =>
+      new Promise((_, reject) => {
+        Object.assign(window, { failLoad: () => reject(new Error("offline")) });
+      });
+    Object.assign(window, { fetch });
+  });
+  await q.goto(story("source"), { waitUntil: "networkidle0" });
+  await q.focus('input[name="q"]');
+  await q.waitForFunction('typeof failLoad === "function"');
+  return q;
+};
+const landed = async (q: Page, search: string) => {
+  await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
+  expect(new URL(q.url()).searchParams.get("q")).toBe(search);
+  await q.close();
+};
+
+test("a source page's load that fails mid-typing goes there with what the debounce holds", async () => {
+  const q = await held();
+  await q.evaluate(async () => {
+    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+    const typed = (value: string) => {
+      input.value = value;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    typed("c");
+    (window as unknown as { failLoad(): void }).failLoad();
+    await new Promise((resolve) => setTimeout(resolve));
+    typed("context");
+  });
+  await landed(q, "context");
+}, 60_000);
+
+test("a search submitted before the source page's load fails goes there", async () => {
+  const q = await held();
+  await q.evaluate(() => {
+    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+    input.value = "context";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.form!.requestSubmit();
+    (window as unknown as { failLoad(): void }).failLoad();
+  });
+  await landed(q, "context");
+}, 60_000);
+
 test("a source page's relative links and images resolve against that page", async () => {
   const p = await browser.newPage();
   await p.setRequestInterception(true);

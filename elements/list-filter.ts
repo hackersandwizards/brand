@@ -370,8 +370,9 @@ export function initListFilter(root: HTMLElement) {
       })
       .catch(() => {
         failed = true;
-        // A search already typed goes to the source page, which lists every row.
-        if (isActive(state())) form.submit();
+        // A search already typed goes to the source page, which lists every row; a pending debounce
+        // submits it instead, with what has been typed by then.
+        if (!timer && isActive(state())) form.submit();
       }));
 
   const state = (): FilterState => {
@@ -480,8 +481,10 @@ export function initListFilter(root: HTMLElement) {
   input.addEventListener("input", () => {
     clearTimeout(timer);
     timer = window.setTimeout(() => {
+      timer = 0;
       apply();
-      record("typing");
+      // A failed load has just submitted the search: no history entry on the way out.
+      if (!failed) record("typing");
     }, 200);
   });
   panel.addEventListener("pointerdown", () => {
@@ -496,9 +499,10 @@ export function initListFilter(root: HTMLElement) {
   for (const select of selects) select.addEventListener("change", () => once("picking"));
   if (source) form.addEventListener("focusin", () => void load());
   form.addEventListener("submit", (event) => {
+    clearTimeout(timer);
+    timer = 0;
     if (failed) return;
     event.preventDefault();
-    clearTimeout(timer);
     once("typing");
     input.blur();
   });
