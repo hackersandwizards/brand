@@ -4,7 +4,7 @@
    on its 7 % tint, weight 500; a section whose list holds the current page marks itself in the full
    foreground at weight 500, without the tint, so one item alone carries the fill. The focus ring
    sits inside each item, so a scrolling list never clips it. hw-nav-count is an item's count, at the end of its row in the
-   foreground's 70 %, tabular figures; hw-nav-group is a group's caption, an hw-label (muted) set off above its list.
+   foreground's 70 %, tabular figures, never broken or shrunk: a long name wraps beside it; hw-nav-group is a group's caption, an hw-label (muted) set off above its list.
    A nested list sits under its parent behind a guide line, up to four levels; a branch is a
    <details class="hw-disclosure"> whose <summary> takes the item's measures. A <nav>, links and
    lists, never role="tree". On night the expert set's night roles.
@@ -71,7 +71,10 @@
     background: none;
   }
   .hw-nav-count {
+    flex: none;
     margin-left: auto;
+    overflow-wrap: normal;
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
   }

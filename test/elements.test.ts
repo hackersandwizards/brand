@@ -737,6 +737,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-avatar-hue",
     "--hw-zoom",
     "--hw-touch-floor",
+    "--hw-field-floor",
     "--hw-list-filter-row",
     "--hw-focus-room",
     "--hw-table-ground",

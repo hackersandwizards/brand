@@ -11,6 +11,7 @@
      --hw-avatar-hue   the initials' ground, a person's colour */
 
 @layer properties, theme, base, components, utilities;
+@import "./touch.css";
 @layer components {
   .hw-avatar {
     --_hw-size: var(--hw-avatar-size, 2.5rem);
@@ -23,7 +24,6 @@
     width: var(--_hw-size);
     height: var(--_hw-size);
     border-radius: var(--radius-pill);
-    overflow: hidden;
     color: var(--color-white);
     background: var(--hw-avatar-hue, var(--color-teal-dark));
     font-family: var(--font-mono);
@@ -40,6 +40,7 @@
   }
   .hw-avatar > img {
     width: 100%;
+    border-radius: inherit;
     height: 100%;
     object-fit: cover;
     object-position: top;

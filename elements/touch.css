@@ -1,0 +1,34 @@
+/* The touch target: on a touch screen (any-pointer: coarse) a control smaller than --hw-touch-floor
+   (scales.css, 44 px where no scale sets it) reaches that size through an empty ::after centred on
+   it, so its look and layout stay. hw-touch-target gives it to any control; hw-icon-button,
+   hw-pill-remove, an hw-segmented item and an hw-avatar that is a link or button carry it, and
+   each of those files imports this one. The control keeps its ::after free; a position it sets
+   itself wins. Two controls closer than the floor share the overlap.
+
+   Markup: <button class="hw-touch-target" type="button" aria-label="…"><svg>…</svg></button> */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  @media (any-pointer: coarse) {
+    :where(
+      .hw-touch-target,
+      .hw-icon-button,
+      .hw-pill-remove,
+      .hw-segmented > :is(a, button),
+      :is(a, button).hw-avatar
+    ) {
+      position: relative;
+    }
+    :where(
+      .hw-touch-target,
+      .hw-icon-button,
+      .hw-pill-remove,
+      .hw-segmented > :is(a, button),
+      :is(a, button).hw-avatar
+    )::after {
+      content: "";
+      position: absolute;
+      inset: min(0px, calc((100% - var(--hw-touch-floor, 44px)) / 2));
+    }
+  }
+}

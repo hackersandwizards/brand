@@ -131,10 +131,16 @@
 }
 
 /* On a touch screen an item of a list, menu, tab row or pager stands at least as tall as the
-   touch target; paper and stage set it to 0. --hw-touch-floor is that least height. */
+   touch target; paper and stage set it to 0. --hw-touch-floor is that least height, and a control
+   smaller than it reaches it through touch.css. --hw-field-floor is a field's least text size, 16 px,
+   under which iOS zooms into a field on focus, on every page; paper and stage set it to 0. */
 @media (any-pointer: coarse) {
   [data-hw-scale] {
     --hw-touch-floor: var(--hw-check-target-touch);
+  }
+  :root,
+  [data-hw-scale] {
+    --hw-field-floor: 16px;
   }
 }
 
@@ -153,6 +159,7 @@
 /* Paper is read printed and at about 70 % zoom on a laptop, where 1 pt is about 0.93 CSS px: lines
    take 1 pt in border-strong, the card's rule 3 pt, the strip 6 pt. */
 [data-hw-scale="print"] {
+  --hw-field-floor: 0px;
   /* The button on paper: as tall as its text and padding, at the small text size. */
   --hw-button-height: 0;
   --hw-button-height-wide: 0;
@@ -200,6 +207,7 @@
 }
 
 [data-hw-scale="stage"] {
+  --hw-field-floor: 0px;
   --hw-label-size: 1.125rem;
   --hw-pill-size: 1.3125rem;
   --hw-pill-pad: 0.1875rem 0.9375rem;

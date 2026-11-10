@@ -73,6 +73,7 @@
     line-height: var(--text-micro--line-height, calc(16 / 12));
     padding: 0.0625rem 0.375rem;
     border-radius: var(--radius-pill);
+    white-space: nowrap;
     --_hw-count-ink: var(--foreground, var(--color-ink));
     color: color-mix(in srgb, var(--_hw-count-ink) 70%, transparent);
     background: color-mix(in srgb, var(--_hw-count-ink) 7%, transparent);

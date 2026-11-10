@@ -49,6 +49,7 @@
     color: inherit;
     background: transparent;
     font: inherit;
+    font-size: max(var(--hw-field-floor, 0px), 1em);
   }
   .hw-command-field > input:focus-visible {
     outline: 0;

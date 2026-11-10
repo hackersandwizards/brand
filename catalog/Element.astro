@@ -35,7 +35,10 @@ const words = /^de\b/.test(lang) ? ["aus brand", "Katalog"] : ["from brand", "ca
 
 <div class="tile" data-hw-tile={name} data-hw-version={pkg.version}>
   <p class="caption">
-    {words[0]} v{pkg.version} · <code>hw-{name}</code> · <a href={entry}>{words[1]}</a>
+    {words[0]} v{pkg.version} · <code>hw-{name}</code> ·{" "}
+    <a class="hw-link" href={entry}>
+      {words[1]}
+    </a>
     {note && <span class="note">{note}</span>}
   </p>
   <div

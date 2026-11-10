@@ -12,6 +12,7 @@
 @layer properties, theme, base, components, utilities;
 @import "./scales.css";
 @import "./chosen.css";
+@import "./touch.css";
 @import "./sr-only.css";
 @import "./label.css";
 @import "./label-box.css";

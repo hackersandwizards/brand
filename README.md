@@ -247,7 +247,10 @@ Three kinds of reader meet these elements, and two settings cover them without a
 own. `data-hw-scale` sets density: `dense` for internal expert systems (os, the admin hub, the trainer
 hub: dense, desktop, keyboard) and the talks catalogue, `screen` for public readers. `any-pointer:
 coarse` sets the touch target: every row, tab and page link reaches 44 px on a touch screen at any
-scale, while a mouse keeps `--hw-item-height`. A phone layout stands in the element itself where the
+scale, while a mouse keeps `--hw-item-height`; a smaller control (an icon button, a pill's remove, a
+segment, an avatar that is a button, `hw-touch-target` on any other) reaches it through an invisible
+area, its look kept (`elements/touch.css`), and a field's text stays at 16 px or more, so iOS does not
+zoom on focus. A phone layout stands in the element itself where the
 narrow screen needs another shape (a dialog docks to the bottom, a stepper stacks, pagination keeps
 the current page), so a public non-expert reader gets the phone form and a public expert reading on
 a phone gets the same.
