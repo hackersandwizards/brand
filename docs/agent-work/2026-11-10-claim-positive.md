@@ -1,6 +1,6 @@
 # The client's change first: more claims and headlines, 10.11.2026
 
-No. No line beats both anchors on the reader's path and on the new criterion without losing the panel. The decision went to Benedikt in `decide-claim-amdahl`, with keeping tpe-tune recommended and three lines of this round as further options; he took two of them the same day, r1 as the claim and hb as the home headline.
+No. No line beats both anchors on the reader's path and on the new criterion without losing the panel. The decision went to Benedikt in `decide-claim-amdahl`, with keeping tpe-tune recommended and three lines of this round as further options; he took two of them the same day, r1 as the claim and hb as the home headline (`2026-11-10-claim-r1-hb.md`).
 
 Keys used below: tpe is tpe-tune, the decided claim "Agents pay off when your people are in tune."; x4 is "Agents speed up code. Your handoffs set the pace."; dh is the decided headline "Your teams have agents. Once all roles are in tune, your releases speed up.".
 
@@ -431,7 +431,7 @@ No line passes, so the answer to the first question is no and the recommendation
 
 For the claims, score is the mean of panel and path, as in the item, and noise the larger run gap. e5x's score takes the panel of round 1 (its first wording, 71.2) and the path of round 3. hb's score is its second hero round and compares only with the decided headline there.
 
-e5x, r1 and hb stand in the item `decide-claim-amdahl` as further options. `recommended` stays tpe-tune.
+e5x, r1 and hb stood in the item `decide-claim-amdahl` as further options beside the recommended tpe-tune. Benedikt took r1 and hb; brand v2.14.0 ships them (`2026-11-10-claim-r1-hb.md`).
 
 My judgement, apart from the rule: hb with tpe-tune keeps the people in the claim and puts the client's change first on the home page. The averages hold on the hero and on the path, and Claude reads the path lower. No move of this round is free: each gain-first claim pays with the panel or with distinctiveness, and the headline pays with one model's path score.
 

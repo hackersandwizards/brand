@@ -183,7 +183,7 @@ def grid_surfaces():
         left=480,
     )
     # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
-    # its claim in slide 2's headline size, which fills the slide more: ink x 469 to 1290, rows 48 to 330
+    # its claim in slide 2's headline size, which fills the slide more: ink x 469 to 1288, rows 49 to 333
     s1 = grid((1584, 396), 79.8, claim_block(49.0, 59.3, -0.050), top=s2["top"], left=480)
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
@@ -203,25 +203,25 @@ def grid_surfaces():
         # says every screen shows (60 px may be cropped top and bottom); the profile photo's circle
         # covers the lower left, centre x 210 to 234, y 500, radius 170 to 174 at 1440, 390 and 440 px
         # (measured 1.11. on x.com logged out), so the group centres on the width right of x 384:
-        # ink x 384 to 1205, rows 109 to 391
+        # ink x 384 to 1202, rows 109 to 392
         "x-profile": grid((1500, 500), 79.8, claim_block(49.0, 59.3, -0.050), area=(60, 440), floor=384),
         # The XING cover: at 1024 px XING crops it centred to 976 x 220, so rows 172 to 468 show on
         # every desktop; a 390 px phone shows it whole. The photo covers x < 323 below row 309 at 1024
         # px, and x 67 to 441 below row 363 on the phone (measured 8.11. on xing.com logged out). The
         # group sits right of the phone's photo, in the desktop rows, at 0.9 of slide 1's size:
-        # ink x 470 to 1200, rows 194 to 446
+        # ink x 470 to 1198, rows 193 to 447
         "xing-profile": grid((1312, 639), 71.8, claim_block(44.1, 53.4, -0.050), area=(172, 468), floor=470),
         # The Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
         # 832 px, 288 below 992, 400 above, centred (object-fit cover), so a 375 px phone shows x 581 to 1419
         # and a 2560 px screen rows 94 to 406; the round photo overlaps the bottom 32 px (measured 1.11. on
         # sessionize.com). The group centred in that box, nearly filling the phone's width so the small line
-        # stays legible there: ink x 612 to 1388, rows 121 to 379
+        # stays legible there: ink x 612 to 1385, rows 120 to 380
         "sessionize-profile": grid(
             (2000, 500), 73.3, claim_block(45.0, 54.5, -0.050), area=(94, 406), floor=0
         ),
         # The Brella cover (Digitale Leute Summit 2026): Brella asks for 2000 x 800; how much of it
         # Brella shows on desktop and phone is not measured yet, so the group sits centred in the full
-        # frame at 1.5 times the Sessionize cover: ink x 521 to 1479, rows 237 to 563
+        # frame at 1.5 times the Sessionize cover: ink x 521 to 1476, rows 236 to 565
         "brella-profile": grid(
             (2000, 800), 92.85, claim_block(57.0, 69.0, -0.050), floor=0
         ),
@@ -232,7 +232,7 @@ def grid_surfaces():
         # phone (m.facebook.com) whole at 375 x 139, the photo over x 12 to 108 from row 99 and the white
         # sheet from row 120. Here: the photo below row 517 (desktop) and 528 (phone), the sheet below 640.
         # The group at 1.15 times the Brella cover, centred on the width and in rows 0 to 640: ink x 453
-        # to 1547, rows 133 to 507
+        # to 1544, rows 131 to 509
         "facebook-profile": grid(
             (2000, 740), 106.8, claim_block(65.5, 79.4, -0.050), area=(0, 640), floor=0
         ),
@@ -252,7 +252,7 @@ def grid_surfaces():
             ],
         ),
         # the group centred in the 2560 x 423 strip every device shows, on the width too (ink x 735 to
-        # 1825, rows 565 to 875); glows on that strip's
+        # 1822, rows 563 to 877); glows on that strip's
         # corners, plus weaker canvas corners
         "youtube": grid(
             (2560, 1440),

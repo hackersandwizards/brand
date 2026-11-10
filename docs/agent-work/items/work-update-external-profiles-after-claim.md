@@ -10,11 +10,11 @@ evidence: "Files: applications/channel-banners/ (rendered 08.11. from the u1 cla
 
 # Upload the new banners and replace the old claim on every external profile
 
-Re-render the banners and redo the texts below for the decided claim r1, "Faster releases with agents, when your people are in tune." / "Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind." (`decide-claim-amdahl`).
+Redo the texts below for the claim r1, "Faster releases with agents, when your people are in tune." / "Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind." (brand v2.14.0, `docs/agent-work/2026-11-10-claim-r1-hb.md`).
 
 Then Benedikt uploads the banners and enters the texts on every profile.
 
-Hold on nothing but the run that ships r1 (claim-r1-hb): it re-renders the banners and redoes the texts below with the same review. Until it has, upload nothing: every text and file below still carries the claim before it.
+The banners in `applications/channel-banners/` carry r1 since v2.14.0. The texts below still carry the claim before it; the run claim-r1-hb redoes them with the same review. Until it has, upload nothing.
 
 The claim changed to "Agents pay off when your people ship together." / "KI-Agenten lohnen sich,
 wenn eure Leute gemeinsam liefern." (brand v1.56.0). The files are in
