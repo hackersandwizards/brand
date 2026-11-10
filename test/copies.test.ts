@@ -65,13 +65,16 @@ test("a document the documents engine composed may inline the logo, a hand-writt
   expect(doc("<style>.page{}</style>")).toContain("drawing");
 });
 
-test("flags an unlisted copy, an entry without a reason and one added against HEAD", () => {
+test("flags an unlisted copy, an entry without a reason, one added against HEAD and a stale one", () => {
   const found = { "public/favicon.svg": "identical to brand logos/favicon.svg" };
   const allow = { "public/favicon.svg": "r" };
   expect(unlistedCopies(found, allow, allow)).toEqual([]);
   expect(unlistedCopies(found, {}, {})).toHaveLength(1);
-  expect(unlistedCopies({}, { "public/favicon.svg": " " }, allow)).toHaveLength(1);
-  expect(unlistedCopies({}, allow, {})).toHaveLength(1);
+  expect(unlistedCopies(found, { "public/favicon.svg": " " }, allow)).toHaveLength(1);
+  expect(unlistedCopies(found, allow, {})).toHaveLength(1);
+  expect(unlistedCopies({}, allow, allow)).toEqual([
+    "brand-copies.json: public/favicon.svg is no copy; drop its entry (brand-copies --tighten)",
+  ]);
 });
 
 test("a print master known by hash alone is found by its bytes, a directory is no copy", () => {

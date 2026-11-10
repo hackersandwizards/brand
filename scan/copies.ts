@@ -5,7 +5,7 @@
 // exits 1 on a file byte-identical to a file this package ships (through a Git LFS pointer too),
 // on a modified copy of a brand logo (a file named like one of logos/, or a text file carrying a
 // logo's path data), unless brand-copies.json lists it ({ "<path>": "<reason>" }), on an entry
-// without a reason, and on an entry added against HEAD: the list may only shrink. Where the working
+// without a reason, on an entry whose file is no copy (stale), and on an entry added against HEAD: the list may only shrink. Where the working
 // tree changes the brand pin package.json holds at HEAD, an entry may also name a file committed
 // at HEAD and unchanged since, which a newer scanner finds.
 // Usage: brand-copies [--tighten]
@@ -78,6 +78,8 @@ export const unlistedCopies = (
     .map(([p, why]) => `${p}: ${why}; import it from the package`),
   ...Object.entries(allow).flatMap(([p, r]) => [
     ...(r?.trim() ? [] : [`${LIST}: ${p} names no reason`]),
+    // An entry on a file that is no copy would let a copy placed there later pass unseen.
+    ...(p in found ? [] : [`${LIST}: ${p} is no copy; drop its entry (brand-copies --tighten)`]),
     ...(committed && !(p in committed) && !mayAdd(p)
       ? [
           `${LIST}: ${p} added against HEAD; the list may only shrink, or during a pin change name a file committed as is`,

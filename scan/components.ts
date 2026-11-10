@@ -3,7 +3,7 @@
 // working tree (tracked or untracked, .gitignore honoured, the paths brand-colours reads) named
 // like one of this package's expert components is a fork of it. Exits 1 on a fork not listed in
 // the consumer's brand-scan.json ({ "<lowercase name>": "<reason>" }, the name without - and _), on an entry without a
-// reason, and on an entry added against HEAD: the list may only shrink. Where the working tree
+// reason, on an entry no fork answers (stale), and on an entry added against HEAD: the list may only shrink. Where the working tree
 // changes the brand pin package.json holds at HEAD, an entry may also name a fork whose files are
 // committed at HEAD and unchanged since, which a newer package's component makes one.
 // Usage: brand-scan [--tighten]
@@ -51,6 +51,8 @@ export const unlisted = (
     ),
   ...Object.entries(allow).flatMap(([k, r]) => [
     ...(r?.trim() ? [] : [`${LIST}: ${k} names no reason`]),
+    // An entry no fork answers would let a fork of that name added later pass unseen.
+    ...(k in found ? [] : [`${LIST}: ${k} forks nothing; drop its entry (brand-scan --tighten)`]),
     ...(committed && !(k in committed) && !mayAdd(k)
       ? [
           `${LIST}: ${k} added against HEAD; the list may only shrink, or during a pin change name a fork committed as is`,

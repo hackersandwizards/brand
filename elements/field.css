@@ -139,7 +139,7 @@
     color: var(--hw-muted, var(--color-muted));
     background: transparent;
   }
-  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible) {
+  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
     color: var(--color-ink);
     background: transparent;
   }
@@ -170,11 +170,11 @@
     background: var(--color-white);
   }
   /* The ring goes round the row: neither part draws its own. */
-  .hw-field-row[data-joined]:has(:focus-visible) {
+  .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
-  .hw-field-row[data-joined] > :focus-visible {
+  .hw-field-row[data-joined] > :is(:focus-visible, [data-hw-focus]) {
     outline: none;
   }
   .hw-field-row[data-joined] > .hw-field {
@@ -208,7 +208,7 @@
     background: var(--color-teal-dark);
     cursor: pointer;
   }
-  .hw-field-row[data-joined] > button:is(:hover, :focus-visible) {
+  .hw-field-row[data-joined] > button:is(:hover, :is(:focus-visible, [data-hw-focus])) {
     background: var(--color-teal);
   }
   @media (max-width: 40rem) {
@@ -259,7 +259,7 @@
     .hw-field-row[data-joined] > .hw-field-toggle {
       color: var(--color-night-muted);
     }
-    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible) {
+    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
       color: var(--color-white);
     }
     .hw-field::placeholder {
@@ -278,7 +278,7 @@
       border-color: var(--color-night-line);
       background: var(--color-night-2);
     }
-    .hw-field-row[data-joined]:has(:focus-visible) {
+    .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
       outline-color: var(--color-purple-night);
     }
   }

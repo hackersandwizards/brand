@@ -20,10 +20,13 @@ test("finds a consumer component named like an expert component, nothing else", 
   });
 });
 
-test("flags an unlisted fork, an entry without a reason and one added against HEAD", () => {
+test("flags an unlisted fork, an entry without a reason, one added against HEAD and a stale one", () => {
   const found = { pill: ["src/components/Pill.astro"] };
   expect(unlisted(found, { pill: "r" }, { pill: "r" })).toEqual([]);
   expect(unlisted(found, {}, {})).toHaveLength(1);
-  expect(unlisted({}, { pill: " " }, { pill: "r" })).toHaveLength(1);
-  expect(unlisted({}, { pill: "r" }, {})).toHaveLength(1);
+  expect(unlisted(found, { pill: " " }, { pill: "r" })).toHaveLength(1);
+  expect(unlisted(found, { pill: "r" }, {})).toHaveLength(1);
+  expect(unlisted({}, { pill: "r" }, { pill: "r" })).toEqual([
+    "brand-scan.json: pill forks nothing; drop its entry (brand-scan --tighten)",
+  ]);
 });

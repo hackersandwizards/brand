@@ -6,7 +6,8 @@
 // on a brand family (`font`), Tailwind default palette classes (`palette`), radii (`radius`) and
 // box shadows (`shadow`) whose value is no brand token, Tailwind's default radius and shadow
 // classes with a size included (bare `rounded` and `shadow` match prose, so they are not read). Compares the counts with the consumer's brand-colours.json and exits 1 on any
-// count above its entry, any unlisted file with a count, an entry without a reason, or an entry
+// count above its entry, any unlisted file with a count, an entry without a reason, an entry on a
+// file with no count (stale, so an old allowance cannot hide a new finding there), or an entry
 // that grew against HEAD: the allowlist may only shrink. An entry may grow, a new file's included,
 // where the allowlist's total for that metric does not grow against HEAD, so a value moved from one
 // file to another moves its entry in the same commit. Where the working tree changes the brand
@@ -349,6 +350,9 @@ export const violations = (
   );
   for (const [file, e] of Object.entries(allow)) {
     if (!e.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
+    // An entry left on a clean file would let a new finding there pass unseen.
+    if (!isPartner(file, e) && METRICS.every((k) => !files[file]?.[k]))
+      out.push(`${ALLOWLIST}: ${file} is clean; drop its entry (brand-colours --tighten)`);
     if (e.partner !== undefined && !isPartner(file, e))
       out.push(`${ALLOWLIST}: ${file}: "partner" names a third party's mark, an SVG, by name`);
     if (committed && !isPartner(file, e))

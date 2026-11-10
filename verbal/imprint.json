@@ -1,0 +1,11 @@
+{
+  "street": "Osterstraße 95",
+  "postcode": "20259",
+  "city": "Hamburg",
+  "country": { "de": "Deutschland", "en": "Germany" },
+  "seat": "Hamburg",
+  "court": "Amtsgericht Hamburg",
+  "register": "HRB 198840",
+  "vatId": "DE463065921",
+  "managingDirectors": ["Benedikt Stemmildt", "Stefan Munz"]
+}

@@ -27,8 +27,9 @@ await bundle("elements/form.ts", "HWForm", "form.js");
 const css = ["generated/tokens.root.css", "elements/elements.css"]
   .map((f) => `<link rel="stylesheet" href="${brand(f)}">`)
   .join("");
-const page = async (body: string, lang = "de"): Promise<Page> => {
+const page = async (body: string, lang = "de", reduce = false): Promise<Page> => {
   const p = await browser.newPage();
+  if (reduce) await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
   const f = join(dir, `${Math.random().toString(36).slice(2)}.html`);
   writeFileSync(
     f,
@@ -376,23 +377,27 @@ test("a carousel's step moves the track, updates the dots and announces, the end
   await p.close();
 }, 30_000);
 
-// The autoplay timer, captured so a test runs each tick itself.
+// The autoplay timer, captured so a test runs its ticks itself: `steps` six-second steps of 200 ms
+// ticks.
 const CAPTURE_TICKS = `<script>window.ticks = []; window.setInterval = (f) => window.ticks.push(f);</script>`;
-const tick = (p: Page) =>
-  p.evaluate(() => (window as unknown as { ticks: (() => void)[] }).ticks.forEach((f) => f()));
+const tick = (p: Page, steps = 1) =>
+  p.evaluate((n) => {
+    for (let i = 0; i < n; i++)
+      (window as unknown as { ticks: (() => void)[] }).ticks.forEach((f) => f());
+  }, steps * 30);
 const position = (p: Page) =>
   p.$$eval(".hw-carousel-dot", (dots) => dots.findIndex((d) => d.hasAttribute("aria-current")));
+const AUTOPLAY = `${CAPTURE_TICKS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only" aria-live="polite"></p></div></div><p id="away" style="margin-top:400px">away</p>`;
 
-test("an autoplaying carousel advances each tick, holds under the pointer and stops on pause", async () => {
-  const p = await page(
-    `${CAPTURE_TICKS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only" aria-live="polite"></p></div></div><p id="away" style="margin-top:400px">away</p>`,
-  );
+test("an autoplaying carousel advances each step, holds under the pointer and stops on pause", async () => {
+  const p = await page(AUTOPLAY);
   expect(await position(p)).toBe(0);
   await tick(p);
   expect(await position(p)).toBe(1);
   await p.hover(".hw-carousel-track");
   await tick(p);
   expect(await position(p)).toBe(1);
+  expect(await p.$eval(".hw-carousel", (c) => c.hasAttribute("data-hw-held"))).toBe(true);
   await p.hover("#away");
   await tick(p);
   expect(await position(p)).toBe(2);
@@ -402,6 +407,30 @@ test("an autoplaying carousel advances each tick, holds under the pointer and st
   await tick(p);
   expect(await position(p)).toBe(2);
   await p.close();
+}, 30_000);
+
+test("a carousel holds four seconds after the reader's step, starts paused under reduced motion, hides controls with nothing to scroll", async () => {
+  const p = await page(AUTOPLAY);
+  await p.$eval(".hw-carousel-track", (t) => t.dispatchEvent(new PointerEvent("pointerdown")));
+  await tick(p);
+  expect(await position(p)).toBe(0);
+  await p.evaluate(() => {
+    const now = Date.now();
+    Date.now = () => now + 4001;
+  });
+  await tick(p);
+  expect(await position(p)).toBe(1);
+  await p.close();
+  const still = await page(AUTOPLAY, "de", true);
+  expect(await attr(still, "#pause", "aria-pressed")).toBe("true");
+  await tick(still);
+  expect(await position(still)).toBe(0);
+  await still.close();
+  const one = await page(
+    `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button></div></div>`,
+  );
+  expect(await one.$eval(".hw-carousel-controls", (c) => (c as HTMLElement).hidden)).toBe(true);
+  await one.close();
 }, 30_000);
 
 // The clipboard as a page sees it: each text copies or fails after its own delay, the hidden

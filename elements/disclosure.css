@@ -30,7 +30,7 @@
     display: none;
   }
   /* At the specificity of a pseudo-class alone, so focus.css's ring wins under hw-focus-ring. */
-  :where(.hw-disclosure > summary):focus-visible {
+  :where(.hw-disclosure > summary):is(:focus-visible, [data-hw-focus]) {
     outline: 2px solid var(--focus, var(--color-purple));
     outline-offset: 2px;
     border-radius: var(--radius-sm);

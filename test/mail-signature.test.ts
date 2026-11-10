@@ -62,3 +62,11 @@ test("the LinkedIn field takes only an https: URL", () => {
       "https: URL",
     );
 });
+
+// The imprint's one source is verbal/imprint.json; the template writes it out for mail clients.
+test("the template's GmbH lines state imprint.json", () => {
+  const i = JSON.parse(readFileSync(join(ROOT, "verbal/imprint.json"), "utf-8"));
+  expect(template("txt")).toContain(
+    `Sitz ${i.seat}, ${i.street}, ${i.postcode} ${i.city}\n${i.court}, ${i.register}\nGeschäftsführer: ${i.managingDirectors.join(", ")}\n`,
+  );
+});

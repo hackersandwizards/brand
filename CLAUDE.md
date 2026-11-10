@@ -28,7 +28,8 @@ data or secret.
   In `manifest.json`. The press kit's texts stay with their owners: the bios in the website's
   `src/data/profiles.ts` and os `src/content/documents/people/`, the company description in the website's copy.
 - `verbal/verbal.json`: the verbal identity (name, claim, home headline, the words it retires), exported as
-  `./verbal.json` and in `manifest.json`; the hub sync copies it into the voice skill.
+  `./verbal.json` and in `manifest.json`; the hub sync copies it into the voice skill. `verbal/imprint.json`:
+  the GmbH's imprint, exported as `./imprint.json`, which the mail signature template writes out.
 - Client marks are not brand's: `@hackersandwizards/testimonials` holds every company mark, with
   `surface` deciding which a surface may show. Brand draws marks only in the channel banners,
   reading them from that devDependency's `marks/`; `render.py` stops on a file no `allowed` entry names.
@@ -48,7 +49,7 @@ data or secret.
   its people records. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
-- `generated/`: token formats built from `tokens/tokens.css`, the data formats with `expert/expert.css`'s type steps too (`:root` CSS with the colours again for a light island inside night, JSON, TS, Python, the slide pointer `cursor.svg`), the Shiki theme of its code palette (`code-theme.json`),
+- `generated/`: token formats built from `tokens/tokens.css`, the data formats with `expert/expert.css`'s type steps too (`:root` CSS with the colours again for a light island inside night, JSON, TS, Python, the slide pointer `cursor.svg`), `copy.js`, `elements/copy.ts` bundled from `scripts/copy-entry.ts`, the Shiki theme of its code palette (`code-theme.json`),
   the faces of `tokens/fonts.css` (`fonts.json`), its rules as `fontFaceRules(base)` for a
   surface serving the font files from its own path, with `preloadFiles`, the files to preload (`font-faces.ts`), and the `@font-face` rules of `tokens/print.css`
   with the fallback faces of `tokens/fonts.css` (`static-fonts.css`), those fallback faces alone, which `print.css` imports (`fallback-faces.css`), and the flat builds `elements.css` and `document.css`, the two sources

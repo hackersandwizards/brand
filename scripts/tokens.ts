@@ -4,11 +4,12 @@
 // tokens.json, tokens.ts and tokens.py, those three with expert/expert.css's type steps too, and
 // code-theme.json, the Shiki theme of the --code-* tokens
 // and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces and fallback
-// faces, for a surface that writes its own @font-face; font-faces.ts, fonts.css's rules with the
+// faces, and the two font stacks a mail client can show, from the mail signature template; font-faces.ts, fonts.css's rules with the
 // url of each font file the caller's; and static-fonts.css, tokens/print.css's
 // @font-face rules and fonts.css's fallback faces, for a surface that needs the static faces without
 // the print scale; fallback-faces.css, fonts.css's fallback faces alone, which print.css imports;
-// and cursor.svg, the slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6; and
+// and cursor.svg, the slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6;
+// copy.js, elements/copy.ts's copy buttons bundled and wired, for a page that loads one script; and
 // elements.css and document.css, elements/elements.css and tokens/document.css with every
 // @import resolved in place, for a page that links them and must not wait on a request chain.
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
@@ -299,6 +300,19 @@ const dayAgain = (tokens: Record<string, string>) => {
   return out;
 };
 
+/** The sans and mono stacks of the mail signature template, the fonts a mail client shows with no
+ *  web font. Throws where the template carries no such pair. */
+const mailStacks = () => {
+  const html = readFileSync(join(ROOT, "applications/mail-signature/template.html"), "utf8");
+  const stacks = [...html.replaceAll("&quot;", '"').matchAll(/font-family:\s*([^;]+);/g)].map((m) =>
+    m[1]!.trim(),
+  );
+  const sans = stacks.find((s) => s.endsWith("sans-serif"));
+  const mono = stacks.find((s) => s.endsWith("monospace"));
+  if (!sans || !mono) throw new Error("mail-signature/template.html: no sans and mono stack");
+  return { sans, mono };
+};
+
 const LAYER_ORDER = readFileSync(join(ROOT, "tokens/layers.css"), "utf8").trim();
 
 /** A stylesheet with its relative @imports replaced by the files, recursively, each where the
@@ -375,7 +389,11 @@ const generate = () => {
     "tokens.py": `# ${dataHead}\nTOKENS = ${JSON.stringify(data, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
     "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
     "fonts.json":
-      JSON.stringify({ faces: fontFaces(screen), fallbacks: fallbackData(screen) }, null, 2) + "\n",
+      JSON.stringify(
+        { faces: fontFaces(screen), fallbacks: fallbackData(screen), mail: mailStacks() },
+        null,
+        2,
+      ) + "\n",
     "font-faces.ts": fontFaceModule(screen),
     "static-fonts.css": `/* Generated from tokens/print.css and tokens/fonts.css by scripts/tokens.ts. Edit the
    sources, never this file. print.css's static faces without the print scale (static files, never
@@ -393,6 +411,9 @@ ${faceRules(readFileSync(join(ROOT, "tokens/print.css"), "utf8"))
 ${fallbacks.join("\n\n")}
 `,
     "elements.css": FLAT("elements/elements.css"),
+    "copy.js": Bun.spawnSync(["bun", "build", "--minify", join(ROOT, "scripts/copy-entry.ts")], {
+      stderr: "inherit",
+    }).stdout.toString(),
     "document.css": FLAT("tokens/document.css"),
     "cursor.svg": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">${(
       [

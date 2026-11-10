@@ -57,7 +57,7 @@
       display var(--motion-fast) allow-discrete;
   }
   /* The browser's own ring too, on any page: the ring is for a control inside. */
-  .hw-dialog:focus-visible {
+  .hw-dialog:is(:focus-visible, [data-hw-focus]) {
     outline: none;
   }
   .hw-dialog[open]:not(:modal) {

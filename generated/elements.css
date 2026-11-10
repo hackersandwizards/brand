@@ -10,6 +10,7 @@
   --hw-code-size: var(--text-small);
   --hw-hairline: 1px;
   --hw-line: var(--color-border);
+  --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: var(--spacing-card);
   --hw-card-corner: var(--radius-brand);
   --hw-callout-pad: 1.25rem;
@@ -67,6 +68,7 @@
   --hw-code-size: 0.8125rem;
   --hw-hairline: 1px;
   --hw-line: var(--color-border);
+  --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: 1rem;
   --hw-card-corner: var(--radius-brand);
   --hw-callout-pad: 0.75rem 1rem;
@@ -141,6 +143,7 @@
   --hw-code-size: var(--type-code-size);
   --hw-hairline: 1pt;
   --hw-line: var(--color-border-strong);
+  --hw-card-tint-line: var(--color-teal);
   --hw-marker-size: var(--bullet, 0.5em);
   --hw-marker-gap: var(--list-marker-gap, 0.625em);
   --hw-card-pad: 14pt;
@@ -181,6 +184,7 @@
   --hw-code-size: 1.3125rem;
   --hw-hairline: 0.09375rem;
   --hw-line: var(--color-border);
+  --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: 2rem;
   --hw-card-corner: 1.875rem 0.46875rem;
   --hw-callout-pad: 1.875rem;
@@ -265,6 +269,25 @@
     height: 1px;
     margin: -1px;
     overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@layer components {
+  .hw-skip-link {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1001;
+  }
+  .hw-skip-link:not(:focus, [data-hw-focus]) {
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    margin: -1px;
+    overflow: hidden;
+    border: 0;
+    padding: 0;
     clip-path: inset(50%);
     white-space: nowrap;
   }
@@ -597,7 +620,7 @@
     --deck-corner: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
   }
   .hw-card[data-variant="tint"] {
-    border-color: var(--color-teal-light);
+    border-color: var(--hw-card-tint-line, var(--color-teal-light));
     background: var(--color-teal-soft);
   }
   .hw-card:is([href], :has(.hw-card-link)) {
@@ -627,9 +650,9 @@
     color: var(--_hw-card-arrow);
   }
   .hw-card:is(
-    [href]:is(:hover, :focus-visible),
-    :has(.hw-card-link:is(:hover, :focus-visible)):not(
-      :has(.hw-card .hw-card-link:is(:hover, :focus-visible))
+    [href]:is(:hover, :is(:focus-visible, [data-hw-focus])),
+    :has(.hw-card-link:is(:hover, :is(:focus-visible, [data-hw-focus]))):not(
+      :has(.hw-card .hw-card-link:is(:hover, :is(:focus-visible, [data-hw-focus])))
     )
   ) {
     border-color: var(--_hw-card-hover);
@@ -830,27 +853,36 @@
   :where(:root, [data-hw-scale]) {
     --hw-focus-room: calc(var(--hw-focus-width, 3px) + var(--hw-focus-offset, 2px));
   }
-  :is(.hw-focus-ring :focus-visible, .hw-focus-ring:focus-visible) {
+  :is(
+    .hw-focus-ring :is(:focus-visible, [data-hw-focus]),
+    .hw-focus-ring:is(:focus-visible, [data-hw-focus])
+  ) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
   .hw-focus-ring
-    .hw-card:has(.hw-card-link:focus-visible):not(:has(.hw-card .hw-card-link:focus-visible)) {
+    .hw-card:has(.hw-card-link:is(:focus-visible, [data-hw-focus])):not(
+      :has(.hw-card .hw-card-link:is(:focus-visible, [data-hw-focus]))
+    ) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
-  .hw-focus-ring :is(.hw-card .hw-card-link, .hw-dialog):focus-visible {
+  .hw-focus-ring :is(.hw-card .hw-card-link, .hw-dialog):is(:focus-visible, [data-hw-focus]) {
     outline: none;
   }
-  .hw-focus-ring :is(p, li, dt, dd, td, th, blockquote, figcaption) > a:focus-visible {
+  .hw-focus-ring
+    :is(p, li, dt, dd, td, th, blockquote, figcaption)
+    > a:is(:focus-visible, [data-hw-focus]) {
     border-radius: var(--radius-sm);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     :is(
-      .hw-focus-ring :focus-visible,
-      .hw-focus-ring:focus-visible,
+      .hw-focus-ring :is(:focus-visible, [data-hw-focus]),
+      .hw-focus-ring:is(:focus-visible, [data-hw-focus]),
       .hw-focus-ring
-        .hw-card:has(.hw-card-link:focus-visible):not(:has(.hw-card .hw-card-link:focus-visible))
+        .hw-card:has(.hw-card-link:is(:focus-visible, [data-hw-focus])):not(
+          :has(.hw-card .hw-card-link:is(:focus-visible, [data-hw-focus]))
+        )
     ) {
       outline-color: var(--color-purple-night);
     }
@@ -939,7 +971,7 @@
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
-  .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible) {
+  .hw-icon-button[data-tone="danger"]:is(:hover, :is(:focus-visible, [data-hw-focus])) {
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
     color: var(--_hw-danger);
     background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -965,7 +997,7 @@
       color: var(--_hw-on-chosen);
       background: var(--_hw-chosen);
     }
-    .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible) {
+    .hw-icon-button[data-tone="danger"]:is(:hover, :is(:focus-visible, [data-hw-focus])) {
       --_hw-danger: var(--color-red-night);
       color: var(--_hw-danger);
       background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -1210,7 +1242,12 @@
     display: inline-block;
     transition: translate var(--motion-fast);
   }
-  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(:hover, :focus-visible) .hw-arrow > span {
+  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(
+      :hover,
+      :is(:focus-visible, [data-hw-focus])
+    )
+    .hw-arrow
+    > span {
     translate: 4px 0;
   }
   .hw-arrow[data-external] > span {
@@ -1329,7 +1366,7 @@
     color: var(--hw-muted, var(--color-muted));
     background: transparent;
   }
-  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible) {
+  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
     color: var(--color-ink);
     background: transparent;
   }
@@ -1359,11 +1396,11 @@
     border-radius: var(--hw-card-corner, var(--radius-brand));
     background: var(--color-white);
   }
-  .hw-field-row[data-joined]:has(:focus-visible) {
+  .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
-  .hw-field-row[data-joined] > :focus-visible {
+  .hw-field-row[data-joined] > :is(:focus-visible, [data-hw-focus]) {
     outline: none;
   }
   .hw-field-row[data-joined] > .hw-field {
@@ -1396,7 +1433,7 @@
     background: var(--color-teal-dark);
     cursor: pointer;
   }
-  .hw-field-row[data-joined] > button:is(:hover, :focus-visible) {
+  .hw-field-row[data-joined] > button:is(:hover, :is(:focus-visible, [data-hw-focus])) {
     background: var(--color-teal);
   }
   @media (max-width: 40rem) {
@@ -1445,7 +1482,7 @@
     .hw-field-row[data-joined] > .hw-field-toggle {
       color: var(--color-night-muted);
     }
-    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible) {
+    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
       color: var(--color-white);
     }
     .hw-field::placeholder {
@@ -1464,7 +1501,7 @@
       border-color: var(--color-night-line);
       background: var(--color-night-2);
     }
-    .hw-field-row[data-joined]:has(:focus-visible) {
+    .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
       outline-color: var(--color-purple-night);
     }
   }
@@ -2240,7 +2277,7 @@ select.form-input {
   .hw-disclosure > summary::-webkit-details-marker {
     display: none;
   }
-  :where(.hw-disclosure > summary):focus-visible {
+  :where(.hw-disclosure > summary):is(:focus-visible, [data-hw-focus]) {
     outline: 2px solid var(--focus, var(--color-purple));
     outline-offset: 2px;
     border-radius: var(--radius-sm);
@@ -2449,7 +2486,7 @@ select.form-input {
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
-  .hw-focus-ring .hw-choice:has(> input:focus-visible) {
+  .hw-focus-ring .hw-choice:has(> input:is(:focus-visible, [data-hw-focus])) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);
   }
@@ -2468,7 +2505,7 @@ select.form-input {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }
-    .hw-focus-ring .hw-choice:has(> input:focus-visible) {
+    .hw-focus-ring .hw-choice:has(> input:is(:focus-visible, [data-hw-focus])) {
       outline-color: var(--color-purple-night);
     }
   }
@@ -3004,7 +3041,7 @@ select.form-input {
       overlay var(--motion-fast) allow-discrete,
       display var(--motion-fast) allow-discrete;
   }
-  .hw-dialog:focus-visible {
+  .hw-dialog:is(:focus-visible, [data-hw-focus]) {
     outline: none;
   }
   .hw-dialog[open]:not(:modal) {
@@ -3196,7 +3233,10 @@ select.form-input {
     text-decoration: none;
     cursor: pointer;
   }
-  .hw-menu-item:is(:hover, :focus-visible):not(:disabled, [aria-disabled="true"]) {
+  .hw-menu-item:is(:hover, :is(:focus-visible, [data-hw-focus])):not(
+      :disabled,
+      [aria-disabled="true"]
+    ) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-menu-item:is(:disabled, [aria-disabled="true"]) {
@@ -3336,7 +3376,7 @@ select.form-input {
     font: inherit;
     font-size: max(var(--hw-field-floor, 0px), 1em);
   }
-  .hw-command-field > input:focus-visible {
+  .hw-command-field > input:is(:focus-visible, [data-hw-focus]) {
     outline: 0;
   }
   .hw-command-field > .hw-icon-button {
@@ -4179,7 +4219,7 @@ select.form-input {
   .hw-tree-row:hover {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
-  .hw-tree [role="treeitem"]:focus-visible > .hw-tree-row {
+  .hw-tree [role="treeitem"]:is(:focus-visible, [data-hw-focus]) > .hw-tree-row {
     outline: var(--hw-focus-width, 3px) solid var(--focus, var(--color-purple));
     outline-offset: -2px;
   }
@@ -4231,6 +4271,7 @@ select.form-input {
     --_hw-tray-hover: color-mix(in srgb, var(--color-ink) 15%, transparent);
     --_hw-text: var(--foreground, var(--color-ink));
     --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-fill: var(--color-teal);
   }
   .hw-carousel-track {
     --hw-markers: off;
@@ -4249,7 +4290,7 @@ select.form-input {
     flex: 0 0 min(85%, 22rem);
     scroll-snap-align: start;
   }
-  .hw-carousel-controls {
+  .hw-carousel-controls:not([hidden]) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4300,6 +4341,30 @@ select.form-input {
     width: 24px;
     opacity: 1;
   }
+  [data-hw-autoplay] .hw-carousel-dot[aria-current="true"] > span {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in srgb, currentColor 25%, transparent);
+  }
+  [data-hw-autoplay] .hw-carousel-dot[aria-current="true"] > span::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--_hw-fill);
+    transform-origin: left;
+    animation: hw-carousel-fill 6s linear forwards;
+  }
+  [data-hw-held] .hw-carousel-dot[aria-current="true"] > span::after {
+    animation-play-state: paused;
+  }
+  [data-hw-stopped] .hw-carousel-dot[aria-current="true"] > span::after {
+    animation: none;
+  }
+  @keyframes hw-carousel-fill {
+    from {
+      transform: scaleX(0);
+    }
+  }
   .hw-carousel-count {
     min-width: 3.5rem;
     color: var(--_hw-quiet);
@@ -4307,9 +4372,19 @@ select.form-input {
     font-variant-numeric: tabular-nums;
     text-align: center;
   }
+  @media (min-width: 48rem) {
+    .hw-carousel[data-hw-mobile-only] .hw-carousel-track {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+      overflow-x: visible;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .hw-carousel-track {
       scroll-behavior: auto;
+    }
+    [data-hw-autoplay] .hw-carousel-dot[aria-current="true"] > span::after {
+      animation: none;
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
@@ -4318,6 +4393,7 @@ select.form-input {
       --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
       --_hw-text: var(--foreground, var(--color-night-ink));
       --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-fill: var(--_hw-text);
     }
   }
 }

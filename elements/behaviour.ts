@@ -499,6 +499,9 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
 }
 
 const wiredCarousels = new WeakSet<Element>();
+// The autoplay step, its count's tick and the hold after the reader's own step, in ms; carousel.css
+// fills the current dot over STEP.
+const [STEP, TICK, HOLD] = [6000, 200, 4000];
 function enhanceCarousel(carousel: HTMLElement) {
   if (wiredCarousels.has(carousel)) return;
   wiredCarousels.add(carousel);
@@ -567,20 +570,55 @@ function enhanceCarousel(carousel: HTMLElement) {
     }, 80);
   });
   show(0);
-  if (!("hwAutoplay" in carousel.dataset) || reduced()) return;
+  // Only a track that scrolls shows its controls; a phone-only carousel is a grid from 48rem.
+  const fits = () => {
+    controls.hidden = track.scrollWidth <= track.clientWidth + 2;
+  };
+  new ResizeObserver(fits).observe(track);
+  fits();
+  // A lazy image beside the view would wait for a sideways scroll: load them all once in view.
+  new IntersectionObserver(([e], o) => {
+    if (!e!.isIntersecting) return;
+    for (const img of track.querySelectorAll("img")) img.loading = "eager";
+    o.disconnect();
+  }).observe(track);
+  if (!("hwAutoplay" in carousel.dataset)) return;
   const pause = controls.querySelector<HTMLButtonElement>("[data-hw-pause]");
   const holds = new Set<string>();
-  let stopped = false;
+  // Under reduced motion it starts paused, and the pause button starts it.
+  let stopped = reduced();
+  let elapsed = 0;
+  let heldUntil = 0;
   const hold = (by: string, on: boolean) => (on ? holds.add(by) : holds.delete(by));
   holdWhileUsed(carousel, hold);
   new IntersectionObserver(([e]) => hold("offscreen", !e!.isIntersecting)).observe(carousel);
-  pause?.addEventListener("click", () => {
-    stopped = !stopped;
-    pause.setAttribute("aria-pressed", String(stopped));
+  // A step or swipe of the reader's holds the carousel for HOLD ms.
+  const reader = () => {
+    heldUntil = Date.now() + HOLD;
+    elapsed = 0;
+  };
+  for (const type of ["pointerdown", "keydown"]) track.addEventListener(type, reader);
+  controls.addEventListener("click", (e) => {
+    if ((e.target as Element).closest("button:not([data-hw-pause])")) reader();
   });
+  const stop = (on: boolean) => {
+    stopped = on;
+    elapsed = 0;
+    pause?.setAttribute("aria-pressed", String(on));
+    carousel.toggleAttribute("data-hw-stopped", on);
+  };
+  stop(stopped);
+  pause?.addEventListener("click", () => stop(!stopped));
+  // The current dot's fill (carousel.css) runs while nothing holds it, as this count does.
+  let shown = active;
   setInterval(() => {
-    if (!stopped && !holds.size && !document.hidden) go(active + 1);
-  }, 6000);
+    if (shown !== active) [shown, elapsed] = [active, 0];
+    const held = holds.size > 0 || document.hidden || Date.now() < heldUntil;
+    carousel.toggleAttribute("data-hw-held", held);
+    if (stopped || held || controls.hidden) return;
+    elapsed += TICK;
+    if (elapsed >= STEP) go(active + 1);
+  }, TICK);
 }
 
 /** Wires every common element in `root`. Safe to call again after adding markup. */

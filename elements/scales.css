@@ -19,6 +19,7 @@
   --hw-code-size: var(--text-small);
   --hw-hairline: 1px;
   --hw-line: var(--color-border);
+  --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: var(--spacing-card);
   --hw-card-corner: var(--radius-brand);
   --hw-callout-pad: 1.25rem;
@@ -79,6 +80,7 @@
   --hw-code-size: 0.8125rem;
   --hw-hairline: 1px;
   --hw-line: var(--color-border);
+  --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: 1rem;
   --hw-card-corner: var(--radius-brand);
   --hw-callout-pad: 0.75rem 1rem;
@@ -172,6 +174,7 @@
   --hw-code-size: var(--type-code-size);
   --hw-hairline: 1pt;
   --hw-line: var(--color-border-strong);
+  --hw-card-tint-line: var(--color-teal);
   /* The list marker on paper, document.css's --bullet and --list-marker-gap. */
   --hw-marker-size: var(--bullet, 0.5em);
   --hw-marker-gap: var(--list-marker-gap, 0.625em);
@@ -215,6 +218,7 @@
   --hw-code-size: 1.3125rem;
   --hw-hairline: 0.09375rem;
   --hw-line: var(--color-border);
+  --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: 2rem;
   --hw-card-corner: 1.875rem 0.46875rem;
   --hw-callout-pad: 1.875rem;

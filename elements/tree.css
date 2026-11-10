@@ -52,7 +52,7 @@
   .hw-tree-row:hover {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
-  .hw-tree [role="treeitem"]:focus-visible > .hw-tree-row {
+  .hw-tree [role="treeitem"]:is(:focus-visible, [data-hw-focus]) > .hw-tree-row {
     outline: var(--hw-focus-width, 3px) solid var(--focus, var(--color-purple));
     outline-offset: -2px;
   }

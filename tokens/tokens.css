@@ -252,6 +252,9 @@
   --spacing-section-head: clamp(2rem, 1.6087rem + 1.7391vw, 3rem);
   --spacing-stack: clamp(1.5rem, 0.913rem + 2.6087vw, 3rem);
   --spacing-grid: clamp(1rem, 0.6087rem + 1.7391vw, 2rem);
+  /* The gap inside a group of lines, such as a label and its value; grid and stack part the
+     groups. */
+  --spacing-tight: 0.25rem;
   /* Card padding keeps its px size under enlarged text (the px twin in min()), so a card on a
      phone keeps its width for the words. */
   --spacing-card: min(
@@ -261,6 +264,9 @@
 
   --container-content: 72rem;
   --container-wide: 84rem;
+  /* A column of short text a reader takes in at a glance, wider than the measure: a form, a
+     certificate's lines. */
+  --container-text: 40rem;
 
   --breakpoint-xs: 25rem;
   /* Where wordmark, header CTA and menu button fit one row (Nav.astro). */

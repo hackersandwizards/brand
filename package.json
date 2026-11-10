@@ -26,6 +26,8 @@
     "./fonts.css": "./tokens/fonts.css",
     "./static-fonts.css": "./generated/static-fonts.css",
     "./cursor.svg": "./generated/cursor.svg",
+    "./copy.js": "./generated/copy.js",
+    "./imprint.json": "./verbal/imprint.json",
     "./night.css": "./tokens/night.css",
     "./stage.css": "./tokens/stage.css",
     "./document.css": "./tokens/document.css",

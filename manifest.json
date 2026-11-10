@@ -122,7 +122,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "6df28af038bbe31b223a37d9a52431d7ad0deae1a22a304de4211d923c2efd5d"
+      "sha256": "6b93a315eb53ca99fd142d6c1808d4ddc5008dd1e7b2efc1889d5a9c8d783e2f"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",
@@ -258,7 +258,7 @@
     },
     {
       "path": "elements/disclosure.css",
-      "sha256": "a16f01fab0975be5fd6f81465ddadebfc0d8a5b0385a387326c5ff20c8482333"
+      "sha256": "4b5883b440bd81715b0ba68403006a84505f407a9b9b08ee0cb3a26afda654c1"
     },
     {
       "path": "expert/expert.css",
@@ -342,7 +342,7 @@
     },
     {
       "path": "elements/card.css",
-      "sha256": "22f7da1d4ce9eaeac202c2a7ed278ca3835ba43b9eb1ab62dc1f8363e3329658"
+      "sha256": "6bab36db2be99ab16ae23a22b841637b5ecdee21fb7b7619709a797c410b6540"
     },
     {
       "path": "elements/code.css",
@@ -358,15 +358,15 @@
     },
     {
       "path": "elements/elements.css",
-      "sha256": "649d182d116234def6eb57efa2938eb90bac4fd6e8821a15cc9b5ad01ac69133"
+      "sha256": "8467d3a3d02b190024d85440114cb41b81f32c86451a668647e45b868edc36c1"
     },
     {
       "path": "elements/focus.css",
-      "sha256": "419e49c257c526c0b81f00f566ad009dcec81f0c71fb4058bbecfec41d74e96c"
+      "sha256": "37927595cfd9570c4022bc8bf24c6ed8c440fc7f70226fb1e2e65073905b6550"
     },
     {
       "path": "elements/icon-button.css",
-      "sha256": "8c31ecfbf323cfddce067496d29e1445c6038eecb80f334f9720dcd3ae871f2d"
+      "sha256": "b3cf9d8a2787531489f77ab33bb9d4d9bc33280cd975b61a3030ef73080746fe"
     },
     {
       "path": "elements/label.css",
@@ -390,7 +390,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "d6f17c38754b430fbf11ea8b774438ea30baf51a74467f45aaa33613e03f42f0"
+      "sha256": "ec301b723eb878527a5f2ddba2cac300da2b49d8f8d003f803f5d905f30e5ad4"
     },
     {
       "path": "elements/strip.css",
@@ -426,7 +426,7 @@
     },
     {
       "path": "elements/arrow-link.css",
-      "sha256": "82f6e5ec8846f3fc0e62d33c0d7c5559f4e12fd1333e3337278c2f563c85416e"
+      "sha256": "09fb83a67d4016a856363a18d2c219bfd4073407f52476c4f99f8851aebeaffb"
     },
     {
       "path": "elements/breadcrumb.css",
@@ -470,7 +470,7 @@
     },
     {
       "path": "elements/field.css",
-      "sha256": "061149190cf758fd1b3e8bb996778dc441890b574df30e811696899a116fc3d5"
+      "sha256": "eb23541117a8f530f1cd5fa2cfbea43ca92079564d613cf6b7a5906603467304"
     },
     {
       "path": "elements/frame.css",
@@ -546,7 +546,7 @@
     },
     {
       "path": "elements/choice.css",
-      "sha256": "5cc5979b6f1e05c51adf83373685445ee5632562ed0dc67d30296c2a70cf59e1"
+      "sha256": "da46121d91efe12cc8e6c1cfd591a3c789df7645a8a54b062bb2915119489a1e"
     },
     {
       "path": "expert/components/ListRow.astro",
@@ -566,15 +566,15 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "32a4d72aabd046af1b22be0c58c53bc54f2b9695787e9aabd63914fe54f9f9b7"
+      "sha256": "c877da2ba6cfba5117715ffcb75ef166ba8a176b5586ca695ba56533645109ac"
     },
     {
       "path": "elements/carousel.css",
-      "sha256": "d1dc5bd792d6da621873af2501222b1d4d3fe24db3d221746b04dc5372560784"
+      "sha256": "bcbd21d83deb393fc74875c7184e895c28f2ad533af6187367bfdc97755f7a2a"
     },
     {
       "path": "elements/command.css",
-      "sha256": "575fcb79df538df2ec4649430d4a3f44ef9362c2d246a6258e87139734d858bf"
+      "sha256": "6960d47cf46fc7fd01d49d9f48238e58f2477486002ca66dba14337fc145c4f0"
     },
     {
       "path": "elements/copy.ts",
@@ -582,7 +582,7 @@
     },
     {
       "path": "elements/dialog.css",
-      "sha256": "685c902d4df32eabd204de08907ada1985fee827851f1edd68c6bdfa81f98365"
+      "sha256": "3dcb44064763d205e823864c37e867aa00b7a6575873cfa4f9a00b3d7793905d"
     },
     {
       "path": "elements/empty.css",
@@ -590,7 +590,7 @@
     },
     {
       "path": "elements/menu.css",
-      "sha256": "2361f3998a067b35b1ffba356aa3bb3a5df9922309e63b11a890950fde9ad2b1"
+      "sha256": "c6e0c8a76ebcd7ccbc83b5d3c2fd4d1d447dec7257b88ac38e2506b8f0d65b20"
     },
     {
       "path": "elements/pagination.css",
@@ -630,7 +630,7 @@
     },
     {
       "path": "elements/tree.css",
-      "sha256": "3d6a685d7c53f6d4322cbadb372cdaa20b9427007012d40be0760aea3f9f3ca1"
+      "sha256": "df0f9e37887cb203cfb3963d9fa40fb90107a047329d60251dffcbe72ac1f48c"
     },
     {
       "path": "elements/chosen.css",
@@ -643,6 +643,14 @@
     {
       "path": "elements/touch.css",
       "sha256": "391d14966995ca70dd6c8b4396deb90642021b2c555bd0d62df2d112605ee94c"
+    },
+    {
+      "path": "elements/skip-link.css",
+      "sha256": "71a371e07ab1c4cae6d621f355e1ccb9a4c1e39101fefeb3ad419f2f09f2afa7"
+    },
+    {
+      "path": "verbal/imprint.json",
+      "sha256": "7da0f5252cd551d11b55ae3ca1daa0ca517b8e1d7d523d4713abcccbe37c6529"
     }
   ]
 }

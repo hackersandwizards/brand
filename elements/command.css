@@ -51,7 +51,7 @@
     font: inherit;
     font-size: max(var(--hw-field-floor, 0px), 1em);
   }
-  .hw-command-field > input:focus-visible {
+  .hw-command-field > input:is(:focus-visible, [data-hw-focus]) {
     outline: 0;
   }
   .hw-command-field > .hw-icon-button {

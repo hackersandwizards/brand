@@ -138,9 +138,11 @@
   --spacing-section-head: clamp(2rem, 1.6087rem + 1.7391vw, 3rem);
   --spacing-stack: clamp(1.5rem, 0.913rem + 2.6087vw, 3rem);
   --spacing-grid: clamp(1rem, 0.6087rem + 1.7391vw, 2rem);
+  --spacing-tight: 0.25rem;
   --spacing-card: min(clamp(1.25rem, 0.9565rem + 1.3043vw, 2rem), clamp(20px, 15.304px + 1.3043vw, 32px));
   --container-content: 72rem;
   --container-wide: 84rem;
+  --container-text: 40rem;
   --breakpoint-xs: 25rem;
   --breakpoint-header-cta: 30rem;
   --logo-wizard-lift: -7.8%;

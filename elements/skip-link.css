@@ -1,0 +1,27 @@
+/* The skip link: the page's first focusable, a link past the header to the main content. Hidden
+   until it takes focus, then drawn at the top left above everything, a toast included, as the button it also is
+   (hw-button, button.css). The target is the <main> it names, with tabindex="-1", so focus moves
+   there.
+
+   Markup: <a class="hw-button hw-skip-link" href="#main">Zum Inhalt</a> … <main id="main" tabindex="-1"> */
+
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-skip-link {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1001;
+  }
+  .hw-skip-link:not(:focus, [data-hw-focus]) {
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    margin: -1px;
+    overflow: hidden;
+    border: 0;
+    padding: 0;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

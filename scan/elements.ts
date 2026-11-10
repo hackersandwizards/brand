@@ -52,8 +52,8 @@
 //    medium, such as a slide deck's).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it), every
 //    such tile's data-hw-version is this package's version (a page built from another brand
-//    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, and every hub
-//    element a page shows is listed as used.
+//    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, each such tile
+//    names a declared exception, and every hub element a page shows is listed as used.
 //
 // Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a named page with no
 // hub element (a zero proves nothing; a story page may show none). Exits 2 on a config naming no page
@@ -1004,6 +1004,12 @@ export const coverage = (
     if (!exceptionTiles.has(name))
       out.push(`${name}: an exception without a [data-hw-exception="${name}"] on a page`);
   }
+  // An exception a page carries but the list never declares would skip its element unreviewed.
+  for (const name of exceptionTiles)
+    if (!(name in (config.exceptions ?? {})))
+      out.push(
+        `${name}: a [data-hw-exception="${name}"] on a page, but ${LIST} declares no such exception`,
+      );
   return out;
 };
 

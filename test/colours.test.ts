@@ -56,13 +56,17 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
 });
 const allow: Allowlist = { "a.css": { ...zero, hex: 2, reason: "r" } };
 
-test("flags a count above its entry, an unlisted file, a missing reason and a grown entry", () => {
-  expect(violations({ "a.css": { ...zero, hex: 2 } }, allow, allow)).toEqual([]);
+test("flags a count above its entry, an unlisted file, a missing reason, a grown and a stale entry", () => {
+  const a = { "a.css": { ...zero, hex: 2 } };
+  expect(violations(a, allow, allow)).toEqual([]);
   expect(
     violations({ "a.css": { ...zero, hex: 3 }, "b.css": { ...zero, font: 1 } }, allow, allow),
   ).toHaveLength(2);
-  expect(violations({}, { "a.css": { ...zero, hex: 2, reason: " " } }, undefined)).toHaveLength(1);
-  expect(violations({}, allow, { "a.css": { ...zero, hex: 1, reason: "r" } })).toHaveLength(1);
+  expect(violations(a, { "a.css": { ...zero, hex: 2, reason: " " } }, undefined)).toHaveLength(1);
+  expect(violations(a, allow, { "a.css": { ...zero, hex: 1, reason: "r" } })).toHaveLength(1);
+  expect(violations({}, allow, allow)).toEqual([
+    "brand-colours.json: a.css is clean; drop its entry (brand-colours --tighten)",
+  ]);
 });
 
 test("a value moved to another file moves its entry, while the list's total for that metric holds", () => {

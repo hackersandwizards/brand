@@ -67,7 +67,10 @@
     text-decoration: none;
     cursor: pointer;
   }
-  .hw-menu-item:is(:hover, :focus-visible):not(:disabled, [aria-disabled="true"]) {
+  .hw-menu-item:is(:hover, :is(:focus-visible, [data-hw-focus])):not(
+      :disabled,
+      [aria-disabled="true"]
+    ) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-menu-item:is(:disabled, [aria-disabled="true"]) {

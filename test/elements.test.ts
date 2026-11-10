@@ -646,7 +646,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
       page: "a.html",
       seen: ["card", "label"],
       tiles: [{ name: "card", version: own.version, holds: true }],
-      exceptions: ["total-band"],
+      exceptions: ["total-band", "own-chart"],
     },
     // A stale page listed after a fresh one still fails, named.
     {
@@ -663,6 +663,7 @@ test("coverage: a used element without a tile, a stale tile, an unlisted element
     'label: a page shows it, but brand-elements.json does not list it in "uses"',
     'brand-elements.json: exception "total-band" names no reason',
     'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',
+    'own-chart: a [data-hw-exception="own-chart"] on a page, but brand-elements.json declares no such exception',
   ]);
 });
 
