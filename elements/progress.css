@@ -56,8 +56,8 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-progress {
-      --_hw-track: color-mix(in srgb, var(--foreground, white) 15%, transparent);
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-track: color-mix(in srgb, var(--hw-night-foreground, white) 15%, transparent);
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
     }
   }
 }

@@ -330,11 +330,15 @@
   --gradient-strip: linear-gradient(to right, var(--color-teal), var(--color-purple));
 }
 
-/* The reading measures: a line of running text, an h1, an h2. Static, so every Tailwind build
-   writes them to :root whether or not a utility names them, and a stylesheet Tailwind does not
-   compile reads them with var() and no fallback. */
+/* The reading measures: a line of running text, an h1, an h2; and a callout's tint, its hue's share
+   over white by day and over the ground on night (callout.css), which a surface drawing a callout
+   itself, such as an exported slide, mixes too. Static, so every Tailwind build writes them to
+   :root whether or not a utility names them, and a stylesheet Tailwind does not compile reads them
+   with var() and no fallback. */
 @theme static {
   --container-measure: 33em;
   --container-measure-h1: 18ch;
   --container-measure-h2: 26ch;
+  --tint-callout: 10%;
+  --tint-callout-night: 14%;
 }

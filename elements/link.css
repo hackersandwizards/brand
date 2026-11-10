@@ -31,14 +31,14 @@
     height: 1em;
     margin-top: calc((1lh - 1em) / 2);
   }
-  :is(.hw-link, .hw-links a):hover {
+  :is(.hw-link, .hw-links a):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     :is(.hw-link, .hw-links a) {
       color: var(--color-teal-night);
     }
-    :is(.hw-link, .hw-links a):hover {
+    :is(.hw-link, .hw-links a):is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
   }

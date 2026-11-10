@@ -4,6 +4,7 @@ import {
   fullTextUrl,
   hasWords,
   highlight,
+  initListFilter,
   isActive,
   matches,
   ranked,
@@ -122,6 +123,18 @@ describe("list filter", () => {
       "Mueller Hans",
       "Müllerhans",
     ]);
+  });
+});
+
+describe("initListFilter", () => {
+  it("leaves a root it already wired alone, so a second call stacks no listener", () => {
+    let reads = 0;
+    const root = {
+      dataset: { ready: "" },
+      querySelector: () => (reads++, null),
+    } as unknown as HTMLElement;
+    initListFilter(root);
+    expect(reads).toBe(0);
   });
 });
 

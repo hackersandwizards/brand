@@ -54,7 +54,7 @@
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  .hw-choice:hover {
+  .hw-choice:is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
   }
@@ -85,7 +85,7 @@
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
       background: var(--color-night);
     }
-    .hw-choice:hover {
+    .hw-choice:is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }

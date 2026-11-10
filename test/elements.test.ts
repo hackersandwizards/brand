@@ -742,8 +742,13 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-list-filter-row",
     "--hw-focus-room",
     "--hw-table-ground",
+    "--hw-on-fill",
   ]);
-  expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
+  // The night roles expert.css and night.css set, never a scale.
+  const night = (s: string) => s.startsWith("--hw-night-");
+  expect(
+    SETTINGS.filter((s) => !optional.has(s) && !night(s) && !screen.includes(`${s}:`)),
+  ).toEqual([]);
 });
 
 // os 13 px, trainer hub 14 px, both dense.
@@ -929,9 +934,9 @@ test.each([
     " font-weight: inherit;",
   ],
   [
-    ".hw-prose a:not(.not-prose, .not-prose *):hover",
+    ".hw-prose a:not(.not-prose, .not-prose *):is(:hover, [data-hw-hover])",
     "link.css",
-    ":is(.hw-link, .hw-links a):hover",
+    ":is(.hw-link, .hw-links a):is(:hover, [data-hw-hover])",
     "",
   ],
 ])("the prose block's %s repeats %s", (prose, file, selector, extra) => {
@@ -979,6 +984,15 @@ test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
   file("brand-elements.json", '{"pages":[],"uses":[]}');
   const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
   expect(r.exitCode).toBe(2);
+});
+
+test("brand-elements exits 2 on a site path with no site or --base to serve it", () => {
+  file("brand-elements.json", '{"pages":["/catalog/"]}');
+  const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
+  expect([r.exitCode, r.stderr.toString().trim()]).toEqual([
+    2,
+    "brand-elements: /catalog/: a site path, but no site or --base to serve it",
+  ]);
 });
 
 // The consumer's policy (brand-elements.json "csp") applies while a page renders: the form field's

@@ -1,4 +1,5 @@
 // The Pages workflow publishes dist/ at https://hackersandwizards.github.io/brand/, hence the base.
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import { catalog } from "@hackersandwizards/scaffolding/catalog";
@@ -6,7 +7,7 @@ import { files } from "./files.ts";
 import catalogs from "../expert/catalogs.json";
 import { SECTIONS } from "./element-demos";
 
-const own = (f: string) => new URL(`../${f}`, import.meta.url).pathname;
+const own = (f: string) => fileURLToPath(new URL(`../${f}`, import.meta.url));
 
 export default defineConfig({
   base: "/brand",

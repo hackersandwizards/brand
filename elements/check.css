@@ -78,7 +78,7 @@
   .hw-check-target > .hw-check {
     margin: 0;
   }
-  .hw-check:not(:disabled, :checked):hover {
+  .hw-check:not(:disabled, :checked):is(:hover, [data-hw-hover]) {
     border-color: var(--_hw-hover);
   }
   .hw-check[aria-invalid="true"]:not(:checked, :indeterminate) {
@@ -142,9 +142,9 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-check,
     .hw-prose li.task-list-item input[type="checkbox"] {
-      --_hw-line: var(--input, var(--color-night-muted));
-      --_hw-hover: var(--foreground, var(--color-white));
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-line: var(--hw-night-input, var(--color-night-muted));
+      --_hw-hover: var(--hw-night-foreground, var(--color-white));
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
       --_hw-mark: var(--color-night);
       --_hw-error: var(--error, var(--color-red-night));
       --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");

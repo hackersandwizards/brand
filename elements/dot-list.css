@@ -16,6 +16,7 @@
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-dot-list {
+    --hw-markers: off;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;

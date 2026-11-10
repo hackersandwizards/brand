@@ -125,7 +125,7 @@
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")
       center / 1em no-repeat;
   }
-  .hw-toast-close:hover::after {
+  .hw-toast-close:is(:hover, [data-hw-hover])::after {
     opacity: 1;
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -152,9 +152,9 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-toast {
-      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
       --_hw-tone: var(--color-teal-night);
     }
     .hw-toast[data-tone="success"] {

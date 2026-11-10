@@ -18,7 +18,7 @@
     text-decoration: none;
     color: var(--color-teal-dark);
   }
-  .hw-arrow-link:hover {
+  .hw-arrow-link:is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   .hw-arrow-link[data-tone="muted"] {
@@ -32,7 +32,12 @@
     display: inline-block;
     transition: translate var(--motion-fast);
   }
-  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(:hover, :focus-visible, [data-hw-focus])
+  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(
+      :hover,
+      [data-hw-hover],
+      :focus-visible,
+      [data-hw-focus]
+    )
     .hw-arrow
     > span {
     translate: 4px 0;
@@ -53,7 +58,7 @@
     .hw-arrow-link {
       color: var(--color-teal-night);
     }
-    .hw-arrow-link:hover {
+    .hw-arrow-link:is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
     .hw-arrow-link[data-tone="muted"] {

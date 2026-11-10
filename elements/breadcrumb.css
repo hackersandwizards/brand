@@ -29,7 +29,7 @@
     text-decoration: none;
     color: var(--color-teal-dark);
   }
-  .hw-breadcrumb a:hover {
+  .hw-breadcrumb a:is(:hover, [data-hw-hover]) {
     text-decoration: underline;
     text-underline-offset: 2px;
   }

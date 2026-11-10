@@ -40,30 +40,30 @@
     width: var(--hw-control-icon, 20px);
     height: var(--hw-control-icon, 20px);
   }
-  .hw-icon-button:hover {
+  .hw-icon-button:is(:hover, [data-hw-hover]) {
     background: color-mix(in srgb, var(--color-ink) 15%, transparent);
   }
   .hw-icon-button[data-on="picture"] {
-    color: var(--color-white);
+    color: var(--hw-on-fill, var(--color-white));
     background: var(--color-teal);
   }
-  .hw-icon-button[data-on="picture"]:hover {
+  .hw-icon-button[data-on="picture"]:is(:hover, [data-hw-hover]) {
     background: var(--color-teal-dark);
   }
   .hw-icon-button[data-variant="quiet"] {
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
     background: transparent;
   }
-  .hw-icon-button[data-variant="quiet"]:hover {
+  .hw-icon-button[data-variant="quiet"]:is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
   .hw-icon-button[aria-pressed="true"],
-  .hw-icon-button[aria-pressed="true"]:hover {
+  .hw-icon-button[aria-pressed="true"]:is(:hover, [data-hw-hover]) {
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
-  .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
+  .hw-icon-button[data-tone="danger"]:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]) {
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
     color: var(--_hw-danger);
     background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -73,24 +73,29 @@
       color: var(--color-white);
       background: color-mix(in srgb, white 15%, transparent);
     }
-    .hw-icon-button:not([data-on="picture"]):hover {
+    .hw-icon-button:not([data-on="picture"]):is(:hover, [data-hw-hover]) {
       background: color-mix(in srgb, white 25%, transparent);
     }
     .hw-icon-button[data-variant="quiet"] {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
       background: transparent;
     }
-    .hw-icon-button[data-variant="quiet"]:hover {
+    .hw-icon-button[data-variant="quiet"]:is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
       background: color-mix(in srgb, white 15%, transparent);
     }
     /* The night rules above outrank the day toggle, so it stands here again. */
     .hw-icon-button[aria-pressed="true"],
-    .hw-icon-button[aria-pressed="true"]:hover {
+    .hw-icon-button[aria-pressed="true"]:is(:hover, [data-hw-hover]) {
       color: var(--_hw-on-chosen);
       background: var(--_hw-chosen);
     }
-    .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
+    .hw-icon-button[data-tone="danger"]:is(
+        :hover,
+        [data-hw-hover],
+        :focus-visible,
+        [data-hw-focus]
+      ) {
       --_hw-danger: var(--color-red-night);
       color: var(--_hw-danger);
       background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);

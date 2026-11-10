@@ -8,7 +8,9 @@
 
    Settings:
      --hw-avatar-size  the diameter at the scale
-     --hw-avatar-hue   the initials' ground, a person's colour */
+     --hw-avatar-hue   the initials' ground, a person's colour
+     --hw-on-fill      the initials, else white; night.css sets the night ink, so a hue it leaves
+                       dark sets white again */
 
 @layer properties, theme, base, components, utilities;
 @import "./touch.css";
@@ -25,7 +27,7 @@
     height: var(--_hw-size);
     border-radius: var(--radius-pill);
     overflow: hidden;
-    color: var(--color-white);
+    color: var(--hw-on-fill, var(--color-white));
     background: var(--hw-avatar-hue, var(--color-teal-dark));
     font-family: var(--font-mono);
     font-size: calc(var(--_hw-size) * 0.4);
@@ -67,11 +69,11 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-avatar {
-      --_hw-ring: var(--background, var(--color-night));
+      --_hw-ring: var(--hw-night-background, var(--color-night));
     }
     .hw-avatar-more {
-      color: var(--foreground, var(--color-night-ink));
-      background: var(--muted, color-mix(in srgb, white 15%, var(--color-night)));
+      color: var(--hw-night-foreground, var(--color-night-ink));
+      background: var(--hw-night-muted, color-mix(in srgb, white 15%, var(--color-night)));
     }
   }
 }

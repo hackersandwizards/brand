@@ -759,12 +759,10 @@ test("marker exceptions keep their readings, fail over their count and report a 
     'markers exception "**/units/**": needs a "reason" and an "off" count of at least 1',
   ]);
   expect(applyExceptions(readings).bad.length).toBe(3);
-  // An "off" above the readings is slack a new one would fill; the control keeps exactly two.
+  // Fewer readings than "off" pass, since a run with fewer scales or pages counts fewer.
   const slack = (off: number) =>
     applyExceptions(readings, { "**/at-rest/": { reason: "engine rounding", off } }).findings;
-  expect(slack(3)).toEqual([
-    'markers exception "**/at-rest/": 2 off readings, 3 kept; lower "off" to 2',
-  ]);
+  expect(slack(3)).toEqual([]);
   expect(slack(2)).toEqual([]);
 });
 

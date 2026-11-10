@@ -14,6 +14,9 @@ node_modules/
 # Python bytecode from uv run applications/channel-banners/render.py
 __pycache__/
 
+# The merch mockups (applications/merch/w1.ts), for review only.
+captures/
+
 # Astro: the catalog build and its generated types.
 dist/
 .astro/

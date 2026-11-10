@@ -123,13 +123,13 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-stepper {
       --_hw-quiet: var(--color-night-muted);
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 40%, transparent));
-      --_hw-accent: var(--accent, var(--color-teal-night));
-      --_hw-on-accent: var(--on-accent, var(--color-night));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 40%, transparent));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
+      --_hw-on-accent: var(--hw-night-on-accent, var(--color-night));
     }
     .hw-stepper > li::before {
-      background: var(--background, var(--color-night));
+      background: var(--hw-night-background, var(--color-night));
     }
   }
 }

@@ -73,19 +73,19 @@ Run a command the package ships from your repo's root with `bun run <name>`. Nev
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
 with `Script not found`.
 
-| Command                                                                                                                        | Does                                                                  |
-| ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                                  | frames an image as a 1080 x 1350 LinkedIn post image                  |
-| `brand-linkedin-terminal <spec.json> <out.png>`                                                                                | renders a terminal snippet for the frame; no arguments print the spec |
-| `brand-linkedin-sketch-prompt`                                                                                                 | prints the prompt for a generated sketch and its worked examples      |
-| `brand-slide-sketch-prompt`                                                                                                    | prints the prompt for a slide sketch and its worked example           |
-| `brand-mail-signature --name <n> --role <r> --out <path>`                                                                      | writes a mail signature as HTML and text; all flags in `cli.ts`       |
-| `brand-colours [--tighten]`                                                                                                    | the colour, radius and shadow scan for your gate, below               |
-| `brand-copies [--tighten]`                                                                                                     | flags a copy of a brand file in your tree, below                      |
-| `brand-scan [--tighten]`                                                                                                       | flags a fork of an expert component, below                            |
-| `brand-markers [--scale 2,4] [--site <dir> \| --base <url>] [--catalog <dir> [--catalog-at <page>]] [<url, file or /path>...]` | measures every list marker on your pages and catalog stories, below   |
-| `brand-elements [--base <url>] [--json]`                                                                                       | measures the shared elements on your design-system page, below        |
-| `brand-retired <dir or file>...`                                                                                               | fails on a retired slogan in what your build wrote, below             |
+| Command                                                                                                                                                | Does                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                                                          | frames an image as a 1080 x 1350 LinkedIn post image; needs `sharp` in the consumer                  |
+| `brand-linkedin-terminal <spec.json> <out.png>`                                                                                                        | renders a terminal snippet for the frame; no arguments print the spec; needs `sharp` in the consumer |
+| `brand-linkedin-sketch-prompt`                                                                                                                         | prints the prompt for a generated sketch and its worked examples                                     |
+| `brand-slide-sketch-prompt`                                                                                                                            | prints the prompt for a slide sketch and its worked example                                          |
+| `brand-mail-signature --name <n> --role <r> --out <path>`                                                                                              | writes a mail signature as HTML and text; all flags in `cli.ts`                                      |
+| `brand-colours [--tighten]`                                                                                                                            | the colour, radius and shadow scan for your gate, below                                              |
+| `brand-copies [--tighten]`                                                                                                                             | flags a copy of a brand file in your tree, below                                                     |
+| `brand-scan [--tighten]`                                                                                                                               | flags a fork of an expert component, below                                                           |
+| `brand-markers [--scale 2,4] [--width 1280] [--site <dir> \| --base <url>] [--catalog <dir> [--catalog-at <page>]] [--json] [<url, file or /path>...]` | measures every list marker on your pages and catalog stories, below                                  |
+| `brand-elements [--base <url>] [--json]`                                                                                                               | measures the shared elements on your design-system page, below                                       |
+| `brand-retired <dir or file>...`                                                                                                                       | fails on a retired slogan in what your build wrote, below                                            |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -231,7 +231,7 @@ pill, card, callout, quote, ruled table, link in text, focus ring, round icon co
 strip, accent rule, code block (and its panel), inline code, button, arrow link, field (text field, field with button, textarea, select, combobox, date, file, password, read-only, warning and success, sizes), checkbox and radio, form field (label, optional mark, hint, error, warning and success message, character count, floating label, fieldset), switch, range, error summary, facts list, dot list, segmented
 control, list row, breadcrumb, disclosure, navigation list, filter value, search field, status box, dashed frame, key figure, prose block, dialog, drawer, menu, popover, tooltip, command palette, toast, tabs, progress bar, spinner, skeleton, empty state, accordion, avatar, pagination, stepper, tree view, carousel, the screen-reader-only text `hw-sr-only`, and the skip link `hw-skip-link`, an `hw-button` hidden until it takes focus. The chosen value of a filter value, segmented control or pressed icon control takes one fill, `elements/chosen.css`, which each imports. The catalog groups them in sections as mature UI
 libraries do: Forms, Actions, Navigation, Feedback, Overlays, Data display, Typography, Containers, Utilities. Each is an `hw-*` class (`hw-card`, `hw-pill`, ...), its variants `data-*`
-attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day); each file's opening comment states the rule
+attributes, night where the nearest `data-theme` is `"dark"` (`@scope`, so a `data-theme="light"` inside it turns back to day). `data-theme` goes on a container: an element carrying it itself stays day. For a catalogue's static sample, `data-hw-focus` on an element draws its focused state without focus and `data-hw-hover` its hover state without a pointer. Inside night an element reads its roles from `--hw-night-background`, `-foreground`, `-accent`, `-on-accent`, `-muted`, `-border` and `-input`, which `expert.css` sets from its night roles on a dark `html` and `night.css` under `data-hw-night` (all but `-on-accent` and `-input`); elsewhere, such as a night band on a light page, it takes brand's night tokens. Each file's opening comment states the rule
 and its settings. Import `elements.css` for all of them, or `elements/<name>.css` with
 `elements/scales.css`, after `tokens.css` (and `print.css` on paper). The rules sit in
 `@layer components`, so your utilities win, which is what `brand-elements` then measures; every
@@ -580,8 +580,9 @@ starting with `/` and no site or `--base` to serve it is named and left out. `--
 instead, `--catalog-at <page>` where it is served; a story page without a list passes. Readings
 you keep go in the `"markers"` block of the same file, each glob over a page's path with its
 reason and how many off readings it keeps: `"markers": { "**/content-slide/at-rest/": { "reason":
-"...", "off": 6 } }`. A kept reading prints as kept; more or fewer than `off` fails, and so does an
-entry that keeps none, so a fixed page lowers or drops it.
+"...", "off": 6 } }`. A kept reading prints as kept; more than `off` fails, and so does an
+entry that keeps none on a page it matches, so a fixed page drops it. Fewer pass: a run with fewer
+scales or pages counts fewer.
 
 ## Press kit
 

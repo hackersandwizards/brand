@@ -172,7 +172,7 @@
   .hw-pill-remove::after {
     inset-inline-start: 0;
   }
-  .hw-pill-remove:hover::before {
+  .hw-pill-remove:is(:hover, [data-hw-hover])::before {
     opacity: 1;
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {

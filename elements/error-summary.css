@@ -21,6 +21,7 @@
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-error-summary {
+    --hw-markers: off;
     --_hw-error: var(--error, var(--color-red));
     box-sizing: border-box;
     border: calc(2 * var(--hw-hairline, 1px)) solid var(--_hw-error);

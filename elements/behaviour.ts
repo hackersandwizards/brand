@@ -3,7 +3,7 @@
 // copy buttons (copy.ts, which a page needing only those imports alone).
 // Call enhance() once the page is parsed, or enhance(root) after adding markup; listeners on the
 // document are installed once, per-element state is set up per call.
-import { copyButtons, german, modalOrBody } from "./copy.ts";
+import { copyButtons, german, modalOrBody, wireOnce } from "./copy.ts";
 import { hasWords, searchWords } from "./list-filter.ts";
 
 export { copyButton } from "./copy.ts";
@@ -87,6 +87,8 @@ function onMenuKey(e: KeyboardEvent, menu: HTMLElement) {
     return;
   }
   const items = menuItems(menu);
+  // A menu whose every item is disabled has nowhere to move.
+  if (!items.length) return;
   const now = items.indexOf(document.activeElement as HTMLElement);
   let next = moveInList(items, e.key, now);
   if (next < 0 && e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== " ")
@@ -161,8 +163,8 @@ const outsidePanel = (d: Element, e: MouseEvent) => {
 };
 
 function installDocument() {
-  if ((installDocument as unknown as { done?: true }).done) return;
-  (installDocument as unknown as { done?: true }).done = true;
+  // A second bundle of this file on the page installs nothing again.
+  if (!wireOnce(document, "behaviour")) return;
 
   document.addEventListener("keydown", onDocumentKey);
 
@@ -391,8 +393,10 @@ function onCommandKey(e: KeyboardEvent, input: HTMLInputElement) {
   const options = optionsOf(input);
   const now = options.findIndex((o) => o.getAttribute("aria-selected") === "true");
   if (e.key === "Enter") {
+    // Enter with no marked option keeps its own meaning.
+    if (now < 0) return;
     e.preventDefault();
-    options[now]?.click();
+    options[now]!.click();
     return;
   }
   if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
@@ -498,12 +502,10 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
   return el;
 }
 
-const wiredCarousels = new WeakSet<Element>();
 // The hold after the reader's own step, in ms. The step is carousel.css's, the time its dot fills.
 const HOLD = 4000;
 function enhanceCarousel(carousel: HTMLElement) {
-  if (wiredCarousels.has(carousel)) return;
-  wiredCarousels.add(carousel);
+  if (!wireOnce(carousel, "carousel")) return;
   const track = carousel.querySelector<HTMLElement>(".hw-carousel-track");
   const controls = carousel.querySelector<HTMLElement>(".hw-carousel-controls");
   if (!track || !controls) return;

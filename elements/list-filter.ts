@@ -221,6 +221,10 @@ export function rebaseSrcset(srcset: string, at: (url: string) => string) {
  *  from here, rendering every row, one filter step on a slow phone takes longer than a frame. */
 export const LONG_LIST = 100;
 
+/** Whether `el` renders: checkVisibility where the browser has it (Safari from 17.4), else its
+ *  boxes, which a fixed element has too. */
+const visible = (el: HTMLElement) => el.checkVisibility?.() ?? el.getClientRects().length > 0;
+
 /** The browser side of ListFilter.astro, over its markup (root [data-list-filter], its value
  *  "always" or "active"): typing (200 ms debounce), each facet's choice or select filter in place, the
  *  state lives in `?q=` and each facet's parameter, Back and Forward restore it, and the counts
@@ -231,6 +235,8 @@ export const LONG_LIST = 100;
  *  that page load on first use, and until they do the form's submit goes there. Once wired the
  *  root carries data-ready. */
 export function initListFilter(root: HTMLElement) {
+  // Wired once: a second call would stack every listener.
+  if ("ready" in root.dataset) return;
   const form = root.querySelector("form")!;
   const input = form.querySelector<HTMLInputElement>('input[name="q"]')!;
   const radios = [...form.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
@@ -548,7 +554,7 @@ export function initListFilter(root: HTMLElement) {
       event.shiftKey ||
       target.isContentEditable ||
       target.matches("textarea, select, input:not([type=radio], [type=checkbox])") ||
-      !input.checkVisibility() ||
+      !visible(input) ||
       document.querySelector('dialog[data-hw-shortcut="k"]')
     )
       return;
@@ -570,7 +576,7 @@ export function initListFilter(root: HTMLElement) {
   toggle.addEventListener("click", () => open(root.hasAttribute("data-closed")));
   panel.addEventListener("keydown", () => (tapped = false));
   panel.addEventListener("change", () => {
-    if (tapped && toggle.checkVisibility()) {
+    if (tapped && visible(toggle)) {
       open(false);
       toggle.focus();
     }
@@ -579,7 +585,7 @@ export function initListFilter(root: HTMLElement) {
   root.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || root.hasAttribute("data-closed")) return;
     open(false);
-    if (toggle.checkVisibility()) toggle.focus();
+    if (visible(toggle)) toggle.focus();
   });
   document.addEventListener("click", (event) => {
     const target = event.target as Node;

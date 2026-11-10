@@ -10,27 +10,30 @@
    light one, also in a dark band of a light page, whose select may stay white. An hw-field turns
    night under any data-theme="dark", as its frame does, and its chevron with it. */
 
-.hw-select,
-select.form-input {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%238c949d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.625rem center;
-  background-size: 0.75rem 0.5rem;
-  padding-right: 2rem;
-}
-/* On the field the chevron sits at the field's padding and takes the size of its text, so it keeps
-   its proportion at every scale. A combobox (input with list) wears it too. */
-.hw-field.hw-select {
-  background-position: right var(--hw-field-pad, 1rem) center;
-  background-size: 0.75em 0.5em;
-  padding-right: calc(var(--hw-field-pad, 1rem) + 1.25em);
-}
-@scope ([data-theme="dark"]) to ([data-theme="light"]) {
-  html:scope :is(.hw-select, select.form-input),
+@layer properties, theme, base, components, utilities;
+@layer components {
+  .hw-select,
+  select.form-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%238c949d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+    background-size: 0.75rem 0.5rem;
+    padding-right: 2rem;
+  }
+  /* On the field the chevron sits at the field's padding and takes the size of its text, so it keeps
+     its proportion at every scale. A combobox (input with list) wears it too. */
   .hw-field.hw-select {
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+    background-position: right var(--hw-field-pad, 1rem) center;
+    background-size: 0.75em 0.5em;
+    padding-right: calc(var(--hw-field-pad, 1rem) + 1.25em);
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    html:scope :is(.hw-select, select.form-input),
+    .hw-field.hw-select {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+    }
   }
 }

@@ -47,7 +47,7 @@
     width: 1.25em;
     height: 1lh;
   }
-  .hw-segmented > :is(a, button):hover {
+  .hw-segmented > :is(a, button):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
   }
@@ -58,7 +58,7 @@
       [aria-current]:not([aria-current="false"]),
       [aria-pressed="true"],
       [data-active="true"]
-    ):hover {
+    ):is(:hover, [data-hw-hover]) {
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
@@ -78,7 +78,7 @@
     .hw-segmented > :is(a, button) {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
     }
-    .hw-segmented > :is(a, button):hover {
+    .hw-segmented > :is(a, button):is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }

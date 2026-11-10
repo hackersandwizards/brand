@@ -294,3 +294,32 @@ test("a glob string in script reads as no comment", () => {
   expect(scanSource(config, ".ts").counts).toEqual({ ...zero, hex: 1 });
   expect(scanSource(`const a = 1; /* #123456 */`, ".ts").counts).toEqual(zero);
 });
+
+// Each was counted by the scanner of v2.12.0 and names no off-brand colour or font.
+test.each([
+  ["a brand family in an inline style", `<p style="font-family: 'Inter'">x</p>`, ".astro"],
+  ["a brand family marked !important", `.a { font-family: Inter !important; }`, ".css"],
+  ["a brand shorthand marked !important", `.a { font: 16px/1.5 Inter !important; }`, ".css"],
+  ["a comment in CRLF frontmatter", `---\r\nconst a = 1; // #123456\r\n---\r\n<p>x</p>`, ".astro"],
+  ["a fragment reference", `<rect fill="url(#fade)"/>`, ".svg"],
+  ["id selectors of letters", `.a:not(#feed, #face) {}`, ".css"],
+  ["letters in prose", `<p>Shades: #bad, #fab</p>`, ".html"],
+  ["a component's colour prop", `<Badge color="purple" />`, ".astro"],
+  ["a type's union of names", `interface P { color: "teal" | "purple" }`, ".ts"],
+  ["a comment after an apostrophe", `<p>it's</p><style>/* don't use #ff0000 */</style>`, ".html"],
+  ["a variable in Python", `write(p, note, color=white)`, ".py"],
+])("counts nothing in %s", (_, src, ext) => {
+  expect(scanSource(src, ext).counts).toEqual(zero);
+});
+
+test.each([
+  ["letters as a colour value", `.a{color:#fab}`, ".css", "hex"],
+  ["letters in a border", `.a{border: 1px solid #abc}`, ".css", "hex"],
+  ["letters in a fill", `<rect fill="#abc"/>`, ".svg", "hex"],
+  ["letters in a class's brackets", `<div class="bg-[#fab]"></div>`, ".astro", "hex"],
+  ["a named colour in a style object", `const s = { color: "red" };`, ".tsx", "hex"],
+  ["a style after an apostrophe", `<p>it's</p><style>.a{color:#ff0000}</style>`, ".html", "hex"],
+  ["a quoted colour in Python", `write(p, note, color="red")`, ".py", "hex"],
+])("counts %s", (_, src, ext, metric) => {
+  expect(scanSource(src, ext).counts).toEqual({ ...zero, [metric]: 1 });
+});

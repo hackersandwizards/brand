@@ -32,7 +32,7 @@
     background: var(--hw-row-fill, var(--color-bg));
     transition: background-color 0.1s;
   }
-  .hw-row:hover {
+  .hw-row:is(:hover, [data-hw-hover]) {
     background: color-mix(
       in srgb,
       color-mix(in srgb, var(--color-ink) 7%, var(--color-bg)) 70%,
@@ -45,7 +45,7 @@
   }
   .hw-row:is(
     [aria-current]:not([aria-current="false"]),
-    [aria-current]:not([aria-current="false"]):hover
+    [aria-current]:not([aria-current="false"]):is(:hover, [data-hw-hover])
   ) {
     background: color-mix(in srgb, var(--color-teal) 7%, var(--color-bg));
   }
@@ -73,12 +73,12 @@
       border-bottom-color: color-mix(in srgb, white 18%, var(--color-night));
       background: var(--hw-row-fill, var(--color-night));
     }
-    .hw-row:hover {
+    .hw-row:is(:hover, [data-hw-hover]) {
       background: color-mix(in srgb, var(--color-night-2) 70%, transparent);
     }
     .hw-row:is(
       [aria-current]:not([aria-current="false"]),
-      [aria-current]:not([aria-current="false"]):hover
+      [aria-current]:not([aria-current="false"]):is(:hover, [data-hw-hover])
     ) {
       background: color-mix(in srgb, var(--color-teal-night) 12%, var(--color-night));
     }

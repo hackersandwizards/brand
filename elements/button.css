@@ -17,7 +17,8 @@
      --hw-button-pad          block and inline padding
      --hw-button-size         the text size
      --hw-button-corner       the corner, else --hw-card-corner: the brand corner at the medium's
-                              size, the small one inside a block with the brand corner (card.css) */
+                              size, the small one inside a block with the brand corner (card.css)
+     --hw-on-fill             the text on the fill, else white; night.css sets the night ink */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
@@ -39,7 +40,7 @@
     line-height: var(--type-body-line-height);
     text-align: center;
     text-decoration: none;
-    color: var(--color-white);
+    color: var(--hw-on-fill, var(--color-white));
     background: var(--_hue);
     cursor: pointer;
     transition:
@@ -55,7 +56,7 @@
     --_hue: var(--color-purple);
     --_hover: color-mix(in srgb, var(--color-purple) 80%, var(--color-ink));
   }
-  .hw-button:hover:not(:disabled, [aria-disabled="true"]) {
+  .hw-button:is(:hover, [data-hw-hover]):not(:disabled, [aria-disabled="true"]) {
     border-color: var(--_hover);
     background: var(--_hover);
   }
@@ -63,7 +64,10 @@
     color: var(--_hue);
     background: transparent;
   }
-  .hw-button[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
+  .hw-button[data-variant="secondary"]:is(:hover, [data-hw-hover]):not(
+      :disabled,
+      [aria-disabled="true"]
+    ) {
     border-color: var(--_hover);
     color: var(--_hover);
     background: transparent;
@@ -99,7 +103,10 @@
       border-color: var(--color-purple-night);
       color: var(--color-purple-night);
     }
-    .hw-button[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
+    .hw-button[data-variant="secondary"]:is(:hover, [data-hw-hover]):not(
+        :disabled,
+        [aria-disabled="true"]
+      ) {
       border-color: var(--color-purple);
       color: var(--color-white);
       background: color-mix(in srgb, var(--color-purple) 15%, transparent);

@@ -35,9 +35,9 @@
 // The "csp" of brand-elements.json states the policy the consumer's host sends, for every page or
 // by the glob over each page's path (elements.ts), and each source a page's policy refuses fails,
 // "csp" or the page's own.
-// An off reading on a page the glob matches is kept, printed as kept; more or fewer off readings
-// there than "off" fail, and so does an entry that keeps nothing on a page it matches in this run
-// (stale), so a fixed page lowers or drops its exception. A marker inside a [data-hw-exception]
+// An off reading on a page the glob matches is kept, printed as kept; more off readings there than
+// "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so
+// a fixed page drops its exception. Fewer pass: a run's count depends on its scales and pages. A marker inside a [data-hw-exception]
 // whose name brand-elements.json declares is the system's own and left out; inside any other it is
 // measured. An item with two markers is never kept.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
@@ -833,9 +833,6 @@ export function applyExceptions(
     if (n === 0 && measured.some((page) => new Bun.Glob(glob).match(pathOf(page))))
       return [`markers exception "${glob}" is stale: it keeps no off reading`];
     if (n > e.off) return [`markers exception "${glob}": ${n} off readings, ${e.off} kept`];
-    // An "off" above the readings would let a new one there pass unseen.
-    if (n > 0 && n < e.off)
-      return [`markers exception "${glob}": ${n} off readings, ${e.off} kept; lower "off" to ${n}`];
     return [];
   });
   const kept = [...by.values()].flat();

@@ -675,15 +675,17 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
 <div class="el-matrix"><span></span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>`).join("")}${row(false)}${row(true)}</div>
 <p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
 };
-// The element samples' script, unminified so its export `enhance` keeps that name.
-const bundle = spawnSync(
-  process.execPath,
-  ["build", join(ROOT, "elements/behaviour.ts"), "--format=esm"],
-  { encoding: "utf8" },
-);
-if (bundle.status !== 0)
-  throw new Error(`portal: bun build elements/behaviour.ts: ${bundle.stderr}`);
-const BEHAVIOUR = bundle.stdout.replace(/<\/script/g, "<\\/script");
+// The element samples' scripts, unminified so their exports `enhance` and `enhanceForms` keep those
+// names, as catalog/ElementScript.astro wires the stories.
+const bundled = (f: string) => {
+  const r = spawnSync(process.execPath, ["build", join(ROOT, f), "--format=esm"], {
+    encoding: "utf8",
+  });
+  if (r.status !== 0) throw new Error(`portal: bun build ${f}: ${r.stderr}`);
+  return r.stdout.replace(/<\/script/g, "<\\/script");
+};
+const BEHAVIOUR = bundled("elements/behaviour.ts");
+const FORMS = bundled("elements/form.ts");
 const EXPERT_COMPONENTS = readdirSync(join(ROOT, "expert/components"))
   .sort()
   .flatMap((f) => f.match(/^(\w+)\.astro$/)?.[1] ?? []);
@@ -1206,6 +1208,10 @@ show();
 <script type="module">
 ${BEHAVIOUR}
 enhance();
+</script>
+<script type="module">
+${FORMS}
+enhanceForms();
 </script>
 <script>
 // On GitHub Pages, links to a system page with a public address leave their local addresses for

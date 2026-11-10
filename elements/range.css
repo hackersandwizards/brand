@@ -81,10 +81,10 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-range {
       --_hw-line: var(
-        --input,
+        --hw-night-input,
         color-mix(in srgb, var(--color-night-muted) 60%, var(--color-night))
       );
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
       --_hw-ring: var(--color-night);
     }
   }

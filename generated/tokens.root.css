@@ -171,6 +171,8 @@
   --container-measure: 33em;
   --container-measure-h1: 18ch;
   --container-measure-h2: 26ch;
+  --tint-callout: 10%;
+  --tint-callout-night: 14%;
 }
 :where([data-hw-night] [data-theme="light"]) {
   --color-bg: #f7f9fa;

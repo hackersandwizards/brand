@@ -15,7 +15,7 @@
      --hw-marker-size    the square's side, 0.375rem (6px at 16px), rounded to the pixel
      --hw-marker-gap     the space from the square to the text, 0.625rem
      --hw-marker-indent  the item's start padding, size plus gap
-     --hw-marker-color   the square's colour, teal
+     --hw-marker-color   the square's colour, teal (its night tone on night)
      --hw-marker-mid     the height of the square's middle above the baseline: 1ex / 6 + 1cap / 3,
                          two thirds of the way from the x-height middle (0.5ex) to the cap-height
                          middle (0.5cap); 0.5cap beside a label in capitals
@@ -97,6 +97,14 @@
     content: none;
   }
 
+  /* On night the square takes the teal's night tone, as .hw-mark does. */
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    ul > li::before,
+    ul > li > p:first-child::before {
+      background: var(--hw-marker-color, var(--color-teal-night));
+    }
+  }
+
   /* Code in JetBrains Mono, whose ascent and descent round apart from Inter's, made the first line
      a pixel taller at some sizes (11pt at 1.35 to 1.75: the marker 0.94px low), moving the baseline
      the marker is placed on. Its inline box takes no height; its background still covers the
@@ -124,6 +132,12 @@
 .hw-marker {
   --_hw-side: var(--hw-marker-size, 0.375rem);
   background: var(--hw-marker-color, var(--color-teal));
+}
+
+@scope ([data-theme="dark"]) to ([data-theme="light"]) {
+  .hw-marker {
+    background: var(--hw-marker-color, var(--color-teal-night));
+  }
 }
 
 /* Beside a label in capitals no lowercase letter sets the line: the square sits on the cap-height

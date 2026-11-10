@@ -58,7 +58,7 @@
 // Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a named page with no
 // hub element (a zero proves nothing; a story page may show none). Exits 2 on a config naming no page
 // and on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import catalogs from "../expert/catalogs.json";
@@ -1048,6 +1048,16 @@ if (import.meta.main) {
   if (!pages.length) {
     console.error(
       `brand-elements: ${LIST} names no page; a run that measures nothing passes nothing`,
+    );
+    process.exit(2);
+  }
+  // Without a server a page starting with / is a file; one that is none is a site path.
+  const unserved = named.filter(
+    (p) => p.startsWith("/") && !config.site && i < 0 && !(existsSync(p) && statSync(p).isFile()),
+  );
+  if (unserved.length) {
+    console.error(
+      `brand-elements: ${unserved.join(", ")}: a site path, but no site or --base to serve it`,
     );
     process.exit(2);
   }

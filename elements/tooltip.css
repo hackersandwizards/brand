@@ -32,8 +32,8 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tooltip {
-      --_hw-ground: var(--foreground, var(--color-night-ink));
-      --_hw-text: var(--background, var(--color-night));
+      --_hw-ground: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-text: var(--hw-night-background, var(--color-night));
     }
   }
 }

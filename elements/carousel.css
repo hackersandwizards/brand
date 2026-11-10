@@ -78,7 +78,7 @@
     opacity: 0.4;
     cursor: default;
   }
-  .hw-carousel-controls button:hover:not(:disabled) {
+  .hw-carousel-controls button:is(:hover, [data-hw-hover]):not(:disabled) {
     background: var(--_hw-tray-hover);
   }
   .hw-carousel-controls svg {
@@ -148,7 +148,7 @@
     .hw-carousel {
       --_hw-tray: color-mix(in srgb, white 15%, transparent);
       --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
-      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
       --_hw-quiet: var(--color-night-muted);
       --_hw-fill: var(--_hw-text);
     }

@@ -49,7 +49,7 @@
     padding: 0.125rem 0.5rem;
     cursor: pointer;
   }
-  .hw-tree-row:hover {
+  .hw-tree-row:is(:hover, [data-hw-hover]) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-tree [role="treeitem"]:is(:focus-visible, [data-hw-focus]) > .hw-tree-row {
@@ -81,8 +81,8 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tree {
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
-      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
       --_hw-sel: 15%;
     }
   }

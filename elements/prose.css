@@ -193,14 +193,14 @@
   text-underline-offset: 0.2em;
   font-weight: inherit;
 }
-.hw-prose a:not(.not-prose, .not-prose *):hover {
+.hw-prose a:not(.not-prose, .not-prose *):is(:hover, [data-hw-hover]) {
   color: var(--color-ink);
 }
 @scope ([data-theme="dark"]) to ([data-theme="light"]) {
   .hw-prose a:not(.not-prose, .not-prose *) {
     color: var(--color-teal-night);
   }
-  .hw-prose a:not(.not-prose, .not-prose *):hover {
+  .hw-prose a:not(.not-prose, .not-prose *):is(:hover, [data-hw-hover]) {
     color: var(--color-white);
   }
 }

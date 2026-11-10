@@ -28,14 +28,12 @@ const OVERLAP = 30; // CSS px
 // so every type role renders at the size the website gives it on a phone.
 const [WIDTH, HEIGHT, SCALE] = [540, 675, 2];
 
-// The generator's paper lands near the brand background but not on it (#F5F8F9 measured), which
-// shows as a faint box at full size. A sketch's corners sit on that paper; a photo's do not.
+// The generator's paper lands near the brand background but not on it, which shows as a faint box
+// at full size. A sketch's corners sit on that paper; a photo's do not.
 const CORNER = 8; // side of the square sampled at each corner, px
 const SKETCH_GATE = 8; // per channel, every corner mean to the background, or no change
-// A pixel with every channel within this of the sampled paper becomes the card's colour. In a
-// generated sketch the paper's noise stayed within 3 for 710,969 pixels and 4 caught another 3,870.
-// The lightest drawing tones, purple light and teal light, sit 75 and 82 away on their furthest
-// channel.
+// A pixel with every channel within this of the sampled paper becomes the card's colour: above the
+// paper's noise, far below the lightest drawing tones, purple light and teal light.
 const TOLERANCE = 4;
 // The ground is the brand's tint, not its background, which blends into LinkedIn's white feed.
 // The image itself is the card; a sketch's paper becomes the background, the brand colour nearest
@@ -48,7 +46,12 @@ async function matchPaper(input: string, dir: string): Promise<string> {
   const card = CARD.slice(1)
     .match(/../g)!
     .map((h) => parseInt(h, 16));
-  const { data, info } = await sharp(input).raw().toBuffer({ resolveWithObject: true });
+  // Upright and in three colour channels, whatever the file's orientation and colour space.
+  const { data, info } = await sharp(input)
+    .rotate()
+    .toColourspace("srgb")
+    .raw()
+    .toBuffer({ resolveWithObject: true });
   const { width: w, height: h, channels: ch } = info;
   const corners = [
     [0, 0],
@@ -73,7 +76,12 @@ async function matchPaper(input: string, dir: string): Promise<string> {
 }
 
 async function frameHtml(image: string, headline: string): Promise<string> {
-  const { width, height } = await sharp(image).metadata();
+  // The size as shown: the browser turns the image by its orientation, as matchPaper does.
+  // autoOrient is sharp 0.34's; before it, orientations 5 to 8 swap the sides.
+  const meta = await sharp(image).metadata();
+  const { width, height } =
+    meta.autoOrient ??
+    ((meta.orientation ?? 1) >= 5 ? { width: meta.height, height: meta.width } : meta);
   const src = (path: string) => escHtml(pathToFileURL(path).href);
   return `<!doctype html><html><head><meta charset="utf-8"><style>${linkedinCss()}
 html, body { margin: 0; width: ${WIDTH}px; height: ${HEIGHT}px; overflow: hidden; }

@@ -67,3 +67,16 @@ test("every bin is a shipped script with a bun shebang", () => {
     });
   }
 });
+
+// A consumer imports these by name: an export whose file left `files` fails only there.
+test("every export names a shipped file, a pattern at least one", () => {
+  const { exports } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf-8")) as {
+    exports: Record<string, string>;
+  };
+  const missing = Object.values(exports)
+    .map((target) => target.replace(/^\.\//, ""))
+    .filter((t) =>
+      t.endsWith("*") ? !packed.some((f) => f.startsWith(t.slice(0, -1))) : !packed.includes(t),
+    );
+  expect(missing).toEqual([]);
+});

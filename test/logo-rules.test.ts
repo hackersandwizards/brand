@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import rules from "../logos/logos.json";
+import { colors } from "../generated/tokens";
 import { ROOT } from "../scripts/git";
 
 test("each logo's clear space is the h's height over the file's height", () => {
@@ -19,4 +20,41 @@ test("each logo's clear space is the h's height over the file's height", () => {
       share: logo.clearSpace,
     });
   }
+});
+
+// scripts/outline.ts writes the night cuts from the day files and the tokens, and nothing runs it
+// in the gate: each night cut's fills, in order, are its day file's turned to the hue's night tone.
+test("each night cut fills its day file's shapes with their night tones", () => {
+  const hex = (t: string) => colors[`--color-${t}` as keyof typeof colors].toUpperCase();
+  const night = new Map(
+    (["teal", "purple", "ampersand"] as const).map((t) => [
+      hex(t),
+      hex(t === "ampersand" ? "ampersand-light" : `${t}-night`),
+    ]),
+  );
+  const fills = (f: string) =>
+    [...readFileSync(join(ROOT, `logos/${f}.svg`), "utf8").matchAll(/fill="(#[0-9A-F]{6})"/gi)].map(
+      (m) => m[1]!.toUpperCase(),
+    );
+  for (const day of ["wordmark", "lockup", "lockup-compact", "lockup-screen"]) {
+    const want = fills(day).map((c) => night.get(c) ?? c);
+    expect({ day, fills: fills(`${day}-night`) }).toEqual({ day, fills: want });
+    expect(want.length).toBeGreaterThan(0);
+  }
+});
+
+// The header's img sizes are typed beside the markup: they are the screen cuts' boxes, rounded up.
+test("the header's typed logo sizes are the screen cuts' boxes", () => {
+  const size = (f: string) => {
+    const [, , w, h] = /viewBox="([^"]+)"/
+      .exec(readFileSync(join(ROOT, `logos/${f}.svg`), "utf8"))![1]!
+      .split(" ")
+      .map(Number);
+    return `width="${Math.ceil(w!)}" height="${Math.ceil(h!)}"`;
+  };
+  const read = (f: string) => readFileSync(join(ROOT, f), "utf8");
+  for (const f of ["expert/components/AppHeader.astro", "expert/header.css", "catalog/portal.ts"])
+    expect({ f, day: read(f).includes(size("lockup-screen")) }).toEqual({ f, day: true });
+  for (const f of ["expert/components/AppHeader.astro", "expert/header.css"])
+    expect({ f, night: read(f).includes(size("lockup-screen-night")) }).toEqual({ f, night: true });
 });

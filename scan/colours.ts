@@ -194,25 +194,37 @@ const BLOCK = /\/\*[\s\S]*?\*\//g;
 const STRING_OR_BLOCK =
   /("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\//g;
 const lineComments = (s: string) => s.replace(/(^|[^:"'`(])\/\/.*$/gm, "$1");
-// In markup a line comment exists only in script: the frontmatter and <script> elements. Elsewhere
-// a // is a URL, such as href=//host or a srcset's //cdn/b.png 2x.
-const SCRIPT_PART = /^---\n[\s\S]*?\n---|<script\b[^>]*>[\s\S]*?<\/script>/g;
+// In markup strings and line comments exist only in script (the frontmatter and <script>) and
+// strings in <style>. Elsewhere an apostrophe is prose and a // is a URL, such as href=//host or a
+// srcset's //cdn/b.png 2x.
+const CODE_PART =
+  /^---\r?\n[\s\S]*?\r?\n---|<script\b[^>]*>[\s\S]*?<\/script>|<style\b[^>]*>[\s\S]*?<\/style>/g;
+const keepStrings = (s: string) => s.replace(STRING_OR_BLOCK, (_, str?: string) => str ?? "");
+const markup = (s: string) => {
+  let out = "";
+  let last = 0;
+  for (const m of s.matchAll(CODE_PART)) {
+    const code = keepStrings(m[0]);
+    out += s.slice(last, m.index).replace(BLOCK, "");
+    out += m[0].startsWith("<style") ? code : lineComments(code);
+    last = m.index + m[0].length;
+  }
+  return out + s.slice(last).replace(BLOCK, "");
+};
 const strip = (s: string, ext: string) => {
   if (ext === ".py") return s;
-  const out = s
-    .replace(ENGINE_STYLE, "")
-    .replace(CSS_OR_SVG.test(ext) ? BLOCK : STRING_OR_BLOCK, (_, str?: string) => str ?? "")
-    .replace(/<!--[\s\S]*?-->/g, "");
-  if (CSS_OR_SVG.test(ext)) return out;
-  return MARKUP.test(ext) ? out.replace(SCRIPT_PART, lineComments) : lineComments(out);
+  const out = s.replace(ENGINE_STYLE, "").replace(/<!--[\s\S]*?-->/g, "");
+  if (CSS_OR_SVG.test(ext)) return out.replace(BLOCK, "");
+  return MARKUP.test(ext) ? markup(out) : lineComments(keepStrings(out));
 };
 // 8 and 4 digits carry an alpha channel; the colour part decides token or off-token.
 const HEX = /(?<![&\w])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g;
-// A 3- or 4-digit hex of letters alone (#add, #fab) is a colour only where a value stands: after a
-// colon, comma, parenthesis or bracket, or in the quotes of a colour attribute or key.
-const VALUE_BEFORE = /(?:[:(,[]\s*|(?:colou?r|fill|stroke|background)[\w-]*["']?\s*[:=]\s*["'`])$/i;
+// A 3- or 4-digit hex of letters alone (#add, #fab) is a colour only in the value of a colour
+// property, attribute or key, or a Tailwind class's brackets; never a url(#id) or a selector.
+const VALUE_BEFORE =
+  /(?:(?:colou?r|fill|stroke|background|border|outline|shadow|caret|accent|decoration)[\w-]*["']?\s*[:=]\s*["'`]?(?:[^;{}<>"'`\n]*[\s,(])?|-\[)$/i;
 const isColour3 = (h: string, before: string) =>
-  /\d/.test(h) || /^(.)\1\1/.test(h) || VALUE_BEFORE.test(before);
+  /\d/.test(h) || /^(.)\1\1/.test(h) || (VALUE_BEFORE.test(before) && !/url\(\s*$/i.test(before));
 const FN = /(?<![\w-])(rgba?|hsla?)\(([^()]*)\)/gi;
 // The other colour functions, counted as rgb without conversion where their arguments are a
 // colour's: numbers, percentages, angles or none, or color()'s colour space first.
@@ -244,7 +256,7 @@ const SHORTHAND = /(?<![\w-])font\s*[:=]\s*/g;
 const SIZE =
   /(?:^|\s)(?:[\d.]+(?:px|r?em|pt|pc|%|vw|vh|ch|ex|r?lh|cap|ic|[sld]?v(?:h|w|min|max)|cq[iwbh]|q|mm|cm|in)|(?:xx?-|xxx-)?(?:small|large)|medium|larger|smaller|var\([^()]*\)|calc\([^()]*\))(?:\s*\/\s*\S+)?\s+(.+)$/;
 const BRAND_FONT =
-  /^\s*(["']?(Inter|JetBrains Mono)( Variable)?["']?(?=\s*(?:,|$))|var\(--|inherit|initial|unset|theme\()/i;
+  /^\s*(["']?(Inter|JetBrains Mono)( Variable)?["']?(?=\s*(?:[,;!}"'`]|$))|var\(--|inherit|initial|unset|theme\()/i;
 const PAL =
   /\b(?:bg|text|border(?:-[trblxyse])?|from|to|via|ring(?:-offset)?|inset-ring|fill|stroke|outline|divide|decoration|shadow|inset-shadow|text-shadow|drop-shadow|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/g;
 // Tailwind's serif stack, which no brand theme maps to a brand family.
@@ -367,15 +379,22 @@ export const scanSource = (raw: string, ext: string) => {
     if (w === "white" || w === "black") colour(w === "white" ? "#ffffff" : "#000000", w, "hex");
     else if (NAMED.has(w)) colour(w, w, "hex");
   };
-  const script = SCRIPT_EXT.test(ext);
+  // In script and Python a bare name after color: or color= is a variable, never a literal.
+  const script = SCRIPT_EXT.test(ext) || ext === ".py";
   // A color-mix() inside a colour property is read once, by the position of each word.
   const seen = new Set<number>();
   for (const m of src.matchAll(COLOUR_AT)) {
     const start = m.index + m[0].length;
     const quoted = /["'`]/.test(src[start] ?? "");
     if (script && !quoted && !m[0].startsWith("color-mix")) continue;
+    // In markup color= and background= are a component's props, which map a name to a token; no
+    // element takes them as a colour.
+    if (MARKUP.test(ext) && /^(?:color|background)\s*=/.test(m[0])) continue;
+    const { value } = valueAt(src, start);
+    // A type's union of names (color: "teal" | "purple") is no value.
+    if (script && /^(["'`])[^"'`]*\1\s*\|/.test(src.slice(start, start + 200))) continue;
     const from = start + (quoted ? 1 : 0);
-    for (const w of valueAt(src, start).value.matchAll(WORD))
+    for (const w of value.matchAll(WORD))
       if (!seen.has(from + w.index)) {
         seen.add(from + w.index);
         named(w[1]);
@@ -628,6 +647,16 @@ export const skippedReport = (cmd: string, paths: string[]) => {
   return exceptionReport(cmd, skipped);
 };
 
+/** Writes a tightened list and says so; a list that allows nothing is no file where none was. */
+export const writeAllowlist = (cmd: string, path: string, next: object, done = "tightened") => {
+  if (!existsSync(path) && !Object.keys(next).length)
+    console.log(`${cmd}: nothing to allow; no ${path} written`);
+  else {
+    writeFileSync(path, JSON.stringify(next, null, 2) + "\n");
+    console.log(`${cmd}: ${path} ${done}`);
+  }
+};
+
 if (import.meta.main) {
   const allow = existsSync(ALLOWLIST)
     ? (JSON.parse(readFileSync(ALLOWLIST, "utf8")) as Allowlist)
@@ -649,14 +678,12 @@ if (import.meta.main) {
       if (c) ceiling[file] = c;
     }
   if (process.argv.includes("--tighten")) {
-    const next = tighten(files, allow, ceiling);
-    // A list that allows nothing is no file where none was.
-    if (!allow && !Object.keys(next).length)
-      console.log(`brand-colours: nothing to allow; no ${ALLOWLIST} written`);
-    else {
-      writeFileSync(ALLOWLIST, JSON.stringify(next, null, 2) + "\n");
-      console.log(`brand-colours: ${ALLOWLIST} tightened; give every new entry its reason`);
-    }
+    writeAllowlist(
+      "brand-colours",
+      ALLOWLIST,
+      tighten(files, allow, ceiling),
+      "tightened; give every new entry its reason",
+    );
   } else {
     const bad = violations(files, allow ?? {}, committed, ceiling);
     if (bad.length) {

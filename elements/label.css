@@ -39,7 +39,7 @@
   .hw-label button:not([class], :disabled) {
     cursor: pointer;
   }
-  .hw-label button:not([class], :disabled):hover {
+  .hw-label button:not([class], :disabled):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   .hw-label[data-tone="muted"] {
@@ -70,7 +70,7 @@
     color: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    .hw-label button:not([class], :disabled):hover {
+    .hw-label button:not([class], :disabled):is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
     .hw-label {

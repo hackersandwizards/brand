@@ -11,7 +11,7 @@
 // Usage: brand-copies [--tighten]
 //   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
 //              pin change, for such a file; writes no list where none was and none is needed.
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
   brandFiles,
@@ -24,6 +24,7 @@ import {
   pinChange,
   runGit,
   skippedReport,
+  writeAllowlist,
 } from "./colours";
 
 export const LIST = "brand-copies.json";
@@ -139,13 +140,7 @@ if (import.meta.main) {
         .filter((p) => p in allow || mayAdd(p))
         .map((p) => [p, allow[p] ?? ""]),
     );
-    // A list that allows nothing is no file where none was.
-    if (!existsSync(LIST) && !Object.keys(next).length)
-      console.log(`brand-copies: nothing to allow; no ${LIST} written`);
-    else {
-      writeFileSync(LIST, JSON.stringify(next, null, 2) + "\n");
-      console.log(`brand-copies: ${LIST} tightened`);
-    }
+    writeAllowlist("brand-copies", LIST, next);
   } else {
     const bad = unlistedCopies(found, allow, committed, mayAdd);
     if (bad.length) {

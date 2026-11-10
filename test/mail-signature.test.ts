@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
+import { colors } from "../generated/tokens";
 import { ROOT } from "../scripts/git";
 
 const template = (ext: string) =>
@@ -80,4 +81,14 @@ test("both templates' GmbH lines state imprint.json", () => {
     .replace(/&(\w+);/g, (e, name: string) => entities[name] ?? e)
     .replace(/\s+/g, " ");
   expect(html).toContain(lines.replace(/\n/g, " "));
+});
+
+// A mail cannot read a token, so the template types its colours: each one is a brand colour.
+test("every colour the template types is a token colour", () => {
+  const tokenHexes = new Set(Object.values(colors).map((c) => c.toLowerCase()));
+  const typed = readFileSync(join(ROOT, "applications/mail-signature/template.html"), "utf8")
+    .match(/#[0-9a-f]{6}\b/gi)!
+    .map((c) => c.toLowerCase());
+  expect(typed.length).toBeGreaterThan(0);
+  expect(typed.filter((c) => !tokenHexes.has(c))).toEqual([]);
 });

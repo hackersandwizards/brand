@@ -171,6 +171,8 @@ TOKENS = {
     "--container-measure": "33em",
     "--container-measure-h1": "18ch",
     "--container-measure-h2": "26ch",
+    "--tint-callout": "10%",
+    "--tint-callout-night": "14%",
     "--text-page": "1.5rem",
     "--text-page--line-height": "1.25",
     "--text-heading": "1.25rem",

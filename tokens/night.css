@@ -1,6 +1,6 @@
 /* Night for a surface written in the light tokens: inside [data-hw-night] under a dark theme, every
    light token a utility reads takes its hue's night column (tokens.css roles), and the expert roles
-   header.css reads take expert.css's night values. data-hw-night goes on the subtree that turns:
+   header.css reads and the --hw-night-* roles the shared elements read take expert.css's night values. data-hw-night goes on the subtree that turns:
    the element itself carrying data-theme="dark", or any element under a dark html. The nearest
    data-theme wins, as in the shared elements: night stops at a data-theme="light" element. A token
    derived from another (a color-mix of one of these) resolved where it was declared, so the surface
@@ -14,6 +14,11 @@
     --accent: var(--color-teal-night);
     --muted: var(--color-night-2);
     --border: var(--color-night-line);
+    --hw-night-background: var(--background);
+    --hw-night-foreground: var(--foreground);
+    --hw-night-accent: var(--accent);
+    --hw-night-muted: var(--muted);
+    --hw-night-border: var(--border);
     --color-bg: var(--color-night);
     --color-ink: var(--color-night-ink);
     --color-muted: var(--color-night-muted);
@@ -27,6 +32,9 @@
     --color-factory: var(--color-factory-light);
     --color-red: var(--color-red-night);
     --color-ampersand: var(--color-ampersand-light);
+    /* The text on a teal or purple fill (button, picture icon button, avatar, joined field's
+       button), which these turn light. */
+    --hw-on-fill: var(--color-night);
     --hw-line: var(--color-border);
     color-scheme: dark;
   }
@@ -44,6 +52,7 @@
     --muted: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
     --border: var(--color-border);
     --hw-line: var(--color-border);
+    --hw-on-fill: var(--color-white);
     color: var(--color-ink);
   }
 }

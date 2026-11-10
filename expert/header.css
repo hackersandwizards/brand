@@ -5,8 +5,8 @@
    Plain CSS, no Tailwind, so a static page links it and a generated page inlines it. It needs the
    package's tokens (tokens.css in a Tailwind app, tokens.root.css on a plain page) and reads the
    expert theme roles (--background, --foreground, --border, --accent, --muted) where expert.css
-   sets them, else the light tokens. A page that themes without expert.css sets those five itself; one that
-   follows the system theme sets data-theme="auto" on html. Without data-theme the page is light.
+   sets them, else the light tokens. A page that themes without expert.css sets those five itself.
+   Without data-theme="dark" on html the page is light.
 
    The markup, which components/AppHeader.astro renders:
 
@@ -133,26 +133,6 @@
 html:not([data-theme="dark"]) #theme-toggle #sun-icon,
 html[data-theme="dark"] #theme-toggle #moon-icon {
   display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  @scope (html[data-theme="auto"]) to ([data-theme="light"]) {
-    :scope .hw-header {
-      --hw-bg: var(--background, var(--color-night));
-      --hw-fg: var(--foreground, var(--color-night-ink));
-      --hw-accent: var(--accent, var(--color-teal-night));
-      --hw-line: var(--border, var(--color-night-line));
-      --hw-header-fill: var(--muted, var(--color-night-2));
-    }
-
-    :scope .hw-header-logo {
-      display: none;
-    }
-
-    :scope .hw-header-logo-night {
-      display: block;
-    }
-  }
 }
 
 /* Read by screen readers at every width, shown from 64rem, where the nav leaves room. */

@@ -40,6 +40,25 @@ const codeLine = (s: string) =>
     (_, tag: string, text: string) => `<span style="color:${COLOR[tag]}">${text}</span>`,
   ) || "&nbsp;";
 
+/** The spec's faults, empty for a spec the window shows whole. */
+export function specFaults(spec: Partial<Spec>): string[] {
+  const { title, lines, highlight, note } = spec;
+  const text = (l: string) => l.replace(/<\/?[tprc]>/g, "");
+  return [
+    ...(typeof title === "string" ? [] : ["title is no text"]),
+    ...(typeof note === "string" ? [] : ["note is no text"]),
+    ...(Array.isArray(lines) &&
+    lines.length >= 4 &&
+    lines.length <= 6 &&
+    lines.every((l) => typeof l === "string")
+      ? lines.flatMap((l, i) => (text(l).length > 36 ? [`line ${i} is over 36 characters`] : []))
+      : ["lines is no list of four to six texts"]),
+    ...(Number.isInteger(highlight) && highlight! >= 0 && highlight! < (lines?.length ?? 0)
+      ? []
+      : ["highlight is no index of a line"]),
+  ];
+}
+
 function terminalHtml({ title, lines, highlight, note }: Spec): string {
   const rows = lines
     .map((l, i) =>
@@ -75,10 +94,16 @@ if (import.meta.main) {
     );
     process.exit(2);
   }
+  const spec = JSON.parse(readFileSync(specPath, "utf-8")) as Spec;
+  const faults = specFaults(spec);
+  if (faults.length) {
+    console.error(`brand-linkedin-terminal: ${specPath}: ${faults.join("; ")}`);
+    process.exit(2);
+  }
+  // Rendered in the scratch folder, so a failed render leaves the previous image in place.
   const dir = mkdtempSync(join(tmpdir(), "linkedin-terminal-"));
   try {
-    writeFileSync(join(dir, "t.html"), terminalHtml(JSON.parse(readFileSync(specPath, "utf-8"))));
-    rmSync(output, { force: true });
+    writeFileSync(join(dir, "t.html"), terminalHtml(spec));
     await screenshot(dir, "t.html", [SIZE, SIZE, SCALE], join(dir, "t.png"));
     await sharp(join(dir, "t.png"))
       .trim({ background: tokens["--color-bg"], threshold: 6 })

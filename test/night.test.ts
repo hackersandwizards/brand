@@ -129,3 +129,21 @@ ${tokens}${night}${css("elements/button.css")} * { transition: none !important }
   await tab.close();
   expect(hover).toBeLessThan(rest);
 });
+
+// A data-theme="dark" element below a light html keeps that page's roles (expert.css), so an
+// element's night scope reads the night roles from --hw-night-*, never --accent and its kin.
+test("the elements' night scopes read no page role", () => {
+  const ROLE = /var\(\s*--(background|foreground|accent|on-accent|border|input|muted)(?=[\s,)])/;
+  const found: string[] = [];
+  for (const f of new Bun.Glob("elements/*.css").scanSync(ROOT)) {
+    const text = css(f);
+    for (const m of text.matchAll(/@scope \(\[data-theme="dark"\]\)[^{]*\{/g)) {
+      let depth = 1;
+      let i = m.index + m[0].length;
+      while (depth && i < text.length) depth += { "{": 1, "}": -1 }[text[i++]!] ?? 0;
+      const hit = ROLE.exec(text.slice(m.index, i));
+      if (hit) found.push(`${f}: ${hit[0]}`);
+    }
+  }
+  expect(found).toEqual([]);
+});

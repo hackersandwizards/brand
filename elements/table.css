@@ -61,7 +61,7 @@
   .hw-table th button:not([class], :disabled) {
     cursor: pointer;
   }
-  .hw-table th button:not([class], :disabled):hover {
+  .hw-table th button:not([class], :disabled):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   .hw-table-scroll {
@@ -115,9 +115,9 @@
       --_hw-table-line: color-mix(in srgb, white 15%, transparent);
     }
     .hw-table-scroll {
-      --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-night)));
+      --_hw-table-ground: var(--hw-table-ground, var(--hw-night-background, var(--color-night)));
     }
-    .hw-table th button:not([class], :disabled):hover {
+    .hw-table th button:not([class], :disabled):is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
     .hw-table th {

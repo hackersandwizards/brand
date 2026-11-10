@@ -2,8 +2,9 @@
 // field's show button and the range's fill (elements/form-field.css, field.css, range.css). Call
 // enhanceForms() once the page is parsed, or with the root of markup added later; it wires each
 // instance once. A value set from script needs an input event to show.
-const wired = new WeakSet<Element>();
-const once = (e: Element) => !wired.has(e) && !!wired.add(e);
+import { wireOnce } from "./copy.ts";
+
+const once = (e: Element) => wireOnce(e, "form");
 /** Runs `update` now, on every input, and after its form's reset. */
 const follow = (field: HTMLInputElement | HTMLTextAreaElement, update: () => void) => {
   field.addEventListener("input", update);
@@ -20,6 +21,7 @@ export function enhanceForms(root: ParentNode = document) {
     if (!field || !once(count)) continue;
     const max = Number(count.dataset.max);
     let pause: ReturnType<typeof setTimeout>;
+    let wiring = true;
     follow(field, () => {
       const left = max - field.value.length;
       const over = left < 0;
@@ -31,10 +33,13 @@ export function enhanceForms(root: ParentNode = document) {
       count.setAttribute("aria-live", "off");
       count.textContent = text;
       clearTimeout(pause);
-      pause = setTimeout(() => {
-        count.setAttribute("aria-live", "polite");
-        count.textContent = text;
-      }, 1000);
+      // Read once the reader pauses; never as the page loads.
+      if (!wiring)
+        pause = setTimeout(() => {
+          count.setAttribute("aria-live", "polite");
+          count.textContent = text;
+        }, 1000);
+      wiring = false;
       // The count clears only the state it set, never one the page set.
       if (over) count.dataset.state = "over";
       else if (count.dataset.state === "over") delete count.dataset.state;

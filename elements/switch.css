@@ -46,7 +46,7 @@
     background-color: var(--_hw-fill);
     background-position: right 2px center;
   }
-  .hw-switch:not(:disabled, :checked):hover {
+  .hw-switch:not(:disabled, :checked):is(:hover, [data-hw-hover]) {
     border-color: var(--_hw-hover);
     --_hw-knob: var(--_hw-hover);
   }
@@ -70,9 +70,9 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-switch {
-      --_hw-line: var(--input, var(--color-night-muted));
-      --_hw-hover: var(--foreground, var(--color-white));
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-line: var(--hw-night-input, var(--color-night-muted));
+      --_hw-hover: var(--hw-night-foreground, var(--color-white));
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
     }
     .hw-switch:checked {
       --_hw-knob: var(--color-night);

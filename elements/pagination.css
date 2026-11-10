@@ -57,7 +57,7 @@
   .hw-pagination[data-variant="sequence"] a[rel] {
     background: none;
   }
-  .hw-pagination a:hover {
+  .hw-pagination a:is(:hover, [data-hw-hover]) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-pagination a[aria-current] {
@@ -103,10 +103,10 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-pagination {
       --_hw-quiet: var(--color-night-muted);
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
-      --_hw-accent: var(--accent, var(--color-teal-night));
-      --_hw-on-accent: var(--on-accent, var(--color-night));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
+      --_hw-on-accent: var(--hw-night-on-accent, var(--color-night));
     }
   }
 }

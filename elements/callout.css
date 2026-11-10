@@ -1,7 +1,7 @@
-/* The callout: a box that sums up or flags, before or beside the body ("In short"). Teal at 10 %
-   in the brand corner, no rule: a rule on the left marks a quote (quote.css). Text in weight 500;
-   its label is an hw-label with data-tone="muted". data-hue="purple" marks a result. On night the
-   night tone of the hue at 14 %.
+/* The callout: a box that sums up or flags, before or beside the body ("In short"). Teal at
+   --tint-callout (10 %) in the brand corner, no rule: a rule on the left marks a quote (quote.css).
+   Text in weight 500; its label is an hw-label with data-tone="muted". data-hue="purple" marks a
+   result. On night the night tone of the hue at --tint-callout-night (14 %).
 
    Settings:
      --hw-callout-pad   the padding
@@ -15,7 +15,7 @@
     border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: var(--hw-callout-pad, 1.25rem);
     font-weight: 500;
-    background: color-mix(in srgb, var(--_hue) 10%, white);
+    background: color-mix(in srgb, var(--_hue) var(--tint-callout), white);
   }
   .hw-callout[data-hue="purple"] {
     --_hue: var(--color-purple);
@@ -23,7 +23,7 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-callout {
       --_hue: var(--color-teal-night);
-      background: color-mix(in srgb, var(--_hue) 14%, transparent);
+      background: color-mix(in srgb, var(--_hue) var(--tint-callout-night), transparent);
     }
     .hw-callout[data-hue="purple"] {
       --_hue: var(--color-purple-night);

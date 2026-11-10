@@ -132,6 +132,8 @@
 }
 [data-hw-scale="print"] {
   --hw-field-floor: 0px;
+  --text-ui: initial;
+  --text-ui--line-height: initial;
   --hw-button-height: 0;
   --hw-button-height-wide: 0;
   --hw-button-pad: 3pt 10pt;
@@ -177,6 +179,8 @@
 }
 [data-hw-scale="stage"] {
   --hw-field-floor: 0px;
+  --text-ui: initial;
+  --text-ui--line-height: initial;
   --hw-label-size: 1.125rem;
   --hw-pill-size: 1.3125rem;
   --hw-pill-pad: 0.1875rem 0.9375rem;
@@ -314,7 +318,7 @@
   .hw-label button:not([class], :disabled) {
     cursor: pointer;
   }
-  .hw-label button:not([class], :disabled):hover {
+  .hw-label button:not([class], :disabled):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   .hw-label[data-tone="muted"] {
@@ -345,7 +349,7 @@
     color: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    .hw-label button:not([class], :disabled):hover {
+    .hw-label button:not([class], :disabled):is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
     .hw-label {
@@ -551,7 +555,7 @@
   .hw-pill-remove::after {
     inset-inline-start: 0;
   }
-  .hw-pill-remove:hover::before {
+  .hw-pill-remove:is(:hover, [data-hw-hover])::before {
     opacity: 1;
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
@@ -650,9 +654,9 @@
     color: var(--_hw-card-arrow);
   }
   .hw-card:is(
-    [href]:is(:hover, :focus-visible, [data-hw-focus]),
-    :has(.hw-card-link:is(:hover, :focus-visible, [data-hw-focus])):not(
-      :has(.hw-card .hw-card-link:is(:hover, :focus-visible, [data-hw-focus]))
+    [href]:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]),
+    :has(.hw-card-link:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus])):not(
+      :has(.hw-card .hw-card-link:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]))
     )
   ) {
     border-color: var(--_hw-card-hover);
@@ -684,7 +688,7 @@
     border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: var(--hw-callout-pad, 1.25rem);
     font-weight: 500;
-    background: color-mix(in srgb, var(--_hue) 10%, white);
+    background: color-mix(in srgb, var(--_hue) var(--tint-callout), white);
   }
   .hw-callout[data-hue="purple"] {
     --_hue: var(--color-purple);
@@ -692,7 +696,7 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-callout {
       --_hue: var(--color-teal-night);
-      background: color-mix(in srgb, var(--_hue) 14%, transparent);
+      background: color-mix(in srgb, var(--_hue) var(--tint-callout-night), transparent);
     }
     .hw-callout[data-hue="purple"] {
       --_hue: var(--color-purple-night);
@@ -757,7 +761,7 @@
   .hw-table th button:not([class], :disabled) {
     cursor: pointer;
   }
-  .hw-table th button:not([class], :disabled):hover {
+  .hw-table th button:not([class], :disabled):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   .hw-table-scroll {
@@ -808,9 +812,9 @@
       --_hw-table-line: color-mix(in srgb, white 15%, transparent);
     }
     .hw-table-scroll {
-      --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-night)));
+      --_hw-table-ground: var(--hw-table-ground, var(--hw-night-background, var(--color-night)));
     }
-    .hw-table th button:not([class], :disabled):hover {
+    .hw-table th button:not([class], :disabled):is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
     .hw-table th {
@@ -837,14 +841,14 @@
     height: 1em;
     margin-top: calc((1lh - 1em) / 2);
   }
-  :is(.hw-link, .hw-links a):hover {
+  :is(.hw-link, .hw-links a):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     :is(.hw-link, .hw-links a) {
       color: var(--color-teal-night);
     }
-    :is(.hw-link, .hw-links a):hover {
+    :is(.hw-link, .hw-links a):is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
   }
@@ -948,30 +952,30 @@
     width: var(--hw-control-icon, 20px);
     height: var(--hw-control-icon, 20px);
   }
-  .hw-icon-button:hover {
+  .hw-icon-button:is(:hover, [data-hw-hover]) {
     background: color-mix(in srgb, var(--color-ink) 15%, transparent);
   }
   .hw-icon-button[data-on="picture"] {
-    color: var(--color-white);
+    color: var(--hw-on-fill, var(--color-white));
     background: var(--color-teal);
   }
-  .hw-icon-button[data-on="picture"]:hover {
+  .hw-icon-button[data-on="picture"]:is(:hover, [data-hw-hover]) {
     background: var(--color-teal-dark);
   }
   .hw-icon-button[data-variant="quiet"] {
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
     background: transparent;
   }
-  .hw-icon-button[data-variant="quiet"]:hover {
+  .hw-icon-button[data-variant="quiet"]:is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
   .hw-icon-button[aria-pressed="true"],
-  .hw-icon-button[aria-pressed="true"]:hover {
+  .hw-icon-button[aria-pressed="true"]:is(:hover, [data-hw-hover]) {
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
-  .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
+  .hw-icon-button[data-tone="danger"]:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]) {
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
     color: var(--_hw-danger);
     background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -981,23 +985,28 @@
       color: var(--color-white);
       background: color-mix(in srgb, white 15%, transparent);
     }
-    .hw-icon-button:not([data-on="picture"]):hover {
+    .hw-icon-button:not([data-on="picture"]):is(:hover, [data-hw-hover]) {
       background: color-mix(in srgb, white 25%, transparent);
     }
     .hw-icon-button[data-variant="quiet"] {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
       background: transparent;
     }
-    .hw-icon-button[data-variant="quiet"]:hover {
+    .hw-icon-button[data-variant="quiet"]:is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
       background: color-mix(in srgb, white 15%, transparent);
     }
     .hw-icon-button[aria-pressed="true"],
-    .hw-icon-button[aria-pressed="true"]:hover {
+    .hw-icon-button[aria-pressed="true"]:is(:hover, [data-hw-hover]) {
       color: var(--_hw-on-chosen);
       background: var(--_hw-chosen);
     }
-    .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
+    .hw-icon-button[data-tone="danger"]:is(
+        :hover,
+        [data-hw-hover],
+        :focus-visible,
+        [data-hw-focus]
+      ) {
       --_hw-danger: var(--color-red-night);
       color: var(--_hw-danger);
       background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -1155,7 +1164,7 @@
     line-height: var(--type-body-line-height);
     text-align: center;
     text-decoration: none;
-    color: var(--color-white);
+    color: var(--hw-on-fill, var(--color-white));
     background: var(--_hue);
     cursor: pointer;
     transition:
@@ -1170,7 +1179,7 @@
     --_hue: var(--color-purple);
     --_hover: color-mix(in srgb, var(--color-purple) 80%, var(--color-ink));
   }
-  .hw-button:hover:not(:disabled, [aria-disabled="true"]) {
+  .hw-button:is(:hover, [data-hw-hover]):not(:disabled, [aria-disabled="true"]) {
     border-color: var(--_hover);
     background: var(--_hover);
   }
@@ -1178,7 +1187,10 @@
     color: var(--_hue);
     background: transparent;
   }
-  .hw-button[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
+  .hw-button[data-variant="secondary"]:is(:hover, [data-hw-hover]):not(
+      :disabled,
+      [aria-disabled="true"]
+    ) {
     border-color: var(--_hover);
     color: var(--_hover);
     background: transparent;
@@ -1212,7 +1224,10 @@
       border-color: var(--color-purple-night);
       color: var(--color-purple-night);
     }
-    .hw-button[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
+    .hw-button[data-variant="secondary"]:is(:hover, [data-hw-hover]):not(
+        :disabled,
+        [aria-disabled="true"]
+      ) {
       border-color: var(--color-purple);
       color: var(--color-white);
       background: color-mix(in srgb, var(--color-purple) 15%, transparent);
@@ -1228,7 +1243,7 @@
     text-decoration: none;
     color: var(--color-teal-dark);
   }
-  .hw-arrow-link:hover {
+  .hw-arrow-link:is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
   }
   .hw-arrow-link[data-tone="muted"] {
@@ -1242,7 +1257,12 @@
     display: inline-block;
     transition: translate var(--motion-fast);
   }
-  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(:hover, :focus-visible, [data-hw-focus])
+  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(
+      :hover,
+      [data-hw-hover],
+      :focus-visible,
+      [data-hw-focus]
+    )
     .hw-arrow
     > span {
     translate: 4px 0;
@@ -1261,7 +1281,7 @@
     .hw-arrow-link {
       color: var(--color-teal-night);
     }
-    .hw-arrow-link:hover {
+    .hw-arrow-link:is(:hover, [data-hw-hover]) {
       color: var(--color-white);
     }
     .hw-arrow-link[data-tone="muted"] {
@@ -1313,7 +1333,12 @@
     padding-block: calc((var(--hw-field-height, 3rem) - 1lh) / 2);
     resize: vertical;
   }
-  .hw-field:hover:not(:disabled, [readonly], [aria-invalid="true"], [data-state]) {
+  .hw-field:is(:hover, [data-hw-hover]):not(
+      :disabled,
+      [readonly],
+      [aria-invalid="true"],
+      [data-state]
+    ) {
     border-color: var(--color-ink);
   }
   .hw-field[aria-invalid="true"] {
@@ -1363,7 +1388,8 @@
     color: var(--hw-muted, var(--color-muted));
     background: transparent;
   }
-  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible, [data-hw-focus]) {
+  .hw-field-row[data-joined]
+    > .hw-field-toggle:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]) {
     color: var(--color-ink);
     background: transparent;
   }
@@ -1426,11 +1452,11 @@
     justify-content: center;
     border: 0;
     border-radius: 0;
-    color: var(--color-white);
+    color: var(--hw-on-fill, var(--color-white));
     background: var(--color-teal-dark);
     cursor: pointer;
   }
-  .hw-field-row[data-joined] > button:is(:hover, :focus-visible, [data-hw-focus]) {
+  .hw-field-row[data-joined] > button:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]) {
     background: var(--color-teal);
   }
   @media (max-width: 40rem) {
@@ -1479,13 +1505,19 @@
     .hw-field-row[data-joined] > .hw-field-toggle {
       color: var(--color-night-muted);
     }
-    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible, [data-hw-focus]) {
+    .hw-field-row[data-joined]
+      > .hw-field-toggle:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]) {
       color: var(--color-white);
     }
     .hw-field::placeholder {
       color: var(--color-night-muted);
     }
-    .hw-field:hover:not(:disabled, [readonly], [aria-invalid="true"], [data-state]) {
+    .hw-field:is(:hover, [data-hw-hover]):not(
+        :disabled,
+        [readonly],
+        [aria-invalid="true"],
+        [data-state]
+      ) {
       border-color: var(--color-white);
     }
     .hw-field[aria-invalid="true"] {
@@ -1549,7 +1581,7 @@
   .hw-check-target > .hw-check {
     margin: 0;
   }
-  .hw-check:not(:disabled, :checked):hover {
+  .hw-check:not(:disabled, :checked):is(:hover, [data-hw-hover]) {
     border-color: var(--_hw-hover);
   }
   .hw-check[aria-invalid="true"]:not(:checked, :indeterminate) {
@@ -1608,35 +1640,37 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-check,
     .hw-prose li.task-list-item input[type="checkbox"] {
-      --_hw-line: var(--input, var(--color-night-muted));
-      --_hw-hover: var(--foreground, var(--color-white));
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-line: var(--hw-night-input, var(--color-night-muted));
+      --_hw-hover: var(--hw-night-foreground, var(--color-white));
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
       --_hw-mark: var(--color-night);
       --_hw-error: var(--error, var(--color-red-night));
       --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
     }
   }
 }
-.hw-select,
-select.form-input {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%238c949d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.625rem center;
-  background-size: 0.75rem 0.5rem;
-  padding-right: 2rem;
-}
-.hw-field.hw-select {
-  background-position: right var(--hw-field-pad, 1rem) center;
-  background-size: 0.75em 0.5em;
-  padding-right: calc(var(--hw-field-pad, 1rem) + 1.25em);
-}
-@scope ([data-theme="dark"]) to ([data-theme="light"]) {
-  html:scope :is(.hw-select, select.form-input),
+@layer components {
+  .hw-select,
+  select.form-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%238c949d' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+    background-size: 0.75rem 0.5rem;
+    padding-right: 2rem;
+  }
   .hw-field.hw-select {
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+    background-position: right var(--hw-field-pad, 1rem) center;
+    background-size: 0.75em 0.5em;
+    padding-right: calc(var(--hw-field-pad, 1rem) + 1.25em);
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    html:scope :is(.hw-select, select.form-input),
+    .hw-field.hw-select {
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23cecfd1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 L6 6.5 L11 1.5'/%3E%3C/svg%3E");
+    }
   }
 }
 @layer components {
@@ -1825,7 +1859,7 @@ select.form-input {
     background-color: var(--_hw-fill);
     background-position: right 2px center;
   }
-  .hw-switch:not(:disabled, :checked):hover {
+  .hw-switch:not(:disabled, :checked):is(:hover, [data-hw-hover]) {
     border-color: var(--_hw-hover);
     --_hw-knob: var(--_hw-hover);
   }
@@ -1849,9 +1883,9 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-switch {
-      --_hw-line: var(--input, var(--color-night-muted));
-      --_hw-hover: var(--foreground, var(--color-white));
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-line: var(--hw-night-input, var(--color-night-muted));
+      --_hw-hover: var(--hw-night-foreground, var(--color-white));
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
     }
     .hw-switch:checked {
       --_hw-knob: var(--color-night);
@@ -1926,16 +1960,17 @@ select.form-input {
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-range {
       --_hw-line: var(
-        --input,
+        --hw-night-input,
         color-mix(in srgb, var(--color-night-muted) 60%, var(--color-night))
       );
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
       --_hw-ring: var(--color-night);
     }
   }
 }
 @layer components {
   .hw-error-summary {
+    --hw-markers: off;
     --_hw-error: var(--error, var(--color-red));
     box-sizing: border-box;
     border: calc(2 * var(--hw-hairline, 1px)) solid var(--_hw-error);
@@ -2032,6 +2067,7 @@ select.form-input {
 }
 @layer components {
   .hw-dot-list {
+    --hw-markers: off;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -2126,7 +2162,7 @@ select.form-input {
     width: 1.25em;
     height: 1lh;
   }
-  .hw-segmented > :is(a, button):hover {
+  .hw-segmented > :is(a, button):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
   }
@@ -2137,7 +2173,7 @@ select.form-input {
       [aria-current]:not([aria-current="false"]),
       [aria-pressed="true"],
       [data-active="true"]
-    ):hover {
+    ):is(:hover, [data-hw-hover]) {
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
@@ -2157,7 +2193,7 @@ select.form-input {
     .hw-segmented > :is(a, button) {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
     }
-    .hw-segmented > :is(a, button):hover {
+    .hw-segmented > :is(a, button):is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }
@@ -2175,7 +2211,7 @@ select.form-input {
     background: var(--hw-row-fill, var(--color-bg));
     transition: background-color 0.1s;
   }
-  .hw-row:hover {
+  .hw-row:is(:hover, [data-hw-hover]) {
     background: color-mix(
       in srgb,
       color-mix(in srgb, var(--color-ink) 7%, var(--color-bg)) 70%,
@@ -2188,7 +2224,7 @@ select.form-input {
   }
   .hw-row:is(
     [aria-current]:not([aria-current="false"]),
-    [aria-current]:not([aria-current="false"]):hover
+    [aria-current]:not([aria-current="false"]):is(:hover, [data-hw-hover])
   ) {
     background: color-mix(in srgb, var(--color-teal) 7%, var(--color-bg));
   }
@@ -2216,12 +2252,12 @@ select.form-input {
       border-bottom-color: color-mix(in srgb, white 18%, var(--color-night));
       background: var(--hw-row-fill, var(--color-night));
     }
-    .hw-row:hover {
+    .hw-row:is(:hover, [data-hw-hover]) {
       background: color-mix(in srgb, var(--color-night-2) 70%, transparent);
     }
     .hw-row:is(
       [aria-current]:not([aria-current="false"]),
-      [aria-current]:not([aria-current="false"]):hover
+      [aria-current]:not([aria-current="false"]):is(:hover, [data-hw-hover])
     ) {
       background: color-mix(in srgb, var(--color-teal-night) 12%, var(--color-night));
     }
@@ -2251,7 +2287,7 @@ select.form-input {
     text-decoration: none;
     color: var(--color-teal-dark);
   }
-  .hw-breadcrumb a:hover {
+  .hw-breadcrumb a:is(:hover, [data-hw-hover]) {
     text-decoration: underline;
     text-underline-offset: 2px;
   }
@@ -2330,6 +2366,7 @@ select.form-input {
 }
 @layer components {
   .hw-nav {
+    --hw-markers: off;
     font-size: var(--text-ui, var(--type-small-size));
     line-height: var(--text-ui--line-height, 1.5);
   }
@@ -2364,7 +2401,7 @@ select.form-input {
   .hw-nav summary {
     font-weight: 500;
   }
-  .hw-nav :is(a, summary):hover {
+  .hw-nav :is(a, summary):is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
@@ -2375,7 +2412,7 @@ select.form-input {
   }
   .hw-nav
     li:has(a[aria-current="page"])
-    > a[aria-current]:not([aria-current="page"], [aria-current="false"], :hover) {
+    > a[aria-current]:not([aria-current="page"], [aria-current="false"], :hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: none;
   }
@@ -2406,7 +2443,7 @@ select.form-input {
     .hw-nav-count {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
     }
-    .hw-nav :is(a, summary):hover {
+    .hw-nav :is(a, summary):is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }
@@ -2416,7 +2453,12 @@ select.form-input {
     }
     .hw-nav
       li:has(a[aria-current="page"])
-      > a[aria-current]:not([aria-current="page"], [aria-current="false"], :hover) {
+      > a[aria-current]:not(
+        [aria-current="page"],
+        [aria-current="false"],
+        :hover,
+        [data-hw-hover]
+      ) {
       color: var(--color-night-ink);
       background: none;
     }
@@ -2469,7 +2511,7 @@ select.form-input {
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  .hw-choice:hover {
+  .hw-choice:is(:hover, [data-hw-hover]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, var(--color-bg));
   }
@@ -2500,7 +2542,7 @@ select.form-input {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
       background: var(--color-night);
     }
-    .hw-choice:hover {
+    .hw-choice:is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }
@@ -2760,7 +2802,7 @@ select.form-input {
   .hw-check-target > .hw-check {
     margin: 0;
   }
-  .hw-check:not(:disabled, :checked):hover {
+  .hw-check:not(:disabled, :checked):is(:hover, [data-hw-hover]) {
     border-color: var(--_hw-hover);
   }
   .hw-check[aria-invalid="true"]:not(:checked, :indeterminate) {
@@ -2819,9 +2861,9 @@ select.form-input {
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-check,
     .hw-prose li.task-list-item input[type="checkbox"] {
-      --_hw-line: var(--input, var(--color-night-muted));
-      --_hw-hover: var(--foreground, var(--color-white));
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-line: var(--hw-night-input, var(--color-night-muted));
+      --_hw-hover: var(--hw-night-foreground, var(--color-white));
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
       --_hw-mark: var(--color-night);
       --_hw-error: var(--error, var(--color-red-night));
       --_hw-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b1118' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5 L7 12 L13 4.5'/%3E%3C/svg%3E");
@@ -2977,14 +3019,14 @@ select.form-input {
   text-underline-offset: 0.2em;
   font-weight: inherit;
 }
-.hw-prose a:not(.not-prose, .not-prose *):hover {
+.hw-prose a:not(.not-prose, .not-prose *):is(:hover, [data-hw-hover]) {
   color: var(--color-ink);
 }
 @scope ([data-theme="dark"]) to ([data-theme="light"]) {
   .hw-prose a:not(.not-prose, .not-prose *) {
     color: var(--color-teal-night);
   }
-  .hw-prose a:not(.not-prose, .not-prose *):hover {
+  .hw-prose a:not(.not-prose, .not-prose *):is(:hover, [data-hw-hover]) {
     color: var(--color-white);
   }
 }
@@ -3183,9 +3225,9 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-dialog {
-      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
     }
   }
 }
@@ -3234,7 +3276,10 @@ select.form-input {
     text-decoration: none;
     cursor: pointer;
   }
-  .hw-menu-item:is(:hover, :focus-visible, [data-hw-focus]):not(:disabled, [aria-disabled="true"]) {
+  .hw-menu-item:is(:hover, [data-hw-hover], :focus-visible, [data-hw-focus]):not(
+      :disabled,
+      [aria-disabled="true"]
+    ) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-menu-item:is(:disabled, [aria-disabled="true"]) {
@@ -3275,9 +3320,9 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-menu {
-      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
       --_hw-quiet: var(--color-night-muted);
       --_hw-danger: var(--color-red-night);
     }
@@ -3310,9 +3355,9 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-popover {
-      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
     }
   }
 }
@@ -3337,8 +3382,8 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tooltip {
-      --_hw-ground: var(--foreground, var(--color-night-ink));
-      --_hw-text: var(--background, var(--color-night));
+      --_hw-ground: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-text: var(--hw-night-background, var(--color-night));
     }
   }
 }
@@ -3411,7 +3456,7 @@ select.form-input {
     text-decoration: none;
     cursor: pointer;
   }
-  .hw-command-option:hover {
+  .hw-command-option:is(:hover, [data-hw-hover]) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-command-option[aria-selected="true"] {
@@ -3445,9 +3490,9 @@ select.form-input {
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-dialog[data-variant="command"] {
       --_hw-quiet: var(--color-night-muted);
-      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
       --_hw-sel: 15%;
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
     }
   }
 }
@@ -3554,7 +3599,7 @@ select.form-input {
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")
       center / 1em no-repeat;
   }
-  .hw-toast-close:hover::after {
+  .hw-toast-close:is(:hover, [data-hw-hover])::after {
     opacity: 1;
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -3581,9 +3626,9 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-toast {
-      --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
       --_hw-tone: var(--color-teal-night);
     }
     .hw-toast[data-tone="success"] {
@@ -3631,7 +3676,7 @@ select.form-input {
     white-space: nowrap;
     transition: color var(--motion-fast);
   }
-  .hw-tab:hover {
+  .hw-tab:is(:hover, [data-hw-hover]) {
     color: var(--_hw-text);
   }
   .hw-tab:is([aria-selected="true"], [aria-current]) {
@@ -3649,10 +3694,10 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tabs {
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
       --_hw-quiet: var(--color-night-muted);
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
     }
   }
 }
@@ -3703,8 +3748,8 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-progress {
-      --_hw-track: color-mix(in srgb, var(--foreground, white) 15%, transparent);
-      --_hw-fill: var(--accent, var(--color-teal-night));
+      --_hw-track: color-mix(in srgb, var(--hw-night-foreground, white) 15%, transparent);
+      --_hw-fill: var(--hw-night-accent, var(--color-teal-night));
     }
   }
 }
@@ -3816,7 +3861,7 @@ select.form-input {
       color var(--motion-fast),
       border-color var(--motion-fast);
   }
-  :is(button, a).hw-empty:hover {
+  :is(button, a).hw-empty:is(:hover, [data-hw-hover]) {
     border-color: var(--_hw-accent);
     color: var(--_hw-accent);
   }
@@ -3828,9 +3873,9 @@ select.form-input {
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-empty {
       --_hw-quiet: var(--color-night-muted);
-      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
       --_hw-line: color-mix(in srgb, white 25%, transparent);
-      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
     }
   }
 }
@@ -3883,7 +3928,7 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-accordion {
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
     }
   }
 }
@@ -3924,7 +3969,7 @@ select.form-input {
     height: var(--_hw-size);
     border-radius: var(--radius-pill);
     overflow: hidden;
-    color: var(--color-white);
+    color: var(--hw-on-fill, var(--color-white));
     background: var(--hw-avatar-hue, var(--color-teal-dark));
     font-family: var(--font-mono);
     font-size: calc(var(--_hw-size) * 0.4);
@@ -3965,11 +4010,11 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-avatar {
-      --_hw-ring: var(--background, var(--color-night));
+      --_hw-ring: var(--hw-night-background, var(--color-night));
     }
     .hw-avatar-more {
-      color: var(--foreground, var(--color-night-ink));
-      background: var(--muted, color-mix(in srgb, white 15%, var(--color-night)));
+      color: var(--hw-night-foreground, var(--color-night-ink));
+      background: var(--hw-night-muted, color-mix(in srgb, white 15%, var(--color-night)));
     }
   }
 }
@@ -4014,7 +4059,7 @@ select.form-input {
   .hw-pagination[data-variant="sequence"] a[rel] {
     background: none;
   }
-  .hw-pagination a:hover {
+  .hw-pagination a:is(:hover, [data-hw-hover]) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-pagination a[aria-current] {
@@ -4060,10 +4105,10 @@ select.form-input {
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-pagination {
       --_hw-quiet: var(--color-night-muted);
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
-      --_hw-accent: var(--accent, var(--color-teal-night));
-      --_hw-on-accent: var(--on-accent, var(--color-night));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
+      --_hw-on-accent: var(--hw-night-on-accent, var(--color-night));
     }
   }
 }
@@ -4176,13 +4221,13 @@ select.form-input {
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-stepper {
       --_hw-quiet: var(--color-night-muted);
-      --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border, color-mix(in srgb, white 40%, transparent));
-      --_hw-accent: var(--accent, var(--color-teal-night));
-      --_hw-on-accent: var(--on-accent, var(--color-night));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 40%, transparent));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
+      --_hw-on-accent: var(--hw-night-on-accent, var(--color-night));
     }
     .hw-stepper > li::before {
-      background: var(--background, var(--color-night));
+      background: var(--hw-night-background, var(--color-night));
     }
   }
 }
@@ -4220,7 +4265,7 @@ select.form-input {
     padding: 0.125rem 0.5rem;
     cursor: pointer;
   }
-  .hw-tree-row:hover {
+  .hw-tree-row:is(:hover, [data-hw-hover]) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-tree [role="treeitem"]:is(:focus-visible, [data-hw-focus]) > .hw-tree-row {
@@ -4252,8 +4297,8 @@ select.form-input {
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tree {
-      --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
-      --_hw-accent: var(--accent, var(--color-teal-night));
+      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
       --_hw-sel: 15%;
     }
   }
@@ -4327,7 +4372,7 @@ select.form-input {
     opacity: 0.4;
     cursor: default;
   }
-  .hw-carousel-controls button:hover:not(:disabled) {
+  .hw-carousel-controls button:is(:hover, [data-hw-hover]):not(:disabled) {
     background: var(--_hw-tray-hover);
   }
   .hw-carousel-controls svg {
@@ -4396,7 +4441,7 @@ select.form-input {
     .hw-carousel {
       --_hw-tray: color-mix(in srgb, white 15%, transparent);
       --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
-      --_hw-text: var(--foreground, var(--color-night-ink));
+      --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
       --_hw-quiet: var(--color-night-muted);
       --_hw-fill: var(--_hw-text);
     }

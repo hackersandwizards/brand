@@ -24,6 +24,7 @@ const bundle = async (src: string, global: string, out: string) => {
 await bundle("elements/behaviour.ts", "HW", "b.js");
 await bundle("elements/copy.ts", "HWCopy", "copy.js");
 await bundle("elements/form.ts", "HWForm", "form.js");
+await bundle("elements/behaviour.ts", "HW2", "b2.js");
 const css = ["generated/tokens.root.css", "elements/elements.css"]
   .map((f) => `<link rel="stylesheet" href="${brand(f)}">`)
   .join("");
@@ -654,6 +655,25 @@ test("the copy live region exists before the first copy and moves into a modal a
   await p.close();
 }, 30_000);
 
+test("two bundles on one page wire each control once: one copy per press, one tab per arrow", async () => {
+  const p = await copyPage(
+    `<div role="tablist" class="hw-tabs"><button role="tab" class="hw-tab" id="t1" aria-selected="true">A</button><button role="tab" class="hw-tab" id="t2" aria-selected="false">B</button><button role="tab" class="hw-tab" id="t3" aria-selected="false">C</button></div>${TWO}<script src="b.js"></script><script src="b2.js"></script>`,
+    "HW.enhance(); HW2.enhance(); HWCopy.copyButtons();",
+  );
+  await p.evaluate(CLIPBOARD);
+  await p.click("#a");
+  await p.waitForFunction(() => (window as unknown as Clip).events.length > 0);
+  await new Promise((r) => setTimeout(r, 300));
+  expect(await p.evaluate(() => (window as unknown as Clip).copied)).toEqual([
+    "https://example.org/a",
+  ]);
+  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([["a", true]]);
+  await p.focus("#t1");
+  await p.keyboard.press("ArrowRight");
+  expect(await active(p)).toBe("B");
+  await p.close();
+}, 30_000);
+
 test("a lone copyButton call wires its button and sets up the live region", async () => {
   const p = await copyPage(TWO, `HWCopy.copyButton(document.getElementById("a"));`);
   expect(await p.$$eval("[data-hw-copy-status]", (r) => r.length)).toBe(1);
@@ -679,6 +699,24 @@ test("the behaviour files hold no markup built from strings they did not create"
   for (const f of ["elements/behaviour.ts", "elements/copy.ts"])
     expect(readFileSync(join(ROOT, f), "utf8")).not.toMatch(/innerHTML|insertAdjacentHTML/);
 });
+
+// A catalogue's static sample shows an element's hover with data-hw-hover, as data-hw-focus does
+// its focus: every hover rule of the elements takes the attribute too.
+test("every hover rule of the elements also answers data-hw-hover", async () => {
+  const bare: string[] = [];
+  for (const f of new Bun.Glob("elements/*.css").scanSync(ROOT))
+    for (const m of readFileSync(join(ROOT, f), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .matchAll(/:hover(?![\w-]|,\s*\[data-hw-hover\])/g))
+      bare.push(`${f}@${m.index}`);
+  expect(bare).toEqual([]);
+  const p = await page(
+    `<button class="hw-button" id="n">A</button><button class="hw-button" id="h" data-hw-hover>B</button>`,
+  );
+  const fill = (s: string) => p.$eval(s, (e) => getComputedStyle(e).backgroundColor);
+  expect(await fill("#h")).not.toBe(await fill("#n"));
+  await p.close();
+}, 30_000);
 
 test("the character count reads the limit, then the overrun as an error, and back", async () => {
   const p = await browser.newPage();

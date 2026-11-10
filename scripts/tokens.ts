@@ -15,7 +15,7 @@
 // Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
 // in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
 // Usage: bun scripts/tokens.ts [--check]
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { inlineImports } from "../applications/linkedin-visuals/render";
 import { ROOT } from "./git";
@@ -225,7 +225,12 @@ const ANSI: [string, string][] = [
 
 /** The Shiki theme of the --code-* tokens, named hw-code. */
 export const codeTheme = (tokens: Record<string, string>, colors: Record<string, string>) => {
-  const code = (role: string) => colors[tokens[`--code-${role}`].slice(4, -1)];
+  const code = (role: string) => {
+    const value = tokens[`--code-${role}`];
+    const hex = value?.startsWith("var(") ? colors[value.slice(4, -1)] : value;
+    if (!hex) throw new Error(`--code-${role}: ${value} resolves to no colour`);
+    return hex;
+  };
   return {
     name: "hw-code",
     type: "dark",
@@ -242,8 +247,10 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
 };
 
 const FONT_FACE = /@font-face\s*\{([^}]*)\}/g;
+/** The @font-face matches of a stylesheet, a face commented out left out. */
+const faces = (css: string) => [...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(FONT_FACE)];
 /** The @font-face rules of a stylesheet, as written. */
-export const faceRules = (css: string) => [...css.matchAll(FONT_FACE)].map(([face]) => face);
+export const faceRules = (css: string) => faces(css).map(([face]) => face);
 /** A src of local() fonts alone: a fallback face. A src mixing local() and url() is no fallback. */
 const LOCAL = /src:(?:\s*local\("[^"]+"\),?)+;/;
 
@@ -255,7 +262,7 @@ export const fallbackFaces = (css: string) => faceRules(css).filter((face) => LO
  *  unicodeRange takes every character. A fallback face (a src of local() fonts alone) is left
  *  out: fallbackData lists those. */
 export const fontFaces = (css: string) =>
-  [...css.matchAll(FONT_FACE)]
+  faces(css)
     .filter(([face]) => !LOCAL.test(face))
     .map(([, body]): Record<string, string> => {
       const { src, ...rest } = declarations(body);
@@ -266,7 +273,7 @@ export const fontFaces = (css: string) =>
 /** fonts.css's fallback faces as data, descriptors as fontFaces gives them, src as the local font
  *  names in order. */
 const fallbackData = (css: string) =>
-  [...css.matchAll(FONT_FACE)]
+  faces(css)
     .filter(([face]) => LOCAL.test(face))
     .map(([, body]): Record<string, string | string[]> => {
       const { src, ...rest } = declarations(body);
@@ -442,7 +449,14 @@ if (import.meta.main) {
   const check = process.argv.includes("--check");
   mkdirSync(dir, { recursive: true });
   let stale = 0;
-  for (const [name, content] of Object.entries(generate())) {
+  const files = generate();
+  // A file no generator writes any more still ships and resolves through its export.
+  if (check)
+    for (const name of readdirSync(dir).filter((f) => !f.startsWith(".") && !(f in files))) {
+      console.error(`generated/${name} is no output of bun run tokens: delete it`);
+      stale++;
+    }
+  for (const [name, content] of Object.entries(files)) {
     const path = join(dir, name);
     if (!check) writeFileSync(path, content);
     else if (!existsSync(path) || readFileSync(path, "utf8") !== content) {

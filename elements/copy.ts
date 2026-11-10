@@ -3,6 +3,16 @@
 // result. Each press dispatches a bubbling "hw-copy" event on the button, detail { ok }, so a page
 // records a copy only where ok is true.
 
+/** True the first time `node` is wired for `key`. The mark is a registered symbol on the node, so
+ *  a second bundle of these files on the page sees it, and a clone of the node starts unwired. */
+export const wireOnce = (node: object, key: string) => {
+  const mark = Symbol.for(`hw-wired:${key}`);
+  const marks = node as Record<symbol, true>;
+  if (marks[mark]) return false;
+  marks[mark] = true;
+  return true;
+};
+
 const labels = new WeakMap<HTMLElement, Node[]>();
 const latest = new WeakMap<HTMLElement, number>();
 const shown = new Set<HTMLElement>();
@@ -19,7 +29,12 @@ function onPage(text: string) {
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n = walk.nextNode(); n; n = walk.nextNode()) {
     const el = n.parentElement;
-    if (n.textContent!.includes(t) && el && !el.closest("[data-hw-copy]") && el.checkVisibility())
+    if (
+      n.textContent!.includes(t) &&
+      el &&
+      !el.closest("[data-hw-copy]") &&
+      (el.checkVisibility?.() ?? el.getClientRects().length > 0)
+    )
       return true;
   }
   return false;
@@ -95,7 +110,8 @@ export function copyButton(button: HTMLElement) {
 }
 
 function wire(button: HTMLElement) {
-  if (labels.has(button)) return;
+  // copy.js and a behaviour.ts bundle on one page wire it once.
+  if (!wireOnce(button, "copy")) return;
   labels.set(button, [...button.childNodes]);
   button.hidden = false;
   button.addEventListener("click", async () => {

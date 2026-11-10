@@ -13,7 +13,8 @@ evidence: "docs/agent-work/2026-11-10-quote-callout-pills-signature-review.md, s
 Score blind whether the status box and the tinted card take the callout's 10 % wash.
 
 Since v2.9.0 the callout fills at 10 % (14 % on night) and the status box and the tinted card at
-7 %, so the hue table in `tokens/tokens.css` names two wash steps. Whether the other two boxes
+7 %, so the hue table in `tokens/tokens.css` names two wash steps. The callout's shares are the
+tokens `--tint-callout` and `--tint-callout-night`, which a box taking the step reads. Whether the other two boxes
 take the callout's step is open: they keep their own edge (the status box its border, the tinted
 card its hairline), which the callout lost.
 

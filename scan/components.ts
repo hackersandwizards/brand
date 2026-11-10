@@ -10,7 +10,7 @@
 // Usage: brand-scan [--tighten]
 //   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
 //              pin change, for such a fork; writes no list where none was and none is needed.
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
   COMPONENT,
@@ -20,6 +20,7 @@ import {
   runGit,
   scanned,
   skippedReport,
+  writeAllowlist,
 } from "./colours";
 
 export const LIST = "brand-scan.json";
@@ -80,13 +81,7 @@ if (import.meta.main) {
         .filter((k) => k in allow || mayAdd(k))
         .map((k) => [k, allow[k] ?? ""]),
     );
-    // A list that allows nothing is no file where none was.
-    if (!existsSync(LIST) && !Object.keys(next).length)
-      console.log(`brand-scan: nothing to allow; no ${LIST} written`);
-    else {
-      writeFileSync(LIST, JSON.stringify(next, null, 2) + "\n");
-      console.log(`brand-scan: ${LIST} tightened`);
-    }
+    writeAllowlist("brand-scan", LIST, next);
   } else {
     const bad = unlisted(found, allow, committed, mayAdd);
     if (bad.length) {

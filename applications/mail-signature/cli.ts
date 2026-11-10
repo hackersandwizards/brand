@@ -35,7 +35,7 @@ if (a.help) {
   process.exit(0);
 }
 const { name, role, phone, linkedin, out } = a;
-if (!name || !role) fail("--name and --role are required");
+if (!name?.trim() || !role?.trim()) fail("--name and --role are required");
 const fields = { name, role, phone, linkedin };
 const template = (ext: string) => readFileSync(join(import.meta.dir, `template.${ext}`), "utf-8");
 try {

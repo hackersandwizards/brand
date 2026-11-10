@@ -162,6 +162,9 @@
    take 1 pt in border-strong, the card's rule 3 pt, the strip 6 pt. */
 [data-hw-scale="print"] {
   --hw-field-floor: 0px;
+  /* The apps' ui step (dense, expert.css) stops here: each element takes its own size on paper. */
+  --text-ui: initial;
+  --text-ui--line-height: initial;
   /* The button on paper: as tall as its text and padding, at the small text size. */
   --hw-button-height: 0;
   --hw-button-height-wide: 0;
@@ -211,6 +214,9 @@
 
 [data-hw-scale="stage"] {
   --hw-field-floor: 0px;
+  /* The apps' ui step stops here too: each element takes its own size on the stage. */
+  --text-ui: initial;
+  --text-ui--line-height: initial;
   --hw-label-size: 1.125rem;
   --hw-pill-size: 1.3125rem;
   --hw-pill-pad: 0.1875rem 0.9375rem;
