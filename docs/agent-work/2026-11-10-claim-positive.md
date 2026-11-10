@@ -2,19 +2,19 @@
 
 No. No line beats both anchors on the reader's path and on the new criterion without losing the panel. The decision stays with Benedikt in `decide-claim-amdahl`, with keeping tpe-tune recommended and three lines of this round as further options.
 
+Keys used below: tpe is tpe-tune, the decided claim "Agents pay off when your people are in tune."; x4 is "Agents speed up code. Your handoffs set the pace."; dh is the decided headline "Your teams have agents. Once all roles are in tune, your releases speed up.".
+
 The closest is a two-beat line: "Your developers got faster. Your releases are next." / "Eure Entwickler sind schneller geworden. Jetzt ziehen eure Releases nach." (e5x).
 
 - The new criterion, the client's change leading the line: 8.8 of 10 on the panel against 5.2 for tpe-tune and 5.4 for x4, ahead in every model and run cell.
 - The reader's path: it and its earlier wordings stand 4.9 to 19.9 points ahead of tpe-tune in every cell of three rounds. Against x4 the line leads in every cell of round 1 (3.6 to 5.9) and not in every cell of rounds 2 and 3 (79.3 against 78.5 in round 3), a tie by the rule.
-- The panel: it loses to x4 in both languages (English 73.1 against 76.8, German 65.5 against 76.7) and to tpe-tune in German (65.5 against 75.2). In English it stands at 73.1 against tpe-tune's 70.5, ahead with Claude and behind with Codex. Reviewers miss the agents and what the gain depends on (core 4.6, together 2.6 of 10).
+- The panel: it loses to x4. The first wording (e5) trailed x4 by about 6 points in every cell of round 1, and tpe-tune by 6.4 and 6.5 with Codex. The final pair's own numbers come from round 2, where four wordings of the line stood in one prompt: English 73.1 against 76.8 for x4 and 70.5 for tpe-tune, German 65.5 against 76.7 and 75.2. The pair alone beside the anchors was not scored. Reviewers miss the agents and what the gain depends on (core 4.6, together 2.6 of 10).
 
-The line that holds the panel is "Faster releases with agents, when your people are in tune." / "Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind." (r1): 9.2 on the criterion, panel 76.4 between tpe-tune (74.8) and x4 (77.5). The models split on it. Codex puts it 4.7 to 5.3 ahead of both anchors, Claude 0.7 to 10.1 behind, and on the path it trails x4 with Claude by 7.8 and 11.2.
+The line that holds the panel on average is "Faster releases with agents, when your people are in tune." / "Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind." (r1): 9.2 on the criterion, panel 76.4 between tpe-tune (74.8) and x4 (77.5) in round 1. The models split on it. Codex puts it 4.7 to 5.3 ahead of both anchors, Claude 0.7 to 10.1 behind, and on the path it trails x4 with Claude by 7.8 and 11.2.
 
-A headline with the gain first, "Faster releases with the agents your teams already have. Once all roles are in tune." / "Schnellere Releases mit den Agenten, die eure Teams schon haben. Sobald alle Rollen zusammenspielen." (hb), scores 9.4 to 9.8 on the criterion against 2.9 to 3.2 for the decided headline. It leads the decided headline outside the noise in two of three hero rounds and ties it in the third, so by the rule it is a tie too.
+A headline with the gain first, "Faster releases with the agents your teams already have. Once all roles are in tune." / "Schnellere Releases mit den Agenten, die eure Teams schon haben. Sobald alle Rollen zusammenspielen." (hb), scores 9.4 to 9.8 on the criterion against 2.9 to 3.2 for the decided headline. It leads the decided headline outside the noise in two of three hero rounds and ties it in the third, and on the path Claude scores every pair lower with it and Codex higher. By the rule it does not win.
 
-What the round shows: tpe-tune and x4 earn their panel scores with the condition they state (people in tune) or the diagnosis (handoffs set the pace). A line that drops both and leads with the gain wins the criterion and the path against tpe-tune, and loses the panel. A line that keeps the condition behind the gain reads generic to Claude ("sounds like a generic vendor promise"). None of the 49 claim pairs scored got out of that trade.
-
-Keys used below: tpe is tpe-tune, the decided claim "Agents pay off when your people are in tune."; x4 is "Agents speed up code. Your handoffs set the pace."; dh is the decided headline "Your teams have agents. Once all roles are in tune, your releases speed up.".
+What the round shows: tpe-tune and x4 earn their panel scores with the condition they state (people in tune) or the diagnosis (handoffs set the pace). A line that drops both and leads with the gain wins the criterion and the path against tpe-tune, and loses the panel. A line that keeps the condition behind the gain reads generic to Claude ("sounds like a generic vendor promise"). None of the 49 claim pairs scored got out of that trade. If the gain is to lead somewhere, the headline is where it costs least; that is my judgement, apart from the rule, and it stands with the top five below.
 
 ## The rule, fixed before the first reviewer run
 
@@ -91,13 +91,13 @@ Every quotation below was fetched on 10.11.2026 and copied from the page or file
 
 - Jakob Nielsen: "A website's tagline must explain what the company does and what makes it unique among competitors." His two tests: "Would it work just as well for competitors? Would any company ever claim the opposite?" (Nielsen Norman Group, "Tagline Blues: What's the Site About?", 21.07.2001, https://www.nngroup.com/articles/tagline-blues-whats-the-site-about/).
 - April Dunford: "Positioning is not equivalent to messaging. It isn't a tagline." ("A Quickstart Guide to Positioning", 15.03.2021, https://www.aprildunford.com/post/a-quickstart-guide-to-positioning).
-- h&w's own measurement: outcome lines without an idea scored 55 to 67 on 07.11. ("Every role in tune. Every release sooner." 55.3, "Speed your customers feel." 62.8).
+- h&w's own measurement: outcome lines without an idea scored 55 to 67 on 07.11. (`2026-11-07-claim-and-headline.md`: "Every role in tune. Every release sooner." 55.3, "Speed your customers feel." 62.8).
 
 Not fetched: Bain's "B2B Elements of Value" returned an empty page, and Ogilvy and Caples have no primary source online that I could reach, so none of them is quoted.
 
 ### The criterion, in one sentence
 
-`gain_first`, 0 to 10: the first thing the line makes you see is what gets better for the client company and its people, ahead of the provider's service and ahead of the problem. Each reviewer also names in one clause what the line says gets better; "nothing" is an answer. Both stand apart from the overall score in every prompt, so the old criteria stay comparable.
+`gain_first`, 0 to 10: the first thing the line makes you see is what gets better for the client company and its people, ahead of the provider's service and ahead of the problem. Each reviewer also names in one clause what the line says gets better; "nothing" is an answer.
 
 ### The routes
 
@@ -113,7 +113,7 @@ Not fetched: Bain's "B2B Elements of Value" returned an empty page, and Ogilvy a
 
 ## Candidates
 
-I wrote 36 claim pairs across the seven routes and twelve headline pairs, each German line written in German rather than translated. The rules: positive, no negation, no figures, no dash, at most twelve words, "KI-Agenten" in the German claims and "Agenten" in the German headlines as in the decided lines, the ihr-form, "handoffs" / "Übergaben" only where the people are in the line, no "speed up code". The refinements between rounds bring the claims to 51 pairs and the headlines to 16.
+I wrote 36 claim pairs across the seven routes and twelve headline pairs, each German line written in German rather than translated. The rules: positive, no negation, no figures, no dash, at most twelve words (two refinements, r2 and r8, run to thirteen), "KI-Agenten" in the German claims and "Agenten" in the German headlines as in the decided lines, the ihr-form, no "speed up code", and "handoff" / "Übergabe" in one line only, d2, to test the word in the positive. The refinements between rounds bring the claims to 51 pairs and the headlines to 16.
 
 Three control lines stood among the claims under neutral labels: c7, whose subject is the problem, d01, whose subject is the provider's service, and "hit", a bare outcome.
 
@@ -208,9 +208,9 @@ The text screen is the Amdahl round's: a CTO, a conference organiser and a brand
 
 What the reviewers named in screen 1: "at agent speed" / "im Tempo der KI-Agenten" overpromises, "in tune" stays soft, tpe's "pay off" names no benefit, and x4 is "a diagnosis, not a gain". Screen 2 scored nine refinements (r1 to r9) beside the best of screen 1, the anchors and d8, the best measured line of 08.11. Between the screen and the panel, e5's German became "Jetzt sind eure Releases dran." ("Jetzt werden es eure Releases." read as unfinished).
 
-Finalists were picked by the criterion first and the screen's overall second, as the rule says. b3 fell out in screen 2 (68.3). For round 2 I wrote three variants of e5 that answer its reviewers: e5f ("Now your releases follow." / "Jetzt ziehen eure Releases nach."), e5n ("Your releases are next." / "Als Nächstes eure Releases.") and e5a with the agents ("Agents speed up your developers. Now your releases follow." / "KI-Agenten machen Entwickler schneller. Jetzt ziehen eure Releases nach."). t2 answers r1's reviewers: "Faster releases with agents take the whole team." / "Schnellere Releases mit KI-Agenten brauchen das ganze Team.". Two more of that kind were rendered and not scored, to stay inside the budget: "Faster releases with agents take a team in tune." and "Your releases speed up where your people work hand in hand.".
+Finalists were picked by the criterion first and the screen's overall second, as the rule says. b3 fell out in screen 2 (68.3). For round 2 I wrote three variants of e5 that answer its reviewers: e5f ("Now your releases follow." / "Jetzt ziehen eure Releases nach."), e5n ("Your releases are next." / "Als Nächstes eure Releases.") and e5a with the agents ("Agents speed up your developers. Now your releases follow." / "KI-Agenten machen Entwickler schneller. Jetzt ziehen eure Releases nach."). t2 answers r1's reviewers: "Faster releases with agents take the whole team." / "Schnellere Releases mit KI-Agenten brauchen das ganze Team.". Two more of that kind were rendered and not scored, to stay inside the budget: t1, "Faster releases with agents take a team in tune.", and t3, "Your releases speed up where your people work hand in hand.".
 
-e5x is the better half of each language after round 2: e5n's English and e5f's German. Path round 3 and the cold reads measure it as a pair; its panel numbers are each language's from round 2.
+e5x pairs e5n's English, the best English of round 2 on the panel and the path, with e5f's German, the best German on the path (80.6); on the panel the three German wordings stand within 1.7 points of each other. Path round 3 and the cold reads measure it as a pair. Its panel numbers are each language's from round 2 and stand in no round table: overall 69.3, the criterion 8.8, core 4.6, together 2.6.
 
 ## Rendered panel: LinkedIn app and laptop, one-pager header, website footer (80 runs)
 
@@ -254,11 +254,13 @@ The renders are rebuilt the way the Amdahl round built them: `render.py`'s profi
 | e5a | -6.5, -5.5, -8.9, -10.8                             | -13.0, -13.4, -10.6, -10.3 | +2.2, +2.7, +2.1, +1.7   | +2.5, +2.7, +1.3, +1.3  |
 | t2  | -4.6, -4.9, +8.2, +7.4                              | -11.1, -12.8, +6.5, +7.9   | +3.8, +4.5, +3.6, +3.4   | +4.1, +4.5, +2.8, +3.0  |
 
-x4 leads tpe on the panel here by 2.7 and 3.9, with Claude (+3.5 to +7.9) and not with Codex (-0.5 to +1.7), the pattern of the Amdahl round at a level two to four points lower. What keeps the lines below the maximum, by a keyword count over the reviewers' reasons:
+Round 2 put four wordings of the two-beat line into one prompt. e5, with unchanged renders, scored 5.9 lower there than in round 1, tpe 2.0 and x4 0.8 lower. The path shows the same: e5 scored 81.6 in round 1 and 75.3 in round 2, x4 1.0 and tpe 1.2 lower. So round 2 ranks the wordings against each other, and the line's level against the anchors comes from the rounds where every claim stands equally often: round 1 on the panel, rounds 1 and 3 on the path. The set is the one changed factor I can name; no control shows that it caused the drop.
+
+x4 leads tpe on the panel here by 2.7 and 3.9, with Claude (+3.5 to +7.9) and not with Codex (-0.5 to +1.7), the pattern of the Amdahl round at a level 1.8 to 5.0 points lower. What keeps the lines below the maximum, by a keyword count over the reviewers' reasons:
 
 - tpe: "pay off" / "lohnen sich" in 63 of 80 reviews, "in tune" / "eingespielt" in 62.
 - x4: "handoffs" / "Übergaben" in 73 of 80.
-- The e5 family: no condition or cause in more than half of the reviews ("it never says what the speed depends on"), no agents, and e5n's "are next" "can read as a threat". e5a puts the agents in and scores lower on every measure.
+- The e5 family: no condition or cause in more than half of the reviews ("it never says what the speed depends on"), no agents, and e5n's "are next" "can read as a threat". e5a puts the agents in and scores lower on the criterion, the panel and the path.
 - r1: "in tune" / "eingespielt" in all 40 by the same count, and with Claude "a generic vendor promise" with the condition "as an afterthought".
 - t2: "the whole team" as too general in 31 of 40; the German "Releases brauchen das ganze Team" reads stiff to Claude.
 - f1: the missing agents in 39 of 40; "reads like a motivational slogan".
@@ -323,9 +325,9 @@ Each sheet shows the founder's LinkedIn profile in the app and on the laptop, th
 | e5x+dh | +14.6, +14.9, +8.6, +8.9                               | -0.5, +0.6, +1.8, +1.4                                |
 | e5x+hb | +13.0, +9.1, +12.5, +12.5                              | -2.1, -5.1, +5.6, +5.0                                |
 
-x4 leads tpe on the path in every cell of every round (+6.9 to +15.1), as on the morning of 10.11., so the path measures what it measured then. The two-beat lines lead tpe by more. Against x4 the picture changes with the set: e5 leads in every cell of round 1, where it is the only line of its kind, and ties in round 2 beside three siblings; e5n and e5f each lead in three of four cells of round 2; e5x in round 3 leads with Codex by 1.4 and 1.8 and stands at -0.5 and +0.6 with Claude, at a noise of 0.5. No wording leads x4 in every cell after round 1, so by the rule it is a tie with x4.
+x4 leads tpe on the path in every cell of every round (+6.9 to +15.1), as on the morning of 10.11., so the path measures what it measured then. The two-beat lines lead tpe by more. Against x4, e5 leads in every cell of round 1 (+3.6 to +5.9). e5x in round 3 leads with Codex by 1.4 and 1.8 and stands at -0.5 and +0.6 with Claude, at a noise of 0.5. In the crowded round 2, e5 ties x4, and e5n and e5f each lead in three of four cells. The lead of round 1 did not repeat in every cell, so by the rule it is a tie with x4.
 
-The headline hb moves no path: tpe with hb scores 69.1 against 67.6 with the decided headline (Claude -0.1 and -2.9, Codex +4.4 and +4.6), and x4 and e5x stay where they were. With the decided headline, path reviewers of e5x write that "the H1 puts the gain last"; with hb they write that banner and H1 both say "releases faster".
+The headline hb splits the models on the path. The averages hold: tpe with hb scores 69.1 against 67.6 with the decided headline, x4 78.9 against 78.5, e5x 79.3 against 79.3. Claude scores every pair lower with hb, by 1.5 to 3.7 on its mean and by 2.9 to 5.8 in its second run. Codex scores every pair higher, by 3.8 to 4.5. In German with tpe the cells are -1.2 and -3.2 with Claude and +3.8 and +3.8 with Codex, at a noise of 1.6. With the decided headline, path reviewers of e5x write that "the H1 puts the gain last"; with hb they write that banner and H1 both say "releases faster".
 
 ## The criterion: does the client's change lead?
 
@@ -346,7 +348,7 @@ Anchors and e5x are from round 2 (path: round 3), r1 and f1 from round 1, t2 fro
 
 ## Cold reads: the banner alone and with the descriptor (104 runs)
 
-One banner in the LinkedIn app or on the laptop, "you know nothing else about the company", what does it tell you. CTO, VP of Engineering, engineering lead, Head of HR; both models; banner alone and with the descriptor; English and German. A blind classifier (three shuffled passes, majority) marked the three facts of the Amdahl round and two more: whether the reading states a gain for the reader's company, and whether it says what the company offers. Six planted readings came back as planted.
+One banner in the LinkedIn app or on the laptop, "you know nothing else about the company", what does it tell you. CTO, VP of Engineering, engineering lead, Head of HR; both models; banner alone and with the descriptor; English and German. f6 ("Every agent needs a team in tune.", with descriptor) is the Amdahl round's control that must miss the result. A blind classifier (three shuffled passes, majority) marked the three facts of the Amdahl round and two more: whether the reading states a gain for the reader's company, and whether it says what the company offers. Four planted readings separate on people and core, two marked and two unmarked. For the gain mark two more were planted, one each way, and both came back. That mark reads leniently: of f6's readings, 7 of 8 state a gain where 3 of 8 name a result.
 
 | Line | Readings | People | Result | Core | States a gain | Names an offer, banner alone | Names an offer, with descriptor |
 | ---- | -------- | ------ | ------ | ---- | ------------- | ---------------------------- | ------------------------------- |
@@ -356,7 +358,7 @@ One banner in the LinkedIn app or on the laptop, "you know nothing else about th
 | x4   | 16       | 16     | 16     | 16   | 8             | 3 / 8                        | 8 / 8                           |
 | f6   | 8        | 8      | 3      | 8    | 7             |                              | 8 / 8                           |
 
-f6 ("Every agent needs a team in tune.", with descriptor) is the control that must miss the result, and it does. Three readings stand out:
+f6 misses the result, so the read separates. Three readings stand out:
 
 - Half of x4's readers restate a diagnosis and no gain ("It's telling me to look at our handoffs as the constraint"). That is Benedikt's objection, measured.
 - No reader of e5x says that agents alone are not enough. All 16 banner-alone readers take it as an offer "to help us turn that faster development into faster releases", and 8 of them name no AI.
@@ -365,6 +367,13 @@ f6 ("Every agent needs a team in tune.", with descriptor) is the control that mu
 ## The home headline (36 runs)
 
 The live home page in headless Chrome with the H1 replaced and the assessment link with its price hidden. Desktop English and German at 1440 × 900, English phone at 390 × 844; the Amdahl round's question and criteria, layout scored apart, the criterion added.
+
+hb led the headline screen by more than five points (80.2; hh 74.8 and hf 74.7 next). Round 1 took hb, hf and the variants hn and hm; round 2 took hq and hs:
+
+- hn: Faster releases with the agents your teams have. Once all roles are in tune. / Schnellere Releases mit den Agenten eurer Teams. Sobald alle Rollen zusammenspielen.
+- hm: Your releases speed up once all roles are in tune around your agents. / Eure Releases werden schneller, sobald alle Rollen mit euren Agenten zusammenspielen.
+- hq: Your releases pick up the speed of your agents. Once all roles are in tune. / Eure Releases nehmen das Tempo eurer Agenten auf. Sobald alle Rollen zusammenspielen.
+- hs: Release faster with the agents your teams already have. Once all roles are in tune. / Liefert schneller mit den Agenten, die eure Teams schon haben. Sobald alle Rollen zusammenspielen.
 
 **Hero round 1**
 
@@ -394,33 +403,37 @@ The live home page in headless Chrome with the H1 replaced and the assessment li
 | hq  | 67.2    | 2.3   | 65.3 / 69.0    | 7.4        | -0.7, +1.3, -11.7, -8.3                                      | 8.2    |
 | hs  | 70.2    | 3.3   | 61.7 / 78.7    | 8.4        | -6.0, -0.7, -1.3, +0.7                                       | 6.2    |
 
-hb keeps the decided headline's content and turns its order: the gain first, the agents the teams have as the means, the roles as the condition. It leads in every cell of round 1 (by 0.1 more than the noise with Claude) and of the German-only round, and ties in round 2 with Claude. It runs five lines in English and six in German at 1440 px, as the decided headline does. Its reviewers name the "already" that repeats the subline's "already use", the "generic" opening noun phrase, and the trailing fragment. hn drops "already" and runs five lines in German; it ties the decided headline (round 1). hf, "Your releases catch up with your agents.", splits the models by 18 points. hq ("pick up the speed of your agents") overpromises, hs ("Release faster") reads as pressure.
-
-hb led the headline screen by more than five points (80.2; hh 74.8 and hf 74.7 next), so round 1 took hb, hf and two variants of hb: hn, and hm in one sentence.
+hb keeps the decided headline's content and turns its order: the gain first, the agents the teams have as the means, the roles as the condition. It leads in every cell of round 1 (by 0.1 more than the noise with Claude) and of the German-only round, and ties in round 2, where no cell stands outside the noise of 2.3. It runs five lines in English and six in German at 1440 px, as the decided headline does. Its reviewers name the "already" that repeats the subline's "already use", the "generic" opening noun phrase, and the trailing fragment. hn drops "already" and runs five lines in German; it ties the decided headline (round 1). hf, "Your releases catch up with your agents.", splits the models: Claude puts it 11.0 ahead of the decided headline in both runs, Codex 7.0 and 4.7 behind. hq ("pick up the speed of your agents") overpromises, hs ("Release faster") reads as pressure.
 
 ## Against the rule
 
-| Requirement                                        | e5x                                                         | r1                                           | t2                               | f1                         |
-| -------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------- | -------------------------------- | -------------------------- |
-| 1 Criterion leads both anchors, all cells          | yes                                                         | yes                                          | yes                              | yes                        |
-| 2 Path leads tpe and x4, all cells                 | tpe yes; x4 in every cell of round 1 only                   | tpe yes; x4 no: Claude -7.8 and -11.2        | no: Claude ties tpe, -13 to x4   | tpe yes; x4 no with Claude |
-| 3 Panel: no cell behind an anchor beyond the noise | no: -5.9 to -11.5 to tpe with Codex, -6.4 to -11.0 to x4    | no: Claude -2.9 to tpe, -4.2 and -10.1 to x4 | no: Claude -4.6 to -12.8         | no: -1.6 to -2.9 to tpe    |
-| 4 German within its noise of the English, or ahead | no for the variants (e5n 64.8 against 73.1); e5 itself held | German ahead (78.5 against 74.2)             | German ahead (78.3 against 70.3) | no (71.0 against 74.0)     |
-| 5 Cold read: people and a result in 24 of 32       | 32                                                          | 32                                           | not measured                     | not measured               |
+| Requirement                                        | e5x                                                                                                                            | r1                                           | t2                                                           | f1                         |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------ | -------------------------- |
+| 1 Criterion leads both anchors, all cells          | yes                                                                                                                            | yes                                          | yes                                                          | yes                        |
+| 2 Path leads tpe and x4, all cells                 | tpe yes; x4 in every cell of round 1 only                                                                                      | tpe yes; x4 no: Claude -7.8 and -11.2        | no: Claude +1.2 and +0.5 to tpe at a noise of 0.6, -13 to x4 | tpe yes; x4 no with Claude |
+| 3 Panel: no cell behind an anchor beyond the noise | no: e5 in round 1 about -6 to x4 in every cell, -6.4 and -6.5 to tpe with Codex; the pair alone beside the anchors is unscored | no: Claude -2.9 to tpe, -4.2 and -10.1 to x4 | no: Claude -4.6 to -12.8                                     | no: -1.6 to -2.9 to tpe    |
+| 4 German within its noise of the English, or ahead | no for the pair (e5f's German 65.5 against e5n's English 73.1); e5 itself held                                                 | German ahead (78.5 against 74.2)             | German ahead (78.3 against 70.3)                             | no (71.0 against 74.0)     |
+| 5 Cold read: people and a result in 24 of 32       | 32                                                                                                                             | 32                                           | not measured                                                 | not measured               |
 
-The headline hb: leads on the hero outside the noise in both runs and with both models in round 1 and in German, not in round 2; ahead on the criterion in every cell; German six lines as now; no German loss on the path (68.6 against 67.8 with tpe). Two of three rounds is a tie by the rule.
+The headline hb: leads on the hero outside the noise in both runs and with both models in round 1 and in German, not in round 2; ahead on the criterion in every cell; German six lines as now. On the German path with tpe it gains with Codex (+3.8 in both runs) and loses with Claude (-1.2 and -3.2, the second outside the noise of 1.6). With a lead in two of three hero rounds and a German loss with one model, hb does not win by the rule.
 
 No line passes, so the answer to the first question is no and the recommendation stays the line that changes nothing.
 
 ## The top five, the principle each follows, and what each costs
 
-| Line                                                                                                                                                                                                        | Principle                                                                                                  | What it costs                                                                                                                                                                                                                            |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| e5x: Your developers got faster. Your releases are next. / Eure Entwickler sind schneller geworden. Jetzt ziehen eure Releases nach.                                                                        | Hopkins: the first beat picks out the reader by their situation; Priestley: the second shows what improves | The panel (65.5 in German). It names neither agents nor people working together, so the position's point, that the gain depends on every role, moves to the headline and the descriptor. It assumes a gain the reader may not have seen. |
-| r1: Faster releases with agents, when your people are in tune. / Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind.                                                                      | Priestley and Dass et al.: the benefit stated first and plainly; the condition is the decided claim's      | Distinctiveness (5.8 against 7.7 for x4): Claude reads a generic promise. It nearly restates the decided headline, so on the path banner and H1 do the same job. The footer and the phone banner get long.                               |
-| t2: Faster releases with agents take the whole team. / Schnellere Releases mit KI-Agenten brauchen das ganze Team.                                                                                          | The same, with the condition as the client's own team (Miller: the customer is the hero)                   | The widest model split of the round (Claude 63.6, Codex 85.0). "The whole team" stays general, the German reads stiff, and it gives up "in tune".                                                                                        |
-| f1: Be the team that ships as fast as it codes. / Werdet das Team, das so schnell liefert, wie es programmiert.                                                                                             | Perlman's brand hero: the identity the customer aspires to                                                 | No agents and no condition (core 4.2). The best banners of the new lines (80.4) and calm (8.8), but the panel trails tpe in every cell, and the German sounds translated.                                                                |
-| hb, a headline: Faster releases with the agents your teams already have. Once all roles are in tune. / Schnellere Releases mit den Agenten, die eure Teams schon haben. Sobald alle Rollen zusammenspielen. | Priestley and Miller's "successful ending": the outcome opens, the means and the condition follow          | A tie on the hero in one of three rounds and no gain on the path. "Already" repeats the subline, which would need a new sentence; the second sentence is a fragment.                                                                     |
+| Line                                                                                                                                                                                                        | Principle                                                                                                  | What it costs                                                                                                                                                                                                                                                 | Score | Noise | tpe / x4 in the same rounds |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ----- | --------------------------- |
+| e5x: Your developers got faster. Your releases are next. / Eure Entwickler sind schneller geworden. Jetzt ziehen eure Releases nach.                                                                        | Hopkins: the first beat picks out the reader by their situation; Priestley: the second shows what improves | The panel against x4, about 6 points in round 1. It names neither agents nor people working together, so the position's point, that the gain depends on every role, moves to the headline and the descriptor. It assumes a gain the reader may not have seen. | 75.3  | 0.7   | 71.2 / 78.0                 |
+| r1: Faster releases with agents, when your people are in tune. / Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind.                                                                      | Priestley and Dass et al.: the benefit stated first and plainly; the condition is the decided claim's      | Distinctiveness (5.8 against 7.7 for x4): Claude reads a generic promise. It nearly restates the decided headline, so on the path banner and H1 do the same job, and it trails x4 there. The footer and the phone banner get long.                            | 74.2  | 1.9   | 70.5 / 77.1                 |
+| t2: Faster releases with agents take the whole team. / Schnellere Releases mit KI-Agenten brauchen das ganze Team.                                                                                          | The same, with the condition as the client's own team (Miller: the customer is the hero)                   | The widest model split on the panel (Claude 63.6, Codex 85.0). "The whole team" stays general, the German reads stiff, and it gives up "in tune".                                                                                                             | 72.5  | 0.6   | 68.9 / 76.2                 |
+| f1: Be the team that ships as fast as it codes. / Werdet das Team, das so schnell liefert, wie es programmiert.                                                                                             | Perlman's brand hero: the identity the customer aspires to                                                 | No agents and no condition (core 4.2). The best banners of the new lines (80.4) and calm (8.8), but the panel trails tpe in every cell, and the German sounds translated.                                                                                     | 73.3  | 2.1   | 70.5 / 77.1                 |
+| hb, a headline: Faster releases with the agents your teams already have. Once all roles are in tune. / Schnellere Releases mit den Agenten, die eure Teams schon haben. Sobald alle Rollen zusammenspielen. | Priestley and Miller's "successful ending": the outcome opens, the means and the condition follow          | A tie on the hero in one of three rounds. On the path Claude scores every pair 1.5 to 3.7 lower with it and Codex 3.8 to 4.5 higher. "Already" repeats the subline, which would need a new sentence; the second sentence is a fragment.                       | 77.1  | 2.3   | decided headline 76.2       |
+
+For the claims, score is the mean of panel and path, as in the item, and noise the larger run gap. e5x's score takes the panel of round 1 (its first wording, 71.2) and the path of round 3. hb's score is its second hero round and compares only with the decided headline there.
+
+e5x, r1 and hb go into the item `decide-claim-amdahl` as further options once the item is on `origin/main`. `recommended` stays tpe-tune.
+
+My judgement, apart from the rule: hb with tpe-tune keeps the people in the claim and puts the client's change first on the home page. The averages hold on the hero and on the path, and Claude reads the path lower. No move of this round is free: each gain-first claim pays with the panel or with distinctiveness, and the headline pays with one model's path score.
 
 ## Routes that failed, and why
 
@@ -429,22 +442,10 @@ No line passes, so the answer to the first question is no and the recommendation
 - **From-to** (c1 to c5): Claude reads the pattern as a template (c1: Claude 59.0, Codex 86.0).
 - **Emotional** (f1 to f5): the short ones name no one and nothing ("Speed that gets there." 53.2). f1 reached the panel and trails tpe in every cell.
 - **Descriptive** (g1 to g3): 57.5 to 69.3, long and interchangeable.
-- **Two beats with the people in the second beat** (r3, r8): "Now your whole team ships faster." loses the panel (69.5) and ties x4 on the path only with Codex.
+- **Two beats with the people in the second beat** (r3, r8): "Now your whole team ships faster." loses the panel (69.5) and trails or ties x4 on the path (-5.1 to +0.2).
 - **Two beats with the agents** (e5a): lower than e5 on the criterion (7.3), the panel (64.9) and the path (73.8).
 - **Outcome-first in one sentence with the condition** (a7, r1, t2): stopped after two rounds. The panel average sits between the anchors both times, and the model split does not close (r1: Claude 69.5, Codex 83.3; t2: 63.6, 85.0).
-- **Two beats** (e5 and its variants): stopped after two rounds. The wording fixes move the English panel (64.2 to 73.1) and not the German (66.5 to 64.8), and no variant reaches an anchor.
-
-## Options this round adds to the decision item
-
-The item `decide-claim-amdahl` is edited once it is on `origin/main`. `recommended` stays tpe-tune. Score is the mean of panel and path as in the item, noise the larger run gap; the anchors in the same rounds are tpe 70.2 to 70.5 and x4 77.1 to 77.6.
-
-| Key | Option                                                                                                                                                                                                | Score | Noise | What it costs                                                                                                                                  |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| e5x | Your developers got faster. Your releases are next. / Eure Entwickler sind schneller geworden. Jetzt ziehen eure Releases nach.                                                                       | 74.3  | 1.3   | Wins the criterion (8.8) and the path against tpe, ties x4 on the path, loses the panel to both; says nothing of agents or of working together |
-| r1  | Faster releases with agents, when your people are in tune. / Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind.                                                                    | 74.2  | 1.9   | Keeps the panel on average and the decided condition; generic to Claude, repeats the decided headline, trails x4 on the path                   |
-| hb  | Headline: Faster releases with the agents your teams already have. Once all roles are in tune. / Schnellere Releases mit den Agenten, die eure Teams schon haben. Sobald alle Rollen zusammenspielen. | 77.1  | 2.3   | The gain first in the H1 at no measured loss (decided headline 76.2 in the same round); a tie by the rule; the subline needs a new sentence    |
-
-My judgement, apart from the rule: if the gain is to lead anywhere, the headline is where it costs least. hb with tpe-tune keeps the people in the claim and puts the client's change first on the home page, and no score falls. The claim itself has no free move: each gain-first claim pays with the panel or with distinctiveness.
+- **Two beats** (e5 and its variants): stopped after two rounds. The wording fixes move the English panel (64.2 to 73.1) and not the German (66.5 to 65.5 and 64.8), and no variant reaches x4.
 
 ## Assumptions
 
@@ -452,9 +453,8 @@ My judgement, apart from the rule: if the gain is to lead anywhere, the headline
 - "Jeffrey Perlman" is the Perlman of h&w's records; the look-alike search fell away. Open: no fetched source has him state a rule for headlines.
 - The Amdahl round ran `claude -p --model opus` without an effort flag. This round pins `--model claude-opus-5-5 --effort medium`, the settings default, and takes the two as the same reviewer.
 - The criterion is asked after the overall score, so the old scores stay comparable. In the path prompt it is asked for the claim.
-- The headline anchor is the decided headline alone; the English-only d1k of the Amdahl round was not carried into the hero.
-- Claims may run to twelve words, three more than the Amdahl round allowed, since two-beat lines need them.
-- e5x pairs the English of one variant with the German of another. Its panel was not scored as a pair.
+- The headline anchor is the decided headline alone. d1k, the Amdahl round's headline option, stood in the headline screen (70.2) and was not carried into the hero.
+- Claims may run to twelve words, three more than the Amdahl round allowed, since two-beat lines need them; r2 and r8 run to thirteen.
 - The one-pager header comes from the documents engine's built sample, read from its checkout as the Amdahl round did.
 - The classifier's "names an offer" counts any offer ("offers to help us speed up releases"); the training count beside it is a keyword count.
 
@@ -462,11 +462,10 @@ My judgement, apart from the rule: if the gain is to lead anywhere, the headline
 
 - Reviewers are two models in personas, the same as in every earlier round. No human reader was asked.
 - Every model split runs the same way: Codex rates outcome-first lines higher, Claude rates distinctiveness higher. The rule asks for both, so no line that splits them passes.
-- The path ranks e5 differently with the set around it (round 1 against round 2). Its cause is not established; the siblings in round 2 are the one changed factor I can name, untested.
-- The LinkedIn chrome is the 08.11. screenshot with the new banner pasted in; the German sheets keep its English profile labels. The one-pager intro is invented.
+- The rule planned two path rounds. A third scored the headline hb with the claims; the total stayed under 350.
+- The German sheets keep the English profile labels of the 08.11. LinkedIn screenshot. The one-pager intro is invented.
 - X header, Sessionize cover, closing slide and link preview were not shown.
-- t1 and t3 were rendered and not scored. The panel of e5x as a pair, hn's German-only round and a path with hn were not run: seven runs were left.
-- The Hopkins quotations come from an OCR upload at archive.org, which misspells "cite".
+- t1 and t3 were rendered and not scored. The missing measurement is one panel of tpe, x4 and e5x alone, 40 runs; seven runs were left. hn's German-only round and a path with hn were not run either.
 - Trademarks are not queried for any new line.
 - Nothing changed in `verbal.json`, the applications or any published text.
 
@@ -476,7 +475,7 @@ My judgement, apart from the rule: if the gain is to lead anywhere, the headline
 - r1: [panel surfaces](2026-11-10-claim-positive/r1-panel.jpg), [in German](2026-11-10-claim-positive/r1-panel-de.jpg)
 - t2: [panel surfaces](2026-11-10-claim-positive/t2-panel.jpg); f1: [panel surfaces](2026-11-10-claim-positive/f1-panel.jpg)
 - The headline hb: [English at 1440 px](2026-11-10-claim-positive/hb-hero.jpg), [German](2026-11-10-claim-positive/hb-hero-de.jpg), [the path with tpe-tune](2026-11-10-claim-positive/tpe-hb-path.jpg), [in German](2026-11-10-claim-positive/tpe-hb-path-de.jpg)
-- The anchors on the same surfaces are in the Amdahl report's folder.
+- The anchors on the same surfaces are in the folder of the [Amdahl report](2026-11-10-claim-amdahl.md).
 
 ## A reviewer prompt, verbatim (panel round 2, CTO, Claude, run 1, English)
 
