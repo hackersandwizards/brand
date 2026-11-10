@@ -101,8 +101,8 @@
     "dev": "cd catalog && bun --bun astro dev",
     "catalog": "bun run dev",
     "build": "check-lock bun --bun astro build --root catalog",
-    "test": "bun test --path-ignore-patterns='test/catalog/**' --path-ignore-patterns='dist/**'",
-    "check:catalog": "bun test ./test/catalog/",
+    "test": "bun test --timeout ${SCAFFOLDING_TEST_TIMEOUT_MS:-5000} --path-ignore-patterns='test/catalog/**' --path-ignore-patterns='dist/**'",
+    "check:catalog": "bun test --timeout ${SCAFFOLDING_TEST_TIMEOUT_MS:-5000} ./test/catalog/",
     "check:tokens": "bun scripts/tokens.ts --check",
     "check:staged": "check-staged"
   },
@@ -112,7 +112,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.20.7",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.7.7",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.12.1",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v2.1.1",
     "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.4",

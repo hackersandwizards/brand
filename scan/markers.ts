@@ -45,7 +45,7 @@
 // others are still measured.
 // Exits 2 on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { availableParallelism } from "node:os";
+import { availableParallelism, loadavg } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer, {
@@ -437,7 +437,8 @@ export async function open(page: Page, url: string, csp?: Csp) {
   const status = (r: HTTPResponse) => r.status() >= 400 && failed(r.request());
   page.on("requestfailed", failed).on("response", status);
   try {
-    const answer = await page.goto(url, { waitUntil: "networkidle0" });
+    // 60 s rather than puppeteer's 30: on a loaded machine the network goes quiet late.
+    const answer = await page.goto(url, { waitUntil: "networkidle0", timeout: 60_000 });
     if (answer && answer.status() >= 400) throw new Error(`${url}: HTTP ${answer.status()}`);
     if (unmatched.length)
       throw new Error(
@@ -1019,10 +1020,13 @@ if (import.meta.main) {
   const excepted = new Set<string>();
   const fallbacks = new Map<string, string>();
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
-  // most 8, as a run at 4x holds a 5120 x 3600 surface. A first pass, one load per story at the
-  // first scale, finds the stories with a marker, most having none; only those, and every page
-  // named, take the measured runs. It mostly waits for the network to go quiet: four tabs per worker.
-  const workers = Math.min(availableParallelism(), 8, pages.length);
+  // most 8, as a run at 4x holds a 5120 x 3600 surface, and fewer in proportion while the load
+  // average exceeds the cores, at least 2. A first pass, one load per story at the first scale,
+  // finds the stories with a marker, most having none; only those, and every page named, take the
+  // measured runs. It mostly waits for the network to go quiet: four tabs per worker.
+  const cores = availableParallelism();
+  const free = Math.min(cores, 8) * (cores / Math.max(cores, loadavg()[0]!));
+  const workers = Math.min(Math.max(2, Math.round(free)), pages.length);
   let readings: Reading[];
   try {
     // A context per worker: puppeteer shoots one page of a context at a time.
