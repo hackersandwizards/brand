@@ -3,11 +3,13 @@ kind: work
 status: open
 priority: 3
 order: 2000
-owner: a brand session (points 1, 2, 4); slides (point 3)
+owner: a brand session
 evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, teal 7 % on white) and brand-elements' source check learned button, breadcrumb and fact, read 0 findings on slides, documents and talks origin/main (the control, website, reads 10); measurements below from tokens/tokens.css and applications/channel-banners/render.py"
 ---
 
 # Design system: the brand proposals that remain
+
+Work points 1, 2, 4 and 5 below in brand; point 3 is a slides release, briefed to a slides session.
 
 1. **Night lines.** `facts.css`, `table.css` and `card.css` draw night lines as white at 15 %
    (transparent), `row.css` and `frame.css` as white at 18 % over night;

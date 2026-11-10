@@ -9,6 +9,8 @@ evidence: "consumers' origin/main read 2026-11-07 (afternoon): os, trainer-hub, 
 
 # One shape and colour system: remove the hue-amber and hue-green aliases
 
+Remove the hue-amber and hue-green aliases from `expert/expert.css` in a major brand release.
+
 The rule set lives in brand (`tokens/tokens.css`, the files under `elements/`, `expert/expert.css`):
 a category takes teal, purple or ampersand; amber, green and red mean a state; factory is the
 Software Factory area alone. Every consumer has switched, so what remains is in brand:

@@ -9,6 +9,8 @@ evidence: 'docs/agent-work/2026-11-10-quote-callout-pills-signature-review.md, s
 
 # Priority pills: P0 reads weaker than P1 at night, P3 and P4 look alike
 
+Build variants for P0's weight and the P3/P4 step and score them blind before changing a pill.
+
 The P1 tint is not the problem the admin panel named: no P1 variant scored better than today's.
 What the reviewers named instead, measured in `elements/pill.css`:
 

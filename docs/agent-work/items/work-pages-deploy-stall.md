@@ -10,6 +10,8 @@ evidence: 'brand-pages run 10.11.: 8 of 12 brand Pages deploy attempts between 0
 
 # Brand's Pages deploys stalled for four hours
 
+Record the next stalls of brand's Pages deploys: failed phase, time and the siblings' runs that hour.
+
 Not yet explained: why brand's deploys alone stalled from 23:43 to 04:05 UTC while slides and
 documents deployed. Still open is whether size and the window combine, since brand ships 24 times
 slides' compressed bytes, 98 MB of them the LFS masters the portal shows and links. Watch the next

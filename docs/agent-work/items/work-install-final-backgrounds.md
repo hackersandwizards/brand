@@ -10,4 +10,6 @@ evidence: "Benedikt, 08.11.: „Und wir sollten auf meine Liste für später mit
 
 # Install the final backgrounds on every device
 
+Set the final backgrounds on every device once `work-device-backgrounds-real-states` delivers them.
+
 Once `work-device-backgrounds-real-states` is done and the backgrounds are final, set them on every device: iPhone lock and home screen, iPad, Mac, and wherever else a brand background is in use. The files and the list of devices will be in that item's report.

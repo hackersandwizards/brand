@@ -9,6 +9,8 @@ evidence: "brand-markers sweep 08.11.: 11 to 36 px text, line heights 1.25 to 1.
 
 # Markers under a CSS zoom: what remains
 
+Explain and fix the three marker offsets below that remain under a CSS zoom.
+
 Fixed in the same release: Inter's descent (494/2048 em), 1/128 px before the half-leading's
 `round(down)`, `--hw-zoom` in the prose task box and in check.css's side, and brand-markers reading
 boxes two frames after it rewrites the lines. With these, a list marker sits within 0.25 px on
