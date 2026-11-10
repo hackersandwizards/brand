@@ -118,16 +118,85 @@ test("an entry turned partner frees no total for another file to grow into", () 
   ]);
 });
 
-test("tightening lowers and drops entries, never raises or adds", () => {
-  expect(tighten({ "a.css": { ...zero, hex: 5 }, "b.css": { ...zero, hex: 1 } }, allow)).toEqual(
-    allow,
-  );
+test("tightening lowers and drops entries and zero metrics, never raises or adds", () => {
+  expect(tighten({ "a.css": { ...zero, hex: 5 }, "b.css": { ...zero, hex: 1 } }, allow)).toEqual({
+    "a.css": { hex: 2, reason: "r" },
+  });
   expect(tighten({ "a.css": { ...zero, hex: 1 } }, allow)["a.css"].hex).toBe(1);
   expect(tighten({}, allow)).toEqual({});
   expect(tighten({ "b.css": { ...zero, hex: 1 } }, undefined)).toEqual({
-    "b.css": { ...zero, hex: 1, reason: "" },
+    "b.css": { hex: 1, reason: "" },
   });
-  expect(tighten({ "a.css": { ...zero, hex: 1, rgb: 1 } }, allow)["a.css"].rgb).toBe(0);
+  expect(tighten({ "a.css": { ...zero, hex: 1, rgb: 1 } }, allow)["a.css"].rgb).toBeUndefined();
+});
+
+test("an allowance above the file's count is a finding: lower it", () => {
+  expect(violations({ "a.css": { ...zero, hex: 1 } }, allow, allow)).toEqual([
+    "brand-colours.json: a.css: hex 1, allowed 2; lower it (brand-colours --tighten)",
+  ]);
+  // Control: the count the entry allows.
+  expect(violations({ "a.css": { ...zero, hex: 2 } }, allow, allow)).toEqual([]);
+});
+
+test("counts the colour notations, names and font forms beside hex and rgb()", () => {
+  const count = (src: string, ext: string) =>
+    Object.fromEntries(Object.entries(scanSource(src, ext).counts).filter(([, n]) => n));
+  expect(
+    count(
+      ".a { color: oklch(60% 0.2 30); background: tomato; border-color: color-mix(in srgb, red 40%, blue); x: lab(50% 40 59); y: hwb(12 50% 0%); z: color(display-p3 1 0 0) }",
+      ".css",
+    ),
+  ).toEqual({ hex: 3, rgb: 4 });
+  expect(count(".a { font: 600 1rem/1.2 Arial, sans-serif }", ".css")).toEqual({ font: 1 });
+  expect(
+    count(
+      `<div class="border-b-gray-200 border-x-red-500 ring-offset-red-500 placeholder-gray-400 font-serif text-[oklch(0.7_0.1_200)] bg-[tomato]">`,
+      ".astro",
+    ),
+  ).toEqual({ hex: 1, font: 1, palette: 4, rgb: 1 });
+  expect(count(".a { color: #fab } .b { color: #abc }", ".css")).toEqual({ hex: 2 });
+  expect(count(`<svg><path fill="red" d="M0"/></svg>`, ".svg")).toEqual({ hex: 1 });
+  expect(
+    count(
+      `<svg font-family="Arial"></svg><script>const s = { "font-family": "Arial" };</script><style>.a { -webkit-box-shadow: 0 0 1px #000; font-family: Interstate; color: hsl(0.5turn 50% 50%) }</style>`,
+      ".astro",
+    ),
+  ).toEqual({ font: 3, rgb: 1, shadow: 1 });
+  expect(
+    count(".a { color: white; background: color-mix(in srgb, black 7%, transparent) }", ".css"),
+  ).toEqual({
+    tokenHex: 2,
+  });
+  // Controls: tokens, keywords and script that only looks like a colour.
+  expect(
+    count(
+      `.a { font: inherit; font: 600 1rem/1.2 var(--font-sans); font-family: "Inter Variable", sans-serif; font-family: Inter; color: color-mix(in srgb, var(--color-ink) 70%, transparent); background: transparent; fill: currentColor; border: 0 none; color: inherit; background: url(red.png) }`,
+      ".css",
+    ),
+  ).toEqual({});
+  expect(
+    count(
+      `const color = (x: string) => x; color(lab); const lab = (a: number) => a; lab(1); const t = { color: teal, background: bg }; document.querySelector("#fab"); location.hash = "#add"; const font = await loadFont();`,
+      ".ts",
+    ),
+  ).toEqual({});
+  expect(count(`<a href="#add">x</a><a href="#faq">y</a>`, ".html")).toEqual({});
+});
+
+test("a glob or a URL in markup opens no comment; a frontmatter or script line comment is one", () => {
+  const style =
+    "<style>.a { color: #ff0000; border-radius: 13px } /* c */ .b { color: #00ff00 }</style>";
+  expect(
+    scanSource(`---\nconst p = import.meta.glob("../posts/*.md");\n---\n${style}`, ".astro").counts,
+  ).toEqual({ ...zero, hex: 2, radius: 1 });
+  expect(
+    scanSource(
+      `<img srcset="a.png 1x, //cdn/b.png 2x" style="color:#123456"><a href=//host/x style="color:#654321">z</a>`,
+      ".html",
+    ).counts.hex,
+  ).toBe(2);
+  expect(scanSource(`---\nconst a = 1; // #123456\n---\n<p/>`, ".astro").counts.hex).toBe(0);
+  expect(scanSource(`<script>const a = 1; // #123456</script>`, ".html").counts.hex).toBe(0);
 });
 
 test("a four-digit hex of letters alone counts where its colour part is a grey", () => {

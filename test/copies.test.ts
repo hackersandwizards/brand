@@ -53,16 +53,22 @@ test("finds an identical copy, a renamed or recoloured logo, and nothing else", 
   expect(hits["src/data/logos.json"]).toBeUndefined();
 });
 
-test("a document the documents engine composed may inline the logo, a hand-written one may not", () => {
-  const body = `<header><svg>${wordmark}</svg></header>`;
-  const doc = (head: string) =>
+test("a document the documents engine composed may inline the lockup, nothing else", () => {
+  const lockup = readFileSync(join(ROOT, "logos/lockup.svg"), "utf8");
+  const doc = (head: string, body: string) =>
     copyOf(
       "src/content/documents/quote.html",
-      () => `<html><head>${head}</head><body>${body}</body></html>`,
+      () => `<html><head>${head}</head><body><header>${body}</header></body></html>`,
       () => undefined,
     );
-  expect(doc("<style data-hw-document>.page{}</style>")).toBeUndefined();
-  expect(doc("<style>.page{}</style>")).toContain("drawing");
+  expect(doc("<style data-hw-document>.page{}</style>", lockup)).toBeUndefined();
+  expect(doc("<style>.page{}</style>", lockup)).toContain("drawing");
+  // The engine's marker covers its own lockup, never a recoloured wordmark beside it.
+  const red = wordmark.replace(/fill="[^"]*"/g, 'fill="red"');
+  expect(doc("<style data-hw-page></style>", lockup + red)).toContain("drawing");
+  expect(doc("<style data-hw-document>.page{}</style>", `<svg>${wordmark}</svg>`)).toContain(
+    "drawing",
+  );
 });
 
 test("flags an unlisted copy, an entry without a reason, one added against HEAD and a stale one", () => {

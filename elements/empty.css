@@ -10,14 +10,15 @@
      --hw-card-pad     the padding
      --hw-card-corner  the corner
      --hw-frame-width  the dashes' width
-     --hw-form-small   the text size */
+     --hw-form-small   the text size
+     --hw-muted        the muted grey, where a surface's --color-muted means something else */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-empty {
-    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-quiet: var(--hw-muted, var(--color-muted));
     --_hw-text: var(--foreground, var(--color-ink));
-    --_hw-line: var(--border-strong, var(--color-border-strong));
+    --_hw-line: var(--color-border-strong);
     --_hw-accent: var(--accent, var(--color-teal-dark));
     display: flex;
     flex-direction: column;
@@ -65,9 +66,9 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-empty {
-      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-quiet: var(--color-night-muted);
       --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-line: var(--border-strong, color-mix(in srgb, white 25%, transparent));
+      --_hw-line: color-mix(in srgb, white 25%, transparent);
       --_hw-accent: var(--accent, var(--color-teal-night));
     }
   }

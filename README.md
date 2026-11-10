@@ -333,13 +333,14 @@ same scale and theme (a reference beside it styled only by this package), on any
 with the brand corner inside another so drawn (inside one, `elements/card.css` gives every element
 and every `rounded-brand` the small corner), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
 callout, note; quote; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
-padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), or a component of such a name, without the
-`hw-*` class and without an exception of that name, on an element carrying an `hw-*` class or
+padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), read from `.css`, `.scss` and the style
+elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component of such a name that renders
+none of the `hw-*` classes of the elements its name names (a `ProjectCard` without `hw-card`) and has no exception of that name, on an element carrying an `hw-*` class or
 one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`, removed in
 v1.43.0) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
 or a class of your own passes, and so does such a class your own CSS defines), on a used element without a tile or with a stale version, on an exception
 without a reason or a tile, on a `data-hw-exception` whose name the list declares no exception for,
-and on a page showing no element. A `brand-elements.json` naming no page
+on a page showing no element, and on a run whose pages and stories show none. A `brand-elements.json` naming no page
 exits 2, as a run measuring nothing proves nothing. Each page's tile of a used element is
 compared: a version other than the installed one means that page was not built from it, such as a
 `dist/` or a running server older than your last `bun install`.
@@ -361,11 +362,19 @@ it takes the day roles and text colour again.
 The package ships `brand-colours`, which scans your working tree from the current directory down
 and counts, per file:
 
-- `hex`, `rgb`: colour literals off the tokens, as hex or as `rgb()`, `rgba()`, `hsl()`, `hsla()`
-- `tokenHex`: a literal repeating a token's colour, in either notation, instead of naming the token
-- `font`: font stacks without a brand family
-- `palette`: Tailwind default palette classes
-- `radius`, `shadow`: a `border-radius` or `box-shadow` (CSS, a custom property named for either,
+- `hex`: colour literals off the tokens as hex, or as a CSS colour name (`tomato`, `teal`) in a
+  colour property, an SVG colour attribute, a `color-mix()` or a Tailwind arbitrary value
+  (`bg-[tomato]`); a hex of three or four letters alone (`#fab`) only where a value stands
+- `rgb`: colour functions: `rgb()`, `rgba()`, `hsl()`, `hsla()`, and `oklch()`, `oklab()`, `lab()`,
+  `lch()`, `hwb()`, `color()` with a colour's arguments, counted without conversion
+- `tokenHex`: a literal repeating a token's colour, in any notation, `white` and `black` included,
+  instead of naming the token
+- `font`: font stacks that do not open on a brand family, in `font-family`, the `font` shorthand, an
+  SVG `font-family` attribute or a quoted style key; a family only named like a brand one
+  (`Interstate`) counts; and Tailwind's `font-serif`
+- `palette`: Tailwind default palette classes, side and offset forms included (`border-x-red-500`,
+  `ring-offset-red-500`, `placeholder-gray-400`)
+- `radius`, `shadow`: a `border-radius` or `box-shadow`, vendor-prefixed too (CSS, a custom property named for either,
   a style object, a Tailwind arbitrary value) that is no brand token, and Tailwind's default
   radius and shadow classes with a size (`rounded-lg`, `shadow-md`; the bare `rounded` and
   `shadow` are not read, as words they match prose). A token value, `0`, `none`, a CSS-wide
@@ -394,8 +403,9 @@ counts and the reason, and the list may only shrink: the scan fails where an ent
 `HEAD` while the list's total for that metric grows too, or names no reason. A value you move to
 another file moves its count in the same commit: the old file's entry shrinks by what the new one
 takes. A metric an entry leaves out allows none. An entry on a file that is clean fails too, as it
-would let a new finding there pass. `brand-colours --tighten` lowers every entry to today's counts
-and drops the clean ones.
+would let a new finding there pass, and so does an entry allowing more than its file holds: lower
+it. `brand-colours --tighten` lowers every entry to today's counts, drops the clean ones and the
+metrics at zero, and writes no list where none was and nothing is found.
 
 A third party's mark, such as a partner conference's or a client's logo as an SVG, carries its
 owner's colours, not the brand's. Its entry names the owner in `partner` and its reason, takes no
@@ -449,8 +459,10 @@ Inside a file, one thing is skipped: a document the documents engine (`@hackersa
 composed. `brand-colours` skips its style elements marked `data-hw-document`, `data-hw-components`,
 `data-hw-page`, `data-hw-onepager`, `data-hw-readout` or `data-hw-certificate`, the engine's own
 stylesheets inlined so the document stands alone, which the engine's gate scans in its source;
-everything else in the file is read. `brand-copies` lets such a document carry the logo's drawing,
-which the engine renders from this package.
+everything else in the file is read. `brand-copies` lets such a document carry the lockup the
+engine inlines from this package, an `<svg>` with the lockup's `viewBox`, and matches every other
+drawing in it. The attribute is the one marker both scans trust: nothing checks that the engine
+wrote the element, so never put it on a style element of your own.
 
 ### Check for copies in your gate
 
@@ -461,15 +473,17 @@ template, through a Git LFS pointer too), on a file named like one of `logos/` t
 it, and on a text file carrying a logo's path data or embedded wizard, such as a recoloured
 wordmark or an inlined SVG. An exception goes in `brand-copies.json` beside your `package.json`,
 `{ "<path>": "<reason>" }`, and the list may only shrink against `HEAD`. An entry no longer found
-fails; `brand-copies --tighten` drops those entries.
+fails; `brand-copies --tighten` drops those entries, and writes no list where none was and none is
+needed.
 
 ### Check your components in your gate
 
-Where you render the expert components, `brand-scan` fails on a component of yours named like one
-of them (`Pill`, `PageHeader`, ...): import it from the package. An exception goes in
+Where you render the expert components, `brand-scan` fails on a component file of yours
+(`.astro`, `.tsx`, `.jsx`, `.vue`, `.svelte`, in any folder) named like one of them (`Pill`,
+`PageHeader`, ...): import it from the package. An exception goes in
 `brand-scan.json` beside your `package.json`, `{ "<lowercase name>": "<reason>" }`, and the list may
 only shrink against `HEAD`. An entry no component of yours matches fails; `brand-scan --tighten`
-drops those entries. A name matches without case and word separators: `app-header.tsx` is
+drops those entries, and writes no list where none was and none is needed. A name matches without case and word separators: `app-header.tsx` is
 `AppHeader`, key `appheader`.
 
 ### Check your build for retired lines
@@ -544,10 +558,11 @@ and on a page you name with no marker. Name no page and it takes the `"pages"` o
 `brand-elements.json`, so you list them once. A first pass loads each of those pages and each
 catalog story once at the first scale to find those showing a marker, and only they and the pages
 you name take the measured runs, side by side, one per core, at most 8; a run of listed pages and
-stories that finds no marker at all fails. A square `::before` placed absolutely on its item is
+stories, a catalog's alone included, that finds no marker at all fails. A square `::before` placed absolutely on its item is
 read in its own box, however far left of the text it sits and however it is turned. A list inside
 a `[data-hw-exception]`, the system's own element your `brand-elements.json` names with its reason,
-is left out, as `brand-elements` leaves it out. Run it in your gate on the pages or
+is left out, as `brand-elements` leaves it out; inside an exception the file does not name, it is
+measured. Run it in your gate on the pages or
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first,
 and scrolls each list into view in every container that scrolls it, the window or an element such
 as a catalog's `main`.
@@ -565,8 +580,8 @@ starting with `/` and no site or `--base` to serve it is named and left out. `--
 instead, `--catalog-at <page>` where it is served; a story page without a list passes. Readings
 you keep go in the `"markers"` block of the same file, each glob over a page's path with its
 reason and how many off readings it keeps: `"markers": { "**/content-slide/at-rest/": { "reason":
-"...", "off": 6 } }`. A kept reading prints as kept; more than `off` fails, and so does an entry
-that keeps none, so a fixed page drops it.
+"...", "off": 6 } }`. A kept reading prints as kept; more or fewer than `off` fails, and so does an
+entry that keeps none, so a fixed page lowers or drops it.
 
 ## Press kit
 

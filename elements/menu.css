@@ -19,7 +19,8 @@
      --hw-touch-floor         its least height, the touch target on a touch screen (scales.css)
      --hw-field-size          the text size
      --hw-corner-sm           the list's and each entry's corner
-     --hw-hairline            the line's width */
+     --hw-hairline            the line's width
+     --hw-muted               the muted grey, where a surface's --color-muted means something else */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
@@ -27,7 +28,7 @@
     --_hw-ground: var(--background, var(--color-white));
     --_hw-text: var(--foreground, var(--color-ink));
     --_hw-line: var(--border, var(--color-border));
-    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-quiet: var(--hw-muted, var(--color-muted));
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
     --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-touch-floor, 0px));
     box-sizing: border-box;
@@ -111,7 +112,7 @@
       --_hw-ground: var(--background, color-mix(in srgb, white 7%, var(--color-night)));
       --_hw-text: var(--foreground, var(--color-night-ink));
       --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
-      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-quiet: var(--color-night-muted);
       --_hw-danger: var(--color-red-night);
     }
   }

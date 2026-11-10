@@ -63,7 +63,7 @@ import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import catalogs from "../expert/catalogs.json";
 import own from "../package.json";
-import { listTree, scanned, skippedReport } from "./colours";
+import { COMPONENT, ENGINE_STYLE, listTree, scanned, skippedReport } from "./colours";
 import {
   addCss,
   catalogPages,
@@ -780,6 +780,7 @@ const WORD: Record<string, string> = {
   fact: "facts",
 };
 const NAMED = new RegExp(`(^|-)(${Object.keys(WORD).join("|")})s?($|-)`);
+const NAMED_ALL = new RegExp(`(?<=^|-)(${Object.keys(WORD).join("|")})s?(?=$|-)`, "g");
 /** A name in kebab case, so ProjectCard and projectCard read as project-card. */
 export const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 /** The element a class is named like. */
@@ -813,14 +814,16 @@ export const setsOwned = (element: string, declared: string) =>
         (/^border-(width|style|color)$/.test(prop) && q.endsWith(prop.slice(6))),
     ),
   );
-const STYLED = new Set([".css", ".scss", ".astro", ".vue", ".svelte"]);
-const COMPONENT = new Set([".astro", ".tsx", ".jsx", ".vue", ".svelte"]);
+const STYLED = new Set([".css", ".scss", ".astro", ".vue", ".svelte", ".html"]);
 
-/** The CSS of a source file: the file itself, or its style blocks. */
+/** The CSS of a source file: the file itself, or its style blocks, those the documents engine wrote
+ *  left out (brand-colours' ENGINE_STYLE). */
 const styles = (raw: string, ext: string) =>
   ext === ".css" || ext === ".scss"
     ? raw
-    : [...raw.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
+    : [...raw.replace(ENGINE_STYLE, "").matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)]
+        .map((m) => m[1])
+        .join("\n");
 
 /** The properties a Tailwind utility sets, as far as an element owns them: a state variant
  *  (hover:, focus:, ...) sets nothing at rest, a breakpoint, theme or print variant does. A text-*
@@ -951,7 +954,13 @@ export const sourceFindings = (
     const raw = read(p);
     if (COMPONENT.has(ext) && /(^|\/)components\//.test(p)) {
       const name = kebab(basename(p, ext));
-      if (NAMED.test(name) && !(name in allow) && !/(?<![\w-])hw-[a-z]/.test(raw))
+      // Each element the name names, such as callout and card in note-card; rendering one passes.
+      const elements = [...name.matchAll(NAMED_ALL)].map((m) => WORD[m[1]!]!);
+      if (
+        elements.length &&
+        !(name in allow) &&
+        !elements.some((e) => new RegExp(`(?<![\\w-])hw-${e}(?![\\w-])`).test(raw))
+      )
         out.push(
           `${p}: a component named like a shared element; render the hw-* element or list "${name}" as an exception`,
         );
@@ -1061,6 +1070,9 @@ if (import.meta.main) {
   const unstyled = results.flatMap((r) => r.unstyled);
   const refused = results.flatMap((r) => r.refused);
   const empty = named.filter((_, i) => !results[i]!.seen.length);
+  // No shared element on any page or story: a run that measures nothing passes nothing.
+  const nothing = results.every((r) => !r.seen.length);
+  if (nothing) console.error(`brand-elements: no shared element on any page of ${LIST}`);
   const tree = listTree("brand-elements");
   const source = sourceFindings(tree, (p) => readFileSync(p, "utf8"), config.exceptions ?? {});
   const covered = coverage(config, results);
@@ -1091,5 +1103,7 @@ if (import.meta.main) {
       `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${refused.length} refused by the page's policy, ${source.length} source findings, ${covered.length} coverage findings`,
     );
   }
-  process.exit([rendered, unstyled, refused, source, covered, empty].some((a) => a.length) ? 1 : 0);
+  process.exit(
+    nothing || [rendered, unstyled, refused, source, covered, empty].some((a) => a.length) ? 1 : 0,
+  );
 }

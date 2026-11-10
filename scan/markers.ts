@@ -35,9 +35,11 @@
 // The "csp" of brand-elements.json states the policy the consumer's host sends, for every page or
 // by the glob over each page's path (elements.ts), and each source a page's policy refuses fails,
 // "csp" or the page's own.
-// An off reading on a page the glob matches is kept, printed as kept; more off readings there than
-// "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so a
-// fixed page drops its exception. An item with two markers is never kept.
+// An off reading on a page the glob matches is kept, printed as kept; more or fewer off readings
+// there than "off" fail, and so does an entry that keeps nothing on a page it matches in this run
+// (stale), so a fixed page lowers or drops its exception. A marker inside a [data-hw-exception]
+// whose name brand-elements.json declares is the system's own and left out; inside any other it is
+// measured. An item with two markers is never kept.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, a page named on the command line with no marker (a zero proves nothing; a story
 // page may show none), or a line still drawn in a fallback face after three loads, where the first
@@ -174,13 +176,14 @@ async function collect([newline, maxSide, count, declared]: Collect): Promise<
   const found: { host: Element; text: Text; kind: Kind; mark?: Element }[] = [];
   const seen = new Set<Text>();
   // A system's own mark, declared in brand-elements.json, is noted but not measured, as
-  // brand-elements leaves it out.
+  // brand-elements leaves it out; one inside an undeclared exception is measured.
   let excepted = false;
   let inException: Element | null = null;
   const add = (host: Element, text: Text | null, kind: Kind, mark?: Element) => {
     if (!text || seen.has(text)) return;
     seen.add(text);
-    if (inException) excepted ||= declared.includes(inException.getAttribute("data-hw-exception")!);
+    if (inException && declared.includes(inException.getAttribute("data-hw-exception")!))
+      excepted = true;
     else found.push({ host, text, kind, mark });
   };
   for (const host of document.querySelectorAll("body *")) {
@@ -830,6 +833,9 @@ export function applyExceptions(
     if (n === 0 && measured.some((page) => new Bun.Glob(glob).match(pathOf(page))))
       return [`markers exception "${glob}" is stale: it keeps no off reading`];
     if (n > e.off) return [`markers exception "${glob}": ${n} off readings, ${e.off} kept`];
+    // An "off" above the readings would let a new one there pass unseen.
+    if (n > 0 && n < e.off)
+      return [`markers exception "${glob}": ${n} off readings, ${e.off} kept; lower "off" to ${n}`];
     return [];
   });
   const kept = [...by.values()].flat();
@@ -1095,12 +1101,13 @@ if (import.meta.main) {
     .filter(
       (url) => !readings.some((r) => r.page === url) && !excepted.has(url) && !fallbacks.has(url),
     );
-  // Only searched pages, none showing a marker: a run that measures nothing passes nothing.
+  // Only searched pages and stories, none showing a marker: a run that measures nothing passes
+  // nothing.
   const nothing =
-    searched.length > 0 &&
+    stories.length > 0 &&
     !readings.length &&
     !excepted.size &&
-    !searched.some((p) => fallbacks.has(toUrl(p, base)));
+    !stories.some((p) => fallbacks.has(toUrl(p, base)));
   if (nothing)
     console.error(
       `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,

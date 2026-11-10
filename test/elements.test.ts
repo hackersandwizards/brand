@@ -889,6 +889,19 @@ test("source: a compound forks an element in any class order; an --hw-* setting 
   ]);
 });
 
+test("source: a component named like an element renders that element's class; an .html style block is read", () => {
+  const files: Record<string, string> = {
+    "src/components/ProjectCard.astro": `<div class="p-4 rounded-lg"><span class="hw-pill">Neu</span></div>`,
+    "src/components/TeamCard.astro": `<div class="hw-card"><span class="hw-pill">Neu</span></div>`,
+    "src/pages/index.html": `<style>.card { border-radius: 12px; background: #fff }</style>`,
+    "src/content/doc.html": `<style data-hw-document>.card { border-radius: 12px }</style>`,
+  };
+  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+    'src/components/ProjectCard.astro: a component named like a shared element; render the hw-* element or list "project-card" as an exception',
+    'src/pages/index.html: .card styles an element named like a shared one; use the hw-* element or list "card" as an exception',
+  ]);
+});
+
 test("source: a PascalCase component, a camelCase class and a nested rule are read like kebab case", () => {
   const files: Record<string, string> = {
     "src/components/ProjectCard.astro": `<div/>`,

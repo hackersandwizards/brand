@@ -1,17 +1,26 @@
 #!/usr/bin/env bun
-// The component check a consumer of the expert components runs in its own gate: a component in its
-// working tree (tracked or untracked, .gitignore honoured, the paths brand-colours reads) named
-// like one of this package's expert components is a fork of it. Exits 1 on a fork not listed in
+// The component check a consumer of the expert components runs in its own gate: a component file
+// (.astro, .tsx, .jsx, .vue, .svelte) anywhere in its working tree (tracked or untracked,
+// .gitignore honoured, the paths brand-colours reads) named like one of this package's expert
+// components is a fork of it. Exits 1 on a fork not listed in
 // the consumer's brand-scan.json ({ "<lowercase name>": "<reason>" }, the name without - and _), on an entry without a
 // reason, on an entry no fork answers (stale), and on an entry added against HEAD: the list may only shrink. Where the working tree
 // changes the brand pin package.json holds at HEAD, an entry may also name a fork whose files are
 // committed at HEAD and unchanged since, which a newer package's component makes one.
 // Usage: brand-scan [--tighten]
 //   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
-//              pin change, for such a fork.
+//              pin change, for such a fork; writes no list where none was and none is needed.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { committedAsIs, listTree, pinChange, runGit, scanned, skippedReport } from "./colours";
+import {
+  COMPONENT,
+  committedAsIs,
+  listTree,
+  pinChange,
+  runGit,
+  scanned,
+  skippedReport,
+} from "./colours";
 
 export const LIST = "brand-scan.json";
 export type Allowlist = Record<string, string>;
@@ -28,13 +37,7 @@ const EXPERT = new Set(
 export const forks = (paths: string[]) => {
   const out: Record<string, string[]> = {};
   for (const p of paths)
-    if (
-      scanned(p) &&
-      [".astro", ".tsx", ".jsx"].includes(extname(p)) &&
-      /(^|\/)components\//.test(p) &&
-      EXPERT.has(key(p))
-    )
-      (out[key(p)] ??= []).push(p);
+    if (scanned(p) && COMPONENT.has(extname(p)) && EXPERT.has(key(p))) (out[key(p)] ??= []).push(p);
   return out;
 };
 
@@ -77,8 +80,13 @@ if (import.meta.main) {
         .filter((k) => k in allow || mayAdd(k))
         .map((k) => [k, allow[k] ?? ""]),
     );
-    writeFileSync(LIST, JSON.stringify(next, null, 2) + "\n");
-    console.log(`brand-scan: ${LIST} tightened`);
+    // A list that allows nothing is no file where none was.
+    if (!existsSync(LIST) && !Object.keys(next).length)
+      console.log(`brand-scan: nothing to allow; no ${LIST} written`);
+    else {
+      writeFileSync(LIST, JSON.stringify(next, null, 2) + "\n");
+      console.log(`brand-scan: ${LIST} tightened`);
+    }
   } else {
     const bad = unlisted(found, allow, committed, mayAdd);
     if (bad.length) {

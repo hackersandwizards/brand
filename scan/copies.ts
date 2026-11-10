@@ -10,7 +10,7 @@
 // at HEAD and unchanged since, which a newer scanner finds.
 // Usage: brand-copies [--tighten]
 //   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
-//              pin change, for such a file.
+//              pin change, for such a file; writes no list where none was and none is needed.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
@@ -46,6 +46,21 @@ export const signatures = new Set(
     }),
 );
 const TEXT = /\.(svg|html?|astro|[cm]?[jt]sx?|vue|svelte|css|md|mdx)$/;
+/** The svg text of a data: URI's parameters and data. */
+const svgOf = (params: string, data: string) => {
+  try {
+    return params.endsWith(";base64")
+      ? Buffer.from(data, "base64").toString("utf8")
+      : decodeURIComponent(data).replace(/^\s+/, "");
+  } catch {
+    return "";
+  }
+};
+// The opening tag of the lockup the documents engine inlines, by its viewBox.
+const box = (f: string) => /viewBox="([^"]+)"/.exec(readFileSync(join(LOGOS, f), "utf8"))![1];
+const LOCKUP_BOX = new RegExp(
+  `^<svg\\b[^>]*viewBox="(?:${[...new Set(["lockup.svg", "lockup-screen.svg"].map(box))].join("|").replace(/\./g, "\\.")})"`,
+);
 
 /** What makes a consumer file a copy of a brand file, or undefined where it is none. */
 export const copyOf = (
@@ -57,10 +72,20 @@ export const copyOf = (
   if (same) return `identical to brand ${same}`;
   if (logoNames.has(basename(path))) return `named like brand logos/${basename(path)}`;
   if (TEXT.test(extname(path))) {
-    const text = read(path);
-    // A document the documents engine composed renders the logo from this package
-    // (logos/lockup.svg) and must inline it to stand alone.
-    if (new RegExp(ENGINE_STYLE.source).test(text)) return;
+    let text = read(path);
+    // A document the documents engine composed inlines the lockup it renders from this package
+    // (logos/lockup.svg, lockup-screen.svg) to stand alone, as an svg element or a data: URI: that
+    // lockup, known by its viewBox, and the engine's style elements are left out; every other
+    // drawing is still matched.
+    if (new RegExp(ENGINE_STYLE.source).test(text))
+      text = text
+        .replace(ENGINE_STYLE, "")
+        .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/g, (svg) => (LOCKUP_BOX.test(svg) ? "" : svg))
+        .replace(
+          /(["'])data:image\/svg\+xml([^,"']*),([\s\S]*?)\1/g,
+          (uri, _quote, params: string, data: string) =>
+            LOCKUP_BOX.test(svgOf(params, data)) ? "" : uri,
+        );
     for (const s of signatures)
       if (text.includes(s))
         return "carries a brand logo's drawing; render the logo from the package";
@@ -114,8 +139,13 @@ if (import.meta.main) {
         .filter((p) => p in allow || mayAdd(p))
         .map((p) => [p, allow[p] ?? ""]),
     );
-    writeFileSync(LIST, JSON.stringify(next, null, 2) + "\n");
-    console.log(`brand-copies: ${LIST} tightened`);
+    // A list that allows nothing is no file where none was.
+    if (!existsSync(LIST) && !Object.keys(next).length)
+      console.log(`brand-copies: nothing to allow; no ${LIST} written`);
+    else {
+      writeFileSync(LIST, JSON.stringify(next, null, 2) + "\n");
+      console.log(`brand-copies: ${LIST} tightened`);
+    }
   } else {
     const bad = unlistedCopies(found, allow, committed, mayAdd);
     if (bad.length) {

@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { forks, unlisted } from "../scan/components";
 
-test("finds a consumer component named like an expert component, nothing else", () => {
+test("finds a consumer component named like an expert component in any folder, nothing else", () => {
   expect(
     forks([
       "src/components/Pill.astro",
@@ -11,12 +11,16 @@ test("finds a consumer component named like an expert component, nothing else", 
       "src/components/Card.astro",
       "src/components/Pill.test.tsx",
       "node_modules/x/components/Pill.astro",
-      "src/pages/Pill.astro",
+      "src/ui/AppHeader.astro",
+      "src/layouts/SpaceNav.svelte",
+      "src/components/ThemeToggle.vue",
+      "src/components/Pill.ts",
     ]),
   ).toEqual({
     pill: ["src/components/Pill.astro", "src/components/pill.tsx"],
-    appheader: ["components/app-header.tsx"],
-    themetoggle: ["src/components/theme_toggle.astro"],
+    appheader: ["components/app-header.tsx", "src/ui/AppHeader.astro"],
+    spacenav: ["src/layouts/SpaceNav.svelte"],
+    themetoggle: ["src/components/theme_toggle.astro", "src/components/ThemeToggle.vue"],
   });
 });
 

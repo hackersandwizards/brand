@@ -1,12 +1,17 @@
 #!/usr/bin/env bun
 // The brand colour scan a consumer runs in its own gate, over its working tree from the current
 // directory down (tracked and untracked files, .gitignore honoured). Counts per file: colour
-// literals off the token set, as hex (`hex`) or as rgb()/rgba()/hsl()/hsla() (`rgb`), colour
-// literals repeating a token value instead of naming it (`tokenHex`), font stacks that do not open
-// on a brand family (`font`), Tailwind default palette classes (`palette`), radii (`radius`) and
-// box shadows (`shadow`) whose value is no brand token, Tailwind's default radius and shadow
-// classes with a size included (bare `rounded` and `shadow` match prose, so they are not read). Compares the counts with the consumer's brand-colours.json and exits 1 on any
-// count above its entry, any unlisted file with a count, an entry without a reason, an entry on a
+// literals off the token set, as hex or a CSS colour name in a colour property, SVG colour
+// attribute, color-mix() or Tailwind arbitrary value (`hex`), or as a colour function, rgb() and
+// hsl() through oklch(), lab(), hwb() and color() (`rgb`), colour literals repeating a token value
+// instead of naming it, white and black included (`tokenHex`), font stacks that do not open on a
+// brand family, in font-family, the font shorthand, an SVG attribute or a style key, and
+// Tailwind's font-serif (`font`), Tailwind default palette classes (`palette`), radii (`radius`)
+// and box shadows (`shadow`) whose value is no brand token, vendor-prefixed ones included,
+// Tailwind's default radius and shadow classes with a size included (bare `rounded` and `shadow`
+// match prose, so they are not read). Compares the counts with the consumer's brand-colours.json
+// and exits 1 on any count above or below its entry (an allowance above the count would let a new
+// finding there pass), any unlisted file with a count, an entry without a reason, an entry on a
 // file with no count (stale, so an old allowance cannot hide a new finding there), or an entry
 // that grew against HEAD: the allowlist may only shrink. An entry may grow, a new file's included,
 // where the allowlist's total for that metric does not grow against HEAD, so a value moved from one
@@ -19,8 +24,8 @@
 // built-in exception it applied with the number of files it skipped, and every partner mark it
 // allowed.
 // Usage: brand-colours [--tighten]
-//   --tighten  lowers every entry to today's count and drops entries at zero; creates the
-//              allowlist from today's counts where none exists. Raises an entry, or adds one with
+//   --tighten  lowers every entry to today's count and drops metrics and entries at zero; creates
+//              the allowlist from today's counts where none exists and a count is found. Raises an entry, or adds one with
 //              an empty reason, only during a pin change, to what HEAD's file holds.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -166,6 +171,9 @@ export const BRAND_COPY = {
   reason: "byte-identical to a package file, which brand-copies reports and its allowlist governs",
 };
 
+/** The extensions of a component file, in the frameworks a consumer builds with. */
+export const COMPONENT = new Set([".astro", ".tsx", ".jsx", ".vue", ".svelte"]);
+
 /** The name of the built-in exception that keeps a path out of the scans, if any. */
 export const exception = (p: string) => EXCEPTIONS.find((e) => e.test(p))?.name;
 
@@ -177,33 +185,72 @@ export const scanned = (p: string) => EXT.has(extname(p)) && !exception(p);
 // gate scans in its source. Whatever else the document carries is the consumer's and is read.
 export const ENGINE_STYLE =
   /<style\s+data-hw-(?:document|components|page|onepager|readout|certificate)\b[^>]*>[\s\S]*?<\/style>/g;
-// In script and JSON a string such as the glob "src/*" holds what reads as a comment opener, so a
-// string there is kept whole before a block comment is dropped.
-const SCRIPT = /^\.([cm]?[jt]sx?|json|webmanifest)$/;
+// A string such as the glob "src/*" holds what reads as a comment opener, so a string is kept whole
+// before a block comment is dropped, in every file but CSS and SVG, which hold no such string.
+const CSS_OR_SVG = /^\.(css|svg)$/;
+const SCRIPT_EXT = /^\.([cm]?[jt]sx?|json|webmanifest)$/;
+const MARKUP = /^\.(astro|vue|svelte|html)$/;
 const BLOCK = /\/\*[\s\S]*?\*\//g;
 const STRING_OR_BLOCK =
   /("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\//g;
-// CSS and SVG know no line comment, and a url(//host/x) anywhere is none either.
-const NO_LINE_COMMENT = /^\.(css|svg)$/;
+const lineComments = (s: string) => s.replace(/(^|[^:"'`(])\/\/.*$/gm, "$1");
+// In markup a line comment exists only in script: the frontmatter and <script> elements. Elsewhere
+// a // is a URL, such as href=//host or a srcset's //cdn/b.png 2x.
+const SCRIPT_PART = /^---\n[\s\S]*?\n---|<script\b[^>]*>[\s\S]*?<\/script>/g;
 const strip = (s: string, ext: string) => {
   if (ext === ".py") return s;
   const out = s
     .replace(ENGINE_STYLE, "")
-    .replace(SCRIPT.test(ext) ? STRING_OR_BLOCK : BLOCK, (_, str?: string) => str ?? "")
+    .replace(CSS_OR_SVG.test(ext) ? BLOCK : STRING_OR_BLOCK, (_, str?: string) => str ?? "")
     .replace(/<!--[\s\S]*?-->/g, "");
-  return NO_LINE_COMMENT.test(ext) ? out : out.replace(/(^|[^:"'`(])\/\/.*$/gm, "$1");
+  if (CSS_OR_SVG.test(ext)) return out;
+  return MARKUP.test(ext) ? out.replace(SCRIPT_PART, lineComments) : lineComments(out);
 };
 // 8 and 4 digits carry an alpha channel; the colour part decides token or off-token.
 const HEX = /(?<![&\w])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g;
-const isColour3 = (h: string) => /\d/.test(h) || /^(.)\1\1/.test(h);
+// A 3- or 4-digit hex of letters alone (#add, #fab) is a colour only where a value stands: after a
+// colon, comma, parenthesis or bracket, or in the quotes of a colour attribute or key.
+const VALUE_BEFORE = /(?:[:(,[]\s*|(?:colou?r|fill|stroke|background)[\w-]*["']?\s*[:=]\s*["'`])$/i;
+const isColour3 = (h: string, before: string) =>
+  /\d/.test(h) || /^(.)\1\1/.test(h) || VALUE_BEFORE.test(before);
 const FN = /(?<![\w-])(rgba?|hsla?)\(([^()]*)\)/gi;
-const FONT = /font-family\s*:\s*([^;}"'`\n]+|["'][^;}\n]+)|fontFamily\s*[:=]\s*["'`]([^"'`]+)/g;
+// The other colour functions, counted as rgb without conversion where their arguments are a
+// colour's: numbers, percentages, angles or none, or color()'s colour space first.
+const NUM = String.raw`(?:-?[\d.]+(?:%|deg|g?rad|turn)?|none)`;
+const MODERN = new RegExp(
+  String.raw`(?<![\w-])(?:(?:oklch|oklab|lab|lch|hwb)\(\s*${NUM}(?:[\s,_/]+${NUM}){2,3}\s*\)|color\(\s*(?:srgb|srgb-linear|display-p3|a98-rgb|prophoto-rgb|rec2020|xyz|xyz-d50|xyz-d65)[\s_][^()]*\))`,
+  "gi",
+);
+// The CSS named colours, white and black aside (tokens, counted as such); transparent and
+// currentColor name no colour.
+const NAMED = new Set(
+  "aliceblue antiquewhite aqua aquamarine azure beige bisque blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat yellow yellowgreen".split(
+    " ",
+  ),
+);
+const WORD = /(?<![\w$.#/-])([a-z]+)(?![\w./-])/gi;
+// Where a value is a colour: a colour property in CSS or JS, a colour attribute in SVG, a
+// color-mix(), and a Tailwind colour class's arbitrary value. The value runs to the declaration's
+// end; a bare identifier in script (color: teal, a variable) is no literal and is left alone.
+const COLOUR_AT =
+  /(?<![\w-])(?:color|background(?:-color)?|backgroundColor|border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-color)?|border(?:Top|Right|Bottom|Left)?Color|outline(?:-color)?|outlineColor|fill|stroke|stop-color|stopColor|flood-color|lighting-color|caret-color|caretColor|accent-color|accentColor|text-decoration(?:-color)?|textDecorationColor|column-rule(?:-color)?|--[\w-]*colou?r[\w-]*)\s*[:=]\s*|color-mix\(/g;
+const ARBITRARY =
+  /(?<![\w-])(?:bg|text|border(?:-[trblxyse])?|ring(?:-offset)?|fill|stroke|outline|divide|decoration|shadow|accent|caret|from|to|via|placeholder)-\[([^\]\s]+)\]/g;
+const FONT =
+  /font-family\s*:\s*([^;}"'`\n]+|["'][^;}\n]+)|fontFamily\s*[:=]\s*["'`]([^"'`]+)|["']font-family["']\s*:\s*["']([^"']+)|font-family\s*=\s*["']([^"']+)/g;
+// The font shorthand: style, variant and weight, then the size (with a line height), then the
+// family list, which must open on a brand family like font-family's.
+const SHORTHAND = /(?<![\w-])font\s*[:=]\s*/g;
+const SIZE =
+  /(?:^|\s)(?:[\d.]+(?:px|r?em|pt|pc|%|vw|vh|ch|ex|r?lh|cap|ic|[sld]?v(?:h|w|min|max)|cq[iwbh]|q|mm|cm|in)|(?:xx?-|xxx-)?(?:small|large)|medium|larger|smaller|var\([^()]*\)|calc\([^()]*\))(?:\s*\/\s*\S+)?\s+(.+)$/;
 const BRAND_FONT =
-  /^\s*(["']?(Inter|JetBrains Mono)( Variable)?["']?|var\(--|inherit|initial|unset|theme\()/i;
+  /^\s*(["']?(Inter|JetBrains Mono)( Variable)?["']?(?=\s*(?:,|$))|var\(--|inherit|initial|unset|theme\()/i;
 const PAL =
-  /\b(?:bg|text|border|from|to|via|ring|fill|stroke|outline|divide|decoration|shadow|accent|caret)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/g;
+  /\b(?:bg|text|border(?:-[trblxyse])?|from|to|via|ring(?:-offset)?|inset-ring|fill|stroke|outline|divide|decoration|shadow|inset-shadow|text-shadow|drop-shadow|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/g;
+// Tailwind's serif stack, which no brand theme maps to a brand family.
+const SERIF = /(?<![\w-])font-serif(?![\w-])/g;
 const PROP =
-  /(?<![\w-])(border(?:-(?:top|bottom|start|end)-(?:left|right|start|end))?-radius|border(?:Top|Bottom|Start|End)?(?:Left|Right|Start|End)?Radius|--[\w-]*radius[\w-]*|box-shadow|boxShadow|--[\w-]*shadow[\w-]*)\s*[:=]\s*/g;
+  /(?<![\w-])(?:-(?:webkit|moz)-)?(border(?:-(?:top|bottom|start|end)-(?:left|right|start|end))?-radius|border(?:Top|Bottom|Start|End)?(?:Left|Right|Start|End)?Radius|--[\w-]*radius[\w-]*|box-shadow|boxShadow|--[\w-]*shadow[\w-]*)\s*[:=]\s*/g;
 const SIDES = "(?:-(?:t|r|b|l|s|e|tl|tr|br|bl|ss|se|es|ee))?";
 const CLASS = new RegExp(
   `(?<![\\w-])(?:rounded${SIDES}-(xs|md|lg|xl|2xl|3xl|4xl|\\[[^\\]\\s]+\\])|shadow-(2xs|xs|sm|md|lg|xl|2xl|inner|\\[[^\\]\\s]+\\]))(?![\\w-])`,
@@ -212,9 +259,12 @@ const CLASS = new RegExp(
 
 /** The colour of an rgb()/hsl() literal as #rrggbb, or undefined where it names no literal. */
 export const fnColour = (fn: string, args: string) => {
-  const parts = args.trim().split(/[\s,/]+/);
-  if (parts.length < 3 || !parts.slice(0, 3).every((x) => /^-?[\d.]+(%|deg)?$/.test(x))) return;
+  const parts = args.trim().split(/[\s,/_]+/);
+  if (parts.length < 3 || !parts.slice(0, 3).every((x) => /^-?[\d.]+(%|deg|g?rad|turn)?$/.test(x)))
+    return;
   const n = parts.slice(0, 3).map((x) => parseFloat(x));
+  const unit = /[a-z]+$/.exec(parts[0])?.[0];
+  n[0] *= unit === "turn" ? 360 : unit === "rad" ? 180 / Math.PI : unit === "grad" ? 0.9 : 1;
   if (fn.toLowerCase().startsWith("rgb"))
     return toHex(parts.slice(0, 3).map((x, i) => (x.endsWith("%") ? n[i] * 2.55 : n[i])));
   const [h, s, l] = [n[0], n[1] / 100, n[2] / 100];
@@ -296,9 +346,10 @@ export const scanSource = (raw: string, ext: string) => {
       hexes.push(literal);
     }
   };
-  for (const [, h] of src.matchAll(HEX)) {
+  for (const m of src.matchAll(HEX)) {
+    const h = m[1];
     const short = h.length <= 4;
-    if (short && !isColour3(h)) continue;
+    if (short && !isColour3(h, src.slice(Math.max(0, m.index - 40), m.index))) continue;
     const rgb6 = short ? [...h.slice(0, 3)].map((x) => x + x).join("") : h.slice(0, 6);
     const hex = "#" + rgb6.toLowerCase();
     colour(hex, h.length % 4 ? hex : "#" + h.toLowerCase(), "hex");
@@ -307,12 +358,49 @@ export const scanSource = (raw: string, ext: string) => {
     const hex = fnColour(fn, args);
     if (hex) colour(hex, lit, "rgb");
   }
+  for (const [lit] of src.matchAll(MODERN)) {
+    counts.rgb++;
+    hexes.push(lit);
+  }
+  const named = (word: string) => {
+    const w = word.toLowerCase();
+    if (w === "white" || w === "black") colour(w === "white" ? "#ffffff" : "#000000", w, "hex");
+    else if (NAMED.has(w)) colour(w, w, "hex");
+  };
+  const script = SCRIPT_EXT.test(ext);
+  // A color-mix() inside a colour property is read once, by the position of each word.
+  const seen = new Set<number>();
+  for (const m of src.matchAll(COLOUR_AT)) {
+    const start = m.index + m[0].length;
+    const quoted = /["'`]/.test(src[start] ?? "");
+    if (script && !quoted && !m[0].startsWith("color-mix")) continue;
+    const from = start + (quoted ? 1 : 0);
+    for (const w of valueAt(src, start).value.matchAll(WORD))
+      if (!seen.has(from + w.index)) {
+        seen.add(from + w.index);
+        named(w[1]);
+      }
+  }
+  for (const [, v] of src.matchAll(ARBITRARY)) if (/^[a-z]+$/i.test(v)) named(v);
   for (const m of src.matchAll(FONT)) {
-    const v = (m[1] ?? m[2]).trim();
+    const v = (m[1] ?? m[2] ?? m[3] ?? m[4]).trim();
     if (!BRAND_FONT.test(v)) {
       counts.font++;
       fonts.push(v.split(",")[0].trim().replace(/["']/g, ""));
     }
+  }
+  for (const m of src.matchAll(SHORTHAND)) {
+    const start = m.index + m[0].length;
+    if (script && !/["'`]/.test(src[start] ?? "")) continue;
+    const family = SIZE.exec(valueAt(src, start).value.trim())?.[1];
+    if (family && !BRAND_FONT.test(family)) {
+      counts.font++;
+      fonts.push(family.split(",")[0].trim().replace(/["']/g, ""));
+    }
+  }
+  for (const [lit] of src.matchAll(SERIF)) {
+    counts.font++;
+    fonts.push(lit);
   }
   counts.palette = src.match(PAL)?.length ?? 0;
   return { counts, hexes, fonts };
@@ -338,6 +426,11 @@ export const violations = (
     for (const k of METRICS) {
       const allowed = allow[file]?.[k] ?? 0;
       if (counts[k] > allowed) out.push(`${file}: ${k} ${counts[k]}, allowed ${allowed}`);
+      // An allowance above the count would let a new finding there pass unseen.
+      else if (counts[k] < allowed)
+        out.push(
+          `${ALLOWLIST}: ${file}: ${k} ${counts[k]}, allowed ${allowed}; lower it (brand-colours --tighten)`,
+        );
     }
   }
   // Partner marks count in no total. One in the committed list counts there too where the working
@@ -382,9 +475,12 @@ export const tighten = (
     }
     const limit = (k: (typeof METRICS)[number]) =>
       allow ? Math.max(prior?.[k] ?? 0, ceiling[file]?.[k] ?? 0) : Infinity;
-    const c = Object.fromEntries(METRICS.map((k) => [k, Math.min(limit(k), counts[k])])) as Counts;
+    // Only the metrics with a count: a zero allows nothing.
+    const c = Object.fromEntries(
+      METRICS.map((k) => [k, Math.min(limit(k), counts[k])]).filter(([, n]) => n),
+    ) as Partial<Counts>;
     // A misplaced partner stays, so the next run still reports it.
-    if (METRICS.some((k) => c[k]))
+    if (Object.keys(c).length)
       next[file] = {
         ...c,
         reason: prior?.reason ?? "",
@@ -553,8 +649,14 @@ if (import.meta.main) {
       if (c) ceiling[file] = c;
     }
   if (process.argv.includes("--tighten")) {
-    writeFileSync(ALLOWLIST, JSON.stringify(tighten(files, allow, ceiling), null, 2) + "\n");
-    console.log(`brand-colours: ${ALLOWLIST} tightened; give every new entry its reason`);
+    const next = tighten(files, allow, ceiling);
+    // A list that allows nothing is no file where none was.
+    if (!allow && !Object.keys(next).length)
+      console.log(`brand-colours: nothing to allow; no ${ALLOWLIST} written`);
+    else {
+      writeFileSync(ALLOWLIST, JSON.stringify(next, null, 2) + "\n");
+      console.log(`brand-colours: ${ALLOWLIST} tightened; give every new entry its reason`);
+    }
   } else {
     const bad = violations(files, allow ?? {}, committed, ceiling);
     if (bad.length) {

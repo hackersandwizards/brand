@@ -13,13 +13,14 @@
      --hw-item-height         a tab's height under a mouse
      --hw-touch-floor         its least height, the touch target on a touch screen (scales.css)
      --hw-field-size          the text size
-     --hw-hairline            the line's width */
+     --hw-hairline            the line's width
+     --hw-muted               the muted grey, where a surface's --color-muted means something else */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-tabs {
     --_hw-line: var(--border, var(--color-border));
-    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-quiet: var(--hw-muted, var(--color-muted));
     --_hw-text: var(--foreground, var(--color-ink));
     --_hw-accent: var(--accent, var(--color-teal-dark));
     --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-touch-floor, 0px));
@@ -69,7 +70,7 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tabs {
       --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
-      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-quiet: var(--color-night-muted);
       --_hw-text: var(--foreground, var(--color-night-ink));
       --_hw-accent: var(--accent, var(--color-teal-night));
     }

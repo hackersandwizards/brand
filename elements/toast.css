@@ -106,19 +106,26 @@
     border: 0;
     padding: 0;
     color: inherit;
-    background: currentColor;
+    background: none;
     font: inherit;
     cursor: pointer;
-    opacity: 0.7;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")
-      center / 1em no-repeat;
   }
   .hw-toast-close::before {
     position: absolute;
     inset: -0.75rem;
     content: "";
   }
-  .hw-toast-close:hover {
+  /* The cross is drawn on ::after, so the button's own focus ring stays outside the mask. */
+  .hw-toast-close::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: currentColor;
+    opacity: 0.7;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")
+      center / 1em no-repeat;
+  }
+  .hw-toast-close:hover::after {
     opacity: 1;
   }
   @media (prefers-reduced-motion: no-preference) {

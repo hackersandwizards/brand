@@ -14,7 +14,8 @@
 
    Settings:
      --hw-control-size  a control's side
-     --hw-control-icon  the control's arrow */
+     --hw-control-icon  the control's arrow
+     --hw-muted         the muted grey, where a surface's --color-muted means something else */
 
 @layer properties, theme, base, components, utilities;
 @import "./sr-only.css";
@@ -23,7 +24,7 @@
     --_hw-tray: color-mix(in srgb, var(--color-ink) 7%, transparent);
     --_hw-tray-hover: color-mix(in srgb, var(--color-ink) 15%, transparent);
     --_hw-text: var(--foreground, var(--color-ink));
-    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-quiet: var(--hw-muted, var(--color-muted));
     --_hw-fill: var(--color-teal);
     /* The autoplay step: the current dot fills over it, and the script moves on when it is full. */
     --_hw-step: 6s;
@@ -148,7 +149,7 @@
       --_hw-tray: color-mix(in srgb, white 15%, transparent);
       --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
       --_hw-text: var(--foreground, var(--color-night-ink));
-      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-quiet: var(--color-night-muted);
       --_hw-fill: var(--_hw-text);
     }
   }

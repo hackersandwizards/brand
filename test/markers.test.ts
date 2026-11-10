@@ -464,16 +464,20 @@ test("an area mark opening a list item is no marker", async () => {
 }, 30_000);
 
 // A system's own mark, declared as an exception in brand-elements.json, is no brand marker: its
-// instance inside [data-hw-exception] is left out, as brand-elements leaves it out. The control: the
-// same list outside it is measured.
-test("a marker inside [data-hw-exception] is not measured", async () => {
+// instance inside [data-hw-exception] is left out, as brand-elements leaves it out. The controls:
+// the same list inside an exception no one declared, and outside any, is measured.
+test("a marker inside a declared [data-hw-exception] is not measured, inside another it is", async () => {
   const list = (attr: string) =>
     `<div ${attr}><ul style="list-style:none"><li><span style="width:8px;height:8px;display:inline-block;background:teal"></span> Stop</li></ul></div>`;
-  const urls = [
-    file("exception.html", `<!doctype html>${list('data-hw-exception="track"')}`),
-    file("own.html", `<!doctype html>${list("")}`),
-  ];
-  expect(await Promise.all(urls.map((url) => hasMarkers(browser, url)))).toEqual([false, true]);
+  const exception = file("exception.html", `<!doctype html>${list('data-hw-exception="track"')}`);
+  const own = file("own.html", `<!doctype html>${list("")}`);
+  expect(
+    await Promise.all([
+      hasMarkers(browser, exception, { exceptions: ["track"] }),
+      hasMarkers(browser, exception, { exceptions: ["other"] }),
+      hasMarkers(browser, own),
+    ]),
+  ).toEqual([false, true, true]);
 }, 30_000);
 
 test.each([2, 4])(
@@ -755,6 +759,13 @@ test("marker exceptions keep their readings, fail over their count and report a 
     'markers exception "**/units/**": needs a "reason" and an "off" count of at least 1',
   ]);
   expect(applyExceptions(readings).bad.length).toBe(3);
+  // An "off" above the readings is slack a new one would fill; the control keeps exactly two.
+  const slack = (off: number) =>
+    applyExceptions(readings, { "**/at-rest/": { reason: "engine rounding", off } }).findings;
+  expect(slack(3)).toEqual([
+    'markers exception "**/at-rest/": 2 off readings, 3 kept; lower "off" to 2',
+  ]);
+  expect(slack(2)).toEqual([]);
 });
 
 // A named page whose only markers sit inside a [data-hw-exception] brand-elements.json declares
@@ -781,24 +792,42 @@ describe("a page whose markers are all declared exceptions", () => {
   };
   const declared = { exceptions: { track: "The system's own timeline." } };
 
-  test("passes when named on the command line; no marker or an undeclared name fails", () => {
+  // Under an undeclared name the timeline's square is measured as a list marker, and it is off.
+  const measured = `${own} li "xxxxHHHH Stop" (element, 2x): `;
+
+  test("passes when named on the command line; no marker fails, an undeclared name is measured", () => {
     expect(cli([own], declared).code).toBe(0);
-    for (const [url, config] of [
-      [none, declared],
-      [own, {}],
-    ] as const) {
-      const run = cli([url], config);
-      expect(run.code).toBe(1);
-      expect(run.err).toContain(`${url}: no marker found`);
-    }
+    const empty = cli([none], declared);
+    expect([empty.code, empty.err]).toEqual([1, `${none}: no marker found\n`]);
+    const undeclared = cli([own], {});
+    expect(undeclared.code).toBe(1);
+    expect(undeclared.err).toContain(measured);
   }, 60_000);
 
-  test('passes when listed in brand-elements.json "pages"; no marker or an undeclared name fails', () => {
+  test('passes when listed in brand-elements.json "pages"; no marker fails, an undeclared name is measured', () => {
     expect(cli([], { ...declared, pages: [own] }).code).toBe(0);
-    for (const config of [{ ...declared, pages: [none] }, { pages: [own] }]) {
-      const run = cli([], config);
+    const empty = cli([], { ...declared, pages: [none] });
+    expect(empty.code).toBe(1);
+    expect(empty.err).toContain('no marker on any page of brand-elements.json "pages"');
+    const undeclared = cli([], { pages: [own] });
+    expect(undeclared.code).toBe(1);
+    expect(undeclared.err).toContain(measured);
+  }, 60_000);
+
+  // A catalog alone, its stories showing no marker, measures nothing: it fails as named pages do.
+  test("a catalog whose stories show no marker fails", () => {
+    const dir = mkdtempSync(join(tmpdir(), "brand-markers-catalog-"));
+    try {
+      mkdirSync(join(dir, "stories/Parts/plain/default"), { recursive: true });
+      writeFileSync(
+        join(dir, "stories/Parts/plain/default/index.html"),
+        `<!doctype html><p>No list here</p>`,
+      );
+      const run = cli([], { catalog: dir });
       expect(run.code).toBe(1);
-      expect(run.err).toContain('no marker on any page of brand-elements.json "pages"');
+      expect(run.err).toContain("no marker on any page of brand-elements.json");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
   }, 60_000);
 });

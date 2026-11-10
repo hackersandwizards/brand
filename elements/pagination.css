@@ -12,16 +12,17 @@
      --hw-touch-floor         its least height, the touch target on a touch screen (scales.css)
      --hw-field-size          the text size
      --hw-corner-sm           a page link's corner
-     --hw-hairline            the line's width in the sequence */
+     --hw-hairline            the line's width in the sequence
+     --hw-muted               the muted grey, where a surface's --color-muted means something else */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-pagination {
-    --_hw-quiet: var(--muted-foreground, var(--color-muted));
+    --_hw-quiet: var(--hw-muted, var(--color-muted));
     --_hw-text: var(--foreground, var(--color-ink));
     --_hw-line: var(--border, var(--color-border));
     --_hw-accent: var(--accent, var(--color-teal-dark));
-    --_hw-on-accent: var(--accent-foreground, var(--color-white));
+    --_hw-on-accent: var(--on-accent, var(--color-white));
     --_hw-target: max(var(--hw-item-height, 2.75rem), var(--hw-touch-floor, 0px));
     font-size: var(--hw-field-size, var(--type-body-size));
   }
@@ -101,11 +102,11 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-pagination {
-      --_hw-quiet: var(--muted-foreground, var(--color-night-muted));
+      --_hw-quiet: var(--color-night-muted);
       --_hw-text: var(--foreground, var(--color-night-ink));
       --_hw-line: var(--border, color-mix(in srgb, white 15%, transparent));
       --_hw-accent: var(--accent, var(--color-teal-night));
-      --_hw-on-accent: var(--accent-foreground, var(--color-night));
+      --_hw-on-accent: var(--on-accent, var(--color-night));
     }
   }
 }
