@@ -431,7 +431,7 @@ No line passes, so the answer to the first question is no and the recommendation
 
 For the claims, score is the mean of panel and path, as in the item, and noise the larger run gap. e5x's score takes the panel of round 1 (its first wording, 71.2) and the path of round 3. hb's score is its second hero round and compares only with the decided headline there.
 
-e5x, r1 and hb go into the item `decide-claim-amdahl` as further options once the item is on `origin/main`. `recommended` stays tpe-tune.
+e5x, r1 and hb stand in the item `decide-claim-amdahl` as further options. `recommended` stays tpe-tune.
 
 My judgement, apart from the rule: hb with tpe-tune keeps the people in the claim and puts the client's change first on the home page. The averages hold on the hero and on the path, and Claude reads the path lower. No move of this round is free: each gain-first claim pays with the panel or with distinctiveness, and the headline pays with one model's path score.
 
