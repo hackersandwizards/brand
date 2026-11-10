@@ -880,7 +880,8 @@ const { word } = verbal.claim;
 const metaOf = (k: (typeof PAIRS)[number]) =>
   [
     "since" in verbal[k] && `since ${verbal[k].since}`,
-    k === "claim" && `highlight word ${word.en === word.de ? word.en : `${word.en} / ${word.de}`}`,
+    k === "claim" &&
+      `highlight word ${word.en.toLowerCase() === word.de.toLowerCase() ? word.en : `${word.en} / ${word.de}`}`,
     k === "headline" && "the website's home H1",
   ]
     .filter(Boolean)
@@ -917,7 +918,7 @@ ${table(
   "hw-table words",
 )}
 <details class="hw-disclosure words-fold"><summary>Retired lines <span class="hw-disclosure-count">${verbal.retired.length}</span></summary>
-<p>No longer used anywhere; each was replaced by the claim or the mission. ${code("brand-retired")} fails a build that still shows one.</p>
+<p>No longer used anywhere; each was replaced by the claim, the home headline or the mission. ${code("brand-retired")} fails a build that still shows one.</p>
 ${table(
   ["Line", "Language", "Retired"],
   verbal.retired.map((r) => [

@@ -13,7 +13,9 @@ The banners with client logos (profile slide 2, the Featured link) take their ma
 The profile banners take the claim from verbal/verbal.json in two rows: after a claim change, run
 this and read each of them for the safe area.
 Layout values are measured from the airy set as shipped; an ink box in a comment is this render's
-pixels brighter than 70 of 255, a few px narrower than the alpha box the grid centres.
+pixels brighter than 70 of 255, a few px narrower than the alpha box the grid centres. The run
+prints each file's ink box as left, top, right, bottom, the last two one past the ink, as the
+comments give them.
 """
 
 import argparse
@@ -411,7 +413,9 @@ SURFACES = grid_surfaces()
 def build(out, accent):
     out.mkdir(parents=True, exist_ok=True)
     for file, (name, k) in REPO_FILES.items():
-        render(name, accent, k).save(out / file, optimize=True)
+        img = render(name, accent, k)
+        img.save(out / file, optimize=True)
+        print(file, "ink", img.convert("L").point(lambda v: 255 * (v > 70)).getbbox())
     # Canva page 4200 x 700: the cover layout on a 1536 x 256 canvas, 12 px each side, scaled
     cv = {"canvas": (1536, 256), "margin": 12, "k": 4200 / 1536}
     render("company-cover", accent, **cv).save(out / "linkedin-company-cover-canva-4200x700.png", optimize=True)
