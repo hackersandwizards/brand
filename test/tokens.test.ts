@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { compile } from "tailwindcss";
 import { fontFaceRules, preloadFiles } from "../generated/font-faces";
 import fonts from "../generated/fonts.json";
+import { tokens as generatedTokens } from "../generated/tokens";
 import { ROOT } from "../scripts/git";
 import {
   faceRules,
@@ -38,6 +39,31 @@ const contrast = (a: string, b: string) => {
 test("reads every declaration of tokens.css", () => {
   expect(Object.keys(tokens)).toHaveLength(169);
   expect(tokens["--color-teal"]).toBe("#1a7285");
+});
+
+test("the data formats carry expert.css's type steps, its aliases left out; the CSS formats do not", () => {
+  const expert = readFileSync(join(ROOT, "expert/expert.css"), "utf8");
+  const generated = (file: string) => readFileSync(join(ROOT, "generated", file), "utf8");
+  const json = JSON.parse(generated("tokens.json")).tokens;
+  const root = generated("tokens.root.css");
+  const steps = [...expert.matchAll(/^ {2}(--text-[\w-]+): (?!var\()([^;]+);/gm)];
+  expect(steps.map(([, name]) => name)).toEqual(
+    expect.arrayContaining([
+      "--text-page",
+      "--text-heading",
+      "--text-subheading",
+      "--text-subheading--line-height",
+      "--text-ui",
+      "--text-micro",
+    ]),
+  );
+  for (const [, name, value] of steps) {
+    expect(json[name!]).toBe(value!);
+    expect(root).not.toContain(`${name}:`);
+  }
+  expect(json["--text-meta"]).toBeUndefined();
+  expect(generatedTokens).toEqual(json);
+  expect(generated("tokens.py")).toContain(JSON.stringify(json, null, 4));
 });
 
 test("mixes color-mix() tokens in sRGB", () => {

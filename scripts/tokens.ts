@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 // Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
 // generated/tokens.root.css (the @theme block as :root and on a light element under night),
-// tokens.json, tokens.ts and tokens.py, and code-theme.json, the Shiki theme of the --code-* tokens
+// tokens.json, tokens.ts and tokens.py, those three with expert/expert.css's type steps too, and
+// code-theme.json, the Shiki theme of the --code-* tokens
 // and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces and fallback
 // faces, for a surface that writes its own @font-face; font-faces.ts, fonts.css's rules with the
 // url of each font file the caller's; and static-fonts.css, tokens/print.css's
@@ -32,15 +33,25 @@ const declarations = (body: string) => {
  *  Throws on a theme block it cannot read, such as one holding a nested rule. */
 export const parseTokens = (css: string) => {
   const bare = css.replace(/\/\*[\s\S]*?\*\//g, "");
-  const blocks = [...bare.matchAll(/@theme(?:\s+static)?\s*\{([^{}]*)\}/g)];
+  const blocks = [...bare.matchAll(/@theme(?:\s+(?:static|inline))?\s*\{([^{}]*)\}/g)];
   if (blocks.length !== bare.match(/@theme\b/g)?.length)
-    throw new Error("tokens.css: a @theme block parseTokens cannot read");
+    throw new Error("a @theme block parseTokens cannot read");
   return Object.fromEntries(
     Object.entries(declarations(blocks.map((m) => m[1]).join(";"))).filter(([k]) =>
       k.startsWith("--"),
     ),
   );
 };
+
+/** expert.css's own --text-* steps, an alias of another step left out; a name tokens.css holds too
+ *  throws, since the data formats hold one value per name. */
+const expertSteps = (css: string, tokens: Record<string, string>) =>
+  Object.fromEntries(
+    Object.entries(parseTokens(css)).filter(([k, v]) => {
+      if (k.startsWith("--text-") && k in tokens) throw new Error(`expert.css repeats ${k}`);
+      return k.startsWith("--text-") && !v.startsWith("var(");
+    }),
+  );
 
 /** The two palettes, tables in tokens.css's comments: the neutrals (job | day | night, "-" where
  *  one ground alone has the job) and the hues (base | text on light | night | job). */
@@ -349,15 +360,21 @@ const generate = () => {
   const colors = resolveColors(tokens);
   const head =
     "Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file.";
-  const json = JSON.stringify({ tokens, colors }, null, 2);
+  const data = {
+    ...tokens,
+    ...expertSteps(readFileSync(join(ROOT, "expert/expert.css"), "utf8"), tokens),
+  };
+  const dataHead =
+    "Generated from tokens/tokens.css and expert/expert.css by scripts/tokens.ts. Edit the sources, never this file.";
+  const json = JSON.stringify({ tokens: data, colors }, null, 2);
   return {
     // The colours and every token built from them return on a data-theme="light" element inside
     // night.css's night, which is day again there; the rest inherit, so a scale or a corner an
     // ancestor sets holds on it. :where() leaves the surface's own values on that element winning.
     "tokens.root.css": `/* ${head} */\n:root {\n${declare(Object.keys(tokens))}\n}\n:where([data-hw-night] [data-theme="light"]) {\n${declare([...dayAgain(tokens)])}\n}\n`,
     "tokens.json": json + "\n",
-    "tokens.ts": `// ${head}\nexport const tokens = ${JSON.stringify(tokens, null, 2)} as const;\n\nexport const colors = ${JSON.stringify(colors, null, 2)} as const;\n`,
-    "tokens.py": `# ${head}\nTOKENS = ${JSON.stringify(tokens, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
+    "tokens.ts": `// ${dataHead}\nexport const tokens = ${JSON.stringify(data, null, 2)} as const;\n\nexport const colors = ${JSON.stringify(colors, null, 2)} as const;\n`,
+    "tokens.py": `# ${dataHead}\nTOKENS = ${JSON.stringify(data, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
     "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
     "fonts.json":
       JSON.stringify({ faces: fontFaces(screen), fallbacks: fallbackData(screen) }, null, 2) + "\n",

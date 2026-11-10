@@ -1,4 +1,4 @@
-# Generated from tokens/tokens.css by scripts/tokens.ts. Edit the source, never this file.
+# Generated from tokens/tokens.css and expert/expert.css by scripts/tokens.ts. Edit the sources, never this file.
 TOKENS = {
     "--radius-sm": "5px",
     "--radius-brand": "20px 5px",
@@ -168,7 +168,17 @@ TOKENS = {
     "--gradient-strip": "linear-gradient(to right, var(--color-teal), var(--color-purple))",
     "--container-measure": "33em",
     "--container-measure-h1": "18ch",
-    "--container-measure-h2": "26ch"
+    "--container-measure-h2": "26ch",
+    "--text-page": "1.5rem",
+    "--text-page--line-height": "1.25",
+    "--text-heading": "1.25rem",
+    "--text-heading--line-height": "1.3",
+    "--text-subheading": "1rem",
+    "--text-subheading--line-height": "1.35",
+    "--text-ui": "0.875rem",
+    "--text-ui--line-height": "1.5",
+    "--text-micro": "0.75rem",
+    "--text-micro--line-height": "calc(16 / 12)"
 }
 
 COLORS = {

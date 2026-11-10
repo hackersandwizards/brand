@@ -48,7 +48,7 @@ data or secret.
   its people records. Every
   channel banner lives in `applications/channel-banners/`, the ones with client logos included.
   A retired file is deleted; git history keeps it.
-- `generated/`: token formats built from `tokens/tokens.css` (`:root` CSS with the colours again for a light island inside night, JSON, TS, Python, the slide pointer `cursor.svg`), the Shiki theme of its code palette (`code-theme.json`),
+- `generated/`: token formats built from `tokens/tokens.css`, the data formats with `expert/expert.css`'s type steps too (`:root` CSS with the colours again for a light island inside night, JSON, TS, Python, the slide pointer `cursor.svg`), the Shiki theme of its code palette (`code-theme.json`),
   the faces of `tokens/fonts.css` (`fonts.json`), its rules as `fontFaceRules(base)` for a
   surface serving the font files from its own path, with `preloadFiles`, the files to preload (`font-faces.ts`), and the `@font-face` rules of `tokens/print.css`
   with the fallback faces of `tokens/fonts.css` (`static-fonts.css`), and the flat builds `elements.css` and `document.css`, the two sources
