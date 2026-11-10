@@ -68,7 +68,14 @@ room, calm, fit), 1 to 10. Noise not measured. The box at the measure leads the
 old state by 0.83 to 1.5 in every run. It ties the third variant with the Codex trainer, who ships
 the third over a single line break. So every `.hw-quote` in `hw-prose` takes
 `max-width: var(--container-measure)`, unless it holds an image, video, code block, table or
-figure, as running text does. Scored on the app scale at 1440 px only.
+figure, as running text does. The quote sets `box-sizing: border-box` itself, so its box, rule and
+gap included, is the paragraphs' width on a page without Tailwind's preflight too.
+
+A second round on the dense scale, the one the admin hub, os and the trainer hub set (13 px, a
+429 px measure), at 1440 px, one consultant reading notes and handbook pages, the old width against
+the measure: Claude 6.2 against 7.2, Codex 7.33 against 8.50, both shipping the measure. Not scored:
+widths below the block's 768 px, where the measure no longer narrows anything, and the print and
+stage scales.
 
 The consultant's prompt, verbatim, with the three file paths after it:
 
@@ -78,7 +85,10 @@ The consultant's prompt, verbatim, with the three file paths after it:
 
 With a source page whose load fails after the search was recorded, by Enter or by the typing
 debounce, the filter left the page for the source page and kept the entry carrying the search.
-Back returned to that entry, which loaded the source again and left once more. Two catalog tests
-reproduce both paths. Where the current entry carries a search, the failed load now replaces it
-with the source page's address (`location.replace`). Otherwise the form submits as before. Back
-from the source page lands on the page without the search.
+Back returned to that entry, which loaded the source again and left once more. A facet picked
+after the load had failed did the same: the page left and the pick still pushed an entry. Three
+catalog tests reproduce the paths, Enter, the debounce and a facet, each failing the load again on
+the page Back reaches. A failed load now records no entry for an active search, and where the
+current entry already carries one, the source page's address replaces it (`location.replace`),
+else it is a new entry. Both build the address the same way, from `stateUrl`. Back from the source
+page lands on the page without the search and stays there.

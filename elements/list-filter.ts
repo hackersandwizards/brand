@@ -409,10 +409,10 @@ export function initListFilter(root: HTMLElement) {
     if (!loaded) {
       // An entry here carrying a search would load the source again on Back and leave once more:
       // the source page takes its place.
-      if (active && failed && isActive(readState(new URLSearchParams(location.search), options)))
-        location.replace(stateUrl(form.action, current));
-      else if (active && failed) form.submit();
-      else if (active) void load();
+      if (active && failed) {
+        const carried = isActive(readState(new URLSearchParams(location.search), options));
+        location[carried ? "replace" : "assign"](stateUrl(form.action, current));
+      } else if (active) void load();
       list.hidden = true;
       for (const clear of clears) if (clear.closest("form")) clear.hidden = !active;
       return;
@@ -469,6 +469,8 @@ export function initListFilter(root: HTMLElement) {
   // A pick by pointer, which folds the phone's facets; a pick by key keeps them open.
   let tapped = false;
   const record = (kind: string) => {
+    // A failed load has just sent an active search to the source page: no entry on the way out.
+    if (failed && isActive(state())) return;
     const next = stateUrl(location.href, state());
     if (next === location.href) return;
     if (session === kind) history.replaceState(history.state, "", next);
@@ -487,8 +489,7 @@ export function initListFilter(root: HTMLElement) {
     timer = window.setTimeout(() => {
       timer = 0;
       apply();
-      // A failed load has just submitted an active search: no history entry on the way out.
-      if (!failed || !isActive(state())) record("typing");
+      record("typing");
     }, 200);
   });
   panel.addEventListener("pointerdown", () => {

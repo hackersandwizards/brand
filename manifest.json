@@ -386,7 +386,7 @@
     },
     {
       "path": "elements/quote.css",
-      "sha256": "91f71902abe28c747253ca3ffe1edd83fc740997611172fb064fa68548c1b12c"
+      "sha256": "f12a0d16ae0212238c8b5dc11610b9a6d6ba81170c8c9755c359bc0f428a113e"
     },
     {
       "path": "elements/scales.css",
@@ -542,7 +542,7 @@
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "ef57b32ba8c0004fb77c47bd443602cb80420fb2e8aa2b37056efa0c943b73ae"
+      "sha256": "b6f15fa7fb58339c96040c1062eb6ed2d92b7b90c98e668e5bc72e61545b805e"
     },
     {
       "path": "elements/choice.css",

@@ -231,15 +231,30 @@ test("a search submitted before the source page's load fails goes there", async 
   await landed(q, "context");
 }, 60_000);
 
-// Back from the source page lands on this one without the search, which would send it there again.
+// Back from the source page lands on this one without the search, which would send it there again:
+// its own load failing too, it stays.
 const backWithout = async (q: Page) => {
   await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
   await q.goBack({ waitUntil: "load" });
+  await q.evaluate(() => (window as unknown as { failLoad?(): void }).failLoad?.());
   await settle();
   expect(new URL(q.url()).pathname).toEndWith("/list-filter/source/");
-  expect(new URL(q.url()).searchParams.get("q")).toBeNull();
+  expect(new URL(q.url()).search).toBe("");
+  expect(await q.$eval('input[name="q"]', (input) => (input as HTMLInputElement).value)).toBe("");
   await q.close();
 };
+
+test("Back from a facet picked after the source page's load failed does not loop", async () => {
+  const q = await held();
+  await q.evaluate(async () => {
+    (window as unknown as { failLoad(): void }).failLoad();
+    await new Promise((resolve) => setTimeout(resolve));
+    document.querySelector<HTMLInputElement>('input[name="topic"][value="tools"]')!.click();
+  });
+  await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
+  expect(new URL(q.url()).searchParams.get("topic")).toBe("tools");
+  await backWithout(q);
+}, 60_000);
 
 test("Back from a search submitted before the source page's load failed does not loop", async () => {
   const q = await held();

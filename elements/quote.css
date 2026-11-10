@@ -10,6 +10,7 @@
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-quote {
+    box-sizing: border-box;
     margin-inline: 0;
     border-left: var(--hw-quote-rule, 2px) solid var(--color-purple);
     padding-left: var(--hw-quote-gap, 1.25rem);

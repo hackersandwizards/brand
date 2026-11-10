@@ -177,7 +177,7 @@ test("a quote in the prose block keeps the running text's measure", async () => 
   const p = await browser.newPage();
   await p.setViewport({ width: 1440, height: 900 });
   await p.setContent(
-    `<style>*{box-sizing:border-box}</style><div class="prose hw-prose" style="font-size:16px"><p>Text</p><blockquote class="hw-quote not-prose"><p>Quote</p></blockquote><blockquote class="hw-quote not-prose"><pre>code</pre></blockquote></div>`,
+    `<div class="prose hw-prose" style="font-size:16px"><p>Text</p><blockquote class="hw-quote not-prose"><p>Quote</p></blockquote><blockquote class="hw-quote not-prose"><pre>code</pre></blockquote></div>`,
   );
   for (const path of ["generated/tokens.root.css", "generated/elements.css"])
     await p.addStyleTag({ path: join(ROOT, path) });
