@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 1
-order: 40
+order: 70
 area: brand
 owner: a brand session
 evidence: "Files: applications/channel-banners/ (rendered 08.11. from the u1 claim in brand v1.57.0; the images are unchanged through v2.1.0, whose 81d1717 touched only render.py). Texts blind-reviewed in context: docs/agent-work/2026-11-08-claim-rollout-holistic.md. Request: Benedikt, 08.11.: „Gleiches gilt ja für die externen Profile, ne? Wir müssen, sobald wir den Claim und die ja, müssen wir auch nochmal alle externen Profile, auch OMR, nochmal aktualisieren. Das sollten wir auch auf die Liste für später tun. p1“"

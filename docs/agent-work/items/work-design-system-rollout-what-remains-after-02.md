@@ -2,7 +2,7 @@
 kind: work
 status: open
 priority: 3
-order: 2000
+order: 1998
 owner: a brand session
 evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, teal 7 % on white) and brand-elements' source check learned button, breadcrumb and fact, read 0 findings on slides, documents and talks origin/main (the control, website, reads 10); measurements below from tokens/tokens.css and applications/channel-banners/render.py"
 ---
