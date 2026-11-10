@@ -45,12 +45,9 @@
   --tw-prose-captions: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
 }
 .hw-prose
-  :is(p, ul, ol, blockquote, dl):not(
-    .not-prose,
-    .not-prose *,
+  :is(:is(p, ul, ol, blockquote, dl):not(.not-prose, .not-prose *), .hw-quote):not(
     :has(img, video, pre, table, figure)
-  ),
-.hw-prose .hw-quote:not(:has(img, video, pre, table, figure)) {
+  ) {
   max-width: var(--container-measure);
 }
 .hw-prose :is(table, pre) {

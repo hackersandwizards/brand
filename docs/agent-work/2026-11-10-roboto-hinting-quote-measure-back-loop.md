@@ -11,8 +11,9 @@ run had measured none. The difference is the fontconfig hinting style, not the f
 Method: Debian trixie, its Chromium 156, the website's `dist/` at v1.5.4 (brand v2.4.1), Inter's
 main file 400 ms late, a fresh context per load, CLS summed once `document.fonts.ready` has
 resolved and 1.2 s have passed, window 860 px high, device scale 2 below 768 px. Each profile is a
-fontconfig file setting Roboto as `sans-serif` and `system-ui`. Two loads per cell, both equal
-in every cell.
+fontconfig file setting Roboto as `sans-serif` and `system-ui`, Chromium started with
+`--hide-scrollbars`. Two loads per cell, equal in every cell but one: static, hintslight, no
+overrides, 1280 px read .1708 and .1699.
 
 | Profile, Inter Fallback Roboto        | 360   | 375   | 390   | 393   | 412   | 414   | 430   | 768   | 1280  | 1440  |
 | ------------------------------------- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
@@ -23,7 +24,8 @@ in every cell.
 | static, hintfull, no overrides        | .0294 | .0295 | .0034 | .0580 | .0322 | .0321 | .0017 | .0031 | .1587 | .1355 |
 
 - The font file is not the factor. Debian's static Roboto (2.138, 2017) and Android's variable
-  Roboto (3.005, AOSP `external/roboto-fonts` on `main`) give the same readings in every cell. Their
+  Roboto (3.005, AOSP `external/roboto-fonts` on `main`) give the same readings with the overrides
+  at every width. Without them they part at 375 px alone, .0038 static against .0332 variable. Their
   advances over the website home's 17,756 characters differ by 0.00 % at 400, 0.11 % at 500,
   0.40 % at 600 (static Bold standing in) and 0.05 % at 700. Against Inter they ask for 107.37,
   107.52, 108.16 and 108.82 % (variable), where the committed overrides are 107.28, 107.41, 108.07
@@ -32,8 +34,9 @@ in every cell.
   shift at any width. Adding only `hintstyle hintfull` to that profile reproduces the website's
   readings to the fourth decimal in every cell, with and without overrides. The website's
   fontconfig file replaced Debian's whole configuration, so fontconfig's built-in full hinting
-  applied. A second control, the website's file with only `hintslight` added, gives no shift
-  either.
+  applied. A second control, the website's file with only `hintslight` added, gave no shift at
+  any width either, measured before the scrollbar was hidden, so at layouts 15 px narrower than
+  the widths named.
 - Android runs Chromium with slight hinting and subpixel positioning
   (`ui/gfx/font_render_params_skia.cc` on Chromium `main`, read 10.11.2026). Slight hinting is the
   stand-in for Android, and under it the overrides remove every shift.
@@ -44,8 +47,10 @@ The overrides stay as they are.
 
 Method traps, both found in this run: Chromium's headless mode draws a 15 px classic scrollbar
 unless started with `--hide-scrollbars` (puppeteer adds it itself), so a viewport of 412 px laid
-out 397 px; and the website's control, every new `local()` name renamed, fell through to DejaVu
-Sans rather than Roboto, which is why its control row differs from its no-override row.
+out 397 px. And under the website's fontconfig file `fc-match sans-serif` answers DejaVu Sans,
+not Roboto, so its control, every new `local()` name renamed, most likely fell through to DejaVu.
+That would explain why its control row differs from its no-override row. Inferred from
+`fc-match`, not checked on a rendered page.
 
 Not measured: Android itself.
 

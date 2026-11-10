@@ -258,13 +258,9 @@ test("Back from a facet picked after the source page's load failed does not loop
 
 test("Back from a search submitted before the source page's load failed does not loop", async () => {
   const q = await held();
-  await q.evaluate(async () => {
-    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
-    input.value = "context";
-    input.form!.requestSubmit();
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    (window as unknown as { failLoad(): void }).failLoad();
-  });
+  await q.keyboard.type("context");
+  await q.keyboard.press("Enter");
+  await q.evaluate(() => (window as unknown as { failLoad(): void }).failLoad());
   await backWithout(q);
 }, 60_000);
 
