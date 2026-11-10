@@ -168,6 +168,10 @@
     width: 1em;
     height: 1em;
   }
+  /* The touch area (touch.css) grows only away from the words. */
+  .hw-pill-remove::after {
+    inset-inline-start: 0;
+  }
   .hw-pill-remove:hover::before {
     opacity: 1;
   }

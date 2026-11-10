@@ -24,6 +24,7 @@
     width: var(--_hw-size);
     height: var(--_hw-size);
     border-radius: var(--radius-pill);
+    overflow: hidden;
     color: var(--color-white);
     background: var(--hw-avatar-hue, var(--color-teal-dark));
     font-family: var(--font-mono);
@@ -37,6 +38,12 @@
   }
   .hw-avatar[data-size="large"] {
     --_hw-size: calc(var(--hw-avatar-size, 2.5rem) * 1.5);
+  }
+  /* A link or button keeps its touch area (touch.css) unclipped; its photo rounds itself. */
+  @media (any-pointer: coarse) {
+    :is(a, button).hw-avatar {
+      overflow: visible;
+    }
   }
   .hw-avatar > img {
     width: 100%;

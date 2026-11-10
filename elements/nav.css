@@ -71,9 +71,7 @@
     background: none;
   }
   .hw-nav-count {
-    flex: none;
     margin-left: auto;
-    overflow-wrap: normal;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);

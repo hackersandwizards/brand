@@ -3,7 +3,8 @@
    it, so its look and layout stay. hw-touch-target gives it to any control; hw-icon-button,
    hw-pill-remove, an hw-segmented item and an hw-avatar that is a link or button carry it, and
    each of those files imports this one. The control keeps its ::after free; a position it sets
-   itself wins. Two controls closer than the floor share the overlap.
+   itself wins. Where two controls stand closer than the floor, the later one's area covers the
+   overlap.
 
    Markup: <button class="hw-touch-target" type="button" aria-label="…"><svg>…</svg></button> */
 

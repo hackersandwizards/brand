@@ -62,7 +62,8 @@
     border-radius: var(--hw-card-corner, var(--radius-brand));
     padding: 0 var(--hw-field-pad, 1rem) 0 var(--hw-field-pad-start, var(--hw-field-pad, 1rem));
     font-family: var(--hw-field-family, var(--type-body-family));
-    font-size: max(var(--hw-field-floor, 0px), var(--hw-field-size, var(--type-body-size)));
+    --_hw-field-text: var(--hw-field-size, var(--type-body-size));
+    font-size: max(var(--hw-field-floor, 0px), var(--_hw-field-text));
     line-height: var(--type-body-line-height);
     color: var(--color-ink);
     background: var(--color-white);
@@ -103,14 +104,11 @@
   }
   .hw-field[data-size="small"] {
     min-height: calc(var(--hw-field-height, 3rem) * 5 / 6);
-    font-size: max(var(--hw-field-floor, 0px), var(--hw-form-small, var(--type-small-size)));
+    --_hw-field-text: var(--hw-form-small, var(--type-small-size));
   }
   .hw-field[data-size="large"] {
     min-height: calc(var(--hw-field-height, 3rem) * 7 / 6);
-    font-size: max(
-      var(--hw-field-floor, 0px),
-      calc(var(--hw-field-size, var(--type-body-size)) * 9 / 8)
-    );
+    --_hw-field-text: calc(var(--hw-field-size, var(--type-body-size)) * 9 / 8);
   }
   /* The file field: the browser's button as the field's first part, the file name after it. */
   .hw-field[type="file"] {

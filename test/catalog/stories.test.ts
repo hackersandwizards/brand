@@ -23,12 +23,13 @@ afterAll(async () => {
 
 test("every story passes brand-elements, every element story shows its element", async () => {
   const pages = storyPages();
-  // Five per element, three that show a setting (the prose block's reading width, the row's
-  // padding, the dialog in a narrow tile), the list filter's nine, the area marks' two and the
+  // Five per element, four that show a setting (the prose block's reading width, the row's
+  // padding, the dialog in a narrow tile, the navigation list at a sidebar's width), the list
+  // filter's nine, the area marks' two and the
   // expert components' sixteen (expert/components, each in ExpertFrame.astro).
   const expert = pages.filter(expertStory);
   expect([pages.length, expert.length]).toEqual([
-    Object.keys(ELEMENTS).length * 5 + 3 + 9 + 2 + 16,
+    Object.keys(ELEMENTS).length * 5 + 4 + 9 + 2 + 16,
     16,
   ]);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.

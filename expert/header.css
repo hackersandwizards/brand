@@ -229,13 +229,16 @@ html[data-theme="dark"] #theme-toggle #moon-icon {
   flex-shrink: 0;
 }
 
-/* On a touch screen each link or button reaches the 44 px touch target through an empty ::after,
-   its look kept: the rule of elements/touch.css, which this plain file cannot import. The nav
-   clips at its padding box, so it pads a 32 px link to that height and takes the padding back. */
+/* On a touch screen each link or button reaches the touch target (--hw-touch-floor, 44 px where no
+   scale sets it) through an empty ::after, its look kept: the rule of elements/touch.css, which this
+   plain file cannot import. The nav clips at its padding box, so it pads a 32 px link to 44 px and
+   takes the padding back. */
 @media (any-pointer: coarse) {
   .hw-header-nav {
-    padding-block: 6px;
-    margin-block: -6px;
+    --_hw-touch-pad: 6px;
+    box-sizing: border-box;
+    padding-block: var(--_hw-touch-pad);
+    margin-block: calc(-1 * var(--_hw-touch-pad));
   }
   .hw-header-link {
     position: relative;
@@ -243,7 +246,7 @@ html[data-theme="dark"] #theme-toggle #moon-icon {
   .hw-header-link::after {
     content: "";
     position: absolute;
-    inset: min(0px, calc((100% - 44px) / 2));
+    inset: min(0px, calc((100% - var(--hw-touch-floor, 44px)) / 2));
   }
 }
 
@@ -320,7 +323,7 @@ html[data-theme="dark"] #theme-toggle #moon-icon {
     /* The touch padding above, inside the row's height. */
     @media (any-pointer: coarse) {
       & > .hw-header-nav:is([data-hw-catalogs], :has(> [data-hw-catalogs])) {
-        height: calc(2.5rem + 12px);
+        height: calc(2.5rem + 2 * var(--_hw-touch-pad));
       }
     }
   }

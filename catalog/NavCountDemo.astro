@@ -2,15 +2,9 @@
 // The navigation list at a sidebar's width (the admin hub's rail is 15rem), its long hyphenated
 // names wrapping beside a two- and a three-digit count.
 import Element from "./Element.astro";
-
-interface Props {
-  scale?: "screen" | "dense";
-  night?: boolean;
-}
-const { scale = "dense", night = false } = Astro.props;
 ---
 
-<Element name="nav" scale={scale} night={night} settings="max-width: 15rem">
+<Element name="nav" scale="dense" settings="max-width: 15rem">
   <nav class="hw-nav" aria-label="Repos">
     <ul>
       <li>
