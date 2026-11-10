@@ -196,30 +196,3 @@ test("a quote in the prose block keeps the running text's measure", async () => 
   expect(widths).toEqual([528, 528, 768]);
   await p.close();
 }, 60_000);
-
-test("hw-measure gives running text the prose block's measure without its type", async () => {
-  const p = await browser.newPage();
-  await p.setViewport({ width: 1440, height: 900 });
-  await p.setContent(
-    `<div class="hw-measure" style="font-size:16px"><h2>H</h2><p>P</p><p style="font-size:12px">Small</p><ul><li>U</li></ul><ol><li>O</li></ol><dl><dt>T</dt><dd>D</dd></dl><blockquote>Q</blockquote><ul><li><pre>code</pre></li></ul><blockquote><table><tr><td>T</td></tr></table></blockquote><p class="not-prose">Out</p></div>`,
-  );
-  for (const path of ["generated/tokens.root.css", "generated/elements.css"])
-    await p.addStyleTag({ path: join(ROOT, path) });
-  const styles = await p.$$eval(".hw-measure > *", (els) =>
-    els.map((el) => `${el.tagName} ${getComputedStyle(el).maxWidth}`),
-  );
-  expect(styles).toEqual([
-    "H2 none",
-    "P 528px",
-    "P 396px",
-    "UL 528px",
-    "OL 528px",
-    "DL 528px",
-    "BLOCKQUOTE 528px",
-    "UL none",
-    "BLOCKQUOTE none",
-    "P none",
-  ]);
-  expect(await p.$eval(".hw-measure h2", (el) => getComputedStyle(el).fontSize)).toBe("24px");
-  await p.close();
-}, 60_000);

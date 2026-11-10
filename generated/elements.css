@@ -2612,6 +2612,11 @@ select.form-input {
     }
   }
 }
+@layer components {
+  .hw-measure > :is(p, ul, ol, blockquote, dl):not(:has(img, video, pre, table, figure)) {
+    max-width: var(--container-measure);
+  }
+}
 .hw-prose {
   max-width: var(--hw-prose-width, var(--container-3xl, 48rem));
   overflow-wrap: break-word;
@@ -2631,7 +2636,7 @@ select.form-input {
   --tw-prose-td-borders: var(--border, var(--color-border));
   --tw-prose-captions: color-mix(in srgb, var(--foreground, var(--color-ink)) 70%, transparent);
 }
-:is(.hw-prose, .hw-measure)
+.hw-prose
   :is(:is(p, ul, ol, blockquote, dl):not(.not-prose, .not-prose *), .hw-quote):not(
     :has(img, video, pre, table, figure)
   ) {

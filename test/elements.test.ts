@@ -1421,3 +1421,33 @@ test("toasts stack at the bottom centre; on a phone data-place=top holds them at
   expect(wide.width).toBeLessThan(200);
   expect((await where(390)).top).toBeLessThan(100);
 }, 30_000);
+
+// Markdown rendered into a card: its top-level running text takes the measure in its own em, a
+// list in a list item, a block holding code or a table, a heading and a utility keep their own.
+test("hw-measure gives a container's running text the measure and nothing else", async () => {
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1440, height: 900 });
+  const body = `<style>@layer utilities { .max-w-none { max-width: none } }</style><div class="hw-measure" style="font-size:16px"><h2>H</h2><p>P</p><p style="font-size:12px">Small</p><ul><li>U<ol><li>N</li></ol></li></ul><ol><li>O</li></ol><dl><dt>T</dt><dd>D</dd></dl><blockquote>Q</blockquote><blockquote class="hw-quote">Q</blockquote><ul><li><pre>code</pre></li></ul><blockquote><table><tr><td>T</td></tr></table></blockquote><p class="max-w-none">Own</p><div><p>Nested</p></div></div>`;
+  await page.goto(pathToFileURL(file("measure.html", only(body))).href);
+  const widths = await page.$$eval(".hw-measure *:is(h2, p, ul, ol, dl, blockquote)", (els) =>
+    els.map((el) => `${el.tagName} ${getComputedStyle(el).maxWidth}`),
+  );
+  expect(widths).toEqual([
+    "H2 none",
+    "P 528px",
+    "P 396px",
+    "UL 528px",
+    "OL none",
+    "OL 528px",
+    "DL 528px",
+    "BLOCKQUOTE 528px",
+    "BLOCKQUOTE 528px",
+    "UL none",
+    "BLOCKQUOTE none",
+    "P none",
+    "P none",
+  ]);
+  const h2 = await page.$eval(".hw-measure h2", (el) => getComputedStyle(el).fontSize);
+  expect(h2).toBe("24px");
+  await page.close();
+}, 60_000);

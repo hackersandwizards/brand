@@ -239,8 +239,9 @@ block and its inline code sit in no layer, since Tailwind Typography's `prose` c
 layer. A `<code>` in running text takes `class="hw-inline-code"`; inside the prose block every
 inline `<code>` is that element already, and every link the link in text: mark tables, code blocks,
 quotes and any link that is a button or an arrow link `not-prose`, nothing else. The prose block's
-lists start at the text edge, as the marker list does everywhere. Outside the block, `hw-measure` on a container gives its running text the block's measure and
-nothing else, for Markdown rendered into a card or a row.
+lists start at the text edge, as the marker list does everywhere.
+`hw-measure` on a container holding rendered Markdown gives its top-level running text the
+same measure and nothing else, in `@layer components`, so a utility on a child wins.
 
 Three kinds of reader meet these elements, and two settings cover them without a mechanism of their
 own. `data-hw-scale` sets density: `dense` for internal expert systems (os, the admin hub, the trainer
