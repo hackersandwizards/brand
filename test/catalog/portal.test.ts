@@ -171,3 +171,19 @@ test("the portal's lists sit within 0.25 px", async () => {
     rs.filter(failing).map((r) => `${r.label} ${r.kind} newline:${r.newline} ${r.offset}`),
   ).toEqual([]);
 }, 60_000);
+
+// Brand asks for the quote to be marked not-prose, which the measure's own selector skips.
+test("a quote in the prose block keeps the running text's measure", async () => {
+  const p = await browser.newPage();
+  await p.setViewport({ width: 1440, height: 900 });
+  await p.setContent(
+    `<style>*{box-sizing:border-box}</style><div class="prose hw-prose" style="font-size:16px"><p>Text</p><blockquote class="hw-quote not-prose"><p>Quote</p></blockquote><blockquote class="hw-quote not-prose"><pre>code</pre></blockquote></div>`,
+  );
+  for (const path of ["generated/tokens.root.css", "generated/elements.css"])
+    await p.addStyleTag({ path: join(ROOT, path) });
+  const widths = await p.$$eval(".hw-prose > *", (els) =>
+    els.map((el) => el.getBoundingClientRect().width),
+  );
+  expect(widths).toEqual([528, 528, 768]);
+  await p.close();
+}, 60_000);

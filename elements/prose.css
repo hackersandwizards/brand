@@ -13,10 +13,11 @@
    no layer: Typography's prose rules come in Tailwind's utilities layer, which a layered rule would
    lose to. A list marked not-prose keeps its own start.
 
-   Running text (a paragraph, a list, a quote, a definition list) keeps the brand measure,
-   --container-measure, in its own em, so a line holds about 65 characters; headings with their
-   hairline, tables, code and pictures take the block's width, and so does running text holding
-   one of them, such as a list whose step shows a code block.
+   Running text (a paragraph, a list, a quote, the hw-quote marked not-prose included, a
+   definition list) keeps the brand measure, --container-measure, in its own em, so a line holds
+   about 65 characters; headings with their hairline, tables, code and pictures take the block's
+   width, and so does running text holding one of them, such as a list whose step shows a code
+   block.
 
    Settings:
      --hw-prose-width  the block's width, Tailwind's 3xl container (48rem); none fills the column,
@@ -48,7 +49,8 @@
     .not-prose,
     .not-prose *,
     :has(img, video, pre, table, figure)
-  ) {
+  ),
+.hw-prose .hw-quote:not(:has(img, video, pre, table, figure)) {
   max-width: var(--container-measure);
 }
 .hw-prose :is(table, pre) {

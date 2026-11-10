@@ -407,7 +407,11 @@ export function initListFilter(root: HTMLElement) {
       else toggle.removeAttribute("aria-label");
     }
     if (!loaded) {
-      if (active && failed) form.submit();
+      // An entry here carrying a search would load the source again on Back and leave once more:
+      // the source page takes its place.
+      if (active && failed && isActive(readState(new URLSearchParams(location.search), options)))
+        location.replace(stateUrl(form.action, current));
+      else if (active && failed) form.submit();
       else if (active) void load();
       list.hidden = true;
       for (const clear of clears) if (clear.closest("form")) clear.hidden = !active;

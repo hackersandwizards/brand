@@ -231,6 +231,40 @@ test("a search submitted before the source page's load fails goes there", async 
   await landed(q, "context");
 }, 60_000);
 
+// Back from the source page lands on this one without the search, which would send it there again.
+const backWithout = async (q: Page) => {
+  await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
+  await q.goBack({ waitUntil: "load" });
+  await settle();
+  expect(new URL(q.url()).pathname).toEndWith("/list-filter/source/");
+  expect(new URL(q.url()).searchParams.get("q")).toBeNull();
+  await q.close();
+};
+
+test("Back from a search submitted before the source page's load failed does not loop", async () => {
+  const q = await held();
+  await q.evaluate(async () => {
+    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+    input.value = "context";
+    input.form!.requestSubmit();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    (window as unknown as { failLoad(): void }).failLoad();
+  });
+  await backWithout(q);
+}, 60_000);
+
+test("Back from a typed search recorded before the source page's load failed does not loop", async () => {
+  const q = await held();
+  await q.evaluate(async () => {
+    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+    input.value = "context";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    (window as unknown as { failLoad(): void }).failLoad();
+  });
+  await backWithout(q);
+}, 60_000);
+
 test("a source page's relative links and images resolve against that page", async () => {
   const p = await browser.newPage();
   await p.setRequestInterception(true);

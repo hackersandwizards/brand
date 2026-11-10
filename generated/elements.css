@@ -2635,7 +2635,8 @@ select.form-input {
     .not-prose,
     .not-prose *,
     :has(img, video, pre, table, figure)
-  ) {
+  ),
+.hw-prose .hw-quote:not(:has(img, video, pre, table, figure)) {
   max-width: var(--container-measure);
 }
 .hw-prose :is(table, pre) {

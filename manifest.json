@@ -482,7 +482,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "48d4b020c698b4d2bf3bfd697313d8029ccf8f380e6842fdcabbf558c10d3d65"
+      "sha256": "737d54178a6942e4fe5533709f119007d3d40b021dc18d16ee2ac91b2f4d06b4"
     },
     {
       "path": "elements/row.css",
@@ -542,7 +542,7 @@
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "2fef4149156995641329d32f6941e3f6385ea9a0d987e05466d21d1dbb4133cc"
+      "sha256": "ef57b32ba8c0004fb77c47bd443602cb80420fb2e8aa2b37056efa0c943b73ae"
     },
     {
       "path": "elements/choice.css",
