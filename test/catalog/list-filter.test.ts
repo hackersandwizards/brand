@@ -171,7 +171,11 @@ test("a source page's rows load on first use; should they fail, the search goes 
   );
   await q.goto(story("source"), { waitUntil: "networkidle0" });
   // The typed search goes there on its own once the load fails.
-  await q.type('input[name="q"]', "context");
+  await q.focus('input[name="q"]');
+  await q.$eval('input[name="q"]', (input) => {
+    (input as HTMLInputElement).value = "context";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
   await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
   expect(new URL(q.url()).pathname).toEndWith("/list-filter/dense/");
   expect(new URL(q.url()).searchParams.get("q")).toBe("context");

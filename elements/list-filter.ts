@@ -370,9 +370,9 @@ export function initListFilter(root: HTMLElement) {
       })
       .catch(() => {
         failed = true;
-        // A search already typed goes to the source page, which lists every row; a pending debounce
-        // submits it instead, with what has been typed by then.
-        if (!timer && isActive(state())) form.submit();
+        // apply() sends a search already typed to the source page, which lists every row; a pending
+        // debounce calls it instead, with what has been typed by then.
+        if (!timer) apply();
       }));
 
   const state = (): FilterState => {
@@ -483,8 +483,8 @@ export function initListFilter(root: HTMLElement) {
     timer = window.setTimeout(() => {
       timer = 0;
       apply();
-      // A failed load has just submitted the search: no history entry on the way out.
-      if (!failed) record("typing");
+      // A failed load has just submitted an active search: no history entry on the way out.
+      if (!failed || !isActive(state())) record("typing");
     }, 200);
   });
   panel.addEventListener("pointerdown", () => {
