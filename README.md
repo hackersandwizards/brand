@@ -338,7 +338,8 @@ padding, a label's type and colour; a shorthand counts, and so does a Tailwind u
 one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`, removed in
 v1.43.0) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
 or a class of your own passes, and so does such a class your own CSS defines), on a used element without a tile or with a stale version, on an exception
-without a reason or a tile, and on a page showing no element. A `brand-elements.json` naming no page
+without a reason or a tile, on a `data-hw-exception` whose name the list declares no exception for,
+and on a page showing no element. A `brand-elements.json` naming no page
 exits 2, as a run measuring nothing proves nothing. Each page's tile of a used element is
 compared: a version other than the installed one means that page was not built from it, such as a
 `dist/` or a running server older than your last `bun install`.
@@ -392,8 +393,9 @@ An exception goes in `brand-colours.json` beside your `package.json`, one entry 
 counts and the reason, and the list may only shrink: the scan fails where an entry grows against
 `HEAD` while the list's total for that metric grows too, or names no reason. A value you move to
 another file moves its count in the same commit: the old file's entry shrinks by what the new one
-takes. A metric an entry leaves out allows none. `brand-colours --tighten`
-lowers every entry to today's counts.
+takes. A metric an entry leaves out allows none. An entry on a file that is clean fails too, as it
+would let a new finding there pass. `brand-colours --tighten` lowers every entry to today's counts
+and drops the clean ones.
 
 A third party's mark, such as a partner conference's or a client's logo as an SVG, carries its
 owner's colours, not the brand's. Its entry names the owner in `partner` and its reason, takes no
@@ -458,15 +460,16 @@ expert components, press photos, generated token formats and the signature
 template, through a Git LFS pointer too), on a file named like one of `logos/` that differs from
 it, and on a text file carrying a logo's path data or embedded wizard, such as a recoloured
 wordmark or an inlined SVG. An exception goes in `brand-copies.json` beside your `package.json`,
-`{ "<path>": "<reason>" }`, and the list may only shrink against `HEAD`; `brand-copies --tighten`
-drops the entries no longer found.
+`{ "<path>": "<reason>" }`, and the list may only shrink against `HEAD`. An entry no longer found
+fails; `brand-copies --tighten` drops those entries.
 
 ### Check your components in your gate
 
 Where you render the expert components, `brand-scan` fails on a component of yours named like one
 of them (`Pill`, `PageHeader`, ...): import it from the package. An exception goes in
 `brand-scan.json` beside your `package.json`, `{ "<lowercase name>": "<reason>" }`, and the list may
-only shrink against `HEAD`. A name matches without case and word separators: `app-header.tsx` is
+only shrink against `HEAD`. An entry no component of yours matches fails; `brand-scan --tighten`
+drops those entries. A name matches without case and word separators: `app-header.tsx` is
 `AppHeader`, key `appheader`.
 
 ### Check your build for retired lines

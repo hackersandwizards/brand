@@ -182,7 +182,9 @@
       top var(--motion-fast),
       translate var(--motion-fast);
   }
-  .hw-form-float > .hw-field:is(:focus, :not(:placeholder-shown)) ~ .hw-form-label {
+  .hw-form-float
+    > .hw-field:is(:focus, [data-hw-focus], :not(:placeholder-shown))
+    ~ .hw-form-label {
     top: calc(var(--_hw-float) * 0.06);
     font-size: var(--hw-form-small, var(--type-small-size));
     translate: 0;

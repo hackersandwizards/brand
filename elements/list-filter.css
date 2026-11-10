@@ -63,7 +63,9 @@
     content-visibility: auto;
     contain-intrinsic-block-size: auto var(--hw-list-filter-row, 3rem);
   }
-  .hw-list-filter [data-long] [data-filter-item]:focus-within {
+  .hw-list-filter
+    [data-long]
+    [data-filter-item]:is(:focus-within, [data-hw-focus], :has([data-hw-focus])) {
     position: relative;
     z-index: 1;
     content-visibility: visible;

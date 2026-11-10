@@ -499,9 +499,8 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
 }
 
 const wiredCarousels = new WeakSet<Element>();
-// The autoplay step, its count's tick and the hold after the reader's own step, in ms; carousel.css
-// fills the current dot over STEP.
-const [STEP, TICK, HOLD] = [6000, 200, 4000];
+// The hold after the reader's own step, in ms. The step is carousel.css's, the time its dot fills.
+const HOLD = 4000;
 function enhanceCarousel(carousel: HTMLElement) {
   if (wiredCarousels.has(carousel)) return;
   wiredCarousels.add(carousel);
@@ -531,7 +530,10 @@ function enhanceCarousel(carousel: HTMLElement) {
   const prev = controls.querySelector<HTMLButtonElement>('[data-hw-step="-1"]');
   const next = controls.querySelector<HTMLButtonElement>('[data-hw-step="1"]');
   let active = 0;
+  // The autoplay's hooks: a new slide starts its step afresh, a reader's step holds it.
+  let [restart, reader, update] = [() => {}, () => {}, () => {}];
   const show = (i: number, say = false) => {
+    if (i !== active) restart();
     active = i;
     dots.forEach((d, n) =>
       n === i ? d.setAttribute("aria-current", "true") : d.removeAttribute("aria-current"),
@@ -551,6 +553,7 @@ function enhanceCarousel(carousel: HTMLElement) {
       behavior: reduced() ? "auto" : "smooth",
     });
     show(wrap, say);
+    if (say) reader();
   };
   prev?.addEventListener("click", () => go(active - 1, true));
   next?.addEventListener("click", () => go(active + 1, true));
@@ -573,52 +576,65 @@ function enhanceCarousel(carousel: HTMLElement) {
   // Only a track that scrolls shows its controls; a phone-only carousel is a grid from 48rem.
   const fits = () => {
     controls.hidden = track.scrollWidth <= track.clientWidth + 2;
+    update();
   };
   new ResizeObserver(fits).observe(track);
   fits();
   // A lazy image beside the view would wait for a sideways scroll: load them all once in view.
   new IntersectionObserver(([e], o) => {
-    if (!e!.isIntersecting) return;
+    if (!e!.isIntersecting || controls.hidden) return;
     for (const img of track.querySelectorAll("img")) img.loading = "eager";
     o.disconnect();
   }).observe(track);
   if (!("hwAutoplay" in carousel.dataset)) return;
+  const step = parseFloat(getComputedStyle(carousel).getPropertyValue("--_hw-step")) * 1000;
+  if (!(step > 0)) return;
   const pause = controls.querySelector<HTMLButtonElement>("[data-hw-pause]");
   const holds = new Set<string>();
-  // Under reduced motion it starts paused, and the pause button starts it.
-  let stopped = reduced();
-  let elapsed = 0;
-  let heldUntil = 0;
-  const hold = (by: string, on: boolean) => (on ? holds.add(by) : holds.delete(by));
+  let [timer, left, since] = [0, step, 0];
+  // The step's time left runs while nothing holds the carousel; the dot's fill pauses with it.
+  update = () => {
+    const held = holds.size > 0 || document.hidden;
+    carousel.toggleAttribute("data-hw-held", held);
+    clearTimeout(timer);
+    if (since) left -= Date.now() - since;
+    since = 0;
+    if (held || carousel.hasAttribute("data-hw-stopped") || controls.hidden) return;
+    since = Date.now();
+    timer = window.setTimeout(() => go(active + 1), left);
+  };
+  restart = () => {
+    [left, since] = [step, 0];
+    for (const a of controls.getAnimations({ subtree: true })) a.currentTime = 0;
+    update();
+  };
+  const hold = (by: string, on: boolean) => {
+    if (on) holds.add(by);
+    else holds.delete(by);
+    update();
+  };
   holdWhileUsed(carousel, hold);
   new IntersectionObserver(([e]) => hold("offscreen", !e!.isIntersecting)).observe(carousel);
-  // A step or swipe of the reader's holds the carousel for HOLD ms.
-  const reader = () => {
-    heldUntil = Date.now() + HOLD;
-    elapsed = 0;
+  document.addEventListener("visibilitychange", update);
+  // A step or swipe of the reader's holds the carousel for HOLD ms, then runs a whole step.
+  let readerTimer = 0;
+  reader = () => {
+    clearTimeout(readerTimer);
+    hold("reader", true);
+    readerTimer = window.setTimeout(() => hold("reader", false), HOLD);
+    restart();
   };
   for (const type of ["pointerdown", "keydown"]) track.addEventListener(type, reader);
-  controls.addEventListener("click", (e) => {
-    if ((e.target as Element).closest("button:not([data-hw-pause])")) reader();
-  });
+  // Under reduced motion it starts paused. The pause button starts it at once, though the pointer
+  // and focus are on it.
   const stop = (on: boolean) => {
-    stopped = on;
-    elapsed = 0;
     pause?.setAttribute("aria-pressed", String(on));
     carousel.toggleAttribute("data-hw-stopped", on);
+    if (!on) for (const by of ["pointer", "focus"]) holds.delete(by);
+    restart();
   };
-  stop(stopped);
-  pause?.addEventListener("click", () => stop(!stopped));
-  // The current dot's fill (carousel.css) runs while nothing holds it, as this count does.
-  let shown = active;
-  setInterval(() => {
-    if (shown !== active) [shown, elapsed] = [active, 0];
-    const held = holds.size > 0 || document.hidden || Date.now() < heldUntil;
-    carousel.toggleAttribute("data-hw-held", held);
-    if (stopped || held || controls.hidden) return;
-    elapsed += TICK;
-    if (elapsed >= STEP) go(active + 1);
-  }, TICK);
+  stop(reduced());
+  pause?.addEventListener("click", () => stop(!carousel.hasAttribute("data-hw-stopped")));
 }
 
 /** Wires every common element in `root`. Safe to call again after adding markup. */

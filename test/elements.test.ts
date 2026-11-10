@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -1494,3 +1494,25 @@ test("the priority pills are one width", async () => {
   await p.close();
   expect(new Set(widths).size).toBe(1);
 }, 60_000);
+
+// data-hw-focus draws an element's whole focused state, so every rule keyed on focus names it too.
+test("every focus rule of the elements and the expert layer also matches data-hw-focus", () => {
+  const files = [
+    ...readdirSync(join(ROOT, "elements"))
+      .filter((f) => f.endsWith(".css"))
+      .map((f) => `elements/${f}`),
+    "expert/expert.css",
+    "expert/header.css",
+  ];
+  const unpaired = files.flatMap((f) =>
+    [
+      ...readFileSync(join(ROOT, f), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .matchAll(/([^{};]+)\{/g),
+    ]
+      .map((m) => m[1]!.trim())
+      .filter((s) => /:focus\b|:focus-(visible|within)\b/.test(s) && !s.includes("[data-hw-focus]"))
+      .map((s) => `${f}: ${s}`),
+  );
+  expect(unpaired).toEqual([]);
+});

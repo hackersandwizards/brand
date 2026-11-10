@@ -64,9 +64,20 @@ test("the LinkedIn field takes only an https: URL", () => {
 });
 
 // The imprint's one source is verbal/imprint.json; the template writes it out for mail clients.
-test("the template's GmbH lines state imprint.json", () => {
+test("both templates' GmbH lines state imprint.json", () => {
   const i = JSON.parse(readFileSync(join(ROOT, "verbal/imprint.json"), "utf-8"));
-  expect(template("txt")).toContain(
-    `Sitz ${i.seat}, ${i.street}, ${i.postcode} ${i.city}\n${i.court}, ${i.register}\nGeschäftsführer: ${i.managingDirectors.join(", ")}\n`,
-  );
+  const lines = `Sitz ${i.seat}, ${i.street}, ${i.postcode} ${i.city}\n${i.court}, ${i.register}\nGeschäftsführer: ${i.managingDirectors.join(", ")}`;
+  expect(template("txt")).toContain(`${lines}\n`);
+  const entities: Record<string, string> = {
+    nbsp: " ",
+    szlig: "ß",
+    auml: "ä",
+    uuml: "ü",
+    amp: "&",
+  };
+  const html = template("html")
+    .replace(/<br \/>/g, " ")
+    .replace(/&(\w+);/g, (e, name: string) => entities[name] ?? e)
+    .replace(/\s+/g, " ");
+  expect(html).toContain(lines.replace(/\n/g, " "));
 });

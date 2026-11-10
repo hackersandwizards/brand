@@ -14,7 +14,7 @@
   .hw-kpi {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--spacing-tight);
   }
   .hw-kpi-value {
     font-family: var(--type-stat-family);

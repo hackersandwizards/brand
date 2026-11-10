@@ -63,7 +63,7 @@
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
-  .hw-icon-button[data-tone="danger"]:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+  .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
     color: var(--_hw-danger);
     background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -90,7 +90,7 @@
       color: var(--_hw-on-chosen);
       background: var(--_hw-chosen);
     }
-    .hw-icon-button[data-tone="danger"]:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+    .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
       --_hw-danger: var(--color-red-night);
       color: var(--_hw-danger);
       background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);

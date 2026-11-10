@@ -139,7 +139,7 @@
     color: var(--hw-muted, var(--color-muted));
     background: transparent;
   }
-  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible, [data-hw-focus]) {
     color: var(--color-ink);
     background: transparent;
   }
@@ -208,7 +208,7 @@
     background: var(--color-teal-dark);
     cursor: pointer;
   }
-  .hw-field-row[data-joined] > button:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+  .hw-field-row[data-joined] > button:is(:hover, :focus-visible, [data-hw-focus]) {
     background: var(--color-teal);
   }
   @media (max-width: 40rem) {
@@ -259,7 +259,7 @@
     .hw-field-row[data-joined] > .hw-field-toggle {
       color: var(--color-night-muted);
     }
-    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible, [data-hw-focus]) {
       color: var(--color-white);
     }
     .hw-field::placeholder {

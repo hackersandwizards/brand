@@ -80,9 +80,9 @@
   }
   /* The card whose own link is hovered or focused, not one holding that card. */
   .hw-card:is(
-    [href]:is(:hover, :is(:focus-visible, [data-hw-focus])),
-    :has(.hw-card-link:is(:hover, :is(:focus-visible, [data-hw-focus]))):not(
-      :has(.hw-card .hw-card-link:is(:hover, :is(:focus-visible, [data-hw-focus])))
+    [href]:is(:hover, :focus-visible, [data-hw-focus]),
+    :has(.hw-card-link:is(:hover, :focus-visible, [data-hw-focus])):not(
+      :has(.hw-card .hw-card-link:is(:hover, :focus-visible, [data-hw-focus]))
     )
   ) {
     border-color: var(--_hw-card-hover);

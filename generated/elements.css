@@ -650,9 +650,9 @@
     color: var(--_hw-card-arrow);
   }
   .hw-card:is(
-    [href]:is(:hover, :is(:focus-visible, [data-hw-focus])),
-    :has(.hw-card-link:is(:hover, :is(:focus-visible, [data-hw-focus]))):not(
-      :has(.hw-card .hw-card-link:is(:hover, :is(:focus-visible, [data-hw-focus])))
+    [href]:is(:hover, :focus-visible, [data-hw-focus]),
+    :has(.hw-card-link:is(:hover, :focus-visible, [data-hw-focus])):not(
+      :has(.hw-card .hw-card-link:is(:hover, :focus-visible, [data-hw-focus]))
     )
   ) {
     border-color: var(--_hw-card-hover);
@@ -971,7 +971,7 @@
     color: var(--_hw-on-chosen);
     background: var(--_hw-chosen);
   }
-  .hw-icon-button[data-tone="danger"]:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+  .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
     --_hw-danger: color-mix(in srgb, var(--color-red) 70%, var(--color-ink));
     color: var(--_hw-danger);
     background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -997,7 +997,7 @@
       color: var(--_hw-on-chosen);
       background: var(--_hw-chosen);
     }
-    .hw-icon-button[data-tone="danger"]:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+    .hw-icon-button[data-tone="danger"]:is(:hover, :focus-visible, [data-hw-focus]) {
       --_hw-danger: var(--color-red-night);
       color: var(--_hw-danger);
       background: color-mix(in srgb, var(--_hw-danger) 15%, transparent);
@@ -1242,10 +1242,7 @@
     display: inline-block;
     transition: translate var(--motion-fast);
   }
-  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(
-      :hover,
-      :is(:focus-visible, [data-hw-focus])
-    )
+  :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(:hover, :focus-visible, [data-hw-focus])
     .hw-arrow
     > span {
     translate: 4px 0;
@@ -1366,7 +1363,7 @@
     color: var(--hw-muted, var(--color-muted));
     background: transparent;
   }
-  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+  .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible, [data-hw-focus]) {
     color: var(--color-ink);
     background: transparent;
   }
@@ -1433,7 +1430,7 @@
     background: var(--color-teal-dark);
     cursor: pointer;
   }
-  .hw-field-row[data-joined] > button:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+  .hw-field-row[data-joined] > button:is(:hover, :focus-visible, [data-hw-focus]) {
     background: var(--color-teal);
   }
   @media (max-width: 40rem) {
@@ -1482,7 +1479,7 @@
     .hw-field-row[data-joined] > .hw-field-toggle {
       color: var(--color-night-muted);
     }
-    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :is(:focus-visible, [data-hw-focus])) {
+    .hw-field-row[data-joined] > .hw-field-toggle:is(:hover, :focus-visible, [data-hw-focus]) {
       color: var(--color-white);
     }
     .hw-field::placeholder {
@@ -1767,7 +1764,9 @@ select.form-input {
       top var(--motion-fast),
       translate var(--motion-fast);
   }
-  .hw-form-float > .hw-field:is(:focus, :not(:placeholder-shown)) ~ .hw-form-label {
+  .hw-form-float
+    > .hw-field:is(:focus, [data-hw-focus], :not(:placeholder-shown))
+    ~ .hw-form-label {
     top: calc(var(--_hw-float) * 0.06);
     font-size: var(--hw-form-small, var(--type-small-size));
     translate: 0;
@@ -1990,7 +1989,7 @@ select.form-input {
   .hw-facts > div {
     display: grid;
     align-content: start;
-    gap: 0.25rem;
+    gap: var(--spacing-tight);
   }
   .hw-facts dd {
     margin: 0;
@@ -2587,7 +2586,9 @@ select.form-input {
     content-visibility: auto;
     contain-intrinsic-block-size: auto var(--hw-list-filter-row, 3rem);
   }
-  .hw-list-filter [data-long] [data-filter-item]:focus-within {
+  .hw-list-filter
+    [data-long]
+    [data-filter-item]:is(:focus-within, [data-hw-focus], :has([data-hw-focus])) {
     position: relative;
     z-index: 1;
     content-visibility: visible;
@@ -2702,7 +2703,7 @@ select.form-input {
   .hw-kpi {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--spacing-tight);
   }
   .hw-kpi-value {
     font-family: var(--type-stat-family);
@@ -3233,10 +3234,7 @@ select.form-input {
     text-decoration: none;
     cursor: pointer;
   }
-  .hw-menu-item:is(:hover, :is(:focus-visible, [data-hw-focus])):not(
-      :disabled,
-      [aria-disabled="true"]
-    ) {
+  .hw-menu-item:is(:hover, :focus-visible, [data-hw-focus]):not(:disabled, [aria-disabled="true"]) {
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
   .hw-menu-item:is(:disabled, [aria-disabled="true"]) {
@@ -4272,6 +4270,7 @@ select.form-input {
     --_hw-text: var(--foreground, var(--color-ink));
     --_hw-quiet: var(--muted-foreground, var(--color-muted));
     --_hw-fill: var(--color-teal);
+    --_hw-step: 6s;
   }
   .hw-carousel-track {
     --hw-markers: off;
@@ -4352,7 +4351,7 @@ select.form-input {
     inset: 0;
     background: var(--_hw-fill);
     transform-origin: left;
-    animation: hw-carousel-fill 6s linear forwards;
+    animation: hw-carousel-fill var(--_hw-step) linear forwards;
   }
   [data-hw-held] .hw-carousel-dot[aria-current="true"] > span::after {
     animation-play-state: paused;

@@ -301,7 +301,7 @@ const dayAgain = (tokens: Record<string, string>) => {
 };
 
 /** The sans and mono stacks of the mail signature template, the fonts a mail client shows with no
- *  web font. Throws where the template carries no such pair. */
+ *  web font. Throws where the template carries no such pair, or a third stack. */
 const mailStacks = () => {
   const html = readFileSync(join(ROOT, "applications/mail-signature/template.html"), "utf8");
   const stacks = [...html.replaceAll("&quot;", '"').matchAll(/font-family:\s*([^;]+);/g)].map((m) =>
@@ -309,8 +309,20 @@ const mailStacks = () => {
   );
   const sans = stacks.find((s) => s.endsWith("sans-serif"));
   const mono = stacks.find((s) => s.endsWith("monospace"));
-  if (!sans || !mono) throw new Error("mail-signature/template.html: no sans and mono stack");
+  if (!sans || !mono || stacks.some((s) => s !== sans && s !== mono))
+    throw new Error(
+      "mail-signature/template.html: every font-family is one sans or one mono stack",
+    );
   return { sans, mono };
+};
+
+/** copy.ts wired, for a page loading one script: an IIFE, so its names stay out of the page's. */
+const copyScript = () => {
+  const entry = join(ROOT, "scripts/copy-entry.ts");
+  const built = Bun.spawnSync([process.execPath, "build", "--minify", "--format=iife", entry]);
+  if (!built.success)
+    throw new Error(`bun build scripts/copy-entry.ts: ${built.stderr.toString()}`);
+  return built.stdout.toString();
 };
 
 const LAYER_ORDER = readFileSync(join(ROOT, "tokens/layers.css"), "utf8").trim();
@@ -411,9 +423,7 @@ ${faceRules(readFileSync(join(ROOT, "tokens/print.css"), "utf8"))
 ${fallbacks.join("\n\n")}
 `,
     "elements.css": FLAT("elements/elements.css"),
-    "copy.js": Bun.spawnSync(["bun", "build", "--minify", join(ROOT, "scripts/copy-entry.ts")], {
-      stderr: "inherit",
-    }).stdout.toString(),
+    "copy.js": copyScript(),
     "document.css": FLAT("tokens/document.css"),
     "cursor.svg": `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">${(
       [

@@ -25,6 +25,8 @@
     --_hw-text: var(--foreground, var(--color-ink));
     --_hw-quiet: var(--muted-foreground, var(--color-muted));
     --_hw-fill: var(--color-teal);
+    /* The autoplay step: the current dot fills over it, and the script moves on when it is full. */
+    --_hw-step: 6s;
   }
   .hw-carousel-track {
     --hw-markers: off;
@@ -106,7 +108,7 @@
     inset: 0;
     background: var(--_hw-fill);
     transform-origin: left;
-    animation: hw-carousel-fill 6s linear forwards;
+    animation: hw-carousel-fill var(--_hw-step) linear forwards;
   }
   [data-hw-held] .hw-carousel-dot[aria-current="true"] > span::after {
     animation-play-state: paused;

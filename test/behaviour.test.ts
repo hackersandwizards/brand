@@ -377,34 +377,44 @@ test("a carousel's step moves the track, updates the dots and announces, the end
   await p.close();
 }, 30_000);
 
-// The autoplay timer, captured so a test runs its ticks itself: `steps` six-second steps of 200 ms
-// ticks.
-const CAPTURE_TICKS = `<script>window.ticks = []; window.setInterval = (f) => window.ticks.push(f);</script>`;
-const tick = (p: Page, steps = 1) =>
-  p.evaluate((n) => {
-    for (let i = 0; i < n; i++)
-      (window as unknown as { ticks: (() => void)[] }).ticks.forEach((f) => f());
-  }, steps * 30);
+// The carousel's long timers (the step and the reader's hold), captured so a test fires them
+// itself; shorter ones run as usual.
+const CAPTURE_TIMERS = `<script>{
+  const [set, clear] = [setTimeout.bind(window), clearTimeout.bind(window)];
+  let n = 1e6;
+  window.timers = new Map();
+  window.setTimeout = (f, ms, ...a) => (ms >= 1000 ? (window.timers.set(++n, [f, ms]), n) : set(f, ms, ...a));
+  window.clearTimeout = (id) => window.timers.delete(id) || clear(id);
+}</script>`;
+type Timers = { timers: Map<number, [() => void, number]> };
+/** Fires every captured timer pending now, and returns their delays. */
+const fire = (p: Page) =>
+  p.evaluate(() => {
+    const { timers } = window as unknown as Timers;
+    const due = [...timers];
+    timers.clear();
+    for (const [, [f]] of due) f();
+    return due.map(([, [, ms]]) => Math.round(ms / 1000));
+  });
 const position = (p: Page) =>
   p.$$eval(".hw-carousel-dot", (dots) => dots.findIndex((d) => d.hasAttribute("aria-current")));
-const AUTOPLAY = `${CAPTURE_TICKS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only" aria-live="polite"></p></div></div><p id="away" style="margin-top:400px">away</p>`;
+const AUTOPLAY = `${CAPTURE_TIMERS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only" aria-live="polite"></p></div></div><p id="away" style="margin-top:400px">away</p>`;
 
 test("an autoplaying carousel advances each step, holds under the pointer and stops on pause", async () => {
   const p = await page(AUTOPLAY);
   expect(await position(p)).toBe(0);
-  await tick(p);
+  expect(await fire(p)).toEqual([6]);
   expect(await position(p)).toBe(1);
   await p.hover(".hw-carousel-track");
-  await tick(p);
-  expect(await position(p)).toBe(1);
+  expect(await fire(p)).toEqual([]);
   expect(await p.$eval(".hw-carousel", (c) => c.hasAttribute("data-hw-held"))).toBe(true);
   await p.hover("#away");
-  await tick(p);
+  await fire(p);
   expect(await position(p)).toBe(2);
   await p.click("#pause");
   expect(await attr(p, "#pause", "aria-pressed")).toBe("true");
   await p.hover("#away");
-  await tick(p);
+  expect(await fire(p)).toEqual([]);
   expect(await position(p)).toBe(2);
   await p.close();
 }, 30_000);
@@ -412,19 +422,17 @@ test("an autoplaying carousel advances each step, holds under the pointer and st
 test("a carousel holds four seconds after the reader's step, starts paused under reduced motion, hides controls with nothing to scroll", async () => {
   const p = await page(AUTOPLAY);
   await p.$eval(".hw-carousel-track", (t) => t.dispatchEvent(new PointerEvent("pointerdown")));
-  await tick(p);
+  expect(await fire(p)).toEqual([4]);
   expect(await position(p)).toBe(0);
-  await p.evaluate(() => {
-    const now = Date.now();
-    Date.now = () => now + 4001;
-  });
-  await tick(p);
+  expect(await fire(p)).toEqual([6]);
   expect(await position(p)).toBe(1);
   await p.close();
   const still = await page(AUTOPLAY, "de", true);
   expect(await attr(still, "#pause", "aria-pressed")).toBe("true");
-  await tick(still);
-  expect(await position(still)).toBe(0);
+  expect(await fire(still)).toEqual([]);
+  await still.click("#pause");
+  expect(await fire(still)).toEqual([6]);
+  expect(await position(still)).toBe(1);
   await still.close();
   const one = await page(
     `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button></div></div>`,

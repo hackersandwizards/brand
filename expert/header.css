@@ -251,7 +251,7 @@ html[data-theme="dark"] #theme-toggle #moon-icon {
 }
 
 /* The nav clips on every side (overflow-x makes overflow-y auto too), so the ring goes inside. */
-.hw-header-link:focus-visible {
+.hw-header-link:is(:focus-visible, [data-hw-focus]) {
   outline-offset: -2px;
 }
 
