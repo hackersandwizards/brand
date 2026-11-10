@@ -9,7 +9,7 @@ evidence: "docs/agent-work/2026-11-10-quote-callout-pills-signature-review.md, s
 
 # The status box and the tinted card at the callout's 10 % wash?
 
-Score blind whether the status box and the tinted card take the callout's 10 % wash, and ship the winner.
+Score blind whether the status box and the tinted card take the callout's 10 % wash.
 
 Since v2.9.0 the callout fills at 10 % (14 % on night) and the status box and the tinted card at
 7 %, so the hue table in `tokens/tokens.css` names two wash steps. Whether the other two boxes
