@@ -18,16 +18,17 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    // bun's expect(promise).rejects and .resolves return nothing and wait in a nested event loop,
-    // where the browser's DevTools socket broke ("RSV2 and RSV3 must be clear").
-    files: ["test/**/*.ts"],
+    // In that nested loop the shared browser's DevTools socket broke ("Invalid WebSocket frame:
+    // RSV2 and RSV3 must be clear") and every later test failed with "Target closed".
+    files: ["test/**", "**/*.test.*"],
     rules: {
       "no-restricted-syntax": [
         "error",
         {
-          selector: "MemberExpression[property.name=/^(rejects|resolves)$/]",
+          selector:
+            "MemberExpression[property.name=/^(rejects|resolves)$/]:matches([object.callee.name='expect'], [object.object.callee.name='expect'])",
           message:
-            "bun's .rejects and .resolves wait in a nested event loop; await the promise, then expect its value or error.",
+            "bun's expect().rejects and .resolves return nothing and wait in a nested event loop; await the promise, then expect what it settled to.",
         },
       ],
     },
