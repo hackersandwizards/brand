@@ -738,6 +738,8 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-zoom",
     "--hw-touch-floor",
     "--hw-list-filter-row",
+    "--hw-focus-room",
+    "--hw-table-ground",
   ]);
   expect(SETTINGS.filter((s) => !optional.has(s) && !screen.includes(`${s}:`))).toEqual([]);
 });

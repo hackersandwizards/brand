@@ -3,7 +3,8 @@
    scrolling work without script. hw-carousel-controls holds previous, next and the position in one
    pill: one dot per item up to five, more as a count. elements/behaviour.ts wires the controls
    and the live status. data-hw-autoplay advances every six seconds with a pause button; hover,
-   focus, a hidden tab or a row off screen hold it, and under reduced motion it never starts.
+   focus, a hidden tab or a row off screen hold it, and under reduced motion it never starts. The
+   track keeps room for an item's focus ring at its edges (--hw-focus-room, focus.css).
 
    Markup: <div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li>…</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" aria-label="Zurück"></button><span data-hw-position></span><button data-hw-step="1" aria-label="Weiter"></button><p class="hw-sr-only" aria-live="polite"></p></div></div>
 
@@ -24,10 +25,11 @@
     --hw-markers: off;
     display: flex;
     gap: var(--spacing-grid, 1rem);
-    margin: 0;
-    padding: 0;
+    margin: calc(-1 * var(--hw-focus-room, 5px));
+    padding: var(--hw-focus-room, 5px);
     overflow-x: auto;
     list-style: none;
+    scroll-padding-inline: var(--hw-focus-room, 5px);
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     scroll-behavior: smooth;

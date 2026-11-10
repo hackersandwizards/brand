@@ -314,7 +314,7 @@
     },
     {
       "path": "expert/components/Pill.astro",
-      "sha256": "ccbc41635e67a4c7120dc71f138721440659e66ecf96e7226d95436851cf1c00"
+      "sha256": "7dd61fba3b60bf263fc9b13a18d4d2f7ec6f1bce28f670c4be0c171cab76ba5c"
     },
     {
       "path": "expert/components/SpaceNav.astro",
@@ -354,7 +354,7 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "d6e4fd3e73b53206f77fc618183174e0eef536c51608987f0fe892fccea905b6"
+      "sha256": "dd3805d37dcf83da5226e803ded25130b5344bd1915b0bf45ca01e33b04627f4"
     },
     {
       "path": "elements/elements.css",
@@ -362,7 +362,7 @@
     },
     {
       "path": "elements/focus.css",
-      "sha256": "3572d0e2d16f0ab556db92cad211af03e9cfb2c6678c5f0ef9ac1e215773905b"
+      "sha256": "419e49c257c526c0b81f00f566ad009dcec81f0c71fb4058bbecfec41d74e96c"
     },
     {
       "path": "elements/icon-button.css",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "7c665a7a2be28de35abd3043f049cfadb17e09e774d6850cc1ca1dcb75dde8e4"
+      "sha256": "18dcf1ede702fc922ca2904f24d938bd03837db45e3f3efb3649e2a87600e9df"
     },
     {
       "path": "elements/quote.css",
@@ -398,7 +398,7 @@
     },
     {
       "path": "elements/table.css",
-      "sha256": "21d9c178a803c7c71fb946cdcb0ab2511b03185875e4be82e3bcc61df0dca561"
+      "sha256": "1284774f2d46128f6713dc2ad0aba7770e4eb012f8cf64920b03c33ecc034887"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",
@@ -486,7 +486,7 @@
     },
     {
       "path": "elements/row.css",
-      "sha256": "b634f54515fb46ad10144b54828e5a8562ce82ef8555ff1cdcd55498d360f347"
+      "sha256": "d23656fa0b620d117d6381d82afd372829c8f699f627e32ad0c5db38745dd4d6"
     },
     {
       "path": "elements/rule.css",
@@ -566,15 +566,15 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "f7a67914b0eb089831f88a6ceee0e7bb6c161917614194f6db8c23f5eaed02b9"
+      "sha256": "32a4d72aabd046af1b22be0c58c53bc54f2b9695787e9aabd63914fe54f9f9b7"
     },
     {
       "path": "elements/carousel.css",
-      "sha256": "16af39a6aa44b7c10187213d9a8a09abeac6c46f25e6179f437bd9076d6b9607"
+      "sha256": "d1dc5bd792d6da621873af2501222b1d4d3fe24db3d221746b04dc5372560784"
     },
     {
       "path": "elements/command.css",
-      "sha256": "28512dd2328c17cd9efabb42a43c2e39be3f98869ccb9382c2410c06c36c7b0f"
+      "sha256": "1350f553caaefd29e163773567f27866cc86faa6e44e776f1b041bd1183f1721"
     },
     {
       "path": "elements/copy.ts",
@@ -590,7 +590,7 @@
     },
     {
       "path": "elements/menu.css",
-      "sha256": "40dfd1a3f811690fea3a1772e5f1d68fbd587ac65e37e88527344f6536f68522"
+      "sha256": "2361f3998a067b35b1ffba356aa3bb3a5df9922309e63b11a890950fde9ad2b1"
     },
     {
       "path": "elements/pagination.css",
@@ -618,7 +618,7 @@
     },
     {
       "path": "elements/tabs.css",
-      "sha256": "a2cecd549ecc9b1298a6fb0f2171be5851f562614d5598ff2fd3ca6307b75c9a"
+      "sha256": "f2efcf8dcf884fe6e8eab94b5feae7b55db66375e47d28cdd02655a30805306e"
     },
     {
       "path": "elements/toast.css",

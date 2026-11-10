@@ -11,10 +11,10 @@
      data-caps              the words in the label role (mono capitals), as a document's type tag
      data-editable          a value changed here (a menu opens on it): takes --hw-pill-edit-corner
      data-priority="0"-"4"  a priority, P0 to P4, the same wherever it shows: 0 red, 1 amber, 2
-                            neutral, 3 and 4 the neutral fill fading (ink at 4 % and 2 %, their
-                            text ink at 66 %, 4.8:1), so no set priority looks like the outline's
-                            "no value" (the hue rule in tokens.css); tabular figures, so P0 to P4
-                            are one width
+                            to 4 the neutral fill in steps (ink at 10, 7 and 4 %, on night white
+                            at 14, 10 and 6 %) under the neutral text, so each keeps its shape and
+                            none looks like the outline's "no value" (the hue rule in tokens.css);
+                            tabular figures, so P0 to P4 are one width
      data-state="draft"     a draft, not yet released: a dashed amber-dark line on no fill, its
                             text amber-dark mixed 75 % into ink; on night amber
    Trailing parts, as children after the words: hw-pill-chevron (an empty span: opens a menu that
@@ -87,16 +87,20 @@
     --hw-pill-hue: var(--color-amber-dark);
     --hw-pill-hue-night: var(--color-amber);
   }
-  .hw-pill:is([data-tone="neutral"], [data-priority="2"]) {
+  .hw-pill:is(
+    [data-tone="neutral"],
+    [data-priority="2"],
+    [data-priority="3"],
+    [data-priority="4"]
+  ) {
     color: color-mix(in srgb, var(--color-ink) 70%, transparent);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
-  .hw-pill:is([data-priority="3"], [data-priority="4"]) {
-    color: color-mix(in srgb, var(--color-ink) 66%, transparent);
-    background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+  .hw-pill[data-priority="2"] {
+    background: color-mix(in srgb, var(--color-ink) 10%, transparent);
   }
   .hw-pill[data-priority="4"] {
-    background: color-mix(in srgb, var(--color-ink) 2%, transparent);
+    background: color-mix(in srgb, var(--color-ink) 4%, transparent);
   }
   .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
     border-color: var(--color-border);
@@ -175,16 +179,20 @@
         var(--color-night)
       );
     }
-    .hw-pill:is([data-tone="neutral"], [data-priority="2"]) {
+    .hw-pill:is(
+      [data-tone="neutral"],
+      [data-priority="2"],
+      [data-priority="3"],
+      [data-priority="4"]
+    ) {
       color: color-mix(in srgb, var(--color-night-ink) 75%, transparent);
       background: color-mix(in srgb, white 10%, transparent);
     }
-    .hw-pill:is([data-priority="3"], [data-priority="4"]) {
-      color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
-      background: color-mix(in srgb, white 6%, transparent);
+    .hw-pill[data-priority="2"] {
+      background: color-mix(in srgb, white 14%, transparent);
     }
     .hw-pill[data-priority="4"] {
-      background: color-mix(in srgb, white 3%, transparent);
+      background: color-mix(in srgb, white 6%, transparent);
     }
     .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
       border-color: color-mix(in srgb, white 25%, transparent);

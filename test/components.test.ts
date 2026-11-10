@@ -130,3 +130,15 @@ test("ListFilter's Filters button names the chosen values the server renders", a
   // Control: nothing chosen, the button says Filters.
   expect(await render("")).toMatch(/data-filter-label[^>]*>Filters</);
 }, 30_000);
+
+test("Pill takes the hue table's night tone: ampersand's light tone, teal's night tone", async () => {
+  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+  const component = (await server.ssrLoadModule("/expert/components/Pill.astro")).default;
+  const container = await experimental_AstroContainer.create();
+  const night = async (color: string) =>
+    /--hw-pill-hue-night: ([^"]*)/.exec(
+      await container.renderToString(component, { props: { label: P, color } }),
+    )?.[1];
+  expect(await night("bg-ampersand/15")).toContain("var(--color-ampersand-light,");
+  expect(await night("bg-teal/15")).toContain("var(--color-teal-night,");
+}, 30_000);

@@ -2,8 +2,15 @@
    the muted grey; cells in the small role, top-aligned, the last column without right padding. On
    night the line is white at 15 %. A button or select without a class in a head (a sortable
    column) takes the head's role and colour with no fill, border or padding of its own; an enabled
-   button turns ink on hover, white on night. Scrolling, stacking on a phone and column widths stay
-   the surface's.
+   button turns ink on hover, white on night. Stacking on a phone and column widths stay the
+   surface's.
+
+   hw-table-scroll holds a table wider than its column: it scrolls sideways inside the column, with
+   room for a focus ring at its edges (--hw-focus-room, focus.css), and below 48rem the first
+   column stays in place, so each row keeps its name; once the table has scrolled, that column
+   takes the table's ground and a hairline at its right (where the browser has scroll timelines;
+   elsewhere the table scrolls whole). On paper it does not scroll. The wrapper takes the keyboard and names itself:
+   <div class="hw-table-scroll" tabindex="0" role="region" aria-label="Deals"><table class="hw-table">…</table></div>
 
    Settings:
      --hw-table-size    the cells' size, the small role
@@ -12,7 +19,9 @@
      --hw-muted         the heads' grey (label.css)
      --hw-cell-pad      a cell's padding
      --hw-hairline      the rule's width
-     --hw-line          the rule's colour */
+     --hw-line          the rule's colour
+     --hw-table-ground  the fixed first column's ground: the surface's --background, else white,
+                        on night the night ground; a table on a card sets the card's */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
@@ -54,7 +63,54 @@
   .hw-table th button:not([class], :disabled):hover {
     color: var(--color-ink);
   }
+  .hw-table-scroll {
+    --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-white)));
+    --_hw-table-line: var(--hw-line, var(--color-border));
+    overflow-x: auto;
+    margin: calc(-1 * var(--hw-focus-room, 5px));
+    padding: var(--hw-focus-room, 5px);
+  }
+  .hw-table-scroll > .hw-table {
+    margin-block: 0;
+  }
+  @media screen and (max-width: 47.99rem) {
+    @supports (animation-timeline: scroll()) {
+      .hw-table-scroll .hw-table :is(th, td):first-child {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        animation: hw-table-held linear both;
+        animation-timeline: scroll(nearest inline);
+        animation-range: 0 1px;
+      }
+    }
+  }
+  /* The held column's ground and hairline, once the table has scrolled: a table that fits keeps
+     its look. */
+  @keyframes hw-table-held {
+    to {
+      background: var(--_hw-table-ground);
+      box-shadow: inset calc(-1 * var(--hw-hairline, 1px)) 0 0 var(--_hw-table-line);
+    }
+  }
+  [data-hw-scale="print"] .hw-table-scroll {
+    overflow: visible;
+  }
+  [data-hw-scale="print"] .hw-table-scroll .hw-table :is(th, td):first-child {
+    position: static;
+    background: none;
+    animation: none;
+  }
+  @media print {
+    .hw-table-scroll {
+      overflow: visible;
+    }
+  }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    .hw-table-scroll {
+      --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-night)));
+      --_hw-table-line: color-mix(in srgb, white 15%, transparent);
+    }
     .hw-table th button:not([class], :disabled):hover {
       color: var(--color-white);
     }

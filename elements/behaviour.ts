@@ -538,10 +538,13 @@ function enhanceCarousel(carousel: HTMLElement) {
     if (next) next.disabled = i === items.length - 1;
     if (say && status) status.textContent = `${i + 1} ${of} ${items.length}`;
   };
+  // An item's scroll position: its distance from the first item, so the track's padding (the
+  // focus ring's room) stays out of the sum.
+  const at = (item: HTMLElement) => item.offsetLeft - items[0]!.offsetLeft;
   const go = (i: number, say = false) => {
     const wrap = (i + items.length) % items.length;
     track.scrollTo({
-      left: items[wrap]!.offsetLeft - track.offsetLeft,
+      left: at(items[wrap]!),
       behavior: reduced() ? "auto" : "smooth",
     });
     show(wrap, say);
@@ -557,10 +560,7 @@ function enhanceCarousel(carousel: HTMLElement) {
       if (left >= track.scrollWidth - track.clientWidth - 2 && active > 0) return;
       const nearest = items.reduce(
         (best, item, i) =>
-          Math.abs(item.offsetLeft - track.offsetLeft - left) <
-          Math.abs(items[best]!.offsetLeft - track.offsetLeft - left)
-            ? i
-            : best,
+          Math.abs(at(item) - left) < Math.abs(at(items[best]!) - left) ? i : best,
         0,
       );
       show(nearest);

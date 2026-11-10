@@ -4,22 +4,17 @@ status: open
 priority: 3
 order: 2000
 owner: a brand session
-evidence: 'docs/agent-work/2026-11-10-quote-callout-pills-signature-review.md, section 2: no P1 variant beat the current one; the Claude reviewers named these two causes keeping "each priority told apart" at 4 to 6.'
+evidence: "docs/agent-work/2026-11-10-shared-element-fixes.md, section 4: the P2 to P4 steps shipped in v2.10.0 (F 7.66 against 6.74, noise 0.33); reviewers of both rounds name P0 and P1 as equally strong."
 ---
 
-# Priority pills: P0 reads weaker than P1 at night, P3 and P4 look alike
+# Priority pills: P0 reads no stronger than P1
 
-Build variants for P0's weight and the P3/P4 step and score them blind before changing a pill.
+Build two or three variants for P0's weight (fill, text or both) and score them blind before changing a pill.
 
-The P1 tint is not the problem the admin panel named: no P1 variant scored better than today's.
-What the reviewers named instead, measured in `elements/pill.css`:
+At night P0's fill (red-night at 20 % on night) is darker and duller than P1's (amber at 20 %), so a
+reader scanning for urgent work picks P1 rows first. In day P0's pink and P1's peach have about the
+same lightness. No P1 variant scored better than today's (report of
+`2026-11-10-quote-callout-pills-signature-review.md`, section 2), so the change goes to P0.
 
-1. At night P0's fill (red-night at 20 % on night) is darker and duller than P1's (amber at 20 %),
-   so a reader scanning for urgent work picks P1 rows first. In day P0's pink and P1's peach have
-   about the same lightness.
-2. P3 and P4 differ only by the fill (ink at 4 % and 2 %, on night white at 6 % and 3 %), and at
-   real size they read as one grey.
-
-Next: build two or three variants for P0's weight (fill, text or both) and for the P3/P4 step, render them
-on os's lists and admin's decisions page in day and night, and score them blind across both
-surfaces before any change. Check: the scores, with the noise, recorded here.
+Next: render the variants on os's lists and admin's decisions page in day and night, and score them
+blind across both surfaces. Check: the scores, with the noise, recorded here.

@@ -3,7 +3,8 @@
    page's ground, a hairline under each row, the muted fill at 70 % on hover. The stripe is a span
    hw-row-stripe, its colour a background the surface sets; corner clipping belongs to the frame
    round the list. The current record (aria-current, as a list beside its open record marks it)
-   takes the accent's 7 % tint. hw-row-lead lays out the title and chips in a row that clips;
+   takes the accent's 7 % tint. hw-row-lead lays out the title and chips in a row that clips, with
+   room for a focus ring round a link in it (--hw-focus-room, focus.css);
    hw-row-trail the figures in the UI step at the foreground's 70 %, tabular, unwrapped. On night
    the expert set's night roles.
 
@@ -57,6 +58,8 @@
   .hw-row-lead {
     min-width: 0;
     overflow: hidden;
+    margin: calc(-1 * var(--hw-focus-room, 5px));
+    padding: var(--hw-focus-room, 5px);
   }
   .hw-row-trail {
     flex: none;

@@ -2,7 +2,8 @@
    role="tablist"; a row of links to separate pages is <nav class="hw-tabs"> with aria-current, no
    script. The row sits on a hairline, each tab as tall as --hw-item-height (44 px or more on a
    touch screen), muted, the current one in the ink with a 2 px bar in the accent. On a narrow
-   screen the row scrolls sideways and the current tab comes into view, so tabs never wrap.
+   screen the row scrolls sideways and the current tab comes into view, so tabs never wrap. The
+   row clips at its edges, so a tab's focus ring sits inside the tab, as the nav's does.
    elements/behaviour.ts gives role="tablist" the arrow keys, Home and End and shows a panel as its
    tab receives focus. hw-tab-panel is the panel below.
 
@@ -29,6 +30,7 @@
     scrollbar-width: none;
   }
   .hw-tab {
+    --hw-focus-offset: calc(-1 * var(--hw-focus-width, 3px));
     display: inline-flex;
     flex: none;
     align-items: center;

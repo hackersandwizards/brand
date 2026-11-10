@@ -3,12 +3,21 @@
    ring with the small corner; a linked card's link (card.css) draws it on the card. hw-focus-ring
    on the page's root (or any container) turns it on for everything inside.
 
+   A scroller clips at its padding box, so a ring at its edge needs room: --hw-focus-room is the
+   ring's reach past the element (width plus offset, at the scale's values). A surface's own
+   scroller pads by it and takes it back in a negative margin (margin: calc(-1 *
+   var(--hw-focus-room)); padding: var(--hw-focus-room)), so its content stays in place, and any
+   sum around that scroller, such as a sticky top, adds or subtracts it once.
+
    Settings:
      --hw-focus-width   the ring's width
      --hw-focus-offset  the gap between element and ring */
 
 @layer properties, theme, base, components, utilities;
 @layer components {
+  :where(:root, [data-hw-scale]) {
+    --hw-focus-room: calc(var(--hw-focus-width, 3px) + var(--hw-focus-offset, 2px));
+  }
   :is(.hw-focus-ring :focus-visible, .hw-focus-ring:focus-visible) {
     outline: var(--hw-focus-width, 3px) solid var(--color-purple);
     outline-offset: var(--hw-focus-offset, 2px);

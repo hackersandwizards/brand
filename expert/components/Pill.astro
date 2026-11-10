@@ -63,8 +63,12 @@ else {
   else {
     // The expert roles (--hue-*, --error, --tier-*) are plain variables that flip with the theme,
     // and Tailwind emits no --color-<role> for them; a brand colour has --color-<name> and its
-    // night tone --color-<name>-night.
-    attrs.style = `--hw-pill-hue: var(--${hue}, var(--color-${hue})); --hw-pill-hue-night: var(--${hue}, var(--color-${hue}-night, var(--color-${hue})))`;
+    // night tone --color-<name>-night, or for ampersand and factory their light tone (the hue
+    // table in tokens.css).
+    const night =
+      ({ ampersand: "ampersand-light", factory: "factory-light" } as Record<string, string>)[hue] ??
+      `${hue}-night`;
+    attrs.style = `--hw-pill-hue: var(--${hue}, var(--color-${hue})); --hw-pill-hue-night: var(--${hue}, var(--color-${night}, var(--color-${hue})))`;
   }
 }
 const classes = `hw-pill whitespace-nowrap ${extraClass}`.trim();

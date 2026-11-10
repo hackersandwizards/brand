@@ -1,7 +1,8 @@
 /* The menu: a list of commands opened from a button or from a right click on a row. The native
    popover attribute shows it above the page and closes it on Escape and outside clicks; role="menu"
    and elements/behaviour.ts give it the arrow keys, Home, End, type-ahead, a place beside its
-   trigger and a return of focus. The list is the overlay surface in the small corner.
+   trigger and a return of focus. The list is the overlay surface in the small corner, padded at
+   least by the focus ring's room (--hw-focus-room, focus.css), so an entry's ring stays whole.
 
    Each entry is <button role="menuitem" class="hw-menu-item">, as tall as --hw-item-height under a
    mouse and at least 44 px on a touch screen: dense in the apps, roomy on the public site.
@@ -37,7 +38,8 @@
     overflow: auto;
     border: var(--hw-hairline, 1px) solid var(--_hw-line);
     border-radius: var(--hw-corner-sm, var(--radius-sm));
-    padding: 0.25rem;
+    padding: max(0.25rem, var(--hw-focus-room, 5px));
+    scroll-padding-block: var(--hw-focus-room, 5px);
     color: var(--_hw-text);
     background: var(--_hw-ground);
     box-shadow: var(--shadow-overlay);

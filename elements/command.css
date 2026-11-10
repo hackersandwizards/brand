@@ -62,7 +62,8 @@
   .hw-command-list {
     max-height: 50dvh;
     overflow-y: auto;
-    padding: 0.5rem;
+    padding: max(0.5rem, var(--hw-focus-room, 5px));
+    scroll-padding-block: var(--hw-focus-room, 5px);
   }
   .hw-command-group {
     margin: 0;
