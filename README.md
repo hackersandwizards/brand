@@ -52,7 +52,7 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/document.flat.css`              | `document.css` with its import resolved in place, for a page that links it                                                                                                                                                                       |
 | `@hackersandwizards/brand/marker.css`                     | the list marker, plain CSS, below                                                                                                                                                                                                                |
 | `@hackersandwizards/brand/layers.css`                     | the cascade layer order alone, `@layer properties, theme, base, components, utilities;`, for a surface that declares it before anything else                                                                                                     |
-| `@hackersandwizards/brand/text-base.css`                  | headings in the heading face at 700, balanced; paragraphs and list items pretty; `@layer base`                                                                                                                                                   |
+| `@hackersandwizards/brand/text-base.css`                  | headings in the heading face at 700, h1 to h3 balanced; paragraphs and list items pretty; `@layer base`                                                                                                                                          |
 | `@hackersandwizards/brand/fonts/<file>`                   | font files                                                                                                                                                                                                                                       |
 | `@hackersandwizards/brand/expert.css`                     | expert UI layer                                                                                                                                                                                                                                  |
 | `@hackersandwizards/brand/header.css`                     | the internal header, plain CSS                                                                                                                                                                                                                   |
@@ -68,25 +68,27 @@ the chart order are in `tokens/tokens.css` and on the brand portal's Colours pag
 | `@hackersandwizards/brand/logos/<file>`                   | logos, favicon set, `logos.json`                                                                                                                                                                                                                 |
 | `@hackersandwizards/brand/press/<file>`                   | press photos and `press.json`                                                                                                                                                                                                                    |
 | `@hackersandwizards/brand/mail-signature/<file>`          | signature template and `fill.ts`                                                                                                                                                                                                                 |
+| `@hackersandwizards/brand/verbal.json`                    | the verbal identity, below                                                                                                                                                                                                                       |
+| `@hackersandwizards/brand/markers`                        | the marker check's target and tolerance, `CAP_SHARE` and `TOLERANCE`, for a test of your own, below                                                                                                                                              |
 | `@hackersandwizards/brand/package.json`                   | the installed brand version, `version`                                                                                                                                                                                                           |
 
-Run a command the package ships from your repo's root with `bun run <name>`. Never `bunx <name>`:
+Run a command the package ships from your repo's root with `bun run <name>`; `--help` prints its usage. Never `bunx <name>`:
 where the package is missing, `bunx` downloads a same-named package from npm, while `bun run` stops
 with `Script not found`.
 
-| Command                                                                                                                                                | Does                                                                                                 |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                                                          | frames an image as a 1080 x 1350 LinkedIn post image; needs `sharp` in the consumer                  |
-| `brand-linkedin-terminal <spec.json> <out.png>`                                                                                                        | renders a terminal snippet for the frame; no arguments print the spec; needs `sharp` in the consumer |
-| `brand-linkedin-sketch-prompt`                                                                                                                         | prints the prompt for a generated sketch and its worked examples                                     |
-| `brand-slide-sketch-prompt`                                                                                                                            | prints the prompt for a slide sketch and its worked example                                          |
-| `brand-mail-signature --name <n> --role <r> --out <path>`                                                                                              | writes a mail signature as HTML and text; all flags in `cli.ts`                                      |
-| `brand-colours [--tighten]`                                                                                                                            | the colour, radius and shadow scan for your gate, below                                              |
-| `brand-copies [--tighten]`                                                                                                                             | flags a copy of a brand file in your tree, below                                                     |
-| `brand-scan [--tighten]`                                                                                                                               | flags a fork of an expert component, below                                                           |
-| `brand-markers [--scale 2,4] [--width 1280] [--site <dir> \| --base <url>] [--catalog <dir> [--catalog-at <page>]] [--json] [<url, file or /path>...]` | measures every list marker on your pages and catalog stories, below                                  |
-| `brand-elements [--base <url>] [--json]`                                                                                                               | measures the shared elements on your design-system page, below                                       |
-| `brand-retired <dir or file>...`                                                                                                                       | fails on a retired slogan in what your build wrote, below                                            |
+| Command                                                                                                                                                                   | Does                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `brand-linkedin-frame <in.png> <out.png> --headline "<text>"`                                                                                                             | frames an image as a 1080 x 1350 LinkedIn post image; needs `sharp` in the consumer                  |
+| `brand-linkedin-terminal <spec.json> <out.png>`                                                                                                                           | renders a terminal snippet for the frame; no arguments print the spec; needs `sharp` in the consumer |
+| `brand-linkedin-sketch-prompt`                                                                                                                                            | prints the prompt for a generated sketch and its worked examples                                     |
+| `brand-slide-sketch-prompt`                                                                                                                                               | prints the prompt for a slide sketch and its worked example                                          |
+| `brand-mail-signature --name <n> --role <r> --out <path without extension>`                                                                                               | writes `<path>.html` and `<path>.txt`; all flags in `cli.ts`                                         |
+| `brand-colours [--tighten]`                                                                                                                                               | the colour, radius and shadow scan for your gate, below                                              |
+| `brand-copies [--tighten]`                                                                                                                                                | flags a copy of a brand file in your tree, below                                                     |
+| `brand-scan [--tighten]`                                                                                                                                                  | flags a fork of an expert component, below                                                           |
+| `brand-markers [--scale 2,4] [--width 1280] [--site <dir> [--site-at <path>] \| --base <url>] [--catalog <dir> [--catalog-at <page>]] [--json] [<url, file or /path>...]` | measures every list marker on your pages and catalog stories, below                                  |
+| `brand-elements [--base <url>] [--json]`                                                                                                                                  | measures the shared elements on your design-system page, below                                       |
+| `brand-retired <dir or file>...`                                                                                                                                          | fails on a retired slogan in what your build wrote, below                                            |
 
 These commands and the exported files above are the whole interface: any other path in the package
 may move in the next tag. A Python script, an HTML document or a skill that needs an exported file
@@ -127,7 +129,7 @@ Every logo keeps clear space on every side at least as high as the h in the name
 its outline: 840 units in every logo file. Each logo has a minimum width: on screen the lockup
 190 px, the compact lockup and the wordmark 150 px; in print 50 mm and 40 mm. Below the lockup's,
 use the wordmark. `logos/logos.json` holds these values for code: `clearSpaceUnits`, and per logo the
-clear space as a share of the day file's height (`clearSpace`), `minWidthPx` and `minWidthMm`. `sizes` holds each SVG's `width` and `height`, keyed by file name, for an `<img>`'s
+clear space as a share of the day file's height (`clearSpace`), `minWidthPx` and `minWidthMm`. `sizes` holds each logo SVG's `width` and `height` (the favicon aside), keyed by file name, for an `<img>`'s
 attributes, so its box holds before the file loads.
 The screen width is the narrowest from which every gap between two letters stays open, a pixel
 column through each under 50 % ink, measured in a headless Chrome render series from 40 to 400 px
@@ -167,7 +169,7 @@ relative path. `applications/avatars/generate.ts` builds the set beside the avat
 
 `verbal/verbal.json` (`@hackersandwizards/brand/verbal.json`) holds the verbal identity: the claim
 in English and German with the word a surface may highlight, the home page headline, mission,
-vision, one-line position, boilerplate, values, terms and the retired slogans. A surface imports the text
+vision, position, boilerplate, values, terms and the retired slogans. A surface imports the text
 (`import { claim } from "@hackersandwizards/brand/verbal.json"`) and never retypes it; `brand-retired`
 (below) fails on any `retired` line in its build. A language the source has not set yet is `null`. The texts are set here: the
 `~/.claude` hub sync copies the file into every repo's voice skill, which keeps tone of voice,
@@ -250,8 +252,8 @@ same measure and nothing else, in `@layer components`, so a utility on a child w
 Three kinds of reader meet these elements, and two settings cover them without a mechanism of their
 own. `data-hw-scale` sets density: `dense` for internal expert systems (os, the admin hub, the trainer
 hub: dense, desktop, keyboard) and the talks catalogue, `screen` for public readers. `any-pointer:
-coarse` sets the touch target: every row, tab and page link reaches 44 px on a touch screen at any
-scale, while a mouse keeps `--hw-item-height`; a smaller control (an icon button, a pill's remove, a
+coarse` sets the touch target: every row, tab and page link reaches 44 px on a touch screen at the
+screen and dense scales (print and stage set both floors to 0), while a mouse keeps `--hw-item-height`; a smaller control (an icon button, a pill's remove, a
 segment, an avatar that is a button, `hw-touch-target` on any other) reaches it through an invisible
 area, its look kept (`elements/touch.css`), and a field's text stays at 16 px or more, so iOS does not
 zoom on focus. A phone layout stands in the element itself where the
@@ -337,7 +339,7 @@ with the brand corner inside another so drawn (inside one, `elements/card.css` g
 and every `rounded-brand` the small corner), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
 callout, note; quote; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), read from `.css`, `.scss` and the style
-elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component of such a name that renders
+elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component file under a `components/` folder of such a name that renders
 none of the `hw-*` classes of the elements its name names (a `ProjectCard` without `hw-card`) and has no exception of that name, on an element carrying an `hw-*` class or
 one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`, removed in
 v1.43.0) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
