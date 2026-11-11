@@ -801,6 +801,34 @@ const groups: CatalogGroup[] = [
     })),
   },
   {
+    name: "Pictures and motion",
+    items: [
+      {
+        name: "The wizard",
+        href: "#wizard",
+        note: "One pose, beside the wordmark and alone",
+        image: "logos/emoji-256.png",
+      },
+      {
+        name: "Photography",
+        href: "#photography",
+        note: `The press kit's ${press.photos.length} photos and their credit`,
+        image: `press/${press.photos[0]!.file}`,
+      },
+      {
+        name: "Illustration",
+        href: "#illustration",
+        note: "The marker sketch, from two prompts",
+        image: "applications/linkedin-visuals/sketch-example-each-person-owns.png",
+      },
+      {
+        name: "Motion",
+        href: "#motion",
+        note: "The durations, the brand's ease and reduced motion",
+      },
+    ],
+  },
+  {
     name: "Elements",
     items: [
       ...ELEMENT_ORDER.map(({ section, name, title, file }) => ({
@@ -929,10 +957,62 @@ ${table(
   "hw-table",
 )}</details>`;
 
+// The four chapters on pictures and motion: what exists, its rule, and what is not set yet. Each
+// rule is read from the file that owns it, never retyped here.
+const promptLine = (file: string, key: string) =>
+  readFileSync(join(ROOT, file), "utf8")
+    .match(new RegExp(`^${key}: (.+)$`, "m"))![1]!
+    .replace(/ \[[^\]]*\]/g, "");
+const motionRule = source
+  .match(/\/\*\s*Motion\. ([\s\S]*?)\*\/\s*--motion-fast/)![1]!
+  .replace(/\s+/g, " ")
+  .trim();
+const notSetYet = (items: string[]) =>
+  `<h3 class="label">Not set yet</h3><ul>${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
+const photographyHtml = `<p>The brand holds ${press.photos.length} photos, the press kit's: ${press.photos.map((p) => esc(p.shows)).join("; ")}. They are shown under <a href="#pressekit">Pressekit</a>.</p>
+<h3 class="label">Rule</h3>
+<ul><li>Credit each one "Photo: ${esc(press.credit)}".</li><li>Each is a square JPEG without camera data; a portrait has a 640 px cut beside it for a slide or a small spot.</li><li>Which designs carry a person: "The voice of the visuals" in the Brand Guide in Company OS, which owns it.</li></ul>
+${notSetYet(["Crop, light and colour treatment for a new photo.", "Photos of anyone but the founders, and of a training or a team at work."])}`;
+const illustrationHtml = `<p>One drawn style: the marker sketch, generated from a prompt the package prints. Two uses:</p>
+${table(
+  ["Use", "Prompt", "Command", "Examples"],
+  [
+    [
+      "A LinkedIn post image, framed afterwards",
+      code("applications/linkedin-visuals/sketch-prompt.txt"),
+      code("brand-linkedin-sketch-prompt"),
+      `<a href="#applications/app-linkedin-visuals">LinkedIn post images</a>`,
+    ],
+    [
+      "Beside a concept slide's cards",
+      code("applications/slide-visuals/sketch-prompt.txt"),
+      code("brand-slide-sketch-prompt"),
+      `<a href="#applications/app-slides">Slides</a>`,
+    ],
+  ],
+)}
+<h3 class="label">Rule</h3>
+<p><strong>Style:</strong> ${esc(promptLine("applications/linkedin-visuals/sketch-prompt.txt", "Style/medium"))}.</p>
+<p><strong>Constraints:</strong> ${esc(promptLine("applications/linkedin-visuals/sketch-prompt.txt", "Constraints"))}.</p>
+<p>Icons are no illustration: the area marks (${code(".hw-mark")} in ${code("tokens/marker.css")}, Lucide) and the disclosure chevron are the only icons the brand exports.</p>
+${notSetYet(["A drawn style beside the marker sketch, such as a scene or a character."])}`;
+const wizardHtml = `<figure class="asset"><img src="logos/emoji-256.png" alt="The wizard" width="128" height="128"><figcaption>${code("logos/emoji-256.png")}, the wizard alone</figcaption></figure>
+<p>One wizard in one pose. Till drew it, and hackers&amp;wizards GmbH holds the rights to it. It appears:</p>
+<ul><li>beside the pixel wordmark in the lockup and the compact lockup, under <a href="#logos">Logos</a>, where the gap between wizard and letters is part of the logo;</li><li>alone as ${code("logos/emoji-256.png")}, for a page or document that shows it as an icon;</li><li>alone, die-cut, as the second sticker, under <a href="#applications/app-merch">Merch</a>;</li><li>large below the wordmark on the 1 x 1 m booth banner, under <a href="#applications/app-booth">Booth banners</a>.</li></ul>
+<p>Which logo goes where, the wizard alone included: the logo table of the Brand Guide in Company OS, which owns it.</p>
+${notSetYet(["A second pose, and where the wizard never appears."])}`;
+const motionHtml = `<p>${esc(motionRule)}</p>
+${table(
+  ["Token", "Value"],
+  otherTokens.filter(([k]) => k.startsWith("--motion-")).map(([k, v]) => [code(k), code(v)]),
+)}
+${notSetYet(["A transition between pages or views."])}`;
+
 const pages: [string, string, string][] = [
   ["colours", "Colours", coloursHtml],
   ["type", "Type", roles],
   ["tokens", "Spacing, radius, shadow, layout", cornersHtml + tokensHtml],
+  ["motion", "Motion", motionHtml],
   ["elements", "Elements", elementsHtml],
   [
     "logos",
@@ -941,6 +1021,9 @@ const pages: [string, string, string][] = [
 <p>Which logo goes on which surface: the logo table of the Brand Guide in Company OS, which owns it.</p>
 ${logosHtml}`,
   ],
+  ["wizard", "The wizard", wizardHtml],
+  ["photography", "Photography", photographyHtml],
+  ["illustration", "Illustration", illustrationHtml],
   ["applications", "Applications: the brand in use", applicationsHtml],
   ["pressekit", "Pressekit", pressHtml],
   ["words", "Words: claim, mission, values", wordsHtml],
