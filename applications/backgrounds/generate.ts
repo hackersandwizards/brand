@@ -550,6 +550,10 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // The same lockup bottom right beside the Dock, its ink (878-912) 14 points above the Dock and
     // 80 from the right edge.
     "logo-br": [["l", 36, 1092.8, 875.5]],
+    // A larger lockup on the same right edge, its ink (835.5-880.5) centred between the last app
+    // labels and the Dock: 46 and 45 points from each. Measured on the iPad: the home screen shows
+    // this file 1:1.
+    "logo-br-mid": [["l", 44, 1050, 834.8]],
   },
   "ipad-home": {
     "logo-band": [["l", 62, 521, 960]],
@@ -599,6 +603,12 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
     // puts its ink at screen y 783-830, 18 pt above the flashlight and camera row (848) and 56 pt
     // below two notifications (to 727).
     "logo-bottom": [["l", 40.5, 111, 742.9]],
+    // The same lockup under the clock, its ink centred on x 220. Measured on the iPhone with the
+    // tall clock and the widget row at the bottom: the wallpaper editor shows the file 1:1, the clock
+    // ends at y 245, the widget row starts at 714, two notifications above it reach up to 474. Ink at
+    // y 349-390 there, 330-376 under the lock screen's 1.1525 enlargement: clear of the clock, of a
+    // widget row under the clock (to 316) and of two notifications.
+    "logo-high": [["l", 40.5, 114.7, 348]],
     "wm-c": [["m", 34, 103, 520]],
     "wiz-low": [["w", 230, 105, 726]],
     "wiz-c": [["w", 260, 90, 420]],
