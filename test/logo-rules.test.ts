@@ -31,7 +31,7 @@ test("sizes names each logo SVG's width and height, as its root element sets the
       return w && h ? [[f, { width: Number(w), height: Number(h) }]] : [];
     }),
   );
-  expect(rules.sizes).toEqual(measured);
+  expect(rules.sizes as Record<string, unknown>).toEqual(measured);
   expect(rules.sizes["lockup-screen.svg"]).toEqual({ width: 8042, height: 1489 });
 });
 

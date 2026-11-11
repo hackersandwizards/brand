@@ -817,19 +817,20 @@ test("a scrolling table's wrapper is a tab stop while its table scrolls, none wh
 });
 
 test("the rehype step wraps each table in a named hw-table-scroll", () => {
-  const el = (tagName: string, children: object[] = [], properties = {}) => ({
+  type Node = Parameters<ReturnType<typeof tableScroll>>[0];
+  const el = (tagName: string, children: Node[] = [], properties = {}): Node => ({
     type: "element",
     tagName,
     properties,
     children,
   });
-  const t = (s: string) => ({ type: "text", value: s });
+  const t = (s: string): Node => ({ type: "text", value: s });
   const table = (head: string) =>
     el("table", [el("thead", [el("tr", [el("th", [t(head)]), el("th", [t("Wert")])])])], {
       className: ["own"],
     });
   const wrapped = el("div", [table("C")], { className: ["hw-table-scroll"] });
-  const tree = {
+  const tree: Node & { children: Node[] } = {
     type: "root",
     children: [
       table("Name"),
@@ -852,5 +853,5 @@ test("the rehype step wraps each table in a named hw-table-scroll", () => {
   ]);
   expect(wrappers[0]!.children[0]!.properties.className).toEqual(["own", "hw-table"]);
   // A table already in a wrapper keeps it: one tab stop, one region.
-  expect(wrapped.children[0]!.tagName).toBe("table");
+  expect(wrapped.children![0]!.tagName).toBe("table");
 });
