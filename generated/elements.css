@@ -796,6 +796,7 @@
         right / 1rem 100% no-repeat;
   }
   .hw-table-scroll[data-hw-scrolls="false"] {
+    --hw-table-held: none;
     overflow-x: visible;
   }
   @media screen {
@@ -826,13 +827,13 @@
   }
   @media screen and (max-width: 47.99rem) {
     @supports (animation-timeline: scroll()) {
-      .hw-table-scroll:not([data-hw-scrolls="false"]) {
+      .hw-table-scroll {
         scroll-padding-inline-start: var(
           --hw-table-held,
           calc(40vw + var(--_hw-table-pad) + var(--hw-focus-room, 5px))
         );
       }
-      .hw-table-scroll:not([data-hw-scrolls="false"]) .hw-table :is(th, td):first-child {
+      .hw-table-scroll .hw-table :is(th, td):first-child {
         max-width: var(--hw-table-held, 40vw);
         overflow-wrap: break-word;
         position: var(--hw-table-held, sticky);
@@ -844,7 +845,7 @@
         animation-timeline: scroll(nearest inline);
         animation-range: 0 1px;
       }
-      .hw-table-scroll:not([data-hw-scrolls="false"]) .hw-table :is(th, td):first-child::before {
+      .hw-table-scroll .hw-table :is(th, td):first-child::before {
         content: var(--hw-table-held, "");
         position: absolute;
         inset-block: 0;
@@ -2505,7 +2506,6 @@
     font-weight: 500;
   }
   .hw-nav button:not([class]) {
-    box-sizing: border-box;
     align-items: center;
     border: 0;
     font: inherit;

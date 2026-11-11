@@ -904,6 +904,24 @@ test("a scrolling table starts where the text does, its ring room past it; a fit
   await p.close();
 });
 
+// The room a scrolling table takes widens the wrapper's box, never its content box, which the mark
+// measures: a table a few pixels wider than its column stays marked.
+test("a table a few pixels wider than its column stays marked as scrolling", async () => {
+  const p = await page(
+    `<div style="width: 400px"><div id="near" class="hw-table-scroll" tabindex="0"><table class="hw-table" style="width: 405px"><tr><td>Zelle</td></tr></table></div></div>`,
+  );
+  await p.waitForFunction(() => document.getElementById("near")!.dataset.hwScrolls === "true");
+  // The table grows by a pixel after the mark, as it does when a font loads.
+  await p.$eval("#near table", async (t) => {
+    (t as HTMLElement).style.width = "406px";
+    await new Promise((r) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 200))),
+    );
+  });
+  expect(await p.$eval("#near", (w) => (w as HTMLElement).dataset.hwScrolls)).toBe("true");
+  await p.close();
+});
+
 test("a scrolling table shows a shadow at each side with more to see, a table that fits none", async () => {
   const wrap = (id: string, n: number) =>
     `<div id="${id}" class="hw-table-scroll" tabindex="0" style="width: 20rem"><table class="hw-table"><tr>${"<td>Spalte mit Inhalt</td>".repeat(n)}</tr></table></div>`;

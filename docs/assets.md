@@ -86,10 +86,9 @@ vision, position, boilerplate, values, terms and the retired slogans. A surface 
 banned words and the brand elements never said in copy. The portal shows the file under Words.
 
 The home headline stands in the display role at the role's size and takes as many lines as its text
-needs there. In German it runs six lines at 1440 px in a 608 px column, and six at 390 px. Every
-text takes a type role (`tokens/tokens.css`), so a surface never sets the headline smaller to save a
-line, nor drops the break after the first sentence, which sets the two sentences apart. A
-surface that needs fewer lines asks for a shorter headline here.
+needs there. Every text takes a type role (`tokens/tokens.css`), so a surface never sets the
+headline smaller to save a line, nor drops the break after the first sentence, which sets the two
+sentences apart. A surface that needs fewer lines asks for a shorter headline here.
 
 ## Press kit
 

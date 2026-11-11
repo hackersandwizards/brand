@@ -1,7 +1,7 @@
 The prompt for a generated sketch beside a concept slide's cards, square, on a transparent
 background, set as the image of the slide engine's image-and-grid block. Which slides get one:
-docs/deck-structure.md in the slides repository. Fill the bracketed parts; the labels name
-what the slide's words claim, never a sentence from the slide.
+https://github.com/hackersandwizards/slides/blob/main/docs/deck-structure.md. Fill the bracketed
+parts; the labels name what the slide's words claim, never a sentence from the slide.
 
 Use case: infographic-diagram
 Asset type: presentation slide illustration, shown beside the slide's cards at about a third of a 16:9 slide, on a projector or as a shared screen in a video call

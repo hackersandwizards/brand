@@ -103,12 +103,15 @@ export const tableScrollPlugin = () => {
 };
 
 // One observer for every wrapper: each one it reports is marked and a tab stop while its table
-// scrolls. The table is measured against the wrapper's own width, which the room a scrolling table
-// takes inside it leaves unchanged, so both marks reach the same answer.
+// scrolls. The table is measured against the wrapper's content box, which stays the column's width
+// whether or not the wrapper takes its ring room, so both marks reach the same answer.
 let observer: ResizeObserver | undefined;
 const mark = (wrapper: HTMLElement) => {
   const table = wrapper.firstElementChild?.getBoundingClientRect().width ?? 0;
-  const scrolls = table > wrapper.getBoundingClientRect().width + 1;
+  const s = getComputedStyle(wrapper);
+  const column =
+    wrapper.getBoundingClientRect().width - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+  const scrolls = table > column + 1;
   wrapper.dataset.hwScrolls = String(scrolls);
   if (scrolls) wrapper.tabIndex = 0;
   else wrapper.removeAttribute("tabindex");
