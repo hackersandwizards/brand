@@ -5,16 +5,21 @@
    button turns ink on hover, white on night. Stacking on a phone and column widths stay the
    surface's.
 
-   hw-table-scroll holds a table wider than its column: it scrolls sideways inside the column, with
-   room for a focus ring at its sides (--hw-focus-room, focus.css; above and below, the cells'
-   padding holds it, so the wrapper keeps the table's own margins; a --hw-cell-pad under the ring's
-   room clips the ring of a control in the first or last row), and below 48rem the first
-   column stays in place, so each row keeps its name; once the table has scrolled, that column
-   takes the table's ground and a hairline at its right (where the browser has scroll timelines;
-   elsewhere the table scrolls whole). On paper it does not scroll. The wrapper takes the keyboard and names itself:
+   hw-table-scroll holds a table wider than its column: it scrolls sideways inside the column and
+   stays inside its container. scrollStops (elements/table.ts) marks it: a table that fits
+   (data-hw-scrolls="false") sits where a bare one does and nothing clips it; a table that scrolls
+   (data-hw-scrolls="true") moves in by the ring's room (--hw-focus-room, focus.css), so a focused
+   control at either side keeps its whole ring. Unmarked, without script, the table scrolls flush
+   with the column and clips that ring. Above and below, the cells' padding holds the ring, so a
+   --hw-cell-pad under the ring's room clips the ring of a control in the first or last row. While
+   the table scrolls, a soft shadow stands at each side with more to see. Below 48rem the first column stays in place, so each row keeps its name; once the table
+   has scrolled, that column takes the table's ground and a hairline at its right. The shadow and
+   the held column need scroll timelines; elsewhere the table scrolls whole and without them. On
+   paper it does not scroll. The wrapper takes the keyboard and names itself:
    <div class="hw-table-scroll" tabindex="0" role="region" aria-label="Deals"><table class="hw-table">…</table></div>
-   elements/table.ts writes it from Markdown (tableScroll, a rehype step) and keeps it a tab stop
-   only while its table scrolls (scrollStops, which enhance() runs).
+   elements/table.ts writes it from Markdown (tableScroll, a rehype step; tableScrollPlugin, the
+   same for Sätteri) and keeps it a tab stop only while its table scrolls (scrollStops, which
+   enhance() runs).
 
    Settings:
      --hw-table-size    the cells' size, the small role
@@ -25,8 +30,21 @@
      --hw-hairline      the rule's width
      --hw-line          the rule's colour
      --hw-table-ground  the fixed first column's ground: the surface's --background, else white,
-                        on night the night ground; a table on a card sets the card's */
+                        on night the night ground; a table on a card sets the card's
+     --hw-table-held    none: no held first column, on the wrapper or above it (a surface that
+                        stacks a table's rows into cards sets it in its own media query) */
 
+/* How far the table has scrolled from each side, 0 to 1 over the first rem, for the shadows. */
+@property --_hw-table-start {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+@property --_hw-table-end {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
 @layer properties, theme, base, components, utilities;
 @layer components {
   .hw-table {
@@ -70,25 +88,91 @@
   }
   .hw-table-scroll {
     --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-white)));
+    --_hw-table-cue: color-mix(in srgb, var(--color-ink) 18%, transparent);
+    --_hw-table-pad: 0px;
     overflow-x: auto;
-    margin-inline: calc(-1 * var(--hw-focus-room, 5px));
-    padding-inline: var(--hw-focus-room, 5px);
+    padding-inline: var(--_hw-table-pad);
+    /* A control scrolled into view keeps room for its ring. */
+    scroll-padding-inline: var(--hw-focus-room, 5px);
+    background:
+      radial-gradient(
+          farthest-side at 0 50%,
+          color-mix(in srgb, var(--_hw-table-cue) calc(var(--_hw-table-start) * 100%), transparent),
+          transparent
+        )
+        left / 1rem 100% no-repeat,
+      radial-gradient(
+          farthest-side at 100% 50%,
+          color-mix(in srgb, var(--_hw-table-cue) calc(var(--_hw-table-end) * 100%), transparent),
+          transparent
+        )
+        right / 1rem 100% no-repeat;
+  }
+  .hw-table-scroll[data-hw-scrolls="false"] {
+    overflow-x: visible;
+  }
+  @media screen {
+    .hw-table-scroll[data-hw-scrolls="true"] {
+      --_hw-table-pad: var(--hw-focus-room, 5px);
+    }
+  }
+  @supports (animation-timeline: scroll()) {
+    /* A wrapper whose table fits has no timeline, so both stay 0. Longhands: see the held column. */
+    .hw-table-scroll {
+      animation-name: hw-table-start, hw-table-end;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(self inline), scroll(self inline);
+      animation-range-start: 0, calc(100% - 1rem);
+      animation-range-end: 1rem, 100%;
+    }
+  }
+  @keyframes hw-table-start {
+    to {
+      --_hw-table-start: 1;
+    }
+  }
+  @keyframes hw-table-end {
+    from {
+      --_hw-table-end: 1;
+    }
   }
   @media screen and (max-width: 47.99rem) {
     @supports (animation-timeline: scroll()) {
-      /* A focused cell scrolls clear of the held column, which takes at most 40 % of the view. */
+      /* A focused cell and its ring scroll clear of the held column, which takes at most 40 % of the
+         view and stands in the wrapper's room.
+         --hw-table-held: none turns all of it off (none is invalid for position, z-index and
+         scroll-padding, so they fall back to their initial values). */
       .hw-table-scroll {
-        scroll-padding-inline-start: 40vw;
+        scroll-padding-inline-start: var(
+          --hw-table-held,
+          calc(40vw + var(--_hw-table-pad) + var(--hw-focus-room, 5px))
+        );
       }
       .hw-table-scroll .hw-table :is(th, td):first-child {
-        max-width: 40vw;
+        max-width: var(--hw-table-held, 40vw);
         overflow-wrap: break-word;
-        position: sticky;
+        position: var(--hw-table-held, sticky);
         left: 0;
-        z-index: 1;
+        z-index: var(--hw-table-held, 1);
         /* Longhands: a minifier without browser targets folds a timeline into the shorthand, which
            browsers refuse. */
-        animation-name: hw-table-held;
+        animation-name: var(--hw-table-held, hw-table-held);
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(nearest inline);
+        animation-range: 0 1px;
+      }
+      /* The ground over the wrapper's ring room left of the held cell, so no scrolled cell shows
+         there; below the cell's content, so a focused control's ring stays whole. */
+      .hw-table-scroll .hw-table :is(th, td):first-child::before {
+        content: var(--hw-table-held, "");
+        position: absolute;
+        inset-block: 0;
+        right: 100%;
+        width: var(--_hw-table-pad);
+        z-index: -1;
+        animation-name: hw-table-room;
         animation-timing-function: linear;
         animation-fill-mode: both;
         animation-timeline: scroll(nearest inline);
@@ -96,22 +180,21 @@
       }
     }
   }
-  /* The second shadow lays the ground over the wrapper's ring room, so no scrolled cell shows
-     left of the held column. */
+  @keyframes hw-table-room {
+    to {
+      background: var(--_hw-table-ground);
+    }
+  }
   @keyframes hw-table-held {
     to {
       background: var(--_hw-table-ground);
-      box-shadow:
-        inset calc(-1 * var(--hw-hairline, 1px)) 0 0 var(--_hw-table-line),
-        calc(-1 * var(--hw-focus-room, 5px)) 0 0 var(--_hw-table-ground);
+      box-shadow: inset calc(-1 * var(--hw-hairline, 1px)) 0 0 var(--_hw-table-line);
     }
   }
   [data-hw-scale="print"] .hw-table-scroll {
+    --hw-table-held: none;
+    --_hw-table-pad: 0px;
     overflow: visible;
-  }
-  [data-hw-scale="print"] .hw-table-scroll .hw-table :is(th, td):first-child {
-    position: static;
-    animation: none;
   }
   @media print {
     .hw-table-scroll {
@@ -124,6 +207,7 @@
     }
     .hw-table-scroll {
       --_hw-table-ground: var(--hw-table-ground, var(--hw-night-background, var(--color-night)));
+      --_hw-table-cue: color-mix(in srgb, var(--color-night-ink) 12%, transparent);
     }
     .hw-table th button:not([class], :disabled):is(:hover, [data-hw-hover]) {
       color: var(--color-white);

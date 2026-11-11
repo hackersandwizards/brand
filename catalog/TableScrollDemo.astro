@@ -1,0 +1,61 @@
+---
+// The scrolling table in a 30rem text column: a table wider than the column, one in a quote, one on
+// a tinted card, and one that fits on a card; the wide ones link from their first and last column.
+// scrollStops (enhance()) marks each wrapper.
+import Element from "./Element.astro";
+import ElementScript from "./ElementScript.astro";
+
+interface Props {
+  night?: boolean;
+}
+const { night = false } = Astro.props;
+const heads = ["Leistung", "Format", "Dauer", "Gruppe", "Sprache", "Unterlagen", "Nachbereitung"];
+const rows = [
+  [
+    "Agentic Engineering",
+    "Präsenztraining",
+    "2 Tage",
+    "12 Personen",
+    "Deutsch",
+    "Arbeitsbuch",
+    "Sprechstunde",
+  ],
+  ["Mentoring", "Remote", "8 Stunden", "1 Team", "Englisch", "Lernpfad", "Rückblick"],
+  [
+    "Architektur-Review",
+    "Workshop",
+    "1 Tag",
+    "6 Personen",
+    "Deutsch",
+    "Befundbericht",
+    "Maßnahmenplan",
+  ],
+];
+const wideTable = (name: string) =>
+  `<div class="hw-table-scroll" tabindex="0" role="region" aria-label="${name}"><table class="hw-table"><thead><tr>${heads.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows
+    .map(
+      (r, i) =>
+        `<tr>${r.map((c, j) => `<td>${i === 0 && (j === 0 || j === r.length - 1) ? `<a class="hw-link" href="#elements">${c}</a>` : c}</td>`).join("")}</tr>`,
+    )
+    .join("")}</tbody></table></div>`;
+const fits = `<div class="hw-table-scroll" tabindex="0" role="region" aria-label="Kurz"><table class="hw-table"><thead><tr><th>Leistung</th><th>Dauer</th></tr></thead><tbody><tr><td><a class="hw-link" href="#elements">Training</a></td><td><a class="hw-link" href="#elements">2 Tage</a></td></tr><tr><td>Mentoring</td><td>8 Stunden</td></tr></tbody></table></div>`;
+---
+
+<Element name="table" night={night} settings="max-width: 30rem">
+  <div class="hw-prose">
+    <h2>Formate</h2>
+    <p>Jedes Format endet mit einem Ergebnis, das das Team selbst weiterführt.</p>
+    <Fragment set:html={wideTable("Formate")} />
+    <p>Die Unterlagen bleiben beim Team.</p>
+    <blockquote class="hw-quote">
+      <Fragment set:html={wideTable("Formate im Zitat")} />
+    </blockquote>
+    <div class="hw-card" data-variant="tint">
+      <Fragment set:html={wideTable("Formate auf der Karte")} />
+    </div>
+    <div class="hw-card">
+      <Fragment set:html={fits} />
+    </div>
+  </div>
+</Element>
+<ElementScript />

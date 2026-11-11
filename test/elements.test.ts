@@ -743,6 +743,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-list-filter-row",
     "--hw-focus-room",
     "--hw-table-ground",
+    "--hw-table-held",
     "--hw-on-fill",
     "--hw-carousel-item",
     "--hw-carousel-columns",

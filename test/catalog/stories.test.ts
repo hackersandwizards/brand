@@ -23,13 +23,14 @@ afterAll(async () => {
 
 test("every story passes brand-elements, every element story shows its element", async () => {
   const pages = storyPages();
-  // Five per element, four that show a setting (the prose block's reading width, the row's
-  // padding, the dialog in a narrow tile, the navigation list at a sidebar's width), the list
+  // Five per element, six that show a setting (the prose block's reading width, the row's
+  // padding, the dialog in a narrow tile, the navigation list at a sidebar's width, the scrolling
+  // table in a text column by day and night), the list
   // filter's nine, the area marks' two and the
   // expert components' sixteen (expert/components, each in ExpertFrame.astro).
   const expert = pages.filter(expertStory);
   expect([pages.length, expert.length]).toEqual([
-    Object.keys(ELEMENTS).length * 5 + 4 + 9 + 2 + 16,
+    Object.keys(ELEMENTS).length * 5 + 6 + 9 + 2 + 16,
     16,
   ]);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
@@ -83,8 +84,14 @@ const expertStory = (url: string) =>
 const storyPages = () =>
   catalogPages(join(DIST, "catalog"), `${server.url}${BASE.slice(1)}catalog`);
 
+// A scrolling table clips the cells at its edge and lays a gradient there, and axe reads the contrast
+// of neither: the pass fits every table into its column, whole and without the shadow, and test/behaviour.test.ts
+// measures each table text colour over the shadow at full strength.
+const UNSCROLLED =
+  ".hw-table-scroll { background: none !important; overflow: visible !important; } .hw-table-scroll .hw-table { width: 100%; table-layout: fixed; overflow-wrap: anywhere; }";
+
 test("every element story passes AA text contrast", async () => {
-  const found = await pool(storyPages(), 8, (url) => contrastFailures(url));
+  const found = await pool(storyPages(), 8, (url) => contrastFailures(url, UNSCROLLED));
   expect(found.flat()).toEqual([]);
 }, 300_000);
 
@@ -95,6 +102,13 @@ test("a faint choice count fails the contrast check and brand-elements", async (
   expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
   const { findings } = await measurePage(browser, url, faint);
   expect(findings.some((f) => f.prop === "opacity")).toBe(true);
+}, 60_000);
+
+// The control for the tables laid out whole: faint text in a scrolling table still fails.
+test("faint text in a scrolling table fails the contrast check that lays it out whole", async () => {
+  const url = storyPages().find((p) => p.endsWith("/table-scroll/screen/"))!;
+  const faint = `${UNSCROLLED} .hw-table-scroll td { opacity: 0.3 }`;
+  expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
 }, 60_000);
 
 // The catalog's header lists every catalog once, Catalog marked: "page" on the home, "true" below.

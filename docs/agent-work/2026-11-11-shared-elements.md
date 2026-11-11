@@ -564,18 +564,218 @@ version 7, 7, 7, 8; phone 7, 7, 8, 8.
 
 ### Ruled table
 
-`elements/table.css`, `elements/table.ts`. `hw-table-scroll` holds a table wider than its column: it
-scrolls sideways, and below 48rem the first column stays in place. Once the table has scrolled, that
-column takes `--hw-table-ground` (the surface's `--background`, else white; on night the night
-ground) and a hairline at its right, through a scroll-driven animation; where a browser lacks scroll
-timelines, the table scrolls whole. The held column takes at most 40 % of the view. A table that
-fits keeps its look, since os wraps every Markdown table. On paper it does not scroll. The wrapper
-pads only at its sides (ring room); above and below, the cells' padding holds a focused control's
-ring, so the wrapper keeps the table's own margins (v2.15.0). `tableScroll`, a rehype step, writes
-the wrapper from Markdown and names it by the heading above; `scrollStops`, which `enhance()` runs,
-keeps the wrapper a tab stop only while its table scrolls, and without script every wrapper stays
-one. The held column is written as animation longhands: lightningcss without browser targets folded
-`animation-timeline` into the shorthand, which Chrome refuses.
+`elements/table.css`, `elements/table.ts`, as of v2.16.0. `hw-table-scroll` holds a table wider
+than its column: it scrolls sideways and stays inside its container. `scrollStops`, which
+`enhance()` runs, marks each wrapper: a table that fits (`data-hw-scrolls="false"`) sits where a
+bare one does and nothing clips it; a table that scrolls (`"true"`) moves in by the ring's room,
+5 px at each side, so a focused control at either side keeps its whole ring. Unmarked, without
+script, the table scrolls flush with the column and clips that ring. While the table scrolls, a
+soft shadow stands at each side with more to see (ink at 18 % by day, night ink at 12 % on night,
+1rem wide), driven by a scroll timeline on the wrapper; a wrapper whose table fits has none. Below
+48rem the first column stays in place; once the table has scrolled, that column takes
+`--hw-table-ground` (the surface's `--background`, else white; on night the night ground) and a
+hairline at its right, and covers the wrapper's room at its left. `--hw-table-held: none`, set on
+the wrapper or above it, turns the held column off; set on the table, it reaches the cells and the
+wrapper keeps its 40vw scroll padding. Shadow and held column need scroll timelines; elsewhere the
+table scrolls whole and without them. On paper it does not scroll and keeps no room (the room is
+set for the screen only, which the code review found missing). `tableScroll`, a rehype step,
+and `tableScrollPlugin`, the same step as a Sätteri hast plugin, write the wrapper from Markdown and
+name it by the heading above. The held column and the shadows are written as animation longhands:
+lightningcss without browser targets folded `animation-timeline` into the shorthand, which Chrome
+refuses.
+
+The website took the wrapper for its article tables on 11.11. and kept four additions of its own
+(its items `work-take-brand-table-scroll` and `work-table-held-column-strip`, its report
+`2026-11-11-xreview6-website.md`). Each was reproduced in brand's own element before a change, in
+a fixture with brand's CSS alone and in the catalog's new story Data display / Table scroll (a
+30rem column with a table in the text, one in a quote, one on a tinted card, one that fits on a
+card). Chrome for Testing 157, headless.
+
+**Container (v2.16.0).** The v2.15.0 wrapper took its 5 px of ring room back in a negative margin.
+In a container without side padding it reached past the container: the container's own overflow
+was 5 px in a plain column and in a quote, with a table that scrolls and with one that fits; on a
+card, 0. Making the box stay inside leaves three ways to keep a ring at the table's side whole: a
+ring drawn inward, room inside the wrapper, or no clipping. A blind panel scored the first two
+against v2.15.0 (below); the ring drawn inward lost on both models. Room inside every wrapper cost
+alignment (every reviewer marked the table 5 px off the text), so only a table that scrolls takes
+it, and a table that fits stops clipping. Now, in the same fixture: every container's overflow 0,
+no wrapper past its container, a table that fits at the container's content edge, one that scrolls
+5 px in. A table that fits is pixel-identical to v2.15.0 at rest and with focus in its first
+column (fixture at 2x, plain column and quote). Only a table that scrolls moves, 5 px, when
+`enhance()` marks it. `test/behaviour.test.ts` reads each container, wrapper and table edge, and
+the ring in pixels (a purple column at both sides of a first- and last-column link, scrolled to
+either end, in a scrolling and a fitting wrapper). Against v2.15.0's `table.css` it fails, and so
+it does without the scrolling room and without the fitting state.
+
+![The focus on a first-column link: v2.15.0, the shipped scrolling state, the ring drawn inward](2026-11-11-shared-elements/table-ring-laptop.jpg)
+
+The ring panel: a desktop page at 1440 px and a phone at 390 px, the wide tables of the story with
+a first-column link focused, three versions: v2.15.0 (room past the container), room inside the
+wrapper, ring drawn inward. Criteria: focus seen at once, the focused words readable, the table in
+line with the text, calm, overall. Overall, 1 to 10:
+
+| Reviewer                                    | v2.15.0 | Room inside | Ring inward |
+| ------------------------------------------- | ------- | ----------- | ----------- |
+| Claude, accessibility specialist, run 1     | 9       | 8           | 6           |
+| Claude, accessibility specialist, run 2     | 9       | 7           | 5           |
+| Claude, engineering leader reading articles | 9       | 8           | 5           |
+| Codex, accessibility specialist, run 1      | 9       | 9           | 7           |
+| Codex, accessibility specialist, run 2      | 9       | 9           | 7           |
+| Codex, engineering leader reading articles  | 9       | 9           | 8           |
+
+Noise: 0.67 on Claude (mean spread of the two runs), 0 on Codex. Room inside beats the ring drawn
+inward by 2.33 (Claude) and 1.67 (Codex), outside the noise on both. The ring drawn inward cut into
+the letters and split a two-line link into two boxes. Room inside lost alignment against v2.15.0
+(scores 6 to 8 against 9 to 10). The shipped state keeps v2.15.0's pixels where the table fits,
+and the scored "room inside" where it scrolls: the story's scrolling views match that sheet but
+for 2 of 295,000 pixels.
+
+**Edge shadow (v2.16.0).** A table wider than its column showed no sign that it scrolls where
+scrollbars overlay, as on macOS and phones. Current design systems answer with shadows at the
+edges (the
+[MOJ Design System's scrollable pane](https://design-patterns.service.justice.gov.uk/components/scrollable-pane):
+"Shadows at the edges signal that there's more content", for a focusable region holding a table),
+a shadow edge beside a held first column ([Maersk's table](https://designsystem.maersk.com/components/table/):
+"Show a visible cue that more columns exist"), a shadow on the side that can still scroll
+([Frontpills' scrollable element shadow hook](https://frontpills.pages.dev/posts/2023/scrollable-table-shadow)),
+or masks with an indicator that hides after the first scroll
+([Reckon's Balance scroll mask](https://balance.reckon.com/package/scroll-mask)); each page read on
+11.11. Three variants were built as renderings of the story, each driven by the wrapper's own
+scroll timeline, so a table that fits shows nothing and no ground colour is painted at rest (no
+patch on a tinted card): a shadow, a fade of the text at that side, and a hairline at that side. Reviewers saw each
+in four laptop views (day and night, as opened and scrolled) and four phone views at 390 px. The
+cue was scored on the flush wrapper, before the scrolling room; the room moves the table 5 px and
+leaves the shadow as scored: with the text and rules transparent, the wrapper with and without the
+room is pixel-identical at 2x, day and night, scrolled 0, 600 px and to the end, while those three
+offsets differ from each other.
+
+![The edge cue on a laptop, day, scrolled: none, shadow, fade, rule](2026-11-11-shared-elements/table-cue-laptop-day.jpg)
+
+![The edge cue on a phone, night, as opened: none, shadow, fade, rule](2026-11-11-shared-elements/table-cue-phone-night.jpg)
+
+| Reviewer                                      | None | Shadow | Fade | Rule |
+| --------------------------------------------- | ---- | ------ | ---- | ---- |
+| Claude, engineering leader, run 1             | 6    | 7      | 8    | 5    |
+| Claude, engineering leader, run 2             | 5    | 7      | 7    | 5    |
+| Claude, operations lead in an internal system | 5    | 7      | 8    | 6    |
+| Codex, engineering leader, run 1              | 7    | 8      | 8    | 7    |
+| Codex, engineering leader, run 2              | 7    | 8      | 8    | 7    |
+| Codex, operations lead in an internal system  | 7    | 9      | 8    | 7    |
+
+Overall, 1 to 10. Noise: 0.5 on Claude, 0 on Codex. Shadow and fade both beat no cue on both
+models outside the noise (Claude by 1.67 and 2.33, Codex by 1.33 and 1.0). Between them the models
+split: fade leads on Claude by 0.67, shadow on Codex by 0.33. A tie, which goes to the shadow: the
+fade dims real text at the edge toward nothing, below the AA contrast the catalog checks on every
+story, and reviewers on both models read it as disabled data. On "you can tell there is more, and
+where", the shadow scored 7 to 9, no cue 3 to 6. Reviewers on both models called the night shadow
+a smudge on the phone. The website's own scores (74/60 and 85/72, then 58/48 and 77/71) were not
+used.
+
+The scored shadow is a gradient on the wrapper, and axe reads no contrast over a gradient: the
+catalog's AA check reported every cell of a wrapped table as not measured. Computed instead, each
+table text colour (head, cell, link) over its ground (column, quote, tinted card; day and night)
+with the shadow at full strength, where it meets the wrapper's edge: at the scored strength (ink
+25 %, night ink 22 %) the head fell to 3.94:1 on a tinted card by day and the link to 3.53:1 on a
+tinted card on night, under AA. Without the shadow the lowest pair is 6.48:1. The strongest shadow
+that keeps every pair at 4.5:1 is 18 % by day (lowest 4.57:1) and 12 % on night (4.87:1).
+
+Two more blind rounds on the same views (each view shot twice, both identical), the same personas
+and models. First a box shadow (axe measures through one, 12 of 12 cells passing where the gradient
+left 12 incomplete), matched to the gradient's strength at the edge (55 against 56 of 255), against
+the gradient and no cue:
+
+| Reviewer                                      | None | Gradient | Box shadow |
+| --------------------------------------------- | ---- | -------- | ---------- |
+| Claude, engineering leader, run 1             | 5    | 8        | 6          |
+| Claude, engineering leader, run 2             | 6    | 8        | 6          |
+| Claude, operations lead in an internal system | 4    | 6        | 7          |
+| Codex, engineering leader, run 1              | 7    | 8        | 8          |
+| Codex, engineering leader, run 2              | 7    | 8        | 7          |
+| Codex, operations lead in an internal system  | 7    | 8        | 7          |
+
+Noise 0.33 on both models; the gradient beats the box shadow by 1.0 (Claude) and 0.67 (Codex),
+which reviewers read as a heavier, boxed edge. Then the gradient at the AA strength against the
+scored strength and no cue:
+
+| Reviewer                                      | None | 25 % / 22 % | 18 % / 12 % |
+| --------------------------------------------- | ---- | ----------- | ----------- |
+| Claude, engineering leader, run 1             | 5    | 7           | 6           |
+| Claude, engineering leader, run 2             | 5    | 7           | 6           |
+| Claude, operations lead in an internal system | 5    | 7           | 7           |
+| Codex, engineering leader, run 1              | 7    | 8           | 8           |
+| Codex, engineering leader, run 2              | 7    | 8           | 8           |
+| Codex, operations lead in an internal system  | 7    | 8           | 8           |
+
+Noise 0 on both. The AA strength beats no cue by 1.33 (Claude) and 1.0 (Codex) and trails the
+scored strength by 0.67 on Claude, a tie on Codex. AA is the rule, so it ships: ink at 18 % by day,
+night ink at 12 % on night. `test/behaviour.test.ts` computes every pair at full strength and fails
+under 4.5:1 (a full-ink shadow as its control; the scored strength gave 3.53:1). The catalog's AA
+check fits each wrapped table into its column, without the shadow, so axe measures every cell; its
+control, faint cells in the scrolling story, still fails.
+
+![The edge cue: none, the scored strength and the shipped strength, laptop by day scrolled and phone on night as opened](2026-11-11-shared-elements/table-cue-strength.jpg)
+
+**Held column (v2.16.0).** The site saw text of the second column in the 5 px beside the held cell
+at 700 px, scrolled 120 px, and could not show it with brand's element alone. Brand's element alone
+shows it: in a fixture at 640, 700 and 767 px, scrolled 120 px, the 5 px left of the held cell
+carried 465 ink pixels at 2x. The cause is the wrapper's ring room: the held cell sticks at the
+wrapper's content edge, 5 px in, and the box shadow v2.15.0 laid over that strip is not painted on
+a cell of a table with collapsed borders. Control, one factor each, the shadow painted magenta:
+collapsed borders 0 magenta pixels in the strip, separate borders 3,880 of 3,880. Swept from 0 to
+240 px in steps of 10, the strip held ink at 14 of 25 offsets and none at 0 to 80, 150 and 220,
+which is how a check at another offset can read clean. A first fix stuck the held cell at the
+wrapper's edge; the code review of this run found that it clips the left of a focused first-column
+link's ring once the table has scrolled (the link then stands at the scrollport's edge). Now the cell
+sticks at the wrapper's content edge, 5 px in, and a `::before` on it, behind its content, lays the
+ground over the 5 px at its left while it is held. Swept at 640, 700 and 767 px, scrolled 10 to
+240 px in steps of 10, three rows, the strip hits the held cell at every offset; without the
+`::before` it hits a scrolled cell at every offset. The test reads that hit, the 5 px gap and the
+ring in pixels, scrolled 120 px at 700 px; it fails without the `::before`, and with the first fix. A
+second code review found the start's scroll padding, 40vw, short of a held cell standing 5 px in: a
+focused cell could stop 5 px under it. The padding is now 40vw plus the wrapper's room plus the
+ring's (290 px at 700 px), and `focus.css` names the table's own way with its room.
+
+![The held column at 700 px, scrolled 120 px: v2.15.0 and v2.16.0 (fixture at 2x, fallback font)](2026-11-11-shared-elements/table-held-strip.jpg)
+
+`--hw-table-held: none` is the one switch for a surface that stacks a table into one card per row,
+set in its own media query: `none` is invalid for `position`, `z-index` and `scroll-padding` and
+names no animation, so the held column's position, cap, ground, hairline and scroll padding fall
+back. Print sets it too. The test reads all four on the wrapper, and the cells with the switch on
+the table, the website's selector shape.
+
+**Sätteri (v2.16.0).** Astro 7's default Markdown processor, Sätteri, runs no rehype step (Astro's
+Markdown guide; the Sätteri API reference names `hastPlugins` as the option). `tableScrollPlugin`
+is a factory Sätteri calls once per document, so the "(2)" count starts fresh: an element visitor
+on h1 to h6 and `table`, which names and wraps each table through Sätteri's `wrapNode`. Both forms
+share the naming. A test runs the same Markdown through `markdownToHtml` with the plugin and through
+`markdownToHast`, `tableScroll` and `hastToHtml`: the HTML is identical (two tables under one
+heading, a table in a quote, a table before any heading, a document run twice). Sätteri 0.11.7 is
+a dev dependency for that test; the shipped file imports nothing from it and types the context by
+the three calls it makes. The website's adapter wrapped a copy of each document's tables in order;
+it registers the plugin instead. Company OS renders Markdown through `unified()` with rehype
+plugins and keeps its call. It runs neither `enhance()` nor `scrollStops` (its `src` on 11.11.), so
+its wrappers stay unmarked: no table reaches past its container any more, and a focused control at
+a scrolling table's side has its ring clipped until it calls `scrollStops()` as the website does.
+
+**Margins (v2.15.0), and Company OS's reading.** Company OS measured a table that is the first
+child of its block, under a parent with a 12 px top margin, 4 px lower since v2.15.0, and gave two
+controls on a deal page's height: v2.14.0's margin set back alone, 10 px shorter than before;
+v2.14.0's padding set back alone, 4 px taller. Brand's element in a fixture, Chrome at 800 px,
+`hw-prose`, a fixed box above a parent with a 12 px top margin, the wrapper its first child and a
+paragraph after it (v2.14.0's rules set inline on the wrapper):
+
+| Wrapper             | Box to table | Table to paragraph | Block against v2.14.0 |
+| ------------------- | ------------ | ------------------ | --------------------- |
+| v2.14.0             | 17 px        | 21 px              | 0                     |
+| now (v2.15.0 on)    | 16 px        | 16 px              | -6 px                 |
+| margin back alone   | 12 px        | 16 px              | -10 px                |
+| padding back alone  | 21 px        | 21 px              | +4 px                 |
+| bare table, no wrap | 16 px        | 16 px              | -6 px                 |
+
+Brand's rules alone give both of Company OS's controls exactly (-10 and +4 px). Since v2.15.0 the
+table stands 1 px higher, not lower, and 5 px closer to what follows; 4 px lower is the padding-alone
+control. Intended: the wrapped table stands where a bare one does. The model predicts the deal page
+6 px shorter than with v2.14.0 (6588 px against 6594); Company OS has not read that height.
 
 **Scroll (v2.10.0).** A five-column table in a 358 px phone column, website (screen, day) and apps
 (dense, night card), first shown and after a swipe. K: no wrapper (the table runs 46 to 61 px past
@@ -621,9 +821,22 @@ the table in the text's flow, overall:
 The engineer's two runs moved the lead on the sum by 5 points, so every lead sits inside the noise:
 a tie, which goes to the margins the rule names.
 
-Open (work-element-findings-open): three reviewers saw more space above a table than below it in both versions; the
-cause is not yet measured. A table on a card of another tone, on a surface without `--background`,
-sets `--hw-table-ground` itself, else the held column is white by day.
+Open (work-element-findings-open): three reviewers saw more space above a table than below it in
+both versions. A measurement points at the head row: in `hw-prose` at 800 px, the paragraph's text
+ends 25 px above the head's text, and the last row's hairline, the table's visible lower edge, ends
+16.5 px above the next paragraph's text. Above, the head cells' 8 px top padding sits outside any
+line; below, the last row's sits inside the closing hairline. Not yet scored. A table on a card of
+another tone, on a surface without `--background`, sets `--hw-table-ground` itself, else the held
+column is white by day. The night shadow read as a smudge to reviewers on both models at 22 %;
+not reviewed again at 12 %. Kept from
+this run's code review, each read from the code and not measured: below 48rem the held column covers
+the left shadow once the table has scrolled (the views scored show that state, with the hairline as
+the cue); the shadow is a radial gradient, strongest at the table's vertical middle, so a tall table
+whose middle is out of view shows it faintly; with `--hw-table-held: none` the start's scroll
+padding falls back to none rather than the ring's room (on the website's stacked cards nothing
+scrolls); a print-scale preview on screen marks a wide table as scrolling and keeps it a tab stop.
+`carousel.css` and `row.css` still take their ring room back in a negative margin, which reached
+past its container on the table (`work-element-findings-open`).
 
 ### Facts list
 
@@ -1082,6 +1295,9 @@ ids of the built stories the catalog tests read; no consumer shows two tiles of 
   underlined. `applications/mail-signature/template.html` underlines both. Not checked against a
   real webmail screenshot; dark mode skipped. A test holds every colour of the template to the
   tokens (B-34); an empty name is handled (B-32).
+- **Logo sizes.** `logos/logos.json` `sizes` names each lockup and wordmark PNG beside the SVGs
+  (v2.16.0), read from each file's header: the website typed the PNG widths (and the lockup's
+  2416 x 447) by hand, all equal to the files. A test reads every PNG's header against the map.
 - **Imprint.** `verbal/imprint.json` has `countryCode` `DE` (v2.15.0). No address line: it would
   hold street, postcode and town a second time; a consumer joins them.
 - **LinkedIn commands (B-32, B-21).** The terminal command checks its spec and deletes nothing
@@ -1186,8 +1402,8 @@ dependency; a difference between builds is not measured.
 
 ## Open
 
-The open points of each section above name their item. Ten findings no other item holds, eight
-defects and two questions, are in `work-element-findings-open`.
+The open points of each section above name their item. Twelve findings no other item holds, nine
+defects and three points not yet explained or checked, are in `work-element-findings-open`.
 
 ## Method
 
@@ -1236,7 +1452,7 @@ senior developer sent the training list by their manager. Surfaces scored: the t
 (dense, 14 px), Company OS (dense, 13 px), the website on a phone and a laptop at night, a slide at
 night. Skipped: documents and admin (dense like os).
 
-### Two prompts, verbatim
+### Prompts, verbatim
 
 The variant comparison (the operations lead, filter value in the app, v1.47.0; paths shortened):
 
@@ -1285,4 +1501,10 @@ The sheets named by letter show complete screens or element sets; where two shee
 For every element in every image, score 1 to 10 overall, against these criteria: (1) Its state or purpose reads at a glance, with and without full colour vision; (2) It is consistent with the other elements on the sheet; (3) Visual calm; (4) Breathing room, not cramped (on a phone also: controls large enough for a thumb; on desktop also: appropriately dense for working all day); (5) Legibility of the text; (6) The dark version works as well as the light one.
 
 Return only: a compact table with columns image file, element, overall (1-10), and one short clause naming what keeps it below 10 (what you, in your role, would notice). Then a list of at most five concrete defects you would fix first, each naming image and element. No preamble.
+```
+
+The ruled table's edge cue, Claude, engineering leader, run 1 (paths shortened to the file names):
+
+```text
+You are an engineering leader at a mid-sized software company who reads a training provider's knowledge articles on a laptop and on a phone, comparing formats before proposing one to the team. You see a web page in a browser: an article column about 480 px wide in a laptop window 1440 px wide, and the same page on a phone 390 px wide (phone views at the phone's CSS size). The page holds tables wider than the column; such a table scrolls sideways inside the column, and the browser shows no scrollbar until you scroll. Four versions of the same page are shown, labelled F, H, P, T. Each version has two images: one with four laptop views (day as opened, day with the table scrolled sideways, night as opened, night scrolled) and one with the same four views on a phone. The images: F: F-laptop.png and F-phone.png; H: H-laptop.png and H-phone.png; P: P-laptop.png and P-phone.png; T: T-laptop.png and T-phone.png. Score each version from 1 to 10 on each criterion, across all its views: 1. At a glance you can tell whether a table holds more than you see, and on which side the rest is. 2. Visual calm. 3. Breathing room, not cramped. 4. The table looks like it belongs to the page. Then give each version an overall score from 1 to 10, as the reader you are. Answer with one Markdown table (rows: the four criteria and overall; columns: F, H, P, T), then, per version and criterion below 10, one line naming what keeps it there. Judge only what the images show.
 ```

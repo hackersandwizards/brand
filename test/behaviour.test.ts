@@ -4,9 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser, Page } from "puppeteer-core";
+import sharp from "sharp";
 import { launch, open } from "../scan/markers";
 import { ROOT } from "../scripts/git";
-import { tableScroll } from "../elements/table";
+import { hastToHtml, markdownToHast, markdownToHtml } from "satteri";
+import { tableScroll, tableScrollPlugin } from "../elements/table";
 
 // The keys, focus and placement elements/behaviour.ts gives, in a real browser.
 let browser: Browser;
@@ -816,6 +818,230 @@ test("a scrolling table's wrapper is a tab stop while its table scrolls, none wh
   await p.close();
 });
 
+/** Whether the focus ring of the control at `sel` shows whole: a purple column at its left and at
+ * its right, nearly its height. */
+const ringWhole = async (p: Page, sel: string) => {
+  const a = (await p.$(sel))!;
+  await a.evaluate((e) => e.setAttribute("data-hw-focus", ""));
+  const r = (await a.boundingBox())!;
+  const clip = { x: r.x - 8, y: r.y - 8, width: r.width + 16, height: r.height + 16 };
+  // Within the viewport: capturing beyond it lays the page out again and moves the scroll.
+  const { data, info } = await sharp(await p.screenshot({ clip, captureBeyondViewport: false }))
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  await a.evaluate((e) => e.removeAttribute("data-hw-focus"));
+  const columns = Array.from({ length: info.width }, (_, x) => {
+    let n = 0;
+    for (let y = 0; y < info.height; y++) {
+      const i = (y * info.width + x) * info.channels;
+      if (data[i + 2]! > 180 && data[i + 1]! < 110 && data[i]! > 100) n++;
+    }
+    return n;
+  });
+  return [columns.slice(0, 12), columns.slice(-12)].every((c) => Math.max(...c) >= r.height * 0.8);
+};
+
+test("a table stays inside its container, a fitting one where a bare one sits, and a control at either side keeps its whole ring", async () => {
+  const wide = (id: string) =>
+    `<div id="${id}" class="hw-table-scroll" tabindex="0"><table class="hw-table"><tr><td><a class="hw-link" href="#a">Erste</a></td>${"<td>Spalte mit Inhalt</td>".repeat(16)}<td><a class="hw-link" href="#b">Letzte</a></td></tr></table></div>`;
+  const fits = `<div id="fits" class="hw-table-scroll" tabindex="0"><table class="hw-table"><tr><td><a class="hw-link" href="#a">Erste</a></td><td><a class="hw-link" href="#b">Letzte</a></td></tr></table></div>`;
+  const p = await page(
+    `<div class="hw-focus-ring" style="width: 30rem"><div>${wide("plain")}</div><blockquote class="hw-quote">${wide("quote")}</blockquote><div class="hw-card">${wide("card")}</div><div>${fits}</div></div>`,
+  );
+  await p.waitForFunction(() => document.getElementById("fits")!.dataset.hwScrolls === "false");
+  // Per wrapper: its mark, the container's own overflow, how far the wrapper reaches past the
+  // container's box, and how far the table starts from the container's content edge.
+  expect(
+    await p.$$eval(".hw-table-scroll", (ws) =>
+      ws.map((w) => {
+        const c = w.parentElement!;
+        const [a, b] = [c.getBoundingClientRect(), w.getBoundingClientRect()];
+        const start =
+          a.left +
+          parseFloat(getComputedStyle(c).borderLeftWidth) +
+          parseFloat(getComputedStyle(c).paddingLeft);
+        return [
+          (w as HTMLElement).dataset.hwScrolls,
+          c.scrollWidth - c.clientWidth,
+          Math.max(0, a.left - b.left, b.right - a.right),
+          w.querySelector("table")!.getBoundingClientRect().left - start,
+        ];
+      }),
+    ),
+  ).toEqual([
+    ["true", 0, 0, 5],
+    ["true", 0, 0, 5],
+    ["true", 0, 0, 5],
+    ["false", 0, 0, 0],
+  ]);
+  // The ring in pixels: a purple column at the link's left and at its right, nearly its height.
+  for (const [wrapper, link, end] of [
+    ["#plain", "td:first-child a", false],
+    ["#plain", "td:last-child a", true],
+    ["#fits", "td:first-child a", false],
+    ["#fits", "td:last-child a", false],
+  ] as const) {
+    await p.$eval(
+      wrapper,
+      async (w, end) => {
+        w.scrollLeft = end ? w.scrollWidth : 0;
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      },
+      end,
+    );
+    const whole = await ringWhole(p, `${wrapper} ${link}`);
+    expect({ wrapper, link, whole }).toEqual({ wrapper, link, whole: true });
+  }
+  // On paper a scrolling table keeps no room: it starts where a bare one does.
+  await p.emulateMediaType("print");
+  expect(await p.$eval("#plain", (w) => getComputedStyle(w).paddingLeft)).toBe("0px");
+  await p.close();
+});
+
+test("a scrolling table shows a shadow at each side with more to see, a table that fits none", async () => {
+  const wrap = (id: string, n: number) =>
+    `<div id="${id}" class="hw-table-scroll" tabindex="0" style="width: 20rem"><table class="hw-table"><tr>${"<td>Spalte mit Inhalt</td>".repeat(n)}</tr></table></div>`;
+  const p = await page(wrap("wide", 16) + wrap("fits", 1));
+  const sides = (id: string, to: number | "end") =>
+    p.$eval(
+      `#${id}`,
+      async (w, to) => {
+        w.scrollLeft = to === "end" ? w.scrollWidth : to;
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const s = getComputedStyle(w);
+        return [s.getPropertyValue("--_hw-table-start"), s.getPropertyValue("--_hw-table-end")];
+      },
+      to,
+    );
+  expect(await sides("wide", 0)).toEqual(["0", "1"]);
+  expect(await sides("wide", 100)).toEqual(["1", "1"]);
+  expect(await sides("wide", "end")).toEqual(["1", "0"]);
+  expect(await sides("fits", 0)).toEqual(["0", "0"]);
+  // Both shadows are drawn: an invalid colour would leave the background none.
+  expect(
+    await p.$eval(
+      "#wide",
+      (w) => getComputedStyle(w).backgroundImage.match(/radial-gradient/g)?.length,
+    ),
+  ).toBe(2);
+  await p.close();
+});
+
+// axe reads no contrast over a gradient, so the catalog's contrast check takes the shadow off; this
+// measures what it leaves out: each table text colour over its ground with the shadow at full.
+test("every table text colour keeps AA contrast over the edge shadow at full strength", async () => {
+  const table = `<div class="hw-table-scroll" data-hw-scrolls="true"><table class="hw-table"><thead><tr><th>Kopf</th></tr></thead><tbody><tr><td>Zelle <a class="hw-link" href="#a">Link</a></td></tr></tbody></table></div>`;
+  const grounds = (theme: string) =>
+    `<div data-theme="${theme}" style="background: ${theme === "dark" ? "var(--color-night); color: var(--color-night-ink)" : "var(--color-white); color: var(--color-ink)"}; padding: 1rem"><div>${table}</div><blockquote class="hw-quote">${table}</blockquote><div class="hw-card" data-variant="tint">${table}</div></div>`;
+  const p = await page(grounds("light") + grounds("dark"));
+  const lowest = (cue = "") =>
+    p.evaluate((cue) => {
+      const probe = document.createElement("i");
+      // A colour in sRGB channels 0 to 1 and its alpha, from whatever form the browser computes.
+      const rgba = (el: Element, colour: string) => {
+        probe.style.color = colour;
+        el.append(probe);
+        const c = getComputedStyle(probe).color;
+        probe.remove();
+        const n = c.match(/[\d.]+/g)!.map(Number);
+        const [r, g, b, a = 1] = c.startsWith("color(")
+          ? n
+          : [n[0]! / 255, n[1]! / 255, n[2]! / 255, n[3]];
+        return [r!, g!, b!, a];
+      };
+      const lum = ([r, g, b]: number[]) =>
+        [r!, g!, b!]
+          .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+          .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i]!, 0);
+      return Math.min(
+        ...[...document.querySelectorAll<HTMLElement>(".hw-table-scroll")].flatMap((w) => {
+          if (cue) w.style.setProperty("--_hw-table-cue", cue);
+          // The ground: each background from the wrapper's parent down to the first opaque one.
+          const layers: number[][] = [];
+          for (let g = w.parentElement; g && layers.at(-1)?.[3] !== 1; g = g.parentElement)
+            layers.push(rgba(g, getComputedStyle(g).backgroundColor));
+          const over = (base: number[], top: number[]) =>
+            base.slice(0, 3).map((v, i) => v * (1 - top[3]!) + top[i]! * top[3]!);
+          const ground = layers.reduceRight((base, top) => over(base, top), [1, 1, 1]);
+          const under = over(ground, rgba(w, "var(--_hw-table-cue)"));
+          return [...w.querySelectorAll("th, td, a")].map((t) => {
+            const [a, b] = [lum(rgba(t, getComputedStyle(t).color)), lum(under)];
+            return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+          });
+        }),
+      );
+    }, cue);
+  expect(await lowest()).toBeGreaterThanOrEqual(4.5);
+  // The control: a shadow of full ink must fail.
+  expect(await lowest("var(--color-ink)")).toBeLessThan(4.5);
+  await p.close();
+});
+
+test("the held first column covers the room beside it, keeps a focused link's ring whole, and --hw-table-held: none turns it off", async () => {
+  const wide = (id: string, style = "") =>
+    `<div id="${id}" class="hw-table-scroll" tabindex="0" style="${style}"><table class="hw-table">${`<tr><td><a class="hw-link" href="#a">Zeile</a></td>${"<td>Spalte mit Inhalt</td>".repeat(17)}</tr>`.repeat(2)}</table></div>`;
+  const p = await page(
+    '<div class="hw-focus-ring">' +
+      wide("held") +
+      wide("off", "--hw-table-held: none") +
+      wide("table").replace(
+        '<table class="hw-table">',
+        '<table class="hw-table" style="--hw-table-held: none">',
+      ) +
+      `<div data-hw-scale="print">${wide("print")}</div>` +
+      "</div>",
+  );
+  await p.setViewport({ width: 700, height: 600 });
+  await p.waitForFunction(() => document.getElementById("held")!.dataset.hwScrolls === "true");
+  // Scrolled, the held cell stands in the wrapper's room for a ring and covers the room at its left:
+  // the strip beside it hits the held cell, not a scrolled one.
+  const read = (id: string) =>
+    p.$eval(`#${id}`, async (w) => {
+      w.scrollLeft = 120;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const td = w.querySelector("td")!;
+      const s = getComputedStyle(td);
+      const [a, b] = [w.getBoundingClientRect(), td.getBoundingClientRect()];
+      return {
+        gap: b.left - a.left,
+        strip: document.elementFromPoint(a.left + 2, (b.top + b.bottom) / 2) === td,
+        position: s.position,
+        maxWidth: s.maxWidth,
+        animation: s.animationName,
+        padding: getComputedStyle(w).scrollPaddingInlineStart,
+      };
+    });
+  expect(await read("held")).toEqual({
+    gap: 5,
+    strip: true,
+    position: "sticky",
+    maxWidth: "280px",
+    animation: "hw-table-held",
+    padding: "290px",
+  });
+  expect(await ringWhole(p, "#held td:first-child a")).toBe(true);
+  expect(await read("off")).toMatchObject({
+    position: "static",
+    maxWidth: "none",
+    animation: "none",
+    padding: "auto",
+  });
+  // Set on the table, it reaches the cells; the wrapper keeps its scroll padding.
+  expect(await read("table")).toMatchObject({
+    position: "static",
+    maxWidth: "none",
+    animation: "none",
+    padding: "290px",
+  });
+  // A print-scale page on a narrow screen holds no column either.
+  expect(await read("print")).toMatchObject({
+    position: "static",
+    maxWidth: "none",
+    animation: "none",
+  });
+  await p.close();
+});
+
 test("the rehype step wraps each table in a named hw-table-scroll", () => {
   type Node = Parameters<ReturnType<typeof tableScroll>>[0];
   const el = (tagName: string, children: Node[] = [], properties = {}): Node => ({
@@ -854,4 +1080,27 @@ test("the rehype step wraps each table in a named hw-table-scroll", () => {
   expect(wrappers[0]!.children[0]!.properties.className).toEqual(["own", "hw-table"]);
   // A table already in a wrapper keeps it: one tab stop, one region.
   expect(wrapped.children![0]!.tagName).toBe("table");
+});
+
+test("the Sätteri plugin writes what the rehype step writes, its count fresh in each document", () => {
+  const md = [
+    "| Name | Wert |\n| - | - |\n| a | 1 |",
+    "## Preis*e*",
+    "| A | B |\n| - | - |\n| 1 | 2 |",
+    "Text",
+    "| C | D |\n| - | - |\n| 3 | 4 |",
+    "> | Q | R |\n> | - | - |\n> | 5 | 6 |",
+  ].join("\n\n");
+  const tree = markdownToHast(md);
+  tableScroll()(tree as Parameters<ReturnType<typeof tableScroll>>[0]);
+  const plugin = () => markdownToHtml(md, { hastPlugins: [tableScrollPlugin] }).html.trimEnd();
+  const first = plugin();
+  expect(first).toBe(hastToHtml(tree).trimEnd());
+  expect([...first.matchAll(/aria-label="([^"]*)"/g)].map((m) => m[1])).toEqual([
+    "Name Wert",
+    "Preise",
+    "Preise (2)",
+    "Preise (3)",
+  ]);
+  expect(plugin()).toBe(first);
 });
