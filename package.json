@@ -111,8 +111,8 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.20.7",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.12.1",
+    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.27.1",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.16.0",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v2.1.1",
     "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.4",
@@ -150,6 +150,11 @@
         "check": "coupling",
         "path": "applications/channel-banners/render.py",
         "reason": "Python reads the testimonials marks at their installed path: it cannot resolve package exports"
+      },
+      {
+        "check": "structure",
+        "path": ".claude/settings.json",
+        "reason": "The SessionStart hook is Benedikt's own, his decision of 02.11. (a plain bun install, no lock), and an open decision of his covers whether it changes: it stays as he set it rather than the skeleton's"
       }
     ],
     "test": "test",

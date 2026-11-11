@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
+import { rejection } from "@hackersandwizards/scaffolding/rejection";
 import { ROOT } from "../scripts/git";
 import {
   applyExceptions,
@@ -257,16 +258,6 @@ const BOX_TICK = file(
   "box-tick.html",
   tasks(".hw-prose li.task-list-item input[data-readonly]:checked { mask-image: var(--_hw-tick) }"),
 );
-
-// The error `promise` rejected with, as text for expect().toMatch(); a promise that resolves fails
-// the test, naming its value. eslint.config.js says why not expect().rejects.
-const rejection = (promise: Promise<unknown>) =>
-  promise.then(
-    (value) => {
-      throw new Error(`expected a rejection, resolved with ${JSON.stringify(value)}`);
-    },
-    (e: unknown) => String(e),
-  );
 
 let browser: Browser;
 beforeAll(async () => {
