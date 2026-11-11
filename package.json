@@ -157,7 +157,7 @@
       {
         "check": "structure",
         "path": ".claude/settings.json",
-        "reason": "The SessionStart hook is Benedikt's own, his decision of 02.11. (a plain bun install, no lock), and an open decision of his covers whether it changes: it stays as he set it rather than the skeleton's"
+        "reason": "This repository keeps its own SessionStart hook, a plain bun install without the lock, rather than the skeleton's"
       }
     ],
     "test": "test",

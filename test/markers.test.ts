@@ -699,7 +699,7 @@ test("a site built for a base path is served there: its stylesheets load, nothin
   const atRoot = serve(site);
   const server = serve(site, "/mail/");
   try {
-    // At the root the base path's stylesheet is missing, as brand-markers saw it before.
+    // The control: served at its root, the base path's stylesheet is missing.
     expect((await fetch(`${atRoot.url.origin}/mail/_astro/a.css`)).status).toBe(404);
     expect((await fetch(`${server.url.origin}/mail/_astro/a.css`)).status).toBe(200);
     expect(await (await fetch(`${server.url.origin}/mail/`)).text()).toContain(
@@ -708,12 +708,14 @@ test("a site built for a base path is served there: its stylesheets load, nothin
     const moved = await fetch(`${server.url.origin}/mail`, { redirect: "manual" });
     expect([moved.status, moved.headers.get("location")]).toEqual([301, "/mail/"]);
     expect((await fetch(`${server.url.origin}/_astro/a.css`)).status).toBe(404);
+    expect((await fetch(`${server.url.origin}/blog/_astro/a.css`)).status).toBe(404);
     const listed = listedSite({ dir: site, at: "/mail/" });
     expect(listed).toEqual({ dir: site, at: "/mail/" });
     expect(listedSite(site, "mail")).toEqual({ dir: site, at: "/mail/" });
     expect(listedSite(site)).toEqual({ dir: site, at: "/" });
     expect(() => listedSite({ at: "/mail/" } as never)).toThrow('"site": a folder');
     expect(listedSite(undefined)).toBeUndefined();
+    expect(listedSite(null as never)).toBeUndefined();
     expect(catalogPages(join(site, "catalog"), undefined, site, true, [], listed!.at)).toEqual([
       "/mail/catalog/stories/A/b/default/",
     ]);

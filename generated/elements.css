@@ -778,6 +778,7 @@
     --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-white)));
     --_hw-table-cue: color-mix(in srgb, var(--color-ink) 18%, transparent);
     --_hw-table-pad: 0px;
+    min-width: 0;
     overflow-x: auto;
     padding-inline: var(--_hw-table-pad);
     scroll-padding-inline: var(--hw-focus-room, 5px);

@@ -461,7 +461,8 @@ test("a carousel takes controls named by id, keeps dots the page wrote, and wire
     await p.$$eval(".hw-carousel-dot", (d) => d.map((x) => x.getAttribute("aria-current"))),
   ).toEqual([null, "true"]);
   await p.close();
-  // carousels() alone wires the carousel and installs no document-wide handler, such as the toast region.
+  // carousels() alone wires the carousel and installs no document-wide handler, such as the toast
+  // region.
   const alone = await browser.newPage();
   const f = join(dir, "carousels-alone.html");
   writeFileSync(
@@ -810,7 +811,6 @@ test("a scrolling table's wrapper is a tab stop while its table scrolls, none wh
   const p = await page(wrap("wide", 8) + wrap("narrow", 1));
   await p.waitForFunction(() => !document.getElementById("narrow")!.hasAttribute("tabindex"));
   expect(await attr(p, "#wide", "tabindex")).toBe("0");
-  // A wrapper that starts to scroll becomes a tab stop again.
   await p.$eval("#narrow tr", (tr) => tr.insertAdjacentHTML("beforeend", "<td>x</td>".repeat(30)));
   await p.waitForFunction(
     () => document.getElementById("narrow")!.getAttribute("tabindex") === "0",
@@ -875,7 +875,6 @@ test("a scrolling table starts where the text does, its ring room past it; a fit
     ["true", 0, 0, 0],
     ["false", 0, 0, 0],
   ]);
-  // The ring in pixels: a purple column at the link's left and at its right, nearly its height.
   for (const [wrapper, link, end] of [
     ["#plain", "td:first-child a", false],
     ["#plain", "td:last-child a", true],
@@ -919,6 +918,21 @@ test("a table a few pixels wider than its column stays marked as scrolling", asy
     );
   });
   expect(await p.$eval("#near", (w) => (w as HTMLElement).dataset.hwScrolls)).toBe("true");
+  await p.close();
+});
+
+// A grid or flex item cannot shrink below a visible overflow's content: a table that fit once would
+// hold its column wide and the page would scroll sideways.
+test("a table that fits in a grid starts to scroll when the grid narrows", async () => {
+  const p = await page(
+    `<div id="grid" style="display: grid; width: 1200px"><div id="t" class="hw-table-scroll" tabindex="0"><table class="hw-table" style="width: 600px"><tr><td>Zelle</td></tr></table></div></div>`,
+  );
+  await p.waitForFunction(() => document.getElementById("t")!.dataset.hwScrolls === "false");
+  await p.$eval("#grid", (g) => ((g as HTMLElement).style.width = "300px"));
+  await p.waitForFunction(() => document.getElementById("t")!.dataset.hwScrolls === "true", {
+    timeout: 3000,
+  });
+  expect(await p.$eval("#t", (w) => w.getBoundingClientRect().width)).toBeLessThanOrEqual(310);
   await p.close();
 });
 

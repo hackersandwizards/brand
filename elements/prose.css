@@ -74,7 +74,6 @@
 .hw-prose :is(table, pre) {
   max-width: none;
 }
-/* A scrolling table: the wrapper takes the block's margin. */
 .hw-prose :is(.hw-table, .hw-code, .hw-quote, .hw-table-scroll) {
   margin-block: 1rem;
 }

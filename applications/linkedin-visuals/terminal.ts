@@ -106,9 +106,8 @@ if (import.meta.main) {
   try {
     writeFileSync(join(dir, "t.html"), terminalHtml(spec));
     await screenshot(dir, "t.html", [SIZE, SIZE, SCALE], join(dir, "t.png"));
-    await (
-      await loadSharp()
-    )(join(dir, "t.png"))
+    const sharp = await loadSharp();
+    await sharp(join(dir, "t.png"))
       .trim({ background: tokens["--color-bg"], threshold: 6 })
       .toFile(resolve(output));
   } finally {

@@ -19,7 +19,6 @@
 // names with its reason; a marker there, under a name "exceptions" declares, still counts as found
 // for the checks below that a page shows one.
 //
-// Usage: --help (USAGE below).
 // The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
 // its reason and how many off readings it keeps at most:
 //   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
@@ -54,8 +53,8 @@ import { answerHelp } from "./help";
 
 const USAGE = `usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> [--site-at <path>] | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site path>...]
 --site serves a built folder on a free port, at --site-at where it was built for a base path such
-as /mail/, and a page starting with / is a path on it; --base names a server the gate started
-instead. --catalog adds every story page of a built catalog folder, each named below --catalog-at,
+as /mail/ (also for brand-elements.json's "site"), and a page starting with / is a path on it;
+--base names a server the gate started instead. --catalog adds every story page of a built catalog folder, each named below --catalog-at,
 by default the folder itself, or its path on --site. brand-elements.json in the working directory
 gives the rest, so a consumer names its pages once: its "site" where none of --site, --base and
 --catalog is given, its "catalog" with its "exclude" where --catalog is not, and its "pages" where
@@ -953,7 +952,7 @@ export type Site = string | { dir: string; at?: string };
 const basePath = (at: string) => `/${at.replace(/^\/+|\/+$/g, "")}/`.replace("//", "/");
 /** The folder and path of a "site" or --site with --site-at; undefined for none. */
 export const listedSite = (site?: Site, at?: string) => {
-  if (site === undefined || site === "") return undefined;
+  if (site == null || site === "") return undefined;
   const dir = typeof site === "string" ? site : site.dir;
   if (typeof dir !== "string" || !dir)
     throw new Error(
@@ -1001,8 +1000,7 @@ export async function pool<T, R>(
 }
 
 if (import.meta.main) {
-  const usage = USAGE;
-  answerHelp(usage);
+  answerHelp(USAGE);
   const args = process.argv.slice(2);
   const opt = (name: string, fallback: string) => {
     const i = args.indexOf(name);
@@ -1018,7 +1016,7 @@ if (import.meta.main) {
   const json = args.includes("--json");
   const named = args.filter((a) => a !== "--json");
   if (flagBase && !/^https?:$/.test(URL.parse(flagBase)?.protocol ?? "")) {
-    console.error(usage);
+    console.error(USAGE);
     process.exit(2);
   }
   const config = existsSync("brand-elements.json")
@@ -1051,7 +1049,7 @@ if (import.meta.main) {
   }
   stories = [...searched, ...stories];
   if (!named.length && !stories.length) {
-    console.error(usage);
+    console.error(USAGE);
     process.exit(2);
   }
   const server = site ? serve(site.dir, site.at) : undefined;

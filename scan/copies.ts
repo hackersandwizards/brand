@@ -65,14 +65,12 @@ const box = (f: string) => /viewBox="([^"]+)"/.exec(readFileSync(join(LOGOS, f),
 const LOCKUP_BOX = new RegExp(
   `^<svg\\b[^>]*viewBox="(?:${[...new Set(["lockup.svg", "lockup-screen.svg"].map(box))].join("|").replace(/\./g, "\\.")})"`,
 );
-/** An svg's text without comments, its whitespace collapsed. */
 const plain = (svg: string) =>
   svg
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/\s+/g, " ")
     .replace(/>\s*</g, "><")
     .trim();
-// The wordmarks the documents engine inlines, by their whole text: a recoloured or cropped one differs.
 const WORDMARKS = new Set(
   [...logoNames]
     .filter((f) => /^wordmark.*\.svg$/.test(f))

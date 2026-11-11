@@ -337,12 +337,36 @@ test("an interpolation is the code's name, never a literal; an expression prop's
   // A component's colour prop maps a name to a token, and an object after a colon is a map.
   expect(scanSource('<Pill color={on ? "teal" : "purple"} />', ".astro").counts).toEqual(zero);
   expect(scanSource('const t = { color: { primary: "teal" } };', ".ts").counts).toEqual(zero);
+  // A brace after = in script or Python opens an object or a dict; a compared string is no value.
+  expect(scanSource('const color = { ok: "green", bad: "red" };', ".ts").counts).toEqual(zero);
+  expect(scanSource('const fill = { a: "white" };', ".tsx").counts).toEqual(zero);
+  expect(scanSource('background = {"x": "white"}', ".py").counts).toEqual(zero);
+  expect(scanSource('plot(color={"ok": "green"})', ".py").counts).toEqual(zero);
+  const compared = '<path fill={theme === "black" ? "var(--x)" : "var(--y)"} />';
+  expect(scanSource(compared, ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={palette["white"]} />', ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={theme ===\n  "black" ? a : b} />', ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={pick(on, "white")} />', ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={"white" in m ? a : b} />', ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={p[dark ? "white" : "black"]} />', ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={pick(on ? "white" : "black")} />', ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={{ ok: "tomato" }[k]} />', ".tsx").counts).toEqual(zero);
+  expect(scanSource('<path fill={names.includes("black") ? a : b} />', ".astro").counts).toEqual(
+    zero,
+  );
+  // The strings an interpolation can take are read; its names are not.
+  const s = "const s = `<rect fill=\"${on ? 'tomato' : 'teal'}\"/>`;";
+  expect(scanSource(s, ".ts").counts).toEqual({ ...zero, hex: 2 });
 });
 
 test("a custom property set to a colour name counts once, any other value not at all", () => {
   const css = ".a { --mark: white; --fill: hotpink; --ease: linear; --text-color: black }";
   expect(scanSource(css, ".css").counts).toEqual({ ...zero, tokenHex: 2, hex: 1 });
   expect(scanSource('const s = { "--mark": white };', ".ts").counts).toEqual(zero);
+  expect(scanSource('<div style="--mark: tomato"></div>', ".astro").counts).toEqual({
+    ...zero,
+    hex: 1,
+  });
   expect(scanSource('const s = { "--mark": "white" };', ".ts").counts).toEqual({
     ...zero,
     tokenHex: 1,

@@ -4,10 +4,11 @@
 // literals off the token set, as hex or a CSS colour name in a colour property (a JSX or Astro
 // expression prop's strings included), SVG colour attribute, color-mix(), Tailwind arbitrary value
 // or a custom property set to that name alone (`hex`), or as a colour function, rgb() and hsl()
-// through oklch(), lab(), hwb() and color() (`rgb`), an interpolation (${...}) never read as one,
-// colour literals repeating a token value instead of naming it, white and black included
+// through oklch(), lab(), hwb() and color() (`rgb`), an interpolation's names (${...}) never
+// read as one, colour literals repeating a token value instead of naming it, white and black included
 // (`tokenHex`), font stacks that do not open on a brand family, in font-family, the font
-// shorthand, an SVG attribute or a style key, and Tailwind's font-serif (`font`), Tailwind default palette classes (`palette`), radii (`radius`)
+// shorthand, an SVG attribute or a style key, and Tailwind's font-serif (`font`), Tailwind default
+// palette classes (`palette`), radii (`radius`)
 // and box shadows (`shadow`) whose value is no brand token, vendor-prefixed ones included,
 // Tailwind's default radius and shadow classes with a size included (bare `rounded` and `shadow`
 // match prose, so they are not read). Compares the counts with the consumer's brand-colours.json
@@ -199,6 +200,8 @@ export const ENGINE_STYLE =
 const CSS_OR_SVG = /^\.(css|svg)$/;
 const SCRIPT_EXT = /^\.([cm]?[jt]sx?|json|webmanifest)$/;
 const MARKUP = /^\.(astro|vue|svelte|html)$/;
+// The files whose markup takes a prop as a {...} expression.
+const PROPS = /^\.(astro|svelte|[jt]sx)$/;
 const BLOCK = /\/\*[\s\S]*?\*\//g;
 const STRING_OR_BLOCK =
   /("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\//g;
@@ -256,8 +259,26 @@ const WORD = /(?<![\w$.#/-])([a-z]+)(?![\w./-])/gi;
 const COLOUR_AT =
   /(?<![\w-])(?:color|background(?:-color)?|backgroundColor|border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-color)?|border(?:Top|Right|Bottom|Left)?Color|outline(?:-color)?|outlineColor|fill|stroke|stop-color|stopColor|flood-color|lighting-color|caret-color|caretColor|accent-color|accentColor|text-decoration(?:-color)?|textDecorationColor|column-rule(?:-color)?|--[\w-]*colou?r[\w-]*)\s*[:=]\s*|color-mix\(/g;
 // A custom property set to one colour name and nothing else, in CSS or as a style key.
-const CUSTOM = /(?<![\w-])--[\w-]+["']?\s*:\s*(["'`]?)([a-z]+)\1\s*(?=[;},\n]|$)/gim;
-const STRING = /"[^"\n]*"|'[^'\n]*'|`[^`]*`/g;
+const CUSTOM = /(?<![\w-])--[\w-]+["']?\s*:\s*(["'`]?)([a-z]+)\1\s*(?=[;},\n"']|$)/gim;
+/** The strings an expression can take as its value: one at its own level that opens it or a
+ * branch (after {, ?, :, && or ||), never one it compares or tests with in, nor one inside a key,
+ * a call, parentheses or an object. */
+const valueStrings = (code: string) => {
+  const out: RegExpExecArray[] = [];
+  let depth = 0;
+  for (const m of code.matchAll(/"[^"\n]*"|'[^'\n]*'|`[^`]*`|[[({]|[\])}]/g)) {
+    const t = m[0];
+    if ("[({".includes(t)) depth++;
+    else if ("])}".includes(t)) depth--;
+    else if (
+      depth === 1 &&
+      /(?:[{?:]|&&|\|\|)\s*$/.test(code.slice(0, m.index)) &&
+      !/^\s*(?:[!=]=|in\b)/.test(code.slice(m.index + t.length))
+    )
+      out.push(m);
+  }
+  return out;
+};
 /** The expression a { at `i` opens, to its matching }, read at most 400 characters on. */
 const expression = (src: string, i: number) => {
   let depth = 0;
@@ -405,8 +426,12 @@ export const scanSource = (raw: string, ext: string) => {
   // A color-mix() inside a colour property is read once, by the position of each word.
   const seen = new Set<number>();
   const words = (value: string, from: number) => {
-    // An interpolation (${...}) holds names of the code, never a literal of the value.
-    for (const w of value.replace(/\$\{[^}]*\}/g, (x) => " ".repeat(x.length)).matchAll(WORD))
+    // An interpolation (${...}) adds only the strings it can take; its names are the code's.
+    const read = value.replace(/\$\{[^}]*\}/g, (x, at: number) => {
+      for (const s of valueStrings(x)) words(s[0], from + at + s.index);
+      return " ".repeat(x.length);
+    });
+    for (const w of read.matchAll(WORD))
       if (!seen.has(from + w.index)) {
         seen.add(from + w.index);
         named(w[1]);
@@ -417,11 +442,11 @@ export const scanSource = (raw: string, ext: string) => {
     // In markup color= and background= are a component's props, which map a name to a token; no
     // element takes them as a colour.
     if (MARKUP.test(ext) && /^(?:color|background)\s*=/.test(m[0])) continue;
-    // A JSX or Astro expression prop (fill={on ? "teal" : "white"}): the strings in it. After a
-    // colon the brace opens an object, a map of names, which is no value.
+    // A JSX, Astro or Svelte expression prop (fill={on ? "teal" : "white"}): the strings it can
+    // take. Any other brace opens an object or a dict, a map of names, which is no value.
     if (src[start] === "{") {
-      if (m[0].trimEnd().endsWith("="))
-        for (const s of expression(src, start).matchAll(STRING)) words(s[0], start + s.index);
+      if (PROPS.test(ext) && /[\w-]=$/.test(m[0].trimEnd()))
+        for (const s of valueStrings(expression(src, start))) words(s[0], start + s.index);
       continue;
     }
     const quoted = /["'`]/.test(src[start] ?? "");

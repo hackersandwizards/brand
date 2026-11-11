@@ -7,10 +7,10 @@
 
    The text selection and the caret need no class: on every page that loads this file a selection
    lays teal at 25 % over the ground under the text, teal-night at 25 % where the nearest data-theme
-   is "dark" and in a code block (code.css), night on every page; so a filled button, tooltip or
-   chosen control keeps its own contrast. The text keeps its own colour, links included. A
-   surface's own night block on a day page carries data-theme="dark" for the night selection. The
-   caret is purple, teal-night on night.
+   is "dark" and in a code block (code.css), which is night on every page; so a filled button,
+   tooltip or chosen control keeps its own contrast. The text keeps its own colour, links
+   included. A surface's own night block on a day page carries data-theme="dark" for the night
+   selection. The caret is purple, teal-night on night.
 
    A scroller clips at its padding box, so a ring at its edge needs room: --hw-focus-room is the
    ring's reach past the element (width plus offset, at the scale's values). A surface's own

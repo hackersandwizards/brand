@@ -25,8 +25,7 @@ test("every story passes brand-elements, every element story shows its element",
   const pages = storyPages();
   // Five per element, six that show a setting (the prose block's reading width, the row's
   // padding, the dialog in a narrow tile, the navigation list at a sidebar's width, the scrolling
-  // table in a text column by day and night), the list
-  // filter's nine, the area marks' two, the
+  // table in a text column by day and night), the list filter's nine, the area marks' two, the
   // expert components' sixteen (expert/components, each in ExpertFrame.astro) and the filter bar
   // (choices beside form-input, in ExpertFrame.astro).
   const expert = pages.filter(expertStory);
@@ -85,9 +84,9 @@ const expertStory = (url: string) =>
 const storyPages = () =>
   catalogPages(join(DIST, "catalog"), `${server.url}${BASE.slice(1)}catalog`);
 
-// A scrolling table clips the cells at its edge and lays a gradient there, and axe reads the contrast
-// of neither: the pass fits every table into its column, whole and without the shadow, and test/behaviour.test.ts
-// measures each table text colour over the shadow at full strength.
+// A scrolling table clips the cells at its edge and lays a gradient there, and axe reads the
+// contrast of neither: the pass fits every table into its column, whole and without the shadow,
+// and test/behaviour.test.ts measures each table text colour over the shadow at full strength.
 const UNSCROLLED =
   ".hw-table-scroll { background: none !important; overflow: visible !important; } .hw-table-scroll .hw-table { width: 100%; table-layout: fixed; overflow-wrap: anywhere; }";
 
@@ -105,7 +104,6 @@ test("a faint choice count fails the contrast check and brand-elements", async (
   expect(findings.some((f) => f.prop === "opacity")).toBe(true);
 }, 60_000);
 
-// The control for the tables laid out whole: faint text in a scrolling table still fails.
 test("faint text in a scrolling table fails the contrast check that lays it out whole", async () => {
   const url = storyPages().find((p) => p.endsWith("/table-scroll/screen/"))!;
   // The last column, which sits past the column's edge until the pass fits the table.
@@ -115,7 +113,7 @@ test("faint text in a scrolling table fails the contrast check that lays it out 
 
 // In a filter bar the choices and both selects (an app's form-input, the brand's hw-field
 // hw-select) stand one height: the control height by mouse, the touch target on a touch screen,
-// day and night. The control: the heights of 2.16.0, 32 px choices beside 40 px selects.
+// day and night. The control: 32 px choices beside 40 px selects.
 const BEFORE = `[data-hw-scale="dense"] { --hw-choice-height: 2rem; --hw-field-height: 2.5rem }
 .form-input { min-height: 2.5rem; padding-block: 0.5rem }`;
 test("a filter bar's choices and selects stand one height by mouse and touch, day and night", async () => {

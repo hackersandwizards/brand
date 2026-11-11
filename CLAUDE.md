@@ -35,9 +35,9 @@ data or secret.
   reading them from that devDependency's `marks/`; `render.py` stops on a file no `allowed` entry names.
 - `applications/<family>/`: the files made from the brand for one use each, outside the package:
   device and call backgrounds, channel banners, LinkedIn post images, avatars, GitHub social previews, booth banners,
-  gradients, merch print files, device stickers, mail signatures. Where a script builds a family it sits beside the files and writes
+  gradients, merch print files, device stickers, mail signatures, slide sketches. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`, `avatars/generate.ts`, `social-previews/generate.ts` (reads `gh`),
-  `merch/w1.ts` (shirt, hoodie, stickers), `channel-banners/render.py` (`uv run`). `linkedin-visuals/` ships as
+  `merch/w1.ts` (shirt, hoodie, stickers), `device-stickers/devices.ts`, `channel-banners/render.py` (`uv run`). `linkedin-visuals/` ships as
   three commands: `brand-linkedin-frame` (`frame.ts`) and `brand-linkedin-terminal` (`terminal.ts`)
   write a post's image to the path the caller names, `brand-linkedin-sketch-prompt` prints
   `sketch-prompt.txt`, the generated sketch's prompt, and each `sketch-example-<name>.txt`, a filled

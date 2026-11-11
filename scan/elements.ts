@@ -57,8 +57,6 @@
 //    such tile's data-hw-version is this package's version (a page built from another brand
 //    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, each such tile
 //    names a declared exception, and every hub element a page shows is listed as used.
-//
-// Usage: --help (USAGE below).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
@@ -973,8 +971,8 @@ export const sourceFindings = (
         elements.length &&
         !(name in allow) &&
         !elements.some((e) => new RegExp(RENDERS[e] ?? `(?<![\\w-])hw-${e}(?![\\w-])`).test(raw)) &&
-        // A fact, singular, is one row (dt and dd) of the facts list its parent renders.
-        !(/(^|-)fact($|-)/.test(name) && /<dt\b/.test(raw))
+        // A fact, singular, is one row (dt and dd) of the facts list its parent renders, never a list.
+        !(/(^|-)fact($|-)/.test(name) && /<dt\b/.test(raw) && !/<dl\b/.test(raw))
       )
         out.push(
           `${p}: a component named like a shared element; render the hw-* element or list "${name}" as an exception`,

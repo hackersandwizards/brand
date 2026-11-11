@@ -919,11 +919,13 @@ test("source: a button component may render the icon button, a fact component on
     "src/components/Fact.astro": `<div><dt class="hw-label" data-tone="muted">DE</dt><dd><slot /></dd></div>`,
     "src/components/FactBox.astro": `<div class="box"><slot /></div>`,
     "src/components/Facts.astro": `<dl class="my-facts"><dt>Ort</dt><dd>Hamburg</dd></dl>`,
+    "src/components/FactList.astro": `<dl class="my-facts"><dt>Ort</dt><dd>Hamburg</dd></dl>`,
   };
   expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
     'src/components/SaveButton.astro: a component named like a shared element; render the hw-* element or list "save-button" as an exception',
     'src/components/FactBox.astro: a component named like a shared element; render the hw-* element or list "fact-box" as an exception',
     'src/components/Facts.astro: a component named like a shared element; render the hw-* element or list "facts" as an exception',
+    'src/components/FactList.astro: a component named like a shared element; render the hw-* element or list "fact-list" as an exception',
   ]);
 });
 
@@ -1574,7 +1576,7 @@ test("a scroll-driven animation survives a minifier without browser targets: lon
   }
 });
 
-/** `read` run on a page holding `body` at 1440 px by mouse, then at 390 px on a touch screen. */
+/** `read` run on a page holding `html` at 1440 px by mouse, then at 390 px on a touch screen. */
 const byPointer = async <T>(name: string, html: string, read: () => T) => {
   const url = pathToFileURL(file(name, html)).href;
   const out: Awaited<T>[] = [];

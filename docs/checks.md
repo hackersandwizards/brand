@@ -9,8 +9,12 @@ The package ships `brand-colours`, which scans your working tree from the curren
 and counts, per file:
 
 - `hex`: colour literals off the tokens as hex, or as a CSS colour name (`tomato`, `teal`) in a
-  colour property, an SVG colour attribute, a `color-mix()` or a Tailwind arbitrary value
-  (`bg-[tomato]`); a hex of three or four letters alone (`#fab`) only where a value stands
+  colour property, an SVG colour attribute, a `color-mix()`, a Tailwind arbitrary value
+  (`bg-[tomato]`) or a custom property set to that name alone (`--mark: tomato`); a hex of three or
+  four letters alone (`#fab`) only where a value stands. In a JSX, Astro or Svelte expression prop
+  (`fill={on ? "teal" : "white"}`) and an interpolation (`${...}`), the strings the expression can
+  take count, never a string it compares, tests with `in`, or holds inside a key, a call,
+  parentheses or an object
 - `rgb`: colour functions: `rgb()`, `rgba()`, `hsl()`, `hsla()`, and `oklch()`, `oklab()`, `lab()`,
   `lch()`, `hwb()`, `color()` with a colour's arguments, counted without conversion
 - `tokenHex`: a literal repeating a token's colour, in any notation, `white` and `black` included,
@@ -234,7 +238,7 @@ and every `rounded-brand` the small corner), on a CSS rule named like an element
 callout, note; quote; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), read from `.css`, `.scss` and the style
 elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component file under a `components/` folder of such a name that renders
-none of the `hw-*` classes of the elements its name names (a `ProjectCard` without `hw-card`) and has no exception of that name, on an element carrying an `hw-*` class or
+none of the `hw-*` classes of the elements its name names (a `ProjectCard` without `hw-card`; a button component may render `hw-icon-button`, and a component named for one fact may render one row, a `dt` without a `dl`) and has no exception of that name, on an element carrying an `hw-*` class or
 one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`, removed in
 v1.43.0) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
 or a class of your own passes, and so does such a class your own CSS defines), on a used element without a tile or with a stale version, on an exception
