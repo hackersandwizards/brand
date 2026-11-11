@@ -6,13 +6,14 @@ a lone button, a single code block or a dialog, and nowhere else. A card, tile o
 repeats in a grid, list or row takes the small corner, as does everything inside a brand-cornered
 block and every field.
 
-The blind review confirms the overuse. Today's state scores last or tied for last on every surface
-with Claude, and with Codex on all but slides and the internal tools. Among the reductions no
+The blind review confirms the overuse. With Claude, today's state scores below `single` on every
+surface and last or tied for last on each; with Codex it is last on the website, documents and
+across surfaces, and ties on slides and the internal tools. Among the reductions no
 variant leads with both models outside the noise on the website, documents or slides: there they
 tie. The rule above wins the tie because it is one rule for every surface, with no exception per
 surface. It also beats "no brand corner in internal systems" with both models on the internal
-tools. Part of the brief's hypothesis is therefore contradicted: the colleagues' panel prefers one
-corner on a single block over none.
+tools, os included. That contradicts one part of Benedikt's opinion, "nicht in internen
+systemen": the colleagues' panel prefers one corner on a single block over none.
 
 Nothing in an element or a consumer changed in this run. Form fields lose the brand corner in
 another run; every variant below already renders them with the small corner.
@@ -106,6 +107,15 @@ neither run explains the difference.
 
 ![Trainer hub home, today](2026-11-11-brand-corner/trainer-hub-home-today.jpg)
 
+![Certificate page, the one brand corner on the certificate card](2026-11-11-brand-corner/certificate-verified-today.jpg)
+
+![Mail, a letter from the catalog: no brand corner](2026-11-11-brand-corner/mail-letter-today.jpg)
+
+![hycle home: no brand corner, hycle does not install brand](2026-11-11-brand-corner/hycle-home.jpg)
+
+Not shown: os (company records; counts only), the talks decks (deck content), practitioners and the
+personal site (person data). The slides catalog stands in for the decks.
+
 ## Research
 
 Fetched on 11.11. No source states a split between marketing and product UI. One brand guideline
@@ -139,7 +149,8 @@ says outright not to overuse its brand device and to give it to hero sections (P
 
 Each variant is the live or locally served page with the same views, changed in the browser: a
 brand-cornered element the variant drops takes its own small radius. Fields take the small corner
-in every variant.
+in every variant, `today` included, so admin's repository page counts 8 there against 9 in the
+inventory.
 
 | Key            | Variant                                                                                                                                                    |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -203,8 +214,9 @@ Further shots in `2026-11-11-brand-corner/`: each view in the variants that rend
 Size: large, because the corner is a brand-wide element. Five personas from the brief, each with
 Claude (`claude-opus-5-5`, effort medium) and Codex (`gpt-6.1-sol`, effort high), two runs each: 20
 runs. Each reviewer saw, per view, only the renders that differ, under neutral letters shuffled per
-reviewer, at full resolution up to 1600 px. Both render passes of every view matched pixel for
-pixel, except a 55 by 16 px area of the os dashboard. The criteria were written before the first
+reviewer, at full resolution up to 1600 px. Each view was rendered twice; the passes match within
+8 levels per channel, except a 55 by 16 px area of the os dashboard and one pixel on two website
+views. The criteria were written before the first
 score: distinct (where the corner appears it reads as a deliberate mark), calm, recognisable (also
 where the corner is absent), task, and overall, each from 1 to 10. A variant's score on a surface is
 the mean, over the views, of the score its render got. Noise is the spread between a reviewer's two
@@ -234,11 +246,15 @@ By model, with the noise:
 
 What the scores carry:
 
-- Today last: with Claude on every surface, outside the noise everywhere except the website, where
-  `single` leads it by 1.5 at noise 1.67. With Codex on website, documents and across surfaces, and
-  tied on slides and internal tools.
+- Today against `single`: below it with Claude on every surface, outside the noise everywhere
+  except the website, where `single` leads by 1.5 at noise 1.67. With Codex below it on website,
+  documents and across surfaces, tied on slides. Against the other reductions today ties
+  `moments` on slides (7.50 against 7.67 at noise 0.67) and "none" on the internal tools (6.88
+  against 7.00 at noise 0.25) with Claude.
 - Internal tools: `single` beats "none" (`moments`, `not-internal`) with both models outside the
-  noise, by 1.38 with Claude and 0.50 with Codex.
+  noise, by 1.38 with Claude and 0.50 with Codex. In os alone, where `single` is today's state,
+  its lone buttons with the corner score above flat ones with Claude (8 against 7 on both views,
+  no noise) and with Codex (0.5 higher on both views, noise up to 0.5).
 - Website, documents, slides: the reductions tie. Claude puts `one-class` first on the website and
   `moments` first on documents, Codex puts `moments` first on the website by 0.17 and ties
   `moments` and `single` on documents. No surface earns an exception to one shared rule.

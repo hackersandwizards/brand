@@ -65,10 +65,10 @@ elements: "die brand border sollten wir sehr deliberate und nur selten einsetzen
 sinnvoll ist." Reading "brand border" as the asymmetric brand corner is Ada's framing. Form fields
 lose the corner in any case; that is decided and runs separately.
 
-The review backs the reduction: today scores last or tied for last everywhere with Claude. It does
+The review backs the reduction: with Claude today scores below single on every surface. It does
 not back "none in internal systems": the colleagues' panel scores `single` above `moments` and
 `not-internal` with both models (Claude 8.38 against 7.00, Codex 8.94 against 8.44, noise 0.25 at
-most). On the website, documents and slides the reductions tie; `single` takes the tie as the one
+most), and os alone keeps its lone buttons' corner with both models. On the website, documents and slides the reductions tie; `single` takes the tie as the one
 rule with no exception per surface. Score is the brand designer's cross-surface panel; per surface:
 
 | Panel                        | today | moments | one-class | not-internal | single |
