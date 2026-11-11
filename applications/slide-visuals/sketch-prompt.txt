@@ -1,6 +1,6 @@
 The prompt for a generated sketch beside a concept slide's cards, square, on a transparent
-background, set as the image of the slide engine's image-and-grid block. Which slides get one: the
-README of @hackersandwizards/slides, "Deck structure". Fill the bracketed parts; the labels name
+background, set as the image of the slide engine's image-and-grid block. Which slides get one:
+docs/deck-structure.md in the slides repository. Fill the bracketed parts; the labels name
 what the slide's words claim, never a sentence from the slide.
 
 Use case: infographic-diagram
