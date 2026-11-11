@@ -4,8 +4,8 @@
 
    Plain CSS, no Tailwind, so a static page links it and a generated page inlines it. It needs the
    package's tokens (tokens.css in a Tailwind app, tokens.root.css on a plain page) and reads the
-   expert theme roles (--background, --foreground, --border, --accent, --muted) where expert.css
-   sets them, else the light tokens. A page that themes without expert.css sets those five itself.
+   expert theme roles (--background, --foreground, --border, --accent) where expert.css sets them,
+   else the light tokens. A page that themes without expert.css sets those four itself.
    Without data-theme="dark" on html the page is light.
 
    The markup, which components/AppHeader.astro renders:
@@ -48,7 +48,8 @@
   --hw-fg: var(--foreground, var(--color-ink));
   --hw-accent: var(--accent, var(--color-teal-dark));
   --hw-line: var(--border, var(--color-border));
-  --hw-header-fill: var(--muted, var(--color-tint));
+  /* The hover of an hw-nav item (elements/nav.css). */
+  --hw-header-fill: color-mix(in srgb, var(--hw-fg) 7%, transparent);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -117,7 +118,7 @@
     --hw-fg: var(--foreground, var(--color-night-ink));
     --hw-accent: var(--accent, var(--color-teal-night));
     --hw-line: var(--border, var(--color-night-line));
-    --hw-header-fill: var(--muted, var(--color-night-2));
+    --hw-header-fill: var(--color-night-2);
   }
 
   :scope .hw-header-logo {
@@ -236,7 +237,7 @@ html[data-theme="dark"] #theme-toggle #moon-icon {
 }
 
 .hw-header-link:hover {
-  background: color-mix(in srgb, var(--hw-header-fill) 40%, transparent);
+  background: var(--hw-header-fill);
   color: var(--hw-fg);
 }
 

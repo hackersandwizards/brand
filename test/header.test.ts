@@ -178,6 +178,45 @@ ${nav}</div></header>
   });
 });
 
+// A header link hovers as an hw-nav item does (elements/nav.css), on light and night, with and
+// without the expert roles a consumer's expert.css sets.
+describe("expert/header.css hover", () => {
+  let browser: Browser;
+  beforeAll(async () => {
+    browser = await launch();
+  });
+  afterAll(() => browser?.close());
+
+  const nav = readFileSync(join(ROOT, "elements/nav.css"), "utf8");
+  // The browser drops expert.css's Tailwind at-rules and keeps its role blocks.
+  const roles = readFileSync(join(ROOT, "expert/expert.css"), "utf8");
+  const hovers = async (theme: string, css: string) => {
+    const tab = await browser.newPage();
+    await tab.setContent(`<!doctype html><html data-theme="${theme}"><head><style>${style}${nav}${css}*{transition:none!important}</style></head><body>
+<header class="hw-header"><div class="hw-header-row"><nav class="hw-header-nav"><a class="hw-header-link" href="/a">Deals</a></nav></div></header>
+<nav class="hw-nav"><ul><li><a href="/b">Deals</a></li></ul></nav></body></html>`);
+    const fill = async (sel: string) => {
+      await tab.hover(sel);
+      return tab.$eval(sel, (a) => getComputedStyle(a).backgroundColor);
+    };
+    try {
+      return [await fill(".hw-header-link"), await fill(".hw-nav a")];
+    } finally {
+      await tab.close();
+    }
+  };
+  for (const theme of ["light", "dark"])
+    for (const [name, css] of [
+      ["the light tokens", ""],
+      ["expert roles", roles],
+    ])
+      it(`matches an hw-nav item's hover on ${theme} with ${name}`, async () => {
+        const [header, item] = await hovers(theme, css);
+        expect(header).not.toBe("rgba(0, 0, 0, 0)");
+        expect(header).toBe(item);
+      });
+});
+
 // AppHeader's night lockup loads lazily: hidden on a light page, Chrome never fetches it, and it
 // arrives once the page turns night. The img tag is AppHeader.astro's own, its src a file here.
 describe("AppHeader's night lockup", () => {
