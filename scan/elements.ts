@@ -73,6 +73,7 @@ Chrome for Testing (CHROME_BINARY overrides).`;
 import {
   addCss,
   catalogPages,
+  focusAll,
   type Catalog,
   type Csp,
   type Site,
@@ -86,6 +87,7 @@ import {
   refusalLine,
   refusals,
   serve,
+  tabs,
   toUrl,
 } from "./markers";
 
@@ -709,8 +711,7 @@ export async function measurePage(
     await page.setViewport({ width: 1280, height: 900 });
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     // Every tab holds focus as the one in front does, so the focus ring reads in pages run side by side.
-    const cdp = await page.createCDPSession();
-    await cdp.send("Emulation.setFocusEmulationEnabled", { enabled: true });
+    const cdp = await focusAll(page);
     await open(page, toUrl(url, site), csp);
     if (css) await addCss(page, css);
     // Every sheet's text, another origin's and an imported one's too, which the page's own script
@@ -1087,9 +1088,9 @@ if (import.meta.main) {
   const browser = await launch();
   const results: PageResult[] = [];
   try {
-    // Eight tabs side by side: each page waits for the network to go quiet.
+    // Tabs side by side, at least 8: each page mostly waits for the network to go quiet.
     results.push(
-      ...(await pool(pages, 8, (url) =>
+      ...(await pool(pages, tabs(8), (url) =>
         measurePage(browser, url, "", config.lightOnly === true, base, config.csp),
       )),
     );
