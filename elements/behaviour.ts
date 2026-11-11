@@ -1,10 +1,12 @@
 // The script the common elements need where HTML alone cannot do it: dialog and drawer openers,
 // menu, popover and tooltip placement and keys, tabs, tree, command palette, carousel, toasts,
-// copy buttons (copy.ts, which a page needing only those imports alone).
+// a scrolling table's tab stop (table.ts), copy buttons (copy.ts, which a page needing only those
+// imports alone).
 // Call enhance() once the page is parsed, or enhance(root) after adding markup; listeners on the
 // document are installed once, per-element state is set up per call.
 import { copyButtons, german, modalOrBody, wireOnce } from "./copy.ts";
 import { hasWords, searchWords } from "./list-filter.ts";
+import { scrollStops } from "./table.ts";
 
 export { copyButton } from "./copy.ts";
 
@@ -660,5 +662,6 @@ export function enhance(root: ParentNode = document) {
   }
   for (const carousel of root.querySelectorAll<HTMLElement>(".hw-carousel"))
     enhanceCarousel(carousel);
+  scrollStops(root);
   copyButtons(root);
 }

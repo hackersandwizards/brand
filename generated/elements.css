@@ -767,8 +767,8 @@
   .hw-table-scroll {
     --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-white)));
     overflow-x: auto;
-    margin: calc(-1 * var(--hw-focus-room, 5px));
-    padding: var(--hw-focus-room, 5px);
+    margin-inline: calc(-1 * var(--hw-focus-room, 5px));
+    padding-inline: var(--hw-focus-room, 5px);
   }
   @media screen and (max-width: 47.99rem) {
     @supports (animation-timeline: scroll()) {
@@ -2916,7 +2916,7 @@
   margin-block: 1rem;
 }
 .hw-prose .hw-table-scroll {
-  margin-block: calc(1rem - var(--hw-focus-room, 5px));
+  margin-block: 1rem;
 }
 .hw-prose .hw-table-scroll > .hw-table {
   margin-block: 0;

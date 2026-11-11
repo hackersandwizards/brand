@@ -6,11 +6,14 @@
    surface's.
 
    hw-table-scroll holds a table wider than its column: it scrolls sideways inside the column, with
-   room for a focus ring at its edges (--hw-focus-room, focus.css), and below 48rem the first
+   room for a focus ring at its sides (--hw-focus-room, focus.css; above and below, the cells'
+   padding holds it, so the wrapper keeps the table's own margins), and below 48rem the first
    column stays in place, so each row keeps its name; once the table has scrolled, that column
    takes the table's ground and a hairline at its right (where the browser has scroll timelines;
    elsewhere the table scrolls whole). On paper it does not scroll. The wrapper takes the keyboard and names itself:
    <div class="hw-table-scroll" tabindex="0" role="region" aria-label="Deals"><table class="hw-table">…</table></div>
+   elements/table.ts writes it from Markdown (tableScroll, a rehype step) and keeps it a tab stop
+   only while its table scrolls (scrollStops, which enhance() runs).
 
    Settings:
      --hw-table-size    the cells' size, the small role
@@ -67,8 +70,8 @@
   .hw-table-scroll {
     --_hw-table-ground: var(--hw-table-ground, var(--background, var(--color-white)));
     overflow-x: auto;
-    margin: calc(-1 * var(--hw-focus-room, 5px));
-    padding: var(--hw-focus-room, 5px);
+    margin-inline: calc(-1 * var(--hw-focus-room, 5px));
+    padding-inline: var(--hw-focus-room, 5px);
   }
   @media screen and (max-width: 47.99rem) {
     @supports (animation-timeline: scroll()) {

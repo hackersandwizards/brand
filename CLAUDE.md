@@ -22,7 +22,7 @@ data or secret.
 - `tokens/`, `logos/`, `expert/`, `elements/`: the brand files, each listed in `manifest.json`
   with its sha256. `elements/` holds the shared elements every system renders, one plain-CSS
   file each with the four scales in `scales.css`, and the framework-free scripts the elements need
-  (`behaviour.ts`, with `copy.ts` for a copy-only page, `form.ts`, `code.ts`, `list-filter.ts`). This repo owns every one of them: no other repo is a source.
+  (`behaviour.ts`, with `copy.ts` for a copy-only page, `form.ts`, `code.ts`, `list-filter.ts`, `table.ts`). This repo owns every one of them: no other repo is a source.
 - `press/`: the press kit's photos, the founders' portraits and their photo together, as the
   website's press page publishes them, with `press.json` naming what each shows and the credit.
   In `manifest.json`. The press kit's texts stay with their owners: the bios in the website's

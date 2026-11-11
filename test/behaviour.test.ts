@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import type { Browser, Page } from "puppeteer-core";
 import { launch, open } from "../scan/markers";
 import { ROOT } from "../scripts/git";
+import { tableScroll } from "../elements/table";
 
 // The keys, focus and placement elements/behaviour.ts gives, in a real browser.
 let browser: Browser;
@@ -751,3 +752,47 @@ test("the character count reads the limit, then the overrun as an error, and bac
   expect(errors).toEqual([]);
   await p.close();
 }, 30_000);
+
+test("a scrolling table's wrapper is a tab stop while its table scrolls, none while it fits", async () => {
+  const row = (n: number) => `<tr>${"<td>Spalte mit Inhalt</td>".repeat(n)}</tr>`;
+  const wrap = (id: string, n: number) =>
+    `<div id="${id}" class="hw-table-scroll" tabindex="0" role="region" aria-label="${id}" style="width: 20rem"><table class="hw-table">${row(n)}</table></div>`;
+  const p = await page(wrap("wide", 8) + wrap("narrow", 1));
+  expect(await attr(p, "#wide", "tabindex")).toBe("0");
+  expect(await attr(p, "#narrow", "tabindex")).toBeNull();
+  // A wrapper that starts to scroll becomes a tab stop again.
+  await p.$eval("#narrow tr", (tr) => tr.insertAdjacentHTML("beforeend", "<td>x</td>".repeat(30)));
+  await p.waitForFunction(
+    () => document.getElementById("narrow")!.getAttribute("tabindex") === "0",
+  );
+  await p.close();
+});
+
+test("the rehype step wraps each table in a named hw-table-scroll", () => {
+  const el = (tagName: string, children: object[] = [], properties = {}) => ({
+    type: "element",
+    tagName,
+    properties,
+    children,
+  });
+  const t = (s: string) => ({ type: "text", value: s });
+  const table = (head: string) =>
+    el("table", [el("thead", [el("tr", [el("th", [t(head)]), el("th", [t("Wert")])])])], {
+      className: ["own"],
+    });
+  const tree = {
+    type: "root",
+    children: [table("Name"), el("h2", [t(" Preise ")]), table("A"), el("p"), table("B")],
+  };
+  tableScroll()(tree);
+  const wrappers = tree.children.filter((c) => c.tagName === "div") as {
+    properties: Record<string, unknown>;
+    children: { properties: Record<string, unknown> }[];
+  }[];
+  expect(wrappers.map((w) => w.properties)).toEqual([
+    { className: ["hw-table-scroll"], tabIndex: 0, role: "region", ariaLabel: "Name Wert" },
+    { className: ["hw-table-scroll"], tabIndex: 0, role: "region", ariaLabel: "Preise" },
+    { className: ["hw-table-scroll"], tabIndex: 0, role: "region", ariaLabel: "Preise (2)" },
+  ]);
+  expect(wrappers[0]!.children[0]!.properties.className).toEqual(["own", "hw-table"]);
+});
