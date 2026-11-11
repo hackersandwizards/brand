@@ -421,6 +421,9 @@ In place: LinkedIn profile [English](2026-11-11-claim-and-headline/profile-en.jp
 
 ## Open
 
+The brand points below are in item `work-claim-followups`; the pin raises are briefs for the talks and
+trainer-hub sessions.
+
 - **External profiles.** Item `work-update-external-profiles-after-claim` (open, Benedikt): upload
   the seven banners and enter the texts above; Stefan enters OMR. Stefan's own LinkedIn About was
   not reviewed in any round.
@@ -446,6 +449,11 @@ In place: LinkedIn profile [English](2026-11-11-claim-and-headline/profile-en.jp
     09.11. (79.3 each), u1 ahead by 4.5 on the English banners of 11.11. and tpe ahead by 2.2 on the
     German ones. u1's run gap of 4.8 on the path of 08.11. is not explained either.
   - Why Claude assigns first screens to the wrong cases in some of its English reviews of 11.11.
+  - The control f6 scored 9 of 16 in the English cold reads of 08.11.'s claim-tune round, against 6
+    of 16 in round 10's English cell. Rounds are not comparable, and the rise is not explained.
+  - The reader's path of 10.11. (Amdahl round) sits lower than on 08.11.: tpe 68.0 against 78.0,
+    with another set of pairs and prompts. The anchors keep their order; the cause is not
+    established.
   - The comments in `render.py` before 10.11. gave right ink edges 2 to 3 px wider than the
     committed banners measure. The comments now give what the run prints; no cause is established.
 
