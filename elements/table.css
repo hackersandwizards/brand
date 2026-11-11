@@ -82,7 +82,11 @@
         position: sticky;
         left: 0;
         z-index: 1;
-        animation: hw-table-held linear both;
+        /* Longhands: a minifier without browser targets folds a timeline into the shorthand, which
+           browsers refuse. */
+        animation-name: hw-table-held;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-timeline: scroll(nearest inline);
         animation-range: 0 1px;
       }

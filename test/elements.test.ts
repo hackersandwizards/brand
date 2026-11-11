@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSyn
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { transform } from "lightningcss";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import {
@@ -1555,4 +1556,14 @@ test("every focus rule of the elements and the expert layer also matches data-hw
       .map((s) => `${f}: ${s}`),
   );
   expect(unpaired).toEqual([]);
+});
+
+test("a scroll-driven animation survives a minifier without browser targets: longhands only", () => {
+  for (const f of ["generated/elements.css", "expert/header.css"]) {
+    const code = readFileSync(join(ROOT, f));
+    const out = transform({ filename: f, code, minify: true }).code.toString();
+    expect(out).toContain("animation-timeline:");
+    // The shorthand cannot set a timeline: Chrome drops the whole declaration.
+    expect(out.match(/animation:[^;}]*(scroll|view)\(/g) ?? []).toEqual([]);
+  }
 });

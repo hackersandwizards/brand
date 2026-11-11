@@ -322,7 +322,11 @@ html[data-theme="dark"] #theme-toggle #moon-icon {
 }
 @supports (animation-timeline: scroll()) {
   .hw-header-nav {
-    animation: hw-header-nav-fade linear both;
+    /* Longhands: a minifier without browser targets folds a timeline into the shorthand, which
+       browsers refuse. */
+    animation-name: hw-header-nav-fade;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: scroll(self inline);
   }
 }
