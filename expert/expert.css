@@ -228,7 +228,7 @@ html[data-theme="dark"] {
   gap: 0.25rem;
   margin-bottom: 1rem;
   /* Fixed, not min-height: a growable row lets an action button push the H1 down, so the title
-     jumps between routes. 12px cap around a 38px button. */
+     jumps between routes. Room for a 38px button, 44px on a touch screen. */
   height: var(--page-title-row-h);
 }
 @media (min-width: 640px) {

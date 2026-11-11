@@ -3,8 +3,12 @@
    hover; the current page (aria-current="page", or "true" on a section holding it) in the accent
    on its 7 % tint, weight 500; a section whose list holds the current page marks itself in the full
    foreground at weight 500, without the tint, so one item alone carries the fill. The focus ring
-   sits inside each item, so a scrolling list never clips it. hw-nav-count is an item's count, at the end of its row in the
-   foreground's 70 %, tabular figures, never broken or shrunk: a long name wraps beside it; hw-nav-group is a group's caption, an hw-label (muted) set off above its list.
+   sits inside each item, so a scrolling list never clips it. A <button> without a class (a More
+   that opens a menu) takes an item's measures and states: the hover fill while
+   aria-expanded="true", the current page's while aria-current="true" (its menu holds that page).
+   hw-nav-count is an item's count, at the end of its row in the foreground's 70 %, tabular
+   figures, never broken or shrunk: a long name wraps beside it; hw-nav-group is a group's caption,
+   an hw-label (muted) set off above its list.
    A nested list sits under its parent behind a guide line, up to four levels; a branch is a
    <details class="hw-disclosure"> whose <summary> takes the item's measures. A <nav>, links and
    lists, never role="tree". On night the expert set's night roles.
@@ -39,7 +43,8 @@
     padding-left: 0.5rem;
   }
   .hw-nav a,
-  .hw-nav summary {
+  .hw-nav summary,
+  .hw-nav button:not([class]) {
     --hw-focus-offset: calc(-1 * var(--hw-focus-width, 3px));
     display: flex;
     align-items: baseline;
@@ -56,11 +61,22 @@
   .hw-nav summary {
     font-weight: 500;
   }
-  .hw-nav :is(a, summary):is(:hover, [data-hw-hover]) {
+  .hw-nav button:not([class]) {
+    align-items: center;
+    border: 0;
+    font: inherit;
+    text-align: start;
+    background: none;
+    cursor: pointer;
+  }
+  .hw-nav li > button:not([class]) {
+    width: 100%;
+  }
+  .hw-nav :is(a, summary, button:not([class])):is(:hover, [data-hw-hover], [aria-expanded="true"]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
-  .hw-nav a[aria-current]:not([aria-current="false"]) {
+  .hw-nav :is(a, button:not([class]))[aria-current]:not([aria-current="false"]) {
     font-weight: 500;
     color: var(--color-teal-dark);
     background: color-mix(in srgb, var(--color-teal) 7%, transparent);
@@ -86,7 +102,7 @@
     margin-top: 0;
   }
   @media (prefers-reduced-motion: reduce) {
-    .hw-nav :is(a, summary) {
+    .hw-nav :is(a, summary, button:not([class])) {
       transition: none;
     }
   }
@@ -94,15 +110,16 @@
     .hw-nav :is(ul, ol) :is(ul, ol) {
       border-left-color: color-mix(in srgb, var(--color-night-ink) 15%, transparent);
     }
-    .hw-nav :is(a, summary),
+    .hw-nav :is(a, summary, button:not([class])),
     .hw-nav-count {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
     }
-    .hw-nav :is(a, summary):is(:hover, [data-hw-hover]) {
+    .hw-nav
+      :is(a, summary, button:not([class])):is(:hover, [data-hw-hover], [aria-expanded="true"]) {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }
-    .hw-nav a[aria-current]:not([aria-current="false"]) {
+    .hw-nav :is(a, button:not([class]))[aria-current]:not([aria-current="false"]) {
       color: var(--color-teal-night);
       background: color-mix(in srgb, var(--color-teal-night) 12%, transparent);
     }

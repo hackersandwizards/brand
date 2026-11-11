@@ -24,6 +24,7 @@ own design systems stay in the portal's Systems group.
 
 ## The catalog
 
-Every h&w repository with a surface shows its components in a catalog at `/catalog/`, built on
+Every h&w repository with a surface shows its components in a catalog, at `/catalog/` or at its
+site's root (`catalogs.json` holds each address), built on
 `@hackersandwizards/scaffolding/catalog` (its README says how). Give the preset's `css` the tokens
 and `elements.css`; its default header is this package's `AppHeader.astro` and `header.css`.

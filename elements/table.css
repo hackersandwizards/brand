@@ -5,17 +5,21 @@
    button turns ink on hover, white on night. Stacking on a phone and column widths stay the
    surface's.
 
-   hw-table-scroll holds a table wider than its column: it scrolls sideways inside the column and
-   stays inside its container. scrollStops (elements/table.ts) marks it: a table that fits
-   (data-hw-scrolls="false") sits where a bare one does and nothing clips it; a table that scrolls
-   (data-hw-scrolls="true") moves in by the ring's room (--hw-focus-room, focus.css), so a focused
-   control at either side keeps its whole ring. Unmarked, without script, the table scrolls flush
-   with the column and clips that ring. Above and below, the cells' padding holds the ring, so a
+   hw-table-scroll holds a table wider than its column: it scrolls sideways inside the column.
+   scrollStops (elements/table.ts) marks it: a table that fits (data-hw-scrolls="false") sits where
+   a bare one does and nothing clips it; a table that scrolls (data-hw-scrolls="true") pads each
+   side by the ring's room (--hw-focus-room, focus.css) and takes it back in a negative margin, so
+   its text stays in line with the column's and a focused control at either side keeps its whole
+   ring. That room reaches past the column by the ring's room, and the scrolled cells show in it:
+   its container keeps that much at each side (a page's gutter, a card's padding); in an hw-quote it
+   reaches past the quote's right edge. Unmarked, without script, the table scrolls flush with the
+   column and clips that ring. Above and below, the cells' padding holds the ring, so a
    --hw-cell-pad under the ring's room clips the ring of a control in the first or last row. While
-   the table scrolls, a soft shadow stands at each side with more to see. Below 48rem the first column stays in place, so each row keeps its name; once the table
-   has scrolled, that column takes the table's ground and a hairline at its right. The shadow and
-   the held column need scroll timelines; elsewhere the table scrolls whole and without them. On
-   paper it does not scroll. The wrapper takes the keyboard and names itself:
+   the table scrolls, a soft shadow stands at each side with more to see. Below 48rem the first
+   column of a table that scrolls, or that script has not marked, stays in place, so each row keeps
+   its name; once the table has scrolled, that column takes the table's ground and a hairline at its
+   right. The shadow and the held column need scroll timelines; elsewhere the table scrolls whole
+   and without them. On paper it does not scroll. The wrapper takes the keyboard and names itself:
    <div class="hw-table-scroll" tabindex="0" role="region" aria-label="Deals"><table class="hw-table">…</table></div>
    elements/table.ts writes it from Markdown (tableScroll, a rehype step; tableScrollPlugin, the
    same for Sätteri) and keeps it a tab stop only while its table scrolls (scrollStops, which
@@ -109,11 +113,13 @@
         right / 1rem 100% no-repeat;
   }
   .hw-table-scroll[data-hw-scrolls="false"] {
+    --hw-table-held: none;
     overflow-x: visible;
   }
   @media screen {
     .hw-table-scroll[data-hw-scrolls="true"] {
       --_hw-table-pad: var(--hw-focus-room, 5px);
+      margin-inline: calc(-1 * var(--_hw-table-pad));
     }
   }
   @supports (animation-timeline: scroll()) {

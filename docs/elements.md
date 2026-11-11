@@ -84,7 +84,9 @@ are listed at the top of its block in the file.
 
 A sidebar, a rail or a header's links is `hw-nav` (`elements/nav.css`): links in lists inside a
 `<nav>`, the current one marked by `aria-current`, counts in `hw-nav-count`, captions in
-`hw-label hw-nav-group`, a branch a `details.hw-disclosure` (which `elements.css` imports). A
+`hw-label hw-nav-group`, a branch a `details.hw-disclosure` (which `elements.css` imports), a
+More that opens a menu a `<button>` without a class (`aria-expanded`, and `aria-current="true"`
+while its menu holds the current page), which the element styles as an item. A
 space's tree is `expert/components/SpaceNavTree.astro` over `buildSpaceTree(base, entries, title)`
 from `expert/components/space-nav.ts`, the entry `{ id, data: { order? } }`; your app keeps only
 its collection query.

@@ -9,8 +9,8 @@
       "palette": "#colours/<palette>"
     }
   },
-  { "name": "Slides", "href": "https://hackersandwizards.github.io/slides/catalog/" },
-  { "name": "Documents", "href": "https://hackersandwizards.github.io/documents/catalog/" },
-  { "name": "Mail", "href": "https://hackersandwizards.github.io/mail/catalog/" },
+  { "name": "Slides", "href": "https://hackersandwizards.github.io/slides/" },
+  { "name": "Documents", "href": "https://hackersandwizards.github.io/documents/" },
+  { "name": "Mail", "href": "https://hackersandwizards.github.io/mail/" },
   { "name": "Website", "href": "https://www.hackersandwizards.dev/catalog/" }
 ]

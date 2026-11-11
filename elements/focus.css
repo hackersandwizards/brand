@@ -17,8 +17,7 @@
    scroller pads by it and takes it back in a negative margin (margin: calc(-1 *
    var(--hw-focus-room)); padding: var(--hw-focus-room)), so its content stays in place, and any
    sum around that scroller, such as a sticky top, adds or subtracts it once. The scrolling table
-   (table.css) pads only while its table scrolls and takes nothing back, so it stays inside its
-   container.
+   (table.css) does so only while its table scrolls.
 
    Settings:
      --hw-focus-width   the ring's width

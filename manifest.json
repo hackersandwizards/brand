@@ -262,11 +262,11 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "94660036eaf2d84af22f8a92ea089c6399aa0bb0e4eb062d85a2848f56220740"
+      "sha256": "26ec4fcdab47e4d3dfefdbd7f5446154128f58313db19625a02ce2a1ccf1cd45"
     },
     {
       "path": "expert/catalogs.json",
-      "sha256": "60ecfb0715b8e905e2431c3a7773a2c5ecc5ea1f7aef8b48018d8a30c1fde706"
+      "sha256": "b2173b0d7d570d2f08e4462d480761b23a1dabb5262b0a3dbdf7e7bc932a9b86"
     },
     {
       "path": "expert/header.css",
@@ -362,7 +362,7 @@
     },
     {
       "path": "elements/focus.css",
-      "sha256": "02cbca90406dc38843d1898e75e342940645d8b0e977cc6c8da9a4870438bcb3"
+      "sha256": "b71c057eea7166b30935092a257c5478f07a36964a95211c636c9acdfb90ac6b"
     },
     {
       "path": "elements/icon-button.css",
@@ -390,7 +390,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "c9344666284be946fe108359e09fed4fa31203d97cf68a100d87ffccd35c922f"
+      "sha256": "6a9c118624a935acbe935c32e5d8b770b4499201086d2336b35f1c4362096b89"
     },
     {
       "path": "elements/strip.css",
@@ -398,7 +398,7 @@
     },
     {
       "path": "elements/table.css",
-      "sha256": "822878e1a5678fbc5dd1499f1303a72c50e7893a896ffa972102d24e03134411"
+      "sha256": "fcc450ecd48818bee4f0c50841347605ac096fa138c329def4baf53549efe687"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",
@@ -434,7 +434,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "cc2877bfe36a75e5206241f85f7fb522c438a28eab0a9b4835c80824c38658af"
+      "sha256": "ddf6b31397a8a6885e2df5bbcd7f605dc0ab328f2e92fe34096bd63eae6dddda"
     },
     {
       "path": "elements/check.css",
@@ -534,7 +534,7 @@
     },
     {
       "path": "elements/nav.css",
-      "sha256": "fac941273959d8667dd64a8e799f12519f9874e49f24629919fb08a26880954a"
+      "sha256": "04273ac677e4c738f0d479e65bf8e91846d72eee920414f48c7fb21ea0f9f34c"
     },
     {
       "path": "elements/list-filter.css",
@@ -654,7 +654,7 @@
     },
     {
       "path": "elements/table.ts",
-      "sha256": "f2ee949834f74d9f7cd1383e71a4835a80b6594ab9a86f96b50f5122c524d4c9"
+      "sha256": "61b9c731634635da54e77a62848dea5f74d4f928ba52a6436b99fff2961074bb"
     }
   ]
 }
