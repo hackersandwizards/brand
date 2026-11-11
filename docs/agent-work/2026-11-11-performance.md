@@ -8,8 +8,8 @@ no performance fix, so the numbers compare the day's commits with the state befo
 
 ## Method
 
-Before is `8d95bd8`, the commit before 11.11.'s first. After is `bec8b76`, the last commit before
-this run. Each was built in its own detached worktree with Git LFS files present. Each build was
+Before is `8d95bd8`, the commit before 11.11.'s first. After is `5f43d78`, which holds this run's
+first fixes (`1c8a280`). Each was built in its own detached worktree with Git LFS files present. Each build was
 served by its own Bun server with gzip, as GitHub Pages serves it. Every series alternated before
 and after, so each pair shared its load. Load is the 1-minute `loadavg` before each run, on 16
 cores.
@@ -27,12 +27,11 @@ three runs each.
 
 LCP equals FCP in every run, and CLS is 0 on every page.
 
-The portal's HTML grew from 875,172 to 895,219 bytes, or from 117,027 to 121,630 gzipped. The
-after size is from the `93ade07` build, which renders the portal the same as `bec8b76`.
+The portal's HTML, as the gzip server sent it, grew from 118,183 to 122,671 bytes.
 
 ## Cause
 
-One run per commit, on the portal, over the 58 first-parent commits between the two builds. The
+One run per commit, on the portal, over the 58 first-parent commits from `8d95bd8` to `ef464f8`. The
 first paint reads 1954 ms or, in single runs, about 1504 ms up to the merge `8056ac7`, and 1244 ms
 from there on. The 1504 readings are run spread: the base itself read 1503 in an earlier series.
 Of the commits that merge brought in, the control is `e0a1899` against its parent `6eb26c0`, with

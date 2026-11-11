@@ -449,7 +449,8 @@ export const scanSource = (raw: string, ext: string) => {
     if (
       /^(?:color|background)\s*=/.test(m[0]) &&
       (MARKUP.test(ext) ||
-        (PROPS.test(ext) && /<[A-Z][\w.]*\s[^<>]*$/.test(src.slice(m.index - 400, m.index))))
+        (PROPS.test(ext) &&
+          /<[A-Z][\w.]*\s(?:[^<>]|=>)*$/.test(src.slice(Math.max(0, m.index - 400), m.index))))
     )
       continue;
     // A JSX, Astro or Svelte expression prop (fill={on ? "teal" : "white"}): the strings it can

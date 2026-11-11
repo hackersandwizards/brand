@@ -372,6 +372,10 @@ test("an interpolation is the code's name, never a literal; an expression prop's
   expect(scanSource('<Badge color={ok ? "green" : "red"} />', ".tsx").counts).toEqual(zero);
   // Outside a component's tag color= is an assignment, and JSX in .js reads like .jsx.
   expect(scanSource('const color = "tomato";', ".tsx").counts).toEqual({ ...zero, hex: 1 });
+  const early = `<Badge color={ok ? "green" : "red"} />\n${"x".repeat(600)}`;
+  expect(scanSource(early, ".tsx").counts).toEqual(zero);
+  const arrow = '<Badge onClick={() => go()} color={ok ? "green" : "red"} />';
+  expect(scanSource(arrow, ".tsx").counts).toEqual(zero);
   expect(scanSource('<path fill={on ? "tomato" : "teal"} />', ".js").counts).toEqual({
     ...zero,
     hex: 2,

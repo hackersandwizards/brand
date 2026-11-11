@@ -921,6 +921,18 @@ test("a table a few pixels wider than its column stays marked as scrolling", asy
   await p.close();
 });
 
+test("under CSS zoom a table that fits its column is not marked as scrolling", async () => {
+  // A table filling its column exactly: the padding counted unzoomed would leave it short.
+  const p = await page(
+    `<div style="zoom: 0.5; width: 400px"><div id="z" class="hw-table-scroll" tabindex="0" data-hw-scrolls="true" style="width: 400px"><table class="hw-table" style="width: 100%"><tr><td>Zelle</td></tr></table></div></div>`,
+  );
+  await p.waitForFunction(() => document.getElementById("z")!.dataset.hwScrolls === "false", {
+    timeout: 3000,
+  });
+  expect(await p.$eval("#z", (w) => w.scrollWidth > w.clientWidth)).toBe(false);
+  await p.close();
+});
+
 // A grid or flex item cannot shrink below a visible overflow's content: a table that fit once would
 // hold its column wide and the page would scroll sideways.
 test("a table that fits in a grid starts to scroll when the grid narrows", async () => {

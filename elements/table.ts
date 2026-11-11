@@ -111,8 +111,10 @@ let observer: ResizeObserver | undefined;
 const mark = (wrapper: HTMLElement) => {
   const table = wrapper.firstElementChild?.getBoundingClientRect().width ?? 0;
   const s = getComputedStyle(wrapper);
-  const column =
-    wrapper.getBoundingClientRect().width - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+  const width = wrapper.getBoundingClientRect().width;
+  // The padding reads unzoomed and the box zoomed: under CSS zoom scale the one to the other.
+  const zoom = wrapper.offsetWidth ? width / wrapper.offsetWidth : 1;
+  const column = width - (parseFloat(s.paddingLeft) + parseFloat(s.paddingRight)) * zoom;
   const scrolls = table > column + 1;
   wrapper.dataset.hwScrolls = String(scrolls);
   if (scrolls) wrapper.tabIndex = 0;
