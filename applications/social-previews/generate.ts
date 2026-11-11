@@ -47,6 +47,7 @@ const REPOSITORIES: Record<string, keyof typeof CATEGORY> = {
   "agentic-engineering-training-kotlin-vue": "training",
   "agentic-software-factory": "exercises",
   practitioners: "website",
+  testimonials: "website",
   hycle: "essay",
   ".github": "org",
   discussions: "community",
