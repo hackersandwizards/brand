@@ -566,11 +566,11 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "af84b8132cea41776dbc2d973ae12b3afb323b1ea965cce883ff3d116f125510"
+      "sha256": "269063105f5dd5e3ca7065354c11a8a11a7b93669cff414ab6924f28665c8070"
     },
     {
       "path": "elements/carousel.css",
-      "sha256": "53f8a68900eec84d26d91d04401387cde6860f409ad10f6b16b1f3088b17ef2e"
+      "sha256": "07ad95e8337baee8fa3da0ae704531d96df14788cbc78ee43b841aafccf5863b"
     },
     {
       "path": "elements/command.css",
@@ -654,7 +654,7 @@
     },
     {
       "path": "elements/table.ts",
-      "sha256": "61b9c731634635da54e77a62848dea5f74d4f928ba52a6436b99fff2961074bb"
+      "sha256": "0e215f977b22b1ac330395b105dec9897cbf08f975442116bf790ae17d3a1cfd"
     }
   ]
 }

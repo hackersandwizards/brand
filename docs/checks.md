@@ -13,8 +13,8 @@ and counts, per file:
   (`bg-[tomato]`) or a custom property set to that name alone (`--mark: tomato`); a hex of three or
   four letters alone (`#fab`) only where a value stands. In a JSX, Astro or Svelte expression prop
   (`fill={on ? "teal" : "white"}`) and an interpolation (`${...}`), the strings the expression can
-  take count, never a string it compares, tests with `in`, or holds inside a key, a call,
-  parentheses or an object
+  take count, never a string it compares, tests with `in`, or holds inside a key, a call's
+  arguments or an object
 - `rgb`: colour functions: `rgb()`, `rgba()`, `hsl()`, `hsla()`, and `oklch()`, `oklab()`, `lab()`,
   `lch()`, `hwb()`, `color()` with a colour's arguments, counted without conversion
 - `tokenHex`: a literal repeating a token's colour, in any notation, `white` and `black` included,
@@ -42,9 +42,10 @@ Add it to your gate as a `check:<what>` script that scaffolding's `scaffolding.c
 {
   "scripts": {
     "check:colours": "brand-colours",
-    "check:copies": "brand-copies"
+    "check:copies": "brand-copies",
+    "check:retired": "brand-retired dist"
   },
-  "scaffolding": { "check": [["check:colours", "check:copies"]] }
+  "scaffolding": { "check": [["check:colours", "check:copies"], "check:retired"] }
 }
 ```
 
@@ -165,7 +166,7 @@ build step: `"check:retired": "brand-retired dist"`.
 
 ## Show the elements on your design-system page
 
-Your design-system page shows each hub element you use as a tile,
+Your design-system page shows each shared element you use as a tile,
 `<div data-hw-tile="card" data-hw-version="<brand version>">` holding the element in your medium,
 the version read from `@hackersandwizards/brand/package.json` when the page is built,
 marked in the page's own language, "from brand v<version>" on an English page and "aus brand
@@ -226,7 +227,7 @@ nothing, so a page that hides its views until one is opened names each view's UR
 focus, or holding the focused node, as a story's focused state does, is read focused, its reference
 too.
 
-An exception's instance on a real page carries `data-hw-exception="<name>"` too: a hub element
+An exception's instance on a real page carries `data-hw-exception="<name>"` too: a shared element
 inside it is that exception, not measured. `files` exempts a stylesheet of the system's own medium
 from the source check.
 
@@ -235,12 +236,11 @@ computed corner, fill, line, text colour, type, padding or size differs from the
 same scale and theme (a reference beside it styled only by this package), on any element drawn
 with the brand corner inside another so drawn (inside one, `elements/card.css` gives every element
 and every `rounded-brand` the small corner), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
-callout, note; quote; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
+callout, note; quote; icon-button; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), read from `.css`, `.scss` and the style
 elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component file under a `components/` folder of such a name that renders
 none of the `hw-*` classes of the elements its name names (a `ProjectCard` without `hw-card`; a button component may render `hw-icon-button`, and a component named for one fact may render one row, a `dt` without a `dl`) and has no exception of that name, on an element carrying an `hw-*` class or
-one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`, removed in
-v1.43.0) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
+one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
 or a class of your own passes, and so does such a class your own CSS defines), on a used element without a tile or with a stale version, on an exception
 without a reason or a tile, on a `data-hw-exception` whose name the list declares no exception for,
 on a page showing no element, and on a run whose pages and stories show none. A `brand-elements.json` naming no page

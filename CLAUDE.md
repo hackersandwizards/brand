@@ -33,7 +33,8 @@ data or secret.
 - Client marks are not brand's: `@hackersandwizards/testimonials` holds every company mark, with
   `surface` deciding which a surface may show. Brand draws marks only in the channel banners,
   reading them from that devDependency's `marks/`; `render.py` stops on a file no `allowed` entry names.
-- `applications/<family>/`: the files made from the brand for one use each, outside the package:
+- `applications/<family>/`: the files made from the brand for one use each, outside the package but
+  for the commands, prompts and template of `linkedin-visuals/`, `slide-visuals/` and `mail-signature/`:
   device and call backgrounds, channel banners, LinkedIn post images, avatars, GitHub social previews, booth banners,
   gradients, merch print files, device stickers, mail signatures, slide sketches. Where a script builds a family it sits beside the files and writes
   there: `backgrounds/generate.ts` (Chrome helper `backgrounds/render.ts`), `booth/generate.ts`, `avatars/generate.ts`, `social-previews/generate.ts` (reads `gh`),

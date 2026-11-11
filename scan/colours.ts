@@ -201,7 +201,7 @@ const CSS_OR_SVG = /^\.(css|svg)$/;
 const SCRIPT_EXT = /^\.([cm]?[jt]sx?|json|webmanifest)$/;
 const MARKUP = /^\.(astro|vue|svelte|html)$/;
 // The files whose markup takes a prop as a {...} expression.
-const PROPS = /^\.(astro|svelte|[jt]sx)$/;
+const PROPS = /^\.(astro|svelte|[jt]sx|[cm]?js)$/;
 const BLOCK = /\/\*[\s\S]*?\*\//g;
 const STRING_OR_BLOCK =
   /("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\//g;
@@ -259,20 +259,22 @@ const WORD = /(?<![\w$.#/-])([a-z]+)(?![\w./-])/gi;
 const COLOUR_AT =
   /(?<![\w-])(?:color|background(?:-color)?|backgroundColor|border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-color)?|border(?:Top|Right|Bottom|Left)?Color|outline(?:-color)?|outlineColor|fill|stroke|stop-color|stopColor|flood-color|lighting-color|caret-color|caretColor|accent-color|accentColor|text-decoration(?:-color)?|textDecorationColor|column-rule(?:-color)?|--[\w-]*colou?r[\w-]*)\s*[:=]\s*|color-mix\(/g;
 // A custom property set to one colour name and nothing else, in CSS or as a style key.
-const CUSTOM = /(?<![\w-])--[\w-]+["']?\s*:\s*(["'`]?)([a-z]+)\1\s*(?=[;},\n"']|$)/gim;
-/** The strings an expression can take as its value: one at its own level that opens it or a
- * branch (after {, ?, :, && or ||), never one it compares or tests with in, nor one inside a key,
- * a call, parentheses or an object. */
+const CUSTOM =
+  /(?<![\w-])--[\w-]+["']?\s*:\s*(["'`]?)([a-z]+)\1\s*(?:!important\s*)?(?=[;},\n"']|$)/gim;
+/** The strings an expression can take as its value: one at its own level, grouping parentheses
+ * included, that opens it or a branch (after {, (, ?, :, && or ||), never one it compares or tests
+ * with in, nor one inside a key, a call's arguments or an object. */
 const valueStrings = (code: string) => {
   const out: RegExpExecArray[] = [];
-  let depth = 0;
+  // Per open bracket, whether it starts a level of its own; a grouping ( does not.
+  const levels: boolean[] = [];
   for (const m of code.matchAll(/"[^"\n]*"|'[^'\n]*'|`[^`]*`|[[({]|[\])}]/g)) {
     const t = m[0];
-    if ("[({".includes(t)) depth++;
-    else if ("])}".includes(t)) depth--;
+    if ("[({".includes(t)) levels.push(t !== "(" || /[\w$\])]\s*$/.test(code.slice(0, m.index)));
+    else if ("])}".includes(t)) levels.pop();
     else if (
-      depth === 1 &&
-      /(?:[{?:]|&&|\|\|)\s*$/.test(code.slice(0, m.index)) &&
+      levels.filter(Boolean).length === 1 &&
+      /(?:[{(?:]|&&|\|\|)\s*$/.test(code.slice(0, m.index)) &&
       !/^\s*(?:[!=]=|in\b)/.test(code.slice(m.index + t.length))
     )
       out.push(m);
@@ -427,10 +429,13 @@ export const scanSource = (raw: string, ext: string) => {
   const seen = new Set<number>();
   const words = (value: string, from: number) => {
     // An interpolation (${...}) adds only the strings it can take; its names are the code's.
-    const read = value.replace(/\$\{[^}]*\}/g, (x, at: number) => {
-      for (const s of valueStrings(x)) words(s[0], from + at + s.index);
-      return " ".repeat(x.length);
-    });
+    let read = value;
+    for (let i = value.indexOf("${"); i >= 0;) {
+      const x = expression(value, i + 1);
+      for (const s of valueStrings(x)) words(s[0], from + i + 1 + s.index);
+      read = read.slice(0, i) + " ".repeat(x.length + 1) + read.slice(i + 1 + x.length);
+      i = value.indexOf("${", i + 1 + x.length);
+    }
     for (const w of read.matchAll(WORD))
       if (!seen.has(from + w.index)) {
         seen.add(from + w.index);
@@ -440,8 +445,13 @@ export const scanSource = (raw: string, ext: string) => {
   for (const m of src.matchAll(COLOUR_AT)) {
     const start = m.index + m[0].length;
     // In markup color= and background= are a component's props, which map a name to a token; no
-    // element takes them as a colour.
-    if (MARKUP.test(ext) && /^(?:color|background)\s*=/.test(m[0])) continue;
+    // element takes them as a colour. In script only inside a component's tag (<Badge color=...).
+    if (
+      /^(?:color|background)\s*=/.test(m[0]) &&
+      (MARKUP.test(ext) ||
+        (PROPS.test(ext) && /<[A-Z][\w.]*\s[^<>]*$/.test(src.slice(m.index - 400, m.index))))
+    )
+      continue;
     // A JSX, Astro or Svelte expression prop (fill={on ? "teal" : "white"}): the strings it can
     // take. Any other brace opens an object or a dict, a map of names, which is no value.
     if (src[start] === "{") {
@@ -457,17 +467,25 @@ export const scanSource = (raw: string, ext: string) => {
     words(value, start + (quoted ? 1 : 0));
   }
   // A custom property whose whole value is one colour name (--mark: white); in script quoted only,
-  // as a bare name there is a variable.
+  // as a bare name there is a variable, and in CSS unquoted only, as a quoted one is a string.
   for (const m of src.matchAll(CUSTOM))
-    if (!script || m[1]) words(m[2], m.index + m[0].lastIndexOf(m[2]));
+    if (script ? m[1] : !(m[1] && /^\.(s?css|svg)$/.test(ext)))
+      words(m[2], m.index + m[0].lastIndexOf(m[2]));
   for (const [, v] of src.matchAll(ARBITRARY)) if (/^[a-z]+$/i.test(v)) named(v);
   for (const m of src.matchAll(FONT)) {
     const v = (m[1] ?? m[2] ?? m[3] ?? m[4]).trim();
-    // An interpolated family (font-family="${FAM[fam]}") is the code's to name, never a literal.
-    if (!BRAND_FONT.test(v) && !v.startsWith("${")) {
-      counts.font++;
-      fonts.push(v.split(",")[0].trim().replace(/["']/g, ""));
-    }
+    // An interpolated family (font-family="${big ? 'Arial' : FAM[fam]}") counts the strings it
+    // can take; its names are the code's.
+    const families = v.startsWith("${")
+      ? valueStrings(expression(src, src.indexOf("${", m.index) + 1))
+          .map((s) => s[0].slice(1, -1))
+          .filter((f) => !f.includes("${"))
+      : [v];
+    for (const f of families)
+      if (!BRAND_FONT.test(f)) {
+        counts.font++;
+        fonts.push(f.split(",")[0].trim().replace(/["']/g, ""));
+      }
   }
   for (const m of src.matchAll(SHORTHAND)) {
     const start = m.index + m[0].length;

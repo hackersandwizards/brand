@@ -47,7 +47,7 @@
 //    brand-markers too.
 // 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
-//    button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
+//    icon-button; button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
 //    longhands, an @apply utility for the properties it sets) fails, and so
 //    does a component file of such a name, unless it carries the hw-* class (a button's the icon
 //    button's too, a fact's a dt, one row of the facts list), its name is an

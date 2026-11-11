@@ -877,7 +877,8 @@ export const fileIn = (root: string, path: string) => {
 export const serve = (dir: string, at = "/") => {
   const root = resolve(dir);
   if (!existsSync(root)) throw new Error(`no site folder ${root}; build it first`);
-  const prefix = basePath(at);
+  // The request path arrives URL-encoded, so a base path such as /über/ is matched as URL parses it.
+  const prefix = new URL(basePath(at), "http://localhost").pathname;
   return Bun.serve({
     hostname: "127.0.0.1",
     port: 0,
@@ -952,7 +953,7 @@ export type Site = string | { dir: string; at?: string };
 const basePath = (at: string) => `/${at.replace(/^\/+|\/+$/g, "")}/`.replace("//", "/");
 /** The folder and path of a "site" or --site with --site-at; undefined for none. */
 export const listedSite = (site?: Site, at?: string) => {
-  if (site == null || site === "") return undefined;
+  if (!site) return undefined;
   const dir = typeof site === "string" ? site : site.dir;
   if (typeof dir !== "string" || !dir)
     throw new Error(

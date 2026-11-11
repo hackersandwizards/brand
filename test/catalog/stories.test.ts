@@ -146,7 +146,7 @@ test("a filter bar's choices and selects stand one height by mouse and touch, da
 // In the tile, as on a consumer's page, the box without text stands on the axis and at the pitch
 // of the boxes with text, by mouse and on a touch screen, at every scale.
 test("a check story's marks share one axis and one pitch, by mouse and touch", async () => {
-  const pitch = async (scale: string, touch: boolean) => {
+  const pitch = async (scale: string, touch: boolean, css = "") => {
     const tab = await browser.newPage();
     try {
       await tab.emulate({
@@ -157,6 +157,7 @@ test("a check story's marks share one axis and one pitch, by mouse and touch", a
         tab,
         storyPages().find((p) => p.endsWith(`/checkbox-and-radio/${scale}/`))!,
       );
+      if (css) await tab.addStyleTag({ content: css });
       return await tab.$$eval(".sample .hw-check", (els) => {
         const mid = els.map((e) => {
           const r = e.getBoundingClientRect();
@@ -175,6 +176,9 @@ test("a check story's marks share one axis and one pitch, by mouse and touch", a
   for (const scale of ["screen", "dense", "print", "stage"])
     for (const touch of [false, true])
       expect([scale, touch, await pitch(scale, touch)]).toEqual([scale, touch, [1, 1]]);
+  // The control: the tile's gap on the lone box's target moves it off the rows' pitch.
+  const gap = ".sample > * + * { margin-top: 0.5em !important }";
+  expect(await pitch("screen", false, gap)).not.toEqual([1, 1]);
 }, 60_000);
 
 // The catalog's header lists every catalog once, Catalog marked: "page" on the home, "true" below.

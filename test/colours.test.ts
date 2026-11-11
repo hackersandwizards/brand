@@ -357,6 +357,27 @@ test("an interpolation is the code's name, never a literal; an expression prop's
   // The strings an interpolation can take are read; its names are not.
   const s = "const s = `<rect fill=\"${on ? 'tomato' : 'teal'}\"/>`;";
   expect(scanSource(s, ".ts").counts).toEqual({ ...zero, hex: 2 });
+  // An interpolation runs to its matching brace; grouping parentheses keep a branch a value.
+  const call = 'const s = `<rect fill="${tone({ dark }) ?? white}"/>`;';
+  expect(scanSource(call, ".js").counts).toEqual(zero);
+  const nested = "const s = `<rect fill=\"${tone({ dark }) ?? 'tomato'}\"/>`;";
+  expect(scanSource(nested, ".js").counts).toEqual({ ...zero, hex: 1 });
+  const inner = "const s = `<rect fill=\"${pick(`${on ? 'tomato' : 'x'}`)}\"/>`;";
+  expect(scanSource(inner, ".js").counts).toEqual(zero);
+  const group = '<path fill={on ? (dark ? "white" : "tomato") : "teal"} />';
+  expect(scanSource(group, ".tsx").counts).toEqual({ ...zero, hex: 2, tokenHex: 1 });
+  const font = "const s = `<text font-family=\"${big ? 'Arial' : 'Georgia'}\">`;";
+  expect(scanSource(font, ".js").counts).toEqual({ ...zero, font: 2 });
+  // A JSX component's colour prop maps a name to a token, as in Astro.
+  expect(scanSource('<Badge color={ok ? "green" : "red"} />', ".tsx").counts).toEqual(zero);
+  // Outside a component's tag color= is an assignment, and JSX in .js reads like .jsx.
+  expect(scanSource('const color = "tomato";', ".tsx").counts).toEqual({ ...zero, hex: 1 });
+  expect(scanSource('<path fill={on ? "tomato" : "teal"} />', ".js").counts).toEqual({
+    ...zero,
+    hex: 2,
+  });
+  const twice = "const s = `<text font-family=\"${on ? `${A}` : 'Inter'}\">`;";
+  expect(scanSource(twice, ".js").counts).toEqual(zero);
 });
 
 test("a custom property set to a colour name counts once, any other value not at all", () => {
@@ -371,4 +392,11 @@ test("a custom property set to a colour name counts once, any other value not at
     ...zero,
     tokenHex: 1,
   });
+  // !important still leaves one name; a quoted value in CSS is a string.
+  expect(scanSource(".a { --mark: tomato !important; }", ".css").counts).toEqual({
+    ...zero,
+    hex: 1,
+  });
+  expect(scanSource('.a { --label: "red"; }', ".css").counts).toEqual(zero);
+  expect(scanSource('.a { --label: "red"; }', ".scss").counts).toEqual(zero);
 });

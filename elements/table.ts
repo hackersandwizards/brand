@@ -3,8 +3,8 @@
 // processor (`satteri({ hastPlugins: [tableScrollPlugin] })`, or pushed onto an integration's
 // `config.markdown.processor.options.hastPlugins`). Pass either after any sanitizer, which would
 // drop its classes. Each table takes hw-table and sits in hw-table-scroll,
-// a tab stop named by the heading above it ("Prices", then "Prices (2)" for the next table under
-// the same heading), else by its column heads, else unnamed and without the region role; a table
+// a tab stop named by the heading above it, else by its column heads ("Prices", then "Prices (2)"
+// for the next table of that name), else unnamed and without the region role; a table
 // already in hw-table-scroll keeps its wrapper. In the browser, `scrollStops` (run by enhance() in
 // behaviour.ts) marks each wrapper data-hw-scrolls, whose look table.css sets, and keeps it a tab
 // stop only while its table scrolls; without script every wrapper stays one.
@@ -33,19 +33,21 @@ type Wrapper = {
 };
 const withTable = (node: Node) => [...new Set([...classes(node), "hw-table"])];
 
-/** Names each table in document order: the heading above it, numbered from its second table under
- * that heading, else its column heads. */
+/** Names each table in document order: the heading above it, else its column heads, numbered
+ * from the second table of the same name, so no two regions share one. */
 const namer = () => {
   let title = "";
-  let under = 0;
+  const used = new Set<string>();
   return {
-    heading: (node: Node) => void ([title, under] = [text(node), 0]),
+    heading: (node: Node) => void (title = text(node)),
     wrapper: (table: Node): Wrapper => {
-      if (title) under++;
       // The column heads: the cells of the table's first row.
       const row = elements(table).flatMap((part) => elements(part).slice(0, 1))[0];
       const heads = row ? elements(row).map(text).filter(Boolean).join(" ") : "";
-      const name = !title ? heads : under > 1 ? `${title} (${under})` : title;
+      const base = title || heads;
+      let name = base;
+      for (let n = 2; name && used.has(name); n++) name = `${base} (${n})`;
+      used.add(name);
       return {
         type: "element",
         tagName: "div",

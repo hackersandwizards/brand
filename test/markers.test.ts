@@ -709,6 +709,15 @@ test("a site built for a base path is served there: its stylesheets load, nothin
     expect([moved.status, moved.headers.get("location")]).toEqual([301, "/mail/"]);
     expect((await fetch(`${server.url.origin}/_astro/a.css`)).status).toBe(404);
     expect((await fetch(`${server.url.origin}/blog/_astro/a.css`)).status).toBe(404);
+    const spaced = serve(site, "/mein blog/");
+    try {
+      expect((await fetch(`${spaced.url.origin}/mein%20blog/_astro/a.css`)).status).toBe(200);
+      const encoded = serve(site, "/mein%20blog/");
+      expect((await fetch(`${encoded.url.origin}/mein%20blog/_astro/a.css`)).status).toBe(200);
+      await encoded.stop(true);
+    } finally {
+      await spaced.stop(true);
+    }
     const listed = listedSite({ dir: site, at: "/mail/" });
     expect(listed).toEqual({ dir: site, at: "/mail/" });
     expect(listedSite(site, "mail")).toEqual({ dir: site, at: "/mail/" });

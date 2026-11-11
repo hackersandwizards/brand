@@ -523,7 +523,6 @@ function enhanceCarousel(carousel: HTMLElement) {
   const status = controls.querySelector<HTMLElement>(":scope > .hw-sr-only");
   const of = german() ? "von" : "of";
   const useDots = items.length <= 5;
-  // Dots the page wrote, one per item, stay; otherwise they are written here.
   let written = [...(position?.querySelectorAll<HTMLButtonElement>(".hw-carousel-dot") ?? [])];
   if (written.length !== items.length) {
     position?.replaceChildren();

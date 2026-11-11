@@ -70,7 +70,7 @@ const words = /^de\b/.test(lang) ? ["aus brand", "Katalog"] : ["from brand", "ca
     color: var(--color-night-ink);
   }
   /* A lone box's target keeps its own margins, which hold the box in the line of the rows above. */
-  .sample > :global(* + *:not(.hw-check-target)) {
+  .sample > :global(* + *:where(:not(.hw-check-target))) {
     margin-top: 0.5em;
   }
   .sample :global(:is(p, blockquote, pre)) {

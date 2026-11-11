@@ -1142,3 +1142,22 @@ test("the Sätteri plugin writes what the rehype step writes, its count fresh in
   ]);
   expect(plugin()).toBe(first);
 });
+
+test("no two scrolling tables share a region name, under a repeated heading or without one", () => {
+  const t = "| Name | Wert |\n| - | - |\n| a | 1 |";
+  const empty = "|  |  |\n| - | - |\n| a | 1 |";
+  const md = [t, t, "## Beispiel", t, "## Beispiel", t, "## Beispiel (2)", t].join("\n\n");
+  const html = markdownToHtml(md, { hastPlugins: [tableScrollPlugin] }).html;
+  expect([...html.matchAll(/aria-label="([^"]*)"/g)].map((m) => m[1])).toEqual([
+    "Name Wert",
+    "Name Wert (2)",
+    "Beispiel",
+    "Beispiel (2)",
+    "Beispiel (2) (2)",
+  ]);
+  // A table with neither heading nor column heads stays unnamed, however many there are.
+  const bare = markdownToHtml([empty, empty].join("\n\n"), {
+    hastPlugins: [tableScrollPlugin],
+  }).html;
+  expect(bare).not.toContain("aria-label");
+});

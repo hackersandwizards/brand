@@ -13,9 +13,10 @@
    Markup: <div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li>…</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" aria-label="Zurück"></button><span data-hw-position></span><button data-hw-step="1" aria-label="Weiter"></button><p class="hw-sr-only" aria-live="polite"></p></div></div>
 
    Controls outside the carousel (a row of their own elsewhere on the page) take an id the
-   carousel names in data-hw-controls; they show its autoplay state and hold it while used. Dots written in the HTML, one .hw-carousel-dot button with a
-   span per item, are used as they are; otherwise the script writes them. carousels(root) in
-   behaviour.ts wires the carousels alone, without enhance()'s document-wide handlers.
+   carousel names in data-hw-controls; they show its autoplay state and hold it while used. Dots
+   written in the HTML, one .hw-carousel-dot button with a span per item, are used as they are;
+   otherwise the script writes them. carousels(root) in behaviour.ts wires the carousels alone,
+   without enhance()'s document-wide handlers.
 
    Settings:
      --hw-carousel-item     an item's width in the row (default min(85%, 22rem))
