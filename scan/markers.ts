@@ -547,6 +547,13 @@ export const addCss = (page: Page, css: string) =>
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
   }, css);
 
+/** Lets `page` hold focus and draw its frames as the tab in front does, so tabs run side by side. */
+export const focusAll = async (page: Page) => {
+  const cdp = await page.createCDPSession();
+  await cdp.send("Emulation.setFocusEmulationEnabled", { enabled: true });
+  return cdp;
+};
+
 export const launch = () =>
   puppeteer.launch({ executablePath: findChrome(), headless: true, args: NO_KEYCHAIN });
 
@@ -763,6 +770,9 @@ async function prepare(
     await page.setViewport({ width, height: 900, deviceScaleFactor: scale });
     // The settled layout: a scroll reveal still moving at screenshot time reads a marker off.
     await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+    // Every tab draws its frames as the one in front does: a tab behind another of its context
+    // otherwise waits seconds for the two frames the refusals are read after.
+    await focusAll(page);
     await open(page, url, csp);
     if (css) await addCss(page, css);
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
@@ -985,6 +995,11 @@ const loadFactor = () =>
     Math.max(1, Number(process.env.SCAFFOLDING_LOAD ?? loadavg()[0]) / availableParallelism() || 1),
   );
 
+/** How many pages load side by side: 1.5 per core, at most 48, at least `floor`. A load mostly
+ *  waits for the network to go quiet, so the machine's load does not shrink it. */
+export const tabs = (floor: number) =>
+  Math.max(floor, Math.min(Math.round(availableParallelism() * 1.5), 48));
+
 export async function pool<T, R>(
   items: T[],
   limit: number,
@@ -1065,7 +1080,7 @@ if (import.meta.main) {
   // most 8, as a run at 4x holds a 5120 x 3600 surface, divided by the load factor, at least 2. A
   // first pass, one load per story at the first scale, finds the stories with a marker, most having
   // none; only those, and every page named, take the measured runs. It mostly waits for the network
-  // to go quiet: four tabs per worker.
+  // to go quiet: `tabs`, at least four per worker, the workers' contexts shared.
   const cores = availableParallelism();
   const workers = Math.min(
     Math.max(2, Math.round(Math.min(cores, 8) / loadFactor())),
@@ -1079,7 +1094,7 @@ if (import.meta.main) {
       Array.from({ length: workers }, () => browser.createBrowserContext()),
     );
     const stories = pages.slice(named.length);
-    const marked = await pool(stories, 4 * workers, (url, w) =>
+    const marked = await pool(stories, tabs(4 * workers), (url, w) =>
       hasMarkers(contexts[w % workers]!, url, {
         scale: scales[0],
         width,
