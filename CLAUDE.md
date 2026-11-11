@@ -58,8 +58,8 @@ data or secret.
   nothing here reads a consumer. `colours.ts` (`brand-colours`: colours, radii, shadows, fonts),
   exceptions in the consumer's `brand-colours.json`. `copies.ts` (`brand-copies`) fails on a copy of
   a brand file, exceptions in the consumer's `brand-copies.json`. The paths every scan skips are
-  `EXCEPTIONS` in `colours.ts`, each printed when applied and listed in the README; a new one
-  needs a reason the README states. `components.ts` (`brand-scan`) fails on a consumer component named like an
+  `EXCEPTIONS` in `colours.ts`, each printed when applied and listed in `docs/checks.md`; a new one
+  needs a reason that file states. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
   rule being `tokens/marker.css`. `elements.ts` (`brand-elements`) measures the shared elements on
@@ -67,6 +67,10 @@ data or secret.
   that page's coverage. `retired.ts` (`brand-retired`) fails on a line of `verbal.json`'s `retired` list in
   the built folders or files a consumer names.
   A skill, script or document generator takes the file from the package, never a copy.
+- `README.md` and `docs/*.md`: what a consumer reads. The README holds what the package is, the
+  install line, the most used imports, the checks by name and the links; every other consumer fact
+  goes in the `docs/` file that owns its topic (`exports.md`, `elements.md`, `header.md`,
+  `assets.md`, `checks.md`), which ships in the package. `docs/agent-work/` stays out of it.
 - `catalog/`: the catalog, one Astro app in scaffolding's catalog shell (`catalog/astro.config.ts`,
   preset `catalog()`), built to `dist/` and published by the reusable Pages workflow at
   `https://hackersandwizards.github.io/brand/`. Its root is the brand portal, generated from this
@@ -93,7 +97,7 @@ data or secret.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset
   drops the `/brand` base in dev and redirects `/brand/...` there. The portal reads the working tree
-  afresh on each request. `bun run build` writes `dist/`. The portal's header links every catalog
+  afresh on each request. `bun run build` writes `dist/`, whose `index.html` also opens from disk. The portal's header links every catalog
   `expert/catalogs.json` lists at its published address.
 
 ## Rules
@@ -110,7 +114,7 @@ data or secret.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
   their OFL texts, the area marks with their Lucide licence, small logos,
   the press photos, `verbal/`, `manifest.json`, the LinkedIn post renderers and prompts
-  `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the element tile a consumer's catalogue shows (`catalog/Element.astro`, exported as `./Element.astro`, with `ElementScript.astro` and the samples `element-demos.ts`), the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core` (the two LinkedIn renderers need `sharp`, which the consumer installs), and `LICENSE`. `test/package.test.ts` fails on anything else.
+  `applications/linkedin-visuals/*.ts` and `*.txt`, the slide sketch prompt `applications/slide-visuals/*.ts` and `*.txt`, the mail signature template `applications/mail-signature/`, the README's reference pages `docs/*.md`, the element tile a consumer's catalogue shows (`catalog/Element.astro`, exported as `./Element.astro`, with `ElementScript.astro` and the samples `element-demos.ts`), the consumer checks `scan/*.ts` with the one dependency they need, `puppeteer-core` (the two LinkedIn renderers need `sharp`, which the consumer installs), and `LICENSE`. `test/package.test.ts` fails on anything else.
 - A consumer reaches brand through two surfaces only: a command in `bin`, run as `bun run <name>`
   (never `bunx`, which downloads a same-named npm package where none is installed), and a file an
   `exports` target names, imported or, from Python, HTML or a skill, read at its path in

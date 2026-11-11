@@ -91,6 +91,7 @@
     "catalog/ElementScript.astro",
     "catalog/element-demos.ts",
     "scan/*.ts",
+    "docs/*.md",
     "manifest.json"
   ],
   "scripts": {

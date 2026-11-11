@@ -10,7 +10,7 @@
 //     "lightOnly": true,                              optional: the pages never turn to night
 //     "csp": "<policy>"                               optional: the Content-Security-Policy the
 //            | { "<glob>": "<policy>", ... },         host sends, added to every page opened, or
-//                                                     by path (README)
+//                                                     by path (docs/checks.md)
 //     "site": "<folder>"                              optional: a built site, served on a free
 //             | { "dir": "<folder>", "at": "<path>" }, port at its root, or at "at", the base path
 //                                                     it was built for (such as "/mail/"), which

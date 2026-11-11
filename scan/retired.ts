@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 // Fails where a text file a consumer's build wrote carries a line of verbal.json's `retired` list;
-// the README's "Check your build for retired lines" says how it matches.
+// `docs/checks.md`, "Check your build for retired lines", says how it matches.
 import {
   closeSync,
   existsSync,

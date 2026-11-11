@@ -117,7 +117,7 @@ const pureVar = (v: string) => {
   return v === "var" || /^theme\([^()]+\)$/.test(v);
 };
 
-/** Exceptions the scan applies before it reads a file, each with its reason. The README names
+/** Exceptions the scan applies before it reads a file, each with its reason. `docs/checks.md` names
  *  the same list; the scan prints each one it applied. */
 export const EXCEPTIONS = [
   {

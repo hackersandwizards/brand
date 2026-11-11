@@ -937,7 +937,7 @@ const pages: [string, string, string][] = [
   [
     "logos",
     "Logos",
-    `<p>${logoCount} logos, each one line. The ground picks the cut: on light the day file; on night, black and black textile the night cut, with a grey edge round the wizard; on Purple Love, Stargazer and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Gap, lift and alignment: <code>README.md</code>, "Use it in another repo".</p>
+    `<p>${logoCount} logos, each one line. The ground picks the cut: on light the day file; on night, black and black textile the night cut, with a grey edge round the wizard; on Purple Love, Stargazer and the gradient the outline cut, a white outline round the letters and a white edge round the wizard. Gap, lift and alignment: <code>docs/assets.md</code>, "The logo".</p>
 <p>Which logo goes on which surface: the logo table of the Brand Guide in Company OS, which owns it.</p>
 ${logosHtml}`,
   ],
