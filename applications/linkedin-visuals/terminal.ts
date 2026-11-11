@@ -16,10 +16,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { tokens } from "../../generated/tokens";
 import { answerHelp } from "../../scan/help";
-import { escHtml, linkedinCss, screenshot } from "./render";
-
-// Loaded on use, so --help answers where the consumer has not installed sharp.
-const sharp = async () => (await import("sharp")).default;
+import { escHtml, linkedinCss, loadSharp, screenshot } from "./render";
 
 interface Spec {
   title: string;
@@ -110,7 +107,7 @@ if (import.meta.main) {
     writeFileSync(join(dir, "t.html"), terminalHtml(spec));
     await screenshot(dir, "t.html", [SIZE, SIZE, SCALE], join(dir, "t.png"));
     await (
-      await sharp()
+      await loadSharp()
     )(join(dir, "t.png"))
       .trim({ background: tokens["--color-bg"], threshold: 6 })
       .toFile(resolve(output));

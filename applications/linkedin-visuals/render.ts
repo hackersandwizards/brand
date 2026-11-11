@@ -49,6 +49,9 @@ export const escHtml = (s: string) =>
  * headless instance from `/Applications/Google Chrome.app` makes macOS activate it instead of opening
  * the user's window. The newest build for this platform in puppeteer's cache, else installed there.
  */
+/** sharp, loaded on use, so a command's --help answers where the consumer has not installed it. */
+export const loadSharp = async () => (await import("sharp")).default;
+
 export function findChrome(): string {
   if (process.env.CHROME_BINARY) return process.env.CHROME_BINARY;
   const cache = process.env.PUPPETEER_CACHE_DIR ?? join(homedir(), ".cache", "puppeteer");

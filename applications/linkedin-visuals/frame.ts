@@ -16,10 +16,7 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { colors } from "../../generated/tokens";
 import { answerHelp } from "../../scan/help";
-import { brandPath, escHtml, linkedinCss, screenshot } from "./render";
-
-// Loaded on use, so --help answers where the consumer has not installed sharp.
-const sharp = async () => (await import("sharp")).default;
+import { brandPath, escHtml, linkedinCss, loadSharp, screenshot } from "./render";
 
 // The brand lockup (logos/lockup.svg): the wizard beside the pixel wordmark, no line under it. It
 // stands on the tint, not the band, so it takes no outline.
@@ -51,7 +48,7 @@ async function matchPaper(input: string, dir: string): Promise<string> {
     .map((h) => parseInt(h, 16));
   // Upright and in three colour channels, whatever the file's orientation and colour space.
   const { data, info } = await (
-    await sharp()
+    await loadSharp()
   )(input)
     .rotate()
     .toColourspace("srgb")
@@ -76,14 +73,14 @@ async function matchPaper(input: string, dir: string): Promise<string> {
     if (paper.every((v, c) => Math.abs(data[i + c] - v) <= TOLERANCE))
       for (let c = 0; c < 3; c++) data[i + c] = card[c];
   const out = join(dir, "inner.png");
-  await (await sharp())(data, { raw: info }).png().toFile(out);
+  await (await loadSharp())(data, { raw: info }).png().toFile(out);
   return out;
 }
 
 async function frameHtml(image: string, headline: string): Promise<string> {
   // The size as shown: the browser turns the image by its orientation, as matchPaper does.
   // autoOrient is sharp 0.34's; before it, orientations 5 to 8 swap the sides.
-  const meta = await (await sharp())(image).metadata();
+  const meta = await (await loadSharp())(image).metadata();
   const { width, height } =
     meta.autoOrient ??
     ((meta.orientation ?? 1) >= 5 ? { width: meta.height, height: meta.width } : meta);
