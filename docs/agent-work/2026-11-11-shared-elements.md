@@ -857,7 +857,7 @@ component that renders a `dt`, one row of the list its parent renders (v2.15.0).
 The lead, a title link, keeps room for its focus ring. Under `any-pointer: coarse` the screen and
 dense scales raise `--hw-item-height` to the touch target for every item (v1.51.0, pixel-identical by
 mouse and by touch). A compact variant a header row can read is open in
-`work-design-system-rollout-what-remains-after-02`, point 5.
+`work-design-system-rollout-what-remains-after-02`, point 4.
 
 ### Dot list
 
