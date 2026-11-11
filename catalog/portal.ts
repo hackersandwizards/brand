@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 // The brand portal: one page in the catalog shape every repository shares (scaffolding's
 // renderCatalog and catalog.css, brand's header.css), whose search also lists every token, colour,
-// logo, file and photo, and one view per area below the tiles (colours, type, tokens, elements,
-// logos, applications, press kit). It reads this repo's files only. Run as its own process by the
+// logo, file and photo, and one view per area below the tiles (colours, type, tokens, motion,
+// elements, logos, the wizard, photography, illustration, applications, press kit, words). It reads this repo's files only. Run as its own process by the
 // catalog's routes (pages/index.html.ts, pages/catalog-assets/), so it reads the working tree
 // afresh on each dev request; it prints the page and its assets as JSON and writes nothing.
 // Usage: bun catalog/portal.ts
