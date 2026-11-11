@@ -10,7 +10,7 @@ evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, tea
 
 # Design system: the brand proposals that remain
 
-Work points 1, 2, 4 and 5 below in brand; point 3 is a slides release, briefed to a slides session.
+Work points 1 to 4 below in brand.
 
 1. **Night lines.** `facts.css`, `table.css` and `card.css` draw night lines as white at 15 %
    (transparent), `row.css` and `frame.css` as white at 18 % over night;
@@ -24,13 +24,10 @@ Work points 1, 2, 4 and 5 below in brand; point 3 is a slides release, briefed t
    strengths make `render.py` derive its deltas from them, which moves one channel by one level, so
    every channel banner is re-rendered (`uv run`) in the same commit; the website then reads the
    tokens.
-3. **slides' shared names.** slides' `styles/tokens.css` still defines `--background`,
-   `--foreground`, `--color-accent`, `--font-heading` and other names `expert.css` and `tokens.css`
-   define. Renaming changes deck utility names: a slides release, done in slides.
-4. **From the spoke switches**, not yet measured: a setting naming an undefined token falls back
+3. **From the spoke switches**, not yet measured: a setting naming an undefined token falls back
    silently; night pills lose hue distinction; a hue setting for card, label and callout; a
    line-height setting on the pill.
-5. **Left from the 07./08.11. runs.** `--slide-measure-overview` in `tokens/stage.css` can go: talks and
+4. **Left from the 07./08.11. runs.** `--slide-measure-overview` in `tokens/stage.css` can go: talks and
    hycle-private pin slides v2.17.0 and trainer-hub v2.14.2 (origin/main, 09.11. evening), all past v1.22.0. A ring setting
    beside `--hw-focus-width` would remove four off-token shadows in os (`ListRow.css`,
    `PipelineCard.css`, `StageHero.css`, `StageDots.astro`). A compact `hw-row` variant a header row
