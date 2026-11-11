@@ -3,7 +3,7 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 2005
+order: 1975
 owner: a brand session
 evidence: "Round of 10.11. (fix-brand-a), the P0 panel of work-priority-pill-order: on a dense task list, an overdue pill on amber at 22 % on white (night: amber at 22 % on night) against os's bg-warning/15 (the warning role, amber-dark mixed 70 % with ink, at 15 %): overall 7.17 against 6.17 (run 1 7.33 against 6.33, run 2 7.00 against 6.00, noise 0.47); telling overdue from blocked 7.83 against 5.83. Claude only."
 ---

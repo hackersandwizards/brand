@@ -3,7 +3,7 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 2006
+order: 1960
 owner: a brand session
 evidence: "website UX run of 10.11. (its report, brief for brand, U5): a soft edge (a box-shadow) on the flat Night panel beside the home hero, over the corner glow, scored 88/80/77/88 against 58/50/48/76 for today's hard edge, on both models; reverted because brand-colours lets the website's shadow allowlist only shrink. The variant's shadow value is not recorded in the report."
 ---

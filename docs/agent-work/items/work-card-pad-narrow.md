@@ -3,7 +3,7 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 2007
+order: 1995
 owner: a brand session
 evidence: "website UX run of 10.11. (brief for brand): the website sets --hw-card-pad to 1rem on narrow screens in three places. practitioners catalog run of 10.11. (brief for brand, point 1): its PersonCard and the website's both set --hw-card-pad: 1rem by hand. --spacing-card is 20 px at 375 px (tokens/tokens.css)."
 ---

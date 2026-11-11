@@ -3,7 +3,7 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 2008
+order: 1990
 owner: a brand session
 evidence: "os UX run of 10.11. (brief for brand, I12): a record's notes column is 429 px at 13 px type on a 1,408 px page, the measure of 33em at the dense scale."
 ---

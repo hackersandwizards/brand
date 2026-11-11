@@ -3,7 +3,7 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 1998
+order: 1980
 owner: a brand session
 evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, teal 7 % on white) and brand-elements' source check learned button, breadcrumb and fact, read 0 findings on slides, documents and talks origin/main (the control, website, reads 10); measurements below from tokens/tokens.css and applications/channel-banners/render.py"
 ---
@@ -35,4 +35,3 @@ Work points 1, 2, 4 and 5 below in brand; point 3 is a slides release, briefed t
    beside `--hw-focus-width` would remove four off-token shadows in os (`ListRow.css`,
    `PipelineCard.css`, `StageHero.css`, `StageDots.astro`). A compact `hw-row` variant a header row
    can read would remove os's two copies of the compact values (`ListRow.css`, `DetailPane.css`).
-   The channel banners' client band still shows the client marks from before v1.36.0: re-render.
