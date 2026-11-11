@@ -4317,7 +4317,7 @@
   }
 }
 @layer components {
-  .hw-carousel {
+  :is(.hw-carousel, .hw-carousel-controls) {
     --_hw-tray: color-mix(in srgb, var(--color-ink) 7%, transparent);
     --_hw-tray-hover: color-mix(in srgb, var(--color-ink) 15%, transparent);
     --_hw-text: var(--foreground, var(--color-ink));
@@ -4339,7 +4339,7 @@
     scroll-behavior: smooth;
   }
   .hw-carousel-track > * {
-    flex: 0 0 min(85%, 22rem);
+    flex: 0 0 var(--hw-carousel-item, min(85%, 22rem));
     scroll-snap-align: start;
   }
   .hw-carousel-controls:not([hidden]) {
@@ -4427,7 +4427,10 @@
   @media (min-width: 48rem) {
     .hw-carousel[data-hw-mobile-only] .hw-carousel-track {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+      grid-template-columns: var(
+        --hw-carousel-columns,
+        repeat(auto-fit, minmax(min(16rem, 100%), 1fr))
+      );
       overflow-x: visible;
     }
   }
@@ -4440,7 +4443,7 @@
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    .hw-carousel {
+    :is(.hw-carousel, .hw-carousel-controls) {
       --_hw-tray: var(--white-line);
       --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));

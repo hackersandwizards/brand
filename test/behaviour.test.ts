@@ -443,6 +443,36 @@ test("a carousel holds four seconds after the reader's step, starts paused under
   await one.close();
 }, 30_000);
 
+test("a carousel takes controls named by id, keeps dots the page wrote, and wires alone", async () => {
+  const items = `<ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li></ul>`;
+  const dot = (n: number) =>
+    `<button type="button" class="hw-carousel-dot" aria-label="Stimme ${n}"><span></span></button>`;
+  const controls = `<div class="hw-carousel-controls" id="c"><button data-hw-step="-1">P</button><span data-hw-position>${dot(1)}${dot(2)}</span><button data-hw-step="1" id="n">N</button></div>`;
+  const body = `<div class="hw-carousel" data-hw-controls="c" style="width:300px">${items}</div><p>Text</p>${controls}`;
+  const p = await page(body);
+  expect(
+    await p.$$eval(".hw-carousel-dot", (d) => d.map((x) => x.getAttribute("aria-label"))),
+  ).toEqual(["Stimme 1", "Stimme 2"]);
+  await p.click("#n");
+  await p.waitForFunction(() => document.querySelector(".hw-carousel-track")!.scrollLeft > 0);
+  expect(
+    await p.$$eval(".hw-carousel-dot", (d) => d.map((x) => x.getAttribute("aria-current"))),
+  ).toEqual([null, "true"]);
+  await p.close();
+  // carousels() alone wires the carousel and installs no document-wide handler, such as the toast region.
+  const alone = await browser.newPage();
+  const f = join(dir, "carousels-alone.html");
+  writeFileSync(
+    f,
+    `<!doctype html><html lang="de"><head>${css}</head><body>${body}<script src="b.js"></script><script>HW.carousels();</script></body></html>`,
+  );
+  await open(alone, pathToFileURL(f).href);
+  await alone.click("#n");
+  await alone.waitForFunction(() => document.querySelector(".hw-carousel-track")!.scrollLeft > 0);
+  expect(await alone.$$eval("[aria-live]", (r) => r.length)).toBe(0);
+  await alone.close();
+}, 30_000);
+
 // The clipboard as a page sees it: each text copies or fails after its own delay, the hidden
 // field's execCommand answers `exec`, and every hw-copy event is logged.
 const CLIPBOARD = () => {

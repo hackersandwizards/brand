@@ -509,24 +509,32 @@ const HOLD = 4000;
 function enhanceCarousel(carousel: HTMLElement) {
   if (!wireOnce(carousel, "carousel")) return;
   const track = carousel.querySelector<HTMLElement>(".hw-carousel-track");
-  const controls = carousel.querySelector<HTMLElement>(".hw-carousel-controls");
+  const controls =
+    carousel.querySelector<HTMLElement>(".hw-carousel-controls") ??
+    byId(carousel.dataset.hwControls ?? null);
   if (!track || !controls) return;
   const items = [...track.children] as HTMLElement[];
   const position = controls.querySelector<HTMLElement>("[data-hw-position]");
   const status = controls.querySelector<HTMLElement>(":scope > .hw-sr-only");
   const of = german() ? "von" : "of";
   const useDots = items.length <= 5;
-  position?.replaceChildren();
+  // Dots the page wrote, one per item, stay; otherwise they are written here.
+  const written = [...(position?.querySelectorAll<HTMLButtonElement>(".hw-carousel-dot") ?? [])];
+  if (written.length !== items.length) position?.replaceChildren();
   const dots =
     useDots && position
       ? items.map((_, i) => {
-          const dot = document.createElement("button");
-          dot.type = "button";
-          dot.className = "hw-carousel-dot";
-          dot.setAttribute("aria-label", `${i + 1} ${of} ${items.length}`);
-          dot.append(document.createElement("span"));
+          let dot = written.length === items.length ? written[i] : undefined;
+          if (!dot) {
+            dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "hw-carousel-dot";
+            dot.append(document.createElement("span"));
+            position.append(dot);
+          }
+          if (!dot.hasAttribute("aria-label"))
+            dot.setAttribute("aria-label", `${i + 1} ${of} ${items.length}`);
           dot.addEventListener("click", () => go(i, true));
-          position.append(dot);
           return dot;
         })
       : [];
@@ -641,6 +649,12 @@ function enhanceCarousel(carousel: HTMLElement) {
   pause?.addEventListener("click", () => stop(!carousel.hasAttribute("data-hw-stopped")));
 }
 
+/** Wires every carousel in `root` alone, without the document-wide handlers enhance() installs. */
+export function carousels(root: ParentNode = document) {
+  for (const carousel of root.querySelectorAll<HTMLElement>(".hw-carousel"))
+    enhanceCarousel(carousel);
+}
+
 /** Wires every common element in `root`. Safe to call again after adding markup. */
 export function enhance(root: ParentNode = document) {
   installDocument();
@@ -660,8 +674,7 @@ export function enhance(root: ParentNode = document) {
     const current = tree.querySelector<HTMLElement>('[aria-selected="true"]') ?? nodes[0];
     for (const n of nodes) n.tabIndex = n === current ? 0 : -1;
   }
-  for (const carousel of root.querySelectorAll<HTMLElement>(".hw-carousel"))
-    enhanceCarousel(carousel);
+  carousels(root);
   scrollStops(root);
   copyButtons(root);
 }

@@ -12,7 +12,14 @@
 
    Markup: <div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li>…</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1" aria-label="Zurück"></button><span data-hw-position></span><button data-hw-step="1" aria-label="Weiter"></button><p class="hw-sr-only" aria-live="polite"></p></div></div>
 
+   Controls outside the carousel (a row of their own elsewhere on the page) take an id the
+   carousel names in data-hw-controls. Dots written in the HTML, one .hw-carousel-dot button with a
+   span per item, are used as they are; otherwise the script writes them. carousels(root) in
+   behaviour.ts wires the carousels alone, without enhance()'s document-wide handlers.
+
    Settings:
+     --hw-carousel-item     an item's width in the row (default min(85%, 22rem))
+     --hw-carousel-columns  the grid's columns from 48rem with data-hw-mobile-only
      --hw-control-size  a control's side
      --hw-control-icon  the control's arrow
      --hw-muted         the muted grey, where a surface's --color-muted means something else */
@@ -20,7 +27,7 @@
 @layer properties, theme, base, components, utilities;
 @import "./sr-only.css";
 @layer components {
-  .hw-carousel {
+  :is(.hw-carousel, .hw-carousel-controls) {
     --_hw-tray: color-mix(in srgb, var(--color-ink) 7%, transparent);
     --_hw-tray-hover: color-mix(in srgb, var(--color-ink) 15%, transparent);
     --_hw-text: var(--foreground, var(--color-ink));
@@ -43,7 +50,7 @@
     scroll-behavior: smooth;
   }
   .hw-carousel-track > * {
-    flex: 0 0 min(85%, 22rem);
+    flex: 0 0 var(--hw-carousel-item, min(85%, 22rem));
     scroll-snap-align: start;
   }
   .hw-carousel-controls:not([hidden]) {
@@ -132,7 +139,10 @@
   @media (min-width: 48rem) {
     .hw-carousel[data-hw-mobile-only] .hw-carousel-track {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+      grid-template-columns: var(
+        --hw-carousel-columns,
+        repeat(auto-fit, minmax(min(16rem, 100%), 1fr))
+      );
       overflow-x: visible;
     }
   }
@@ -145,7 +155,7 @@
     }
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    .hw-carousel {
+    :is(.hw-carousel, .hw-carousel-controls) {
       --_hw-tray: var(--white-line);
       --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
