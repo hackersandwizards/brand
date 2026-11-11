@@ -1,6 +1,13 @@
 # Logo-Derivate in `logos/`
 
-Stand 01.11.2026, brand `5103287` (v0.25.3). Gelesen auf `origin/main` von website, os, trainer-hub, talks, slides,
+Stand 11.11.2026, brand v2.15.0: Vorschlag A ist umgesetzt. Die Triage vom 02.11. (Ada) setzte A
+als Annahme; am 07.11. gingen die sieben Dateien ohne Nutzer, und das Portal trennt die Logos seither
+in die drei Master und einen Abschnitt „Delivery files“ (`9e02d54`, v1.30.0). `avatar-512.png` ging
+mit v1.32.0 (`0cec855`), nachdem os und mail `icon-maskable-512.png` lesen; erledigt am 08.11.
+(`3858066`). Seitdem neu unter den Lieferdateien: `emoji-256.png`, der Wizard allein mit 256 px. Der
+Screen-Schnitt bettet den Wizard heute mit 256 px ein und wiegt 22 KB (Tag) und 29 KB (Nacht).
+
+Alles ab hier ist die Bestandsaufnahme vom 01.11.2026, brand `5103287` (v0.25.3). Gelesen auf `origin/main` von website, os, trainer-hub, talks, slides,
 documents, certificate-verifier und dem agent-config-Hub (`parallel-session/hub.ts`), ohne
 `node_modules`, `dist`, gespiegelte `.claude/skills` und Lockfiles.
 
@@ -14,8 +21,9 @@ definieren hier geht es ja nicht um die auslieferung. oder ist das fürs press k
 brand selbst ausliefert (`expert/components/AppHeader.astro`, `expert/header.css`). Den Header tragen
 sieben interne Flächen: OS, Trainer Hub, talks, Folien- und Dokument-Specimen, Entscheidungsseite
 und der Brand-Katalog. Die website nimmt die Datei für ihren eigenen Header. Der Ort, an dem man die Datei braucht, ist also brand. Der Einwand stimmt aber
-für die Logo-Seite: Sie zeigt den Screen-Schnitt als vierte Logo-Karte, obwohl er kein eigenes Logo
-ist. Und sieben Dateien in `logos/` nutzt niemand, eine achte ist ein Duplikat.
+für die Logo-Seite: Sie zeigte den Screen-Schnitt als vierte Logo-Karte, obwohl er kein eigenes Logo
+ist. Und sieben Dateien in `logos/` nutzte niemand, eine achte war ein Duplikat; alle acht sind
+inzwischen gelöscht.
 
 ## Was das Pressekit nimmt
 

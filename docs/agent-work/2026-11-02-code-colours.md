@@ -18,9 +18,9 @@ es da ein Orange braucht, dann sollten wir das Orange nutzen, was wir haben."
   erreichte 7,29, github-dark 6,12. In Runde 2 lagen A und zwei hellere Varianten aus vorhandenen
   Tokens im Rauschen (7,81 bis 8,00 bei Rauschen bis 0,5). Gleichstand geht an den Standard.
 - **Ausgeliefert in v0.27.9 und v0.27.10:** `elements/code.ts` exportiert `codeClasses`, einen
-  Shiki-Transformer. Er setzt jede Farbe aus `code-theme.json` als Klasse `hw-code-<rolle>`, die
-  `elements/code.css` aus `--code-*` färbt, statt als Inline-Style. So überlebt die Farbe die
-  Style-Regel von documents. Eine Farbe außerhalb der Palette bricht den Build ab, statt grau zu
+  Shiki-Transformer. Er setzt jede Rollenfarbe aus `code-theme.json` als Klasse `hw-code-<rolle>`,
+  die `elements/code.css` aus `--code-*` färbt, statt als Inline-Style. So überlebt die Farbe die
+  Style-Regel von documents. Eine Terminalfarbe außerhalb der Rollen behält ihren Inline-Style. Eine Farbe außerhalb der Palette bricht den Build ab, statt grau zu
   werden. `code-theme.json` trägt seit v0.27.10 die 16 ANSI-Farben des Terminals, jede eine
   Kernfarbe.
 - **Keine neue Markenfarbe nötig**, deshalb keine offene Frage an Benedikt.

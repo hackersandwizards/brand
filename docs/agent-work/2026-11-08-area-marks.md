@@ -33,11 +33,14 @@ The box's middle sits on the cap-height middle of its line, rounded to whole pix
 and the mark never makes its line taller (`test/marks.test.ts` measures both). Night is
 `data-theme="dark"`. `brand-markers` skips `.hw-mark`, so the mark never counts as a list marker.
 
-What the website builds: map its areas to `data-mark` (`src/lib/destinations.ts`). Put the mark
-where `.dest-swatch` stands today (`LinkRow.astro`, `ArticleRows.astro`), before the card's area
+What the website built (its `origin/main` on 11.11.2026, brand pin v2.15.0): its areas map to
+`data-mark` (`src/lib/destinations.ts`), drawn by `src/components/ui/AreaMark.astro`. The mark
+replaced `.dest-swatch` (`LinkRow.astro`, `ArticleRows.astro`) and stands before the card's area
 label (`Card.astro`), before the area name of a rail row (`RailBlock.astro`, the "Keep learning"
-rows) and before the H1 (`PageHero.astro`). The H1 mark hangs in the margin from 1024 px and
-stands inline on the phone, as reviewed. Then raise the brand pin to `v1.55.0`.
+rows) and, in the page head, before the area's label above the H1 (`PageHero.astro`), not before
+the H1 itself: no website page sets `data-size="heading"` (the website's item
+`decide-eyebrow-concept`). The review below showed the H1 mark hanging in the margin from 1024 px
+and inline on the phone.
 
 ## How the mark is drawn: round A
 
