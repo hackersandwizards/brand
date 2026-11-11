@@ -262,7 +262,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "665146af3671fac85dae1b84472de6f8dfc285df57a94db478e091939d05898a"
+      "sha256": "94660036eaf2d84af22f8a92ea089c6399aa0bb0e4eb062d85a2848f56220740"
     },
     {
       "path": "expert/catalogs.json",
@@ -390,7 +390,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "69c527438bce30f249db6a81fd7f8487736b89d7dd983e41819e0212ff787ba3"
+      "sha256": "c9344666284be946fe108359e09fed4fa31203d97cf68a100d87ffccd35c922f"
     },
     {
       "path": "elements/strip.css",

@@ -97,7 +97,7 @@
   --text-micro--line-height: calc(15 / 11);
   --hw-row-pad-block: 0.5rem;
   --hw-row-pad-inline: 0.75rem;
-  --hw-control-height: 2.25rem;
+  --hw-control-height: var(--hw-button-height);
   --hw-field-height: max(var(--hw-control-height), var(--hw-touch-floor, 0px));
   --hw-field-pad: 0.75rem;
   --hw-field-size: var(--text-ui);

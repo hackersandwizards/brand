@@ -295,7 +295,7 @@ html[data-theme="dark"] {
      the choices beside them stand one height. */
   .form-input {
     @apply rounded-sm border border-input bg-background px-3 py-1.5 text-ui text-foreground;
-    min-height: max(var(--hw-control-height, 2.25rem), var(--hw-touch-floor, 0px));
+    min-height: max(var(--hw-control-height, 2.375rem), var(--hw-touch-floor, 0px));
     /* Never under scales.css's --hw-field-floor, so iOS does not zoom on focus. */
     font-size: max(var(--hw-field-floor, 0px), var(--text-ui));
   }

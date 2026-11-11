@@ -138,7 +138,7 @@ test("a filter bar's choices and selects stand one height by mouse and touch, da
     }
   };
   for (const theme of ["light", "dark"]) {
-    expect([theme, await heights(false, theme)]).toEqual([theme, [36]]);
+    expect([theme, await heights(false, theme)]).toEqual([theme, [38]]);
     expect([theme, await heights(true, theme)]).toEqual([theme, [44]]);
   }
   expect((await heights(false, "light", BEFORE)).length).toBeGreaterThan(1);

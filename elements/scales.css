@@ -103,8 +103,9 @@
   --hw-kpi-tracking: -0.01em;
   /* The compact tier: the expert set's UI text at macOS's 13 px, its micro step at 11 px. meta
      repeats ui here, since a var() resolves where it is declared. The heights an app's components
-     read: a list row's padding, and a filter control's height, which a choice, a field and an
-     app's form-input share, so choices and selects in one filter bar stand one height. */
+     read: a list row's padding, and a filter control's height, the button's, which a choice, a
+     field and an app's form-input share, so choices, selects and a search with its button stand
+     one height. */
   --text-ui: 0.8125rem;
   --text-ui--line-height: 1.45;
   --text-meta: var(--text-ui);
@@ -113,7 +114,7 @@
   --text-micro--line-height: calc(15 / 11);
   --hw-row-pad-block: 0.5rem;
   --hw-row-pad-inline: 0.75rem;
-  --hw-control-height: 2.25rem;
+  --hw-control-height: var(--hw-button-height);
   /* A form at the expert set's control height and UI text, the touch target's on a touch screen. */
   --hw-field-height: max(var(--hw-control-height), var(--hw-touch-floor, 0px));
   --hw-field-pad: 0.75rem;

@@ -23,27 +23,32 @@ go below 16 px there (`--hw-field-floor`): 16 × 1.45 line height, plus 16 px pa
 
 **Review.** Four common heights were each rendered on the same story, by mouse, light and night, with
 today's 32/40 px as a fifth candidate. Today's touch state was set against all controls at 44 px.
-Results are in the review section below. 36 px led 40 px with every reviewer and both models, so
-36 px ships, not the 40 px the os brief proposed.
+Results are in the review section below. 36 px scored highest, but it does not lead 38 px outside
+the noise with both models. 38 px is also the dense button's height, so with it the list filter's
+search field and its button stand one height too. 38 px ships, not the 40 px the os brief
+proposed.
 
-**Change.** In `elements/scales.css`, the dense `--hw-control-height` is now 2.25rem (36 px).
-`--hw-choice-height` and `--hw-field-height` are both
-`max(var(--hw-control-height), var(--hw-touch-floor, 0px))`. In `expert/expert.css`, `.form-input`
-takes the same `min-height` with `py-1.5` padding, so a 13 px or 14 px line fits inside 36 px.
+**Change.** In `elements/scales.css`, the dense `--hw-control-height` is now
+`var(--hw-button-height)`, 2.375rem (38 px), was 2.5rem. `--hw-choice-height` and
+`--hw-field-height` are both `max(var(--hw-control-height), var(--hw-touch-floor, 0px))`. In
+`expert/expert.css`, `.form-input` takes the same `min-height` with `py-1.5` padding. With `py-2`,
+the trainer hub's 14 px line (21 px) plus padding and border would come to 39 px.
 
-**After.** Every choice and select in the story is 36 px by mouse and 44 px on touch, light and
-night. The shipped build renders pixel-identical to the winning candidate, by mouse and on touch.
-`test/catalog/stories.test.ts` covers this. Its control injects the v2.16.0 values, and the test
-then finds more than one height.
+**After.** Every choice and select in the story is 38 px by mouse and 44 px on touch, light and
+night. In the dense list filter, the search field, its button and the choices are all 38 px; at
+36 px the field stood beside a 38 px button. Two builds each render pixel-identical to the 38 px
+candidate (mouse) and the 44 px candidate (touch). `test/catalog/stories.test.ts` covers this. Its
+control injects the v2.16.0 values, and the test then finds more than one height. The before shots
+were taken once. The after shots were taken twice, and all 28 match.
 
 ![Before: the filter bar on night](2026-11-11-control-height/filter-bar-night-before.jpg)
 ![After: the filter bar on night](2026-11-11-control-height/filter-bar-night-after.jpg)
 ![Before: the filter bar on a phone](2026-11-11-control-height/filter-bar-phone-before.jpg)
 ![After: the filter bar on a phone](2026-11-11-control-height/filter-bar-phone-after.jpg)
 
-**Cost.** In dense, by mouse, choices grow 4 px. Inputs, selects and every `hw-field` shrink 4 px,
-from 40 to 36 px, in forms as well as filter bars. On touch, every dense choice, field and
-`form-input` stands 44 px tall.
+**Cost.** In dense, by mouse, choices grow 6 px (32 to 38). Inputs, selects and every `hw-field`
+shrink 2 px (40 to 38), in forms as well as filter bars. On touch, every dense choice, field and
+`form-input` stands 44 px tall: choices grow 12 px there.
 
 ## 2. The select on night showed a zigzag over its whole field
 
@@ -143,9 +148,21 @@ the chevron fix. The height candidates also had the small corner on `hw-field`.
 | 40 px                                              | 7.6          |
 | v2.16.0: 32 px choices, 40 px selects              | 6.3          |
 
-Noise, the spread between two runs of one reviewer, averaged 0.25 and reached 1 at most. 36 px
-led 40 px in every run, by 1.0 on average, and led 38 px by 0.5. It never trailed 38 px with any
-reviewer.
+Noise, the spread between two runs of one reviewer, averaged 0.25 and reached 1 at most. Mean of
+each reviewer's two runs:
+
+| Reviewer                 | 36 px | 38 px | 32 px | 40 px | v2.16.0 |
+| ------------------------ | ----- | ----- | ----- | ----- | ------- |
+| Design system, Claude    | 8.5   | 7.5   | 8     | 7     | 5       |
+| Design system, Codex     | 9     | 9     | 9     | 8.5   | 8       |
+| Sales operations, Claude | 8     | 7.5   | 7.5   | 7     | 5       |
+| Sales operations, Codex  | 9     | 8.5   | 8.5   | 8     | 7       |
+
+36 px led 40 px with every reviewer, by 1.0 on average. Its lead over 38 px is 0.5, and over 32
+px 0.375. With Codex, 36 px and 38 px tied in three of four runs, so the lead does not stand outside
+the noise with both models. The review skill sends such a tie to the variant that needs no
+exception. 38 px is the dense button's height; at 36 px, the list filter's search field stands 2
+px below its button (section 1). So 38 px ships.
 
 | Filter bar, phone (2 × 2 × 1) | Mean overall |
 | ----------------------------- | ------------ |
@@ -160,6 +177,36 @@ reviewer.
 
 sm led square by 1.0 with each reviewer and both models. Noise was not measured for these two
 reviews, at one run each.
+
+**Surfaces.** The bar was scored as the apps show it: dense, 13 px text, light and night, at 1440
+px by mouse and at 390 px on touch. Not scored: the trainer hub's 14 px text
+(`data-hw-type="regular"`), a dense form beyond the bar, and the talks site. The corners were scored
+on the field set at all four scales, light and night, as the portal shows it.
+
+**One reviewer prompt, verbatim** (filter bar, sales operations, Claude, run 1):
+
+> You work in sales operations and filter deal, task and contact lists in your company's internal
+> web app all day on a 14-inch laptop.
+>
+> You review candidates for a filter bar in an internal web app (dense UI, 13 px interface text),
+> shown at 1440 px wide on a laptop screen at 2x pixel density; each image is the bar at its real
+> size, cropped to the controls. Each candidate shows the same filter bar: a row of filter choices,
+> a row of two dropdowns, and a row with both side by side. Each candidate has two images: day
+> (light) and night (dark).
+>
+> Candidates (open every image before scoring): T, K, N, M, R, each with a day and a night image
+> path.
+>
+> Score every candidate on each criterion from 1 (poor) to 10 (excellent), then give an overall
+> score from 1 to 10: 1. row alignment: controls standing next to each other read as one row; 2.
+> visual calm; 3. breathing room, not cramped; 4. legibility of the text inside the controls; 5.
+> the controls look clickable at their size; 6. fit for a dense work app used all day.
+>
+> Then, per candidate, name in one sentence what keeps its lowest criterion below 10. Judge only
+> what you see. Answer with one JSON object per line and nothing else.
+
+The candidate list and the criteria stood one per line in the prompt, and the answer format named
+the JSON fields.
 
 **Findings outside this change.** Every form reviewer named the screen file field in the portal's
 narrow column, which shortens its text to "No fil…hosen". So did the print column's tight padding.
@@ -191,8 +238,8 @@ which said `data-story-of` always names a component. Not taken, with the reason:
 
 ## Not explained
 
-- The shipped form set and the winning form candidate differ in 110 of 2.9 million pixels, by at
-  most 8 of 255. The pixels lie along the dashed read-only lines. One difference between the two:
+- The shipped form set (its dense fields set back to 40 px for the comparison) and the winning form
+  candidate differ in 110 of 2.9 million pixels, by at most 8 of 255. The pixels lie along the dashed read-only lines. One difference between the two:
   the candidate set the corner from an unlayered rule, the shipped one from the element's layer.
   No control has tested it as the cause.
 
@@ -200,5 +247,10 @@ which said `data-story-of` always names a component. Not taken, with the reason:
 
 - On screen, `hw-choice` is 44 px and `hw-field` 48 px, the same mismatch class as dense had. A
   screen filter bar with both needs its own review.
-- In the dense list filter, the search field is now 36 px and its button 38 px (`--hw-button-height`
-  2.375rem). It was 40 against 38 before.
+- The settings test (`test/elements.test.ts`) now lists `--hw-control-height` among the settings
+  the screen preset need not set: only the dense preset reads it.
+- On touch, the dense button stays 38 px beside 44 px fields and choices: `hw-button` takes no touch
+  floor.
+
+Review: medium for each value (two personas, Claude and Codex), because a shared element's value
+changes on every dense surface; the height review ran twice per reviewer to measure noise.

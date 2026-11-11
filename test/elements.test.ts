@@ -1593,7 +1593,7 @@ const byPointer = async <T>(name: string, html: string, read: () => T) => {
 
 // A filter bar sets choices beside selects: in dense the choice, the field and the field select
 // stand one height, the control height by mouse, the touch floor on a touch screen.
-test("in dense a choice, a field and a field select stand 36 px by mouse, 44 px by touch", async () => {
+test("in dense a choice, a field and a field select stand 38 px by mouse, 44 px by touch", async () => {
   const bar = `<div class="hw-choices"><button type="button" class="hw-choice" aria-pressed="true">Alle</button></div><select class="hw-field hw-select" aria-label="Thema"><option>Alle</option></select><input class="hw-field" aria-label="Suche">`;
   const heights = await byPointer(
     "control-height.html",
@@ -1607,7 +1607,7 @@ test("in dense a choice, a field and a field select stand 36 px by mouse, 44 px 
         Math.round(e.getBoundingClientRect().height),
       ),
   );
-  expect(heights).toEqual([Array(6).fill(36), Array(6).fill(44)]);
+  expect(heights).toEqual([Array(6).fill(38), Array(6).fill(44)]);
 }, 30_000);
 
 // The night field's fill is a colour only, so the select keeps one chevron at every scale, in a
