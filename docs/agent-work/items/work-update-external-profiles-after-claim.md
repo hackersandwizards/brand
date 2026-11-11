@@ -5,7 +5,7 @@ priority: 2
 order: 212
 area: brand
 owner: Benedikt
-evidence: "Banners: applications/channel-banners/, rendered with the claim r1 in brand v2.14.0 (06ef37d). Texts blind-reviewed on the page a visitor sees, three rounds, 284 runs: docs/agent-work/2026-11-10-claim-r1-hb.md. Request: Benedikt, 08.11.: „Gleiches gilt ja für die externen Profile, ne? Wir müssen, sobald wir den Claim und die ja, müssen wir auch nochmal alle externen Profile, auch OMR, nochmal aktualisieren. Das sollten wir auch auf die Liste für später tun. p1“"
+evidence: "Banners: applications/channel-banners/, rendered with the claim r1 in brand v2.14.0 (06ef37d). Texts blind-reviewed on the page a visitor sees, three rounds, 284 runs: docs/agent-work/2026-11-11-claim-and-headline.md. Request: Benedikt, 08.11.: „Gleiches gilt ja für die externen Profile, ne? Wir müssen, sobald wir den Claim und die ja, müssen wir auch nochmal alle externen Profile, auch OMR, nochmal aktualisieren. Das sollten wir auch auf die Liste für später tun. p1“"
 ---
 
 # Upload the new banners and enter the new texts on every external profile
@@ -14,7 +14,7 @@ Upload the seven banners and enter the texts below on each profile; no agent log
 
 The claim is "Faster releases with agents, when your people are in tune." / "Schnellere Releases mit KI-Agenten, wenn eure Leute eingespielt sind." since brand v2.14.0. The banner files are in `applications/channel-banners/` in this repository. Done when every row below is uploaded or changed and no profile shows a line of the retired list in `verbal/verbal.json`, among them "Agents pay off when your people ship together.", "Agents in the team. Teams in flow." and their German versions.
 
-No text below pastes the claim. Each was scored blind on the page a visitor sees, under the new banner, against the text that stands there and against that text with the claim pasted on top ([report](../2026-11-10-claim-r1-hb.md), "The profile texts"). Pasting never won: it scored lowest on your profile and on Sessionize, and under the entered text on every page. What won says in the page's own words what "in tune" means, or, where the banner sits right above, says the offer and leaves the line to the banner.
+No text below pastes the claim. Each was scored blind on the page a visitor sees, under the new banner, against the text that stands there and against that text with the claim pasted on top ([report](../2026-11-11-claim-and-headline.md), "The profile texts"). Pasting never won: it scored lowest on your profile and on Sessionize, and under the entered text on every page. What won says in the page's own words what "in tune" means, or, where the banner sits right above, says the offer and leaves the line to the banner.
 
 | Profile                      | Upload                                                                                                                   | Text fields                                                                                                                                                                               |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -35,7 +35,7 @@ The descriptor under the claim on every banner reads "Training and mentoring in 
 
 ## LinkedIn, your profile
 
-Seen in place: [English](../2026-11-10-claim-r1-hb/profile-en.jpg), [German](../2026-11-10-claim-r1-hb/profile-de.jpg).
+Seen in place: [English](../2026-11-11-claim-and-headline/profile-en.jpg), [German](../2026-11-11-claim-and-headline/profile-de.jpg).
 
 **Headline**: unchanged. Overwrite the field if it reads differently. The live headline could not be read (LinkedIn blocks the read).
 
@@ -101,7 +101,7 @@ Seven agentic engineering training courses for teams, with mentoring on call
 
 ## LinkedIn, company page
 
-Seen in place: [English](../2026-11-10-claim-r1-hb/company-en.jpg), [German](../2026-11-10-claim-r1-hb/company-de.jpg).
+Seen in place: [English](../2026-11-11-claim-and-headline/company-en.jpg), [German](../2026-11-11-claim-and-headline/company-de.jpg).
 
 **Tagline**: unchanged. The live page could not be read; if the tagline ends on "ship together" or "gemeinsam liefern", put these back.
 
@@ -155,7 +155,7 @@ Gespräch buchen: https://haw.dev/call
 
 ## Sessionize
 
-Seen in place: [English](../2026-11-10-claim-r1-hb/sessionize-en.jpg), [German](../2026-11-10-claim-r1-hb/sessionize-de.jpg). The live page shows the texts from before 08.11. (read 10.11.); the German fields stood empty on 08.11.
+Seen in place: [English](../2026-11-11-claim-and-headline/sessionize-en.jpg), [German](../2026-11-11-claim-and-headline/sessionize-de.jpg). The live page shows the texts from before 08.11. (read 10.11.); the German fields stood empty on 08.11.
 
 **Tagline, English**
 
@@ -183,7 +183,7 @@ Benedikt Stemmildt ist Founder & Co-CEO von hackers&wizards in Hamburg, das Engi
 
 ## OMR Reviews
 
-Seen in place: [German](../2026-11-10-claim-r1-hb/omr-de.jpg). Only the first paragraph under "Wer ist hackers&wizards?" changes; the rest of the profile text stays.
+Seen in place: [German](../2026-11-11-claim-and-headline/omr-de.jpg). Only the first paragraph under "Wer ist hackers&wizards?" changes; the rest of the profile text stays.
 
 Old (live on 10.11.):
 
