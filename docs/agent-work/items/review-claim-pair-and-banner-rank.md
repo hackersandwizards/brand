@@ -1,6 +1,9 @@
 ---
 kind: review
-status: open
+status: decided
+decision: "The claim stays on the banners: Faster releases with agents, when your people are in tune."
+by: Benedikt
+quote: "lass uns bei den bannern trotzdem das 3te banner nehmen."
 priority: 2
 order: 211
 area: brand
