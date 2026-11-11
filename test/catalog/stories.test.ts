@@ -107,7 +107,8 @@ test("a faint choice count fails the contrast check and brand-elements", async (
 // The control for the tables laid out whole: faint text in a scrolling table still fails.
 test("faint text in a scrolling table fails the contrast check that lays it out whole", async () => {
   const url = storyPages().find((p) => p.endsWith("/table-scroll/screen/"))!;
-  const faint = `${UNSCROLLED} .hw-table-scroll td { opacity: 0.3 }`;
+  // The last column, which sits past the column's edge until the pass fits the table.
+  const faint = `${UNSCROLLED} .hw-table-scroll td:last-child { opacity: 0.3 }`;
   expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
 }, 60_000);
 

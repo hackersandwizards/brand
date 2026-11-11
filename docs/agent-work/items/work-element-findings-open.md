@@ -33,7 +33,8 @@ Defects:
 7. **Inline code.** A whole chip at the full column width followed by a comma runs the comma past
    the column edge.
 8. **Ruled table, night.** Reviewers on both models read the edge shadow on night as a smudge on a
-   phone at night ink 22 %; v2.16.0 ships 12 %, for AA, which no reviewer has judged on that point.
+   phone at night ink 22 %; v2.16.0 ships 12 %, for AA. The third round showed the 12 % views; its
+   comments were not read for this point.
 9. **Carousel, list row.** Both take their ring room back in a negative margin (`carousel.css`,
    `row.css`, as `focus.css` advises), which on the table reached 5 px past a container without side
    padding; not measured on them.

@@ -627,8 +627,9 @@ Noise: 0.67 on Claude (mean spread of the two runs), 0 on Codex. Room inside bea
 inward by 2.33 (Claude) and 1.67 (Codex), outside the noise on both. The ring drawn inward cut into
 the letters and split a two-line link into two boxes. Room inside lost alignment against v2.15.0
 (scores 6 to 8 against 9 to 10). The shipped state keeps v2.15.0's pixels where the table fits,
-and the scored "room inside" where it scrolls: the story's scrolling views match that sheet but
-for 2 of 295,000 pixels.
+and the scored "room inside" where it scrolls: before the shadow's strength changed and the held
+cell moved (both below), the story's scrolling views matched that sheet but for 2 of 295,000
+pixels; not measured again since.
 
 **Edge shadow (v2.16.0).** A table wider than its column showed no sign that it scrolls where
 scrollbars overlay, as on macOS and phones. Current design systems answer with shadows at the
@@ -711,7 +712,11 @@ scored strength by 0.67 on Claude, a tie on Codex. AA is the rule, so it ships: 
 night ink at 12 % on night. `test/behaviour.test.ts` computes every pair at full strength and fails
 under 4.5:1 (a full-ink shadow as its control; the scored strength gave 3.53:1). The catalog's AA
 check fits each wrapped table into its column, without the shadow, so axe measures every cell; its
-control, faint cells in the scrolling story, still fails.
+control, faint cells in the last column of the scrolling story, still fails. Not met from the
+blind-review rules in the second and third rounds: the versions' views were checked for
+pixel-identical runs of one view, not for two versions rendering the same pixels; and the element was
+scored on the catalog story alone, not on the website's or Company OS's own pages (a document or
+slide table does not scroll, so it shows no shadow).
 
 ![The edge cue: none, the scored strength and the shipped strength, laptop by day scrolled and phone on night as opened](2026-11-11-shared-elements/table-cue-strength.jpg)
 
@@ -827,8 +832,9 @@ ends 25 px above the head's text, and the last row's hairline, the table's visib
 16.5 px above the next paragraph's text. Above, the head cells' 8 px top padding sits outside any
 line; below, the last row's sits inside the closing hairline. Not yet scored. A table on a card of
 another tone, on a surface without `--background`, sets `--hw-table-ground` itself, else the held
-column is white by day. The night shadow read as a smudge to reviewers on both models at 22 %;
-not reviewed again at 12 %. Kept from
+column is white by day. The night shadow read as a smudge to reviewers on both models at 22 %. The
+third round showed six reviewers the 12 % night views; their comments were not read for that point
+before the run's scratch was removed, so it stays open. Kept from
 this run's code review, each read from the code and not measured: below 48rem the held column covers
 the left shadow once the table has scrolled (the views scored show that state, with the hairline as
 the cue); the shadow is a radial gradient, strongest at the table's vertical middle, so a tall table
