@@ -117,8 +117,9 @@ markdown table. Where a browser lacks scroll timelines, the table scrolls whole.
 takes at most 40 % of the view, wraps a long word only where it must, and covers the wrapper's ring
 room, so no scrolled cell shows at its left; a focused cell scrolls clear of it.
 Z as scored showed the line and a padded second column before the swipe too. The swipe state is the
-one shipped. It has ring room at its edges for a sortable head's
-button and does not scroll on paper.
+one shipped. It has ring room at its sides for a sortable head's
+button and does not scroll on paper. Above and below, the cells' padding holds a focused control's
+ring, so the wrapper keeps the table's own margins (v2.15.0, `2026-11-08-brand-next.md`).
 
 ## 4. Priority pills and a pill's night tone
 

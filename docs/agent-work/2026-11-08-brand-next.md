@@ -1,6 +1,117 @@
-# Brand next: list filter facets, icon links, dialog ring, night logo (v1.58.0)
+# Brand next: what the consumer runs asked of brand
 
-## The list filter takes any number of facets
+Two runs answered the briefs other repositories left for brand. v1.58.0 (08.11.) took the list
+filter's facets, icon links, the dialog's ring and the night logo. v2.15.0 (11.11.) took the
+scanners, the table wrapper, the focus-ring sample, translucent white, the carousel, the lockup's
+size and the imprint's country code. Counts below were measured on each consumer's `origin/main`,
+exported with `git archive` into scratch, never in its checkout.
+
+## Scanners (v2.15.0)
+
+Each change came with a control: the old scanner fails it, the new one passes.
+
+- `brand-colours` reads no `${...}` interpolation as a literal. `font-family="${FAM[fam]}"` was a
+  font finding and `fill="${white}"` a token finding.
+- It now reads the strings of an expression prop (`fill={on ? "var(--color-ink)" : "white"}`) and
+  a custom property set to one colour name (`--mark: white`). It missed both before.
+- The `tests` exception takes Python's `test_*.py`, `*_test.py` and `conftest.py`.
+- `brand-elements` passes a `*Button` component that renders `hw-icon-button`, and a `Fact`
+  component that renders a `dt`, one row of the facts list its parent renders.
+- `brand-markers --site-at` and `"site": { "dir", "at" }` serve a site built under a base path such
+  as `/mail/`, so its stylesheets load. Served at the root, `/mail/_astro/a.css` answered 404.
+
+Over the 11 consumers, the new scanners find nothing new. Three entries go stale, each a false
+finding the old scanner made: os (`test_*.py`), website (`phone.js`) and certificate-verifier
+(`src/worker.ts`, an interpolated font). Each runs `bun run brand-colours --tighten` at the raise.
+
+Not changed:
+
+- **Whole words.** The name match already reads whole words of the kebab-case name:
+  `PhasedPillsSlide` matches because `pills` is one. Its exception with a reason is the mechanism.
+- **A raster template.** `brand-elements` reads every styled source. It cannot tell a page from a
+  template a script turns into an image. Renaming the template's classes, as the website did, costs
+  nothing.
+- **The count in v2.12.0's release note.** On the website's tree before its fix (07ea5ba6), the
+  v2.12.0 and v2.13.0 scanners both find 23 colour findings and 1 element source finding, the
+  note's numbers. The 24 and 3 that run reported do not reproduce on the committed tree.
+
+## The table wrapper (v2.15.0)
+
+In `hw-prose` the wrapper padded 5 px above and below and took that back from its own margin. A
+margin can only collapse with a neighbour's, so beside any block with a margin over 11 px the table
+stood 5 px further off than a bare table. Measured in Chrome at 1000 px, the gap from the table's
+box to the next block:
+
+| Next block               | Bare table | Wrapper before | Wrapper now |
+| ------------------------ | ---------- | -------------- | ----------- |
+| paragraph                | 16 px      | 21 px          | 16 px       |
+| h2                       | 24 px      | 29 px          | 24 px       |
+| rule                     | 32 px      | 37 px          | 32 px       |
+| nothing                  | 16 px      | 16 px          | 16 px       |
+| previous paragraph above | 16 px      | 21 px          | 16 px       |
+
+The wrapper now pads only at its sides. Above and below, the cells' padding holds a focused
+control's ring: 3 px clear above a sortable head's button, 6 px below a link in the last row.
+
+Blind review, medium. A handbook page at 1440 px in a retina window, full-resolution crops, two
+versions with neutral names in a shuffled order, five criteria from 1 to 10 (rhythm, breathing
+room, calm, the table in the text's flow, overall):
+
+| Reviewer                                     | Before, overall | Now, overall | Before, sum | Now, sum |
+| -------------------------------------------- | --------------- | ------------ | ----------- | -------- |
+| Claude, engineer reading the handbook, run 1 | 7               | 7            | 37          | 33       |
+| Claude, engineer reading the handbook, run 2 | 8               | 8            | 39          | 40       |
+| Claude, editorial designer                   | 7               | 7            | 35          | 36       |
+| Codex, project lead between meetings         | 8               | 9            | 42          | 44       |
+
+The same persona's two runs moved the lead on the sum by 5 points, so every lead sits inside the
+noise: a tie, which goes to the margins the rule names. Three reviewers saw more space above a
+table than below it in both versions. Its cause is not yet measured.
+
+`elements/table.ts` adds `tableScroll`, a rehype step that writes the wrapper from Markdown and
+names it by the heading above. `scrollStops`, which `enhance()` runs, keeps the wrapper a tab stop
+only while its table scrolls. Without script every wrapper stays one.
+
+The held column and the header nav's fade are now written as animation longhands. lightningcss
+without browser targets folded `animation-timeline` into the shorthand, which Chrome refuses.
+
+## The focus-ring sample (v2.15.0)
+
+The catalog's sample showed no ring until someone tabbed to it. Small review: Codex as a front-end
+developer looking the ring up. The catalog page at 1440 px, light and dark, three samples:
+
+| Sample                                        | Overall | Ring seen at once |
+| --------------------------------------------- | ------- | ----------------- |
+| a button to tab to (before)                   | 5       | 1                 |
+| one button with `data-hw-focus`               | 8       | 9                 |
+| one with `data-hw-focus` beside one to tab to | 9       | 10                |
+
+The third ships. Noise was not measured: one run.
+
+## Translucent white and the scrim (v2.15.0)
+
+`--white-line` (white at 15 %), `--white-wash` (7 %) and `--scrim` (night at 40 %, the dialog's
+backdrop) name the mixes fifteen element files wrote. All 56 night stories render pixel-identical,
+except two animated ones that differ between two shots of the same build too. No review, since
+nothing visible changed. A darker lightbox backdrop, such as the website's 70 %, stays the
+surface's.
+
+## The carousel (v2.15.0)
+
+What the website's item named as missing from the module: an item width
+(`--hw-carousel-item`), the grid's columns (`--hw-carousel-columns`), controls outside the
+carousel (`data-hw-controls`), dots the page writes, and `carousels(root)`, which wires carousels
+without `enhance()`'s document-wide handlers. The pipeline graph's own pause control in the
+controls' row is the website's markup and needs nothing from brand.
+
+## The lockup's size and the imprint (v2.15.0)
+
+`logos/logos.json` `sizes` holds each logo SVG's width and height. The header and portal keep
+their typed sizes, which a test holds to the SVGs and to `sizes`. v1.58.0 (below) already shrank
+the lockups that a brief named at 24,505 bytes: the day screen cut is now 22,491 bytes and the
+night one 28,960. `verbal/imprint.json` has `countryCode` `DE`.
+
+## The list filter takes any number of facets (v1.58.0)
 
 `ListFilter`'s `facet` and `select` props are now one `facets: Facet[]`. Each facet shows as
 choices unless its labels pass `budget`, then as a select. An empty list shows the search alone,
