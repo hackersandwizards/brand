@@ -11,7 +11,7 @@
         "@eslint/js": "10.0.1",
         "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.27.1",
         "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.16.0",
-        "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v2.1.1",
+        "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v3.0.3",
         "@tailwindcss/vite": "4.3.5",
         "@types/bun": "1.4.4",
         "@typescript/native": "npm:typescript@7.0.2",
@@ -155,7 +155,7 @@
 
     "@hackersandwizards/scaffolding": ["@hackersandwizards/scaffolding@github:hackersandwizards/scaffolding#e315a29", { "dependencies": { "@eslint/js": "10.0.1", "@typescript/typescript6": "6.0.2", "chrome-devtools-mcp": "1.12.0", "eslint-config-prettier": "10.1.8", "globals": "17.14.0", "postcss-html": "2.0.0", "prettier-plugin-astro": "1.1.2", "stylelint-value-no-unknown-custom-properties": "6.1.1", "typescript-eslint": "8.72.1" }, "peerDependencies": { "astro": ">=7", "astrobook": ">=0.13", "eslint": ">=10", "eslint-plugin-astro": ">=1", "prettier": ">=3", "stylelint": ">=16", "typescript": ">=5 <6.1" }, "optionalPeers": ["astro", "astrobook", "eslint", "eslint-plugin-astro", "prettier", "stylelint", "typescript"], "hasInstallScript": true, "bin": { "scaffold": "bin/scaffold.ts", "check-structure": "bin/check-structure.ts", "check-confidential": "bin/check-confidential.ts", "check-staged": "bin/check-staged.ts", "check-lock": "template/.githooks/check-lock.ts", "chrome-mcp": "bin/chrome-mcp.ts", "scaffolding": "bin/scaffolding.ts" } }, "hackersandwizards-scaffolding-e315a29", "sha512-OOYxeWjFe/PQyXITjQyG/L2ScU0aJL3w0fTB5yPJxV2Mi49U+2UGGbZhFLFTcMIOiHzOomnKaPnwOkQJ0MQSpQ=="],
 
-    "@hackersandwizards/testimonials": ["@hackersandwizards/testimonials@github:hackersandwizards/testimonials#e02f580", { "hasInstallScript": true }, "hackersandwizards-testimonials-e02f580", "sha512-5CUGVYBZb9hTEZdX/HTmh0s/7TkOlV0p26RxQ+beGlbgZeP8Z9wIbEuQLc32OXWY+HjkX8k9O1ATlqxvkW7I0Q=="],
+    "@hackersandwizards/testimonials": ["@hackersandwizards/testimonials@github:hackersandwizards/testimonials#4381d11", { "hasInstallScript": true }, "hackersandwizards-testimonials-4381d11", "sha512-TYhkC1fwZyqFbwKK0/4+ajX67I7zV3CR0rAeFrRjRQwgvVpsuDHjKi7/G85k3baBrIS1u4StqhLfUWSpq7by7Q=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.2", "", { "dependencies": { "@humanfs/types": "^0.15.0" } }, "sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA=="],
 
