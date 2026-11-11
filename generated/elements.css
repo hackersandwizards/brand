@@ -972,7 +972,7 @@
     caret-color: var(--color-teal-night);
   }
   ::selection {
-    background: color-mix(in srgb, var(--color-teal) 25%, var(--color-white));
+    background: color-mix(in srgb, var(--color-teal) 25%, transparent);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     :scope::selection,

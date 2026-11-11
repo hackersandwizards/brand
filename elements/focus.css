@@ -6,10 +6,11 @@
    a catalogue's static sample.
 
    The text selection and the caret need no class: on every page that loads this file a selection
-   lays teal at 25 % on white under the text, teal-night at 25 % on night where the nearest
-   data-theme is "dark" and in a code block (code.css), night on every page; the text keeps its own
-   colour, links included. A surface's own night block on a day page carries data-theme="dark", or
-   its selection is the day one. The caret is purple, teal-night on night.
+   lays teal at 25 % over the ground under the text, so a filled button or tooltip keeps its own
+   contrast; teal-night at 25 % on night where the nearest data-theme is "dark" and in a code block
+   (code.css), night on every page. The text keeps its own colour, links included. A surface's own
+   night block on a day page carries data-theme="dark" for the night selection. The caret is
+   purple, teal-night on night.
 
    A scroller clips at its padding box, so a ring at its edge needs room: --hw-focus-room is the
    ring's reach past the element (width plus offset, at the scale's values). A surface's own
@@ -70,7 +71,7 @@
     caret-color: var(--color-teal-night);
   }
   ::selection {
-    background: color-mix(in srgb, var(--color-teal) 25%, var(--color-white));
+    background: color-mix(in srgb, var(--color-teal) 25%, transparent);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     :scope::selection,
