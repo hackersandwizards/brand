@@ -1082,7 +1082,7 @@ ${inline(catalogCss)}</style>
 <style>
   /* Controls take the website's own roles: a field is white with the small corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
-  html { accent-color: var(--color-teal); caret-color: var(--color-purple); }
+  html { accent-color: var(--color-teal); }
   body { margin: 0; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
   :root { --header-h: var(--spacing-app-header); }
   input[type=search]::-webkit-search-cancel-button { cursor: pointer; }

@@ -5,6 +5,11 @@
    element draws its whole focused state, ring and every element's own focus look, without focus:
    a catalogue's static sample.
 
+   The text selection and the caret need no class: on every page that loads this file a selection
+   lays teal at 25 % on white under the text, teal-night at 25 % on night where the nearest
+   data-theme is "dark", and the text keeps its own colour, links included. The caret is purple,
+   teal-night on night.
+
    A scroller clips at its padding box, so a ring at its edge needs room: --hw-focus-room is the
    ring's reach past the element (width plus offset, at the scale's values). A surface's own
    scroller pads by it and takes it back in a negative margin (margin: calc(-1 *
@@ -54,6 +59,22 @@
         )
     ) {
       outline-color: var(--color-purple-night);
+    }
+  }
+  :root,
+  [data-theme="light"] {
+    caret-color: var(--color-purple);
+  }
+  [data-theme="dark"] {
+    caret-color: var(--color-teal-night);
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-teal) 25%, var(--color-white));
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    :scope::selection,
+    ::selection {
+      background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
     }
   }
 }

@@ -3,7 +3,7 @@
    line does not either. A class names any other face or weight. In @layer base, so every element
    and utility wins over it in any load order: each brand file that opens a layer first declares
    Tailwind's order (properties, theme, base, components, utilities). Import it after tokens.css.
-   No selection colour: the browser's own stays, which reads on every ground. */
+   The selection and the caret: elements/focus.css. */
 
 @layer properties, theme, base, components, utilities;
 @layer base {

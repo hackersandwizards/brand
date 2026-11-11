@@ -964,6 +964,22 @@
       outline-color: var(--color-purple-night);
     }
   }
+  :root,
+  [data-theme="light"] {
+    caret-color: var(--color-purple);
+  }
+  [data-theme="dark"] {
+    caret-color: var(--color-teal-night);
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-teal) 25%, var(--color-white));
+  }
+  @scope ([data-theme="dark"]) to ([data-theme="light"]) {
+    :scope::selection,
+    ::selection {
+      background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
+    }
+  }
 }
 @layer components {
   :is(.hw-choice, .hw-segmented, .hw-icon-button) {

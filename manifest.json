@@ -362,7 +362,7 @@
     },
     {
       "path": "elements/focus.css",
-      "sha256": "a2fa5d017560765307db9819b47acacd32a847dd2ea2640cfe7a36980d91d028"
+      "sha256": "5d9e9b7c3651e219a946e4da577e707658039d74157d57fe0d16b11ffadfb75f"
     },
     {
       "path": "elements/icon-button.css",
@@ -522,7 +522,7 @@
     },
     {
       "path": "tokens/text-base.css",
-      "sha256": "6f9bee8a0494a4c3c2d203bdf3cba41bbf721d1170af73b17a21d4e50b1e9978"
+      "sha256": "f3ae5a4adfd1f9a57e18b62ddf5e760a0ea0abd1c80f02ea0ede5b41f161d2f3"
     },
     {
       "path": "verbal/verbal.json",
