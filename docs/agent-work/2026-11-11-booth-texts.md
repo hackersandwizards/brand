@@ -2,9 +2,10 @@
 
 Until today only the channel banners carried the claim of 10.11. (v2.14.0, `06ef37d`). The booth
 banners carried their own lines, and every other application shows no claim, headline or retired
-line. The booth pair changes in v2.19.0: the 1 x 2 m asks "Agents write code faster. Do you ship
+line. The booth pair changes in v2.20.0: the 1 x 2 m asks "Agents write code faster. Do you ship
 faster?" over the descriptor, and the 1 x 1 m answers with the claim. That pair scores 73.7 against
-62.4 for today's pair (noise 1.2), ahead in all four model and run cells. The descriptor "Training
+62.4 for today's pair (noise 1.2), ahead in all four model and run cells, and in a third round
+each of the two changes holds against today's text on its own banner. The descriptor "Training
 and mentoring in agentic engineering" moves into `verbal.json` as `descriptor`, English and German,
 and `render.py` and the booth generator read it from there (item `work-claim-followups`, point 1).
 
@@ -47,11 +48,30 @@ logo, wordmark or hw mark and nothing else.
 | merch: cloth-K10 (.pdf, .svg)                                                                                                                                                                                                                                                                            | "Clear vision. Clean code."; hackers&wizards                                                                                                                                                               | other                                                                       |
 | merch: cloth-K12 (.pdf, .svg)                                                                                                                                                                                                                                                                            | "Any sufficiently advanced technology is indistinguishable from magic. // Arthur C. Clarke"; hackers&wizards                                                                                               | other (a quotation)                                                         |
 | merch: cloth-K9, hoodie-H12-front, mug-M6, notebook-N6, shirt-T12-back, shirt-T12-front, stickerB-B16, stickerD-D1, stickerL-L13, stickerP-P10 (.pdf, .svg each); stickerZ-Z1, stickerZ-Z2 (.pdf, .svg)                                                                                                  | hackers&wizards; hw on the wizard (Z1, Z2, mug, notebook, K9)                                                                                                                                              | marks only                                                                  |
-| social-previews: admin, agentic-engineering-for-developers, agentic-engineering-training-kotlin-vue, agentic-software-factory, artificer, bench, brand, claude-rust-guard-example, discussions, documents, github, hycle, local-mlx-stack, mail, practitioners, scaffolding, slides, testimonials        | hackers&wizards; each repository's kind, name and description                                                                                                                                              | other (repository descriptions)                                             |
+| social-previews: each file shows hackers&wizards, an icon, a kind label, the repository name and its description                                                                                                                                                                                         | as in the rows below                                                                                                                                                                                       | other (repository descriptions)                                             |
+| social-previews: admin                                                                                                                                                                                                                                                                                   | PACKAGE · DEVELOPER TOOLS; admin; "Admin engine of hackers&wizards: an admin page per repository and one hub across all of them."                                                                          | other                                                                       |
+| social-previews: agentic-engineering-for-developers                                                                                                                                                                                                                                                      | TRAINING CODEBASE; "The practice codebase for Agentic Engineering for Developers and QA: a small CRM in Next.js and React."                                                                                | other                                                                       |
+| social-previews: agentic-engineering-training-kotlin-vue                                                                                                                                                                                                                                                 | TRAINING CODEBASE; "A product search app in Vue.js and Kotlin with Quarkus, a practice codebase for Agentic Engineering trainings."                                                                        | other                                                                       |
+| social-previews: agentic-software-factory                                                                                                                                                                                                                                                                | TRAINING EXERCISES; "The exercises for Agentic Software Factory: build a planner, refine and implement factory with Claude Code, then trace, eval and guard it."                                           | other                                                                       |
+| social-previews: artificer                                                                                                                                                                                                                                                                               | AGENT TOOLKIT; "An artificer's kit for building minimal dark-factories on Claude Code. Compose small, gated agent steps into deterministic builds you can read end to end."                                | other                                                                       |
+| social-previews: bench                                                                                                                                                                                                                                                                                   | DEVELOPER SETUP; "Terminal setup for hackers&wizards: zsh, Ghostty, Starship, fzf. macOS on Apple Silicon."                                                                                                | other                                                                       |
+| social-previews: brand                                                                                                                                                                                                                                                                                   | PACKAGE · DESIGN SYSTEM; "Brand package of hackers&wizards: design tokens, fonts, logos and UI components."                                                                                                | other                                                                       |
+| social-previews: claude-rust-guard-example                                                                                                                                                                                                                                                               | EXAMPLE; "Claude Code PreToolUse hook in Rust: blocks 'rg -r' (ripgrep --replace) typed as grep's recursive -r."                                                                                           | other                                                                       |
+| social-previews: discussions                                                                                                                                                                                                                                                                             | COMMUNITY; "Home of the hackers&wizards organization discussions."                                                                                                                                         | other                                                                       |
+| social-previews: documents                                                                                                                                                                                                                                                                               | PACKAGE · DESIGN SYSTEM; "Document engine of hackers&wizards: brand components composed to HTML and rendered to PDF."                                                                                      | other                                                                       |
+| social-previews: github                                                                                                                                                                                                                                                                                  | ORGANIZATION; .github; "The public profile of the hackers&wizards GitHub organization: Agentic Engineering training and mentoring from Hamburg."                                                           | other (the descriptor's words in another order)                             |
+| social-previews: hycle                                                                                                                                                                                                                                                                                   | MANIFESTO; "Source of hycle.org: a hypothesis on how work shifts when agentic software development makes building cheap. In German."                                                                       | other                                                                       |
+| social-previews: local-mlx-stack                                                                                                                                                                                                                                                                         | DEVELOPER SETUP; "A local OpenAI-compatible MLX inference server for Apple Silicon, version-controlled."                                                                                                   | other                                                                       |
+| social-previews: mail                                                                                                                                                                                                                                                                                    | PACKAGE · DESIGN SYSTEM; "Mail engine of hackers&wizards: React Email components, rendered to HTML and plain text."                                                                                        | other                                                                       |
+| social-previews: practitioners                                                                                                                                                                                                                                                                           | WEBSITE CONTENT; "The bios and portraits of the practitioners on hackersandwizards.dev, one directory per person."                                                                                         | other                                                                       |
+| social-previews: scaffolding                                                                                                                                                                                                                                                                             | PACKAGE · DEVELOPER TOOLS; "Repository template of hackers&wizards: the skeleton and shared checks (secrets, coupling, format, lint)."                                                                     | other                                                                       |
+| social-previews: slides                                                                                                                                                                                                                                                                                  | PACKAGE · DESIGN SYSTEM; "Slide engine of hackers&wizards: slide components, deck types and a PDF renderer."                                                                                               | other                                                                       |
+| social-previews: testimonials                                                                                                                                                                                                                                                                            | WEBSITE CONTENT; "Client quotes, portraits and company marks of hackers&wizards, one source for every surface"                                                                                             | other                                                                       |
 
 No file carries a retired line, so nothing needed a plain correction. "Out of step" here means a
-line that states one of `verbal.json`'s lines in other words. Three places did: the two booth
-banners, now changed, and the LinkedIn company cover, which stays (see "Open").
+line that states one of `verbal.json`'s lines in other words. Four places do: the two booth
+banners, now changed; the LinkedIn company cover and the `.github` social preview, which stay
+(see "Open").
 
 ## The booth banners
 
@@ -132,12 +152,52 @@ Noise 1.2 (Claude 1.8, Codex 0.6). Against today's pair:
 - What keeps the shipped pair below the maximum: the claim on the pole is small at 48 mm (12 of 16),
   "in tune" stays vague (10 of 16), the booth looks small beside large neighbouring walls (7 of 16).
   The first comes from the layout, which fixes the wordmark and the wizard; the third comes from the
-  booth's size. Neither is text, so no third round ran.
+  booth's size. Neither is text.
 
 ![Today's pair and the shipped pair from 6 m](2026-11-11-booth-texts/today-and-shipped-6m.jpg)
 ![Today's pair and the shipped pair from 3 m](2026-11-11-booth-texts/today-and-shipped-3m.jpg)
 ![The shipped pair from 10 m](2026-11-11-booth-texts/shipped-10m.jpg)
 ![The 1 x 1 m variants](2026-11-11-booth-texts/square-candidates.jpg)
+
+### Round 3: each change on its own (16 reviews)
+
+Round 2 tested the new 1 x 2 m headline only beside today's 1 x 1 m line, where its lead over
+today's pair stayed inside Claude's noise in one run. Round 3 holds the claim on the 1 x 1 m and
+changes the 1 x 2 m alone, with today's pair as anchor.
+
+| 1 x 2 m headline                                          | 1 x 1 m line                                  | Overall | Claude run 1, 2 | Codex run 1, 2 | Would stop |
+| --------------------------------------------------------- | --------------------------------------------- | ------- | --------------- | -------------- | ---------- |
+| "Agents write code faster. Do you ship faster?" (shipped) | the claim                                     | 73.9    | 68.2, 68.5      | 81.0, 78.0     | 16 of 16   |
+| "Everyone has coding agents. Releases come no faster."    | the claim                                     | 69.8    | 67.2, 66.0      | 74.5, 71.5     | 15 of 16   |
+| "Everyone has coding agents. Releases come no faster."    | "Agentic engineering training and mentoring." | 65.0    | 58.8, 59.2      | 73.5, 68.5     | 8 of 16    |
+
+Noise 2.2 (Claude 0.7, Codex 3.7). The new headline leads today's under the same 1 x 1 m by 4.1
+(+1.0, +2.5, +6.5, +6.5), outside the noise in every cell, by 0.3 points in Claude's first run. The
+shipped pair leads today's by 8.9 (+9.5, +9.2, +7.5, +9.5). The claim on the 1 x 1 m under today's
+headline leads today's pair by 4.8 (+8.5, +6.8, +1.0, +3.0): a tie by the rule, Codex's noise being
+3.7 in this round, while in round 2 the same change under the new headline counted.
+
+### Every criterion
+
+Panel means, 0 to 10, overall 0 to 100; each round's own panel.
+
+| Round: variant                          | Presence 10 m | Read 10 m | Legible 3 m | Message | Gain | Distinctive | Language | Breathing room | Calm | Ours | Pair | Overall |
+| --------------------------------------- | ------------- | --------- | ----------- | ------- | ---- | ----------- | -------- | -------------- | ---- | ---- | ---- | ------- |
+| 1: counter-draft set                    | 5.4           | 6.8       | 9.1         | 8.0     | 6.9  | 6.1         | 9.2      | 8.7            | 8.5  | 6.2  | 8.3  | 76.2    |
+| 1: split claim                          | 5.4           | 6.4       | 8.9         | 7.2     | 7.5  | 4.8         | 7.4      | 8.2            | 7.9  | 5.8  | 8.0  | 69.4    |
+| 1: claim                                | 5.4           | 5.9       | 9.0         | 7.1     | 7.6  | 5.0         | 7.4      | 7.9            | 7.9  | 5.9  | 7.9  | 68.8    |
+| 1: today                                | 5.4           | 5.9       | 9.0         | 7.2     | 5.1  | 5.9         | 7.7      | 8.0            | 7.9  | 6.0  | 7.8  | 68.1    |
+| 1: home headline                        | 5.3           | 4.3       | 8.5         | 7.1     | 7.7  | 5.7         | 6.5      | 5.9            | 6.2  | 5.9  | 7.4  | 60.9    |
+| 2: counter-draft set                    | 5.5           | 6.3       | 9.2         | 7.8     | 7.0  | 5.9         | 8.4      | 8.9            | 8.7  | 6.9  | 8.3  | 74.1    |
+| 2: new headline + claim (shipped)       | 5.5           | 6.3       | 8.3         | 7.9     | 7.7  | 5.7         | 7.9      | 8.2            | 8.2  | 6.8  | 8.3  | 73.7    |
+| 2: new headline + home headline         | 5.5           | 6.3       | 7.3         | 7.8     | 7.5  | 5.9         | 6.9      | 7.3            | 7.3  | 6.7  | 7.8  | 69.3    |
+| 2: new headline + "Every role in tune." | 5.5           | 6.3       | 9.2         | 6.9     | 6.7  | 5.2         | 8.3      | 8.9            | 8.7  | 6.6  | 7.1  | 69.3    |
+| 2: new headline + today's 1 x 1 m       | 5.5           | 6.3       | 9.1         | 7.4     | 6.6  | 4.2         | 8.6      | 8.4            | 8.3  | 6.0  | 6.8  | 68.2    |
+| 2: new headline + descriptor            | 5.5           | 6.3       | 9.1         | 7.3     | 6.6  | 4.2         | 8.8      | 8.4            | 8.3  | 6.0  | 6.6  | 67.8    |
+| 2: today's pair                         | 5.4           | 5.5       | 9.0         | 6.9     | 5.0  | 5.2         | 7.1      | 7.7            | 7.7  | 6.2  | 6.7  | 62.4    |
+| 3: shipped pair                         | 5.5           | 6.8       | 8.6         | 7.8     | 7.2  | 5.2         | 8.4      | 8.5            | 8.2  | 6.4  | 8.2  | 73.9    |
+| 3: today's headline + claim             | 5.5           | 6.0       | 8.6         | 7.4     | 5.9  | 5.4         | 7.2      | 8.0            | 7.9  | 6.6  | 8.0  | 69.8    |
+| 3: today's pair                         | 5.5           | 6.0       | 9.0         | 7.2     | 4.9  | 4.8         | 7.5      | 8.0            | 8.0  | 6.3  | 6.5  | 65.0    |
 
 ### Method
 
@@ -151,8 +211,9 @@ Noise 1.2 (Claude 1.8, Codex 0.6). Against today's pair:
   line and the wizard were measured in the DOM before scoring. Smallest type on any variant: 40 mm.
 - The aisle: drawn to scale with a 60 degree horizontal field of view, eye at 1.6 m, 1600 px wide,
   from 10 m and 6 m (one image) and 3 m (1600 x 1600), the mid-grey stand wall of `generate.ts`,
-  two neighbouring stands and visitors. A drawing, not a photo: no photo of a stand exists in brand
-  or os to check it against.
+  two neighbouring stands and visitors. A drawing, not a photo: a file-name search of brand and os
+  found no photo of a stand to check it against. The frames are LED lightboxes; the views draw them
+  unlit in a lit hall, as `generate.ts`'s default views do.
 - Panel: a developer walking the aisle, a VP of Engineering of a 150-engineer scale-up, a CTO of a
   Mittelstand manufacturer with 120 developers, a senior brand designer. Claude (`claude-opus-5-5`,
   effort medium) and Codex (`gpt-6.1-sol`, reasoning high), two runs each, labels and order
@@ -216,14 +277,21 @@ Answer with JSON only: {"<label>": {"presence_10m":0,"read_10m":0,"legible_3m":0
 ## Open
 
 - **The LinkedIn company cover** says "Agentic engineering training and mentoring.", the
-  descriptor in the other word order, which the 1 x 1 m booth banner carried until today. Benedikt
-  chose that cover, text included, on 31.10. (`6a58cca`), so it stays; changing it to
-  `verbal.json`'s descriptor would need a render and a review on the company page first.
+  descriptor in the other word order, which the 1 x 1 m booth banner carried until today. The brief
+  for this run asked for variants and a blind review on every surface out of step; this one was
+  skipped, because Benedikt chose that cover, text included, on 31.10. (`6a58cca`). Whether it
+  takes `verbal.json`'s descriptor is his question; a render and a review on the company page would
+  come first.
+- **The `.github` social preview** reads "Agentic Engineering training and mentoring from Hamburg",
+  the description of the GitHub organization's `.github` repository, which `social-previews/generate.ts`
+  reads with `gh`. The text lives on GitHub, not here; changing it changes the public profile.
 - **The OMR cover** ("KI-Schulungen für Agentic Engineering.") and the German descriptor
   ("Schulung und Mentoring in Agentic Engineering") differ; the cover predates the claim and was
   not part of any round.
-- **Not explained:** today's pair scores 68.1 with 15 of 16 stops in round 1 and 62.4 with 6 of 16
-  in round 2, against other candidates. Scores compare only within a round; why the stop answers
-  move that much is not established.
+- **Not explained:** today's pair scores 68.1 with 15 of 16 stops in round 1, 62.4 with 6 of 16 in
+  round 2 and 65.0 with 8 of 16 in round 3, against other candidates each time. Scores compare only
+  within a round; why the stop answers move that much is not established. Codex's run gap in round
+  3 (3.7) is five times its gap in round 2 (0.6), with no change to prompt or images; not explained
+  either.
 
 Review: large, because the banners are printed, and a print run is expensive to take back.
