@@ -1,8 +1,78 @@
 {
   "clearSpaceUnits": 840,
   "logos": {
-    "lockup": { "clearSpace": 0.564, "minWidthPx": 190, "minWidthMm": 50 },
-    "lockup-compact": { "clearSpace": 0.252, "minWidthPx": 150, "minWidthMm": 40 },
-    "wordmark": { "clearSpace": 0.882, "minWidthPx": 150, "minWidthMm": 40 }
+    "lockup": {
+      "clearSpace": 0.564,
+      "minWidthPx": 190,
+      "minWidthMm": 50
+    },
+    "lockup-compact": {
+      "clearSpace": 0.252,
+      "minWidthPx": 150,
+      "minWidthMm": 40
+    },
+    "wordmark": {
+      "clearSpace": 0.882,
+      "minWidthPx": 150,
+      "minWidthMm": 40
+    }
+  },
+  "sizes": {
+    "lockup-compact-night.svg": {
+      "width": 6571,
+      "height": 3484
+    },
+    "lockup-compact-outline.svg": {
+      "width": 6667,
+      "height": 3532
+    },
+    "lockup-compact.svg": {
+      "width": 6571,
+      "height": 3337
+    },
+    "lockup-night.svg": {
+      "width": 8196,
+      "height": 1641
+    },
+    "lockup-outline.svg": {
+      "width": 8244,
+      "height": 1641
+    },
+    "lockup-screen-night.svg": {
+      "width": 8196,
+      "height": 1641
+    },
+    "lockup-screen.svg": {
+      "width": 8042,
+      "height": 1489
+    },
+    "lockup.svg": {
+      "width": 8042,
+      "height": 1489
+    },
+    "type-logo-short.svg": {
+      "width": 1152,
+      "height": 936
+    },
+    "wordmark-black.svg": {
+      "width": 6571,
+      "height": 952
+    },
+    "wordmark-night.svg": {
+      "width": 6571,
+      "height": 952
+    },
+    "wordmark-outline.svg": {
+      "width": 6667,
+      "height": 1048
+    },
+    "wordmark-white.svg": {
+      "width": 6571,
+      "height": 952
+    },
+    "wordmark.svg": {
+      "width": 6571,
+      "height": 952
+    }
   }
 }

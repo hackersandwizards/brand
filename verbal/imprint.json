@@ -3,6 +3,7 @@
   "postcode": "20259",
   "city": "Hamburg",
   "country": { "de": "Deutschland", "en": "Germany" },
+  "countryCode": "DE",
   "seat": "Hamburg",
   "court": "Amtsgericht Hamburg",
   "register": "HRB 198840",

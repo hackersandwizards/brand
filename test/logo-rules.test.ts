@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import rules from "../logos/logos.json";
 import { colors } from "../generated/tokens";
@@ -20,6 +20,19 @@ test("each logo's clear space is the h's height over the file's height", () => {
       share: logo.clearSpace,
     });
   }
+});
+
+test("sizes names each logo SVG's width and height, as its root element sets them", () => {
+  const files = readdirSync(join(ROOT, "logos")).filter((f) => f.endsWith(".svg"));
+  const measured = Object.fromEntries(
+    files.flatMap((f) => {
+      const root = /<svg[^>]*>/.exec(readFileSync(join(ROOT, "logos", f), "utf8"))![0];
+      const [w, h] = [/ width="(\d+)"/, / height="(\d+)"/].map((r) => r.exec(root)?.[1]);
+      return w && h ? [[f, { width: Number(w), height: Number(h) }]] : [];
+    }),
+  );
+  expect(rules.sizes).toEqual(measured);
+  expect(rules.sizes["lockup-screen.svg"]).toEqual({ width: 8042, height: 1489 });
 });
 
 // scripts/outline.ts writes the night cuts from the day files and the tokens, and nothing runs it
@@ -57,4 +70,8 @@ test("the header's typed logo sizes are the screen cuts' boxes", () => {
     expect({ f, day: read(f).includes(size("lockup-screen")) }).toEqual({ f, day: true });
   for (const f of ["expert/components/AppHeader.astro", "expert/header.css"])
     expect({ f, night: read(f).includes(size("lockup-screen-night")) }).toEqual({ f, night: true });
+  for (const f of ["lockup-screen", "lockup-screen-night"]) {
+    const { width, height } = rules.sizes[`${f}.svg` as keyof typeof rules.sizes];
+    expect(`width="${width}" height="${height}"`).toBe(size(f));
+  }
 });

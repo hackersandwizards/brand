@@ -64,6 +64,12 @@ test("the LinkedIn field takes only an https: URL", () => {
     );
 });
 
+// ISO 3166-1 alpha-2, for a form's country field or structured data.
+test("the imprint names its country's ISO code", () => {
+  const i = JSON.parse(readFileSync(join(ROOT, "verbal/imprint.json"), "utf-8"));
+  expect(i.countryCode).toBe("DE");
+});
+
 // The imprint's one source is verbal/imprint.json; the template writes it out for mail clients.
 test("both templates' GmbH lines state imprint.json", () => {
   const i = JSON.parse(readFileSync(join(ROOT, "verbal/imprint.json"), "utf-8"));
