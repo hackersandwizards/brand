@@ -1,10 +1,11 @@
 /* The field with its button: an input and the button that sends it, on a client surface. The field
-   is white with a border-strong hairline (3:1, WCAG 1.4.11), ink on hover; the brand corner; 48 px
-   tall; its text in the body role, its placeholder muted. aria-invalid="true" draws the line twice
-   as thick in the error red (an app's --error where it has one); disabled is half opacity, as on
-   hw-check. The same class frames a <textarea>, its text inset as on one line, and a <select>
-   with hw-select (select.css), which adds the chevron. The label, hint and error message round
-   it are form-field.css.
+   is white with a border-strong hairline (3:1, WCAG 1.4.11), ink on hover; the small corner, as
+   on every form element, the button beside a field included; 48 px tall; its text in the body
+   role, its placeholder muted. aria-invalid="true" draws the line twice as thick in the error red
+   (an app's --error where it has one); disabled is half opacity, as on hw-check. The same class
+   frames a <textarea>, its text inset as on one line, and a <select> with hw-select
+   (select.css), which adds the chevron. The label, hint and error message round it are
+   form-field.css.
    readonly shows a value to read and copy, not to change: a dashed line, no fill, no hover, the
    value at full contrast. data-state="warning" or "success" draws the line twice as thick in
    amber-dark or green-dark (amber or green on night), as aria-invalid does in red; a message
@@ -32,8 +33,8 @@
                aria-pressed="false" aria-label="Passwort zeigen" hidden></button></div>
 
    Settings:
-     --hw-card-corner   the corner of the field, or of the joined row around it, the brand
-                        corner at the medium's size
+     --hw-corner-sm     the corner of the field, of the joined row around it and of the button
+                        beside it, the small corner at the medium's size
      --hw-field-height  the field's least height
      --hw-field-pad     its inline padding
      --hw-field-pad-start its start padding, where something sits inside it (search.css's icon)
@@ -59,14 +60,14 @@
     width: 100%;
     min-height: var(--hw-field-height, 3rem);
     border: var(--hw-hairline, 1px) solid var(--color-border-strong);
-    border-radius: var(--hw-card-corner, var(--radius-brand));
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
     padding: 0 var(--hw-field-pad, 1rem) 0 var(--hw-field-pad-start, var(--hw-field-pad, 1rem));
     font-family: var(--hw-field-family, var(--type-body-family));
     --_hw-field-text: var(--hw-field-size, var(--type-body-size));
     font-size: max(var(--hw-field-floor, 0px), var(--_hw-field-text));
     line-height: var(--type-body-line-height);
     color: var(--color-ink);
-    background: var(--color-white);
+    background-color: var(--color-white);
     color-scheme: light;
     transition: border-color var(--motion-fast);
   }
@@ -105,7 +106,7 @@
   }
   .hw-field[readonly] {
     border-style: dashed;
-    background: transparent;
+    background-color: transparent;
   }
   .hw-field[data-size="small"] {
     min-height: calc(var(--hw-field-height, 3rem) * 5 / 6);
@@ -167,12 +168,15 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+  .hw-field-row > .hw-button {
+    --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
+  }
   .hw-field-row[data-joined] {
     display: flex;
     gap: 0;
     overflow: hidden;
     border: var(--hw-hairline, 1px) solid var(--color-border);
-    border-radius: var(--hw-card-corner, var(--radius-brand));
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
     background: var(--color-white);
   }
   /* The ring goes round the row: neither part draws its own. */
@@ -190,7 +194,7 @@
     flex: 1;
     border: 0;
     border-radius: 0;
-    background: transparent;
+    background-color: transparent;
     box-shadow: none;
   }
   /* A field's state in the joined row: the row draws the line. */
@@ -244,7 +248,7 @@
     .hw-field {
       border-color: var(--color-night-muted);
       color: var(--color-white);
-      background: var(--color-night-2);
+      background-color: var(--color-night-2);
       color-scheme: dark;
     }
     .hw-field[data-state="warning"],

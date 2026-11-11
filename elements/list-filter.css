@@ -30,6 +30,7 @@
   }
   .hw-list-filter-search > .hw-button {
     flex: none;
+    --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
   }
   .hw-list-filter [data-filter-panel] {
     display: flex;

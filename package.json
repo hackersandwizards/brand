@@ -135,7 +135,7 @@
   },
   "prettier": "@hackersandwizards/scaffolding/prettier",
   "dependencies": {
-    "puppeteer-core": "25.16.0"
+    "puppeteer-core": "25.17.0"
   },
   "admin": {
     "designSystem": "https://hackersandwizards.github.io/brand/catalog/",

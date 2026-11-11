@@ -18,7 +18,8 @@
    The target is the label: an option in hw-form-field is a row as tall as the target. A box with
    no text beside it (a list row's done box) sits in <label class="hw-check-target">, a square of
    the target's side with the box in its middle. The target is 32 px under a mouse and 44 px on a
-   touch screen.
+   touch screen. Its margins take back what it adds round the box, so in a list the box stands in
+   the column and at the line pitch of a box with text, the target reaching past it.
 
    Settings (scales.css sets them per medium; print and stage set 0, since nobody taps paper or a
    slide):
@@ -63,11 +64,14 @@
   }
   .hw-check-target {
     --_hw-target: var(--hw-check-target, 32px);
+    --_hw-side: max(var(--_hw-target), round(1em, calc(1px / var(--hw-zoom, 1))));
     display: inline-flex;
+    vertical-align: top;
     align-items: center;
     justify-content: center;
     min-width: var(--_hw-target);
     min-height: var(--_hw-target);
+    margin: calc((1lh - var(--_hw-side)) / 2) calc((1em - var(--_hw-side)) / 2);
     cursor: pointer;
   }
   @media (any-pointer: coarse) {

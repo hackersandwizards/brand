@@ -97,8 +97,8 @@
   --text-micro--line-height: calc(15 / 11);
   --hw-row-pad-block: 0.5rem;
   --hw-row-pad-inline: 0.75rem;
-  --hw-control-height: 2.5rem;
-  --hw-field-height: 2.5rem;
+  --hw-control-height: 2.25rem;
+  --hw-field-height: max(var(--hw-control-height), var(--hw-touch-floor, 0px));
   --hw-field-pad: 0.75rem;
   --hw-field-size: var(--text-ui);
   --hw-form-gap: 0.25rem;
@@ -106,7 +106,7 @@
   --hw-check-target: 32px;
   --hw-check-target-touch: 44px;
   --hw-kbd-size: var(--text-micro);
-  --hw-choice-height: 2rem;
+  --hw-choice-height: max(var(--hw-control-height), var(--hw-touch-floor, 0px));
   --hw-choice-pad: 0.5rem;
   --hw-nav-pad: 0.25rem 0.5rem;
   --hw-search-icon: 1rem;
@@ -1378,14 +1378,14 @@
     width: 100%;
     min-height: var(--hw-field-height, 3rem);
     border: var(--hw-hairline, 1px) solid var(--color-border-strong);
-    border-radius: var(--hw-card-corner, var(--radius-brand));
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
     padding: 0 var(--hw-field-pad, 1rem) 0 var(--hw-field-pad-start, var(--hw-field-pad, 1rem));
     font-family: var(--hw-field-family, var(--type-body-family));
     --_hw-field-text: var(--hw-field-size, var(--type-body-size));
     font-size: max(var(--hw-field-floor, 0px), var(--_hw-field-text));
     line-height: var(--type-body-line-height);
     color: var(--color-ink);
-    background: var(--color-white);
+    background-color: var(--color-white);
     color-scheme: light;
     transition: border-color var(--motion-fast);
   }
@@ -1424,7 +1424,7 @@
   }
   .hw-field[readonly] {
     border-style: dashed;
-    background: transparent;
+    background-color: transparent;
   }
   .hw-field[data-size="small"] {
     min-height: calc(var(--hw-field-height, 3rem) * 5 / 6);
@@ -1484,12 +1484,15 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+  .hw-field-row > .hw-button {
+    --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
+  }
   .hw-field-row[data-joined] {
     display: flex;
     gap: 0;
     overflow: hidden;
     border: var(--hw-hairline, 1px) solid var(--color-border);
-    border-radius: var(--hw-card-corner, var(--radius-brand));
+    border-radius: var(--hw-corner-sm, var(--radius-sm));
     background: var(--color-white);
   }
   .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
@@ -1506,7 +1509,7 @@
     flex: 1;
     border: 0;
     border-radius: 0;
-    background: transparent;
+    background-color: transparent;
     box-shadow: none;
   }
   .hw-field-row[data-joined]:has(> .hw-field[data-state]:not([aria-invalid="true"])) {
@@ -1557,7 +1560,7 @@
     .hw-field {
       border-color: var(--color-night-muted);
       color: var(--color-white);
-      background: var(--color-night-2);
+      background-color: var(--color-night-2);
       color-scheme: dark;
     }
     .hw-field[data-state="warning"],
@@ -1639,11 +1642,14 @@
   }
   .hw-check-target {
     --_hw-target: var(--hw-check-target, 32px);
+    --_hw-side: max(var(--_hw-target), round(1em, calc(1px / var(--hw-zoom, 1))));
     display: inline-flex;
+    vertical-align: top;
     align-items: center;
     justify-content: center;
     min-width: var(--_hw-target);
     min-height: var(--_hw-target);
+    margin: calc((1lh - var(--_hw-side)) / 2) calc((1em - var(--_hw-side)) / 2);
     cursor: pointer;
   }
   @media (any-pointer: coarse) {
@@ -1733,6 +1739,9 @@
     background-position: right 0.625rem center;
     background-size: 0.75rem 0.5rem;
     padding-right: 2rem;
+  }
+  .hw-field.hw-select[readonly] {
+    background-image: none;
   }
   .hw-field.hw-select {
     background-position: right var(--hw-field-pad, 1rem) center;
@@ -2668,6 +2677,7 @@
   }
   .hw-list-filter-search > .hw-button {
     flex: none;
+    --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
   }
   .hw-list-filter [data-filter-panel] {
     display: flex;
@@ -2860,11 +2870,14 @@
   }
   .hw-check-target {
     --_hw-target: var(--hw-check-target, 32px);
+    --_hw-side: max(var(--_hw-target), round(1em, calc(1px / var(--hw-zoom, 1))));
     display: inline-flex;
+    vertical-align: top;
     align-items: center;
     justify-content: center;
     min-width: var(--_hw-target);
     min-height: var(--_hw-target);
+    margin: calc((1lh - var(--_hw-side)) / 2) calc((1em - var(--_hw-side)) / 2);
     cursor: pointer;
   }
   @media (any-pointer: coarse) {

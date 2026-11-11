@@ -7,14 +7,14 @@
 @theme {
   /* Three radii and a square, one job each, on every surface:
      brand  the brand corner, large top-left and bottom-right: everything that holds content or
-            is pressed with words on it: cards, panels, callouts, code blocks, pictures, buttons
-            (a slide's "Read more" included) and the client surfaces' fields, on every medium
-            alike. The outermost one only: a block, picture, field or button inside a block with
-            the brand corner takes sm (elements/card.css).
+            is pressed with words on it: cards, panels, callouts, code blocks, pictures and
+            buttons (a slide's "Read more" included), on every medium alike. The outermost one
+            only: a block, picture or button inside a block with the brand corner takes sm
+            (elements/card.css).
      sm     the small corner: everything one text line tall that is no pill: a label box (PART ONE),
             a number or icon tile, inline code, the segmented control and its segments (the slide's
-            stage strip included), the apps' fields, a checkbox (a radio is round) and a picture in
-            a mail.
+            stage strip included), every form field (input, select, text area, file field) and the
+            button beside one, a checkbox (a radio is round) and a picture in a mail.
      pill   round: chips, badges and toggles, and every control that holds only an icon (play,
             pause, previous, next, theme); one over a picture is solid teal with a white icon.
             In the apps a label changed where it shows takes sm, one only read stays pill.

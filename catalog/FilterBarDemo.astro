@@ -1,0 +1,62 @@
+---
+// A filter bar as the apps lay one out: a row of choices, a row of selects (the apps' form-input
+// and the brand's hw-field hw-select), and both in one row, which stand one height.
+---
+
+<div class="filter-bar">
+  <div class="hw-choices" role="group" aria-label="Priorität">
+    <button type="button" class="hw-choice" aria-pressed="true">
+      Alle
+    </button>
+    <button type="button" class="hw-choice" aria-pressed="false">
+      Hoch<span class="hw-choice-count">4</span>
+    </button>
+    <button type="button" class="hw-choice" aria-pressed="false">
+      Niedrig<span class="hw-choice-count">9</span>
+    </button>
+  </div>
+  <div class="row">
+    <select class="form-input" aria-label="Produkt">
+      <option>Produkt: Alle</option>
+      <option>Training</option>
+    </select>
+    <select class="hw-field hw-select" aria-label="Firma">
+      <option>Firma: Alle</option>
+      <option>Musterwerk AG</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="hw-choices" role="group" aria-label="Status">
+      <button type="button" class="hw-choice" aria-pressed="true">
+        Offen
+      </button>
+      <button type="button" class="hw-choice" aria-pressed="false">
+        Erledigt<span class="hw-choice-count">12</span>
+      </button>
+    </div>
+    <select class="form-input" aria-label="Thema">
+      <option>Thema: Alle</option>
+      <option>Testing</option>
+    </select>
+    <select class="hw-field hw-select" aria-label="Ort">
+      <option>Ort: Alle</option>
+      <option>Remote</option>
+    </select>
+  </div>
+</div>
+
+<style>
+  .filter-bar {
+    display: grid;
+    gap: 1rem;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .row > select {
+    width: auto;
+  }
+</style>

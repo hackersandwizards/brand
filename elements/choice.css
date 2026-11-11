@@ -5,8 +5,8 @@
    chosen one (a checked input, aria-current, aria-pressed="true") in the chosen fill
    (elements/chosen.css). hw-choice-count is the count, in the choice's colour, tabular figures. A
    row of choices sits in hw-choices, wrapping, 0.375rem apart. Its target is the medium's control
-   height: 44 px on a client screen, the apps' choice height in dense. On night the expert set's
-   night roles.
+   height: 44 px on a client screen; in dense the apps' control height, which their fields and
+   selects share, and 44 px on a touch screen. On night the expert set's night roles.
 
    Markup: <div class="hw-choices" role="group" aria-label="…">
              <label class="hw-choice"><input type="radio" name="topic" value="">All

@@ -290,11 +290,12 @@ html[data-theme="dark"] {
 /* In the components layer, as the shared elements are, so a surface's utility (pr-10, min-h-24)
    wins. */
 @layer components {
-  /* Shape only; width is the caller's. The 40px min-height matches a native `<select>`, which
-     reserves room for its arrow: unpinned a row renders 38/40/40. */
+  /* Shape only; width is the caller's. At least the filter control's height (scales.css), as a
+     choice and an hw-field are, the touch target's on a touch screen, so an input, a select and
+     the choices beside them stand one height. */
   .form-input {
-    @apply rounded-sm border border-input bg-background px-3 py-2 text-ui text-foreground;
-    min-height: 2.5rem;
+    @apply rounded-sm border border-input bg-background px-3 py-1.5 text-ui text-foreground;
+    min-height: max(var(--hw-control-height, 2.25rem), var(--hw-touch-floor, 0px));
     /* Never under scales.css's --hw-field-floor, so iOS does not zoom on focus. */
     font-size: max(var(--hw-field-floor, 0px), var(--text-ui));
   }

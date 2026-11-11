@@ -332,6 +332,7 @@
   --deck-corner-side: var(--slide-side);
   --deck-corner-inset: var(--slide-footer-inset);
   --deck-corner-wordmark: var(--slide-corner-wordmark);
+  --deck-corner-lockup: var(--slide-corner-lockup);
   --deck-text-caption: 1.125rem;
   --deck-text-note: 1.25rem;
   --deck-text-item: 1.375rem;

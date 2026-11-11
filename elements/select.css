@@ -23,6 +23,10 @@
     background-size: 0.75rem 0.5rem;
     padding-right: 2rem;
   }
+  /* A read-only combobox offers nothing to choose: no chevron. */
+  .hw-field.hw-select[readonly] {
+    background-image: none;
+  }
   /* On the field the chevron sits at the field's padding and takes the size of its text, so it keeps
      its proportion at every scale. A combobox (input with list) wears it too. */
   .hw-field.hw-select {

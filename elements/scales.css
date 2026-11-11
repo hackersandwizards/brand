@@ -103,7 +103,8 @@
   --hw-kpi-tracking: -0.01em;
   /* The compact tier: the expert set's UI text at macOS's 13 px, its micro step at 11 px. meta
      repeats ui here, since a var() resolves where it is declared. The heights an app's components
-     read, at their measured values: a list row's padding and a filter control's height. */
+     read: a list row's padding, and a filter control's height, which a choice, a field and an
+     app's form-input share, so choices and selects in one filter bar stand one height. */
   --text-ui: 0.8125rem;
   --text-ui--line-height: 1.45;
   --text-meta: var(--text-ui);
@@ -112,9 +113,9 @@
   --text-micro--line-height: calc(15 / 11);
   --hw-row-pad-block: 0.5rem;
   --hw-row-pad-inline: 0.75rem;
-  --hw-control-height: 2.5rem;
-  /* A form at the expert set's control height and UI text. */
-  --hw-field-height: 2.5rem;
+  --hw-control-height: 2.25rem;
+  /* A form at the expert set's control height and UI text, the touch target's on a touch screen. */
+  --hw-field-height: max(var(--hw-control-height), var(--hw-touch-floor, 0px));
   --hw-field-pad: 0.75rem;
   --hw-field-size: var(--text-ui);
   --hw-form-gap: 0.25rem;
@@ -122,9 +123,8 @@
   --hw-check-target: 32px;
   --hw-check-target-touch: 44px;
   --hw-kbd-size: var(--text-micro);
-  /* A filter value and a navigation item at the apps' size: a choice 32 px tall, past WCAG 2.5.8's
-     24 px. */
-  --hw-choice-height: 2rem;
+  /* A filter value at the control height, the touch target's on a touch screen. */
+  --hw-choice-height: max(var(--hw-control-height), var(--hw-touch-floor, 0px));
   --hw-choice-pad: 0.5rem;
   --hw-nav-pad: 0.25rem 0.5rem;
   --hw-search-icon: 1rem;

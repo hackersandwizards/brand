@@ -740,6 +740,7 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-zoom",
     "--hw-touch-floor",
     "--hw-field-floor",
+    "--hw-control-height",
     "--hw-list-filter-row",
     "--hw-focus-room",
     "--hw-table-ground",
@@ -1572,3 +1573,133 @@ test("a scroll-driven animation survives a minifier without browser targets: lon
     expect(out.match(/animation:[^;}]*(scroll|view)\(/g) ?? []).toEqual([]);
   }
 });
+
+/** `read` run on a page holding `body` at 1440 px by mouse, then at 390 px on a touch screen. */
+const byPointer = async <T>(name: string, html: string, read: () => T) => {
+  const url = pathToFileURL(file(name, html)).href;
+  const out: Awaited<T>[] = [];
+  for (const touch of [false, true]) {
+    const p = await browser.newPage();
+    await p.emulate({
+      viewport: { width: touch ? 390 : 1440, height: 900, isMobile: touch, hasTouch: touch },
+      userAgent: "",
+    });
+    await open(p, url);
+    out.push(await p.evaluate(read));
+    await p.close();
+  }
+  return out as [Awaited<T>, Awaited<T>];
+};
+
+// A filter bar sets choices beside selects: in dense the choice, the field and the field select
+// stand one height, the control height by mouse, the touch floor on a touch screen.
+test("in dense a choice, a field and a field select stand 36 px by mouse, 44 px by touch", async () => {
+  const bar = `<div class="hw-choices"><button type="button" class="hw-choice" aria-pressed="true">Alle</button></div><select class="hw-field hw-select" aria-label="Thema"><option>Alle</option></select><input class="hw-field" aria-label="Suche">`;
+  const heights = await byPointer(
+    "control-height.html",
+    only(
+      ["light", "dark"]
+        .map((t) => `<div data-hw-scale="dense" data-theme="${t}">${bar}</div>`)
+        .join(""),
+    ),
+    () =>
+      [...document.querySelectorAll(".hw-choice, .hw-field")].map((e) =>
+        Math.round(e.getBoundingClientRect().height),
+      ),
+  );
+  expect(heights).toEqual([Array(6).fill(36), Array(6).fill(44)]);
+}, 30_000);
+
+// The night field's fill is a colour only, so the select keeps one chevron at every scale, in a
+// joined row too, and a surface loading select.css before field.css keeps it; a read-only
+// combobox shows none.
+test("a select and a combobox keep one chevron, no-repeat, at every scale, day and night", async () => {
+  const set = `<select class="hw-field hw-select" aria-label="Thema"><option>Alle</option></select><input class="hw-field hw-select" list="t" aria-label="Thema"><datalist id="t"></datalist><div class="hw-field-row" data-joined><select class="hw-field hw-select" aria-label="Ort"><option>Alle</option></select><button type="button">Los</button></div><input class="hw-field hw-select" list="t" readonly aria-label="Fest">`;
+  const body = ["screen", "dense", "print", "stage"]
+    .flatMap((s) =>
+      ["light", "dark"].map((t) => `<div data-hw-scale="${s}" data-theme="${t}">${set}</div>`),
+    )
+    .join("");
+  const reversed = `<!doctype html><html><head>${["generated/tokens.root.css", "elements/scales.css", "elements/select.css", "elements/field.css"].map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${body}</body></html>`;
+  for (const [name, html] of [
+    ["chevron.html", only(body)],
+    ["chevron-reversed.html", reversed],
+  ] as const) {
+    const p = await browser.newPage();
+    await open(p, pathToFileURL(file(name, html)).href);
+    const repeats = await p.$$eval(".hw-select:not([readonly])", (els) =>
+      els.map((e) => {
+        const cs = getComputedStyle(e);
+        return `${cs.backgroundRepeat} ${cs.backgroundImage.startsWith("url(") ? "chevron" : "none"}`;
+      }),
+    );
+    const readOnly = await p.$$eval(".hw-select[readonly]", (els) => [
+      ...new Set(els.map((e) => getComputedStyle(e).backgroundImage)),
+    ]);
+    await p.close();
+    expect([name, ...new Set(repeats)]).toEqual([name, "no-repeat chevron"]);
+    expect([name, ...readOnly]).toEqual([name, "none"]);
+  }
+}, 30_000);
+
+// The form elements take the small corner of the scale, the brand corner staying on blocks and a
+// button standing alone.
+test("a field, select, textarea, file field, joined row and the button beside a field take the small corner", async () => {
+  const set = `${DEMOS.field}<a class="hw-button" href="#">Allein</a>`;
+  const body = ["screen", "dense", "print", "stage"]
+    .map(
+      (s) =>
+        `<div data-hw-scale="${s}"><span class="probe" style="border-radius: var(--hw-corner-sm)"></span><span class="brand" style="border-radius: var(--hw-card-corner)"></span>${set}</div>`,
+    )
+    .join("");
+  const p = await browser.newPage();
+  await open(p, pathToFileURL(file("form-corner.html", only(body, "", ["tokens/print.css"]))).href);
+  const corners = await p.$$eval("[data-hw-scale]", (scales) =>
+    scales.map((s) => {
+      const r = (e: Element) => getComputedStyle(e).borderRadius;
+      const sm = r(s.querySelector(".probe")!);
+      const form = [
+        ...s.querySelectorAll(
+          ".hw-field:not(.hw-field-row[data-joined] > *), .hw-field-row[data-joined], .hw-field-row > .hw-button",
+        ),
+      ];
+      return {
+        off: form.filter((e) => r(e) !== sm).map((e) => e.outerHTML.slice(0, 60)),
+        count: form.length,
+        alone: r(s.querySelector(":scope > a.hw-button")!) === r(s.querySelector(".brand")!),
+        differ: sm !== r(s.querySelector(".brand")!),
+      };
+    }),
+  );
+  await p.close();
+  for (const c of corners)
+    expect(c).toEqual({ off: [], count: c.count, alone: true, differ: true });
+  expect(corners[0]!.count).toBeGreaterThan(8);
+}, 30_000);
+
+// Every mark of a check list stands on one vertical axis at one row pitch in every scale, the box
+// without text beside it included, while its target keeps its size.
+test("the marks of a check list share one axis and one pitch in every scale, by mouse and touch", async () => {
+  const body = ["screen", "dense", "print", "stage"]
+    .map((s) => `<div data-hw-scale="${s}">${DEMOS.check}</div>`)
+    .join("");
+  const [mouse, touch] = await byPointer("check-column.html", only(body), () =>
+    [...document.querySelectorAll("[data-hw-scale]")].map((s) => {
+      const boxes = [...s.querySelectorAll(".hw-check")].map((e) => e.getBoundingClientRect());
+      const mid = (b: DOMRect) => [b.left + b.width / 2, b.top + b.height / 2];
+      const centres = boxes.map(mid);
+      const pitches = centres
+        .slice(1)
+        .map(([, y], i) => Math.round((y! - centres[i]![1]!) * 4) / 4);
+      const target = s.querySelector(".hw-check-target")!.getBoundingClientRect();
+      return {
+        axes: [...new Set(centres.map(([x]) => Math.round(x! * 4) / 4))].length,
+        pitches: [...new Set(pitches)].length,
+        target: Math.round(target.width),
+      };
+    }),
+  );
+  const one = { axes: 1, pitches: 1 };
+  expect(mouse).toEqual([32, 32, 16, 16].map((target) => ({ ...one, target })));
+  expect(touch).toEqual([44, 44, 16, 16].map((target) => ({ ...one, target })));
+}, 30_000);

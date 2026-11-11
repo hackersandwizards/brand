@@ -26,12 +26,13 @@ test("every story passes brand-elements, every element story shows its element",
   // Five per element, six that show a setting (the prose block's reading width, the row's
   // padding, the dialog in a narrow tile, the navigation list at a sidebar's width, the scrolling
   // table in a text column by day and night), the list
-  // filter's nine, the area marks' two and the
-  // expert components' sixteen (expert/components, each in ExpertFrame.astro).
+  // filter's nine, the area marks' two, the
+  // expert components' sixteen (expert/components, each in ExpertFrame.astro) and the filter bar
+  // (choices beside form-input, in ExpertFrame.astro).
   const expert = pages.filter(expertStory);
   expect([pages.length, expert.length]).toEqual([
-    Object.keys(ELEMENTS).length * 5 + 6 + 9 + 2 + 16,
-    16,
+    Object.keys(ELEMENTS).length * 5 + 6 + 9 + 2 + 17,
+    17,
   ]);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
   const results = await pool(pages, 8, (p) => measurePage(browser, p));
@@ -110,6 +111,72 @@ test("faint text in a scrolling table fails the contrast check that lays it out 
   // The last column, which sits past the column's edge until the pass fits the table.
   const faint = `${UNSCROLLED} .hw-table-scroll td:last-child { opacity: 0.3 }`;
   expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
+}, 60_000);
+
+// In a filter bar the choices and both selects (an app's form-input, the brand's hw-field
+// hw-select) stand one height: the control height by mouse, the touch target on a touch screen,
+// day and night. The control: the heights of 2.16.0, 32 px choices beside 40 px selects.
+const BEFORE = `[data-hw-scale="dense"] { --hw-choice-height: 2rem; --hw-field-height: 2.5rem }
+.form-input { min-height: 2.5rem; padding-block: 0.5rem }`;
+test("a filter bar's choices and selects stand one height by mouse and touch, day and night", async () => {
+  const url = storyPages().find((p) => p.endsWith("/Forms/filter-bar/dense/"))!;
+  const heights = async (touch: boolean, theme: string, css = "") => {
+    const tab = await browser.newPage();
+    try {
+      await tab.emulate({
+        viewport: { width: touch ? 390 : 1440, height: 900, isMobile: touch, hasTouch: touch },
+        userAgent: "",
+      });
+      await open(tab, url);
+      await tab.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+      if (css) await tab.addStyleTag({ content: css });
+      return await tab.$$eval(".expert-frame :is(.hw-choice, select)", (els) => [
+        ...new Set(els.map((e) => Math.round(e.getBoundingClientRect().height))),
+      ]);
+    } finally {
+      await tab.close();
+    }
+  };
+  for (const theme of ["light", "dark"]) {
+    expect([theme, await heights(false, theme)]).toEqual([theme, [36]]);
+    expect([theme, await heights(true, theme)]).toEqual([theme, [44]]);
+  }
+  expect((await heights(false, "light", BEFORE)).length).toBeGreaterThan(1);
+  expect((await heights(true, "light", BEFORE)).length).toBeGreaterThan(1);
+}, 60_000);
+
+// In the tile, as on a consumer's page, the box without text stands on the axis and at the pitch
+// of the boxes with text, by mouse and on a touch screen, at every scale.
+test("a check story's marks share one axis and one pitch, by mouse and touch", async () => {
+  const pitch = async (scale: string, touch: boolean) => {
+    const tab = await browser.newPage();
+    try {
+      await tab.emulate({
+        viewport: { width: touch ? 390 : 1440, height: 900, isMobile: touch, hasTouch: touch },
+        userAgent: "",
+      });
+      await open(
+        tab,
+        storyPages().find((p) => p.endsWith(`/checkbox-and-radio/${scale}/`))!,
+      );
+      return await tab.$$eval(".sample .hw-check", (els) => {
+        const mid = els.map((e) => {
+          const r = e.getBoundingClientRect();
+          return [r.left + r.width / 2, r.top + r.height / 2] as const;
+        });
+        const round = (n: number) => Math.round(n * 4) / 4;
+        return [
+          new Set(mid.map(([x]) => round(x))).size,
+          new Set(mid.slice(1).map(([, y], i) => round(y - mid[i]![1]))).size,
+        ];
+      });
+    } finally {
+      await tab.close();
+    }
+  };
+  for (const scale of ["screen", "dense", "print", "stage"])
+    for (const touch of [false, true])
+      expect([scale, touch, await pitch(scale, touch)]).toEqual([scale, touch, [1, 1]]);
 }, 60_000);
 
 // The catalog's header lists every catalog once, Catalog marked: "page" on the home, "true" below.

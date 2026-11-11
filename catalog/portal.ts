@@ -212,7 +212,7 @@ const LUCIDE_CHECK = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none
 const cornersHtml = `<h3 class="label" id="corners">Corners and icons</h3>
 <div class="rules">
 <div><div class="corner-demo"></div><p>The brand corner, ${code("--radius-brand")}: everything that holds content or is pressed with words on it, cards, panels, callouts, code blocks, pictures and buttons. Only the outermost block takes it: whatever sits inside takes the small corner.</p></div>
-<div><p class="shape-demo"><span class="hw-label hw-label-box">Part one</span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments, a picture in a mail, and every block inside a block with the brand corner.</p></div>
+<div><p class="shape-demo"><span class="hw-label hw-label-box">Part one</span></p><p>The small corner, ${code("--radius-sm")}: everything one text line tall that is no pill, a label box, a number tile, inline code, a segmented control and its segments, every form field and the button beside one, a picture in a mail, and every block inside a block with the brand corner.</p></div>
 <div><p class="shape-demo"><span class="hw-pill">Remote</span> <span class="hw-icon-button">${LUCIDE_CHECK}</span></p><p>Round, ${code("--radius-pill")}: chips, badges and toggles, and every control that holds only an icon.</p></div>
 <div><p class="square-demo"><span class="sw"></span><span class="sw" style="background:var(--color-purple)"></span><span class="sw" style="background:var(--color-teal-dark)"></span></p><p>Square: a mark smaller than a line, a list marker or a colour swatch.</p></div>
 <div><p class="icon-demo">${LUCIDE_CHECK} Delivered</p><p>Icons are Lucide line icons in the colour of their text, never emoji. A kind of label carries an icon on every value or on none.</p></div>
@@ -997,7 +997,7 @@ ${FONTS.map((f) => `<link rel="preload" href="tokens/fonts/${f}.woff2" as="font"
 ${inline(elementsCss)}
 ${inline(catalogCss)}</style>
 <style>
-  /* Controls take the website's own roles: a field is white with the brand corner, a choice is a
+  /* Controls take the website's own roles: a field is white with the small corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
   html { accent-color: var(--color-teal); caret-color: var(--color-purple); }
   body { margin: 0; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
@@ -1024,7 +1024,7 @@ ${inline(catalogCss)}</style>
     .quick li + li { margin-top: 0.25rem; }
     #results { margin-top: 2rem; }
     .label, th:not(.el-cell *, .hw-table *) { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
-    .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-brand); background: var(--color-white); color: var(--color-ink); font: inherit; }
+    .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-white); color: var(--color-ink); font: inherit; }
     .input:hover { border-color: var(--color-muted); }
     .input:focus-visible { border-color: var(--color-teal); }
     section[data-page] { max-width: var(--container-wide); }
@@ -1117,7 +1117,7 @@ ${inline(catalogCss)}</style>
     .el-cell[data-hw-scale="dense"] { font-size: 0.875rem; line-height: 1.5; }
     .el-cell[data-hw-scale="print"] { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
     .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; --hw-zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
-    .el-inner > * + * { margin-top: 0.5em; }
+    .el-inner > * + *:not(.hw-check-target) { margin-top: 0.5em; }
     .el-inner :is(p, blockquote, pre) { margin-block: 0; }
     .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
     .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
