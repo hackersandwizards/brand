@@ -71,7 +71,7 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-icon-button:not([data-on="picture"]) {
       color: var(--color-white);
-      background: color-mix(in srgb, white 15%, transparent);
+      background: var(--white-line);
     }
     .hw-icon-button:not([data-on="picture"]):is(:hover, [data-hw-hover]) {
       background: color-mix(in srgb, white 25%, transparent);
@@ -82,7 +82,7 @@
     }
     .hw-icon-button[data-variant="quiet"]:is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
-      background: color-mix(in srgb, white 15%, transparent);
+      background: var(--white-line);
     }
     /* The night rules above outrank the day toggle, so it stands here again. */
     .hw-icon-button[aria-pressed="true"],

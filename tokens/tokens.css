@@ -330,15 +330,20 @@
   --gradient-strip: linear-gradient(to right, var(--color-teal), var(--color-purple));
 }
 
-/* The reading measures: a line of running text, an h1, an h2; and a callout's tint, its hue's share
+/* The reading measures: a line of running text, an h1, an h2; a callout's tint, its hue's share
    over white by day and over the ground on night (callout.css), which a surface drawing a callout
-   itself, such as an exported slide, mixes too. Static, so every Tailwind build writes them to
-   :root whether or not a utility names them, and a stylesheet Tailwind does not compile reads them
-   with var() and no fallback. */
+   itself, such as an exported slide, mixes too; translucent white and the scrim. Static, so every
+   Tailwind build writes them to :root whether or not a utility names them, and a stylesheet
+   Tailwind does not compile reads them with var() and no fallback. */
 @theme static {
   --container-measure: 33em;
   --container-measure-h1: 18ch;
   --container-measure-h2: 26ch;
   --tint-callout: 10%;
   --tint-callout-night: 14%;
+  /* Translucent white over any dark ground, night or a picture: a line or a control's tray at 15 %,
+     a wash at 7 %. The scrim behind a modal dialog: night at 40 %. */
+  --white-line: color-mix(in srgb, white 15%, transparent);
+  --white-wash: color-mix(in srgb, white 7%, transparent);
+  --scrim: color-mix(in srgb, var(--color-night) 40%, transparent);
 }

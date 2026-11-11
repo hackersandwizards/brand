@@ -55,7 +55,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-facts[data-variant="ruled"] > div {
-      border-top-color: color-mix(in srgb, white 15%, transparent);
+      border-top-color: var(--white-line);
     }
   }
 }

@@ -41,7 +41,7 @@
     .hw-popover {
       --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
     }
   }
 }

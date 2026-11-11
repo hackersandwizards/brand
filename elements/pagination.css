@@ -104,7 +104,7 @@
     .hw-pagination {
       --_hw-quiet: var(--color-night-muted);
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
       --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
       --_hw-on-accent: var(--hw-night-on-accent, var(--color-night));
     }

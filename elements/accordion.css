@@ -62,7 +62,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-accordion {
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
     }
   }
 }

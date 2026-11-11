@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { compile } from "tailwindcss";
 import { fontFaceRules, preloadFiles } from "../generated/font-faces";
@@ -37,7 +37,7 @@ const contrast = (a: string, b: string) => {
 };
 
 test("reads every declaration of tokens.css", () => {
-  expect(Object.keys(tokens)).toHaveLength(173);
+  expect(Object.keys(tokens)).toHaveLength(176);
   expect(tokens["--color-teal"]).toBe("#1a7285");
 });
 
@@ -292,4 +292,21 @@ test("no theme namespace pair a Tailwind utility reads shares a name", () => {
     .map((f) => readFileSync(join(ROOT, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, ""))
     .join("\n");
   expect(collisions(source)).toEqual([]);
+});
+
+test("translucent white and the scrim are tokens the elements name, never a mix they write", () => {
+  expect(generatedTokens["--white-line"]).toBe("color-mix(in srgb, white 15%, transparent)");
+  expect(generatedTokens["--white-wash"]).toBe("color-mix(in srgb, white 7%, transparent)");
+  expect(generatedTokens["--scrim"]).toBe(
+    "color-mix(in srgb, var(--color-night) 40%, transparent)",
+  );
+  const dir = join(ROOT, "elements");
+  const written = readdirSync(dir)
+    .filter((f) => f.endsWith(".css"))
+    .filter((f) =>
+      /color-mix\(in srgb, (white (15|7)%|var\(--color-night\) 40%), transparent\)/.test(
+        readFileSync(join(dir, f), "utf8"),
+      ),
+    );
+  expect(written).toEqual([]);
 });

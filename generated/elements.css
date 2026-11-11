@@ -668,8 +668,8 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-card {
-      border-color: color-mix(in srgb, white 15%, transparent);
-      background: color-mix(in srgb, white 7%, transparent);
+      border-color: var(--white-line);
+      background: var(--white-wash);
     }
     .hw-card:is([href], :has(.hw-card-link)) {
       --_hw-card-hover: var(--color-teal-night);
@@ -811,7 +811,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-table {
-      --_hw-table-line: color-mix(in srgb, white 15%, transparent);
+      --_hw-table-line: var(--white-line);
     }
     .hw-table-scroll {
       --_hw-table-ground: var(--hw-table-ground, var(--hw-night-background, var(--color-night)));
@@ -985,7 +985,7 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-icon-button:not([data-on="picture"]) {
       color: var(--color-white);
-      background: color-mix(in srgb, white 15%, transparent);
+      background: var(--white-line);
     }
     .hw-icon-button:not([data-on="picture"]):is(:hover, [data-hw-hover]) {
       background: color-mix(in srgb, white 25%, transparent);
@@ -996,7 +996,7 @@
     }
     .hw-icon-button[data-variant="quiet"]:is(:hover, [data-hw-hover]) {
       color: var(--color-night-ink);
-      background: color-mix(in srgb, white 15%, transparent);
+      background: var(--white-line);
     }
     .hw-icon-button[aria-pressed="true"],
     .hw-icon-button[aria-pressed="true"]:is(:hover, [data-hw-hover]) {
@@ -1061,7 +1061,7 @@
     background: var(--code-bg);
   }
   .hw-code[data-variant="panel"] {
-    border: var(--hw-hairline, 1px) solid color-mix(in srgb, white 7%, transparent);
+    border: var(--hw-hairline, 1px) solid var(--white-wash);
   }
   .hw-code code {
     font: inherit;
@@ -2063,7 +2063,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-facts[data-variant="ruled"] > div {
-      border-top-color: color-mix(in srgb, white 15%, transparent);
+      border-top-color: var(--white-line);
     }
   }
 }
@@ -3120,7 +3120,7 @@
     }
   }
   .hw-dialog::backdrop {
-    background: color-mix(in srgb, var(--color-night) 40%, transparent);
+    background: var(--scrim);
   }
   html:has(.hw-dialog:modal) {
     overflow: hidden;
@@ -3229,7 +3229,7 @@
     .hw-dialog {
       --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
     }
   }
 }
@@ -3324,7 +3324,7 @@
     .hw-menu {
       --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
       --_hw-quiet: var(--color-night-muted);
       --_hw-danger: var(--color-red-night);
     }
@@ -3359,7 +3359,7 @@
     .hw-popover {
       --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
     }
   }
 }
@@ -3494,7 +3494,7 @@
       --_hw-quiet: var(--color-night-muted);
       --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
       --_hw-sel: 15%;
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
     }
   }
 }
@@ -3630,7 +3630,7 @@
     .hw-toast {
       --_hw-ground: var(--hw-night-background, color-mix(in srgb, white 7%, var(--color-night)));
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
       --_hw-tone: var(--color-teal-night);
     }
     .hw-toast[data-tone="success"] {
@@ -3696,7 +3696,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tabs {
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
       --_hw-quiet: var(--color-night-muted);
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
       --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
@@ -3930,7 +3930,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-accordion {
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
     }
   }
 }
@@ -4108,7 +4108,7 @@
     .hw-pagination {
       --_hw-quiet: var(--color-night-muted);
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
       --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
       --_hw-on-accent: var(--hw-night-on-accent, var(--color-night));
     }
@@ -4299,7 +4299,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-tree {
-      --_hw-line: var(--hw-night-border, color-mix(in srgb, white 15%, transparent));
+      --_hw-line: var(--hw-night-border, var(--white-line));
       --_hw-accent: var(--hw-night-accent, var(--color-teal-night));
       --_hw-sel: 15%;
     }
@@ -4441,7 +4441,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-carousel {
-      --_hw-tray: color-mix(in srgb, white 15%, transparent);
+      --_hw-tray: var(--white-line);
       --_hw-tray-hover: color-mix(in srgb, white 25%, transparent);
       --_hw-text: var(--hw-night-foreground, var(--color-night-ink));
       --_hw-quiet: var(--color-night-muted);

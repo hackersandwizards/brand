@@ -119,7 +119,7 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-table {
-      --_hw-table-line: color-mix(in srgb, white 15%, transparent);
+      --_hw-table-line: var(--white-line);
     }
     .hw-table-scroll {
       --_hw-table-ground: var(--hw-table-ground, var(--hw-night-background, var(--color-night)));

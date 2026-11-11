@@ -94,8 +94,8 @@
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     .hw-card {
-      border-color: color-mix(in srgb, white 15%, transparent);
-      background: color-mix(in srgb, white 7%, transparent);
+      border-color: var(--white-line);
+      background: var(--white-wash);
     }
     .hw-card:is([href], :has(.hw-card-link)) {
       --_hw-card-hover: var(--color-teal-night);

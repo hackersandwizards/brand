@@ -28,7 +28,7 @@
     background: var(--code-bg);
   }
   .hw-code[data-variant="panel"] {
-    border: var(--hw-hairline, 1px) solid color-mix(in srgb, white 7%, transparent);
+    border: var(--hw-hairline, 1px) solid var(--white-wash);
   }
   .hw-code code {
     font: inherit;
