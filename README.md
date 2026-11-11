@@ -464,9 +464,11 @@ Inside a file, one thing is skipped: a document the documents engine (`@hackersa
 composed. `brand-colours` skips its style elements marked `data-hw-document`, `data-hw-components`,
 `data-hw-page`, `data-hw-onepager`, `data-hw-readout` or `data-hw-certificate`, the engine's own
 stylesheets inlined so the document stands alone, which the engine's gate scans in its source;
-everything else in the file is read. `brand-copies` lets such a document carry the lockup the
-engine inlines from this package, an `<svg>` with the lockup's `viewBox`, and matches every other
-drawing in it. The attribute is the one marker both scans trust: nothing checks that the engine
+everything else in the file is read. `brand-copies` lets such a document carry the logos the
+engine inlines from this package, as an `<svg>` or a `data:` URI: the lockup, known by its
+`viewBox`, and an unmodified `logos/wordmark*.svg`, known by its whole text (comments and
+whitespace aside), so a recoloured or cropped wordmark as an `<svg>` or a percent-encoded URI still
+fails. It matches every other drawing in it. The attribute is the one marker both scans trust: nothing checks that the engine
 wrote the element, so never put it on a style element of your own.
 
 ### Check for copies in your gate

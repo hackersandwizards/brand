@@ -71,6 +71,35 @@ test("a document the documents engine composed may inline the lockup, nothing el
   );
 });
 
+test("a document the documents engine composed may inline the unmodified wordmark, never a changed one", () => {
+  const doc = (head: string, body: string) =>
+    copyOf(
+      "src/content/documents/readout.html",
+      () => `<html><head>${head}</head><body>${body}</body></html>`,
+      () => undefined,
+    );
+  const engine = "<style data-hw-readout>.slide{}</style>";
+  // The documents engine's svgUri: percent-encodes only what a URL or an attribute needs.
+  const uri = (svg: string) =>
+    `data:image/svg+xml,${svg.replace(/[%#"<>&\n\r\t]/g, encodeURIComponent)}`;
+  const base64 = (svg: string) =>
+    `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  const img = (src: string) => `<img class="wordmark" src="${src}" alt="hackers&amp;wizards">`;
+  const night = readFileSync(join(ROOT, "logos/wordmark-night.svg"), "utf8");
+  const red = wordmark.replace(/fill="[^"]*"/g, 'fill="red"');
+  const cropped = wordmark.replace('viewBox="96 96 6571 952"', 'viewBox="96 96 3000 952"');
+  expect(doc(engine, img(uri(wordmark)).repeat(6))).toBeUndefined();
+  expect(doc(engine, img(base64(wordmark)))).toBeUndefined();
+  expect(doc(engine, img(uri(night)) + wordmark)).toBeUndefined();
+  for (const changed of [red, cropped]) {
+    expect(doc(engine, img(uri(changed)))).toContain("drawing");
+    expect(doc(engine, changed)).toContain("drawing");
+  }
+  // Without the engine's marker, the unmodified wordmark is a copy too.
+  expect(doc("<style>.slide{}</style>", img(uri(wordmark)))).toContain("drawing");
+  expect(doc("<style>.slide{}</style>", wordmark)).toContain("drawing");
+});
+
 test("flags an unlisted copy, an entry without a reason, one added against HEAD and a stale one", () => {
   const found = { "public/favicon.svg": "identical to brand logos/favicon.svg" };
   const allow = { "public/favicon.svg": "r" };

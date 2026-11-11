@@ -65,6 +65,20 @@ const box = (f: string) => /viewBox="([^"]+)"/.exec(readFileSync(join(LOGOS, f),
 const LOCKUP_BOX = new RegExp(
   `^<svg\\b[^>]*viewBox="(?:${[...new Set(["lockup.svg", "lockup-screen.svg"].map(box))].join("|").replace(/\./g, "\\.")})"`,
 );
+/** An svg's text without comments, its whitespace collapsed. */
+const plain = (svg: string) =>
+  svg
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/>\s*</g, "><")
+    .trim();
+// The wordmarks the documents engine inlines, by their whole text: a recoloured or cropped one differs.
+const WORDMARKS = new Set(
+  [...logoNames]
+    .filter((f) => /^wordmark.*\.svg$/.test(f))
+    .map((f) => plain(readFileSync(join(LOGOS, f), "utf8"))),
+);
+const engineLogo = (svg: string) => LOCKUP_BOX.test(svg) || WORDMARKS.has(plain(svg));
 
 /** What makes a consumer file a copy of a brand file, or undefined where it is none. */
 export const copyOf = (
@@ -77,18 +91,18 @@ export const copyOf = (
   if (logoNames.has(basename(path))) return `named like brand logos/${basename(path)}`;
   if (TEXT.test(extname(path))) {
     let text = read(path);
-    // A document the documents engine composed inlines the lockup it renders from this package
-    // (logos/lockup.svg, lockup-screen.svg) to stand alone, as an svg element or a data: URI: that
-    // lockup, known by its viewBox, and the engine's style elements are left out; every other
-    // drawing is still matched.
+    // A document the documents engine composed inlines the logos it renders from this package to
+    // stand alone, as an svg element or a data: URI: the lockup (logos/lockup.svg,
+    // lockup-screen.svg), known by its viewBox, an unmodified logos/wordmark*.svg, known by its
+    // whole text, and the engine's style elements are left out; every other drawing is still matched.
     if (new RegExp(ENGINE_STYLE.source).test(text))
       text = text
         .replace(ENGINE_STYLE, "")
-        .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/g, (svg) => (LOCKUP_BOX.test(svg) ? "" : svg))
+        .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/g, (svg) => (engineLogo(svg) ? "" : svg))
         .replace(
           /(["'])data:image\/svg\+xml([^,"']*),([\s\S]*?)\1/g,
           (uri, _quote, params: string, data: string) =>
-            LOCKUP_BOX.test(svgOf(params, data)) ? "" : uri,
+            engineLogo(svgOf(params, data)) ? "" : uri,
         );
     for (const s of signatures)
       if (text.includes(s))
