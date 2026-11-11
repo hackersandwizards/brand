@@ -980,6 +980,9 @@
       background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
     }
   }
+  :is(.hw-code, .hw-code *)::selection {
+    background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
+  }
 }
 @layer components {
   :is(.hw-choice, .hw-segmented, .hw-icon-button) {

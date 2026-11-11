@@ -7,8 +7,9 @@
 
    The text selection and the caret need no class: on every page that loads this file a selection
    lays teal at 25 % on white under the text, teal-night at 25 % on night where the nearest
-   data-theme is "dark", and the text keeps its own colour, links included. The caret is purple,
-   teal-night on night.
+   data-theme is "dark" and in a code block (code.css), night on every page; the text keeps its own
+   colour, links included. A surface's own night block on a day page carries data-theme="dark", or
+   its selection is the day one. The caret is purple, teal-night on night.
 
    A scroller clips at its padding box, so a ring at its edge needs room: --hw-focus-room is the
    ring's reach past the element (width plus offset, at the scale's values). A surface's own
@@ -76,5 +77,8 @@
     ::selection {
       background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
     }
+  }
+  :is(.hw-code, .hw-code *)::selection {
+    background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
   }
 }
