@@ -19,17 +19,7 @@
 // names with its reason; a marker there, under a name "exceptions" declares, still counts as found
 // for the checks below that a page shows one.
 //
-// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> [--site-at <path>] |
-// --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site
-// path>...] --site serves a built folder on a free port, at --site-at where it was built for a base
-// path such as /mail/, and a page starting with / is a path on it; --base names a server the gate started
-// instead. --catalog adds every story page of a built catalog folder (catalogPages), each named
-// below --catalog-at, by default the folder itself, or its path on --site. brand-elements.json in
-// the working directory gives the rest, so a consumer names its pages once: its "site" where
-// none of --site, --base and --catalog is given, its "catalog" with its "exclude" (listedCatalog)
-// where --catalog is not, and its "pages" where no page is named, each measured where it shows a
-// marker, as a story is (a site path only where a site or --base serves it); a run of those that
-// finds no marker at all fails.
+// Usage: --help (USAGE below).
 // The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
 // its reason and how many off readings it keeps at most:
 //   "markers": { "<glob over the page's path>": { "reason": "...", "off": 6 } }
@@ -60,6 +50,17 @@ import puppeteer, {
   type Page,
 } from "puppeteer-core";
 import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
+import { answerHelp } from "./help";
+
+const USAGE = `usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> [--site-at <path>] | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site path>...]
+--site serves a built folder on a free port, at --site-at where it was built for a base path such
+as /mail/, and a page starting with / is a path on it; --base names a server the gate started
+instead. --catalog adds every story page of a built catalog folder, each named below --catalog-at,
+by default the folder itself, or its path on --site. brand-elements.json in the working directory
+gives the rest, so a consumer names its pages once: its "site" where none of --site, --base and
+--catalog is given, its "catalog" with its "exclude" where --catalog is not, and its "pages" where
+no page is named, each measured where it shows a marker, as a story is (a site path only where a
+site or --base serves it); a run of those that finds no marker at all fails.`;
 
 export const TOLERANCE = 0.25; // CSS px
 // Where the marker's middle sits from the x-height middle (0) to the cap-height middle (1): the
@@ -1000,6 +1001,8 @@ export async function pool<T, R>(
 }
 
 if (import.meta.main) {
+  const usage = USAGE;
+  answerHelp(usage);
   const args = process.argv.slice(2);
   const opt = (name: string, fallback: string) => {
     const i = args.indexOf(name);
@@ -1014,8 +1017,6 @@ if (import.meta.main) {
   const flagAt = opt("--catalog-at", "");
   const json = args.includes("--json");
   const named = args.filter((a) => a !== "--json");
-  const usage =
-    "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> [--site-at <path>] | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site path>...]";
   if (flagBase && !/^https?:$/.test(URL.parse(flagBase)?.protocol ?? "")) {
     console.error(usage);
     process.exit(2);

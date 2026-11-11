@@ -58,15 +58,20 @@
 //    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, each such tile
 //    names a declared exception, and every hub element a page shows is listed as used.
 //
-// Usage: brand-elements [--base <url>] [--json]. Exits 1 on any finding, and on a named page with no
-// hub element (a zero proves nothing; a story page may show none). Exits 2 on a config naming no page
-// and on a catalog folder without a story page. Needs Chrome for Testing (CHROME_BINARY overrides).
+// Usage: --help (USAGE below).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import catalogs from "../expert/catalogs.json";
 import own from "../package.json";
 import { COMPONENT, ENGINE_STYLE, listTree, scanned, skippedReport } from "./colours";
+import { answerHelp } from "./help";
+
+const USAGE = `usage: brand-elements [--base <url>] [--json]
+Measures the shared elements on the pages and catalog brand-elements.json names. Exits 1 on any
+finding, and on a named page with no hub element (a zero proves nothing; a story page may show
+none). Exits 2 on a config naming no page and on a catalog folder without a story page. Needs
+Chrome for Testing (CHROME_BINARY overrides).`;
 import {
   addCss,
   catalogPages,
@@ -1033,6 +1038,7 @@ export const coverage = (
 };
 
 if (import.meta.main) {
+  answerHelp(USAGE);
   const json = process.argv.includes("--json");
   if (!existsSync(LIST)) {
     console.error(`brand-elements: no ${LIST} in ${process.cwd()}`);
@@ -1041,7 +1047,7 @@ if (import.meta.main) {
   const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
   const i = process.argv.indexOf("--base");
   if (i >= 0 && !/^https?:$/.test(URL.parse(process.argv[i + 1] ?? "")?.protocol ?? "")) {
-    console.error("usage: brand-elements [--base <url>] [--json]");
+    console.error(USAGE);
     process.exit(2);
   }
   const named = config.pages ?? [];

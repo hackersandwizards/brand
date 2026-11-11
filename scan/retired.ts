@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 // Fails where a text file a consumer's build wrote carries a line of verbal.json's `retired` list;
 // the README's "Check your build for retired lines" says how it matches.
-// Usage: brand-retired <dir or file>...
 import {
   closeSync,
   existsSync,
@@ -13,6 +12,11 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import verbal from "../verbal/verbal.json";
+import { answerHelp } from "./help";
+
+const USAGE = `usage: brand-retired <dir or file>...
+Fails where a text file in the named built folders or files carries a line of verbal.json's
+retired list.`;
 
 const ENTITIES: Record<string, string> = {
   amp: "&",
@@ -108,9 +112,10 @@ const filesUnder = (path: string): string[] =>
     : [path];
 
 if (import.meta.main) {
+  answerHelp(USAGE);
   const paths = process.argv.slice(2);
   if (!paths.length) {
-    console.error("Usage: brand-retired <dir or file>...");
+    console.error(USAGE);
     process.exit(2);
   }
   const missing = paths.filter((p) => !existsSync(p));

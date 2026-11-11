@@ -8,9 +8,6 @@
 // without a reason, on an entry whose file is no copy (stale), and on an entry added against HEAD: the list may only shrink. Where the working
 // tree changes the brand pin package.json holds at HEAD, an entry may also name a file committed
 // at HEAD and unchanged since, which a newer scanner finds.
-// Usage: brand-copies [--tighten]
-//   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
-//              pin change, for such a file; writes no list where none was and none is needed.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
@@ -26,6 +23,12 @@ import {
   skippedReport,
   writeAllowlist,
 } from "./colours";
+import { answerHelp } from "./help";
+
+const USAGE = `usage: brand-copies [--tighten]
+Fails on a copy of a brand file in the working tree that brand-copies.json does not list.
+  --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
+             pin change, for such a file; writes no list where none was and none is needed.`;
 
 export const LIST = "brand-copies.json";
 export type Allowlist = Record<string, string>;
@@ -115,6 +118,7 @@ export const unlistedCopies = (
 ];
 
 if (import.meta.main) {
+  answerHelp(USAGE);
   const brand = brandFiles();
   const sizes = brandSizes(brand);
   const found: Record<string, string> = {};

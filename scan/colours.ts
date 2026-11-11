@@ -24,10 +24,6 @@
 // counts with its reason, and may be added in any commit: its colours are its owner's. Prints every
 // built-in exception it applied with the number of files it skipped, and every partner mark it
 // allowed.
-// Usage: brand-colours [--tighten]
-//   --tighten  lowers every entry to today's count and drops metrics and entries at zero; creates
-//              the allowlist from today's counts where none exists and a count is found. Raises an entry, or adds one with
-//              an empty reason, only during a pin change, to what HEAD's file holds.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -35,6 +31,15 @@ import { extname, join } from "node:path";
 import manifest from "../manifest.json";
 import own from "../package.json";
 import { colors, tokens } from "../generated/tokens";
+import { answerHelp } from "./help";
+
+const USAGE = `usage: brand-colours [--tighten]
+Counts colours, radii, shadows and fonts off the brand tokens in the working tree and compares
+them with brand-colours.json; exits 1 on a finding.
+  --tighten  lowers every entry to today's count and drops metrics and entries at zero; creates
+             the allowlist from today's counts where none exists and a count is found. Raises an
+             entry, or adds one with an empty reason, only during a pin change, to what HEAD's
+             file holds.`;
 
 export type Counts = {
   hex: number;
@@ -689,6 +694,7 @@ export const writeAllowlist = (cmd: string, path: string, next: object, done = "
 };
 
 if (import.meta.main) {
+  answerHelp(USAGE);
   const allow = existsSync(ALLOWLIST)
     ? (JSON.parse(readFileSync(ALLOWLIST, "utf8")) as Allowlist)
     : undefined;

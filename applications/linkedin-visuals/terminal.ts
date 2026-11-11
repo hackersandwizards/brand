@@ -14,9 +14,12 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import sharp from "sharp";
 import { tokens } from "../../generated/tokens";
+import { answerHelp } from "../../scan/help";
 import { escHtml, linkedinCss, screenshot } from "./render";
+
+// Loaded on use, so --help answers where the consumer has not installed sharp.
+const sharp = async () => (await import("sharp")).default;
 
 interface Spec {
   title: string;
@@ -87,11 +90,12 @@ body { box-sizing: border-box; background: var(--color-bg); padding: 30px 22px; 
 }
 
 if (import.meta.main) {
+  const usage =
+    'usage: brand-linkedin-terminal <spec.json> <out.png>\nspec.json: { "title": "gh pr list", "lines": ["..."], "highlight": 1, "note": "..." }, four to six lines of at most 36 characters, highlight the 0-based index of the line the note explains; a line marks a span with <t>teal</t>, <p>purple</p>, <r>red</r> or <c>grey</c>.';
+  answerHelp(usage);
   const [specPath, output] = process.argv.slice(2);
   if (!specPath || !output) {
-    console.error(
-      'usage: brand-linkedin-terminal <spec.json> <out.png>\nspec.json: { "title": "gh pr list", "lines": ["..."], "highlight": 1, "note": "..." }, four to six lines of at most 36 characters, highlight the 0-based index of the line the note explains; a line marks a span with <t>teal</t>, <p>purple</p>, <r>red</r> or <c>grey</c>.',
-    );
+    console.error(usage);
     process.exit(2);
   }
   const spec = JSON.parse(readFileSync(specPath, "utf-8")) as Spec;
@@ -105,7 +109,9 @@ if (import.meta.main) {
   try {
     writeFileSync(join(dir, "t.html"), terminalHtml(spec));
     await screenshot(dir, "t.html", [SIZE, SIZE, SCALE], join(dir, "t.png"));
-    await sharp(join(dir, "t.png"))
+    await (
+      await sharp()
+    )(join(dir, "t.png"))
       .trim({ background: tokens["--color-bg"], threshold: 6 })
       .toFile(resolve(output));
   } finally {

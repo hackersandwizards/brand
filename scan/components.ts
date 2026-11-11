@@ -7,9 +7,6 @@
 // reason, on an entry no fork answers (stale), and on an entry added against HEAD: the list may only shrink. Where the working tree
 // changes the brand pin package.json holds at HEAD, an entry may also name a fork whose files are
 // committed at HEAD and unchanged since, which a newer package's component makes one.
-// Usage: brand-scan [--tighten]
-//   --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
-//              pin change, for such a fork; writes no list where none was and none is needed.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
@@ -22,6 +19,13 @@ import {
   skippedReport,
   writeAllowlist,
 } from "./colours";
+import { answerHelp } from "./help";
+
+const USAGE = `usage: brand-scan [--tighten]
+Fails on a component in the working tree named like an expert component that brand-scan.json does
+not list.
+  --tighten  drops every entry no longer found; adds one, with an empty reason, only during a
+             pin change, for such a fork; writes no list where none was and none is needed.`;
 
 export const LIST = "brand-scan.json";
 export type Allowlist = Record<string, string>;
@@ -66,6 +70,7 @@ export const unlisted = (
 ];
 
 if (import.meta.main) {
+  answerHelp(USAGE);
   const tree = listTree("brand-scan");
   const report = skippedReport("brand-scan", tree);
   if (report) console.log(report);

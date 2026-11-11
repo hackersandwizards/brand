@@ -8,6 +8,11 @@
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { answerHelp } from "../../scan/help";
+
+answerHelp(
+  "usage: brand-slide-sketch-prompt\nPrints the prompt for a generated slide sketch, then each worked example.",
+);
 
 const dir = import.meta.dir;
 console.log(readFileSync(join(dir, "sketch-prompt.txt"), "utf-8"));
