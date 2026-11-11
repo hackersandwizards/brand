@@ -841,7 +841,7 @@ const ringWhole = async (p: Page, sel: string) => {
   return [columns.slice(0, 12), columns.slice(-12)].every((c) => Math.max(...c) >= r.height * 0.8);
 };
 
-test("a table stays inside its container, a fitting one where a bare one sits, and a control at either side keeps its whole ring", async () => {
+test("a scrolling table starts where the text does, its ring room past it; a fitting one sits where a bare one does; a control at either side keeps its whole ring", async () => {
   const wide = (id: string) =>
     `<div id="${id}" class="hw-table-scroll" tabindex="0"><table class="hw-table"><tr><td><a class="hw-link" href="#a">Erste</a></td>${"<td>Spalte mit Inhalt</td>".repeat(16)}<td><a class="hw-link" href="#b">Letzte</a></td></tr></table></div>`;
   const fits = `<div id="fits" class="hw-table-scroll" tabindex="0"><table class="hw-table"><tr><td><a class="hw-link" href="#a">Erste</a></td><td><a class="hw-link" href="#b">Letzte</a></td></tr></table></div>`;
@@ -850,7 +850,8 @@ test("a table stays inside its container, a fitting one where a bare one sits, a
   );
   await p.waitForFunction(() => document.getElementById("fits")!.dataset.hwScrolls === "false");
   // Per wrapper: its mark, the container's own overflow, how far the wrapper reaches past the
-  // container's box, and how far the table starts from the container's content edge.
+  // container's box, and how far the table starts from the container's content edge. A scrolling
+  // table reaches past a container without side padding by the ring's room, inside a card's.
   expect(
     await p.$$eval(".hw-table-scroll", (ws) =>
       ws.map((w) => {
@@ -869,9 +870,9 @@ test("a table stays inside its container, a fitting one where a bare one sits, a
       }),
     ),
   ).toEqual([
-    ["true", 0, 0, 5],
-    ["true", 0, 0, 5],
-    ["true", 0, 0, 5],
+    ["true", 5, 5, 0],
+    ["true", 5, 5, 0],
+    ["true", 0, 0, 0],
     ["false", 0, 0, 0],
   ]);
   // The ring in pixels: a purple column at the link's left and at its right, nearly its height.
@@ -894,7 +895,12 @@ test("a table stays inside its container, a fitting one where a bare one sits, a
   }
   // On paper a scrolling table keeps no room: it starts where a bare one does.
   await p.emulateMediaType("print");
-  expect(await p.$eval("#plain", (w) => getComputedStyle(w).paddingLeft)).toBe("0px");
+  expect(
+    await p.$eval("#plain", (w) => [
+      getComputedStyle(w).paddingLeft,
+      getComputedStyle(w).marginLeft,
+    ]),
+  ).toEqual(["0px", "0px"]);
   await p.close();
 });
 

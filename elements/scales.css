@@ -68,9 +68,10 @@
 
 [data-hw-scale="dense"] {
   /* The button at the apps' size: 38 px tall in the ui step (--text-ui, below) at every width, the
-     block padding small enough that the line and the hairlines stay inside the height. */
-  --hw-button-height: 2.375rem;
-  --hw-button-height-wide: 2.375rem;
+     touch target's on a touch screen, the block padding small enough that the line and the
+     hairlines stay inside the height. */
+  --hw-button-height: max(2.375rem, var(--hw-touch-floor, 0px));
+  --hw-button-height-wide: max(2.375rem, var(--hw-touch-floor, 0px));
   --hw-button-pad: 0.25rem 1rem;
   --hw-button-size: var(--text-ui);
   --hw-label-size: 0.75rem;

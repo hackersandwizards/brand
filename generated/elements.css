@@ -57,8 +57,8 @@
   --hw-avatar-size: 2.5rem;
 }
 [data-hw-scale="dense"] {
-  --hw-button-height: 2.375rem;
-  --hw-button-height-wide: 2.375rem;
+  --hw-button-height: max(2.375rem, var(--hw-touch-floor, 0px));
+  --hw-button-height-wide: max(2.375rem, var(--hw-touch-floor, 0px));
   --hw-button-pad: 0.25rem 1rem;
   --hw-button-size: var(--text-ui);
   --hw-label-size: 0.75rem;
@@ -801,6 +801,7 @@
   @media screen {
     .hw-table-scroll[data-hw-scrolls="true"] {
       --_hw-table-pad: var(--hw-focus-room, 5px);
+      margin-inline: calc(-1 * var(--_hw-table-pad));
     }
   }
   @supports (animation-timeline: scroll()) {
@@ -825,13 +826,13 @@
   }
   @media screen and (max-width: 47.99rem) {
     @supports (animation-timeline: scroll()) {
-      .hw-table-scroll {
+      .hw-table-scroll:not([data-hw-scrolls="false"]) {
         scroll-padding-inline-start: var(
           --hw-table-held,
           calc(40vw + var(--_hw-table-pad) + var(--hw-focus-room, 5px))
         );
       }
-      .hw-table-scroll .hw-table :is(th, td):first-child {
+      .hw-table-scroll:not([data-hw-scrolls="false"]) .hw-table :is(th, td):first-child {
         max-width: var(--hw-table-held, 40vw);
         overflow-wrap: break-word;
         position: var(--hw-table-held, sticky);
@@ -843,7 +844,7 @@
         animation-timeline: scroll(nearest inline);
         animation-range: 0 1px;
       }
-      .hw-table-scroll .hw-table :is(th, td):first-child::before {
+      .hw-table-scroll:not([data-hw-scrolls="false"]) .hw-table :is(th, td):first-child::before {
         content: var(--hw-table-held, "");
         position: absolute;
         inset-block: 0;
@@ -2485,7 +2486,8 @@
     padding-left: 0.5rem;
   }
   .hw-nav a,
-  .hw-nav summary {
+  .hw-nav summary,
+  .hw-nav button:not([class]) {
     --hw-focus-offset: calc(-1 * var(--hw-focus-width, 3px));
     display: flex;
     align-items: baseline;
@@ -2502,11 +2504,23 @@
   .hw-nav summary {
     font-weight: 500;
   }
-  .hw-nav :is(a, summary):is(:hover, [data-hw-hover]) {
+  .hw-nav button:not([class]) {
+    box-sizing: border-box;
+    align-items: center;
+    border: 0;
+    font: inherit;
+    text-align: start;
+    background: none;
+    cursor: pointer;
+  }
+  .hw-nav li > button:not([class]) {
+    width: 100%;
+  }
+  .hw-nav :is(a, summary, button:not([class])):is(:hover, [data-hw-hover], [aria-expanded="true"]) {
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-ink) 7%, transparent);
   }
-  .hw-nav a[aria-current]:not([aria-current="false"]) {
+  .hw-nav :is(a, button:not([class]))[aria-current]:not([aria-current="false"]) {
     font-weight: 500;
     color: var(--color-teal-dark);
     background: color-mix(in srgb, var(--color-teal) 7%, transparent);
@@ -2532,7 +2546,7 @@
     margin-top: 0;
   }
   @media (prefers-reduced-motion: reduce) {
-    .hw-nav :is(a, summary) {
+    .hw-nav :is(a, summary, button:not([class])) {
       transition: none;
     }
   }
@@ -2540,15 +2554,16 @@
     .hw-nav :is(ul, ol) :is(ul, ol) {
       border-left-color: color-mix(in srgb, var(--color-night-ink) 15%, transparent);
     }
-    .hw-nav :is(a, summary),
+    .hw-nav :is(a, summary, button:not([class])),
     .hw-nav-count {
       color: color-mix(in srgb, var(--color-night-ink) 70%, transparent);
     }
-    .hw-nav :is(a, summary):is(:hover, [data-hw-hover]) {
+    .hw-nav
+      :is(a, summary, button:not([class])):is(:hover, [data-hw-hover], [aria-expanded="true"]) {
       color: var(--color-night-ink);
       background: var(--color-night-2);
     }
-    .hw-nav a[aria-current]:not([aria-current="false"]) {
+    .hw-nav :is(a, button:not([class]))[aria-current]:not([aria-current="false"]) {
       color: var(--color-teal-night);
       background: color-mix(in srgb, var(--color-teal-night) 12%, transparent);
     }

@@ -9,7 +9,7 @@
    where the block it belongs to carries purple (a second speaker, a second part): purple where it
    is teal, darker purple on hover, purple-night lines and text on night. Disabled (:disabled or
    aria-disabled="true") it stands at half opacity with no hover change. The apps (dense scale)
-   take it 38 px tall in the ui step (scales.css).
+   take it 38 px tall in the ui step, 44 px on a touch screen (scales.css).
 
    Settings:
      --hw-button-height       the least height below 64rem
