@@ -473,6 +473,24 @@ test("a carousel takes controls named by id, keeps dots the page wrote, and wire
   await alone.close();
 }, 30_000);
 
+test("controls outside an autoplaying carousel show its state and hold it while used", async () => {
+  const items = `<ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li></ul>`;
+  const controls = `<div class="hw-carousel-controls" id="c"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1" id="n">N</button></div>`;
+  const p = await page(
+    `<div id="k" class="hw-carousel" data-hw-autoplay data-hw-controls="c" style="width:300px">${items}</div><p>Text</p>`,
+  );
+  // Wired once its controls are there.
+  await p.evaluate((html) => {
+    document.body.insertAdjacentHTML("beforeend", html);
+    (window as unknown as { HW: { enhance: () => void } }).HW.enhance();
+  }, controls);
+  expect(await p.$eval("#c", (c) => c.hasAttribute("data-hw-autoplay"))).toBe(true);
+  await p.focus("#n");
+  expect(await p.$eval("#k", (c) => c.hasAttribute("data-hw-held"))).toBe(true);
+  expect(await p.$eval("#c", (c) => c.hasAttribute("data-hw-held"))).toBe(true);
+  await p.close();
+}, 30_000);
+
 // The clipboard as a page sees it: each text copies or fails after its own delay, the hidden
 // field's execCommand answers `exec`, and every hw-copy event is logged.
 const CLIPBOARD = () => {
@@ -788,8 +806,8 @@ test("a scrolling table's wrapper is a tab stop while its table scrolls, none wh
   const wrap = (id: string, n: number) =>
     `<div id="${id}" class="hw-table-scroll" tabindex="0" role="region" aria-label="${id}" style="width: 20rem"><table class="hw-table">${row(n)}</table></div>`;
   const p = await page(wrap("wide", 8) + wrap("narrow", 1));
+  await p.waitForFunction(() => !document.getElementById("narrow")!.hasAttribute("tabindex"));
   expect(await attr(p, "#wide", "tabindex")).toBe("0");
-  expect(await attr(p, "#narrow", "tabindex")).toBeNull();
   // A wrapper that starts to scroll becomes a tab stop again.
   await p.$eval("#narrow tr", (tr) => tr.insertAdjacentHTML("beforeend", "<td>x</td>".repeat(30)));
   await p.waitForFunction(
@@ -810,12 +828,20 @@ test("the rehype step wraps each table in a named hw-table-scroll", () => {
     el("table", [el("thead", [el("tr", [el("th", [t(head)]), el("th", [t("Wert")])])])], {
       className: ["own"],
     });
+  const wrapped = el("div", [table("C")], { className: ["hw-table-scroll"] });
   const tree = {
     type: "root",
-    children: [table("Name"), el("h2", [t(" Preise ")]), table("A"), el("p"), table("B")],
+    children: [
+      table("Name"),
+      el("h2", [t(" Preis"), el("strong", [t("e")])]),
+      table("A"),
+      el("p"),
+      table("B"),
+      wrapped,
+    ],
   };
   tableScroll()(tree);
-  const wrappers = tree.children.filter((c) => c.tagName === "div") as {
+  const wrappers = tree.children.filter((c) => c.tagName === "div" && c !== wrapped) as {
     properties: Record<string, unknown>;
     children: { properties: Record<string, unknown> }[];
   }[];
@@ -825,4 +851,6 @@ test("the rehype step wraps each table in a named hw-table-scroll", () => {
     { className: ["hw-table-scroll"], tabIndex: 0, role: "region", ariaLabel: "Preise (2)" },
   ]);
   expect(wrappers[0]!.children[0]!.properties.className).toEqual(["own", "hw-table"]);
+  // A table already in a wrapper keeps it: one tab stop, one region.
+  expect(wrapped.children[0]!.tagName).toBe("table");
 });

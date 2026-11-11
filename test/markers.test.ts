@@ -710,7 +710,9 @@ test("a site built for a base path is served there: its stylesheets load, nothin
     expect((await fetch(`${server.url.origin}/_astro/a.css`)).status).toBe(404);
     const listed = listedSite({ dir: site, at: "/mail/" });
     expect(listed).toEqual({ dir: site, at: "/mail/" });
-    expect(listedSite(site, "/mail")).toEqual({ dir: site, at: "/mail" });
+    expect(listedSite(site, "mail")).toEqual({ dir: site, at: "/mail/" });
+    expect(listedSite(site)).toEqual({ dir: site, at: "/" });
+    expect(() => listedSite({ at: "/mail/" } as never)).toThrow('"site": a folder');
     expect(listedSite(undefined)).toBeUndefined();
     expect(catalogPages(join(site, "catalog"), undefined, site, true, [], listed!.at)).toEqual([
       "/mail/catalog/stories/A/b/default/",

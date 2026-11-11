@@ -785,11 +785,8 @@ const WORD: Record<string, string> = {
   fact: "facts",
 };
 // What a component named for an element renders to pass, where more than its hw-* class: a button
-// may be the icon button, and a fact one row (dt and dd) of the facts list its parent renders.
-const RENDERS: Record<string, string> = {
-  button: "(?<![\\w-])hw-(icon-)?button(?![\\w-])",
-  facts: "(?<![\\w-])hw-facts(?![\\w-])|<dt\\b",
-};
+// may be the icon button.
+const RENDERS: Record<string, string> = { button: "(?<![\\w-])hw-(icon-)?button(?![\\w-])" };
 const NAMED = new RegExp(`(^|-)(${Object.keys(WORD).join("|")})s?($|-)`);
 const NAMED_ALL = new RegExp(`(?<=^|-)(${Object.keys(WORD).join("|")})s?(?=$|-)`, "g");
 /** A name in kebab case, so ProjectCard and projectCard read as project-card. */
@@ -970,7 +967,9 @@ export const sourceFindings = (
       if (
         elements.length &&
         !(name in allow) &&
-        !elements.some((e) => new RegExp(RENDERS[e] ?? `(?<![\\w-])hw-${e}(?![\\w-])`).test(raw))
+        !elements.some((e) => new RegExp(RENDERS[e] ?? `(?<![\\w-])hw-${e}(?![\\w-])`).test(raw)) &&
+        // A fact, singular, is one row (dt and dd) of the facts list its parent renders.
+        !(/(^|-)fact($|-)/.test(name) && /<dt\b/.test(raw))
       )
         out.push(
           `${p}: a component named like a shared element; render the hw-* element or list "${name}" as an exception`,
@@ -1047,7 +1046,13 @@ if (import.meta.main) {
   }
   const named = config.pages ?? [];
   const { dir, at, exclude } = listedCatalog(config);
-  const site = listedSite(config.site);
+  let site: ReturnType<typeof listedSite>;
+  try {
+    site = listedSite(config.site);
+  } catch (e) {
+    console.error(`brand-elements: ${(e as Error).message}`);
+    process.exit(2);
+  }
   let stories: string[] = [];
   try {
     if (config.csp !== undefined) policies(config.csp);

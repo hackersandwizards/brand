@@ -2912,10 +2912,7 @@
 .hw-prose :is(table, pre) {
   max-width: none;
 }
-.hw-prose :is(.hw-table, .hw-code, .hw-quote) {
-  margin-block: 1rem;
-}
-.hw-prose .hw-table-scroll {
+.hw-prose :is(.hw-table, .hw-code, .hw-quote, .hw-table-scroll) {
   margin-block: 1rem;
 }
 .hw-prose .hw-table-scroll > .hw-table {

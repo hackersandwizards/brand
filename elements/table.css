@@ -7,7 +7,8 @@
 
    hw-table-scroll holds a table wider than its column: it scrolls sideways inside the column, with
    room for a focus ring at its sides (--hw-focus-room, focus.css; above and below, the cells'
-   padding holds it, so the wrapper keeps the table's own margins), and below 48rem the first
+   padding holds it, so the wrapper keeps the table's own margins; a --hw-cell-pad under the ring's
+   room clips the ring of a control in the first or last row), and below 48rem the first
    column stays in place, so each row keeps its name; once the table has scrolled, that column
    takes the table's ground and a hairline at its right (where the browser has scroll timelines;
    elsewhere the table scrolls whole). On paper it does not scroll. The wrapper takes the keyboard and names itself:

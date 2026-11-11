@@ -744,6 +744,8 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-focus-room",
     "--hw-table-ground",
     "--hw-on-fill",
+    "--hw-carousel-item",
+    "--hw-carousel-columns",
   ]);
   // The night roles expert.css and night.css set, never a scale.
   const night = (s: string) => s.startsWith("--hw-night-");
@@ -914,10 +916,12 @@ test("source: a button component may render the icon button, a fact component on
     "src/components/SaveButton.astro": `<button class="save"></button>`,
     "src/components/Fact.astro": `<div><dt class="hw-label" data-tone="muted">DE</dt><dd><slot /></dd></div>`,
     "src/components/FactBox.astro": `<div class="box"><slot /></div>`,
+    "src/components/Facts.astro": `<dl class="my-facts"><dt>Ort</dt><dd>Hamburg</dd></dl>`,
   };
   expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
     'src/components/SaveButton.astro: a component named like a shared element; render the hw-* element or list "save-button" as an exception',
     'src/components/FactBox.astro: a component named like a shared element; render the hw-* element or list "fact-box" as an exception',
+    'src/components/Facts.astro: a component named like a shared element; render the hw-* element or list "facts" as an exception',
   ]);
 });
 

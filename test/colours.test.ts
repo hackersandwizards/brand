@@ -334,11 +334,15 @@ test("an interpolation is the code's name, never a literal; an expression prop's
   const prop = '<rect fill={i === 2 ? "var(--color-ink)" : "white"} />';
   expect(scanSource(prop, ".astro").counts).toEqual({ ...zero, tokenHex: 1 });
   expect(scanSource(`const r = ${prop};`, ".tsx").counts).toEqual({ ...zero, tokenHex: 1 });
+  // A component's colour prop maps a name to a token, and an object after a colon is a map.
+  expect(scanSource('<Pill color={on ? "teal" : "purple"} />', ".astro").counts).toEqual(zero);
+  expect(scanSource('const t = { color: { primary: "teal" } };', ".ts").counts).toEqual(zero);
 });
 
 test("a custom property set to a colour name counts once, any other value not at all", () => {
   const css = ".a { --mark: white; --fill: hotpink; --ease: linear; --text-color: black }";
   expect(scanSource(css, ".css").counts).toEqual({ ...zero, tokenHex: 2, hex: 1 });
+  expect(scanSource('const s = { "--mark": white };', ".ts").counts).toEqual(zero);
   expect(scanSource('const s = { "--mark": "white" };', ".ts").counts).toEqual({
     ...zero,
     tokenHex: 1,

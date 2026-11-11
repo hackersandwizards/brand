@@ -253,14 +253,14 @@ const COLOUR_AT =
 // A custom property set to one colour name and nothing else, in CSS or as a style key.
 const CUSTOM = /(?<![\w-])--[\w-]+["']?\s*:\s*(["'`]?)([a-z]+)\1\s*(?=[;},\n]|$)/gim;
 const STRING = /"[^"\n]*"|'[^'\n]*'|`[^`]*`/g;
-/** The expression a { at `i` opens, to its matching }. */
+/** The expression a { at `i` opens, to its matching }, read at most 400 characters on. */
 const expression = (src: string, i: number) => {
   let depth = 0;
-  for (let j = i; j < src.length; j++) {
+  for (let j = i; j < Math.min(src.length, i + 400); j++) {
     depth += src[j] === "{" ? 1 : src[j] === "}" ? -1 : 0;
     if (!depth) return src.slice(i, j + 1);
   }
-  return src.slice(i);
+  return src.slice(i, i + 400);
 };
 const ARBITRARY =
   /(?<![\w-])(?:bg|text|border(?:-[trblxyse])?|ring(?:-offset)?|fill|stroke|outline|divide|decoration|shadow|accent|caret|from|to|via|placeholder)-\[([^\]\s]+)\]/g;
@@ -409,23 +409,27 @@ export const scanSource = (raw: string, ext: string) => {
   };
   for (const m of src.matchAll(COLOUR_AT)) {
     const start = m.index + m[0].length;
-    // A JSX or Astro expression prop (fill={on ? "teal" : "white"}): the strings in it.
+    // In markup color= and background= are a component's props, which map a name to a token; no
+    // element takes them as a colour.
+    if (MARKUP.test(ext) && /^(?:color|background)\s*=/.test(m[0])) continue;
+    // A JSX or Astro expression prop (fill={on ? "teal" : "white"}): the strings in it. After a
+    // colon the brace opens an object, a map of names, which is no value.
     if (src[start] === "{") {
-      for (const s of expression(src, start).matchAll(STRING)) words(s[0], start + s.index);
+      if (m[0].trimEnd().endsWith("="))
+        for (const s of expression(src, start).matchAll(STRING)) words(s[0], start + s.index);
       continue;
     }
     const quoted = /["'`]/.test(src[start] ?? "");
     if (script && !quoted && !m[0].startsWith("color-mix")) continue;
-    // In markup color= and background= are a component's props, which map a name to a token; no
-    // element takes them as a colour.
-    if (MARKUP.test(ext) && /^(?:color|background)\s*=/.test(m[0])) continue;
     const { value } = valueAt(src, start);
     // A type's union of names (color: "teal" | "purple") is no value.
     if (script && /^(["'`])[^"'`]*\1\s*\|/.test(src.slice(start, start + 200))) continue;
     words(value, start + (quoted ? 1 : 0));
   }
-  // A custom property whose whole value is one colour name (--mark: white).
-  for (const m of src.matchAll(CUSTOM)) words(m[2], m.index + m[0].lastIndexOf(m[2]));
+  // A custom property whose whole value is one colour name (--mark: white); in script quoted only,
+  // as a bare name there is a variable.
+  for (const m of src.matchAll(CUSTOM))
+    if (!script || m[1]) words(m[2], m.index + m[0].lastIndexOf(m[2]));
   for (const [, v] of src.matchAll(ARBITRARY)) if (/^[a-z]+$/i.test(v)) named(v);
   for (const m of src.matchAll(FONT)) {
     const v = (m[1] ?? m[2] ?? m[3] ?? m[4]).trim();

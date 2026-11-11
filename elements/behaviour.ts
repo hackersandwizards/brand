@@ -507,24 +507,32 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
 // The hold after the reader's own step, in ms. The step is carousel.css's, the time its dot fills.
 const HOLD = 4000;
 function enhanceCarousel(carousel: HTMLElement) {
-  if (!wireOnce(carousel, "carousel")) return;
   const track = carousel.querySelector<HTMLElement>(".hw-carousel-track");
   const controls =
     carousel.querySelector<HTMLElement>(".hw-carousel-controls") ??
     byId(carousel.dataset.hwControls ?? null);
-  if (!track || !controls) return;
+  // Not wired until both are there, so a later call wires controls added since.
+  if (!track || !controls || !wireOnce(carousel, "carousel")) return;
+  // Controls outside the carousel carry its autoplay state too, which carousel.css reads.
+  const marked = carousel.contains(controls) ? [carousel] : [carousel, controls];
+  const mark = (name: string, on: boolean) => {
+    for (const el of marked) el.toggleAttribute(name, on);
+  };
   const items = [...track.children] as HTMLElement[];
   const position = controls.querySelector<HTMLElement>("[data-hw-position]");
   const status = controls.querySelector<HTMLElement>(":scope > .hw-sr-only");
   const of = german() ? "von" : "of";
   const useDots = items.length <= 5;
   // Dots the page wrote, one per item, stay; otherwise they are written here.
-  const written = [...(position?.querySelectorAll<HTMLButtonElement>(".hw-carousel-dot") ?? [])];
-  if (written.length !== items.length) position?.replaceChildren();
+  let written = [...(position?.querySelectorAll<HTMLButtonElement>(".hw-carousel-dot") ?? [])];
+  if (written.length !== items.length) {
+    position?.replaceChildren();
+    written = [];
+  }
   const dots =
     useDots && position
       ? items.map((_, i) => {
-          let dot = written.length === items.length ? written[i] : undefined;
+          let dot = written[i];
           if (!dot) {
             dot = document.createElement("button");
             dot.type = "button";
@@ -599,6 +607,7 @@ function enhanceCarousel(carousel: HTMLElement) {
     o.disconnect();
   }).observe(track);
   if (!("hwAutoplay" in carousel.dataset)) return;
+  mark("data-hw-autoplay", true);
   const step = parseFloat(getComputedStyle(carousel).getPropertyValue("--_hw-step")) * 1000;
   if (!(step > 0)) return;
   const pause = controls.querySelector<HTMLButtonElement>("[data-hw-pause]");
@@ -607,7 +616,7 @@ function enhanceCarousel(carousel: HTMLElement) {
   // The step's time left runs while nothing holds the carousel; the dot's fill pauses with it.
   update = () => {
     const held = holds.size > 0 || document.hidden;
-    carousel.toggleAttribute("data-hw-held", held);
+    mark("data-hw-held", held);
     clearTimeout(timer);
     if (since) left -= Date.now() - since;
     since = 0;
@@ -625,7 +634,7 @@ function enhanceCarousel(carousel: HTMLElement) {
     else holds.delete(by);
     update();
   };
-  holdWhileUsed(carousel, hold);
+  for (const el of marked) holdWhileUsed(el, hold);
   new IntersectionObserver(([e]) => hold("offscreen", !e!.isIntersecting)).observe(carousel);
   document.addEventListener("visibilitychange", update);
   // A step or swipe of the reader's holds the carousel for HOLD ms, then runs a whole step.
@@ -641,7 +650,7 @@ function enhanceCarousel(carousel: HTMLElement) {
   // and focus are on it.
   const stop = (on: boolean) => {
     pause?.setAttribute("aria-pressed", String(on));
-    carousel.toggleAttribute("data-hw-stopped", on);
+    mark("data-hw-stopped", on);
     if (!on) for (const by of ["pointer", "focus"]) holds.delete(by);
     restart();
   };

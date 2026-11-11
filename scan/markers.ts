@@ -877,7 +877,7 @@ export const fileIn = (root: string, path: string) => {
 export const serve = (dir: string, at = "/") => {
   const root = resolve(dir);
   if (!existsSync(root)) throw new Error(`no site folder ${root}; build it first`);
-  const prefix = at.replace(/\/?$/, "/");
+  const prefix = basePath(at);
   return Bun.serve({
     hostname: "127.0.0.1",
     port: 0,
@@ -939,7 +939,7 @@ export const catalogPages = (
     .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
     .sort();
   if (!states.length) throw new Error(`no story page under ${stories}; build the catalog first`);
-  const root = at ?? (site ? `${siteAt.replace(/\/?$/, "/")}${relative(site, dir)}` : dir);
+  const root = at ?? (site ? `${basePath(siteAt)}${relative(site, dir)}` : dir);
   const file = !/^[a-z]+:\/\//.test(root) && !(served && root.startsWith("/"));
   const encoded = (s: string) => s.split("/").map(encodeURIComponent).join("/");
   return states.map((s) => `${root.replace(/\/?$/, "/")}${file ? `${s}index.html` : encoded(s)}`);
@@ -948,13 +948,18 @@ export const catalogPages = (
 /** The "site" of brand-elements.json: a built folder, served at its root or, as { dir, at }, at the
  * base path it was built for. */
 export type Site = string | { dir: string; at?: string };
+/** A base path with one slash at each end: "mail", "/mail" and "/mail/" are "/mail/". */
+const basePath = (at: string) => `/${at.replace(/^\/+|\/+$/g, "")}/`.replace("//", "/");
 /** The folder and path of a "site" or --site with --site-at; undefined for none. */
-export const listedSite = (site?: Site, at?: string) =>
-  site === undefined || site === ""
-    ? undefined
-    : typeof site === "string"
-      ? { dir: site, at: at || "/" }
-      : { dir: site.dir, at: at || site.at || "/" };
+export const listedSite = (site?: Site, at?: string) => {
+  if (site === undefined || site === "") return undefined;
+  const dir = typeof site === "string" ? site : site.dir;
+  if (typeof dir !== "string" || !dir)
+    throw new Error(
+      `"site": a folder or { "dir": "<folder>", "at": "<path>" }, not ${JSON.stringify(site)}`,
+    );
+  return { dir, at: basePath(at || (typeof site === "string" ? "" : site.at) || "/") };
+};
 /** The "catalog" of brand-elements.json. */
 export type Catalog = string | { dir: string; at?: string; exclude?: string[] };
 /** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
@@ -1021,10 +1026,13 @@ if (import.meta.main) {
   const listed = flagCatalog ? {} : listedCatalog(config);
   const catalog = flagCatalog || listed.dir;
   const at = flagAt || listed.at;
-  const site = listedSite(
-    flagSite || (flagBase || flagCatalog ? undefined : config.site),
-    flagSiteAt,
-  );
+  let site: ReturnType<typeof listedSite>;
+  try {
+    site = listedSite(flagSite || (flagBase || flagCatalog ? undefined : config.site), flagSiteAt);
+  } catch (e) {
+    console.error(`brand-markers: ${(e as Error).message}`);
+    process.exit(2);
+  }
   // The config's pages where none is named, each measured, like a story, where it shows a marker;
   // a site path only where a site or --base serves it, as brand-elements takes --base from its gate.
   const listedPages: string[] = named.length ? [] : (config.pages ?? []);
