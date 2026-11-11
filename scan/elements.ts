@@ -11,8 +11,10 @@
 //     "csp": "<policy>"                               optional: the Content-Security-Policy the
 //            | { "<glob>": "<policy>", ... },         host sends, added to every page opened, or
 //                                                     by path (README)
-//     "site": "<folder>",                             optional: a built site, served on a free
-//                                                     port, which a page starting with / names
+//     "site": "<folder>"                              optional: a built site, served on a free
+//             | { "dir": "<folder>", "at": "<path>" }, port at its root, or at "at", the base path
+//                                                     it was built for (such as "/mail/"), which
+//                                                     a page starting with / names
 //     "catalog": "<folder>"                           optional: a built catalog, every story page
 //                | { "dir": "<folder>", "at": "<page>",  under it measured too, named below "at"
 //                    "exclude": ["<glob>", ...] } }      (default: the folder, or its path on
@@ -47,7 +49,8 @@
 //    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
 //    button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
 //    longhands, an @apply utility for the properties it sets) fails, and so
-//    does a component file of such a name, unless it carries the hw-* class, its name is an
+//    does a component file of such a name, unless it carries the hw-* class (a button's the icon
+//    button's too, a fact's a dt, one row of the facts list), its name is an
 //    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
 //    medium, such as a slide deck's).
 // 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it), every
@@ -69,8 +72,10 @@ import {
   catalogPages,
   type Catalog,
   type Csp,
+  type Site,
   launch,
   listedCatalog,
+  listedSite,
   open,
   openFolds,
   policies,
@@ -88,7 +93,7 @@ export type Config = {
   uses: string[];
   exceptions?: Record<string, Exception>;
   lightOnly?: boolean;
-  site?: string;
+  site?: Site;
   catalog?: Catalog;
   csp?: Csp;
 };
@@ -779,6 +784,12 @@ const WORD: Record<string, string> = {
   breadcrumb: "breadcrumb",
   fact: "facts",
 };
+// What a component named for an element renders to pass, where more than its hw-* class: a button
+// may be the icon button, and a fact one row (dt and dd) of the facts list its parent renders.
+const RENDERS: Record<string, string> = {
+  button: "(?<![\\w-])hw-(icon-)?button(?![\\w-])",
+  facts: "(?<![\\w-])hw-facts(?![\\w-])|<dt\\b",
+};
 const NAMED = new RegExp(`(^|-)(${Object.keys(WORD).join("|")})s?($|-)`);
 const NAMED_ALL = new RegExp(`(?<=^|-)(${Object.keys(WORD).join("|")})s?(?=$|-)`, "g");
 /** A name in kebab case, so ProjectCard and projectCard read as project-card. */
@@ -959,7 +970,7 @@ export const sourceFindings = (
       if (
         elements.length &&
         !(name in allow) &&
-        !elements.some((e) => new RegExp(`(?<![\\w-])hw-${e}(?![\\w-])`).test(raw))
+        !elements.some((e) => new RegExp(RENDERS[e] ?? `(?<![\\w-])hw-${e}(?![\\w-])`).test(raw))
       )
         out.push(
           `${p}: a component named like a shared element; render the hw-* element or list "${name}" as an exception`,
@@ -1036,10 +1047,11 @@ if (import.meta.main) {
   }
   const named = config.pages ?? [];
   const { dir, at, exclude } = listedCatalog(config);
+  const site = listedSite(config.site);
   let stories: string[] = [];
   try {
     if (config.csp !== undefined) policies(config.csp);
-    if (dir) stories = catalogPages(dir, at, config.site, !!config.site || i >= 0, exclude);
+    if (dir) stories = catalogPages(dir, at, site?.dir, !!site || i >= 0, exclude, site?.at);
   } catch (e) {
     console.error(`brand-elements: ${(e as Error).message}`);
     process.exit(2);
@@ -1053,7 +1065,7 @@ if (import.meta.main) {
   }
   // Without a server a page starting with / is a file; one that is none is a site path.
   const unserved = named.filter(
-    (p) => p.startsWith("/") && !config.site && i < 0 && !(existsSync(p) && statSync(p).isFile()),
+    (p) => p.startsWith("/") && !site && i < 0 && !(existsSync(p) && statSync(p).isFile()),
   );
   if (unserved.length) {
     console.error(
@@ -1061,7 +1073,7 @@ if (import.meta.main) {
     );
     process.exit(2);
   }
-  const server = i < 0 && config.site ? serve(config.site) : undefined;
+  const server = i < 0 && site ? serve(site.dir, site.at) : undefined;
   const base = i < 0 ? server?.url : new URL(process.argv[i + 1]!);
   const browser = await launch();
   const results: PageResult[] = [];

@@ -907,6 +907,19 @@ test("source: a component named like an element renders that element's class; an
   ]);
 });
 
+test("source: a button component may render the icon button, a fact component one facts row", () => {
+  const files: Record<string, string> = {
+    "src/components/CopyButton.astro": `<button class="hw-icon-button" aria-label="Copy"></button>`,
+    "src/components/SaveButton.astro": `<button class="save"></button>`,
+    "src/components/Fact.astro": `<div><dt class="hw-label" data-tone="muted">DE</dt><dd><slot /></dd></div>`,
+    "src/components/FactBox.astro": `<div class="box"><slot /></div>`,
+  };
+  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+    'src/components/SaveButton.astro: a component named like a shared element; render the hw-* element or list "save-button" as an exception',
+    'src/components/FactBox.astro: a component named like a shared element; render the hw-* element or list "fact-box" as an exception',
+  ]);
+});
+
 test("source: a PascalCase component, a camelCase class and a nested rule are read like kebab case", () => {
   const files: Record<string, string> = {
     "src/components/ProjectCard.astro": `<div/>`,

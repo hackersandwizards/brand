@@ -30,6 +30,7 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
       "src/a.css",
       "app/page.tsx",
       "scripts/x.py",
+      "scripts/latest_render.py",
       "public/a.svg",
       "docs/agent-work/r.html",
       "docs/agent-work/x.js",
@@ -43,6 +44,9 @@ test("reads styling wherever it sits, never tests, builds, hub tooling or prose"
   expect(
     [
       "src/a.test.ts",
+      "scripts/test_render.py",
+      "scripts/render_test.py",
+      "conftest.py",
       "dist/a.css",
       "node_modules/x/a.css",
       ".claude/skills/parallel-session/page.html",
@@ -322,4 +326,21 @@ test.each([
   ["a quoted colour in Python", `write(p, note, color="red")`, ".py", "hex"],
 ])("counts %s", (_, src, ext, metric) => {
   expect(scanSource(src, ext).counts).toEqual({ ...zero, [metric]: 1 });
+});
+
+test("an interpolation is the code's name, never a literal; an expression prop's strings are read", () => {
+  expect(scanSource('const s = `<text font-family="${FAM[fam]}">`;', ".js").counts).toEqual(zero);
+  expect(scanSource('const s = `<rect fill="${white}"/>`;', ".js").counts).toEqual(zero);
+  const prop = '<rect fill={i === 2 ? "var(--color-ink)" : "white"} />';
+  expect(scanSource(prop, ".astro").counts).toEqual({ ...zero, tokenHex: 1 });
+  expect(scanSource(`const r = ${prop};`, ".tsx").counts).toEqual({ ...zero, tokenHex: 1 });
+});
+
+test("a custom property set to a colour name counts once, any other value not at all", () => {
+  const css = ".a { --mark: white; --fill: hotpink; --ease: linear; --text-color: black }";
+  expect(scanSource(css, ".css").counts).toEqual({ ...zero, tokenHex: 2, hex: 1 });
+  expect(scanSource('const s = { "--mark": "white" };', ".ts").counts).toEqual({
+    ...zero,
+    tokenHex: 1,
+  });
 });

@@ -287,7 +287,8 @@ your sample in its slot at the scale, `night` for night, or brand's own sample w
 ```
 
 A system whose pages never turn to night adds `"lightOnly": true`: the tokens only an element's
-night rules read may then stay undefined there. `"site": "<dir>"` is `brand-markers --site` (below).
+night rules read may then stay undefined there. `"site": "<dir>"` is `brand-markers --site` (below), and `"site": { "dir": "<dir>", "at": "/mail/" }`
+its `--site-at`, for a site built under a base path.
 `"csp": "<policy>"` is the Content-Security-Policy your host sends, as one string: both measuring
 scans add it to every page they open, a file's included, and fail on each source it refuses, naming
 page, element and source (`p.hw-form-error::before: ... refuses data (img-src)`). A host sending
@@ -449,7 +450,7 @@ allowlist by name with its reason.
 | Exception     | Skips                                                                                                                                                                                  | Why                                                                                                                                 |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `generated`   | `node_modules/`, `dist/`, `.astro/`, `.next/`, `out/`, `coverage/`, `test-results/`, `playwright-report/`, `.vercel/`, `.wrangler/`, `__pycache__/`, `.turbo/`, `build/`, `worktrees/` | build, cache and dependency output, rebuilt from the source the scans read; a nested worktree is another checkout with its own gate |
-| `tests`       | `*.test.*`, `*.spec.*`, `__tests__/`, `test/`, `tests/`                                                                                                                                | a test states the values it asserts, off-token ones included, and ships no surface                                                  |
+| `tests`       | `*.test.*`, `*.spec.*`, `__tests__/`, `test/`, `tests/`, Python's `test_*.py`, `*_test.py` and `conftest.py`                                                                           | a test states the values it asserts, off-token ones included, and ships no surface                                                  |
 | `allowlists`  | `brand-colours.json`, `brand-copies.json`, `brand-scan.json`, `brand-elements.json`                                                                                                    | the scans' own exception lists, whose reasons name the values they allow                                                            |
 | `hub`         | `.claude/skills/parallel-session/`, `.claude/skills/voice/verbal.json`                                                                                                                 | agent tooling the `~/.claude` hub syncs into every repo, non-h&w ones included                                                      |
 | `not styling` | `brand-colours` only: every extension but `.css .scss .astro .tsx .ts .mts .cts .jsx .js .mjs .cjs .vue .svelte .html .svg .py .json .webmanifest`                                     | prose, images, fonts, PDFs and other binaries carry no styling a renderer reads                                                     |
@@ -568,7 +569,8 @@ and scrolls each list into view in every container that scrolls it, the window o
 as a catalog's `main`.
 `--site <dir>` serves a built site folder on a free port for the run, a folder answering with its
 `index.html`, and a page starting with `/` is a path on it, so pages whose links start at the root
-load as published: `brand-markers --site dist /catalog/ /verify/`. Both measuring scans fail on a
+load as published: `brand-markers --site dist /catalog/ /verify/`. A site built under a base path
+is served there: `--site dist --site-at /mail/ /mail/`, so its `/mail/_astro/` stylesheets load. Both measuring scans fail on a
 page whose stylesheet does not load, such as a build linking `file://` stylesheets served with
 `--site`: unstyled, the page shows the browser's own markers and spacing. Name such a build's
 pages as files instead. A test of your own that measures markers brand-markers leaves out takes its

@@ -19,9 +19,10 @@
 // names with its reason; a marker there, under a name "exceptions" declares, still counts as found
 // for the checks below that a page shows one.
 //
-// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder>
-// [--catalog-at <page>]] [--json] [<url, html file or site path>...] --site serves a built folder on
-// a free port, and a page starting with / is a path on it; --base names a server the gate started
+// Usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> [--site-at <path>] |
+// --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site
+// path>...] --site serves a built folder on a free port, at --site-at where it was built for a base
+// path such as /mail/, and a page starting with / is a path on it; --base names a server the gate started
 // instead. --catalog adds every story page of a built catalog folder (catalogPages), each named
 // below --catalog-at, by default the folder itself, or its path on --site. brand-elements.json in
 // the working directory gives the rest, so a consumer names its pages once: its "site" where
@@ -870,18 +871,22 @@ export const fileIn = (root: string, path: string) => {
   return stat(file)?.isFile() ? file : undefined;
 };
 
-/** A built site folder served at the root of a free local port: pages whose links start at / then
- * load as published, and a folder's path without its slash redirects to it, so relative links
- * resolve as on Pages. */
-export const serve = (dir: string) => {
+/** A built site folder served on a free local port at `at`, its root by default, or the base path
+ * it was built for, such as /mail/: pages whose links start at / then load as published, and a
+ * folder's path without its slash redirects to it, so relative links resolve as on Pages. */
+export const serve = (dir: string, at = "/") => {
   const root = resolve(dir);
   if (!existsSync(root)) throw new Error(`no site folder ${root}; build it first`);
+  const prefix = at.replace(/\/?$/, "/");
   return Bun.serve({
     hostname: "127.0.0.1",
     port: 0,
     fetch(request) {
       const { pathname, search } = new URL(request.url);
-      const file = fileIn(root, pathname);
+      if (`${pathname}/` === prefix) return Response.redirect(`${prefix}${search}`, 301);
+      const file = pathname.startsWith(prefix)
+        ? fileIn(root, pathname.slice(prefix.length - 1))
+        : undefined;
       if (
         file &&
         !pathname.endsWith("/") &&
@@ -908,6 +913,7 @@ export const catalogPages = (
   site?: string,
   served = !!site,
   exclude: string[] = [],
+  siteAt = "/",
 ) => {
   if (!Array.isArray(exclude))
     throw new Error(`"exclude" is a list of globs, not ${JSON.stringify(exclude)}`);
@@ -933,12 +939,22 @@ export const catalogPages = (
     .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
     .sort();
   if (!states.length) throw new Error(`no story page under ${stories}; build the catalog first`);
-  const root = at ?? (site ? `/${relative(site, dir)}` : dir);
+  const root = at ?? (site ? `${siteAt.replace(/\/?$/, "/")}${relative(site, dir)}` : dir);
   const file = !/^[a-z]+:\/\//.test(root) && !(served && root.startsWith("/"));
   const encoded = (s: string) => s.split("/").map(encodeURIComponent).join("/");
   return states.map((s) => `${root.replace(/\/?$/, "/")}${file ? `${s}index.html` : encoded(s)}`);
 };
 
+/** The "site" of brand-elements.json: a built folder, served at its root or, as { dir, at }, at the
+ * base path it was built for. */
+export type Site = string | { dir: string; at?: string };
+/** The folder and path of a "site" or --site with --site-at; undefined for none. */
+export const listedSite = (site?: Site, at?: string) =>
+  site === undefined || site === ""
+    ? undefined
+    : typeof site === "string"
+      ? { dir: site, at: at || "/" }
+      : { dir: site.dir, at: at || site.at || "/" };
 /** The "catalog" of brand-elements.json. */
 export type Catalog = string | { dir: string; at?: string; exclude?: string[] };
 /** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
@@ -987,13 +1003,14 @@ if (import.meta.main) {
   const scales = opt("--scale", "2,4").split(",").map(Number);
   const width = Number(opt("--width", "1280"));
   const flagSite = opt("--site", "");
+  const flagSiteAt = opt("--site-at", "");
   const flagBase = opt("--base", "");
   const flagCatalog = opt("--catalog", "");
   const flagAt = opt("--catalog-at", "");
   const json = args.includes("--json");
   const named = args.filter((a) => a !== "--json");
   const usage =
-    "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site path>...]";
+    "usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> [--site-at <path>] | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site path>...]";
   if (flagBase && !/^https?:$/.test(URL.parse(flagBase)?.protocol ?? "")) {
     console.error(usage);
     process.exit(2);
@@ -1004,7 +1021,10 @@ if (import.meta.main) {
   const listed = flagCatalog ? {} : listedCatalog(config);
   const catalog = flagCatalog || listed.dir;
   const at = flagAt || listed.at;
-  const site = flagSite || (flagBase || flagCatalog ? undefined : config.site);
+  const site = listedSite(
+    flagSite || (flagBase || flagCatalog ? undefined : config.site),
+    flagSiteAt,
+  );
   // The config's pages where none is named, each measured, like a story, where it shows a marker;
   // a site path only where a site or --base serves it, as brand-elements takes --base from its gate.
   const listedPages: string[] = named.length ? [] : (config.pages ?? []);
@@ -1015,7 +1035,7 @@ if (import.meta.main) {
   let stories: string[] = [];
   try {
     if (config.csp !== undefined) policies(config.csp);
-    if (catalog) stories = catalogPages(catalog, at, site, served, listed.exclude);
+    if (catalog) stories = catalogPages(catalog, at, site?.dir, served, listed.exclude, site?.at);
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);
@@ -1025,7 +1045,7 @@ if (import.meta.main) {
     console.error(usage);
     process.exit(2);
   }
-  const server = site ? serve(site) : undefined;
+  const server = site ? serve(site.dir, site.at) : undefined;
   const base = server?.url ?? (flagBase ? new URL(flagBase) : undefined);
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, base));

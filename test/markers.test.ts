@@ -8,9 +8,11 @@ import { rejection } from "@hackersandwizards/scaffolding/rejection";
 import { ROOT } from "../scripts/git";
 import {
   applyExceptions,
+  catalogPages,
   failing,
   hasMarkers,
   launch,
+  listedSite,
   measureMarkers,
   serve,
   toUrl,
@@ -684,6 +686,39 @@ test("--site serves a built folder: a page path starting with / is on it, nothin
   } finally {
     await server.stop(true);
     rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test("a site built for a base path is served there: its stylesheets load, nothing outside it", async () => {
+  const site = mkdtempSync(join(tmpdir(), "brand-site-"));
+  mkdirSync(join(site, "_astro"));
+  mkdirSync(join(site, "catalog/stories/A/b/default"), { recursive: true });
+  writeFileSync(join(site, "_astro/a.css"), "li { list-style: none; }");
+  writeFileSync(join(site, "index.html"), `<link rel="stylesheet" href="/mail/_astro/a.css">`);
+  writeFileSync(join(site, "catalog/stories/A/b/default/index.html"), "<p>story</p>");
+  const atRoot = serve(site);
+  const server = serve(site, "/mail/");
+  try {
+    // At the root the base path's stylesheet is missing, as brand-markers saw it before.
+    expect((await fetch(`${atRoot.url.origin}/mail/_astro/a.css`)).status).toBe(404);
+    expect((await fetch(`${server.url.origin}/mail/_astro/a.css`)).status).toBe(200);
+    expect(await (await fetch(`${server.url.origin}/mail/`)).text()).toContain(
+      "/mail/_astro/a.css",
+    );
+    const moved = await fetch(`${server.url.origin}/mail`, { redirect: "manual" });
+    expect([moved.status, moved.headers.get("location")]).toEqual([301, "/mail/"]);
+    expect((await fetch(`${server.url.origin}/_astro/a.css`)).status).toBe(404);
+    const listed = listedSite({ dir: site, at: "/mail/" });
+    expect(listed).toEqual({ dir: site, at: "/mail/" });
+    expect(listedSite(site, "/mail")).toEqual({ dir: site, at: "/mail" });
+    expect(listedSite(undefined)).toBeUndefined();
+    expect(catalogPages(join(site, "catalog"), undefined, site, true, [], listed!.at)).toEqual([
+      "/mail/catalog/stories/A/b/default/",
+    ]);
+  } finally {
+    await atRoot.stop(true);
+    await server.stop(true);
+    rmSync(site, { recursive: true, force: true });
   }
 });
 
