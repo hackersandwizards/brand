@@ -27,15 +27,18 @@ getting in tune takes.
 **On the banners the claim ranks third of seven, a tie with the first two.** English, the only
 language shipped:
 
-| Claim                                                      | Overall | Claude / Codex |
-| ---------------------------------------------------------- | ------- | -------------- |
-| Agents speed up code. Your handoffs set the pace.          | 78.1    | 78.6 / 77.6    |
-| Your developers got faster. Your releases are next.        | 78.0    | 78.3 / 77.6    |
-| Faster releases with agents, when your people are in tune. | 74.7    | 72.1 / 77.3    |
-| Agents pay off when your people ship together.             | 74.7    | 73.3 / 76.1    |
-| Be the team that ships as fast as it codes.                | 72.8    | 71.2 / 74.5    |
-| Agents pay off when your people are in tune.               | 70.2    | 68.6 / 71.7    |
-| Faster releases with agents take the whole team.           | 69.8    | 58.0 / 81.6    |
+| Claim                                                      | Overall | Claude / Codex | Gain first |
+| ---------------------------------------------------------- | ------- | -------------- | ---------- |
+| Agents speed up code. Your handoffs set the pace.          | 78.1    | 78.6 / 77.6    | 5.5        |
+| Your developers got faster. Your releases are next.        | 78.0    | 78.3 / 77.6    | 9.2        |
+| Faster releases with agents, when your people are in tune. | 74.7    | 72.1 / 77.3    | 9.2        |
+| Agents pay off when your people ship together.             | 74.7    | 73.3 / 76.1    | 5.5        |
+| Be the team that ships as fast as it codes.                | 72.8    | 71.2 / 74.5    | 9.0        |
+| Agents pay off when your people are in tune.               | 70.2    | 68.6 / 71.7    | 5.1        |
+| Faster releases with agents take the whole team.           | 69.8    | 58.0 / 81.6    | 8.7        |
+
+Gain first, 0 to 10 and left out of overall, is whether the client's gain leads the line. The
+first line scores 5.5 on it, the claim and the second line 9.2.
 
 The lead of the first two is outside the noise with Claude and inside it with Codex, so the rule
 of these rounds reads it as a tie. Reviewers write about the claim that "in tune" is vague (26 of 32) and that the line is long (26). It scores highest on what a company gets from agents and what
