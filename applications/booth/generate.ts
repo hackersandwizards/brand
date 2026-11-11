@@ -11,6 +11,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { brand, browser, fileUrl, toJpeg } from "../backgrounds/render";
+import verbal from "../../verbal/verbal.json";
 
 const BOOTH = import.meta.dir;
 const boothCss = (f: string) => `<link rel="stylesheet" href="${fileUrl(join(BOOTH, f))}">`;
@@ -59,16 +60,17 @@ const VARS_200 =
 
 function gradientTall() {
   const white = "color:#fff";
-  const body = `${outlineLockup(800)}${space(120)}<h1 class="headline" style="${white};font-size:calc(108 * var(--mm))">Everyone has coding agents. Releases come no faster.</h1>${space(56)}<p class="offer" style="${white};font-size:calc(64 * var(--mm))">Training and mentoring in agentic engineering.</p><div style="flex:1"></div>${contact.replace('class="label"', `class="label" style="${white}"`).replace('class="url-line"', `class="url-line" style="${white}"`)}`;
+  const body = `${outlineLockup(800)}${space(120)}<h1 class="headline" style="${white};font-size:calc(108 * var(--mm))">Agents write code faster. Do you ship faster?</h1>${space(56)}<p class="offer" style="${white};font-size:calc(64 * var(--mm))">${verbal.descriptor.en}.</p><div style="flex:1"></div>${contact.replace('class="label"', `class="label" style="${white}"`).replace('class="url-line"', `class="url-line" style="${white}"`)}`;
   return `${docHead("hackers&amp;wizards booth banner 100x200", 1000, 2000)}<style>.final>*{flex-shrink:0}</style><div class="sheet" style="${VARS_200}"><div class="final">${body}</div></div></body></html>`;
 }
 
-// The wordmark near full width, the offer line on two lines, the large wizard with the outline cut's
+// The wordmark near full width, verbal.json's claim on two lines, the answer to the 1 x 2 m's question,
+// at 48 mm, the largest size that keeps it on two lines; the large wizard with the outline cut's
 // white edge below, moved 30 mm left (40 mm on a 600 mm wizard, scaled). The
-// wizard and its edge stay whole inside the padding, one line pitch of the offer clear below it.
+// wizard and its edge stay whole inside the padding, one line pitch of the claim clear below it.
 function gradientSquare() {
   const mascot = edgedWizard(WIZARD_1X1, "translate:calc(-30 * var(--mm)) 0");
-  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:60;--pad-y:90;--h2:62;--wm:110"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${brand.wordmarkOutline}" alt="hackers&amp;wizards">${space(32)}<p class="offer" style="color:#fff">Agentic engineering training and mentoring.</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;
+  return `${docHead("hackers&amp;wizards booth banner 100x100", 1000, 1000)}<div class="sheet" style="--w:1000;--h:1000;--pad-x:60;--pad-y:90;--h2:48;--wm:110"><div class="final"><div style="display:flex;flex-direction:column;align-items:center;text-align:center;height:100%"><img class="wordmark" src="${brand.wordmarkOutline}" alt="hackers&amp;wizards">${space(32)}<p class="offer" style="color:#fff">${verbal.claim.en}</p><div class="grow"></div>${mascot}</div></div></div></body></html>`;
 }
 
 // The stand wall behind the banners: --wall=dark,mid,white renders one view set per wall.

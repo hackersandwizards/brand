@@ -55,6 +55,7 @@ ACCENTS = {"teal": COLORS["--color-teal-night"], "purple": COLORS["--color-purpl
 BASE = tuple(int(COLORS["--color-night"][i : i + 2], 16) for i in (1, 3, 5))
 TEAL_GLOW, PURPLE_GLOW = (7, 41, 46), (35, 9, 54)
 
+VERBAL = json.loads((BRAND / "verbal/verbal.json").read_text())
 TESTIMONIALS = BRAND / "node_modules/@hackersandwizards/testimonials"
 CLIENTS = TESTIMONIALS / "marks"
 # A file may sit under several companies; one allowed entry releases it.
@@ -275,7 +276,7 @@ def grid_surfaces():
 def claim_lines():
     """verbal.json's English claim in two rows, broken at the space that leaves the longer row
     shortest, its word in the accent."""
-    claim = json.loads((BRAND / "verbal/verbal.json").read_text())["claim"]
+    claim = VERBAL["claim"]
     words = claim["en"].split(" ")
     rows = min(([" ".join(words[:i]), " ".join(words[i:])] for i in range(1, len(words))), key=lambda r: max(map(len, r)))
     word = claim["word"]["en"]
@@ -288,9 +289,9 @@ def claim_lines():
 
 
 PROFILE_LINES = claim_lines()
-# the line under the claim on the profile banners: its text, its size and its baseline's distance
-# below the claim's second row, both as shares of the claim size
-DESCRIPTOR = ("Training and mentoring in agentic engineering", 0.62, 1.11)
+# the line under the claim on the profile banners: verbal.json's descriptor, its size and its
+# baseline's distance below the claim's second row, both as shares of the claim size
+DESCRIPTOR = (VERBAL["descriptor"]["en"], 0.62, 1.11)
 PROFILE_LOGOS = [("mercedes-benz.webp", 569, 63), ("dm.svg", 682.5, 71), ("tchibo.svg", 842, 47), ("vorwerk.svg", 1025, 53), ("bonprix.webp", 1201.5, 45)]
 FEATURED_LOGOS = [("mercedes-benz.webp", 188, 78), ("dm.svg", 327.5, 88), ("tchibo.svg", 522.5, 57), ("vorwerk.svg", 747, 64), ("bonprix.webp", 963.5, 55)]
 for _file in {f for f, *_ in PROFILE_LOGOS + FEATURED_LOGOS} - SHOWN:
