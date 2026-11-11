@@ -977,11 +977,11 @@
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
     :scope::selection,
     ::selection {
-      background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
+      background: color-mix(in srgb, var(--color-teal-night) 25%, transparent);
     }
   }
   :is(.hw-code, .hw-code *)::selection {
-    background: color-mix(in srgb, var(--color-teal-night) 25%, var(--color-night));
+    background: color-mix(in srgb, var(--color-teal-night) 25%, transparent);
   }
 }
 @layer components {
