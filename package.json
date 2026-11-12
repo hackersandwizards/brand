@@ -112,8 +112,8 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.31.4",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.22.0",
+    "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.32.0",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.23.0",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v3.1.1",
     "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.4",
