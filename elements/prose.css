@@ -15,9 +15,9 @@
 
    Running text (a paragraph, a list, a quote, the hw-quote marked not-prose included, a
    definition list) keeps the brand measure, --container-measure, in its own em, so a line holds
-   about 65 characters; headings with their hairline, tables, code and pictures take the block's
-   width, and so does running text holding one of them; in a list only the item holding one does,
-   its siblings keep the measure.
+   about 65 characters (90 at the dense scale, scales.css); headings with their hairline, tables,
+   code and pictures take the block's width, and so does running text holding one of them; in a
+   list only the item holding one does, its siblings keep the measure.
 
    The measure alone, without the block's type and spacing: hw-measure on a container holding
    rendered Markdown, such as a card's body, gives its top-level running text the same width and

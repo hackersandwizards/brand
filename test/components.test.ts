@@ -143,3 +143,18 @@ test("Pill takes the hue table's night tone: ampersand's light tone, teal's nigh
   expect(await night("bg-ampersand/15")).toContain("var(--color-ampersand-light,");
   expect(await night("bg-teal/15")).toContain("var(--color-teal-night,");
 }, 30_000);
+
+test("Pill gives the warning role the warning tone, every other hue its wash", async () => {
+  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
+  const component = (await server.ssrLoadModule("/expert/components/Pill.astro")).default;
+  const container = await experimental_AstroContainer.create();
+  const render = (color: string) =>
+    container.renderToString(component, { props: { ...props.Pill, color } });
+  for (const color of ["bg-warning/15 text-warning", "text-warning"]) {
+    const html = await render(color);
+    expect(html).toContain('data-tone="warning"');
+    expect(html).not.toContain("--hw-pill-hue");
+  }
+  // Control: the error role keeps its hue.
+  expect(await render("bg-error/15 text-error")).toContain("--hw-pill-hue: var(--error,");
+}, 30_000);

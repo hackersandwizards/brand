@@ -80,8 +80,10 @@ Noise 0.25; the lead of 1.5 holds in every run with both models. Inside an `hw-f
 stacked row's button now follows the error message, 0.75rem below it, with no change to the markup.
 Side by side cut the placeholder off at 390 px; the joined row's arrow left the next step unclear.
 
-Open (work-element-findings-open): the textarea's resize grip sits in the brand corner's large curve (two reviewers of
-the form-elements panel; `textarea.hw-field` still takes the brand corner and `resize: vertical`).
+**The textarea's corner (12.11.): no change needed.** Two reviewers of the form-elements panel saw
+its resize grip in the brand corner's large curve. Measured in the catalog's form-field stories,
+`textarea.hw-field` takes the small corner: 5 px at the screen, dense and night scales, 7.5 px on
+stage, at every corner. The grip sits in that corner.
 
 ### Checkbox and radio
 
@@ -336,8 +338,26 @@ Noise 0 to 1. The quieter mark is a rule of where the page sits, not a setting p
 does, since the row's hairline must touch the tab's bottom (focus ring review under Utilities).
 Common-elements panel, desktop: 8, 9, 8, 9; phone: 8, 9, 9, 9.
 
-Open (work-element-findings-open): the inset ring covers the selected tab's accent bar while it has focus, the defect
-reviewers named against the inset variant.
+**The ring over the current tab's bar (12.11.): no change.** The inset ring covers the selected
+tab's accent bar while it has focus. X moved the ring 2 px further in (`--hw-focus-offset` at the
+ring's width plus 2 px), so the bar shows beneath it; the same candidate carried the inline code fix
+(see Inline code). A sheet of brand's tab row, current tab focused, at the dense scale by day and
+night, and a paragraph in a 288 px column, 2x. Personas: a frontend developer who builds from the
+library, an internal user working by keyboard. Criteria: focus reads, the current tab still
+reads, the column, calm, looks finished.
+
+| Reviewer                          | T (today) | X   |
+| --------------------------------- | --------- | --- |
+| Claude, frontend developer, run 1 | 8         | 7   |
+| Claude, frontend developer, run 2 | 7         | 7   |
+| Claude, internal user             | 7         | 7   |
+| Codex, frontend developer, run 1  | 7         | 9   |
+| Codex, frontend developer, run 2  | 7         | 9   |
+| Codex, internal user              | 7         | 9   |
+
+Noise 0.5 (Claude), 0 (Codex). Codex leads by 2; Claude ties (-0.33). Claude's reviewers scored
+"the current tab still reads" higher for X (8 against 5 and 6) and named a new flaw: the ring now
+sits narrower than the bar, which reads as misaligned. No lead with both models: kept.
 
 ### Pagination
 
@@ -381,7 +401,10 @@ the bytes saved are about 25 ms of the 116 ms (computed, not measured), so `lazy
 sizes to the SVGs and to `sizes` (v2.15.0), and another the night cuts' fill colours to their day
 files (B-22). `header.css` has no `data-theme="auto"` (B-25): no consumer set it.
 
-Open (work-element-findings-open): a single image whose source the theme switches, the fix for both themes.
+**The night logo (12.11.): two images stay.** Measured on brand's header story and admin's
+dashboard story: by day the night image is never requested (`loading="lazy"` under
+`display: none`), so the second image costs no request. One image switching its source would need
+a width and height per theme, since the night cut's box is taller by 1640.612 / 1489.
 
 ### Space nav tree
 
@@ -450,10 +473,11 @@ layout: the callout ends short of the card row and sits close under it.
 Skipped: the website, the verifier, practitioners and mail at the screen scale; os and admin from
 their own builds (the app page was a mock on brand's CSS); night on every surface without one.
 
-Open: whether the status box and the tinted card take the same step, `work-box-wash-step`. Not yet
-explained (work-element-findings-open): round 2 scored today's state again as T, but its slide image was captured blank,
-so T's round-2 scores are void and R's round-1 scores stand for it. The same page rendered in
-round 1; no re-capture was run.
+Open: whether the status box and the tinted card take the same step, `work-box-wash-step`. Round 2
+scored today's state again as T, but its slide image was captured blank, so T's round-2 scores are
+void and R's round-1 scores stand for it. Kept without a re-capture (12.11.): the decision compares
+Z with W, both captured whole, and nothing reads T's round-2 scores. Why the image came out blank is
+not explained.
 
 ### Toast
 
@@ -487,7 +511,7 @@ Images of the close button's focus ring: [day, before](2026-11-11-shared-element
 [day, after](2026-11-11-shared-elements/toast-focus-day-after.jpg),
 [night, after](2026-11-11-shared-elements/toast-focus-night-after.jpg).
 
-Open (work-element-findings-open): a lighter night ground for the overlays (toast, menu, dialog, popover share it),
+Open (`work-element-rounds-open`): a lighter night ground for the overlays (toast, menu, dialog, popover share it),
 which reviewers asked for and which needs its own cross-surface round.
 
 ### Progress bar
@@ -826,7 +850,7 @@ the table in the text's flow, overall:
 The engineer's two runs moved the lead on the sum by 5 points, so every lead sits inside the noise:
 a tie, which goes to the margins the rule names.
 
-Open (work-element-findings-open): three reviewers saw more space above a table than below it in
+Open (`work-element-rounds-open`): three reviewers saw more space above a table than below it in
 both versions. A measurement points at the head row: in `hw-prose` at 800 px, the paragraph's text
 ends 25 px above the head's text, and the last row's hairline, the table's visible lower edge, ends
 16.5 px above the next paragraph's text. Above, the head cells' 8 px top padding sits outside any
@@ -834,15 +858,18 @@ line; below, the last row's sits inside the closing hairline. Not yet scored. A 
 another tone, on a surface without `--background`, sets `--hw-table-ground` itself, else the held
 column is white by day. The night shadow read as a smudge to reviewers on both models at 22 %. The
 third round showed six reviewers the 12 % night views; their comments were not read for that point
-before the run's scratch was removed, so it stays open. Kept from
+before the run's scratch was removed, so it stays open in `work-element-rounds-open`. Kept from
 this run's code review, each read from the code and not measured: below 48rem the held column covers
 the left shadow once the table has scrolled (the views scored show that state, with the hairline as
 the cue); the shadow is a radial gradient, strongest at the table's vertical middle, so a tall table
 whose middle is out of view shows it faintly; with `--hw-table-held: none` the start's scroll
 padding falls back to none rather than the ring's room (on the website's stacked cards nothing
 scrolls); a print-scale preview on screen marks a wide table as scrolling and keeps it a tab stop.
-`carousel.css` and `row.css` still take their ring room back in a negative margin, which reached
-past its container on the table (`work-element-findings-open`).
+`carousel.css` and `row.css` take their ring room back in a negative margin, as on the table.
+Measured on 12.11. at 390 px with every side padding above them removed: the list row's lead
+reaches 5 px into the row's own padding and stays inside the row; the carousel's track reaches 5 px
+past its container on both sides, which scrolls a page sideways only where no ancestor clips (the
+catalog's main does). No consumer renders brand's carousel; kept.
 
 ### Facts list
 
@@ -908,8 +935,74 @@ night (6.24:1). Amber text by day was dropped before scoring at 4.08:1, below AA
 | Codex, operations lead         | 8   | 8   | 7.5 |
 | Codex, design lead             | 8   | 7.5 | 7.5 |
 
-Noise 0.5. Reviewers of both rounds named P0 and P1 as equally strong. Open in
-`work-priority-pill-order`, which holds the P0 rounds since.
+Noise 0.5. Reviewers of both rounds named P0 and P1 as equally strong, so the rounds since moved
+P0.
+
+**P0's weight (10.11. and 12.11.): unchanged.** At night P0's fill (red-night at 20 % on night) is
+darker than P1's (amber at 20 %); by day both fills have the same lightness (L* 90.8 and 91.9). On
+10.11., on a mock list from brand's elements, a grey P0 lost on urgency (4.0 against 6.5) and a
+solid red P0 tied today's (leads of 0.34 and 1.0, the first inside the noise). On 12.11. the round
+ran on os's own attention list (its catalog story, fixture rows, eight rows set to P0, P1, P2, P1,
+P0, P3, P1, P2), day and night, 2x for a 1440 px window. T: today. S: solid, white on red by day
+(4.83:1), night on red-night at night (6.32:1). M: the step between, red at 40 % under the pill's
+own text by day (5.70:1); at night red-night at 40 % under red-night mixed 50 % into night ink
+(5.17:1). Red text on red at 40 %, as the item proposed, measures 2.51:1 and was built to AA
+instead. Admin was not shot: its items run P1 to P3, so it never shows a P0. Personas: the
+operations lead in the system all day, a co-founder choosing the accounts that need them first.
+Criteria: urgency, order, calm, legibility, coherence.
+
+| Reviewer                       | T   | S   | M   |
+| ------------------------------ | --- | --- | --- |
+| Claude, operations lead, run 1 | 6   | 7   | 7   |
+| Claude, operations lead, run 2 | 6   | 7   | 7   |
+| Claude, co-founder             | 6   | 7   | 7   |
+| Codex, operations lead, run 1  | 8   | 9   | 8   |
+| Codex, operations lead, run 2  | 8   | 8   | 8   |
+| Codex, co-founder              | 8   | 8   | 8   |
+
+Noise 0 (Claude), 0.33 (Codex). S and M lead by 1 with Claude; with Codex S leads by 0.33, inside
+the noise, and M ties. No lead with both models: P0 stays. Against S, Claude's reviewers named the
+solid pill the loudest mark on the screen, one that looks like another component; against T, that
+the side bar, not the pill, marks the P0 rows.
+
+**The warning tone (v2.24.0).** `data-tone="warning"`: amber-light (`--color-amber-light`, amber's
+40 % tint, the hue table's chip step) under the warning text role mixed 40 % into ink, as every
+pill mixes its text; at night amber at 40 % on night under night ink (6.91:1). `Pill.astro` gives
+the warning role (`bg-warning/<n>`, `text-warning`) this tone, so every os pill that passed
+`bg-warning/15` takes it. Before, the pill mixed the warning role (amber-dark 70 % with ink) at
+15 % into white, which read brown and close to the red blocked pill by day. Shot on os's attention
+list (overdue, follow-up, stale beside blocked) and its clarifying questions, 2x for a 1440 px
+window, day and night. Personas as for P0. Criteria: state at a glance, apart from blocked; a clean
+warning hue; calm; legibility; coherence.
+
+Round 1, every warning-hued pill and the warning status box's ground (amber itself at 7 %) changed
+together. T: today. A: amber at 10 % (14 % on night). F: amber at 40 % (night ink at night).
+
+| Reviewer                       | T   | A   | F   |
+| ------------------------------ | --- | --- | --- |
+| Claude, operations lead, run 1 | 6   | 6   | 7   |
+| Claude, operations lead, run 2 | 5   | 6   | 7   |
+| Claude, co-founder             | 4   | 7   | 8   |
+| Codex, operations lead, run 1  | 7   | 7   | 8   |
+| Codex, operations lead, run 2  | 7   | 8   | 8   |
+| Codex, co-founder              | 7   | 8   | 8   |
+
+Noise 0.33 with both models. F leads T by 2.33 (Claude) and 1.0 (Codex), in every run; A ties T in
+run 1 with both. Round 2 took the status box out, whose effect round 1 could not separate, and added
+brand's own pill story (a warning pill beside blocked and done) as the third view. T against F:
+
+| Reviewer                       | T   | F   |
+| ------------------------------ | --- | --- |
+| Claude, operations lead, run 1 | 5   | 8   |
+| Claude, operations lead, run 2 | 5   | 8   |
+| Claude, co-founder             | 5   | 8   |
+| Codex, operations lead, run 1  | 7   | 9   |
+| Codex, operations lead, run 2  | 7   | 8   |
+| Codex, co-founder              | 6   | 8   |
+
+Noise 0 (Claude), 0.5 (Codex). F leads by 3.0 and 1.67, in every run: it ships. The status box keeps
+its ground from the warning role; whether it takes amber's is in `work-box-wash-step`. Not shot:
+admin (no warning pill; its due-today pill takes amber-dark), the trainer hub, documents.
 
 **A hue's night tone (v2.10.0).** `Pill.astro` built a colour's night tone as
 `--color-<hue>-night`, falling back to the day tone; ampersand and factory have no such token, so
@@ -1012,8 +1105,11 @@ Mean P 7.14, M 4.43; noise 1.00; P leads with both models (Claude +3.0, Codex +2
 below 10: a long path still breaks mid-word in a narrow table cell. Not shown: night, and the
 consumers' own catalog stories.
 
-Open (work-element-findings-open): a whole chip at the full column width followed by a comma runs the comma past the
-column edge. Inside a link, a whole chip shows the underline only through `text-decoration:
+**A comma after a whole chip at the column's width (12.11.): no change.** Measured in a 288 px
+column at 16 px, held with the chip as the comment above advises: the comma runs 4.44 px past the
+column, at 300 and 343 px too. `box-sizing: border-box` with `max-width: calc(100% - 0.5em)` keeps
+it 2.56 px inside, but the narrower chip breaks a long path before a slash. Scored with the tab ring
+(see Tabs): Claude's reviewers rated the column lower with the fix (6 against 7). Kept. Inside a link, a whole chip shows the underline only through `text-decoration:
 inherit`, which the CSS sets.
 
 ### Keycap
@@ -1037,9 +1133,50 @@ no keyboard hints.
 ### Prose block
 
 `elements/prose.css`. `--hw-prose-width` sets the block's width, default Tailwind's 3xl container
-(48rem); running text inside keeps the brand measure, the quote included (see Quote). A wider
-measure for notes at the dense scale is open in `work-dense-prose-width`. The navigation list, the
-error summary and the dot list turn the list markers off inside it.
+(48rem); running text inside keeps the brand measure, the quote included (see Quote), 45em at the dense
+scale. The navigation list, the error summary and the dot list turn the list markers off inside it.
+
+**The dense measure (v2.24.0): 45em.** At the dense scale 33em was 429 px at 13 px, so a record's
+notes in os wrapped early on a wide page. `scales.css` sets `--container-measure: 45em` on
+`[data-hw-scale="dense"]`: 585 px at 13 px, 720 px at 16 px, about 90 characters a line. It reaches
+os, admin and the trainer hub, and the 16 px running text on a dense page (admin's reports and page
+leads) as well as the notes. A browser window 1408 px wide at 1:1, day and night. Personas: the
+operations lead reading and writing notes all day, a co-founder reading records and decisions on a
+wide monitor. Criteria: reading comfort, use of space, scanning, calm, coherence.
+
+Round 1, os's notes section (its catalog story with four paragraphs of fixture notes and a list) and
+admin's decisions page with one decision opened. T: 33em. B: 40em. C: 45em. The first run of this
+round is void: admin's catalog story paints no page ground, so its night views showed light text on
+white in every version; the round ran again with the ground admin's layout sets.
+
+| Reviewer                       | T   | B   | C   |
+| ------------------------------ | --- | --- | --- |
+| Claude, operations lead, run 1 | 6   | 7   | 8   |
+| Claude, operations lead, run 2 | 7   | 7   | 8   |
+| Claude, co-founder             | 6   | 6   | 7   |
+| Codex, operations lead, run 1  | 7   | 8   | 9   |
+| Codex, operations lead, run 2  | 7   | 8   | 9   |
+| Codex, co-founder              | 7   | 8   | 9   |
+
+Noise 0.33 (Claude), 0 (Codex). C leads T by 1.33 (Claude) and 2.0 (Codex) and B by 1.0 with both,
+in every run. B leads T only with Codex.
+
+Rounds 2 and 3 asked whether the wider measure costs long text: admin's report page (two paragraphs
+of fixture text added) by day and night, and brand's dense prose story by day, against 33em.
+
+| Reviewer                       | 33em | 40em | 33em | 45em |
+| ------------------------------ | ---- | ---- | ---- | ---- |
+| Claude, operations lead, run 1 | 7    | 8    | 6    | 7    |
+| Claude, operations lead, run 2 | 7    | 7    | 6    | 8    |
+| Claude, co-founder             | 7    | 7    | 6    | 8    |
+| Codex, operations lead, run 1  | 8    | 8    | 8    | 8    |
+| Codex, operations lead, run 2  | 8    | 9    | 8    | 8    |
+| Codex, co-founder              | 7    | 8    | 7    | 8    |
+
+Round 2 (40em): noise 0.5 with both models, both leads inside it. Round 3 (45em): noise 0.5
+(Claude), 0 (Codex); 45em leads by 1.67 with Claude in every run and ties with Codex. Long text
+does not lose at 45em, so the value round 1 chose ships. Not shot: the trainer hub (14 px) and os's
+handbook, whose pages hold company records; os's Markdown body story sets no measure.
 
 **The list marker on night (B-16, v2.13.0).** The list marker and `.hw-marker` take teal-night on
 night, as `.hw-mark` and everything under `night.css` did; with `tokens.root.css` or `expert.css`
@@ -1151,8 +1288,12 @@ front-end developer looking the ring up, the catalog page at 1440 px, light and 
 
 The third ships. One run, noise not measured.
 
-Open (work-element-findings-open): the page title's lead and subtitle in `expert/expert.css` clip a focus ring the same
-way (`.page-title-lead` keeps `overflow: hidden`); not measured.
+**The page title's lead (12.11.): kept.** Measured on brand's page-header story with a link put
+into the subtitle and focused by keyboard: 45 of the ring's 588 pixels show at 1280 px, 45 of 288 at
+360 px, clipped by the subtitle's and the lead's `overflow: hidden`. No consumer puts a focusable
+element in the lead: os, admin and the trainer hub pass their buttons in the action slot. Giving the
+ring room (padding and a negative margin, as focus.css advises) shows 510 of 588 and makes the row
+5 px wider than the screen at 360 px. Kept until a page puts a link there.
 
 ## Across elements
 
@@ -1210,8 +1351,9 @@ under `prefers-reduced-motion` in every element that moves.
   | `expert.css` with os's value      | ink at 70 %, 5.5:1 | night ink at 70 %, 8.2:1 | `#545861`, 6.7:1 | night-muted, 12.2:1 |
   | `expert.css` with the hub's value | ink at 70 %, 5.5:1 | night ink at 51 %, 4.8:1 | `#545861`, 6.7:1 | night-muted, 12.2:1 |
 
-  The hub's night value is measured on `expert.css`'s night ground; whether the hub sets its own is
-  not checked. Images, `expert.css` by day:
+  The hub sets no night ground of its own (12.11., every tracked file on its `origin/main`
+  7cbc499): `src/styles/tokens.css` sets `--surface` and `--dim-floor` (70 % at night too), so its
+  night ground is `expert.css`'s. Images, `expert.css` by day:
   [before](2026-11-11-shared-elements/quiet-expert-day-before.jpg),
   [after](2026-11-11-shared-elements/quiet-expert-day-after.jpg).
 
@@ -1292,6 +1434,33 @@ sample declares, and each attribute naming one. Left (B-28): unique ids per tile
 ids of the built stories the catalog tests read; no consumer shows two tiles of one element.
 
 ## Outside the catalog
+
+- **A soft edge for a flat night panel (12.11.): no token.** The website's home hero now draws the
+  tuning panel (`.tuning`: night-2, the brand corner, a hairline of white at 15 %, no shadow) over
+  the corner glows. Each candidate injected into the live page as served, a laptop at 1440 x 900
+  at 1:1 and a phone at 390 px at 2x scrolled to the panel. T: today. A: no line, a ring of white
+  at 6 % and a drop shadow (0 24px 48px -12px, black at 60 %). B: the line at 8 % and a shadow (0
+  16px 40px, black at 45 %). C: no line, a ring at 5 % and a halo (0 0 40px, black at 55 %).
+  Personas: an engineering manager shortlisting providers on a laptop, a CTO on a phone. Criteria:
+  separation, a soft edge, calm, breathing room, ours.
+
+  | Reviewer                           | T   | A   | B   | C   |
+  | ---------------------------------- | --- | --- | --- | --- |
+  | Claude, engineering manager, run 1 | 7   | 6   | 7   | 6   |
+  | Claude, engineering manager, run 2 | 6   | 6   | 7   | 6   |
+  | Claude, CTO                        | 6   | 6   | 7   | 5   |
+  | Codex, engineering manager, run 1  | 8   | 8   | 9   | 7   |
+  | Codex, engineering manager, run 2  | 8   | 8   | 8   | 7   |
+  | Codex, CTO                         | 8   | 8   | 8   | 7   |
+
+  Noise 0.25 with both models. B leads by 0.67 (Claude) and 0.33 (Codex), but ties T in one run of
+  each model: no lead, no token. The website's round of 10.11. scored a soft edge on a different
+  panel (the feed panel, since replaced) with a value it did not record. Reviewers on both models
+  named a dark square behind the panel's lower right corner, where the panel's round corner leaves
+  its parent's night ground showing over the purple glow: a website defect, in every version.
+  Surfaces skipped: slides, whose night slides turn a white card night-2 (`styles/slides.css`),
+  and the portal; with no lead on the website, which named the need, no token was built to score
+  there.
 
 - **Mail signature links (10.11.).** A webmail mock on a desktop at 100 % with the template's
   example fields. A: teal, no underline. E: the website and LinkedIn links underlined. Claude
@@ -1408,8 +1577,8 @@ dependency; a difference between builds is not measured.
 
 ## Open
 
-The open points of each section above name their item. Twelve findings no other item holds, nine
-defects and three points not yet explained or checked, are in `work-element-findings-open`.
+The open points of each section above name their item. Four element points that need a round of
+their own are in `work-element-rounds-open`.
 
 ## Method
 
@@ -1459,6 +1628,33 @@ senior developer sent the training list by their manager. Surfaces scored: the t
 night. Skipped: documents and admin (dense like os).
 
 ### Prompts, verbatim
+
+The warning tone, round 2 (the operations lead, Claude, run 1, 12.11.; paths shortened):
+
+```text
+You are the operations lead of a small software consultancy. You work in the company's internal operating system all day on a laptop: lists of deals, deliveries and invoices, each with tags that say what is late, open or blocked.
+
+Medium: an internal web app on a laptop screen, rendered at 2x device pixels; each image stacks three parts: the dashboard's attention list, a delivery's open clarifying questions, and the tag set of the company's interface library (its catalog page, German labels), read at laptop distance. Audience: you. Each version is shown in the day theme and the night theme. The versions differ only in details; look closely.
+
+Versions M, Z, each shown as 2 images (day, night); the file name starts with the version's letter. Images (read every one):
+<scratch>/blind/M-day.png
+<scratch>/blind/Z-night.png
+<scratch>/blind/M-night.png
+<scratch>/blind/Z-day.png
+
+Score each version on each criterion from 1 (poor) to 10 (excellent), then an overall score from 1 to 10:
+1. State at a glance: a tag or box that means 'late or open, act on it' reads as a warning, clearly apart from 'blocked' (a fault), also without full colour vision.
+2. Hue: the warning tags read as one clean warning colour, not muddy.
+3. Visual calm: nothing competes for attention beyond what deserves it.
+4. Legibility of the tag text.
+5. Coherence: the warning tags and the other tags look like one family.
+
+Answer in this exact form, one block per version:
+<letter>: c1=<n> c2=<n> c3=<n> c4=<n> c5=<n> overall=<n>
+  keeps it below 10: <one sentence per criterion that is below 10>
+Then one line: "Open question: <the question the screens leave open for you>".
+Judge only what you see. Do not ask questions. Do not edit any file.
+```
 
 The variant comparison (the operations lead, filter value in the app, v1.47.0; paths shortened):
 

@@ -398,7 +398,7 @@ github.com/primer/brand `packages/design-tokens/scripts/build-tokens.js`, develo
 - **brand's remaining proposals:** night lines, hero corner glows, slides' shared names, the
   settings from the spoke switches, the ring setting and a compact `hw-row` variant (item
   `work-design-system-rollout-what-remains-after-02`).
-- **Running text at the dense scale:** 33em is 429 px at 13 px (item `work-dense-prose-width`).
+- **Running text at the dense scale:** 45em since v2.24.0, 585 px at 13 px (shared-elements report, Prose block).
 - **Heights at the dense scale** keep the values measured on 02.11. (row padding 0.5rem 0.75rem,
   control 2.5rem). Only the type step was reviewed; lower heights wait for their own review, which nothing has asked
   for yet.

@@ -6,6 +6,9 @@
    Variants, each one meaning:
      data-tone="neutral"    a value without a scale (a fact, a free tag, an amount): ink at 7 %,
                             its text ink at 70 %
+     data-tone="warning"    a state to act on (late, open, missing): amber-light, amber's 40 %
+                            tint, under the warning text role mixed 40 % into ink; on night amber
+                            at 40 % on night under night ink
      data-variant="outline" no value set, or a plain tag: a hairline on no fill, in ink
      data-variant="add"     adds a value: the hairline dashed, on no fill, muted
      data-caps              the words in the label role (mono capitals), as a document's type tag
@@ -99,6 +102,10 @@
   }
   .hw-pill[data-priority="2"] {
     background: color-mix(in srgb, var(--color-ink) 10%, transparent);
+  }
+  .hw-pill[data-tone="warning"] {
+    --hw-pill-hue: color-mix(in srgb, var(--color-amber-dark) 70%, var(--color-ink));
+    background: var(--color-amber-light);
   }
   .hw-pill[data-priority="4"] {
     background: color-mix(in srgb, var(--color-ink) 4%, transparent);
@@ -198,6 +205,9 @@
     }
     .hw-pill[data-priority="4"] {
       background: color-mix(in srgb, white 6%, transparent);
+    }
+    .hw-pill[data-tone="warning"] {
+      background: color-mix(in srgb, var(--color-amber) 40%, var(--color-night));
     }
     .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
       border-color: color-mix(in srgb, white 25%, transparent);

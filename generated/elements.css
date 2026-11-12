@@ -112,6 +112,7 @@
   --hw-search-icon: 1rem;
   --hw-item-height: 2rem;
   --hw-avatar-size: 1.5rem;
+  --container-measure: 45em;
 }
 @media (any-pointer: coarse) {
   [data-hw-scale] {
@@ -487,6 +488,10 @@
   .hw-pill[data-priority="2"] {
     background: color-mix(in srgb, var(--color-ink) 10%, transparent);
   }
+  .hw-pill[data-tone="warning"] {
+    --hw-pill-hue: color-mix(in srgb, var(--color-amber-dark) 70%, var(--color-ink));
+    background: var(--color-amber-light);
+  }
   .hw-pill[data-priority="4"] {
     background: color-mix(in srgb, var(--color-ink) 4%, transparent);
   }
@@ -581,6 +586,9 @@
     }
     .hw-pill[data-priority="4"] {
       background: color-mix(in srgb, white 6%, transparent);
+    }
+    .hw-pill[data-tone="warning"] {
+      background: color-mix(in srgb, var(--color-amber) 40%, var(--color-night));
     }
     .hw-pill:is([data-variant="outline"], [data-variant="add"]) {
       border-color: color-mix(in srgb, white 25%, transparent);

@@ -132,6 +132,8 @@
   --hw-search-icon: 1rem;
   --hw-item-height: 2rem;
   --hw-avatar-size: 1.5rem;
+  /* Running text on a wide work screen: about 90 characters a line. */
+  --container-measure: 45em;
 }
 
 /* On a touch screen an item of a list, menu, tab row or pager stands at least as tall as the

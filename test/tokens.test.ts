@@ -37,7 +37,7 @@ const contrast = (a: string, b: string) => {
 };
 
 test("reads every declaration of tokens.css", () => {
-  expect(Object.keys(tokens)).toHaveLength(176);
+  expect(Object.keys(tokens)).toHaveLength(177);
   expect(tokens["--color-teal"]).toBe("#1a7285");
 });
 
@@ -76,10 +76,10 @@ test("ampersand-light, written out against night.css's loop, stays ampersand 60 
   expect(rgb(colors["--color-ampersand-light"])).toEqual(mix);
 });
 
-test("holds 31 brand colours, a token naming another adding none", () => {
+test("holds 32 brand colours, a token naming another adding none", () => {
   const own = Object.keys(colors).filter((k) => !namesAnother(k));
-  expect(own).toHaveLength(31);
-  expect(new Set(own.map((k) => colors[k])).size).toBe(31);
+  expect(own).toHaveLength(32);
+  expect(new Set(own.map((k) => colors[k])).size).toBe(32);
 });
 
 test("every role clears WCAG AA: text on light 4.5:1 on bg and white, night on night and night-2", () => {

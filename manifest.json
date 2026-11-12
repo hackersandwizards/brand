@@ -122,7 +122,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "13e9c961bffaaf2b0bfcb9bc113dfa98420ab78cf5eaeff8b7af9b096742d277"
+      "sha256": "8de9da67bfc75d58937a228c451f7ad329a9a77604d413581dfd7e4d1e112c94"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",
@@ -314,7 +314,7 @@
     },
     {
       "path": "expert/components/Pill.astro",
-      "sha256": "e23c0b568600d8f92f0456802ba6643861a3ac2bfbbd70ec12cdf5d86e159386"
+      "sha256": "6e2c394b4261ff9da3748bafa63fbdb555cd4c00c2d121a69634c74fcb03eeb1"
     },
     {
       "path": "expert/components/SpaceNav.astro",
@@ -382,7 +382,7 @@
     },
     {
       "path": "elements/pill.css",
-      "sha256": "0dde3b8a9355d0d73476f8c19d5024bd18ca375f5109294ba589c885ee6da5ab"
+      "sha256": "04915c8872b3d6033f4258f1cec45f17586aab62f374b2956bb550b9196ec6e8"
     },
     {
       "path": "elements/quote.css",
@@ -390,7 +390,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "6a9c118624a935acbe935c32e5d8b770b4499201086d2336b35f1c4362096b89"
+      "sha256": "9ea669a1991fa687723cb034192a9b137e0374a3003a00a0ae5f434ea7e3efbb"
     },
     {
       "path": "elements/strip.css",
@@ -482,7 +482,7 @@
     },
     {
       "path": "elements/prose.css",
-      "sha256": "e66b24ea62081cebb843493a2e94059d324503ef6dbf13d588aded1cbd30fe9b"
+      "sha256": "3ba2e7ff0a4f16096006c763169cf28c42cef5eb3966be7a873895d84f896f61"
     },
     {
       "path": "elements/row.css",

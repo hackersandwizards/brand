@@ -2,7 +2,8 @@
 /**
  * The shared pill (`hw-pill`, elements/pill.css) behind the apps' props, so a caller keeps its
  * colour constants. `color` names a wash (`bg-<hue>/<n>`, else `text-<hue>`): its hue becomes the
- * pill's `--hw-pill-hue`, a grey wash (`bg-muted`, `bg-foreground/<n>`) or none the neutral tone.
+ * pill's `--hw-pill-hue`, the warning role (`bg-warning/<n>`, `text-warning`) the warning tone, a
+ * grey wash (`bg-muted`, `bg-foreground/<n>`) or none the neutral tone.
  * `priority` is the element's priority scale instead of a colour, `unset` its outline (no value
  * set), and a button with words its editable corner. The element sets the size per scale.
  */
@@ -60,6 +61,7 @@ else {
       .find((h) => !NOT_HUE.test(h));
   const hue = named("bg-") ?? named("text-");
   if (!hue || hue === "muted" || hue === "foreground") attrs["data-tone"] = "neutral";
+  else if (hue === "warning") attrs["data-tone"] = "warning";
   else {
     // The expert roles (--hue-*, --error, --tier-*) are plain variables that flip with the theme,
     // and Tailwind emits no --color-<role> for them; a brand colour has --color-<name> and its
