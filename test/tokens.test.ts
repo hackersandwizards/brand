@@ -310,3 +310,36 @@ test("translucent white and the scrim are tokens the elements name, never a mix 
     );
   expect(written).toEqual([]);
 });
+
+// docs/exports.md "Custom properties": every property an exported stylesheet defines is in a
+// property file, a setting some element's opening comment lists, or named there as internal.
+test("every custom property is interface or named internal in docs/exports.md", () => {
+  const defined = (f: string) =>
+    [...readFileSync(join(ROOT, f), "utf8").matchAll(/(?:^|[;{\s])(--[\w-]+)\s*:/g)].map(
+      (m) => m[1]!,
+    );
+  const opening = (f: string) =>
+    /^\/\*[\s\S]*?\*\//.exec(readFileSync(join(ROOT, f), "utf8"))?.[0] ?? "";
+  const elements = readdirSync(join(ROOT, "elements"))
+    .filter((f) => f.endsWith(".css"))
+    .map((f) => `elements/${f}`);
+  const files = readdirSync(join(ROOT, "tokens"))
+    .filter((f) => f.endsWith(".css"))
+    .map((f) => `tokens/${f}`)
+    .concat("expert/expert.css", "elements/scales.css");
+  const iface = new Set(files.flatMap(defined));
+  const settings = elements.map(opening).join("\n");
+  const section = /## Custom properties\n([\s\S]*?)(\n## |$)/.exec(
+    readFileSync(join(ROOT, "docs/exports.md"), "utf8"),
+  )?.[1];
+  expect(section).toBeDefined();
+  const internal = section!.split("Internal")[1] ?? "";
+  const rest = [...elements, "expert/header.css", "expert/app-base.css"]
+    .flatMap((f) => defined(f).map((p) => [f, p] as const))
+    .filter(([, p]) => !iface.has(p) && !new RegExp(`${p}(?![\\w-])`).test(settings))
+    .filter(([, p]) => {
+      const family = /^(--_|--tw-prose-)/.exec(p)?.[1];
+      return !internal.includes(family ? `\`${family}*\`` : `\`${p}\``);
+    });
+  expect(rest).toEqual([]);
+});

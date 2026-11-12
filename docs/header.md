@@ -9,6 +9,11 @@ takes the same width with the class `hw-container`. A control holding only an ic
 search) is `hw-header-link` with `data-icon`: round, 36 px. `ThemeToggle.astro` is one; an app
 that renders no `.astro` takes its two icons from `expert/components/theme-icons.ts`.
 
+`header.css` sits in no cascade layer, so it wins over every layered rule, Tailwind's utilities
+included: to hide or restyle a header link, write an unlayered rule of your own or an important
+utility (`max-md:hidden!`). It stays out of a layer because on a plain page the unlayered
+`tokens.root.css` would then win over the header's own `--spacing-app-header`.
+
 Past those two, the area marks and the disclosure chevron, brand exports no icons. An app that
 draws other Lucide icons pins Lucide's own package and imports from it.
 

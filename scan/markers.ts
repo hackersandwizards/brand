@@ -14,10 +14,10 @@
 // by text in its row that is the brand's .hw-marker or an item's first element, a bullet glyph as a
 // ul item's ::before content, and the browser's own marker in a ul. A drawn marker on an item that
 // also keeps the browser's own fails, whatever its offset. Not measured: a heading's or
-// link's swatch outside a list, an area mark (.hw-mark), ol numerals, whose digits stand on the
-// baseline, and anything inside [data-hw-exception], a system's own element brand-elements.json
-// names with its reason; a marker there, under a name "exceptions" declares, still counts as found
-// for the checks below that a page shows one.
+// link's swatch outside a list, an area mark (.hw-mark), and ol numerals, whose digits stand on the
+// baseline. A marker inside a [data-hw-exception] whose name brand-elements.json's "exceptions"
+// declares, a system's own element, is measured and printed apart, never failing the run; inside any
+// other it is measured as every marker is.
 //
 // The "markers" block of brand-elements.json declares the readings a consumer keeps, each with
 // its reason and how many off readings it keeps at most:
@@ -27,9 +27,8 @@
 // "csp" or the page's own.
 // An off reading on a page the glob matches is kept, printed as kept; more off readings there than
 // "off" fail, and so does an entry that keeps nothing on a page it matches in this run (stale), so
-// a fixed page drops its exception. Fewer pass: a run's count depends on its scales and pages. A marker inside a [data-hw-exception]
-// whose name brand-elements.json declares is the system's own and left out; inside any other it is
-// measured. An item with two markers is never kept.
+// a fixed page drops its exception. Fewer pass: a run's count depends on its scales and pages. An
+// item with two markers is never kept.
 // Exits 1 on a marker off by more than 0.25px, a first line off by more than 0.25px, an item with
 // two markers, a page named on the command line with no marker (a zero proves nothing; a story
 // page may show none), or a line still drawn in a fallback face after three loads, where the first
@@ -79,6 +78,7 @@ type Probe = {
   split: number;
   indent: number | null;
   double: boolean;
+  exception?: string;
 };
 /** collect's probes, the element each scrolls into view and the one holding its line, and whether a
  * marker sits inside a [data-hw-exception] whose name is in `declared`. */
@@ -94,6 +94,8 @@ export type Reading = {
   offset: number;
   indent: number | null;
   double: boolean;
+  /** The declared [data-hw-exception] the marker sits in: reported apart, never failing. */
+  exception?: string;
 };
 
 /** Runs in the page: opens every closed <details>, whose contents are drawn only once it opens. Not
@@ -174,18 +176,18 @@ async function collect([newline, maxSide, count, declared]: Collect): Promise<
       content !== '""'
     );
   };
-  const found: { host: Element; text: Text; kind: Kind; mark?: Element }[] = [];
+  const found: { host: Element; text: Text; kind: Kind; mark?: Element; exception?: string }[] = [];
   const seen = new Set<Text>();
-  // A system's own mark, declared in brand-elements.json, is noted but not measured, as
-  // brand-elements leaves it out; one inside an undeclared exception is measured.
+  // A system's own mark, declared in brand-elements.json, is measured and marked with its name.
   let excepted = false;
   let inException: Element | null = null;
   const add = (host: Element, text: Text | null, kind: Kind, mark?: Element) => {
     if (!text || seen.has(text)) return;
     seen.add(text);
-    if (inException && declared.includes(inException.getAttribute("data-hw-exception")!))
-      excepted = true;
-    else found.push({ host, text, kind, mark });
+    const name = inException?.getAttribute("data-hw-exception");
+    const exception = name && declared.includes(name) ? name : undefined;
+    if (exception) excepted = true;
+    found.push({ host, text, kind, mark, exception });
   };
   for (const host of document.querySelectorAll("body *")) {
     if (!visible(host)) continue;
@@ -258,7 +260,7 @@ async function collect([newline, maxSide, count, declared]: Collect): Promise<
     twin.remove();
     return { left: r.left - 1, right: r.right + 1, top: r.top - 1, bottom: r.bottom + 1 };
   };
-  const probes = found.map(({ host, text, kind, mark }): Probe => {
+  const probes = found.map(({ host, text, kind, mark, exception }): Probe => {
     const at = (mark ?? text.parentElement!).getBoundingClientRect();
     const box = (left: number, right: number, top: number, bottom: number): Box => ({
       x: left - at.left,
@@ -305,6 +307,7 @@ async function collect([newline, maxSide, count, declared]: Collect): Promise<
       // A marker drawn on an item the browser still gives its own: two markers on one line.
       // An element marker counts only as its item's first child, not inside a row deeper in it.
       double: kind !== "native" && !!li && (kind !== "element" || host === li) && ownMarker(li),
+      exception,
     };
   });
   return {
@@ -663,6 +666,7 @@ export async function measureMarkers(
         offset: (await read(at, p.marker, beyond))[0]! - (x! + CAP_SHARE * (caps! - x!)),
         indent: p.indent,
         double: p.double,
+        ...(p.exception && { exception: p.exception }),
       });
     }
     if (refused) refused.push(...(await refusals(page, url)));
@@ -809,6 +813,11 @@ export async function hasMarkers(
 }
 
 // Written as "not within" so a NaN offset, from a marker and a text that both show no ink, fails.
+const readingLine = (r: Reading) =>
+  `${r.page} ${r.label} (${r.kind}, ${r.scale}x${r.newline ? ", newline after <li>" : ""}): ` +
+  `${r.offset.toFixed(2)} px off${r.indent === null ? "" : `, first line ${r.indent.toFixed(2)} px in`}` +
+  (r.double ? ", and the browser's own marker beside it" : "");
+
 export const failing = (r: Reading) =>
   r.double ||
   !(Math.abs(r.offset) <= TOLERANCE) ||
@@ -1152,7 +1161,12 @@ if (import.meta.main) {
     console.error(
       `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,
     );
-  const { bad, kept, findings } = applyExceptions(readings.filter(failing), config.markers, pages);
+  const apart = readings.filter((r) => r.exception);
+  const { bad, kept, findings } = applyExceptions(
+    readings.filter((r) => !r.exception && failing(r)),
+    config.markers,
+    pages,
+  );
   for (const f of findings) console.error(f);
   for (const r of refused) console.error(refusalLine(r));
   for (const message of fallbacks.values()) console.error(message);
@@ -1162,15 +1176,15 @@ if (import.meta.main) {
       console.log(
         `kept: ${r.page} ${r.label} ${r.offset.toFixed(2)} px off (brand-elements.json "markers")`,
       );
-    for (const r of bad)
-      console.error(
-        `${r.page} ${r.label} (${r.kind}, ${r.scale}x${r.newline ? ", newline after <li>" : ""}): ` +
-          `${r.offset.toFixed(2)} px off${r.indent === null ? "" : `, first line ${r.indent.toFixed(2)} px in`}` +
-          (r.double ? ", and the browser's own marker beside it" : ""),
-      );
+    for (const r of apart.filter(failing))
+      console.log(`declared exception "${r.exception}": ${readingLine(r)}`);
+    for (const r of bad) console.error(readingLine(r));
     for (const url of empty) console.error(`${url}: no marker found`);
     console.log(
-      `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px, ${kept.length} kept`,
+      `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px, ${kept.length} kept` +
+        (apart.length
+          ? `, ${apart.length} inside declared exceptions, ${apart.filter(failing).length} off`
+          : ""),
     );
   }
   process.exit(

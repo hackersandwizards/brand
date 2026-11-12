@@ -260,8 +260,9 @@ you name take the measured runs, side by side, one per core, at most 8; a run of
 stories, a catalog's alone included, that finds no marker at all fails. A square `::before` placed absolutely on its item is
 read in its own box, however far left of the text it sits and however it is turned. A list inside
 a `[data-hw-exception]`, the system's own element your `brand-elements.json` names with its reason,
-is left out, as `brand-elements` leaves it out; inside an exception the file does not name, it is
-measured. Run it in your gate on the pages or
+is measured and printed apart, `declared exception "<name>": ...` for each one off, counted in the
+summary line, and never fails the run; inside an exception the file does not name, it is measured
+as every marker is. Run it in your gate on the pages or
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first,
 and scrolls each list into view in every container that scrolls it, the window or an element such
 as a catalog's `main`.

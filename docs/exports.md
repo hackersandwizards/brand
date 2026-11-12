@@ -69,6 +69,17 @@ may move in the next tag. A Python script, an HTML document or a skill that need
 on disk reads it at `node_modules/@hackersandwizards/brand/<target>`, the target the export maps it to
 (`./fonts/*` to `tokens/fonts/*`).
 
+## Custom properties
+
+A custom property an exported stylesheet defines is interface too, read with `var()` or set where
+its file names it a setting: every one in `tokens/*.css` (`tokens.css`, `print.css`, `stage.css`,
+`document.css`, `night.css`, `marker.css`, ...), in `expert.css` and in `elements/scales.css`,
+and each setting an element file's opening comment lists. Internal, and free to change in any tag:
+every `--_*`, whose underscore marks a value one file keeps to itself, `--hw-fg`, `--hw-bg`,
+`--hw-accent` and `--hw-header-fill` in `header.css`, and the `--tw-prose-*` the prose block hands
+to Tailwind Typography. Renaming or removing an interface property is a
+release whose commit names it.
+
 ## Commands
 
 Run a command the package ships from your repo's root with `bun run <name>`; `--help` prints its usage. Never `bunx <name>`:

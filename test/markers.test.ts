@@ -456,10 +456,9 @@ test("an area mark opening a list item is no marker", async () => {
   expect(await Promise.all(urls.map((url) => hasMarkers(browser, url)))).toEqual([false, true]);
 }, 30_000);
 
-// A system's own mark, declared as an exception in brand-elements.json, is no brand marker: its
-// instance inside [data-hw-exception] is left out, as brand-elements leaves it out. The controls:
-// the same list inside an exception no one declared, and outside any, is measured.
-test("a marker inside a declared [data-hw-exception] is not measured, inside another it is", async () => {
+// A marker inside a [data-hw-exception], declared in brand-elements.json or not, is found and
+// measured, as one outside any is; a declared one is reported apart (below).
+test("a marker inside any [data-hw-exception] is found", async () => {
   const list = (attr: string) =>
     `<div ${attr}><ul style="list-style:none"><li><span style="width:8px;height:8px;display:inline-block;background:teal"></span> Stop</li></ul></div>`;
   const exception = file("exception.html", `<!doctype html>${list('data-hw-exception="track"')}`);
@@ -470,7 +469,7 @@ test("a marker inside a declared [data-hw-exception] is not measured, inside ano
       hasMarkers(browser, exception, { exceptions: ["other"] }),
       hasMarkers(browser, own),
     ]),
-  ).toEqual([false, true, true]);
+  ).toEqual([true, true, true]);
 }, 30_000);
 
 test.each([2, 4])(
@@ -822,7 +821,7 @@ describe("a page whose markers are all declared exceptions", () => {
       const run = Bun.spawnSync(["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", ...args], {
         cwd,
       });
-      return { code: run.exitCode, err: run.stderr.toString() };
+      return { code: run.exitCode, err: run.stderr.toString(), out: run.stdout.toString() };
     } finally {
       rmSync(cwd, { recursive: true, force: true });
     }
@@ -839,6 +838,20 @@ describe("a page whose markers are all declared exceptions", () => {
     const undeclared = cli([own], {});
     expect(undeclared.code).toBe(1);
     expect(undeclared.err).toContain(measured);
+  }, 60_000);
+
+  // The declared timeline's square is measured too, and its off reading is printed apart without
+  // failing the run; the summary counts it.
+  test("measures a declared exception's markers and reports them apart without failing", () => {
+    const run = cli([own], declared);
+    expect(run.code).toBe(0);
+    expect(run.out).toMatch(
+      new RegExp(
+        `declared exception "track": ${own.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} li "xxxxHHHH Stop" \\(element, 2x\\): -?[\\d.]+ px off`,
+      ),
+    );
+    expect(run.out).toMatch(/2 inside declared exceptions, 2 off/);
+    expect(run.err).not.toContain(measured);
   }, 60_000);
 
   test('passes when listed in brand-elements.json "pages"; no marker fails, an undeclared name is measured', () => {
