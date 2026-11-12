@@ -102,7 +102,7 @@
     "dev": "cd catalog && bun --bun astro dev",
     "catalog": "bun run dev",
     "build": "check-lock bun --bun astro build --root catalog",
-    "test": "bun test --timeout ${SCAFFOLDING_TEST_TIMEOUT_MS:-5000} --path-ignore-patterns='test/catalog/**' --path-ignore-patterns='dist/**'",
+    "test": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun test --timeout ${SCAFFOLDING_TEST_TIMEOUT_MS:-5000} --path-ignore-patterns='test/catalog/**' --path-ignore-patterns='dist/**'",
     "check:catalog": "bun test --timeout ${SCAFFOLDING_TEST_TIMEOUT_MS:-5000} ./test/catalog/",
     "check:tokens": "bun scripts/tokens.ts --check",
     "check:staged": "check-staged"
