@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1980
 owner: a brand session
-evidence: "07.11.: brand gained --color-teal-soft (documents' --accent-soft, teal 7 % on white) and brand-elements' source check learned button, breadcrumb and fact, read 0 findings on slides, documents and talks origin/main (the control, website, reads 10); measurements below from tokens/tokens.css and applications/channel-banners/render.py"
+evidence: "Checked 12.11.: point 1 row.css:73 and frame.css:19 still draw white 18 %, table and card --white-line; point 2 render.py:56 still types TEAL_GLOW and PURPLE_GLOW; point 4 --slide-measure-overview still in tokens/stage.css:158, os keeps off-token shadows in PipelineCard.css, StageHero.css and StageDots.astro (ListRow.css none now); point 3 not measured. Internal."
 ---
 
 # Design system: the brand proposals that remain

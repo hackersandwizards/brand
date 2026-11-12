@@ -5,7 +5,7 @@ priority: 3
 order: 2101
 area: brand
 owner: a brand session
-evidence: "website 036894f7 and 330c4cbd (12.11.): hw-carousel v2.22.0 lost a blind panel against the website's swipe rows in all 16 runs; measured at 390 px in Chromium and WebKit; report docs/agent-work/2026-11-12-brand-carousel.md and the item work-take-brand-carousel.md in the website."
+evidence: "Checked 12.11. at v2.23.0: carousel.css:76-77 still sizes the controls 44px, enhanceCarousel in behaviour.ts sets no track tabIndex and scrolls nothing on focusin; none of the four has shipped. Internal: the website keeps its own rows until it does."
 ---
 
 # The carousel closes four gaps the website's rows already close

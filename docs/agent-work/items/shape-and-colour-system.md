@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 2010
 owner: a brand session
-evidence: "Read 11.11. at origin/main: os src/config.ts:648-649 use --color-hue-green and bg-hue-green/15 text-hue-green; trainer-hub src/styles/expert.test.ts names hue-amber as a string to reject; website, talks, slides, documents, admin, certificate-verifier, practitioners, mail and hycle-private name neither. Control: the same grep in brand finds expert/expert.css (5 lines)."
+evidence: "Checked 12.11.: brand expert/expert.css:102-103 and 178-179 still define the four aliases; os src/config.ts:648-649 on origin/main still uses --color-hue-green and bg-hue-green/15. Internal."
 ---
 
 # One shape and colour system: remove the hue-amber and hue-green aliases

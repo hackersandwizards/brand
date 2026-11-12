@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 2020
 owner: a brand session
-evidence: "brand-markers sweep 08.11.: 11 to 36 px text, line heights 1.25 to 1.6, zooms 1, 0.96897, 0.92, 0.85, 0.8, 0.75, at 2x and 4x, with and without a newline after <li>; one-factor controls per cause"
+evidence: "Checked 12.11.: not re-measured; tokens/marker.css changed after the 08.11. sweep (area marks, night marker) and elements/check.css:29-30 still states the read-only tick up to 1 px off under a zoom. Internal."
 ---
 
 # Markers under a CSS zoom: what remains

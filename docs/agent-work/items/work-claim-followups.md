@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 2003
 owner: a brand session
-evidence: "docs/agent-work/2026-11-11-claim-and-headline.md, section Open; point 1 done in v2.20.0 (docs/agent-work/2026-11-11-booth-texts.md): verbal.json's descriptor, read by applications/channel-banners/render.py and applications/booth/generate.ts; the website's src/copy/ui.ts (footerSlogan) still types it, a brief for the website session."
+evidence: "Checked 12.11.: point 1 reached the website (src/copy/ui.ts:1 imports descriptor); render.py still sizes marks by hand (PROFILE_LOGOS, FEATURED_LOGOS, lines 295-296) and claim_block still takes size, step and track (line 74), both waiting on their condition. Internal."
 ---
 
 # Claim follow-ups in brand: the banner marks, claim_block

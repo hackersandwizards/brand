@@ -5,7 +5,7 @@ priority: 3
 order: 2100
 area: brand
 owner: a brand session
-evidence: "website 76dc7ce5 and report docs/agent-work/2026-11-12-person-marks-avatar.md (12.11.): the roster, book authors and trainer list moved to hw-avatar; the training page's trainer faces, which carry no name beside them, stayed on the site's own mark because hw-avatar's documentation names no form hidden from screen readers."
+evidence: "Checked 12.11.: elements/avatar.css and its catalog demo (catalog/element-demos.ts:60) name only the labelled form (role=img with aria-label, or a photo with alt), no decorative one. Internal: screen readers only, nothing changes on screen."
 ---
 
 # The avatar documents a decorative form for a mark whose name stands beside it

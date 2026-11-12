@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1990
 owner: a brand session
-evidence: "os UX run of 10.11. (brief for brand, I12): a record's notes column is 429 px at 13 px type on a 1,408 px page, the measure of 33em at the dense scale."
+evidence: "Checked 12.11.: prose paragraphs still take max-width var(--container-measure) (elements/prose.css:64), 33em (tokens/tokens.css:339), so 429px at the dense 13px; not re-rendered, not scored. Visible to os readers: notes wrap early on a wide screen."
 ---
 
 # A wider text width for notes at the dense scale

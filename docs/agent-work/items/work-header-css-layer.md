@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1995
 owner: a brand session
-evidence: "brand-next2 run, 12.11.: header.css's rules wrapped in @layer components in place on the built pages of os, admin, slides, talks, testimonials and brand (in-page simulation, not a build), computed styles of every header element diffed at 1440 and 390 px, light and dark. With the header.css file wrapped whole, test/header.test.ts's two catalog-list cases at 375 px go red. A control inserting only the layer order showed the 10 px narrower story frames in os and admin as the simulation's own artifact."
+evidence: "Checked 12.11.: expert/header.css has no @layer and is unchanged since 426e3f5 (11.11.); the split build has not run. Internal."
 ---
 
 # header.css in a cascade layer, all but the phone header's height

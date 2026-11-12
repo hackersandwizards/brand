@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1960
 owner: a brand session
-evidence: "website UX run of 10.11. (its report, brief for brand, U5): a soft edge (a box-shadow) on the flat Night panel beside the home hero, over the corner glow, scored 88/80/77/88 against 58/50/48/76 for today's hard edge, on both models; reverted because brand-colours lets the website's shadow allowlist only shrink. The variant's shadow value is not recorded in the report."
+evidence: "Checked 12.11.: tokens/tokens.css:283-284 hold only --shadow-card and --shadow-overlay, no edge for a night panel; the website's hero feed panel keeps border-white/15 (HeroFeed.astro:43). Not scored. Visible on the home hero."
 ---
 
 # A soft edge for a flat Night panel

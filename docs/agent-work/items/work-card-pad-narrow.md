@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1995
 owner: a brand session
-evidence: "website UX run of 10.11. (brief for brand): the website sets --hw-card-pad to 1rem on narrow screens in three places. practitioners catalog run of 10.11. (brief for brand, point 1): its PersonCard and the website's both set --hw-card-pad: 1rem by hand. --spacing-card is 20 px at 375 px (tokens/tokens.css)."
+evidence: "Checked 12.11.: --spacing-card still floors at 20px (tokens/tokens.css:260); the website sets --hw-card-pad by hand in PersonCard.astro:63-64 (0.75rem, 1rem) and DirectorySections.astro:254 (0.5rem, 1rem), practitioners in PersonCard.astro:36 (1rem). Not scored. Internal."
 ---
 
 # The card padding at the narrow end

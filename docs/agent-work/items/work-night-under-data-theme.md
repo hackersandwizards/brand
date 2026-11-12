@@ -5,7 +5,7 @@ priority: 3
 order: 1961
 owner: Ada
 area: brand
-evidence: "Website run web-cues, 12.11.: d5af6720 sets data-hw-night beside every data-theme dark element and loads night.css; report docs/agent-work/2026-11-12-person-marks-avatar.md in the website (c3c408fb). Eight blind runs, two personas, Claude and Codex."
+evidence: "Checked 12.11.: tokens/night.css:9-11 still applies the night roles only to [data-hw-night] inside a dark scope; points 2 and 3 not scored. Internal: the website carries both attributes."
 ---
 
 # Night tokens need a second attribute beside data-theme dark

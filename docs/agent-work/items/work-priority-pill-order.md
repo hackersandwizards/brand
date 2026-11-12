@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1970
 owner: a brand session
-evidence: "docs/agent-work/2026-11-11-shared-elements.md, section Pill, Priority steps: the P2 to P4 steps shipped in v2.10.0 (F 7.66 against 6.74, noise 0.33); reviewers of both rounds name P0 and P1 as equally strong. Round of 10.11. (fix-brand-a): a dense task list, day and night, 3 personas (co-founder, operations lead, internal-tools designer) x 2 runs, claude-opus-5-5 medium, no Codex; overall: today 6.17, grey P0 4.67, solid red P0 with white text 7.83 against 7.17 for today's P0 on the same amber wash; noise 0.47."
+evidence: "Checked 12.11.: elements/pill.css:83-90 still gives P0 red and P1 amber-dark on the same wash; the round on os's and admin's own pages has not run. Visible on os's and admin's task lists, unscored."
 ---
 
 # Priority pills: P0 reads no stronger than P1

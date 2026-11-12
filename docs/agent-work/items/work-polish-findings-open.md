@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1965
 owner: a brand session
-evidence: "polish runs 08.11. (v1.37.0), 09.11. and 11.11.: review findings left unfixed, each measured or read in that run"
+evidence: "Checked 12.11.: points 2 (VARIANTS in applications/backgrounds/generate.ts), 3 (WHITE and SUBLINE typed in render.py:50-51), 7 (no unobserve in elements/table.ts) and 9 (--site-at in scan/markers.ts) read unchanged; the others not re-measured. Internal."
 ---
 
 # Polish findings left open

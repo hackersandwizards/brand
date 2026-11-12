@@ -5,7 +5,7 @@ priority: 3
 order: 1760
 area: software-engineering
 owner: Ada
-evidence: 'brand-pages run 10.11.: 8 of 12 brand Pages deploy attempts between 09.11. 23:43 and 10.11. 03:56 UTC (reruns counted) timed out at deploy-pages'' 10 minutes, the server still at syncing_files (42745740563, 42736998716: 19 polls) or, on attempt 3 of 42748997693, at finished_file_sync; a workflow_dispatch of the same SHA 5e9ce2f (42753497461) was cancelled 6 s after creation, the Pages deployment for 5e9ce2f reading status "". Ruled out: overlap (concurrency group pages serialised every deploy job), the scaffolding pin (failures under 2273e73 and 49755c5), artifact size alone (107.9 MB on every run since 09.11. 08:45, deploys of 11 to 48 s all of 09.11.; one failure 09.11. 10:26 during GitHub''s Webhooks and Actions incident), a documented limit (1 GB site, 10-minute deployment). slides (4.5 MB) and documents (3 MB) deployed 11 of 11 in the same window. githubstatus.com lists no Pages incident after 09.11. 18:59. Recovered: 954dec7 (04:23) and f0ca3e9 (05:12) deployed in 11 s and 10 s at 107.97 MB. Recurred 10.11.: run 42768586085 (06:27 UTC, SHA 2397a61) and run 42835051172 (14:32 UTC, SHA 517e99f) each built in 30 s and timed out at deploy-pages'' 10 minutes, the server at syncing_files; slides deployed 4 of 4 and documents 1 of 1 within the same hours. From 10.11. 05:12 to 11.11. 06:31 UTC: 37 deploys succeeded, 2 stalled, 2 were cancelled in the build by a newer push.'
+evidence: "Checked 12.11.: 56 Pages runs since 11.11. 06:31 UTC, 55 succeeded on their first attempt, none stalled; run 43095095883 (5f43d78, 11.11. 20:17 UTC) still sits queued with no job. Cause not explained, the size control not run. Internal."
 ---
 
 # Brand's Pages deploys stall now and then

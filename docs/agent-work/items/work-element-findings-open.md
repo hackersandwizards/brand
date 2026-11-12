@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 1985
 owner: a brand session
-evidence: "docs/agent-work/2026-11-11-shared-elements.md: each point below is in the section named beside it, checked against the files at HEAD on 11.11. (brand v2.15.0); reviewers' remarks from the blind reviews that section reports."
+evidence: "Checked 12.11. at v2.23.0: 1 textarea resize still in field.css:89; 3 .page-title-lead still overflow: hidden (expert.css); 6 the night logo still a second image (header.css:98); 8 the night edge ships at 12 % (table.css:218), the third round's comments still unread; 9 row.css:61 and carousel.css:44 keep the negative ring margin. 2, 4, 5, 7 and 10 to 12 not re-measured. Visible, minor: the textarea grip and a clipped focus ring show on a page."
 ---
 
 # Element findings no other item holds

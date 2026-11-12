@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 2000
 owner: a brand session
-evidence: "docs/agent-work/2026-11-11-shared-elements.md, sections Callout and Status box: the callout's 7 % fill without its rule almost vanished at night and on a projector, and 10 % (14 % on night) scored better there. elements/status.css and elements/card.css (data-variant=tint) still fill at 7 %."
+evidence: "Checked 12.11.: elements/status.css:21 and card.css:106 still fill at 7 %, the callout at --tint-callout 10 % (tokens/tokens.css:342); not scored yet. Internal: an open scoring question, no defect."
 ---
 
 # The status box and the tinted card at the callout's 10 % wash?

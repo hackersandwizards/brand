@@ -5,7 +5,7 @@ priority: 3
 area: brand
 order: 2030
 owner: a brand session
-evidence: "brand run of 11.11. (v2.21.0, 76bdab7). MDN browser-compat-data fetched 11.11.: css/selectors/selection (safari_ios version_added false), css/properties/animation-timeline scroll() (Chrome 115, Safari 26, Firefox 159 released 27.10.2026). Contrast computed from tokens/tokens.css. Probes of the website's build of 11.11. and of www.hackersandwizards.dev/blog/ on 11.11."
+evidence: "Checked 12.11.: points 4 to 7 stand; nav.css:75 still gives the hover fill to any aria-expanded=true item and nav.css:47 styles every button:not([class]) in hw-nav. Points 1 to 3 stay closed until their condition changes. Internal."
 ---
 
 # Three requests closed by measurement, and review findings left as they are
