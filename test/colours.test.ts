@@ -209,6 +209,29 @@ test("a four-digit hex of letters alone counts where its colour part is a grey",
   ).toEqual({ ...zero, hex: 2, tokenHex: 1 });
 });
 
+// A number such as an issue's (#128) is no colour in prose; in a colour's value it is one.
+test("a short hex of digits alone counts only where a value stands", () => {
+  expect(scanSource('{ "reason": "opens pull request #128): 10 s" }', ".json").counts.hex).toBe(0);
+  expect(scanSource("<p>Issue #1234 is fixed</p>", ".html").counts.hex).toBe(0);
+  expect(scanSource(".a { color: #128; }", ".css").counts.hex).toBe(1);
+  expect(scanSource('<rect fill="#1234"/>', ".html").counts.hex).toBe(1);
+  // Control: a short hex mixing digits and letters counts wherever it stands.
+  expect(scanSource("<p>see #1a2</p>", ".html").counts.hex).toBe(1);
+});
+
+// A consumer declaring brand's own faces, the fallback ones included, declares no other font; a
+// stack opening on a fallback face still sets text in the fallback.
+test("an @font-face naming a brand face counts nothing, a stack opening on its fallback does", () => {
+  const face = (family: string) =>
+    scanSource(`@font-face { font-family: "${family}"; src: local("Arial"); }`, ".css").counts.font;
+  for (const f of ["Inter Fallback", "Inter Fallback Roboto", "JetBrains Mono Fallback"])
+    expect([f, face(f)]).toEqual([f, 0]);
+  expect(face("My Own")).toBe(1);
+  expect(scanSource('.a { font-family: "Inter Fallback", sans-serif; }', ".css").counts.font).toBe(
+    1,
+  );
+});
+
 test("a // in CSS, SVG or a url() hides nothing after it; a script's line comment does", () => {
   const css = ".a { background: url(//cdn.example.com/x.png); color: #123456 }";
   expect(scanSource(css, ".css").counts.hex).toBe(1);

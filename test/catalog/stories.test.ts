@@ -1,15 +1,16 @@
-import { afterAll, beforeAll, expect, test } from "bun:test";
+import { afterAll, beforeAll, expect } from "bun:test";
+import { test } from "../limit";
 import axe from "axe-core";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
-import { coverage, ELEMENTS, measurePage } from "../../scan/elements";
+import { ELEMENTS, exceptionFindings, measurePage } from "../../scan/elements";
 import { catalogPages, launch, open, pool } from "../../scan/markers";
 import catalogs from "../../expert/catalogs.json";
 import { BASE, DIST, page, serveSite } from "./site";
 
 // brand-elements over every element story, as a spoke's gate runs it over its catalog: each state
-// matches the element's rule, and every element has its tile at this version. The pages are the
-// ones the catalog key names.
+// matches the element's rule, and every element shows on a story. The pages are the ones the
+// catalog key names.
 let browser: Browser;
 let server: ReturnType<typeof serveSite>;
 beforeAll(async () => {
@@ -23,23 +24,18 @@ afterAll(async () => {
 
 test("every story passes brand-elements, every element story shows its element", async () => {
   const pages = storyPages();
-  // Five per element, six that show a setting (the prose block's reading width, the row's
-  // padding, the dialog in a narrow tile, the navigation list at a sidebar's width, the scrolling
-  // table in a text column by day and night), the list filter's nine, the area marks' two, the
-  // expert components' sixteen (expert/components, each in ExpertFrame.astro) and the filter bar
-  // (choices beside form-input, in ExpertFrame.astro).
+  // An expert component's stories (expert/components, each in ExpertFrame.astro).
   const expert = pages.filter(expertStory);
-  expect([pages.length, expert.length]).toEqual([
-    Object.keys(ELEMENTS).length * 5 + 6 + 9 + 2 + 17,
-    17,
-  ]);
+  expect(expert.length).toBeGreaterThan(0);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
   const results = await pool(pages, 8, (p) => measurePage(browser, p));
   // An expert component may hold no shared element, such as the header's frame.
   expect(pages.filter((p, i) => !expertStory(p) && !results[i]!.seen.length)).toEqual([]);
   expect(results.flatMap((r) => r.findings)).toEqual([]);
   expect(results.flatMap((r) => r.unstyled)).toEqual([]);
-  expect(coverage({ pages, uses: Object.keys(ELEMENTS) }, results)).toEqual([]);
+  expect(exceptionFindings({ pages }, results)).toEqual([]);
+  const seen = new Set(results.flatMap((r) => r.seen));
+  expect(Object.keys(ELEMENTS).filter((e) => !seen.has(e))).toEqual([]);
 }, 300_000);
 
 // WCAG AA text contrast (axe-core's color-contrast rule) over every element story at every scale

@@ -1,4 +1,5 @@
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect } from "bun:test";
+import { test } from "./limit";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -57,7 +58,7 @@ const run = (script: string, args: string[] = []) => {
   return { code: r.exitCode, out: r.stdout.toString(), err: r.stderr.toString() };
 };
 const elements = (config: object, args: string[] = []) => {
-  write("brand-elements.json", JSON.stringify({ uses: ["card"], ...config }));
+  write("brand-elements.json", JSON.stringify(config));
   const r = run("elements.ts", ["--json", ...args]);
   return { ...r, json: r.out ? JSON.parse(r.out) : undefined };
 };
@@ -85,7 +86,11 @@ test("brand-elements: on a served site a story is a path below the catalog's, or
 }, 60_000);
 
 test("brand-elements: a story the server does not answer fails rather than passing as empty", () => {
-  const r = elements({ site: "site", pages: [], catalog: { dir: "site/catalog", at: "/catlog/" } });
+  const r = elements({
+    site: "site",
+    pages: [],
+    catalog: { dir: "site/catalog", at: "/catlog/" },
+  });
   expect(r.code).not.toBe(0);
   expect(r.err).toContain("HTTP 404");
 }, 60_000);
@@ -97,9 +102,6 @@ test("brand-elements and brand-markers: an exclude glob leaves its stories out, 
     catalog: { dir: "site/catalog", exclude: ["Cards/**"] },
   });
   expect(cut.json.rendered).toEqual([]);
-  expect(cut.json.coverage).toContain(
-    'card: used, but no page shows it in a [data-hw-tile="card"]',
-  );
   // Control: the glob of another group leaves the fork in.
   const kept = elements({ pages: [], catalog: { dir: "site/catalog", exclude: ["Text/**"] } });
   expect(forkPages(kept.json.rendered)).toEqual([
@@ -173,7 +175,9 @@ test("brand-markers: without pages named, the pages and site of brand-elements.j
     return { code: r.code, err: r.err, pages: r.out ? forkPages(JSON.parse(r.out)) : [] };
   };
   const plain = "site/catalog/stories/Text/Plain/default/index.html";
-  const files = markers({ pages: ["site/catalog/stories/Lists/Lifted/default/index.html", plain] });
+  const files = markers({
+    pages: ["site/catalog/stories/Lists/Lifted/default/index.html", plain],
+  });
   expect(files.code).toBe(1);
   expect(files.pages).toEqual([expect.stringMatching(lifted)]);
   const served = markers({ site: "site", pages: ["/catalog/stories/Lists/Lifted/default/"] });

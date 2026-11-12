@@ -55,7 +55,7 @@ data or secret.
   surface serving the font files from its own path, with `preloadFiles`, the files to preload (`font-faces.ts`), and the `@font-face` rules of `tokens/print.css`
   with the fallback faces of `tokens/fonts.css` (`static-fonts.css`), those fallback faces alone, which `print.css` imports (`fallback-faces.css`), and the flat builds `elements.css` and `document.css`, the two sources
   with every `@import` inlined (exports `./elements.flat.css`, `./document.flat.css`). Never edit them; run `bun run tokens`.
-- `scan/`: the checks a consumer runs in its own `bun run check`, each over its own working tree;
+- `scan/`: the checks a consumer runs in its own `bun run check` (`brand-markers` by hand, outside it), each over its own working tree;
   nothing here reads a consumer. `colours.ts` (`brand-colours`: colours, radii, shadows, fonts),
   exceptions in the consumer's `brand-colours.json`. `copies.ts` (`brand-copies`) fails on a copy of
   a brand file, exceptions in the consumer's `brand-copies.json`. The paths every scan skips are
@@ -64,8 +64,7 @@ data or secret.
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
   rule being `tokens/marker.css`. `elements.ts` (`brand-elements`) measures the shared elements on
-  the design-system page a consumer names in `brand-elements.json`, its element-named source and
-  that page's coverage. `retired.ts` (`brand-retired`) fails on a line of `verbal.json`'s `retired` list in
+  the design-system page a consumer names in `brand-elements.json` and its element-named source. `retired.ts` (`brand-retired`) fails on a line of `verbal.json`'s `retired` list in
   the built folders or files a consumer names.
   A skill, script or document generator takes the file from the package, never a copy.
 - `README.md` and `docs/*.md`: what a consumer reads. The README holds what the package is, the

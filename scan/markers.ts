@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// The marker check a consumer runs in its own gate, on pages it serves or builds: every list marker
+// The marker check a consumer runs by hand, outside its gate, on pages it serves or builds: every list marker
 // measured on the pixels headless Chrome paints. A marker's middle has to sit two thirds of the way
 // from the x-height middle of the first line beside it to its cap-height middle (marker.css's
 // --hw-marker-mid; the caps' middle beside capitals), and a list item's first line has to start

@@ -1,4 +1,5 @@
-import { expect, test } from "bun:test";
+import { expect } from "bun:test";
+import { test } from "./limit";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

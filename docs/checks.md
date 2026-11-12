@@ -1,7 +1,7 @@
 # Checks for your gate
 
-The six checks a consumer runs in its own `bun run check`: what each reads, what it fails on and
-where its exceptions go. `bun run <name> --help` prints each command's usage.
+The six checks a consumer runs: what each reads, what it fails on and where its exceptions go. Five
+run in your own `bun run check`; `brand-markers` runs outside it. `bun run <name> --help` prints each command's usage.
 
 ## Check your colours in your gate
 
@@ -11,7 +11,8 @@ and counts, per file:
 - `hex`: colour literals off the tokens as hex, or as a CSS colour name (`tomato`, `teal`) in a
   colour property, an SVG colour attribute, a `color-mix()`, a Tailwind arbitrary value
   (`bg-[tomato]`) or a custom property set to that name alone (`--mark: tomato`); a hex of three or
-  four letters alone (`#fab`) only where a value stands. In a JSX, Astro or Svelte expression prop
+  four letters alone (`#fab`) or digits alone (`#128`, as an issue number reads) only where a value
+  stands. In a JSX, Astro or Svelte expression prop
   (`fill={on ? "teal" : "white"}`) and an interpolation (`${...}`), the strings the expression can
   take count, never a string it compares, tests with `in`, or holds inside a key, a call's
   arguments or an object
@@ -21,7 +22,8 @@ and counts, per file:
   instead of naming the token
 - `font`: font stacks that do not open on a brand family, in `font-family`, the `font` shorthand, an
   SVG `font-family` attribute or a quoted style key; a family only named like a brand one
-  (`Interstate`) counts; and Tailwind's `font-serif`
+  (`Interstate`) counts; and Tailwind's `font-serif`. An `@font-face` naming one of brand's faces,
+  the fallback faces of `fonts.css` (`Inter Fallback`) included, counts nothing
 - `palette`: Tailwind default palette classes, side and offset forms included (`border-x-red-500`,
   `ring-offset-red-500`, `placeholder-gray-400`)
 - `radius`, `shadow`: a `border-radius` or `box-shadow`, vendor-prefixed too (CSS, a custom property named for either,
@@ -175,13 +177,12 @@ in full with its reason, `<section data-hw-exception="<name>">`. On an Astro pag
 `@hackersandwizards/brand/Element.astro`: `<Element name="pill" scale="dense" lang="de"
 note="..."><span class="hw-pill">...</span></Element>` draws the caption, the version and the link,
 your sample in its slot at the scale, `night` for night, or brand's own sample without one. In a focus-ring tile
-`brand-elements` focuses every link and control but that link to the element's entry. List both in
-`brand-elements.json` at your repo's root:
+`brand-elements` focuses every link and control but that link to the element's entry. List the pages
+and your exceptions in `brand-elements.json` at your repo's root:
 
 ```json
 {
   "pages": ["specimen/index.html"],
-  "uses": ["label", "pill", "card"],
   "exceptions": {
     "total-band": "money on paper; no other system shows sums",
     "survey-readout": { "reason": "a slide deck on its own stylesheet", "files": ["readout.css"] }
@@ -215,15 +216,14 @@ with `"site"` the folder's path on it. Where your gate serves the catalog itself
 `"catalog": { "dir": "dist/client/catalog", "at": "/catalog/" }` with `--base`, or a full URL as
 `at`. A story showing no element passes; a catalog folder holding no story page exits 2. Stories
 another repository owns, such as the slides engine's, stay out with `"exclude": ["Slides/**"]` in
-that object: globs relative to `stories/`, read by both checks; your own stories stay measured, a
-used element whose only tile sits in an excluded story fails coverage, and a glob matching no story
-exits 2.
+that object: globs relative to `stories/`, read by both checks; your own stories stay measured, and a
+glob matching no story exits 2.
 
 Before it measures, `brand-elements` opens every closed `<details>` outside a header or nav, since
 a focusable in a shut fold takes no focus. An element inside `[data-hw-shell]`, the scaffolding
 catalog shell's own card and pill, is the shell's: neither measured nor counted as shown. An element
-carrying `hidden`, or inside one, draws nothing: it is not measured, and a hidden tile covers
-nothing, so a page that hides its views until one is opened names each view's URL. An element holding the page's
+carrying `hidden`, or inside one, draws nothing: it is not measured, so a page that hides its views until one is opened names
+each view's URL. An element holding the page's
 focus, or holding the focused node, as a story's focused state does, is read focused, its reference
 too.
 
@@ -241,12 +241,11 @@ padding, a label's type and colour; a shorthand counts, and so does a Tailwind u
 elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component file under a `components/` folder of such a name that renders
 none of the `hw-*` classes of the elements its name names (a `ProjectCard` without `hw-card`; a button component may render `hw-icon-button`, and a component named for one fact may render one row, a `dt` without a `dl`) and has no exception of that name, on an element carrying an `hw-*` class or
 one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
-or a class of your own passes, and so does such a class your own CSS defines), on a used element without a tile or with a stale version, on an exception
-without a reason or a tile, on a `data-hw-exception` whose name the list declares no exception for,
+or a class of your own passes, and so does such a class your own CSS defines), on an exception
+without a reason, on a `data-hw-exception` whose name the list declares no exception for,
 on a page showing no element, and on a run whose pages and stories show none. A `brand-elements.json` naming no page
-exits 2, as a run measuring nothing proves nothing. Each page's tile of a used element is
-compared: a version other than the installed one means that page was not built from it, such as a
-`dist/` or a running server older than your last `bun install`.
+exits 2, as a run measuring nothing proves nothing. It does not check which elements your page
+shows or the version a tile states: a `"uses"` list is no longer read, and you may delete it.
 
 ## Check your list markers
 
@@ -262,7 +261,9 @@ read in its own box, however far left of the text it sits and however it is turn
 a `[data-hw-exception]`, the system's own element your `brand-elements.json` names with its reason,
 is measured and printed apart, `declared exception "<name>": ...` for each one off, counted in the
 summary line, and never fails the run; inside an exception the file does not name, it is measured
-as every marker is. Run it in your gate on the pages or
+as every marker is. Keep it as a `check:markers` script, out of `scaffolding.check` and
+`scaffolding.changed`: it takes minutes, and its findings are sub-pixel. Run `bun run check:markers`
+after you raise your brand pin and after you change how your lists are styled, on the pages or
 specimen that show your lists. It opens every closed `<details>` outside a header or nav first,
 and scrolls each list into view in every container that scrolls it, the window or an element such
 as a catalog's `main`.

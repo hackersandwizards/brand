@@ -57,7 +57,7 @@ repository's root with `bun run <name>`, never `bunx <name>`; `--help` prints it
 - `brand-copies` fails on a copy of a brand file in your tree
 - `brand-scan` fails on a fork of an expert component
 - `brand-elements` fails on a shared element on your design-system page that differs from the brand rule
-- `brand-markers` fails on a list marker off its line
+- `brand-markers` fails on a list marker off its line; run it by hand, outside your gate
 - `brand-retired` fails on a retired slogan in what your build wrote
 
 How to add each to your gate, what it reads, where its exceptions go and how to raise your pin:

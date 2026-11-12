@@ -4,7 +4,6 @@
 // that could fork one. It reads the consumer's brand-elements.json:
 //
 //   { "pages": ["<url, html file or site path>", ...],
-//     "uses": ["card", "pill", ...],                  every hub element the system uses
 //     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
 //                     | { "reason": "...", "files": ["<path>", ...] }, ... },
 //     "lightOnly": true,                              optional: the pages never turn to night
@@ -53,15 +52,12 @@
 //    button's too, a fact's a dt, one row of the facts list), its name is an
 //    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
 //    medium, such as a slide deck's).
-// 3. Coverage. Each used element has a tile on a page ([data-hw-tile="<name>"] holding it), every
-//    such tile's data-hw-version is this package's version (a page built from another brand
-//    fails), each exception has a tile ([data-hw-exception="<name>"]) and a reason, each such tile
-//    names a declared exception, and every hub element a page shows is listed as used.
+// 3. Exceptions. Each declared exception names its reason, and each [data-hw-exception] on a page
+//    names a declared one.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import catalogs from "../expert/catalogs.json";
-import own from "../package.json";
 import { COMPONENT, ENGINE_STYLE, listTree, scanned, skippedReport } from "./colours";
 import { answerHelp } from "./help";
 
@@ -95,7 +91,6 @@ export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
 export type Config = {
   pages: string[];
-  uses: string[];
   exceptions?: Record<string, Exception>;
   lightOnly?: boolean;
   site?: Site;
@@ -439,7 +434,7 @@ type Args = [
   Record<string, string[]>,
 ];
 
-/** Runs in the page: each hub element against its reference, as findings plus the tiles found. */
+/** Runs in the page: each hub element against its reference, as findings plus the exceptions found. */
 function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   const findings: { element: string; label: string; prop: string; got: string; want: string }[] =
     [];
@@ -679,24 +674,15 @@ function compare([css, elements, owns, settings, tolerance, tokens]: Args) {
   } finally {
     for (const { host } of pairs) host.remove();
   }
-  const tiles = [...document.querySelectorAll("[data-hw-tile]")].map((t) => ({
-    name: t.getAttribute("data-hw-tile")!,
-    version: t.getAttribute("data-hw-version") ?? "",
-    holds: Object.entries(elements).some(
-      ([e, s]) =>
-        e === t.getAttribute("data-hw-tile") &&
-        [...t.querySelectorAll(s)].some((x) => !x.closest("[hidden]")),
-    ),
-  }));
   const exceptions = [...document.querySelectorAll("[data-hw-exception]")].map((t) =>
     t.getAttribute("data-hw-exception")!,
   );
-  return { findings, seen: [...new Set(seen)], tiles, exceptions };
+  return { findings, seen: [...new Set(seen)], exceptions };
 }
 
 export type PageResult = Awaited<ReturnType<typeof measurePage>>;
 
-/** One page's comparison, with its tiles, after `css` is added; `lightOnly` checks day tokens only,
+/** One page's comparison, with its exceptions, after `css` is added; `lightOnly` checks day tokens only,
  * and a page starting with / is a path on the served `site`. */
 export async function measurePage(
   browser: Browser,
@@ -996,39 +982,13 @@ export const sourceFindings = (
   return out;
 };
 
-/** Coverage of brand-elements.json against what the pages show. */
-export const coverage = (
-  config: Config,
-  results: { page?: string; seen: string[]; tiles: PageResult["tiles"]; exceptions: string[] }[],
-) => {
+/** The exceptions: each declared one names its reason, and each one a page carries is declared,
+ *  since an exception's instance is neither measured nor source-checked. */
+export const exceptionFindings = (config: Config, results: { exceptions: string[] }[]) => {
   const out: string[] = [];
-  const tiles = results.flatMap((r) => r.tiles.map((t) => ({ ...t, page: r.page ?? "a page" })));
-  const shown = new Set(results.flatMap((r) => r.seen));
-  const exceptionTiles = new Set(results.flatMap((r) => r.exceptions));
-  for (const name of config.uses) {
-    if (!(name in ELEMENTS)) {
-      out.push(`${LIST}: "${name}" is no shared element (${Object.keys(ELEMENTS).join(", ")})`);
-      continue;
-    }
-    const held = tiles.filter((t) => t.name === name && t.holds);
-    if (!held.length) out.push(`${name}: used, but no page shows it in a [data-hw-tile="${name}"]`);
-    for (const t of new Map(
-      held.filter((t) => t.version !== own.version).map((t) => [t.page, t]),
-    ).values())
-      out.push(
-        `${name}: the tile on ${t.page} says brand v${t.version || "?"}, the installed package is v${own.version}; rebuild that page`,
-      );
-  }
-  for (const name of shown)
-    if (!config.uses.includes(name))
-      out.push(`${name}: a page shows it, but ${LIST} does not list it in "uses"`);
-  for (const [name, exception] of Object.entries(config.exceptions ?? {})) {
+  for (const [name, exception] of Object.entries(config.exceptions ?? {}))
     if (!reasonOf(exception)?.trim()) out.push(`${LIST}: exception "${name}" names no reason`);
-    if (!exceptionTiles.has(name))
-      out.push(`${name}: an exception without a [data-hw-exception="${name}"] on a page`);
-  }
-  // An exception a page carries but the list never declares would skip its element unreviewed.
-  for (const name of exceptionTiles)
+  for (const name of new Set(results.flatMap((r) => r.exceptions)))
     if (!(name in (config.exceptions ?? {})))
       out.push(
         `${name}: a [data-hw-exception="${name}"] on a page, but ${LIST} declares no such exception`,
@@ -1107,10 +1067,10 @@ if (import.meta.main) {
   if (nothing) console.error(`brand-elements: no shared element on any page of ${LIST}`);
   const tree = listTree("brand-elements");
   const source = sourceFindings(tree, (p) => readFileSync(p, "utf8"), config.exceptions ?? {});
-  const covered = coverage(config, results);
+  const excepted = exceptionFindings(config, results);
   if (json)
     console.log(
-      JSON.stringify({ rendered, unstyled, refused, source, coverage: covered, empty }, null, 2),
+      JSON.stringify({ rendered, unstyled, refused, source, exceptions: excepted, empty }, null, 2),
     );
   else {
     const report = skippedReport("brand-elements", tree);
@@ -1128,14 +1088,14 @@ if (import.meta.main) {
         `${u.page} ${u.label}: carries .${u.cls}, which no stylesheet on the page defines, so it draws unstyled: take the hw-* element brand defines now, or define the class in your own CSS`,
       );
     for (const r of refused) console.error(refusalLine(r));
-    for (const line of [...source, ...covered]) console.error(line);
+    for (const line of [...source, ...excepted]) console.error(line);
     for (const url of empty) console.error(`${url}: no shared element found`);
     const shown = new Set(results.flatMap((r) => r.seen));
     console.log(
-      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${refused.length} refused by the page's policy, ${source.length} source findings, ${covered.length} coverage findings`,
+      `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${refused.length} refused by the page's policy, ${source.length} source findings, ${excepted.length} exception findings`,
     );
   }
   process.exit(
-    nothing || [rendered, unstyled, refused, source, covered, empty].some((a) => a.length) ? 1 : 0,
+    nothing || [rendered, unstyled, refused, source, excepted, empty].some((a) => a.length) ? 1 : 0,
   );
 }

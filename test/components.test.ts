@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, expect, test } from "bun:test";
+import { afterAll, beforeAll, expect } from "bun:test";
+import { test } from "./limit";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { getViteConfig } from "astro/config";

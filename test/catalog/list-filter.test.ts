@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, expect, test } from "bun:test";
+import { afterAll, beforeAll, expect } from "bun:test";
+import { stretch, test } from "../limit";
 import type { Browser, Page } from "puppeteer-core";
 import { launch } from "../../scan/markers";
 import { BASE, page, serveSite } from "./site";
@@ -16,6 +17,12 @@ afterAll(async () => {
   await server?.stop(true);
 });
 
+/** A tab whose waits stretch under load as the tests' limits do. */
+const tab = async () => {
+  const p = await browser.newPage();
+  p.setDefaultTimeout(30_000 * stretch);
+  return p;
+};
 const story = (name: string) =>
   `${server.url}${BASE.slice(1)}catalog/stories/Forms/list-filter/${name}/`;
 const shown = (p: Page) =>
@@ -26,16 +33,31 @@ const shown = (p: Page) =>
   );
 const text = (p: Page, sel: string) => p.$eval(sel, (e) => e.textContent!.trim());
 const settle = () => new Promise((r) => setTimeout(r, 350));
+/** The titles shown once the search's debounce has applied them, or what shows after the wait. */
+const showing = async (p: Page, titles: string[]) => {
+  await p
+    .waitForFunction(
+      (want) =>
+        JSON.stringify(
+          [...document.querySelectorAll<HTMLElement>("[data-filter-item]")]
+            .filter((r) => !r.hidden)
+            .map((r) => r.querySelector("[data-filter-title]")!.textContent),
+        ) === want,
+      {},
+      JSON.stringify(titles),
+    )
+    .catch(() => undefined);
+  return shown(p);
+};
 
 test("search, a choice, the count, clear and the URL work together; Back restores", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 1280, height: 900 });
   await p.goto(story("dense"), { waitUntil: "networkidle0" });
   expect((await shown(p)).length).toBe(4);
   expect(await text(p, "[data-filter-count]")).toBe("4 von 4 Einheiten");
   await p.type('input[name="q"]', "context");
-  await settle();
-  expect(await shown(p)).toEqual(["Context Engineering"]);
+  expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
   expect(await text(p, "[data-filter-count]")).toBe("1 Einheit");
   expect(new URL(p.url()).searchParams.get("q")).toBe("context");
   expect(await p.$eval("[data-filter-title] mark", (m) => m.textContent)).toBe("Context");
@@ -43,14 +65,14 @@ test("search, a choice, the count, clear and the URL work together; Back restore
   expect(await text(p, '[data-facet-count="tools"]')).toBe("1");
   await p.click('input[name="q"]', { count: 3 });
   await p.keyboard.press("Backspace");
-  await settle();
+  await p.waitForFunction(() => !new URL(location.href).searchParams.has("q"));
   await p.click('label.hw-choice:has(input[value="tools"])');
   expect((await shown(p)).length).toBe(2);
   expect(new URL(p.url()).searchParams.get("topic")).toBe("tools");
   await p.click('label.hw-choice:has(input[value="evidence"])');
   expect(await shown(p)).toEqual(["Messbare Produktivität"]);
   await p.goBack();
-  await settle();
+  await p.waitForFunction(() => new URL(location.href).searchParams.get("topic") === "tools");
   expect(new URL(p.url()).searchParams.get("topic")).toBe("tools");
   expect((await shown(p)).length).toBe(2);
   await p.click("form [data-filter-clear]");
@@ -60,7 +82,7 @@ test("search, a choice, the count, clear and the URL work together; Back restore
 }, 60_000);
 
 test("a shared URL restores the state, and nothing found offers a way back", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.goto(`${story("dense")}?q=zzz`, { waitUntil: "networkidle0" });
   expect(await p.$eval('input[name="q"]', (i) => (i as HTMLInputElement).value)).toBe("zzz");
   expect(await p.$eval("[data-filter-empty]", (e) => (e as HTMLElement).hidden)).toBe(false);
@@ -71,7 +93,7 @@ test("a shared URL restores the state, and nothing found offers a way back", asy
 }, 60_000);
 
 test("on a phone the facets fold behind the Filters button, and every target on screen is 44 px", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 390, height: 844 });
   await p.goto(story("screen"), { waitUntil: "networkidle0" });
   const panel = () => p.$eval("[data-filter-panel]", (e) => e.checkVisibility());
@@ -99,7 +121,7 @@ const withoutModules = async (p: Page) => {
 };
 
 test("on a phone whose script failed, the facets and the search button stay usable", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 390, height: 844 });
   await withoutModules(p);
   await p.goto(story("screen"), { waitUntil: "networkidle0" });
@@ -108,7 +130,7 @@ test("on a phone whose script failed, the facets and the search button stay usab
   expect(await visible("[data-filter-submit]")).toBe(true);
   expect(await visible("[data-filter-toggle]")).toBe(false);
   // Control: with the script the facets fold.
-  const q = await browser.newPage();
+  const q = await tab();
   await q.setViewport({ width: 390, height: 844 });
   await q.goto(story("screen"), { waitUntil: "networkidle0" });
   expect(await q.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(false);
@@ -117,7 +139,7 @@ test("on a phone whose script failed, the facets and the search button stay usab
 }, 60_000);
 
 const noScript = async (name: string) => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setJavaScriptEnabled(false);
   await p.goto(story(name), { waitUntil: "networkidle0" });
   const out = {
@@ -139,32 +161,30 @@ test("under an overview, without JavaScript the rows wait in a template or stay 
 
 test("under an overview the rows wait for a filter, and the overview steps aside", async () => {
   for (const name of ["inert", "listed"]) {
-    const p = await browser.newPage();
+    const p = await tab();
     await p.setViewport({ width: 1280, height: 900 });
     await p.goto(story(name), { waitUntil: "networkidle0" });
     const overview = `#overview-${name}`;
     expect(await p.$eval("[data-filter-list]", (e) => (e as HTMLElement).hidden)).toBe(true);
     expect(await p.$eval(overview, (e) => (e as HTMLElement).hidden)).toBe(false);
     await p.type('input[name="q"]', "context");
-    await settle();
-    expect(await shown(p)).toEqual(["Context Engineering"]);
+    expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
     expect(await p.$eval(overview, (e) => (e as HTMLElement).hidden)).toBe(true);
     await p.close();
   }
 }, 60_000);
 
 test("a source page's rows load on first use; should they fail, the search goes there", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.goto(story("source"), { waitUntil: "networkidle0" });
   expect(await p.$$eval("[data-filter-item]", (rows) => rows.length)).toBe(0);
   await p.type('input[name="q"]', "context");
-  await settle();
   await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
-  expect(await shown(p)).toEqual(["Context Engineering"]);
+  expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
   expect(await text(p, "[data-filter-count]")).toBe("1 Einheit");
   await p.close();
 
-  const q = await browser.newPage();
+  const q = await tab();
   await q.setRequestInterception(true);
   q.on("request", (r) =>
     r.resourceType() === "fetch" ? r.respond({ status: 503, body: "" }) : r.continue(),
@@ -184,7 +204,7 @@ test("a source page's rows load on first use; should they fail, the search goes 
 
 /** The source page on a load that fails when the page calls failLoad(), its search box focused. */
 const held = async () => {
-  const q = await browser.newPage();
+  const q = await tab();
   await q.evaluateOnNewDocument(() => {
     const fetch = () =>
       new Promise((_, reject) => {
@@ -197,6 +217,10 @@ const held = async () => {
   await q.waitForFunction('typeof failLoad === "function"');
   return q;
 };
+/** Runs `step` in the page once this call has returned: a step that navigates inside the call
+ *  destroys the context its answer comes back on. */
+const after = (q: Page, step: () => void) =>
+  q.evaluate((s) => void setTimeout(new Function(s) as () => void), `(${step})()`);
 const landed = async (q: Page, search: string) => {
   await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
   expect(new URL(q.url()).searchParams.get("q")).toBe(search);
@@ -221,7 +245,7 @@ test("a source page's load that fails mid-typing goes there with what the deboun
 
 test("a search submitted before the source page's load fails goes there", async () => {
   const q = await held();
-  await q.evaluate(() => {
+  await after(q, () => {
     const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
     input.value = "context";
     input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -249,8 +273,10 @@ test("Back from a facet picked after the source page's load failed does not loop
   await q.evaluate(async () => {
     (window as unknown as { failLoad(): void }).failLoad();
     await new Promise((resolve) => setTimeout(resolve));
-    document.querySelector<HTMLInputElement>('input[name="topic"][value="tools"]')!.click();
   });
+  await after(q, () =>
+    document.querySelector<HTMLInputElement>('input[name="topic"][value="tools"]')!.click(),
+  );
   await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
   expect(new URL(q.url()).searchParams.get("topic")).toBe("tools");
   await backWithout(q);
@@ -260,7 +286,7 @@ test("Back from a search submitted before the source page's load failed does not
   const q = await held();
   await q.keyboard.type("context");
   await q.keyboard.press("Enter");
-  await q.evaluate(() => (window as unknown as { failLoad(): void }).failLoad());
+  await after(q, () => (window as unknown as { failLoad(): void }).failLoad());
   await backWithout(q);
 }, 60_000);
 
@@ -271,13 +297,13 @@ test("Back from a typed search recorded before the source page's load failed doe
     input.value = "context";
     input.dispatchEvent(new Event("input", { bubbles: true }));
     await new Promise((resolve) => setTimeout(resolve, 350));
-    (window as unknown as { failLoad(): void }).failLoad();
   });
+  await after(q, () => (window as unknown as { failLoad(): void }).failLoad());
   await backWithout(q);
 }, 60_000);
 
 test("a source page's relative links and images resolve against that page", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setRequestInterception(true);
   p.on("request", (r) =>
     r.resourceType() === "fetch"
@@ -303,7 +329,7 @@ test("a source page's relative links and images resolve against that page", asyn
 }, 60_000);
 
 test("on a phone a topic tapped while the source loads names itself on the Filters button", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
   const { promise: held, resolve: release } = Promise.withResolvers<void>();
   await p.setRequestInterception(true);
@@ -331,7 +357,7 @@ test("on a phone a topic tapped while the source loads names itself on the Filte
 }, 60_000);
 
 test("inline sets the select beside the search from 64rem; a select filters with the choices", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 1280, height: 900 });
   await p.goto(`${story("many")}?days=1`, { waitUntil: "networkidle0" });
   const box = (sel: string) =>
@@ -353,7 +379,7 @@ test("inline sets the select beside the search from 64rem; a select filters with
 }, 60_000);
 
 test("a facet past its label budget shows as a select and filters", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.goto(story("many"), { waitUntil: "networkidle0" });
   expect(await p.$$eval('input[name="topic"]', (r) => r.length)).toBe(0);
   await p.select('select[name="topic"]', "evidence");
@@ -366,7 +392,7 @@ test("a facet past its label budget shows as a select and filters", async () => 
 }, 60_000);
 
 test("two facets as choices filter together, each counting under the other", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
   expect(await p.$$eval("fieldset", (f) => f.length)).toBe(2);
   expect(await shown(p)).toEqual(["Context Engineering", "Agenten im Team"]);
@@ -383,7 +409,7 @@ test("two facets as choices filter together, each counting under the other", asy
 }, 60_000);
 
 test("arrowing through one facet is one history entry, the next facet another", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
   await p.focus('input[name="topic"][value=""]');
   await p.keyboard.press("ArrowRight");
@@ -399,14 +425,13 @@ test("arrowing through one facet is one history entry, the next facet another", 
 }, 60_000);
 
 test("no facet shows the search alone, with no fieldset and no Filters button", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 390, height: 800 });
   await p.goto(story("none"), { waitUntil: "networkidle0" });
   expect(await p.$$eval("fieldset, select", (f) => f.length)).toBe(0);
   expect(await p.$("[data-filter-toggle]")).toBeNull();
   await p.type('input[name="q"]', "agenten");
-  await settle();
-  expect(await shown(p)).toEqual(["Agenten im Team"]);
+  expect(await showing(p, ["Agenten im Team"])).toEqual(["Agenten im Team"]);
   // Control: the screen story on a phone has its Filters button.
   await p.goto(story("screen"), { waitUntil: "networkidle0" });
   expect(await p.$("[data-filter-toggle]")).not.toBeNull();
@@ -414,7 +439,7 @@ test("no facet shows the search alone, with no fieldset and no Filters button", 
 }, 60_000);
 
 test("Ctrl+K or Cmd+K outside a text field focuses the search; K alone or a palette page not", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.goto(story("dense"), { waitUntil: "networkidle0" });
   const focused = () => p.evaluate(() => document.activeElement?.getAttribute("name"));
   await p.click("body");
@@ -440,7 +465,7 @@ test("Ctrl+K or Cmd+K outside a text field focuses the search; K alone or a pale
 }, 60_000);
 
 test("on a phone a tapped choice folds the facets and the button names it; a key pick keeps them", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
   await p.goto(story("listed"), { waitUntil: "networkidle0" });
   const panel = () => p.$eval("[data-filter-panel]", (e) => e.checkVisibility());
@@ -485,7 +510,7 @@ test("a short list renders every row: none paints from a whole pixel, so no seam
   const html = (name: string) => page(`catalog/stories/Forms/list-filter/${name}/index.html`);
   expect(html("dense")).not.toContain("data-long");
   expect(html("long")).toContain("data-long");
-  const p = await browser.newPage();
+  const p = await tab();
   await p.goto(story("dense"), { waitUntil: "networkidle0" });
   expect(await p.$eval("[data-filter-list]", (l) => l.hasAttribute("data-long"))).toBe(false);
   expect(
@@ -497,7 +522,7 @@ test("a short list renders every row: none paints from a whole pixel, so no seam
 }, 60_000);
 
 test("a long list's rows off screen skip layout at their rendered height; the focused row renders", async () => {
-  const p = await browser.newPage();
+  const p = await tab();
   await p.setViewport({ width: 390, height: 844 });
   await p.goto(story("long"), { waitUntil: "networkidle0" });
   const visibility = () =>
@@ -543,7 +568,7 @@ test("under browse active and listed, no count line shows before the script runs
     ["listed", ""],
     ["dense", "4 von 4 Einheiten"],
   ] as const) {
-    const p = await browser.newPage();
+    const p = await tab();
     // The module waits until the first frame's count line is read.
     const { promise: held, resolve: release } = Promise.withResolvers<void>();
     await p.setRequestInterception(true);

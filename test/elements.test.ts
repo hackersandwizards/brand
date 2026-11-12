@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, expect, test } from "bun:test";
+import { afterAll, beforeAll, expect } from "bun:test";
+import { test } from "./limit";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -7,7 +8,7 @@ import { transform } from "lightningcss";
 import type { Browser } from "puppeteer-core";
 import own from "../package.json";
 import {
-  coverage,
+  exceptionFindings,
   definedClasses,
   isBrandClass,
   ELEMENTS,
@@ -206,7 +207,7 @@ test("priority pills P2 to P4 fade on a fill, day and night, and none is the out
 }, 60_000);
 
 // The scaffolding catalog shell's own card and pill (data-hw-shell): neither measured nor shown.
-test("an element of the catalog shell is not measured and needs no uses entry", async () => {
+test("an element of the catalog shell is not measured", async () => {
   const shell =
     '<a data-hw-shell class="hw-card" style="border-radius: 0"><span data-hw-shell class="hw-pill" style="padding: 0">3 states</span></a>';
   const html = only(
@@ -215,20 +216,17 @@ test("an element of the catalog shell is not measured and needs no uses entry", 
   const r = await measurePage(browser, file("shell.html", html));
   expect(r.findings).toEqual([]);
   expect(r.seen).toEqual(["label"]);
-  expect(coverage({ pages: [], uses: ["label"] }, [r])).toEqual([]);
-  // Control: the same markup without the marker is measured and must be listed.
+  // Control: the same markup without the marker is measured.
   const bare = await measurePage(
     browser,
     file("no-shell.html", html.replaceAll("data-hw-shell ", "")),
   );
   expect(bare.findings.map((f) => f.element)).toContain("card");
-  expect(coverage({ pages: [], uses: ["label"] }, [bare])).toContain(
-    'card: a page shows it, but brand-elements.json does not list it in "uses"',
-  );
+  expect(bare.seen).toContain("card");
 }, 60_000);
 
 // A focus-ring tile names its source beside the sample, a link into brand's published portal or to
-// the element's entry on any host: the sample is measured and holds the tile, those links neither.
+// the element's entry on any host: the sample is measured, those links not.
 test("the focus-ring tile measures its sample, not the link to brand's catalogue beside it", async () => {
   const meta = `<p>from brand · <a href="https://hackersandwizards.github.io/brand/#elements/hw-focus-ring">entry</a> · <a href="https://hackersandwizards.github.io/brand/catalog/">catalog</a> · <a href="http://brand.localhost/#elements/hw-focus-ring">local</a></p>`;
   const tile = (sample: string) =>
@@ -238,7 +236,7 @@ test("the focus-ring tile measures its sample, not the link to brand's catalogue
       browser,
       file(name, only(`<style>${css}</style>${tile(sample)}`, "hw-focus-ring")),
     );
-    return { labels: [...new Set(r.findings.map((f) => f.label))], tiles: r.tiles };
+    return { labels: [...new Set(r.findings.map((f) => f.label))], seen: r.seen };
   };
   const styled = await run(
     "meta-styled.html",
@@ -255,7 +253,7 @@ test("the focus-ring tile measures its sample, not the link to brand's catalogue
   expect(broken.labels).toEqual(['a "A link to focus"']);
   // A tile holding only the link shows no focus ring.
   const empty = await run("meta-only.html", "<span>No sample</span>");
-  expect(empty.tiles).toEqual([{ name: "focus-ring", version: own.version, holds: false }]);
+  expect(empty.seen).toEqual([]);
 }, 60_000);
 
 // A closed fold draws its elements once opened, so they are measured open: a focusable in a shut
@@ -636,34 +634,15 @@ test("night is measured against the night rule", async () => {
   expect(r.findings.filter((f) => f.element === "pill").length).toBeGreaterThan(0);
 }, 60_000);
 
-test("coverage: a used element without a tile, a stale tile, an unlisted element, an exception without a reason or a tile", () => {
+test("exceptions: one without a reason, one a page carries but the list does not declare", () => {
   const config: Config = {
     pages: [],
-    uses: ["card", "pill", "chart"],
     exceptions: { "total-band": "", "slide-table": "framed for the room" },
   };
-  const out = coverage(config, [
-    {
-      page: "a.html",
-      seen: ["card", "label"],
-      tiles: [{ name: "card", version: own.version, holds: true }],
-      exceptions: ["total-band", "own-chart"],
-    },
-    // A stale page listed after a fresh one still fails, named.
-    {
-      page: "b.html",
-      seen: [],
-      tiles: [{ name: "card", version: "0.1.0", holds: true }],
-      exceptions: [],
-    },
-  ]);
-  expect(out).toEqual([
-    `card: the tile on b.html says brand v0.1.0, the installed package is v${own.version}; rebuild that page`,
-    'pill: used, but no page shows it in a [data-hw-tile="pill"]',
-    'brand-elements.json: "chart" is no shared element (label, label-box, pill, card, callout, quote, table, link, focus-ring, icon-button, strip, rule, code, inline-code, kbd, button, arrow-link, field, check, form-field, switch, range, error-summary, facts, dot-list, segmented, row, breadcrumb, disclosure, nav, choice, search, status, frame, kpi, prose, dialog, drawer, menu, popover, tooltip, command, toast, tabs, progress, spinner, skeleton, empty, accordion, avatar, pagination, stepper, tree, carousel)',
-    'label: a page shows it, but brand-elements.json does not list it in "uses"',
+  expect(
+    exceptionFindings(config, [{ exceptions: ["total-band", "own-chart"] }, { exceptions: [] }]),
+  ).toEqual([
     'brand-elements.json: exception "total-band" names no reason',
-    'slide-table: an exception without a [data-hw-exception="slide-table"] on a page',
     'own-chart: a [data-hw-exception="own-chart"] on a page, but brand-elements.json declares no such exception',
   ]);
 });
@@ -1003,7 +982,7 @@ test("the prose block's links and lists hold against Typography's layer", async 
 }, 60_000);
 
 test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
-  file("brand-elements.json", '{"pages":[],"uses":[]}');
+  file("brand-elements.json", '{"pages":[]}');
   const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
   expect(r.exitCode).toBe(2);
 });
@@ -1048,10 +1027,7 @@ test("brand-elements fails on a source the policy in brand-elements.json refuses
   mkdirSync(repo);
   Bun.spawnSync(["git", "init", "-q"], { cwd: repo });
   const run = (csp: Csp) => {
-    writeFileSync(
-      join(repo, "brand-elements.json"),
-      JSON.stringify({ pages: [url], uses: ["form-field"], csp }),
-    );
+    writeFileSync(join(repo, "brand-elements.json"), JSON.stringify({ pages: [url], csp }));
     return Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: repo });
   };
   const red = run(POLICY);
@@ -1303,18 +1279,6 @@ test("an option row and a lone box's label are the target, 32 px by mouse, 44 px
   // Control: paper keeps the option at its line and the lone box at its own size.
   expect(mouse[2]![0]).toBeLessThan(32);
   expect(touch[2]).toEqual(mouse[2]);
-}, 60_000);
-
-// A hidden tile shows nothing, so it covers nothing; the same tile shown does.
-test("coverage: an element only in a hidden tile is not shown", async () => {
-  const tile = (attr: string) =>
-    only(`<div data-hw-tile="label" data-hw-version="${own.version}"${attr}>${DEMOS.label}</div>`);
-  const hidden = await measurePage(browser, file("tile-hidden.html", tile(" hidden")));
-  expect(coverage({ pages: [], uses: ["label"] }, [hidden])).toEqual([
-    'label: used, but no page shows it in a [data-hw-tile="label"]',
-  ]);
-  const shown = await measurePage(browser, file("tile-shown.html", tile("")));
-  expect(coverage({ pages: [], uses: ["label"] }, [shown])).toEqual([]);
 }, 60_000);
 
 // The reference is built from the instance as it was before any reference went in beside an

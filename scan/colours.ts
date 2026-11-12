@@ -231,12 +231,15 @@ const strip = (s: string, ext: string) => {
 };
 // 8 and 4 digits carry an alpha channel; the colour part decides token or off-token.
 const HEX = /(?<![&\w])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/g;
-// A 3- or 4-digit hex of letters alone (#add, #fab) is a colour only in the value of a colour
-// property, attribute or key, or a Tailwind class's brackets; never a url(#id) or a selector.
+// A 3- or 4-digit hex of letters alone (#add, #fab) or digits alone (#128, an issue's number) is a
+// colour only in the value of a colour property, attribute or key, or a Tailwind class's brackets;
+// never a url(#id) or a selector.
 const VALUE_BEFORE =
   /(?:(?:colou?r|fill|stroke|background|border|outline|shadow|caret|accent|decoration)[\w-]*["']?\s*[:=]\s*["'`]?(?:[^;{}<>"'`\n]*[\s,(])?|-\[)$/i;
 const isColour3 = (h: string, before: string) =>
-  /\d/.test(h) || /^(.)\1\1/.test(h) || (VALUE_BEFORE.test(before) && !/url\(\s*$/i.test(before));
+  (/\d/.test(h) && /[a-f]/i.test(h)) ||
+  /^(.)\1\1/.test(h) ||
+  (VALUE_BEFORE.test(before) && !/url\(\s*$/i.test(before));
 const FN = /(?<![\w-])(rgba?|hsla?)\(([^()]*)\)/gi;
 // The other colour functions, counted as rgb without conversion where their arguments are a
 // colour's: numbers, percentages, angles or none, or color()'s colour space first.
@@ -301,6 +304,7 @@ const SIZE =
   /(?:^|\s)(?:[\d.]+(?:px|r?em|pt|pc|%|vw|vh|ch|ex|r?lh|cap|ic|[sld]?v(?:h|w|min|max)|cq[iwbh]|q|mm|cm|in)|(?:xx?-|xxx-)?(?:small|large)|medium|larger|smaller|var\([^()]*\)|calc\([^()]*\))(?:\s*\/\s*\S+)?\s+(.+)$/;
 const BRAND_FONT =
   /^\s*(["']?(Inter|JetBrains Mono)( Variable)?["']?(?=\s*(?:[,;!}"'`]|$))|var\(--|inherit|initial|unset|theme\()/i;
+const BRAND_FACE = /^["']?(Inter|JetBrains Mono)( Variable| Fallback( Roboto)?)?$/i;
 const PAL =
   /\b(?:bg|text|border(?:-[trblxyse])?|from|to|via|ring(?:-offset)?|inset-ring|fill|stroke|outline|divide|decoration|shadow|inset-shadow|text-shadow|drop-shadow|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/g;
 // Tailwind's serif stack, which no brand theme maps to a brand family.
@@ -475,6 +479,13 @@ export const scanSource = (raw: string, ext: string) => {
   for (const [, v] of src.matchAll(ARBITRARY)) if (/^[a-z]+$/i.test(v)) named(v);
   for (const m of src.matchAll(FONT)) {
     const v = (m[1] ?? m[2] ?? m[3] ?? m[4]).trim();
+    // An @font-face naming one of brand's faces, a fallback face of tokens/fonts.css included.
+    const before = src.slice(0, m.index);
+    if (
+      before.lastIndexOf("@font-face") > before.lastIndexOf("}") &&
+      BRAND_FACE.test(v.replace(/["';\s]+$/, ""))
+    )
+      continue;
     // An interpolated family (font-family="${big ? 'Arial' : FAM[fam]}") counts the strings it
     // can take; its names are the code's.
     const families = v.startsWith("${")
