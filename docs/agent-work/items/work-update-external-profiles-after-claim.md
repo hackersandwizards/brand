@@ -32,3 +32,5 @@ Every row is yours but the OMR paragraph, which Stefan enters. The company page'
 Read on 10.11. and unchanged: the GitHub organisation's description, Speaker Deck and Luma carry no claim.
 
 The descriptor under the claim on every banner reads "Training and mentoring in agentic engineering". Stefan's LinkedIn banner: if it shows slide 1, it takes the same file.
+
+Not read on 13.11.: whether any banner or text is live already.
