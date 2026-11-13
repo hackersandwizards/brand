@@ -66,7 +66,9 @@ Each decision is Benedikt's, recorded in the item and commit named.
 
 Set by the runs, not by a person: the release of v2.14.0 took `claim.word` "releases" / "Releases",
 the accented word on the banners and the closing slide, as an assumption; the descriptor "Training
-and mentoring in agentic engineering" stays under the claim on the banners on the set review below.
+and mentoring in agentic engineering" stays under the claim on the banners on the set review below. Since v2.20.0 it is `verbal.json`'s
+`descriptor`, English and German, without a closing full stop: `render.py` and
+`applications/booth/generate.ts` read it, and the website's footer imports it.
 
 ## Measured
 
@@ -372,7 +374,7 @@ over the live text in all eight cells.
 
 - Profile: Z and Y tie, Z's lead standing in Claude's cells only. The tie went to Y, the headline as
   it stands: one field less to change, and it keeps "AI training and mentoring", the words people
-  search for. The item names Z as the alternative.
+  search for. "The texts to enter" names Z as the alternative.
 - Company page, English: Y and N tie. Y is entered in both languages, since it leads N by 4.8 in
   German in all four cells and one text in two languages keeps the page of a piece. Against U, the
   text of 08.11. with the claim before in it, Y leads by 2.3 in English (Claude +7.0, +4.4; Codex
@@ -406,8 +408,8 @@ current texts state. That result is content the company owns, not wording.
 
 Limits: the LinkedIn pages are mocks built from the app's and the site's layout with the real banner,
 photo and logo, not checked against a logged-in screenshot. LinkedIn's company page, Clutch, Sortlist
-and Crunchbase block an automated read, and X, Brella and Facebook need a login, so the item says to
-replace the whole field. The Codex reviewers loaded the hub's `voice` skill and read its
+and Crunchbase block an automated read, and X, Brella and Facebook need a login, so the texts below say
+to replace the whole field. The Codex reviewers loaded the hub's `voice` skill and read its
 `brand-voice.md`, which names claim and headline by key only; no log shows a read of the skill's
 `verbal.json`.
 
@@ -597,11 +599,6 @@ trainer-hub sessions.
 - **External profiles.** Item `work-update-external-profiles-after-claim` (open, Benedikt): upload
   the seven banners and enter the texts above; Stefan enters OMR. Stefan's own LinkedIn About was
   not reviewed in any round.
-- **The descriptor belongs in `verbal.json`.** The 08.11. rollout left it in code until a third
-  surface or a consumer shows it. Its text is in `render.py` (`DESCRIPTOR`), in
-  `applications/booth/generate.ts` with a full stop, and in the website's footer (`src/copy/ui.ts`,
-  `footerSlogan`, with its German "Schulung und Mentoring in Agentic Engineering."), so that
-  condition is met now. Moving it adds a field to `verbal.json`, a release.
 - **`render.py` sizes each client mark by a hand-set height** in `PROFILE_LOGOS` and
   `FEATURED_LOGOS`, where `@hackersandwizards/testimonials`' `marks.json` records each mark's size and
   scale. Reading it from there moves pixels on two shipped banners and needs its own render and
