@@ -89,10 +89,9 @@ data or secret.
   structure, coupling, spaces, confidential, licenses, the unit tests, the catalog build and the item
   check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements` and
   AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). Under load it
-  runs past the Bash tool's 600 s limit: start it in the background. The `pre-push` hook runs it
-  as `check --changed` over the pushed range, which is the whole gate here, as `scaffolding.changed`
-  maps no path. The hooks are scaffolding's skeleton hooks, and `.githooks/README.md` lists what
-  each runs, the `pre-push` refusal of the 248 commits `.confidential-purged.json` lists included.
+  runs past the Bash tool's 600 s limit: start it in the background, and a `git push` too, since
+  the `pre-push` hook runs it. The hooks are scaffolding's skeleton hooks, and `.githooks/README.md`
+  lists what each runs, the `pre-push` refusal of the 248 commits `.confidential-purged.json` lists included.
   `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at

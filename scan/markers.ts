@@ -792,14 +792,14 @@ async function prepare(
 export async function hasMarkers(
   browser: Browser | BrowserContext,
   url: string,
-  { scale = 4, width = 1280, csp, refused, exceptions = [] }: Options = {},
+  { scale = 4, width = 1280, csp, refused }: Options = {},
 ) {
   const page = await prepare(browser, url, { scale, width, csp });
   try {
     if (refused) refused.push(...(await refusals(page, url)));
     // The newline only adds blank text, so the second count runs on the same page.
     for (const newline of [false, true]) {
-      const args: Collect = [newline, MAX_SIDE, true, exceptions];
+      const args: Collect = [newline, MAX_SIDE, true, []];
       if ((await page.evaluate(collect, args)) as number) return true;
     }
     return false;
@@ -1105,7 +1105,6 @@ if (import.meta.main) {
         width,
         csp: config.csp,
         refused,
-        exceptions,
       }),
     );
     const runs = [...pages.slice(0, named.length), ...stories.filter((_, i) => marked[i])].flatMap(
