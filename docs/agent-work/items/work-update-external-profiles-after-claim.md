@@ -1,7 +1,7 @@
 ---
 kind: work
 status: open
-priority: 2
+priority: 1
 order: 212
 area: brand
 owner: Benedikt
