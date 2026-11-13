@@ -106,6 +106,9 @@ data or secret.
   scored on every surface that renders the element, before the value changes.
 - A brand file changes here, then `manifest.json` and `bun run tokens` follow in the same commit.
   Other repos take it from the package and never commit a copy of a brand file.
+- The repository, its catalogue and `applications/` state the brand as it is now: what each asset
+  or family is, where it goes, its files. No decision state, decision id, decision date, to-do or
+  review score: that tracking stays in Company OS.
 - A comment in a file the package exports states how to use the token or element, never its
   history: no score, review, date, decision or item id or person. The evidence goes to the item,
   `docs/agent-work/` or the commit message. scaffolding's `history` gate step fails on one.
