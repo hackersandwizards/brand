@@ -2,7 +2,7 @@
 
 The hackers&wizards brand as one package, `@hackersandwizards/brand`: tokens, the print layer and
 static fonts, logos, the expert UI layer, and the checks each consumer runs in its own gate
-(colours, copies, components, list markers, shared elements, retired lines).
+(colours, copies, components, shared elements, retired lines) and by hand (list markers).
 
 This repo is public on GitHub (`github.com/hackersandwizards/brand`), its history included.
 Consumers install it as a Git dependency pinned to a tag,
@@ -86,13 +86,14 @@ data or secret.
 ## Commands
 
 - `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
-  structure, coupling, unique names, spaces, confidential, history, licenses, the unit tests, the catalog build and the item
+  structure, coupling, spaces, confidential, licenses, the unit tests, the catalog build and the item
   check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements` and
   AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). Under load it
-  runs past the Bash tool's 600 s limit: start it in the background. No hook runs it: the
-  hooks are scaffolding's skeleton hooks, and `.githooks/README.md` lists what each runs, the
-  `pre-push` refusal of the 248 commits `.confidential-purged.json` lists included. `bun install`
-  points `core.hooksPath` at `.githooks/`.
+  runs past the Bash tool's 600 s limit: start it in the background. The `pre-push` hook runs it
+  as `check --changed` over the pushed range, which is the whole gate here, as `scaffolding.changed`
+  maps no path. The hooks are scaffolding's skeleton hooks, and `.githooks/README.md` lists what
+  each runs, the `pre-push` refusal of the 248 commits `.confidential-purged.json` lists included.
+  `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset
@@ -111,7 +112,7 @@ data or secret.
   review score: that tracking stays in Company OS.
 - A comment in a file the package exports states how to use the token or element, never its
   history: no score, review, date, decision or item id or person. The evidence goes to the item,
-  `docs/agent-work/` or the commit message. scaffolding's `history` gate step fails on one.
+  `docs/agent-work/` or the commit message.
 - Nothing about another repo goes on the portal: each system shows its components on its own
   design-system page, whose URL `catalog/portal.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with

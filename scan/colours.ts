@@ -480,10 +480,9 @@ export const scanSource = (raw: string, ext: string) => {
   for (const m of src.matchAll(FONT)) {
     const v = (m[1] ?? m[2] ?? m[3] ?? m[4]).trim();
     // An @font-face naming one of brand's faces, a fallback face of tokens/fonts.css included.
-    const before = src.slice(0, m.index);
     if (
-      before.lastIndexOf("@font-face") > before.lastIndexOf("}") &&
-      BRAND_FACE.test(v.replace(/["';\s]+$/, ""))
+      BRAND_FACE.test(v.replace(/["';\s]+$/, "")) &&
+      src.lastIndexOf("@font-face", m.index) > src.lastIndexOf("}", m.index)
     )
       continue;
     // An interpolated family (font-family="${big ? 'Arial' : FAM[fam]}") counts the strings it

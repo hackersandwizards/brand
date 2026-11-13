@@ -110,9 +110,7 @@ export function openFolds() {
  * finds, the page's lines left as they are but for the newline. The boxes are read two frames after
  * the rewrite, once a script that refits the page to its longer lines (a slide's fit guard, run by
  * a ResizeObserver) has done so. */
-async function collect([newline, maxSide, count, declared]: Collect): Promise<
-  Found | [number, boolean]
-> {
+async function collect([newline, maxSide, count, declared]: Collect): Promise<Found | number> {
   if (newline)
     for (const li of document.querySelectorAll("li"))
       li.insertBefore(document.createTextNode("\n      "), li.firstChild);
@@ -230,7 +228,7 @@ async function collect([newline, maxSide, count, declared]: Collect): Promise<
       if (next) add(host.parentElement!, firstText(next), "element", host);
     }
   }
-  if (count) return [found.length, excepted];
+  if (count) return found.length;
   for (const f of found) {
     f.text.data = "xxxxHHHH " + f.text.data.trimStart();
     // An underline or a shadow (a link item) would add ink below the x-height band. A decoration
@@ -794,7 +792,7 @@ async function prepare(
 export async function hasMarkers(
   browser: Browser | BrowserContext,
   url: string,
-  { scale = 4, width = 1280, csp, refused, exceptions = [], excepted }: Options = {},
+  { scale = 4, width = 1280, csp, refused, exceptions = [] }: Options = {},
 ) {
   const page = await prepare(browser, url, { scale, width, csp });
   try {
@@ -802,9 +800,7 @@ export async function hasMarkers(
     // The newline only adds blank text, so the second count runs on the same page.
     for (const newline of [false, true]) {
       const args: Collect = [newline, MAX_SIDE, true, exceptions];
-      const [n, e] = (await page.evaluate(collect, args)) as [number, boolean];
-      if (n) return true;
-      if (e) excepted?.add(url);
+      if ((await page.evaluate(collect, args)) as number) return true;
     }
     return false;
   } finally {
@@ -812,12 +808,12 @@ export async function hasMarkers(
   }
 }
 
-// Written as "not within" so a NaN offset, from a marker and a text that both show no ink, fails.
 const readingLine = (r: Reading) =>
   `${r.page} ${r.label} (${r.kind}, ${r.scale}x${r.newline ? ", newline after <li>" : ""}): ` +
   `${r.offset.toFixed(2)} px off${r.indent === null ? "" : `, first line ${r.indent.toFixed(2)} px in`}` +
   (r.double ? ", and the browser's own marker beside it" : "");
 
+// Written as "not within" so a NaN offset, from a marker and a text that both show no ink, fails.
 export const failing = (r: Reading) =>
   r.double ||
   !(Math.abs(r.offset) <= TOLERANCE) ||
@@ -1110,7 +1106,6 @@ if (import.meta.main) {
         csp: config.csp,
         refused,
         exceptions,
-        excepted,
       }),
     );
     const runs = [...pages.slice(0, named.length), ...stories.filter((_, i) => marked[i])].flatMap(
