@@ -139,6 +139,7 @@
     "puppeteer-core": "25.17.0"
   },
   "admin": {
+    "label": "Brand",
     "designSystem": "https://hackersandwizards.github.io/brand/catalog/",
     "products": [
       {
