@@ -4,13 +4,13 @@ status: open
 priority: 3
 area: brand
 order: 2020
-owner: a brand session
+owner: Ada
 evidence: "Checked 12.11.: not re-measured; tokens/marker.css changed after the 08.11. sweep (area marks, night marker) and elements/check.css:29-30 still states the read-only tick up to 1 px off under a zoom. Internal."
 ---
 
-# Markers under a CSS zoom: what remains
+# Explain three marker offsets that remain under a CSS zoom
 
-Explain and fix the three marker offsets below that remain under a CSS zoom.
+Brief a brand session to explain and fix the three marker offsets that remain under a CSS zoom.
 
 Fixed in the same release: Inter's descent (494/2048 em), 1/128 px before the half-leading's
 `round(down)`, `--hw-zoom` in the prose task box and in check.css's side, and brand-markers reading

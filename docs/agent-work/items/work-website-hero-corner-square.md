@@ -2,13 +2,13 @@
 kind: work
 status: open
 priority: 3
-area: website
-order: 1987
-owner: a website session
+area: marketing
+order: 1955
+owner: Ada
 evidence: "12.11.: named by reviewers on both models in the night-panel round (report 2026-11-11-shared-elements.md, Outside the catalog), in every version shot on the live home hero at 1440 px, night."
 ---
 
-# A dark square behind the home hero panel's lower right corner at night
+# Remove the dark square behind the home hero panel's corner at night
 
 Brief a website session to remove the dark square behind the home hero panel's round corner at night.
 

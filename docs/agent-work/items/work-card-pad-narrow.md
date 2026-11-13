@@ -3,15 +3,16 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 1995
-owner: a brand session
-evidence: "Checked 12.11.: --spacing-card still floors at 20px (tokens/tokens.css:260); the website sets --hw-card-pad by hand in PersonCard.astro:63-64 (0.75rem, 1rem) and DirectorySections.astro:254 (0.5rem, 1rem), practitioners in PersonCard.astro:36 (1rem). Not scored. Internal."
+order: 1970
+owner: Ada
+evidence: "Checked 13.11.: --spacing-card still floors at 20px (tokens/tokens.css:262); the website sets --hw-card-pad by hand in PersonCard.astro:63-64 (0.75rem, 1rem) and DirectorySections.astro:254 (0.5rem, 1rem), practitioners in PersonCard.astro:36 (1rem). Not scored. Internal."
 ---
 
-# The card padding at the narrow end
+# Score a smaller card padding at the narrow end
 
-Score a smaller narrow end of `--spacing-card`, and a named compact card padding, before either
-changes.
+Brief a brand session to score a 16 px narrow end of `--spacing-card` and a named compact card padding.
+
+Neither changes before its score.
 
 Two surfaces override the card padding to 16 px by hand: the website on narrow screens, the
 website's and practitioners' person cards at every width. Each override is an exception to the

@@ -4,13 +4,13 @@ status: open
 priority: 3
 area: brand
 order: 1980
-owner: a brand session
+owner: Ada
 evidence: "Checked 12.11.: point 1 row.css:73 and frame.css:19 still draw white 18 %, table and card --white-line; point 2 render.py:56 still types TEAL_GLOW and PURPLE_GLOW; point 4 --slide-measure-overview still in tokens/stage.css:158, os keeps off-token shadows in PipelineCard.css, StageHero.css and StageDots.astro (ListRow.css none now); point 3 not measured. Internal."
 ---
 
 # Design system: the brand proposals that remain
 
-Work points 1 to 4 below in brand.
+Brief a brand session to work the four design-system proposals below.
 
 1. **Night lines.** `facts.css`, `table.css` and `card.css` draw night lines as white at 15 %
    (transparent), `row.css` and `frame.css` as white at 18 % over night;

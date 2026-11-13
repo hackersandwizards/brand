@@ -8,9 +8,9 @@ area: brand
 evidence: "Checked 12.11.: tokens/night.css:9-11 still applies the night roles only to [data-hw-night] inside a dark scope; points 2 and 3 not scored. Internal: the website carries both attributes."
 ---
 
-# Night tokens need a second attribute beside data-theme dark
+# Settle whether brand's night tokens apply under data-theme dark alone
 
-Ada briefs a brand session on three points from the website's night-band round.
+Brief a brand session on three points from the website's night-band round.
 
 1. `night.css` applies only under `data-hw-night`, so a consumer marking dark bands with
    `data-theme="dark"` must carry both attributes on every element, and the website now has a

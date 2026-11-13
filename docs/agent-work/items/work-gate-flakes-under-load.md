@@ -8,9 +8,9 @@ owner: Ada
 evidence: "Checked 12.11.: no recurrence recorded since 10.11.; two mitigations landed (hooks take the gate's stretched limit, test/limit.ts; v2.23.0's list-filter tests wait for what they assert), but neither 5 s hook timeout is explained. Internal."
 ---
 
-# A browser hook in brand's tests timed out at 5 s
+# Explain the 5 s timeout of a browser hook in brand's tests
 
-Reproduce the 5 s timeout of a browser-launching hook, then fix its cause or give it the time a measurement shows.
+Brief a brand session to reproduce the 5 s hook timeout, then fix its cause or set the time a measurement shows.
 
 Every browser test file launches its browser in a `beforeAll` with bun's default 5 s timeout. Launches measured at about half that under heavy load, so time alone does not yet explain the two readings in `evidence`. When a hook or a test runs past its timeout, bun kills every process the file has spawned, the shared browser included (bun 1.4.4, `kill_dangling_processes_on_timeout` in `src/runtime/test_runner/Execution.rs`; "killed 1 dangling process" in five runs of 10.11.). One slow step then shows up as several "Target closed" failures in the tests after it, so read the first failure of a run, never the last.
 

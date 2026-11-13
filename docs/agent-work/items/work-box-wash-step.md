@@ -3,14 +3,14 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 2000
-owner: a brand session
-evidence: "Checked 12.11.: elements/status.css:21 and card.css:106 still fill at 7 %, the callout at --tint-callout 10 % (tokens/tokens.css:342); not scored yet. Internal: an open scoring question, no defect."
+order: 1985
+owner: Ada
+evidence: "Checked 13.11.: elements/status.css:21 and card.css:106 still fill at 7 %, the callout at --tint-callout 10 % (tokens/tokens.css:344); not scored yet. Internal: an open scoring question, no defect."
 ---
 
-# The status box and the tinted card at the callout's 10 % wash?
+# Score the status box and the tinted card at the callout's 10 % wash
 
-Score blind whether the status box and the tinted card take the callout's 10 % wash.
+Brief a brand session to score blind whether the status box and the tinted card take the callout's 10 % wash.
 
 Since v2.9.0 the callout fills at 10 % (14 % on night) and the status box and the tinted card at
 7 %, so the hue table in `tokens/tokens.css` names two wash steps. The callout's shares are the

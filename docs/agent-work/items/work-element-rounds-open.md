@@ -3,14 +3,14 @@ kind: work
 status: open
 priority: 3
 area: brand
-order: 1986
-owner: a brand session
+order: 1965
+owner: Ada
 evidence: "12.11.: left open by the element-findings batch (report 2026-11-11-shared-elements.md, sections Ruled table, Toast and Consumer checks); none re-measured since. Visible, minor: the table's space above and its night edge on a phone."
 ---
 
-# Element points that need a round of their own
+# Score or explain four shared-element points left open
 
-Score or explain the four shared-element points below, each in the report section named beside it.
+Brief a brand session to score or explain the four shared-element points below, each in its report section.
 
 Each needs a cross-surface round or an experiment the element-findings batch of 12.11. did not run.
 A visible change to a shared element is scored blind on the surfaces that render it before it ships.

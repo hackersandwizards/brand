@@ -2,16 +2,17 @@
 kind: work
 status: open
 priority: 3
-order: 2101
+order: 1957
 area: brand
-owner: a brand session
-evidence: "Checked 12.11. at v2.23.0: carousel.css:76-77 still sizes the controls 44px, enhanceCarousel in behaviour.ts sets no track tabIndex and scrolls nothing on focusin; none of the four has shipped. Internal: the website keeps its own rows until it does."
+owner: Ada
+evidence: "Checked 13.11. at v2.24.0: carousel.css:76-77 still sizes the controls 44px, the current dot's pill is 24px wide (carousel.css:105), enhanceCarousel in behaviour.ts sets no track tabIndex and scrolls nothing on focusin; none of the four has shipped. Internal: the website keeps its own rows until it does."
 ---
 
-# The carousel closes four gaps the website's rows already close
+# Close four gaps in hw-carousel that the website's rows already close
 
-A brand session ships four changes to `elements/carousel.css` and `enhanceCarousel` in
-`elements/behaviour.ts`, so the website can move its swipe rows to `hw-carousel`.
+Brief a brand session to ship the four changes below, so the website can move its swipe rows to `hw-carousel`.
+
+They go into `elements/carousel.css` and `enhanceCarousel` in `elements/behaviour.ts`.
 
 1. The track is a tab stop while it scrolls (`tabIndex` 0): WebKit makes no scroll container one.
 2. On `focusin` inside the track, the focused element's item scrolls to its snap position: a

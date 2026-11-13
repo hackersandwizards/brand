@@ -4,13 +4,15 @@ status: open
 priority: 3
 area: brand
 order: 2030
-owner: a brand session
+owner: Ada
 evidence: "Checked 12.11.: points 4 to 7 stand; nav.css:75 still gives the hover fill to any aria-expanded=true item and nav.css:47 styles every button:not([class]) in hw-nav. Points 1 to 3 stay closed until their condition changes. Internal."
 ---
 
-# Three requests closed by measurement, and review findings left as they are
+# Element points closed by measurement, to reopen when a condition changes
 
-Each point below was measured rather than built or scored; reopen it when its condition changes.
+Reopen a point below when its condition changes; until then nothing is to do.
+
+Points 1 to 3 are requests that were measured rather than built or scored.
 
 1. **Edge cue without scroll timelines.** No fallback was built: every current engine runs
    `animation-timeline: scroll()` (Chrome 115, Safari 26, Firefox 159). Older browsers scroll the
