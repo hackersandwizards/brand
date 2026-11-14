@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, expect } from "bun:test";
 import { test } from "../limit";
+import axe from "axe-core";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import { closeSync, openSync, readdirSync, readSync } from "node:fs";
@@ -186,6 +187,53 @@ test("the portal's title is brand's --text-page", async () => {
   const size = await p.$eval("h1", (el) => getComputedStyle(el).fontSize);
   expect(size).toBe(`${parseFloat(tokens["--text-page"]) * 16}px`);
   await p.close();
+}, 60_000);
+
+// The portal follows the theme stored under "theme", else the system's, and its header's switch
+// turns it and stores the choice. By night every text of a view clears AA contrast: axe-core over
+// the colours view, whose tables are the portal's own raised surfaces. Not measured: what axe cannot
+// read off this page, the rail's names cut by its scroll and a sample's text on a gradient.
+test("the portal follows the stored theme, its switch turns it, and night stays legible", async () => {
+  // A context of its own, so the stored choice never reaches the other tests' pages.
+  const context = await browser.createBrowserContext();
+  const p = await context.newPage();
+  await p.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
+  await p.goto(url);
+  await p.evaluate(() => localStorage.clear());
+  await p.reload();
+  const theme = () =>
+    p.evaluate(() => [
+      document.documentElement.dataset.theme ?? "light",
+      document.getElementById("theme-toggle")?.getAttribute("aria-pressed"),
+      localStorage.getItem("theme"),
+    ]);
+  expect(await theme()).toEqual(["dark", "true", null]);
+  await p.goto(`${url}#colours`);
+  await p.evaluate(axe.source);
+  const unreadable = await p.evaluate(async () => {
+    // ignoreLength: a one-digit count is text. `checks` is a run option axe's types leave out.
+    const options = {
+      runOnly: ["color-contrast"],
+      checks: { "color-contrast": { options: { ignoreLength: true } } },
+    } as axe.RunOptions;
+    const { violations, incomplete } = await (window as unknown as { axe: typeof axe }).axe.run(
+      document,
+      options,
+    );
+    return [...violations, ...incomplete]
+      .flatMap((r) => r.nodes)
+      .filter((n) => !["elmPartiallyObscured", "bgGradient"].includes(n.any[0]?.data?.messageKey))
+      .map((n) => n.target.join(" "));
+  });
+  expect(unreadable).toEqual([]);
+  await p.click("#theme-toggle");
+  expect(await theme()).toEqual(["light", "false", "light"]);
+  await p.reload();
+  expect(await theme()).toEqual(["light", "false", "light"]);
+  await p.click("#theme-toggle");
+  await p.reload();
+  expect(await theme()).toEqual(["dark", "true", "dark"]);
+  await context.close();
 }, 60_000);
 
 // Brand asks for the quote to be marked not-prose, which the measure's own selector skips.

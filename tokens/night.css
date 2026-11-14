@@ -41,8 +41,8 @@
 }
 
 /* A data-theme="light" element inside that night: tokens.root.css gives it the day tokens, and this
-   resolves its text, scales.css's line and the roles above from them, expert.css's day roles, in
-   base so the surface's own rules win. */
+   resolves its text, scales.css's line and the roles above from them, expert.css's day roles, and
+   the browser's own controls to light, in base so the surface's own rules win. */
 @layer properties, theme, base, components, utilities;
 @layer base {
   [data-hw-night] [data-theme="light"] {
@@ -54,5 +54,6 @@
     --hw-line: var(--color-border);
     --hw-on-fill: var(--color-white);
     color: var(--color-ink);
+    color-scheme: light;
   }
 }

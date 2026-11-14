@@ -36,6 +36,7 @@ import {
 import { brandFallbacks } from "@hackersandwizards/scaffolding/catalog/fallbacks.ts";
 import { type CatalogGroup, renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
 import { tokens as brandTokens } from "../generated/tokens";
+import { MOON, SUN } from "../expert/components/theme-icons";
 
 const source = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(source);
@@ -114,11 +115,12 @@ const chartOf = (...names: string[]) =>
 const hueMix = (base: string, p: number) => `color-mix(in srgb, var(--color-${base}) ${p}%, white)`;
 const tintToken = (base: string, p: number) =>
   Object.keys(colors).find((k) => tokens[k] === hueMix(base, p) && !aliasNames.includes(k));
-// A colour cell: a button that copies the hex. A colour in a second cell (muted, a hue that is its
-// own text colour) keeps its anchor and search entry on the first.
+// A colour cell: a button that copies the hex, filled with that value rather than its token, which
+// night turns. A colour in a second cell (muted, a hue that is its own text colour) keeps its anchor
+// and search entry on the first.
 const anchored = new Set<string>();
-const swatch = (fill: string, hex: string, label = "", id = "") =>
-  `<button class="swatch"${id} data-copy="${esc(hex)}" title="Copy ${esc(hex)}"><span style="background:${fill}"></span>${label}<small>${esc(hex)}</small></button>`;
+const swatch = (hex: string, label = "", id = "") =>
+  `<button class="swatch"${id} data-copy="${esc(hex)}" title="Copy ${esc(hex)}"><span style="background:${esc(hex)}"></span>${label}<small>${esc(hex)}</small></button>`;
 const colourCell = (name: string, palette: string) => {
   if (name === "-") return `<span class="meta">none</span>`;
   const k = `--color-${name}`;
@@ -131,13 +133,13 @@ const colourCell = (name: string, palette: string) => {
       h: `colours/color-${slug(name)}`,
       x: `${colors[k]} ${palette}`,
     });
-  return swatch(`var(${k})`, colors[k]!, code(name), first ? ` id="color-${slug(name)}"` : "");
+  return swatch(colors[k]!, code(name), first ? ` id="color-${slug(name)}"` : "");
 };
 const tintCell = (base: string, p: number) => {
   const k = tintToken(base, p);
   return k
     ? colourCell(k.slice("--color-".length), "Hues")
-    : swatch(hueMix(base, p), colorValue(tokens)(hueMix(base, p)));
+    : swatch(colorValue(tokens)(hueMix(base, p)));
 };
 const nightCell = (name: string, palette: string) =>
   name === "-"
@@ -247,7 +249,7 @@ const logoCard = (base: string) => {
   const black = files.find((p) => p.endsWith(`${base}-black.svg`));
   const tile = (src: string | undefined, cls: string, label: string) =>
     src
-      ? `<figure class="${cls}"><img src="${src}" alt="${esc(base)}, ${esc(label)}" loading="lazy"><figcaption>${esc(label)}</figcaption></figure>`
+      ? `<figure class="${cls}"${cls === "on-light" ? ' data-theme="light"' : ""}><img src="${src}" alt="${esc(base)}, ${esc(label)}" loading="lazy"><figcaption>${esc(label)}</figcaption></figure>`
       : "";
   index.push({
     t: base,
@@ -440,7 +442,7 @@ const assetCard = (dir: string, stem: string, files: string[], fam: Family) => {
     : /^(html|txt)$/.test(ext(shown))
       ? `<iframe src="${href(shown)}" title="${esc(stem)}" loading="lazy"></iframe>`
       : `<img src="${href(shown)}" alt="${esc(stem)}" loading="lazy">`;
-  return `<figure class="asset" id="${id}"><div class="views"><a href="${href(shown ?? files[0])}" target="_blank">${view}</a></div><figcaption>${code(stem)}<span class="dl">${files.map((f) => `<a href="${href(f)}" download>${esc(ext(f))}</a>`).join("")}</span></figcaption></figure>`;
+  return `<figure class="asset" id="${id}"><div class="views" data-theme="light"><a href="${href(shown ?? files[0])}" target="_blank">${view}</a></div><figcaption>${code(stem)}<span class="dl">${files.map((f) => `<a href="${href(f)}" download>${esc(ext(f))}</a>`).join("")}</span></figcaption></figure>`;
 };
 const familyStems = new Map(
   FAMILIES.map((f) => [f.id, f.dir ? assetStems(f.dir) : new Map<string, string[]>()]),
@@ -535,11 +537,11 @@ const merchHtml = `<div class="products">${PRODUCTS.map((p) => {
     h: `applications/${id}`,
     x: `merch ${p.stems.join(" ")}`,
   });
-  return `<article class="product" id="${id}"><div class="mock">${p.views.map(([svg, c], i) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${deferImages(scopeIds(svg, `${id}-${i}`))}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
+  return `<article class="product" id="${id}"><div class="mock" data-theme="light">${p.views.map(([svg, c], i) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${deferImages(scopeIds(svg, `${id}-${i}`))}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st) ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
 }).join("")}</div>`;
 // Device stickers: each device's SVG inline, all at one scale, with what goes where as its caption.
 const DEVICES = "applications/device-stickers";
-const deviceHtml = `<div class="devices">${stickerCaptions()
+const deviceHtml = `<div class="devices" data-theme="light">${stickerCaptions()
   .map(({ file, title, lines }) => {
     const id = `device-stickers-${file}`;
     index.push({
@@ -671,7 +673,7 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
     x: `hw-${name} ${file}.css${KEYWORDS[name] ? ` ${KEYWORDS[name]}` : ""}`,
   });
   const cell = (scale: string, night: boolean) =>
-    `<div class="el-cell" data-hw-scale="${scale}"${night ? ' data-theme="dark"' : ""}><div class="el-inner">${uniqueIds(DEMOS[name]!, `${scale}${night ? "-night" : ""}`)}</div></div>`;
+    `<div class="el-cell" data-hw-scale="${scale}" ${night ? 'data-theme="dark" data-hw-night' : 'data-theme="light"'}><div class="el-inner">${uniqueIds(DEMOS[name]!, `${scale}${night ? "-night" : ""}`)}</div></div>`;
   const row = (night: boolean) =>
     `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
   return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
@@ -745,7 +747,7 @@ const familyPreview = (f: Family) => {
       : "";
 };
 const swatches = (names: string[]) =>
-  `<span class="pv-colours">${names.map((k) => `<span style="background:var(${k})"></span>`).join("")}</span>`;
+  `<span class="pv-colours">${names.map((k) => `<span style="background:${colors[k]}"></span>`).join("")}</span>`;
 // A group named like a view anchors to it, so the rail opens the view itself; Pictures and motion
 // and Systems link from their items.
 const groups: CatalogGroup[] = [
@@ -803,7 +805,8 @@ const groups: CatalogGroup[] = [
       name: base,
       href: `#logos/logo-${base}`,
       note: LOGO_NOTES[base],
-      image: `logos/${base}.svg`,
+      // The day file on the day ground, the night cut on the night one, as the logo rule says.
+      html: `<img src="logos/${base}.svg" alt="" loading="lazy"><img class="tile-night" src="logos/${base}-night.svg" alt="" loading="lazy">`,
     })),
   },
   {
@@ -1084,17 +1087,37 @@ const FONTS = [
   "jetbrains-mono-latin-700-normal",
 ];
 
+// The header's theme switch is brand's ThemeToggle: its markup with the icon paths filled in, and its
+// script, which flips html's data-theme and stores the choice under "theme". The head reads that
+// choice before the first paint, else the system's theme, as every h&w app does.
+const toggle = readFileSync(join(ROOT, "expert/components/ThemeToggle.astro"), "utf8").match(
+  /^---[^]*?---\s*(<button[^]*?<\/button>)\s*<script>([^]*?)<\/script>/,
+);
+if (!toggle) throw new Error("portal: ThemeToggle.astro is no longer a button and a script");
+const themeToggle = toggle[1]!.replace(
+  /\{(SUN|MOON)\}/g,
+  (_, k: string) => `"${k === "SUN" ? SUN : MOON}"`,
+);
+const themeScript = new Bun.Transpiler({ loader: "ts" }).transformSync(toggle[2]!);
+
 const html = `<!doctype html>
-<html lang="en">
+<html lang="en" data-hw-night>
 <head>
 <meta charset="utf-8">
+<script>
+{
+  let theme = null;
+  try { theme = localStorage.getItem("theme"); } catch {}
+  if (theme === "dark" || (theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.dataset.theme = "dark";
+}
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hackers&amp;wizards brand</title>
 <meta name="description" content="${esc(LEAD)}">
 <link rel="icon" href="logos/favicon.ico" sizes="32x32">
 <link rel="icon" href="logos/favicon.svg" type="image/svg+xml">
 ${FONTS.map((f) => `<link rel="preload" href="tokens/fonts/${f}.woff2" as="font" type="font/woff2" crossorigin>`).join("\n")}
-<style>${["generated/tokens.root.css", "tokens/print.css", "tokens/marker.css", "expert/header.css"].map(ownCss).join("\n")}
+<style>${["generated/tokens.root.css", "tokens/night.css", "tokens/print.css", "tokens/marker.css", "expert/header.css"].map(ownCss).join("\n")}
 ${inline(elementsCss)}
 ${inline(catalogCss)}</style>
 <style>
@@ -1116,7 +1139,20 @@ ${inline(catalogCss)}</style>
   .pv-tokens { display: flex; gap: 1.25rem; align-items: center; justify-content: center; height: 100%; }
   .pv-tokens span { width: 4.5rem; height: 4.5rem; background: var(--color-white); border: 1px solid var(--color-border); }
   .hw-catalog-preview > svg { display: block; width: 100%; height: 100%; }
+  html:not([data-theme="dark"]) .hw-catalog-preview > .tile-night,
+  html[data-theme="dark"] .hw-catalog-preview > img:has(+ .tile-night) { display: none; }
   /* The portal's own parts, the views included; the catalog shape and its tiles are catalog.css's. */
+  /* The portal's own raised surfaces and hover fill: white and the tint by day, night-2 and the white
+     wash by night. A ground that shows a file or a day form (a logo on light, a mockup, a file's
+     preview, a day cell) is a data-theme="light" island and keeps the day. */
+  .portal {
+    --raised: var(--color-white);
+    --wash: var(--color-tint);
+  }
+  html[data-theme="dark"] .portal {
+    --raised: var(--color-night-2);
+    --wash: var(--white-wash);
+  }
   .portal {
     --hw-markers: on;
     .quick { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem; margin-top: 2rem; }
@@ -1125,7 +1161,7 @@ ${inline(catalogCss)}</style>
     .quick li + li { margin-top: 0.25rem; }
     #results { margin-top: 2rem; }
     .label, th:not(.el-cell *, .hw-table *) { font-family: var(--type-label-family); font-size: var(--type-label-size); letter-spacing: var(--type-label-tracking); text-transform: uppercase; color: var(--color-muted); font-weight: 500; }
-    .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-white); color: var(--color-ink); font: inherit; }
+    .input { box-sizing: border-box; min-height: 2.5rem; width: 100%; padding: 0 0.875rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--raised); color: var(--color-ink); font: inherit; }
     .input:hover { border-color: var(--color-muted); }
     .input:focus-visible { border-color: var(--color-teal); }
     section[data-page] { max-width: var(--container-wide); }
@@ -1148,7 +1184,7 @@ ${inline(catalogCss)}</style>
     .words-fold > summary { font-family: var(--font-mono); font-size: var(--text-h4); padding: 0.25rem 0; }
     code:not(.el-cell *) { font-family: var(--font-code); font-size: 0.9em; }
     a:not(.el-cell *) { color: var(--color-teal-dark); }
-    table:not(.el-cell *, .hw-table) { border-collapse: collapse; width: 100%; background: var(--color-white); }
+    table:not(.el-cell *, .hw-table) { border-collapse: collapse; width: 100%; background: var(--raised); }
     :is(th, td):not(.el-cell *, .hw-table *) { text-align: left; vertical-align: top; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); }
     .swatch { all: unset; cursor: copy; display: inline-grid; grid-template-columns: 1.5rem auto; column-gap: 0.5rem; align-items: center; }
     .swatch:focus-visible { outline: 3px solid var(--color-purple); outline-offset: 2px; }
@@ -1156,7 +1192,7 @@ ${inline(catalogCss)}</style>
     .swatch small { grid-column: 2; color: var(--color-muted); font-size: 0.7rem; }
     .swatch.copied small::after { content: " copied"; color: var(--color-teal); }
     .logos { display: grid; gap: 1rem; margin-top: 1.5rem; }
-    .logo { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
+    .logo { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
     .logo h3 { margin: 0.75rem 0 0.25rem; }
     .logo p { margin: 0.25rem 0; }
     .pair { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0.5rem; }
@@ -1169,21 +1205,21 @@ ${inline(catalogCss)}</style>
     .on-gradient { background: var(--gradient-magic); }
     .dl a { display: inline-block; margin: 0.25rem 0.4rem 0 0; padding: 0.15rem 0.5rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); color: var(--color-ink); text-decoration: none; font-family: var(--font-code); font-size: 0.75rem; }
     .dl a::before { content: "↓ "; }
-    .dl a:hover { background: var(--color-tint); }
-    .pv { width: 4rem; height: 2rem; background: var(--color-white); border: 1px solid var(--color-border); }
+    .dl a:hover { background: var(--wash); }
+    .pv { width: 4rem; height: 2rem; background: var(--raised); border: 1px solid var(--color-border); }
     .pv.bar { height: 0.5rem; max-width: 100%; background: var(--color-teal); border: 0; }
     .rules { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-bottom: 1rem; }
-    .rules > div { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
+    .rules > div { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
     .rules > div:has(> .corner-demo) { border-radius: var(--radius-sm); }
     .rules p { margin: 0.5rem 0 0; }
-    .corner-demo { height: 3rem; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
+    .corner-demo { height: 3rem; background: var(--wash); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
     .square-demo, .icon-demo, .shape-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
     .square-demo .sw { width: 1.25rem; height: 1.25rem; background: var(--color-teal); }
     .icon-demo { color: var(--color-teal-dark); font-weight: 500; }
     .role { border-bottom: 1px solid var(--color-border); padding: 0.75rem 0; }
     .role p { margin: 0.25rem 0 0; }
-    #results a { display: flex; gap: 0.75rem; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); color: var(--color-ink); text-decoration: none; background: var(--color-white); }
-    #results a:hover { background: var(--color-tint); }
+    #results a { display: flex; gap: 0.75rem; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--color-border); color: var(--color-ink); text-decoration: none; background: var(--raised); }
+    #results a:hover { background: var(--wash); }
     #results a .label { min-width: 7rem; }
     .night-cell { display: inline-block; padding: 0.25rem 0.5rem; background: var(--color-night); color: var(--color-night-ink); border-radius: 0; }
     .night-cell small { color: var(--color-night-muted); }
@@ -1191,7 +1227,7 @@ ${inline(catalogCss)}</style>
     .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 0; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
     .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
     .products { display: grid; gap: 1rem; }
-    .product { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; scroll-margin-top: 1rem; }
+    .product { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; scroll-margin-top: 1rem; }
     .product h4 { font-family: var(--font-mono); font-size: var(--text-h4); margin: 0.75rem 0 0.25rem; }
     .product p { margin: 0.25rem 0; }
     .mock { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, 15.5rem); }
@@ -1199,6 +1235,8 @@ ${inline(catalogCss)}</style>
     .mock figure { margin: 0; padding: 0.75rem 0.75rem 0.5rem; background: #e4e6ea; border-radius: var(--radius-sm); }
     .mock svg { display: block; height: 15rem; }
     .devices { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; column-gap: 2rem; }
+    /* The device drawings are drawn on day paper: by night they keep a day ground of their own. */
+    html[data-theme="dark"] & .devices { padding: 1rem; background: var(--color-bg); border-radius: var(--radius-brand); color: var(--color-ink); }
     .devices figure { margin: 0; display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0.75rem; }
     .devices svg { display: block; align-self: end; max-width: 100%; height: auto; }
     .devices figcaption { display: grid; align-content: start; gap: 0.25rem; contain: inline-size; min-width: 13rem; }
@@ -1215,6 +1253,11 @@ ${inline(catalogCss)}</style>
     .el-row { align-self: center; }
     .el-cell { min-height: 7rem; overflow: hidden; padding: 1rem; border: 1px solid var(--color-border); background: var(--color-white); color: var(--color-ink); font-size: var(--text-body); line-height: var(--text-body--line-height); }
     .el-cell[data-theme="dark"] { border-color: var(--color-night); background: var(--color-night); color: var(--color-night-ink); }
+    /* On a night page a night cell is the page's own ground, framed by the night line as a day cell is by its line. */
+    html[data-theme="dark"] & .el-cell[data-theme="dark"] { border-color: var(--color-night-line); }
+    /* A day cell draws its element without the apps' roles, as a day page here does: the light
+       island of night.css gives it expert.css's day roles, which turn a dialog's white ground to bg. */
+    .el-cell[data-theme="light"] { --background: initial; --foreground: initial; --accent: initial; --muted: initial; --border: initial; }
     .el-cell[data-hw-scale="dense"] { font-size: 0.875rem; line-height: 1.5; }
     .el-cell[data-hw-scale="print"] { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
     .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; --hw-zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
@@ -1258,12 +1301,16 @@ ${catalogs
       : [`<a class="hw-header-link" href="${esc(c.href)}">${esc(c.name)}</a>`],
   )
   .join("\n")}
+${themeToggle}
 </nav>
 </div>
 </header>
 <main>
 ${catalogPage}
 </main>
+<script>
+${themeScript}
+</script>
 <script>
 const INDEX = ${JSON.stringify(index).replace(/</g, "\\u003c")};
 const cat = document.querySelector(".hw-catalog"), q = cat.querySelector(".hw-catalog-search"), results = document.getElementById("results");
