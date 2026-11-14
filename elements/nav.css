@@ -8,7 +8,7 @@
    aria-expanded="true", the current page's while aria-current="true" (its menu holds that page).
    hw-nav-count is an item's count, at the end of its row in the foreground's 70 %, tabular
    figures, never broken or shrunk: a long name wraps beside it; hw-nav-group is a group's caption,
-   an hw-label (muted) set off above its list.
+   an hw-label (muted) set off above its list, its text on the items' text edge.
    A nested list sits under its parent behind a guide line, up to four levels; a branch is a
    <details class="hw-disclosure"> whose <summary> takes the item's measures. A <nav>, links and
    lists, never role="tree". On night the expert set's night roles.
@@ -96,7 +96,8 @@
   .hw-nav-group {
     display: block;
     margin: 0.75rem 0 0.25rem;
-    padding: 0 0.5rem;
+    padding: var(--hw-nav-pad, 0.25rem 0.5rem);
+    padding-block: 0;
   }
   .hw-nav-group:first-child {
     margin-top: 0;

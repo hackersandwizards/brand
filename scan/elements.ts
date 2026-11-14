@@ -339,6 +339,8 @@ const OWNS: Record<string, string[]> = {
   "nav a": [...CORNER, ...FILL, ...PAD, "font-weight", "color", "text-decoration-line"],
   "nav summary": [...CORNER, ...FILL, ...PAD, "font-weight", "color"],
   "nav .hw-nav-count": ["color", "font-variant-numeric"],
+  "nav .hw-nav-group": ["padding-left", "padding-right", "margin-bottom"],
+  "nav :is(ul, ol) + .hw-nav-group": ["margin-top"],
   "nav :is(ul, ol) :is(ul, ol)": [...borders(["left"]), "padding-left", "margin-left"],
   choice: [
     ...CORNER,

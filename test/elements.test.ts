@@ -1441,6 +1441,41 @@ test("a popover holding a nav pads 0.75rem all round, a text popover keeps 1rem 
   expect(clean.findings.filter((f) => f.element === "popover")).toEqual([]);
 }, 60_000);
 
+test("a nav group's caption starts on its items' text edge at every scale and under a set --hw-nav-pad", async () => {
+  const nav = `<nav class="hw-nav"><p class="hw-label hw-nav-group" data-tone="muted">Konten</p><ul><li><a href="#">Firmen</a></li></ul></nav>`;
+  const body = ["screen", "dense", "print", "stage"]
+    .map((scale) => `<div data-hw-scale="${scale}">${nav}</div>`)
+    .concat(`<div data-hw-scale="dense" style="--hw-nav-pad: 0.5625rem 0.5rem">${nav}</div>`)
+    .join("");
+  const p = await browser.newPage();
+  await open(p, pathToFileURL(file("nav-caption.html", only(body))).href);
+  const edges = await p.$$eval(".hw-nav", (navs) =>
+    navs.map((n) =>
+      [n.querySelector(".hw-nav-group")!, n.querySelector("a")!].map((e) => {
+        const r = document.createRange();
+        r.selectNodeContents(e);
+        return Math.round(r.getClientRects()[0]!.left * 100) / 100;
+      }),
+    ),
+  );
+  await p.close();
+  expect(edges.filter(([caption, link]) => caption !== link)).toEqual([]);
+}, 30_000);
+
+test("a nav caption after a list keeps its margin: a page resetting it is red", async () => {
+  const body = `<div data-hw-scale="dense"><nav class="hw-nav"><p class="hw-label hw-nav-group" data-tone="muted">A</p><ul><li><a href="#">B</a></li></ul><p class="hw-label hw-nav-group" data-tone="muted">C</p><ul><li><a href="#">D</a></li></ul></nav></div>`;
+  const reset = await measurePage(
+    browser,
+    file("nav-caption-reset.html", only(`<style>.hw-nav p { margin-block: 0 }</style>${body}`)),
+  );
+  expect(reset.findings.filter((f) => f.element === "nav").map((f) => f.prop)).toEqual([
+    "margin-bottom",
+    "margin-top",
+  ]);
+  const clean = await measurePage(browser, file("nav-caption-clean.html", only(body)));
+  expect(clean.findings.filter((f) => f.element === "nav")).toEqual([]);
+}, 60_000);
+
 test("toasts stack at the bottom centre; on a phone data-place=top holds them at the top", async () => {
   const body = `<div class="hw-toasts" data-place="top"><div class="hw-toast"><span class="hw-toast-text">Gespeichert</span></div></div>`;
   const url = pathToFileURL(file("toasts.html", only(body))).href;

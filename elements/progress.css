@@ -1,5 +1,5 @@
-/* The progress bar: the native <progress>, a round bar as thick as the accent rule, filled in the
-   accent up to its value. Without a value it is indeterminate: a short bar slides along it, and
+/* The progress bar: how much of a task is done, the native <progress>. It is a round bar as thick
+   as the accent rule, filled in the accent up to its value. Without a value it is indeterminate: a short bar slides along it, and
    under reduced motion stands still at the start. Name it with a label or aria-label, and give
    the number beside it where a reader needs it.
 

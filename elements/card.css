@@ -1,5 +1,6 @@
-/* The card: the brand corner, a hairline, white, the card padding. data-variant="tint" is the
-   emphasised card: teal at 7 % with a 40 % teal line. On night the card is glass, white at 7 % with
+/* The card: a block that sets one piece of content apart from the page. It takes the brand
+   corner, a hairline, white and the card padding. data-variant="tint" is the emphasised card:
+   teal at 7 % with a 40 % teal line. On night the card is glass, white at 7 % with
    a 15 % white line; the tinted one takes teal-night. Layout and shadow stay the surface's.
 
    The linked card: a card one click opens, its title link marked hw-card-link and stretched over

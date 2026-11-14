@@ -1,5 +1,5 @@
-/* The disclosure: a native <details> whose <summary> wears the brand chevron in place of the
-   browser's triangle. Plain CSS, no Tailwind, so every surface takes it: a page puts class
+/* The disclosure: a part of a page a reader folds open and shut, a native <details> whose
+   <summary> wears the brand chevron in place of the browser's triangle. Plain CSS, no Tailwind, so every surface takes it: a page puts class
    hw-disclosure on its details, and elements.css and expert.css import this file.
 
    Markup: <details class="hw-disclosure"><summary>Notizen <span class="hw-disclosure-count">8</span></summary><p>…</p></details>

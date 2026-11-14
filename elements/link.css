@@ -1,7 +1,7 @@
-/* The link in running text or beside labels: teal-dark, underlined 0.2em below the baseline, ink on
-   hover; on night teal-night, white on hover. hw-link on the link, or hw-links on a prose column to
-   mark every link in it. A link to a record or out of the app, beside labels, is this element,
-   never a pill. A link that is a row or a button is not this element. A link opening with an icon,
+/* The link: a link in running text or beside labels, to a record or out of the app. It is
+   teal-dark, underlined 0.2em below the baseline, ink on hover; on night teal-night, white on
+   hover. hw-link on the link, or hw-links on a prose column to mark every link in it. A link
+   beside labels is this element, never a pill. A link that is a row or a button is not this element. A link opening with an icon,
    such as a person's name after their mark or a record's link after an icon naming where it leads,
    takes the icon as a direct <svg> child (in hw-prose too): 1em, centred on the label's first line,
    0.3em before it, the label on the line's baseline and alone underlined. Such a link moves to the

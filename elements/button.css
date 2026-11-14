@@ -1,5 +1,6 @@
-/* The button with words on it, on a client surface (website, certificate verifier, slides,
-   documents): the brand corner, a teal hairline, weight 500 in the body role. Filled teal with
+/* The button: a control with words on it that runs an action, on a client surface (website,
+   certificate verifier, slides, documents). It takes the brand corner, a teal hairline and weight
+   500 in the body role. Filled teal with
    white text by default, the line and fill purple on hover; data-variant="secondary" is the
    outline, teal text on no fill, purple text and line on hover, and with data-filled a white fill,
    so it stands out on a tinted ground (night: the night ground). From 64rem it stands 48 px tall,

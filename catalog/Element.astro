@@ -73,7 +73,10 @@ const words = /^de\b/.test(lang) ? ["aus brand", "Katalog"] : ["from brand", "ca
   .sample > :global(* + *:where(:not(.hw-check-target))) {
     margin-top: 0.5em;
   }
-  .sample :global(:is(p, blockquote, pre)) {
-    margin-block: 0;
+  /* Below the elements' layer, so an element's own margin, such as a nav group caption's, holds. */
+  @layer base {
+    .sample :global(:is(p, blockquote, pre)) {
+      margin-block: 0;
+    }
   }
 </style>

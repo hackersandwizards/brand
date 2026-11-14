@@ -258,7 +258,7 @@
     },
     {
       "path": "elements/disclosure.css",
-      "sha256": "4b5883b440bd81715b0ba68403006a84505f407a9b9b08ee0cb3a26afda654c1"
+      "sha256": "832bada701f9b637118c0f750a4f22e7d09925a1b2340ce430dc9136ca74d98d"
     },
     {
       "path": "expert/expert.css",
@@ -342,11 +342,11 @@
     },
     {
       "path": "elements/card.css",
-      "sha256": "f9e57b04b54c7475fa08c0397b9b5a3317f242002b6fa80a7845dd33f49211b9"
+      "sha256": "13a796040b087c2876bb1d9bbb990a06746be0b0e02a3f756f9db3a08fe3aff3"
     },
     {
       "path": "elements/code.css",
-      "sha256": "7d4de2ba49b675b91e20fe739c194eb04d06f4e1e9949547fb9555fb23db0e65"
+      "sha256": "e9ee752f1ab42fab9e6ed9dfb80defcb252a37dc4646a010c55eb74c1d57c23a"
     },
     {
       "path": "elements/code.ts",
@@ -354,7 +354,7 @@
     },
     {
       "path": "elements/inline-code.css",
-      "sha256": "59bf8b47721b8725495b5c8843a3169a7011c9e49755c2bcee9e93ed15146b0c"
+      "sha256": "9a586e887a278aea3dfdcba2320fc92e1a0e6909e20a93fd5e766aabe28828db"
     },
     {
       "path": "elements/elements.css",
@@ -362,7 +362,7 @@
     },
     {
       "path": "elements/focus.css",
-      "sha256": "572f3231583ca5054ed3f4a553b1e3a458b153339d201269310db0a49bdb5d11"
+      "sha256": "54712a4f212119080baf661c60e0b96868cd4c10231defbc56d861f52fc50d44"
     },
     {
       "path": "elements/icon-button.css",
@@ -378,7 +378,7 @@
     },
     {
       "path": "elements/link.css",
-      "sha256": "ec606e832c6514eb977823468a03dcd14a8e5c7c99cca7db5b4c5bb0bc3e9b47"
+      "sha256": "e1d0018c958d7b4d0cce087957653e0fc0bae1f8c993e2316267eb2859a4b26b"
     },
     {
       "path": "elements/pill.css",
@@ -386,7 +386,7 @@
     },
     {
       "path": "elements/quote.css",
-      "sha256": "f12a0d16ae0212238c8b5dc11610b9a6d6ba81170c8c9755c359bc0f428a113e"
+      "sha256": "b5cfbc16090f7d64a4c3b4554e5f26f37978427a29af08ff22db03268cdb9d5d"
     },
     {
       "path": "elements/scales.css",
@@ -394,11 +394,11 @@
     },
     {
       "path": "elements/strip.css",
-      "sha256": "45f658fae02e69a14e6453ed086b4408a8e652c3159938346666c7528391a28f"
+      "sha256": "c12098b9fed0125d678c88d71a4c29566ee72ffe401aa798102ceca20ee6567a"
     },
     {
       "path": "elements/table.css",
-      "sha256": "22acb920bf21ea8fe5f4d0836267e08e68d6e9606dac0bf315e3453362c16f67"
+      "sha256": "b03cb51619b39d23bb51c54f3bbf200bd4468098227f29ae9b775bca8d5b9d80"
     },
     {
       "path": "press/benedikt-stemmildt.jpg",
@@ -434,7 +434,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "ddf6b31397a8a6885e2df5bbcd7f605dc0ab328f2e92fe34096bd63eae6dddda"
+      "sha256": "f4f6580cd6026720a6ca0c200572f670deaf700ef33c15c1583f6d312699c7ef"
     },
     {
       "path": "elements/check.css",
@@ -534,11 +534,11 @@
     },
     {
       "path": "elements/nav.css",
-      "sha256": "04273ac677e4c738f0d479e65bf8e91846d72eee920414f48c7fb21ea0f9f34c"
+      "sha256": "1d863a18739fe8447a0bb9b318d4f086c91f523c4bf8608f5a35e95ad3f5d3c0"
     },
     {
       "path": "elements/list-filter.css",
-      "sha256": "6ef579e5290cff0d711fb60b45bf8a7099e9942b532b6dbf1d9382a9942addc3"
+      "sha256": "eb51674f5c97eb2bd5dd14e92b9c128e4f0a9456934dccdedd5c0f7aa40f985e"
     },
     {
       "path": "elements/list-filter.ts",
@@ -602,7 +602,7 @@
     },
     {
       "path": "elements/progress.css",
-      "sha256": "16eea432c0af5baa65df974ae45104e30e075028d938907d5a2773879aaf6bc1"
+      "sha256": "b56c850518b1f337063ddd7430cbe98cea890893d22094018186f1dceb61d6e7"
     },
     {
       "path": "elements/skeleton.css",
@@ -642,7 +642,7 @@
     },
     {
       "path": "elements/touch.css",
-      "sha256": "391d14966995ca70dd6c8b4396deb90642021b2c555bd0d62df2d112605ee94c"
+      "sha256": "8a1d51ef86fe918ad2c6a2b43c221b4cd026ba89f57c646169022e5c2650c1ad"
     },
     {
       "path": "elements/skip-link.css",

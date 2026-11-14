@@ -1,7 +1,7 @@
-/* Inline code: a command, a path or a name inside a line of text, in the code role at regular
-   weight on a light ink tint with the small corner (a mark inside a line, tokens.css), no
-   ligatures as the code block, at the size of the app's UI text, else 0.875em of the line around
-   it. A quarter em at the sides, so a comma after the chip sits with it, and a sixteenth above and
+/* Inline code: a command, a path or a name inside a line of text. It is set in the code role at
+   regular weight on a light ink tint with the small corner (a mark inside a line, tokens.css),
+   without ligatures as the code block, at the size of the app's UI text, else 0.875em of the line
+   around it. A quarter em at the sides, so a comma after the chip sits with it, and a sixteenth above and
    below, so the tint stays clear of the lines around it. Split by a line break, the padding stays
    at the chip's two ends: repeated at the break, it pushes a wrapped name past a 288 px column.
    On night a light night-ink tint as on day: the muted fill vanishes on a night card (contrast

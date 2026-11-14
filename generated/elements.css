@@ -2549,7 +2549,8 @@
   .hw-nav-group {
     display: block;
     margin: 0.75rem 0 0.25rem;
-    padding: 0 0.5rem;
+    padding: var(--hw-nav-pad, 0.25rem 0.5rem);
+    padding-block: 0;
   }
   .hw-nav-group:first-child {
     margin-top: 0;

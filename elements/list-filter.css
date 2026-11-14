@@ -1,6 +1,7 @@
-/* The list filter's layout (expert/components/ListFilter.astro, elements/list-filter.ts): the
-   search with its submit button, each facet's choices or select, the count line with
-   its links, the list, and the empty line. The parts are shared elements (hw-search, hw-field,
+/* The list filter: a search and facet filters above a list, which narrow it to the matching rows.
+   This file lays out its parts (expert/components/ListFilter.astro, elements/list-filter.ts): the
+   search with its submit button, each facet's choices or select, the count line with its links,
+   the list, and the empty line. The parts are shared elements (hw-search, hw-field,
    hw-choice, hw-button, hw-form-field); this file only places them, in the scale's form gap, and
    marks the matched words in the accent's 20 % tint. Below 48rem, once the script runs, the facets
    fold behind the Filters button, on its own row under the search, so the chosen values it names

@@ -1,6 +1,7 @@
-/* The code block: the code palette's ground (night, night-2 on a night page) and text, the brand
-   corner as every block that holds content (tokens.css), the code role, no ligatures (JetBrains Mono would join -> and == into glyphs a reader
-   cannot type), scrolling sideways on screen. Syntax colours come from the code palette: Shiki
+/* The code block: lines of code set apart from the text around them, scrolling sideways on
+   screen. It takes the code palette's ground (night, night-2 on a night page) and text, the brand
+   corner as every block that holds content (tokens.css) and the code role, with no ligatures:
+   JetBrains Mono would join -> and == into glyphs a reader cannot type. Syntax colours come from the code palette: Shiki
    with code-theme.json and the transformer codeClasses (code.ts) sets the hw-code-<role> classes
    below, which survive a surface that drops inline styles; a hand-set span takes a class too.
    data-variant="panel" is the run log beside a slide's text, or a panel with a header of its own:

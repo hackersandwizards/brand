@@ -1,6 +1,7 @@
-/* The touch target: on a touch screen (any-pointer: coarse) a control smaller than --hw-touch-floor
-   (scales.css, 44 px where no scale sets it) reaches that size through an empty ::after centred on
-   it, so its look and layout stay. hw-touch-target gives it to any control; hw-icon-button,
+/* The touch target: gives a small control an area large enough to tap on a touch screen, while
+   the control keeps its look and layout. On a touch screen (any-pointer: coarse) a control smaller
+   than --hw-touch-floor (scales.css, 44 px where no scale sets it) reaches that size through an
+   empty ::after centred on it. hw-touch-target gives it to any control; hw-icon-button,
    hw-pill-remove, an hw-segmented item and an hw-avatar that is a link or button carry it, and
    each of those files imports this one. The control keeps its ::after free; a position it sets
    itself wins. Where two controls stand closer than the floor, the later one's area covers the

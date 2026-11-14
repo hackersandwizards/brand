@@ -1,5 +1,5 @@
-/* The gradient strip: the brand gradient from teal to purple along the top edge of a page, a header
-   or a document, --gradient-strip (tokens.css). The same on night.
+/* The gradient strip: the brand gradient from teal to purple that marks the top edge of a page, a
+   header or a document. It draws --gradient-strip (tokens.css), the same on night.
 
    Settings:
      --hw-strip  the strip's height */

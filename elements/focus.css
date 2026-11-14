@@ -1,5 +1,5 @@
-/* The focus ring, on every screen: solid purple (5.4:1 on white), purple-night on night (6.4:1),
-   outside the element. The ring follows the element's own corners; a link set in text rounds its
+/* The focus ring: the mark on the element the keyboard is on, on every screen. It is solid
+   purple (5.4:1 on white), purple-night on night (6.4:1), outside the element. The ring follows the element's own corners; a link set in text rounds its
    ring with the small corner; a linked card's link (card.css) draws it on the card. hw-focus-ring
    on the page's root (or any container) turns it on for everything inside. data-hw-focus on an
    element draws its whole focused state, ring and every element's own focus look, without focus:
