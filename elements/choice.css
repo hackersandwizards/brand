@@ -25,7 +25,10 @@
     flex-wrap: wrap;
     gap: 0.375rem;
   }
+  /* Positioned, so the hidden input stays inside it: placed against the page instead, it lengthens
+     the document past a scrolling ancestor such as a catalog's main pane. */
   .hw-choice {
+    position: relative;
     display: inline-flex;
     box-sizing: border-box;
     min-height: var(--hw-choice-height, 44px);

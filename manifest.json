@@ -546,7 +546,7 @@
     },
     {
       "path": "elements/choice.css",
-      "sha256": "5119bac8b9a83ca5bf6815154a1fc56b6fd59f4706b876df2bf0bae6a65a3575"
+      "sha256": "dffabd0b588689700f819eeff8b0f6983c415e165b9faaac71c4b4bf5403a185"
     },
     {
       "path": "expert/components/ListRow.astro",

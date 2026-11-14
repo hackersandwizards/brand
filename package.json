@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "2.27.0",
+  "version": "2.27.1",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the verbal identity (claim, home headline, mission, vision, values, terms, retired slogans), the LinkedIn post renderers with their sketch prompt, the mail signature template, the colour, copy, component, element and retired-line checks a consumer runs in its gate and the list-marker check it runs by hand, the list marker rule and the shared elements.",
   "keywords": [
