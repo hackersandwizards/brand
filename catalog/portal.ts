@@ -674,12 +674,10 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
   });
   const cell = (scale: string, night: boolean) =>
     `<div class="el-cell" data-hw-scale="${scale}" ${night ? 'data-theme="dark" data-hw-night' : 'data-theme="light"'}><div class="el-inner">${uniqueIds(DEMOS[name]!, `${scale}${night ? "-night" : ""}`)}</div></div>`;
-  const row = (night: boolean) =>
-    `<span class="el-row label">${night ? "Night" : "Light"}</span>${SCALES.map(([scale]) => cell(scale, night)).join("")}`;
   return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
 <p class="meta">${code(`elements/${file}.css`)} · brand v${pkg.version}</p>
 <p>${esc(words)}</p>
-<div class="el-matrix"><span></span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>`).join("")}${row(false)}${row(true)}</div>
+<div class="el-matrix"><span class="el-row label">Light</span><span class="el-row label">Night</span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>${cell(scale, false)}${cell(scale, true)}`).join("")}</div>
 <p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
 };
 // The element samples' scripts, unminified so their exports `enhance` and `enhanceForms` keep those
@@ -1248,10 +1246,12 @@ ${inline(catalogCss)}</style>
     .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
     .asset img[src$=".png"] { object-fit: scale-down; }
     .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
-    .el-matrix { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
-    .el-head { align-self: end; }
-    .el-row { align-self: center; }
-    .el-cell { min-height: 7rem; overflow: hidden; padding: 1rem; border: 1px solid var(--color-border); background: var(--color-white); color: var(--color-ink); font-size: var(--text-body); line-height: var(--text-body--line-height); }
+    /* A scale per row, day beside night, so a wide sample shows whole; each row stands apart from
+       the next by the grid spacing, and a sample wider still scrolls inside its cell. */
+    .el-matrix { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+    .el-head { grid-column: 1 / -1; }
+    .el-head ~ .el-head { margin-top: calc(var(--spacing-grid) - 0.5rem); }
+    .el-cell { min-height: 7rem; overflow: auto; padding: 1rem; border: 1px solid var(--color-border); background: var(--color-white); color: var(--color-ink); font-size: var(--text-body); line-height: var(--text-body--line-height); }
     .el-cell[data-theme="dark"] { border-color: var(--color-night); background: var(--color-night); color: var(--color-night-ink); }
     /* On a night page a night cell is the page's own ground, framed by the night line as a day cell is by its line. */
     html[data-theme="dark"] & .el-cell[data-theme="dark"] { border-color: var(--color-night-line); }
@@ -1267,6 +1267,8 @@ ${inline(catalogCss)}</style>
   }
   @media (max-width: 47.98rem) {
     html { scroll-padding-top: calc(var(--header-h) + 1rem); }
+    .portal .el-matrix { grid-template-columns: minmax(0, 1fr); }
+    .portal .el-row { display: none; }
     .portal .quick { grid-template-columns: minmax(0, 1fr); }
     .portal #results a { flex-wrap: wrap; gap: 0.25rem 0.75rem; }
     .portal #results a .label { min-width: 0; flex-basis: 100%; }
