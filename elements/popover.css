@@ -2,7 +2,8 @@
    a click, which on a phone is the way to reveal more where a tooltip cannot appear. It may hold
    links and controls. Escape and an outside click close it. The panel is the overlay surface in
    the small corner; elements/behaviour.ts places it under its trigger and flips it where the
-   window ends.
+   window ends. A popover whose child is a navigation list (hw-nav, a More menu) pads 0.75rem on
+   every side, since each item brings its own padding.
 
    Markup: <button popovertarget="p" aria-expanded="false" aria-controls="p">Was heißt das?</button><div id="p" popover class="hw-popover" role="dialog" aria-label="Erklärung"><p class="hw-popover-title">Gate</p>…</div>
 
@@ -28,6 +29,9 @@
     box-shadow: var(--shadow-overlay);
     font-size: var(--hw-form-small, var(--type-small-size));
     line-height: var(--type-small-line-height);
+  }
+  .hw-popover:has(> .hw-nav) {
+    padding-inline: 0.75rem;
   }
   .hw-popover[data-hw-placed] {
     position: fixed;

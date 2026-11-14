@@ -1421,6 +1421,26 @@ test("a nav section holding the current page drops its fill; one marked alone ke
   await p.close();
 }, 30_000);
 
+test("a popover holding a nav pads 0.75rem all round, a text popover keeps 1rem inline; the check measures both", async () => {
+  const body = `<div data-hw-scale="dense"><div class="hw-popover" id="text">Gate</div><div class="hw-popover" id="nav"><nav class="hw-nav"><ul><li><a href="#">A</a></li></ul></nav></div></div>`;
+  const p = await browser.newPage();
+  await open(p, pathToFileURL(file("popover-nav.html", only(body))).href);
+  const pad = (sel: string) => p.$eval(sel, (e) => getComputedStyle(e).padding);
+  expect(await pad("#text")).toBe("12px 16px");
+  expect(await pad("#nav")).toBe("12px");
+  await p.close();
+  const drifted = await measurePage(
+    browser,
+    file("popover-nav-drift.html", only(`<style>#nav { padding-inline: 1rem }</style>${body}`)),
+  );
+  expect(drifted.findings.filter((f) => f.element === "popover").map((f) => f.prop)).toEqual([
+    "padding-right",
+    "padding-left",
+  ]);
+  const clean = await measurePage(browser, file("popover-nav-clean.html", only(body)));
+  expect(clean.findings.filter((f) => f.element === "popover")).toEqual([]);
+}, 60_000);
+
 test("toasts stack at the bottom centre; on a phone data-place=top holds them at the top", async () => {
   const body = `<div class="hw-toasts" data-place="top"><div class="hw-toast"><span class="hw-toast-text">Gespeichert</span></div></div>`;
   const url = pathToFileURL(file("toasts.html", only(body))).href;

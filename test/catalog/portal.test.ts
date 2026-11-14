@@ -28,6 +28,12 @@ test("the portal shows every shared element and every expert component", () => {
   expect(COMPONENTS.filter((c) => !html.includes(`<code>${c}</code>`))).toEqual([]);
 });
 
+test("an element's page says what it is in its comment's first sentence; the rest stays in the file", () => {
+  const block = html.match(/<h4 id="hw-check">[^]*?<div class="el-matrix">/)![0];
+  expect(block).toContain("painted like an app");
+  expect(block).not.toContain("One em square");
+});
+
 // A slot a page passes only on a condition counts as filled while empty: PageHeader draws a
 // subtitle or an action box only where one holds something.
 test("PageHeader draws no empty subtitle or action box", () => {

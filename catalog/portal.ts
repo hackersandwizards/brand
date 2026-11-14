@@ -597,7 +597,7 @@ const pressHtml = `<p>The photos of the press kit, which the website's press pag
     return `<figure class="asset" id="press-${slug(p.file)}"><a href="press/${p.file}" target="_blank"><img src="press/${p.file}" alt="${esc(p.shows)}" loading="lazy"></a><figcaption>${code(p.file)}, ${p.width} px, ${esc(p.shows)} <a href="press/${p.file}" download>download</a>${cut ? `, <a href="press/${cut}" download>${code(cut)}</a>` : ""}</figcaption></figure>`;
   })
   .join("")}</div>`;
-// The shared elements: each file's own words (its first paragraph and its settings), then its
+// The shared elements: each file's own words (the first sentence of its comment and its settings), then its
 // sample live in a matrix of the four scales by light and night. Every cell loads the same file;
 // only the data-hw-scale on the cell changes.
 const ELEMENT_ORDER = SECTIONS.flatMap(([section, els]) =>
@@ -615,8 +615,9 @@ const elementDoc = (file: string) => {
     /^\/\*([\s\S]*?)\*\//,
   )![1]!;
   const [rule, settings = ""] = head.split(/\n\s*Settings[^\n]*\n/);
+  const words = rule!.replace(/\s+/g, " ").trim();
   return {
-    words: rule!.replace(/\s+/g, " ").trim(),
+    words: words.match(/^.*?\.(?=\s|$)/)?.[0] ?? words,
     names: [...settings.matchAll(/(--hw-[\w-]+)/g)].map((m) => m[1]!),
   };
 };

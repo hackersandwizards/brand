@@ -3471,6 +3471,9 @@
     font-size: var(--hw-form-small, var(--type-small-size));
     line-height: var(--type-small-line-height);
   }
+  .hw-popover:has(> .hw-nav) {
+    padding-inline: 0.75rem;
+  }
   .hw-popover[data-hw-placed] {
     position: fixed;
     margin: 0;
