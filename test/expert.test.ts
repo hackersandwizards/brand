@@ -128,6 +128,39 @@ test("ThemeToggle shows the moon by day and the sun by night without its script"
   await tab.close();
 });
 
+// A catalog story's page shows the shell's switch and the story's, and an app's own switch can take
+// the same id: every brand switch turns the page once and shows the theme whoever flipped it.
+test("every ThemeToggle on a page turns it once and follows data-theme whoever flips it", async () => {
+  const [, button, script] = readFileSync(
+    join(ROOT, "expert/components/ThemeToggle.astro"),
+    "utf8",
+  ).match(/^---[^]*?---\s*(<button[^]*?<\/button>)\s*<script>([^]*?)<\/script>/)!;
+  const brand = button!.replace(/d=\{\w+\}/g, "");
+  const own = `<button id="theme-toggle" data-own onclick="const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark'"></button>`;
+  const tab = await browser.newPage();
+  await tab.setContent(`<!doctype html><html><body>${brand}${own}${brand}<script>
+${new Bun.Transpiler({ loader: "ts" }).transformSync(script!)}</script></body></html>`);
+  const state = () =>
+    tab.evaluate(() => [
+      document.documentElement.dataset.theme ?? "light",
+      ...[...document.querySelectorAll("[id=theme-toggle]:not([data-own])")].map((b) =>
+        b.getAttribute("aria-pressed"),
+      ),
+    ]);
+  const click = (n: number) =>
+    tab.evaluate(
+      (i) => (document.querySelectorAll("[id=theme-toggle]")[i] as HTMLElement).click(),
+      n,
+    );
+  await click(2);
+  expect(await state()).toEqual(["dark", "true", "true"]);
+  await click(1);
+  expect(await state()).toEqual(["light", "false", "false"]);
+  await tab.evaluate(() => (document.documentElement.dataset.theme = "dark"));
+  expect(await state()).toEqual(["dark", "true", "true"]);
+  await tab.close();
+});
+
 // night.css serves pages without expert.css, so it repeats the day roles for a light island.
 test("night.css gives a light island inside night expert.css's day roles", () => {
   const nightCss = readFileSync(join(ROOT, "tokens/night.css"), "utf8");

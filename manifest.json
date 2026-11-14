@@ -326,7 +326,7 @@
     },
     {
       "path": "expert/components/ThemeToggle.astro",
-      "sha256": "863cf61b8327bf4e64f25afc0dbd79427d75506451e948999523b7e6a024237c"
+      "sha256": "55bac9609caa1e94c0d5e5cea06119ec2d695c024f5c4fcd2f55292818719880"
     },
     {
       "path": "expert/components/space-nav.ts",

@@ -6,6 +6,7 @@ import { MOON, SUN } from "./theme-icons";
 
 <button
   id="theme-toggle"
+  data-theme-toggle
   class="hw-header-link"
   data-icon
   aria-label="Toggle theme"
@@ -32,40 +33,45 @@ import { MOON, SUN } from "./theme-icons";
 
 <script>
   function initThemeToggle() {
-    const toggle = document.getElementById("theme-toggle");
-    if (!toggle) return;
+    const root = document.documentElement;
+    // Every brand switch, a catalog story's beside the shell's included. An app's own button under
+    // the same id has no data-theme-toggle and keeps its own handler.
+    const toggles = document.querySelectorAll<HTMLElement>("[data-theme-toggle]");
+    if (!toggles.length) return;
 
-    // header.css picks the icon from data-theme; the script keeps aria-pressed in step.
+    // header.css picks the icon from data-theme; aria-pressed follows it, whoever flips it.
     function updatePressed() {
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      toggle!.setAttribute("aria-pressed", isDark ? "true" : "false");
+      const pressed = String(root.getAttribute("data-theme") === "dark");
+      for (const toggle of document.querySelectorAll("[data-theme-toggle]"))
+        toggle.setAttribute("aria-pressed", pressed);
     }
 
     updatePressed();
+    new MutationObserver(updatePressed).observe(root, { attributeFilter: ["data-theme"] });
 
-    // After updatePressed: a re-init must refresh the state but not stack listeners.
-    if (toggle.dataset.themeInit) return;
-    toggle.dataset.themeInit = "1";
+    for (const toggle of toggles) {
+      // A re-init must not stack listeners.
+      if (toggle.dataset.themeInit) continue;
+      toggle.dataset.themeInit = "1";
 
-    toggle.addEventListener("click", () => {
-      const root = document.documentElement;
-      const currentTheme = root.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      // Freeze transitions across the flip, or 1k+ of them cascade-fade the page; the
-      // first rAF lets styles settle before transitions come back.
-      root.classList.add("theme-switching");
-      root.setAttribute("data-theme", newTheme);
-      // Storage can be blocked (private mode, a file:// page); the flip still holds for this page.
-      try {
-        localStorage.setItem("theme", newTheme);
-      } catch {}
-      updatePressed();
-      requestAnimationFrame(() => {
+      toggle.addEventListener("click", () => {
+        const currentTheme = root.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        // Freeze transitions across the flip, or 1k+ of them cascade-fade the page; the
+        // first rAF lets styles settle before transitions come back.
+        root.classList.add("theme-switching");
+        root.setAttribute("data-theme", newTheme);
+        // Storage can be blocked (private mode, a file:// page); the flip still holds for this page.
+        try {
+          localStorage.setItem("theme", newTheme);
+        } catch {}
         requestAnimationFrame(() => {
-          root.classList.remove("theme-switching");
+          requestAnimationFrame(() => {
+            root.classList.remove("theme-switching");
+          });
         });
       });
-    });
+    }
   }
 
   initThemeToggle();

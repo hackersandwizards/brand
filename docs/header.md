@@ -7,7 +7,10 @@ page links or inlines it; an Astro app renders `expert/components/AppHeader.astr
 the slot; a React app writes the same markup. Each product keeps its own nav items; page content
 takes the same width with the class `hw-container`. A control holding only an icon (theme, menu,
 search) is `hw-header-link` with `data-icon`: round, 36 px. `ThemeToggle.astro` is one; an app
-that renders no `.astro` takes its two icons from `expert/components/theme-icons.ts`.
+that renders no `.astro` takes its two icons from `expert/components/theme-icons.ts`. Every
+`ThemeToggle` on a page turns it and keeps `aria-pressed` in step with `html`'s `data-theme`,
+whoever sets it. An app's own switch, without `data-theme-toggle`, keeps its own handler, whatever
+its id.
 
 `header.css` sits in no cascade layer, so it wins over every layered rule, Tailwind's utilities
 included: to hide or restyle a header link, write an unlayered rule of your own or an important
