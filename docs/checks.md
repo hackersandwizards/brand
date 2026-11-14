@@ -121,7 +121,7 @@ stylesheets inlined so the document stands alone, which the engine's gate scans 
 everything else in the file is read. `brand-copies` lets such a document carry the logos the
 engine inlines from this package, as an `<svg>` or a `data:` URI: the lockup, known by its
 `viewBox`, and an unmodified `logos/wordmark*.svg`, known by its whole text (comments and
-whitespace aside), so a recoloured or cropped wordmark as an `<svg>` or a percent-encoded URI still
+whitespace aside), so a recoloured or cropped wordmark as an `<svg>` or a `data:` URI still
 fails. It matches every other drawing in it. The attribute is the one marker both scans trust: nothing checks that the engine
 wrote the element, so never put it on a style element of your own.
 
@@ -132,7 +132,8 @@ file in your tree that is byte-identical to a file the package ships (the logos,
 expert components, press photos, generated token formats and the signature
 template, through a Git LFS pointer too), on a file named like one of `logos/` that differs from
 it, and on a text file carrying a logo's path data or embedded wizard, such as a recoloured
-wordmark or an inlined SVG. An exception goes in `brand-copies.json` beside your `package.json`,
+wordmark or an inlined SVG, written out or inside a base64 or percent-encoded `data:` URI, which the
+scan decodes first. An exception goes in `brand-copies.json` beside your `package.json`,
 `{ "<path>": "<reason>" }`, and the list may only shrink against `HEAD`. An entry no longer found
 fails; `brand-copies --tighten` drops those entries, and writes no list where none was and none is
 needed.

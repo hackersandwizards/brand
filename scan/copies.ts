@@ -4,7 +4,7 @@
 // applied). A brand file belongs in node_modules/@hackersandwizards/brand, never in the consumer:
 // exits 1 on a file byte-identical to a file this package ships (through a Git LFS pointer too),
 // on a modified copy of a brand logo (a file named like one of logos/, or a text file carrying a
-// logo's path data), unless brand-copies.json lists it ({ "<path>": "<reason>" }), on an entry
+// logo's path data, written out or in a base64 or percent-encoded data: URI), unless brand-copies.json lists it ({ "<path>": "<reason>" }), on an entry
 // without a reason, on an entry whose file is no copy (stale), and on an entry added against HEAD: the list may only shrink. Where the working
 // tree changes the brand pin package.json holds at HEAD, an entry may also name a file committed
 // at HEAD and unchanged since, which a newer scanner finds.
@@ -60,6 +60,14 @@ const svgOf = (params: string, data: string) => {
     return "";
   }
 };
+// A data: URI's parameters and data, quoted up to its closing quote, or unquoted as in a CSS url().
+const DATA_URI = /(["'])data:([^,"']*),((?:(?!\1)[\s\S])*)\1|data:([^,"'\s()]*),([^"'\s()]+)/g;
+/** The text with the decoded content of each data: URI in it appended, nested ones included. */
+const decoded = (text: string): string =>
+  [
+    text,
+    ...[...text.matchAll(DATA_URI)].map((m) => decoded(svgOf(m[2] ?? m[4], m[3] ?? m[5]))),
+  ].join("\n");
 // The opening tag of the lockup the documents engine inlines, by its viewBox.
 const box = (f: string) => /viewBox="([^"]+)"/.exec(readFileSync(join(LOGOS, f), "utf8"))![1];
 const LOCKUP_BOX = new RegExp(
@@ -102,6 +110,7 @@ export const copyOf = (
           (uri, _quote, params: string, data: string) =>
             engineLogo(svgOf(params, data)) ? "" : uri,
         );
+    text = decoded(text);
     for (const s of signatures)
       if (text.includes(s))
         return "carries a brand logo's drawing; render the logo from the package";

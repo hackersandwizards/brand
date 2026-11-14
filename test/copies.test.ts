@@ -93,11 +93,33 @@ test("a document the documents engine composed may inline the unmodified wordmar
   expect(doc(engine, img(uri(night)) + wordmark)).toBeUndefined();
   for (const changed of [red, cropped]) {
     expect(doc(engine, img(uri(changed)))).toContain("drawing");
+    expect(doc(engine, img(base64(changed)))).toContain("drawing");
     expect(doc(engine, changed)).toContain("drawing");
   }
   // Without the engine's marker, the unmodified wordmark is a copy too.
   expect(doc("<style>.slide{}</style>", img(uri(wordmark)))).toContain("drawing");
+  expect(doc("<style>.slide{}</style>", img(base64(wordmark)))).toContain("drawing");
   expect(doc("<style>.slide{}</style>", wordmark)).toContain("drawing");
+});
+
+test("finds a logo inside a base64 or percent-encoded data: URI in any file", () => {
+  const red = wordmark.replace(/fill="[^"]*"/g, 'fill="red"');
+  const css = (src: string) =>
+    copyOf(
+      "src/styles/logo.css",
+      () => `.logo{background:url(${src})}`,
+      () => undefined,
+    );
+  const b64 = Buffer.from(red).toString("base64");
+  expect(css(`data:image/svg+xml;base64,${b64}`)).toContain("drawing");
+  expect(css(`"data:image/svg+xml;charset=utf-8;base64,${b64}"`)).toContain("drawing");
+  expect(css(`"data:image/svg+xml,${encodeURIComponent(red)}"`)).toContain("drawing");
+  // Nested: a base64 page carrying the base64 logo.
+  const page = Buffer.from(`<img src="data:image/svg+xml;base64,${b64}">`).toString("base64");
+  expect(css(`data:text/html;base64,${page}`)).toContain("drawing");
+  expect(
+    css(`data:image/svg+xml;base64,${Buffer.from("<svg/>").toString("base64")}`),
+  ).toBeUndefined();
 });
 
 test("flags an unlisted copy, an entry without a reason, one added against HEAD and a stale one", () => {
