@@ -48,7 +48,7 @@ import puppeteer, {
   type Page,
 } from "puppeteer-core";
 import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
-import { answerHelp } from "./help";
+import { answerHelp, isRecord, isStringList } from "./help";
 
 const USAGE = `usage: brand-markers [--scale 2,4] [--width 1280] [--site <folder> [--site-at <path>] | --base <url>] [--catalog <folder> [--catalog-at <page>]] [--json] [<url, html file or site path>...]
 --site serves a built folder on a free port, at --site-at where it was built for a base path such
@@ -367,12 +367,12 @@ const pathOf = (page: string) => {
 
 /** The lookup of a document's policy in `csp`: the first listed glob matching its path decides, and
  *  a path none matches has none. Throws on a malformed value. */
-export function policies(csp: Csp) {
+export function policies(csp: unknown) {
   const valid = (p: unknown): p is string =>
     typeof p === "string" && !!p.trim() && !/[\r\n]/.test(p);
   if (valid(csp)) return () => csp;
-  const entries = typeof csp === "object" && !Array.isArray(csp) ? Object.entries(csp ?? {}) : [];
-  if (!entries.length || !entries.every(([, p]) => valid(p)))
+  const entries = isRecord(csp) ? Object.entries(csp) : [];
+  if (!entries.length || !entries.every((entry): entry is [string, string] => valid(entry[1])))
     throw new Error(
       `brand-elements.json "csp": one line of policy or { "<glob>": "<policy>" }, not ${JSON.stringify(csp)}`,
     );
@@ -396,7 +396,10 @@ export async function open(page: Page, url: string, csp?: Csp) {
     const policy = policies(csp);
     const cdp = await page.createCDPSession();
     // Fetch.continueResponse drops added headers on http; fulfilling with the body keeps them.
-    cdp.on("Fetch.requestPaused", async (e) => {
+    cdp.on("Fetch.requestPaused", (e) => {
+      void answerPaused(e);
+    });
+    async function answerPaused(e: import("puppeteer-core").Protocol.Fetch.RequestPausedEvent) {
       const status = e.responseStatusCode ?? 200;
       try {
         if (e.responseErrorReason || (status >= 300 && status < 400))
@@ -428,7 +431,7 @@ export async function open(page: Page, url: string, csp?: Csp) {
           .send("Fetch.failRequest", { requestId: e.requestId, errorReason: "Failed" })
           .catch(() => undefined);
       }
-    });
+    }
     await cdp.send("Fetch.enable", {
       patterns: [{ resourceType: "Document", requestStage: "Response" }],
     });
@@ -827,7 +830,7 @@ export type MarkerException = { reason: string; off: number };
  * decoded path, such as "**\/content-slide/at-rest/". */
 export function applyExceptions(
   off: Reading[],
-  exceptions: Record<string, MarkerException> = {},
+  exceptions: Record<string, unknown> = {},
   measured: string[] = off.map((r) => r.page),
 ) {
   const entries = Object.entries(exceptions).map(([glob, e]) => ({
@@ -844,7 +847,14 @@ export function applyExceptions(
   }
   const findings = entries.flatMap(({ glob, e }) => {
     const n = by.get(glob)!.length;
-    if (!e?.reason || !Number.isInteger(e.off) || e.off < 1)
+    if (
+      !isRecord(e) ||
+      typeof e.reason !== "string" ||
+      !e.reason ||
+      typeof e.off !== "number" ||
+      !Number.isInteger(e.off) ||
+      e.off < 1
+    )
       return [`markers exception "${glob}": needs a "reason" and an "off" count of at least 1`];
     if (n === 0 && measured.some((page) => new Bun.Glob(glob).match(pathOf(page))))
       return [`markers exception "${glob}" is stale: it keeps no off reading`];
@@ -967,27 +977,66 @@ export type Site = string | { dir: string; at?: string };
 /** A base path with one slash at each end: "mail", "/mail" and "/mail/" are "/mail/". */
 const basePath = (at: string) => `/${at.replace(/^\/+|\/+$/g, "")}/`.replace("//", "/");
 /** The folder and path of a "site" or --site with --site-at; undefined for none. */
-export const listedSite = (site?: Site, at?: string) => {
+export const listedSite = (site?: unknown, at?: string) => {
   if (!site) return undefined;
-  const dir = typeof site === "string" ? site : site.dir;
-  if (typeof dir !== "string" || !dir)
+  const dir = typeof site === "string" ? site : isRecord(site) ? site.dir : undefined;
+  const prefix = isRecord(site) ? site.at : undefined;
+  if (typeof dir !== "string" || !dir || (!at && prefix && typeof prefix !== "string"))
     throw new Error(
       `"site": a folder or { "dir": "<folder>", "at": "<path>" }, not ${JSON.stringify(site)}`,
     );
-  return { dir, at: basePath(at || (typeof site === "string" ? "" : site.at) || "/") };
+  return { dir, at: basePath(at || (typeof prefix === "string" ? prefix : "") || "/") };
 };
 /** The "catalog" of brand-elements.json. */
 export type Catalog = string | { dir: string; at?: string; exclude?: string[] };
 /** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
  * brand-elements measures without a flag. Empty where it names no catalog. */
-export const listedCatalog = (config: {
-  catalog?: Catalog;
-}): { dir?: string; at?: string; exclude?: string[] } =>
-  config.catalog
-    ? typeof config.catalog === "string"
-      ? { dir: config.catalog }
-      : config.catalog
-    : {};
+export const listedCatalog = ({
+  catalog,
+}: {
+  catalog?: unknown;
+}): {
+  dir?: string;
+  at?: string;
+  exclude?: string[];
+} => {
+  if (!catalog) return {};
+  if (typeof catalog === "string") return { dir: catalog };
+  if (
+    !isRecord(catalog) ||
+    typeof catalog.dir !== "string" ||
+    (catalog.at != null && typeof catalog.at !== "string") ||
+    (catalog.exclude !== undefined && !isStringList(catalog.exclude))
+  )
+    throw new Error('brand-elements.json "catalog": expected a folder or { dir, at?, exclude? }');
+  return { dir: catalog.dir, at: catalog.at ?? undefined, exclude: catalog.exclude };
+};
+
+export const readElementsConfig = (json: string) => {
+  const config: unknown = JSON.parse(json);
+  if (!isRecord(config)) throw new Error("brand-elements.json: expected an object");
+  return config;
+};
+
+export const listedElementPages = (value: unknown) => {
+  if (value == null) return [];
+  if (!isStringList(value))
+    throw new Error('brand-elements.json "pages": expected a list of strings');
+  return value;
+};
+
+export const listedCsp = (value: unknown): Csp | undefined => {
+  if (value === undefined) return;
+  if (typeof value === "string") return value;
+  if (isRecord(value)) {
+    const entries = Object.entries(value);
+    if (entries.every((entry): entry is [string, string] => typeof entry[1] === "string"))
+      return Object.fromEntries(entries);
+  }
+  throw new Error(
+    `brand-elements.json "csp": one line of policy or { "<glob>": "<policy>" }, not ${JSON.stringify(value)}`,
+  );
+};
 
 /** `run` over `items`, at most `limit` at a time, each call told which of the `limit` workers runs it;
  * the results in the items' order. */
@@ -1040,34 +1089,49 @@ if (import.meta.main) {
     console.error(USAGE);
     process.exit(2);
   }
-  const config = existsSync("brand-elements.json")
-    ? JSON.parse(readFileSync("brand-elements.json", "utf8"))
-    : {};
-  const listed = flagCatalog ? {} : listedCatalog(config);
-  const catalog = flagCatalog || listed.dir;
-  const at = flagAt || listed.at;
-  let site: ReturnType<typeof listedSite>;
+  let site;
+  let catalog;
+  let listedPages;
+  let csp;
+  let exceptions;
+  let markerExceptions;
+  let stories: string[] = [];
   try {
+    const config = existsSync("brand-elements.json")
+      ? readElementsConfig(readFileSync("brand-elements.json", "utf8"))
+      : {};
+    const listed = flagCatalog ? {} : listedCatalog({ catalog: config.catalog });
+    catalog = flagCatalog || listed.dir;
+    const at = flagAt || listed.at;
     site = listedSite(flagSite || (flagBase || flagCatalog ? undefined : config.site), flagSiteAt);
+    listedPages = named.length ? [] : listedElementPages(config.pages);
+    csp = listedCsp(config.csp);
+    if (csp !== undefined) policies(csp);
+    if (config.exceptions != null && !isRecord(config.exceptions))
+      throw new Error('brand-elements.json "exceptions": expected an object');
+    exceptions = Object.keys(config.exceptions ?? {});
+    if (config.markers !== undefined && !isRecord(config.markers))
+      throw new Error('brand-elements.json "markers": expected an object');
+    markerExceptions = config.markers;
+    if (catalog)
+      stories = catalogPages(
+        catalog,
+        at,
+        site?.dir,
+        !!site || !!flagBase,
+        listed.exclude,
+        site?.at,
+      );
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);
   }
   // The config's pages where none is named, each measured, like a story, where it shows a marker;
   // a site path only where a site or --base serves it, as brand-elements takes --base from its gate.
-  const listedPages: string[] = named.length ? [] : (config.pages ?? []);
   const served = !!site || !!flagBase;
   const searched = listedPages.filter((p) => served || !p.startsWith("/"));
   for (const p of listedPages.filter((p) => !searched.includes(p)))
     console.error(`brand-markers: ${p}: a site path, but no site or --base; not measured`);
-  let stories: string[] = [];
-  try {
-    if (config.csp !== undefined) policies(config.csp);
-    if (catalog) stories = catalogPages(catalog, at, site?.dir, served, listed.exclude, site?.at);
-  } catch (e) {
-    console.error(`brand-markers: ${(e as Error).message}`);
-    process.exit(2);
-  }
   stories = [...searched, ...stories];
   if (!named.length && !stories.length) {
     console.error(USAGE);
@@ -1078,7 +1142,6 @@ if (import.meta.main) {
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, base));
   const refused: Refusal[] = [];
-  const exceptions = Object.keys(config.exceptions ?? {});
   const excepted = new Set<string>();
   const fallbacks = new Map<string, string>();
   // Every page at every scale, with and without the newline, run side by side: one run per core, at
@@ -1103,7 +1166,7 @@ if (import.meta.main) {
       hasMarkers(contexts[w % workers]!, url, {
         scale: scales[0],
         width,
-        csp: config.csp,
+        csp,
         refused,
       }),
     );
@@ -1117,7 +1180,7 @@ if (import.meta.main) {
           : measureMarkers(contexts[w]!, url, {
               ...options,
               width,
-              csp: config.csp,
+              csp,
               // Once per page: a story's in the first pass, a named page's in its first run.
               refused:
                 options.scale === scales[0] && !options.newline && !stories.includes(url)
@@ -1158,7 +1221,7 @@ if (import.meta.main) {
   const apart = readings.filter((r) => r.exception);
   const { bad, kept, findings } = applyExceptions(
     readings.filter((r) => !r.exception && failing(r)),
-    config.markers,
+    markerExceptions,
     pages,
   );
   for (const f of findings) console.error(f);

@@ -24,3 +24,12 @@ export function serveSite() {
     },
   });
 }
+export function contrastMessageKey(data: unknown) {
+  if (
+    data &&
+    typeof data === "object" &&
+    "messageKey" in data &&
+    typeof data.messageKey === "string"
+  )
+    return data.messageKey;
+}

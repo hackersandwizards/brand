@@ -9,7 +9,7 @@ import { ELEMENTS, kebab, measurePage } from "../../scan/elements";
 import { ROOT } from "../../scripts/git";
 import { lfsOid } from "../../scan/colours";
 import { failing, launch, measureMarkers } from "../../scan/markers";
-import { DIST, fileOf, page } from "./site";
+import { contrastMessageKey, DIST, fileOf, page } from "./site";
 import manifest from "../../manifest.json";
 import catalogs from "../../expert/catalogs.json";
 import { tokens } from "../../generated/tokens";
@@ -210,7 +210,7 @@ test("the portal follows the stored theme, its switch turns it, and night stays 
   expect(await theme()).toEqual(["dark", "true", null]);
   await p.goto(`${url}#colours`);
   await p.evaluate(axe.source);
-  const unreadable = await p.evaluate(async () => {
+  const nodes = await p.evaluate(async () => {
     // ignoreLength: a one-digit count is text. `checks` is a run option axe's types leave out.
     const options = {
       runOnly: ["color-contrast"],
@@ -220,11 +220,19 @@ test("the portal follows the stored theme, its switch turns it, and night stays 
       document,
       options,
     );
-    return [...violations, ...incomplete]
-      .flatMap((r) => r.nodes)
-      .filter((n) => !["elmPartiallyObscured", "bgGradient"].includes(n.any[0]?.data?.messageKey))
-      .map((n) => n.target.join(" "));
+    return [...violations, ...incomplete].flatMap((r) =>
+      r.nodes.map((node) => {
+        const data: unknown = node.any[0]?.data;
+        return { target: node.target.join(" "), data };
+      }),
+    );
   });
+  const unreadable = nodes
+    .filter(
+      ({ data }) =>
+        !["elmPartiallyObscured", "bgGradient"].includes(contrastMessageKey(data) ?? ""),
+    )
+    .map(({ target }) => target);
   expect(unreadable).toEqual([]);
   await p.click("#theme-toggle");
   expect(await theme()).toEqual(["light", "false", "light"]);

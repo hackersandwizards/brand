@@ -18,6 +18,7 @@
     "test/**/*.ts",
     "applications/**/*.ts",
     "expert/**/*.ts",
+    "elements/**/*.ts",
     "generated/tokens.ts"
   ]
 }

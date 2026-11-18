@@ -105,6 +105,37 @@ export function tally(items: FilterItem[], state: FilterState, param: string) {
 /** The count line: a template such as "{shown} of {total}", or one for a single match and one for
  *  any other number, filled in. */
 export type CountCopy = string | { one: string; other: string };
+function readCountCopy(json: string): CountCopy {
+  const value: unknown = JSON.parse(json);
+  if (typeof value === "string") return value;
+  if (
+    value &&
+    typeof value === "object" &&
+    "one" in value &&
+    "other" in value &&
+    typeof value.one === "string" &&
+    typeof value.other === "string"
+  )
+    return { one: value.one, other: value.other };
+  throw new Error("data-count must be a string or contain one and other strings");
+}
+
+function readFilterFacets(json: string): FilterItem["facets"] {
+  const value: unknown = JSON.parse(json);
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new Error("data-filter-facets must be an object");
+  return Object.fromEntries(
+    Object.entries<unknown>({ ...value }).map(([facet, values]) => {
+      if (
+        !Array.isArray(values) ||
+        !values.every((item): item is string => typeof item === "string")
+      )
+        throw new Error(`data-filter-facets: "${facet}" must be a list of strings`);
+      return [facet, values];
+    }),
+  );
+}
+
 export const countLine = (template: CountCopy, shown: number, total: number) =>
   (typeof template === "string" ? template : shown === 1 ? template.one : template.other)
     .replace("{shown}", String(shown))
@@ -254,7 +285,7 @@ export function initListFilter(root: HTMLElement) {
   const panel = root.querySelector<HTMLElement>("[data-filter-panel]")!;
   const overview = root.dataset.overview ? document.getElementById(root.dataset.overview) : null;
   const browseAlways = root.dataset.listFilter !== "active";
-  const copy: CountCopy = JSON.parse(root.dataset.count!);
+  const copy = readCountCopy(root.dataset.count!);
   // Each facet's values in the form's order: a fieldset of radios sharing its name, or a select.
   const options: Record<string, string[]> = {};
   for (const el of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
@@ -290,7 +321,7 @@ export function initListFilter(root: HTMLElement) {
         const title = el.querySelector<HTMLElement>("[data-filter-title]");
         const item: FilterItem = {
           text: el.dataset.filterText ?? "",
-          facets: JSON.parse(el.dataset.filterFacets ?? "{}"),
+          facets: readFilterFacets(el.dataset.filterFacets ?? "{}"),
         };
         return { el, title, plain: title?.textContent ?? "", item };
       });

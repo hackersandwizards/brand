@@ -59,7 +59,7 @@ import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import catalogs from "../expert/catalogs.json";
 import { COMPONENT, ENGINE_STYLE, listTree, scanned, skippedReport } from "./colours";
-import { answerHelp } from "./help";
+import { answerHelp, isRecord, isStringList } from "./help";
 
 const USAGE = `usage: brand-elements [--base <url>] [--json]
 Measures the shared elements on the pages and catalog brand-elements.json names. Exits 1 on any
@@ -75,11 +75,14 @@ import {
   type Site,
   launch,
   listedCatalog,
+  listedCsp,
+  listedElementPages,
   listedSite,
   open,
   openFolds,
   policies,
   pool,
+  readElementsConfig,
   refusalLine,
   refusals,
   serve,
@@ -998,6 +1001,23 @@ export const exceptionFindings = (config: Config, results: { exceptions: string[
   return out;
 };
 
+function listedElementExceptions(value: unknown): Record<string, Exception> | undefined {
+  if (value == null) return;
+  if (!isRecord(value)) throw new Error(`${LIST} "exceptions": expected an object`);
+  return Object.fromEntries(
+    Object.entries(value).map(([name, exception]): [string, Exception] => {
+      if (typeof exception === "string") return [name, exception];
+      if (
+        !isRecord(exception) ||
+        (exception.reason != null && typeof exception.reason !== "string") ||
+        (exception.files != null && !isStringList(exception.files))
+      )
+        throw new Error(`${LIST} "exceptions": "${name}" needs a reason and optional file list`);
+      return [name, { reason: exception.reason ?? "", files: exception.files ?? undefined }];
+    }),
+  );
+}
+
 if (import.meta.main) {
   answerHelp(USAGE);
   const json = process.argv.includes("--json");
@@ -1005,29 +1025,31 @@ if (import.meta.main) {
     console.error(`brand-elements: no ${LIST} in ${process.cwd()}`);
     process.exit(2);
   }
-  const config = JSON.parse(readFileSync(LIST, "utf8")) as Config;
   const i = process.argv.indexOf("--base");
   if (i >= 0 && !/^https?:$/.test(URL.parse(process.argv[i + 1] ?? "")?.protocol ?? "")) {
     console.error(USAGE);
     process.exit(2);
   }
-  const named = config.pages ?? [];
-  const { dir, at, exclude } = listedCatalog(config);
+  let config: Config;
   let site: ReturnType<typeof listedSite>;
-  try {
-    site = listedSite(config.site);
-  } catch (e) {
-    console.error(`brand-elements: ${(e as Error).message}`);
-    process.exit(2);
-  }
   let stories: string[] = [];
   try {
+    const raw = readElementsConfig(readFileSync(LIST, "utf8"));
+    config = {
+      pages: listedElementPages(raw.pages),
+      exceptions: listedElementExceptions(raw.exceptions),
+      lightOnly: raw.lightOnly === true,
+      csp: listedCsp(raw.csp),
+    };
+    const { dir, at, exclude } = listedCatalog({ catalog: raw.catalog });
+    site = listedSite(raw.site);
     if (config.csp !== undefined) policies(config.csp);
     if (dir) stories = catalogPages(dir, at, site?.dir, !!site || i >= 0, exclude, site?.at);
   } catch (e) {
     console.error(`brand-elements: ${(e as Error).message}`);
     process.exit(2);
   }
+  const named = config.pages;
   const pages = [...named, ...stories];
   if (!pages.length) {
     console.error(

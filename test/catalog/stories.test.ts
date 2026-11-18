@@ -6,7 +6,7 @@ import type { Browser } from "puppeteer-core";
 import { ELEMENTS, exceptionFindings, measurePage } from "../../scan/elements";
 import { catalogPages, launch, open, pool } from "../../scan/markers";
 import catalogs from "../../expert/catalogs.json";
-import { BASE, DIST, page, serveSite } from "./site";
+import { BASE, contrastMessageKey, DIST, page, serveSite } from "./site";
 
 // brand-elements over every element story, as a spoke's gate runs it over its catalog: each state
 // matches the element's rule, and every element shows on a story. The pages are the ones the
@@ -51,7 +51,7 @@ async function contrastFailures(url: string, css = "") {
     await open(tab, url);
     if (css) await tab.addStyleTag({ content: css });
     await tab.evaluate(axe.source);
-    const found = await tab.evaluate(async (unmeasured) => {
+    const nodes = await tab.evaluate(async () => {
       // `checks` is a run option axe documents and its types leave out.
       const options = {
         runOnly: ["color-contrast"],
@@ -61,12 +61,16 @@ async function contrastFailures(url: string, css = "") {
         document,
         options,
       );
-      const nodes = [...violations, ...incomplete]
-        .flatMap((r) => r.nodes)
-        .filter((n) => !unmeasured.includes(n.any[0]?.data?.messageKey));
-      return nodes.map((n) => `${n.target.join(" ")} ${JSON.stringify(n.any[0]?.data)}`);
-    }, UNMEASURED);
-    return found.map((f) => `${url}: ${f}`);
+      return [...violations, ...incomplete].flatMap((r) =>
+        r.nodes.map((node) => {
+          const data: unknown = node.any[0]?.data;
+          return { target: node.target.join(" "), data };
+        }),
+      );
+    });
+    return nodes
+      .filter(({ data }) => !UNMEASURED.includes(contrastMessageKey(data) ?? ""))
+      .map(({ target, data }) => `${url}: ${target} ${JSON.stringify(data)}`);
   } finally {
     await tab.close();
   }

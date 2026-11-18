@@ -3,6 +3,7 @@ import { test } from "./limit";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { getViteConfig } from "astro/config";
+import { experimental_AstroContainer } from "astro/container";
 import { createServer, type ViteDevServer } from "vite";
 import { ROOT } from "../scripts/git";
 
@@ -55,6 +56,19 @@ beforeAll(async () => {
 });
 afterAll(() => server?.close());
 
+type Component = Parameters<experimental_AstroContainer["renderToString"]>[0];
+const isAstroFactory = (value: unknown): value is Component =>
+  typeof value === "function" &&
+  "isAstroComponentFactory" in value &&
+  value.isAstroComponentFactory === true;
+
+async function loadComponent(path: string) {
+  const module: Record<string, unknown> = await server.ssrLoadModule(path);
+  const component = module.default;
+  if (!isAstroFactory(component)) throw new Error(`${path}: expected an Astro component`);
+  return component;
+}
+
 test("every component has placeholder props here", () => {
   expect(components.map(nameOf).sort()).toEqual(Object.keys(props).sort());
 });
@@ -63,8 +77,7 @@ test.each(components)(
   "%s renders standalone",
   async (path) => {
     const name = nameOf(path);
-    const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-    const component = (await server.ssrLoadModule(`/${path}.astro`)).default;
+    const component = await loadComponent(`/${path}.astro`);
     const container = await experimental_AstroContainer.create();
     const html: string = await container.renderToString(component, {
       props: props[name],
@@ -76,8 +89,7 @@ test.each(components)(
 );
 
 test("SpaceNav's home link takes hw-nav's weight: no weight class on its list", async () => {
-  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-  const component = (await server.ssrLoadModule("/expert/components/SpaceNav.astro")).default;
+  const component = await loadComponent("/expert/components/SpaceNav.astro");
   const container = await experimental_AstroContainer.create();
   const html: string = await container.renderToString(component, { props: props.SpaceNav });
   const beforeHome = html.slice(0, html.indexOf(`>${P} home<`));
@@ -86,8 +98,7 @@ test("SpaceNav's home link takes hw-nav's weight: no weight class on its list", 
 });
 
 test("SpaceNav takes its words from labels, English by default", async () => {
-  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-  const component = (await server.ssrLoadModule("/expert/components/SpaceNav.astro")).default;
+  const component = await loadComponent("/expert/components/SpaceNav.astro");
   const container = await experimental_AstroContainer.create();
   const branch = { ...node, href: "/space/branch", children: [node] };
   const render = (labels?: Record<string, unknown>) =>
@@ -117,8 +128,7 @@ test("SpaceNav takes its words from labels, English by default", async () => {
 }, 30_000);
 
 test("ListFilter's Filters button names the chosen values the server renders", async () => {
-  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-  const component = (await server.ssrLoadModule("/expert/components/ListFilter.astro")).default;
+  const component = await loadComponent("/expert/components/ListFilter.astro");
   const container = await experimental_AstroContainer.create();
   const facets = [{ param: "t", legend: P, options: [{ value: "a", label: "Alpha" }] }];
   const render = (t: string) =>
@@ -133,8 +143,7 @@ test("ListFilter's Filters button names the chosen values the server renders", a
 }, 30_000);
 
 test("Pill takes the hue table's night tone: ampersand's light tone, teal's night tone", async () => {
-  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-  const component = (await server.ssrLoadModule("/expert/components/Pill.astro")).default;
+  const component = await loadComponent("/expert/components/Pill.astro");
   const container = await experimental_AstroContainer.create();
   const night = async (color: string) =>
     /--hw-pill-hue-night: ([^"]*)/.exec(
@@ -145,8 +154,7 @@ test("Pill takes the hue table's night tone: ampersand's light tone, teal's nigh
 }, 30_000);
 
 test("Pill gives the warning role the warning tone, every other hue its wash", async () => {
-  const { experimental_AstroContainer } = await server.ssrLoadModule("astro/container");
-  const component = (await server.ssrLoadModule("/expert/components/Pill.astro")).default;
+  const component = await loadComponent("/expert/components/Pill.astro");
   const container = await experimental_AstroContainer.create();
   const render = (color: string) =>
     container.renderToString(component, { props: { ...props.Pill, color } });

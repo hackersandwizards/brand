@@ -1483,9 +1483,12 @@ test("toasts stack at the bottom centre; on a phone data-place=top holds them at
     const p = await browser.newPage();
     await p.setViewport({ width, height: 800 });
     await open(p, url);
-    const r = await p.$eval(".hw-toast", (t) => t.getBoundingClientRect().toJSON());
+    const r = await p.$eval(".hw-toast", (t) => {
+      const { left, top, bottom, width } = t.getBoundingClientRect();
+      return { left, top, bottom, width };
+    });
     await p.close();
-    return r as DOMRect;
+    return r;
   };
   const wide = await where(1280);
   expect(Math.abs(wide.left + wide.width / 2 - 640)).toBeLessThan(1);
@@ -1628,7 +1631,7 @@ test("in dense a choice, a field and a field select stand 38 px by mouse, 44 px 
         Math.round(e.getBoundingClientRect().height),
       ),
   );
-  expect(heights).toEqual([Array(6).fill(38), Array(6).fill(44)]);
+  expect(heights).toEqual([Array<number>(6).fill(38), Array<number>(6).fill(44)]);
 }, 30_000);
 
 // The night field's fill is a colour only, so the select keeps one chevron at every scale, in a

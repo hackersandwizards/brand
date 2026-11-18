@@ -7,3 +7,8 @@ export const answerHelp = (usage: string) => {
   console.log(usage);
   process.exit(0);
 };
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+export const isStringList = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === "string");

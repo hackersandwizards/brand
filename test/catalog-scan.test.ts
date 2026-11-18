@@ -1,4 +1,5 @@
 import { afterAll, expect } from "bun:test";
+import { z } from "astro/zod";
 import { test } from "./limit";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -57,12 +58,25 @@ const run = (script: string, args: string[] = []) => {
   const r = Bun.spawnSync(["bun", join(ROOT, "scan", script), ...args], { cwd: dir });
   return { code: r.exitCode, out: r.stdout.toString(), err: r.stderr.toString() };
 };
+const renderedPage = z.object({ page: z.string() });
+const markerReading = renderedPage.extend({ offset: z.number() });
+const elementsReport = z.object({ rendered: z.array(renderedPage), empty: z.array(z.string()) });
 const elements = (config: object, args: string[] = []) => {
   write("brand-elements.json", JSON.stringify(config));
   const r = run("elements.ts", ["--json", ...args]);
-  return { ...r, json: r.out ? JSON.parse(r.out) : undefined };
+  return {
+    ...r,
+    get json() {
+      return elementsReport.parse(JSON.parse(r.out));
+    },
+  };
 };
 const forkPages = (rendered: { page: string }[]) => [...new Set(rendered.map((f) => f.page))];
+const markerReadings = (out: string) => z.array(markerReading).parse(JSON.parse(out));
+const expectSinglePage = (pages: string[], pattern: RegExp) => {
+  expect(pages).toHaveLength(1);
+  expect(pages[0]).toMatch(pattern);
+};
 
 test("brand-elements: the home alone misses a story's fork, the catalog key finds it", () => {
   const home = elements({ pages: ["site/catalog/index.html"] });
@@ -110,7 +124,7 @@ test("brand-elements and brand-markers: an exclude glob leaves its stories out, 
   const markers = (exclude: string[]) => {
     write("brand-elements.json", JSON.stringify({ catalog: { dir: "site/catalog", exclude } }));
     const r = run("markers.ts", ["--scale", "2", "--json"]);
-    return (JSON.parse(r.out) as { page: string }[]).map((x) => x.page);
+    return markerReadings(r.out).map((x) => x.page);
   };
   expect(markers(["Lists/**"]).filter((p) => p.includes("Lifted"))).toEqual([]);
   expect(markers([]).filter((p) => p.includes("Lifted")).length).toBeGreaterThan(0);
@@ -126,10 +140,7 @@ test("brand-elements: a catalog folder without a story is a usage error, not a p
 });
 
 test("brand-markers: the home alone misses a story's lifted list, --catalog or the catalog key reads it", () => {
-  const off = (out: string) =>
-    (JSON.parse(out) as { page: string; offset: number }[]).filter(
-      (r) => !(Math.abs(r.offset) <= 0.25),
-    );
+  const off = (out: string) => markerReadings(out).filter((r) => !(Math.abs(r.offset) <= 0.25));
   rmSync(join(dir, "brand-elements.json"), { force: true });
   const home = run("markers.ts", ["--scale", "2", "--json", "site/catalog/index.html"]);
   expect([home.code, off(home.out)]).toEqual([0, []]);
@@ -142,22 +153,21 @@ test("brand-markers: the home alone misses a story's lifted list, --catalog or t
     "site/catalog/index.html",
   ]);
   expect(all.code).toBe(1);
-  expect(forkPages(off(all.out))).toEqual([
-    expect.stringContaining("/stories/Lists/Lifted/default/index.html"),
-  ]);
+  const pages = forkPages(off(all.out));
+  expect(pages).toHaveLength(1);
+  expect(pages[0]).toContain("/stories/Lists/Lifted/default/index.html");
   expect(run("markers.ts", ["--catalog", "empty/catalog"]).code).toBe(2);
   // Without --catalog, the catalog brand-elements.json names, on its site where it has one.
   for (const config of [{ catalog: "site/catalog" }, { site: "site", catalog: "site/catalog" }]) {
     write("brand-elements.json", JSON.stringify(config));
     const listed = run("markers.ts", ["--scale", "2", "--json"]);
     expect(listed.code).toBe(1);
-    expect(forkPages(off(listed.out))).toEqual([
-      expect.stringMatching(
-        config.site
-          ? /^http:\/\/[^/]+\/catalog\/stories\/Lists\/Lifted\/default\/$/
-          : /^file:.*\/stories\/Lists\/Lifted\/default\/index\.html$/,
-      ),
-    ]);
+    expectSinglePage(
+      forkPages(off(listed.out)),
+      config.site
+        ? /^http:\/\/[^/]+\/catalog\/stories\/Lists\/Lifted\/default\/$/
+        : /^file:.*\/stories\/Lists\/Lifted\/default\/index\.html$/,
+    );
   }
   write("brand-elements.json", JSON.stringify({ catalog: "empty/catalog" }));
   expect(run("markers.ts", ["site/catalog/index.html"]).code).toBe(2);
@@ -172,32 +182,35 @@ test("brand-markers: without pages named, the pages and site of brand-elements.j
   const markers = (config: object, args: string[] = []) => {
     write("brand-elements.json", JSON.stringify(config));
     const r = run("markers.ts", ["--scale", "2", "--json", ...args]);
-    return { code: r.code, err: r.err, pages: r.out ? forkPages(JSON.parse(r.out)) : [] };
+    return { code: r.code, err: r.err, pages: r.out ? forkPages(markerReadings(r.out)) : [] };
   };
   const plain = "site/catalog/stories/Text/Plain/default/index.html";
   const files = markers({
     pages: ["site/catalog/stories/Lists/Lifted/default/index.html", plain],
   });
   expect(files.code).toBe(1);
-  expect(files.pages).toEqual([expect.stringMatching(lifted)]);
+  expectSinglePage(files.pages, lifted);
   const served = markers({ site: "site", pages: ["/catalog/stories/Lists/Lifted/default/"] });
   expect(served.code).toBe(1);
-  expect(served.pages).toEqual([expect.stringMatching(/^http:\/\/[^/]+\/catalog\/stories\//)]);
+  expectSinglePage(served.pages, /^http:\/\/[^/]+\/catalog\/stories\//);
   // Pages without any marker measure nothing, which proves nothing.
   const none = markers({ pages: [plain] });
-  expect([none.code, none.err]).toEqual([1, expect.stringContaining("no marker on any page")]);
+  expect(none.code).toBe(1);
+  expect(none.err).toContain("no marker on any page");
   // A site path with no site to serve it is left out, named, rather than opened as a file.
   const unserved = markers({ pages: ["/design-system/", plain], catalog: "site/catalog" });
   expect(unserved.err).toContain("/design-system/: a site path, but no site or --base");
-  expect(unserved.pages).toEqual([expect.stringMatching(lifted)]);
+  expectSinglePage(unserved.pages, lifted);
   // --catalog names its own folder, read as files: the config's site stays unserved.
   const flagged = markers({ site: "site", pages: [] }, ["--catalog", "site/catalog"]);
-  expect(flagged.pages).toEqual([expect.stringMatching(/^file:.*\/Lifted\/default\/index\.html$/)]);
+  expectSinglePage(flagged.pages, /^file:.*\/Lifted\/default\/index\.html$/);
   // Control: a page named on the command line replaces the list.
   const named = markers({ site: "site", pages: ["/catalog/stories/Lists/Lifted/default/"] }, [
     "site/catalog/index.html",
   ]);
-  expect([named.code, named.pages]).toEqual([0, [expect.stringContaining("index.html")]]);
+  expect(named.code).toBe(0);
+  expect(named.pages).toHaveLength(1);
+  expect(named.pages[0]).toContain("index.html");
   rmSync(join(dir, "brand-elements.json"));
 }, 60_000);
 

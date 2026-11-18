@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, expect } from "bun:test";
 import { stretch, test } from "../limit";
-import type { Browser, Page } from "puppeteer-core";
+import type { Browser, HTTPRequest, Page } from "puppeteer-core";
 import { launch } from "../../scan/markers";
 import { BASE, page, serveSite } from "./site";
 
@@ -112,11 +112,14 @@ test("on a phone the facets fold behind the Filters button, and every target on 
 // The page as a browser whose module script failed to load: every module script dropped.
 const withoutModules = async (p: Page) => {
   await p.setRequestInterception(true);
-  p.on("request", async (request) => {
+  const intercept = async (request: HTTPRequest) => {
     if (request.resourceType() !== "document") return request.continue();
     const answer = await fetch(request.url());
     const body = (await answer.text()).replace(/<script type="module"[\s\S]*?<\/script>/g, "");
     return request.respond({ status: answer.status, contentType: "text/html", body });
+  };
+  p.on("request", (request) => {
+    intercept(request).catch(reportError);
   });
 };
 
@@ -186,9 +189,11 @@ test("a source page's rows load on first use; should they fail, the search goes 
 
   const q = await tab();
   await q.setRequestInterception(true);
-  q.on("request", (r) =>
-    r.resourceType() === "fetch" ? r.respond({ status: 503, body: "" }) : r.continue(),
-  );
+  q.on("request", (r) => {
+    (r.resourceType() === "fetch" ? r.respond({ status: 503, body: "" }) : r.continue()).catch(
+      reportError,
+    );
+  });
   await q.goto(story("source"), { waitUntil: "networkidle0" });
   // The typed search goes there on its own once the load fails.
   await q.focus('input[name="q"]');
@@ -305,15 +310,17 @@ test("Back from a typed search recorded before the source page's load failed doe
 test("a source page's relative links and images resolve against that page", async () => {
   const p = await tab();
   await p.setRequestInterception(true);
-  p.on("request", (r) =>
-    r.resourceType() === "fetch"
-      ? r.respond({
-          status: 200,
-          contentType: "text/html",
-          body: `<ul data-filter-list><li data-filter-item data-filter-text="context"><a href="talk/" data-filter-title>Context</a><img src="t.png" srcset="t.png 1x, t2.png 2x" alt=""></li></ul>`,
-        })
-      : r.continue(),
-  );
+  p.on("request", (r) => {
+    const response =
+      r.resourceType() === "fetch"
+        ? r.respond({
+            status: 200,
+            contentType: "text/html",
+            body: `<ul data-filter-list><li data-filter-item data-filter-text="context"><a href="talk/" data-filter-title>Context</a><img src="t.png" srcset="t.png 1x, t2.png 2x" alt=""></li></ul>`,
+          })
+        : r.continue();
+    response.catch(reportError);
+  });
   await p.goto(story("source"), { waitUntil: "networkidle0" });
   await p.type('input[name="q"]', "context");
   await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 1);
@@ -333,9 +340,9 @@ test("on a phone a topic tapped while the source loads names itself on the Filte
   await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
   const { promise: held, resolve: release } = Promise.withResolvers<void>();
   await p.setRequestInterception(true);
-  p.on("request", async (r) => {
-    if (r.resourceType() === "fetch") await held;
-    r.continue().catch(() => {});
+  p.on("request", (r) => {
+    if (r.resourceType() === "fetch") held.then(() => r.continue()).catch(() => {});
+    else r.continue().catch(() => {});
   });
   try {
     await p.goto(story("source"), { waitUntil: "load" });
@@ -572,9 +579,10 @@ test("under browse active and listed, no count line shows before the script runs
     // The module waits until the first frame's count line is read.
     const { promise: held, resolve: release } = Promise.withResolvers<void>();
     await p.setRequestInterception(true);
-    p.on("request", async (r) => {
-      if (r.url().includes("ListFilter.astro_astro_type_script")) await held;
-      void r.continue();
+    p.on("request", (r) => {
+      if (r.url().includes("ListFilter.astro_astro_type_script"))
+        held.then(() => r.continue()).catch(reportError);
+      else r.continue().catch(reportError);
     });
     // A module script holds DOMContentLoaded, so the page is read while it loads.
     const loaded = p.goto(story(name));

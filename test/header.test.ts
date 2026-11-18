@@ -8,6 +8,7 @@ import type { Browser } from "puppeteer-core";
 import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
 import { launch } from "../scan/markers";
 import catalogs from "../expert/catalogs.json";
+import { isStringList } from "../scan/help";
 import { ROOT } from "../scripts/git";
 
 const SCRATCH = mkdtempSync(join(tmpdir(), "hw-header-"));
@@ -54,7 +55,11 @@ const misses = (css: string, width: number): string[] => {
     ],
     { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
   );
-  return JSON.parse(/<pre id="out">(.*?)<\/pre>/s.exec(dom)![1].replace(/&quot;/g, '"'));
+  const result: unknown = JSON.parse(
+    /<pre id="out">(.*?)<\/pre>/s.exec(dom)![1].replace(/&quot;/g, '"'),
+  );
+  if (!isStringList(result)) throw new Error("Expected a list of header hit-test misses");
+  return result;
 };
 
 describe("expert/header.css", () => {

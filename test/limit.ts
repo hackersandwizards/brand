@@ -6,7 +6,9 @@ export const stretch = Number(process.env.SCAFFOLDING_TEST_TIMEOUT_MS || 5000) /
 const scaled = (ms: unknown) => (typeof ms === "number" ? ms * stretch : ms);
 const stretched = <T extends typeof bunTest>(t: T): T =>
   new Proxy(t, {
-    apply: (target, self, [name, fn, ms]) => Reflect.apply(target, self, [name, fn, scaled(ms)]),
+    apply: (target, self, [name, fn, ms]: unknown[]) => {
+      Reflect.apply(target, self, [name, fn, scaled(ms)]);
+    },
     get: (target, key, receiver) =>
       key === "each"
         ? (...table: unknown[]) =>

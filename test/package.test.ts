@@ -12,14 +12,13 @@ const packed = listPacked();
 test("the package ships only the core", () => {
   expect(packed.length).toBeGreaterThan(30);
   expect(packed.filter((f) => !SHIPPED.test(f) || PRINT_MASTERS.test(f))).toEqual([]);
-  expect(packed).toEqual(
-    expect.arrayContaining([
-      "LICENSE",
-      "tokens/fonts/OFL-Inter.txt",
-      "tokens/fonts/OFL-JetBrainsMono.txt",
-      "tokens/LICENSE-Lucide.txt",
-    ]),
-  );
+  for (const file of [
+    "LICENSE",
+    "tokens/fonts/OFL-Inter.txt",
+    "tokens/fonts/OFL-JetBrainsMono.txt",
+    "tokens/LICENSE-Lucide.txt",
+  ])
+    expect(packed).toContain(file);
 });
 
 test("every shipped PNG is an image, not a Git LFS pointer", () => {

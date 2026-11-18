@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import sharp from "sharp";
+import { version } from "../../package.json";
 import { findChrome, NO_KEYCHAIN } from "../linkedin-visuals/render";
 import { lfsOid } from "../../scan/colours";
 
@@ -22,7 +23,7 @@ function lfs(file: string): string {
 export const fileUrl = (path: string) => pathToFileURL(path).href;
 let emoji: string | undefined;
 export const brand = {
-  version: JSON.parse(readFileSync(join(BRAND, "package.json"), "utf8")).version as string,
+  version,
   // Read on use, so a generator that draws no emoji runs where the master is still a pointer.
   get emoji() {
     return (emoji ??= fileUrl(lfs("emoji-logo-short.png")));
@@ -91,13 +92,34 @@ export async function browser() {
       pending.clear();
     });
     ws.addEventListener("message", (e) => {
-      const m = JSON.parse(String(e.data));
-      if (m.id && pending.has(m.id)) {
-        const p = pending.get(m.id)!;
-        pending.delete(m.id);
-        if (m.error) p.reject(new Error(m.error.message));
-        else p.resolve(m.result);
-      } else for (const f of events) f(m);
+      const message: unknown = JSON.parse(String(e.data));
+      if (!message || typeof message !== "object") return;
+      if ("id" in message && typeof message.id === "number") {
+        const request = pending.get(message.id);
+        if (!request) return;
+        pending.delete(message.id);
+        if ("error" in message && message.error) {
+          const error = message.error;
+          request.reject(
+            new Error(
+              typeof error === "object" && "message" in error && typeof error.message === "string"
+                ? error.message
+                : "Invalid Chrome DevTools error",
+            ),
+          );
+        } else if (
+          "result" in message &&
+          message.result &&
+          typeof message.result === "object" &&
+          !Array.isArray(message.result)
+        ) {
+          request.resolve({ ...message.result });
+        } else request.reject(new Error("Invalid Chrome DevTools result"));
+      } else if ("method" in message && typeof message.method === "string") {
+        const sessionId = "sessionId" in message ? message.sessionId : undefined;
+        if (sessionId === undefined || typeof sessionId === "string")
+          for (const f of events) f({ method: message.method, sessionId });
+      }
     });
     const { targetId } = await send("Target.createTarget", { url: "about:blank" });
     ({ sessionId } = (await send("Target.attachToTarget", { targetId, flatten: true })) as {

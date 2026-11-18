@@ -28,20 +28,20 @@ test("sizes names each logo SVG's and logo PNG's width and height, as the file s
   // The lockup and wordmark PNGs the package ships (package.json files); a PNG's header holds its
   // width and height at bytes 16 to 24.
   const pngs = files.filter((f) => /^(lockup|wordmark).*\.png$/.test(f));
-  const measured = Object.fromEntries([
-    ...svgs.flatMap((f) => {
+  const measured = Object.fromEntries<{ width: number; height: number }>([
+    ...svgs.flatMap((f): [string, { width: number; height: number }][] => {
       const root = /<svg[^>]*>/.exec(readFileSync(join(ROOT, "logos", f), "utf8"))![0];
       const [w, h] = [/ width="(\d+)"/, / height="(\d+)"/].map((r) => r.exec(root)?.[1]);
       return w && h ? [[f, { width: Number(w), height: Number(h) }]] : [];
     }),
-    ...pngs.map((f) => {
+    ...pngs.map((f): [string, { width: number; height: number }] => {
       const head = readFileSync(join(ROOT, "logos", f)).subarray(0, 24);
       expect(head.subarray(1, 4).toString()).toBe("PNG");
       return [f, { width: head.readUInt32BE(16), height: head.readUInt32BE(20) }];
     }),
   ]);
   expect(pngs.length).toBeGreaterThan(0);
-  expect(rules.sizes as Record<string, unknown>).toEqual(measured);
+  expect<Record<string, unknown>>(rules.sizes).toEqual(measured);
   expect(rules.sizes["lockup-screen.svg"]).toEqual({ width: 8042, height: 1489 });
   expect(rules.sizes["lockup.png"]).toEqual({ width: 2416, height: 447 });
 });

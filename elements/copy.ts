@@ -114,7 +114,7 @@ function wire(button: HTMLElement) {
   if (!wireOnce(button, "copy")) return;
   labels.set(button, [...button.childNodes]);
   button.hidden = false;
-  button.addEventListener("click", async () => {
+  const pressButton = async () => {
     const press = ++presses;
     latest.set(button, press);
     const de = german();
@@ -138,6 +138,9 @@ function wire(button: HTMLElement) {
     note.textContent = said;
     copyStatus().append(note);
     setTimeout(() => note.remove(), 1000);
+  };
+  button.addEventListener("click", () => {
+    pressButton().catch(reportError);
   });
 }
 

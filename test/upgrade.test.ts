@@ -6,6 +6,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import own from "../package.json";
+import { isRecord } from "../scan/help";
 
 const ROOT = join(import.meta.dir, "..");
 const OLD = "0.0.1";
@@ -108,7 +109,8 @@ test("brand-colours --tighten during a pin raise lists the committed file's new 
   });
   raise(dir, { "c.css": ".c { border-radius: 8px; }\n" });
   expect(run(dir, "colours.ts", "--tighten")).toBe(0);
-  const next = JSON.parse(readFileSync(join(dir, "brand-colours.json"), "utf8"));
+  const next: unknown = JSON.parse(readFileSync(join(dir, "brand-colours.json"), "utf8"));
+  if (!isRecord(next)) throw new Error("Expected brand-colours.json to hold an object");
   expect(next["a.css"]).toMatchObject({ hex: 1, radius: 1, reason: "r" });
   expect(next["b.css"]).toMatchObject({ radius: 1, reason: "" });
   expect(next["c.css"]).toBeUndefined();

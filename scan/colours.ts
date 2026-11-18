@@ -32,7 +32,7 @@ import { extname, join } from "node:path";
 import manifest from "../manifest.json";
 import own from "../package.json";
 import { colors, tokens } from "../generated/tokens";
-import { answerHelp } from "./help";
+import { answerHelp, isRecord } from "./help";
 
 const USAGE = `usage: brand-colours [--tighten]
 Counts colours, radii, shadows and fonts off the brand tokens in the working tree and compares
@@ -611,9 +611,13 @@ export const listTree = (cmd: string) => {
 
 /** The brand version a package.json pins as a Git tag (`#v<version>`), if any. */
 export const pinnedVersion = (packageJson: string) => {
-  const pkg = JSON.parse(packageJson);
+  const pkg: unknown = JSON.parse(packageJson);
+  if (!isRecord(pkg)) return;
   for (const field of ["dependencies", "devDependencies", "optionalDependencies"]) {
-    const m = /#v([^#\s]+)$/.exec(pkg[field]?.["@hackersandwizards/brand"] ?? "");
+    const dependencies = pkg[field];
+    const pin = isRecord(dependencies) ? dependencies["@hackersandwizards/brand"] : undefined;
+    if (typeof pin !== "string") continue;
+    const m = /#v([^#\s]+)$/.exec(pin);
     if (m) return m[1];
   }
 };
