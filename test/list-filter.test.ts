@@ -49,6 +49,19 @@ describe("list filter", () => {
     expect(matches(items[1]!, { q: "context", facets: { topic: "tools", tag: "" } })).toBe(false);
   });
 
+  it("reads pasted queries with mixed case and whitespace and requires every word", () => {
+    const words = searchWords(" \tContext\n  ENGINEERING  ");
+    expect(words).toEqual(["context", "engineering"]);
+    expect(hasWords("Context and productivity", words)).toBe(false);
+    expect(hasWords("Engineering in context", words)).toBe(true);
+  });
+
+  it("treats either a query or a chosen facet as active", () => {
+    expect(isActive({ q: " context ", facets: { topic: "", tag: "" } })).toBe(true);
+    expect(isActive({ q: " \t ", facets: { topic: "", tag: "mcp" } })).toBe(true);
+    expect(isActive({ q: " \t ", facets: { topic: "", tag: "" } })).toBe(false);
+  });
+
   it("counts a facet's values under the search and the other facets, not under itself", () => {
     const state = { q: "context", facets: { topic: "tools", tag: "" } };
     const topics = tally(items, state, "topic");
@@ -62,6 +75,11 @@ describe("list filter", () => {
     expect(stateUrl("http://x/knowledge?topic=tools&pin=1", state)).toBe(
       "http://x/knowledge?pin=1&q=context&tag=mcp",
     );
+  });
+
+  it("clears the old query and facets without dropping the page fragment", () => {
+    const href = "http://x/knowledge?q=context&topic=tools&pin=1#list";
+    expect(stateUrl(href, { q: "", facets: { topic: "" } })).toBe("http://x/knowledge?pin=1#list");
   });
 
   it("marks the search words and escapes the rest", () => {
@@ -88,6 +106,26 @@ describe("list filter", () => {
       "Pricing agentic coding",
     ]);
     expect(ranked(titles, (t) => t, " ")).toBe(titles);
+  });
+
+  it("gives a title starting with the query priority over a shorter title ending with it", () => {
+    const titles = ["A Guide to Context", "Context is Everything"];
+    expect(ranked(titles, (t) => t, "context")).toEqual([
+      "Context is Everything",
+      "A Guide to Context",
+    ]);
+    expect(ranked(["Müllerhans", "Mueller Hans"], (t) => t, "  müller hans  ")).toEqual([
+      "Mueller Hans",
+      "Müllerhans",
+    ]);
+  });
+
+  it("renders titles as text and leaves a title alone when there is nothing to mark", () => {
+    expect(highlight(`Jo's "Guide" >`, ["guide"])).toBe(
+      "Jo&#39;s &quot;<mark>Guide</mark>&quot; &gt;",
+    );
+    expect(highlight("Cafe\u0301", [])).toBe("Cafe\u0301");
+    expect(highlight("Café", searchWords("\u0301"))).toBe("Café");
   });
 
   it("finds a name however its umlaut, accent or ß is typed, and marks it", () => {

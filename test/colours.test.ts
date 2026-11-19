@@ -65,7 +65,7 @@ test("flags a count above its entry, an unlisted file, a missing reason, a grown
   expect(violations(a, allow, allow)).toEqual([]);
   expect(
     violations({ "a.css": { ...zero, hex: 3 }, "b.css": { ...zero, font: 1 } }, allow, allow),
-  ).toHaveLength(2);
+  ).toEqual(["a.css: hex 3, allowed 2", "b.css: font 1, allowed 0"]);
   expect(violations(a, { "a.css": { ...zero, hex: 2, reason: " " } }, undefined)).toHaveLength(1);
   expect(violations(a, allow, { "a.css": { ...zero, hex: 1, reason: "r" } })).toHaveLength(1);
   expect(violations({}, allow, allow)).toEqual([
@@ -98,7 +98,10 @@ test("a partner's mark may be listed against HEAD; a partner entry needs a name,
   ).toHaveLength(1);
   // Only an SVG named for its owner is a partner's mark.
   const note = { "a.ts": { ...zero, hex: 1, partner: "A Conference", reason: "r" } };
-  expect(violations({ "a.ts": { ...zero, hex: 1 } }, note, {})).toHaveLength(2);
+  expect(violations({ "a.ts": { ...zero, hex: 1 } }, note, {})).toEqual([
+    `brand-colours.json: a.ts: "partner" names a third party's mark, an SVG, by name`,
+    "brand-colours.json: a.ts hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+  ]);
   const unnamed = { [logo]: { ...zero, hex: 32, partner: " ", reason: "r" } };
   expect(violations({ [logo]: { ...zero, hex: 32 } }, unnamed, {})).toHaveLength(2);
   expect(tighten({ [logo]: { ...zero, hex: 30 } }, partner)).toEqual(partner);
@@ -119,6 +122,18 @@ test("an entry turned partner frees no total for another file to grow into", () 
   const files = { "a.svg": { ...zero, hex: 50 }, "b.css": { ...zero, hex: 40 } };
   expect(violations(files, now, head)).toEqual([
     "brand-colours.json: b.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+  ]);
+});
+
+test("removing a partner mark frees no allowance and adding one with a count costs none", () => {
+  const committed = { "old.svg": { hex: 20, partner: "Prior sponsor", reason: "Sponsor mark" } };
+  const allow = {
+    "new.svg": { hex: 8, partner: "Current sponsor", reason: "Sponsor mark" },
+    "page.css": { hex: 1, reason: "Custom colour" },
+  };
+  const files = { "new.svg": { ...zero, hex: 8 }, "page.css": { ...zero, hex: 1 } };
+  expect(violations(files, allow, committed)).toEqual([
+    "brand-colours.json: page.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
   ]);
 });
 
@@ -263,6 +278,21 @@ test("rgb() and hsl() literals count like hex: off-token as rgb, a token's colou
   expect(hexes).toEqual(["rgba(255, 214, 0, 0.5)", "hsl(120, 100%, 25%)"]);
 });
 
+test.each([
+  ["RGB", " 100% 0% 20% / 40% ", "#ff0033"],
+  ["hsl", "0.5turn 50% 25%", "#206060"],
+  ["hsl", "100grad 100% 50%", "#80ff00"],
+  ["hsl", "1.5707963267948966rad 100% 50%", "#80ff00"],
+  ["hsl", "120deg 50% 75%", "#9fdf9f"],
+])("resolves %s(%s) before opacity", (fn, args, hex) => {
+  expect(fnColour(fn, args)).toBe(hex);
+});
+
+test("a channel with a prefix, trailing unit or CSS keyword is no RGB literal", () => {
+  for (const args of ["a10 20 30", "10px 20 30", "10 none 30", "10 20"])
+    expect(fnColour("rgb", args)).toBeUndefined();
+});
+
 test("a radius or shadow off the tokens counts, a token, a keyword or a reference does not", () => {
   const ok = scanSource(
     `.a { border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,.05); }
@@ -286,6 +316,163 @@ test("a radius or shadow off the tokens counts, a token, a keyword or a referenc
     ".tsx",
   ).counts;
   expect(bad).toEqual({ ...zero, radius: 9, shadow: 5 });
+});
+
+test("recognises a token shadow across CSS formatting and a radius from the theme", () => {
+  const { counts } = scanSource(
+    `.a {
+      box-shadow: 0  2px   4px RGBA(  0 ,  0 , 0 , .05  ) !important;
+      border-radius: theme(borderRadius.brand);
+    }
+    .b { border-radius: theme(borderRadius.brand) / 12px; }`,
+    ".css",
+  );
+  expect(counts).toEqual({ ...zero, radius: 1 });
+});
+
+test("only reads live styling after markup, CSS and script comments", () => {
+  const { counts, hexes } = scanSource(
+    `<!-- <path fill="#123456" />
+         <path fill="#654321" /> -->
+     <style media="screen">/* .a { color:#ff0000 } */
+       .b { background: url(//cdn.example/image.png); color: #aabbcc; }
+     </style>
+     <script>
+       // const unused = { color: "#decade" };
+       const active = { color: "#bada55" };
+     </script>`,
+    ".astro",
+  );
+  expect(counts).toEqual({ ...zero, hex: 2 });
+  expect(hexes).toEqual(["#aabbcc", "#bada55"]);
+  expect(scanSource("// color: #123456\nconst value = 0;", ".ts").counts).toEqual(zero);
+  expect(scanSource("const color = rgb(10, 20, 30)// custom ink", ".ts").counts).toEqual({
+    ...zero,
+    rgb: 1,
+  });
+});
+
+test("a numeric issue anchor or spaced SVG fragment is distinct from a short colour literal", () => {
+  expect(scanSource('<a href="#1222">Issue #1222</a><path fill="#1222" />', ".html").hexes).toEqual(
+    ["#1222"],
+  );
+  expect(scanSource('<path fill="url(  #fab)" />', ".svg").counts).toEqual(zero);
+});
+
+test("preserves a diagnostic's alpha channel and gives it a consistent hex spelling", () => {
+  const { counts, hexes } = scanSource(".shape { background: #F4A3C2DD; }", ".css");
+  expect(counts).toEqual({ ...zero, hex: 1 });
+  expect(hexes).toEqual(["#f4a3c2dd"]);
+});
+
+test("counts each literal in a colour mix once, including repeated names", () => {
+  const { counts, hexes } = scanSource(
+    `const style = { color: "color-mix(in srgb, tomato 30%, tomato)", backgroundColor: "black" };`,
+    ".tsx",
+  );
+  expect(counts).toEqual({ ...zero, hex: 2, tokenHex: 1 });
+  expect(hexes).toEqual(["tomato", "tomato"]);
+});
+
+test("finds colour mix arguments inside a CSS template literal", () => {
+  const src = "const styles = `.card { background: color-mix(in srgb, tomato 40%, white); }`";
+  const { counts, hexes } = scanSource(src, ".ts");
+  expect(counts).toEqual({ ...zero, hex: 1, tokenHex: 1 });
+  expect(hexes).toEqual(["tomato"]);
+});
+
+test("Python floor division does not hide a colour later on the same line", () => {
+  const src = 'width = width // 2; draw(size=width, color="tomato")';
+  expect(scanSource(src, ".py").hexes).toEqual(["tomato"]);
+});
+
+test("a JSX component can receive a brand role while a native element sets a literal colour", () => {
+  const { counts, hexes } = scanSource(
+    `<Badge
+       color = "red"
+     />
+     <path fill={tone || "black"} />
+     <path color="tomato" />`,
+    ".tsx",
+  );
+  expect(counts).toEqual({ ...zero, hex: 1, tokenHex: 1 });
+  expect(hexes).toEqual(["tomato"]);
+});
+
+test("a multiline JSX value can set a colour, while a palette lookup key sets none", () => {
+  const { counts, hexes } = scanSource(
+    `<path fill={ready &&\n       "tomato"}
+       stroke={"purple"   in palette ? palette.purple : "black"} />`,
+    ".tsx",
+  );
+  expect(counts).toEqual({ ...zero, hex: 1, tokenHex: 1 });
+  expect(hexes).toEqual(["tomato"]);
+});
+
+test("scans the literal fallback colours in an SVG fill alongside an interpolated paint server", () => {
+  const src =
+    "const paint = `<path fill=\"${primary ? 'url(#first)' : 'url(#second)'} ${dark ? 'white' : 'tomato'}\"/>`;";
+  const { counts, hexes } = scanSource(src, ".ts");
+  expect(counts).toEqual({ ...zero, hex: 1, tokenHex: 1 });
+  expect(hexes).toEqual(["tomato"]);
+});
+
+test("reports the first font in a quoted shorthand with a weight and line height", () => {
+  const { counts, fonts } = scanSource(
+    `const inherited = { font: useSystemFont };
+     const quoted = { font: 'italic 700 12px/1.5 "Times New Roman", Georgia' };`,
+    ".tsx",
+  );
+  expect(counts).toEqual({ ...zero, font: 1 });
+  expect(fonts).toEqual(["Times New Roman"]);
+});
+
+test("reports the font stack's leading family and the Tailwind serif class", () => {
+  const src = `<p class="font-serif" style="font-family: Georgia, serif">Example</p>`;
+  expect(scanSource(src, ".html").fonts).toEqual(["Georgia", "font-serif"]);
+});
+
+test("allows a fallback face declaration but reports text explicitly set in that face", () => {
+  const { counts, fonts } = scanSource(
+    `@font-face { font-family: "Inter Fallback"; src: local("Arial"); }
+     body { font-family: "Inter Fallback"; }`,
+    ".css",
+  );
+  expect(counts).toEqual({ ...zero, font: 1 });
+  expect(fonts).toEqual(["Inter Fallback"]);
+});
+
+test("ignores comments before a font family in stylesheet values", () => {
+  const src = ".a { font-family: /* Web face */ Inter, sans-serif; }";
+  expect(scanSource(src, ".css").counts).toEqual(zero);
+  expect(scanSource(`<style>${src}</style>`, ".astro").counts).toEqual(zero);
+});
+
+test("reports both families in a padded, interpolated font attribute", () => {
+  const src = "const label = `<text font-family=\"  ${wide ? 'Arial' : 'Georgia'}\">`";
+  const { counts, fonts } = scanSource(src, ".ts");
+  expect(counts).toEqual({ ...zero, font: 2 });
+  expect(fonts).toEqual(["Arial", "Georgia"]);
+});
+
+test("a pin change may add up to the scanner's count for the file as committed", () => {
+  const committed = { "older.css": { hex: 1, reason: "Existing artwork" } };
+  const current = { ...committed, "art.css": { hex: 2, reason: "Existing artwork" } };
+  const files = { "older.css": { ...zero, hex: 1 }, "art.css": { ...zero, hex: 2 } };
+  expect(violations(files, current, committed, { "art.css": { ...zero, hex: 2 } })).toEqual([]);
+  expect(violations(files, current, committed, { "art.css": { ...zero, hex: 1 } })).toEqual([
+    "brand-colours.json: art.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+  ]);
+});
+
+test("a clean file with an empty reason gets distinct allowlist findings", () => {
+  expect(
+    violations({ "art.css": zero }, { "art.css": { hex: 1, reason: " " } }, undefined),
+  ).toEqual([
+    "brand-colours.json: art.css: hex 0, allowed 1; lower it (brand-colours --tighten)",
+    "brand-colours.json: art.css names no reason",
+    "brand-colours.json: art.css is clean; drop its entry (brand-colours --tighten)",
+  ]);
 });
 
 test("an SVG may write a token hex and the tint ladder, never an off-ladder colour", () => {

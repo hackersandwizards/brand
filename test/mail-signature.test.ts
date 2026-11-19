@@ -65,6 +65,44 @@ test("the LinkedIn field takes only an https: URL", () => {
     );
 });
 
+test("trims pasted contact details and prints a LinkedIn address without its scheme", () => {
+  const fields = {
+    name: "  Example Person ",
+    role: " Engineer  ",
+    phone: "  +49 40 1234 5678  ",
+    linkedin: "  https://linkedin.com/in/example  ",
+  };
+  const text = fillSignature(template("txt"), fields, "text");
+  expect(text.split("\n").slice(0, 3)).toEqual([
+    "Example Person",
+    "Engineer, hackers&wizards",
+    "+49 40 1234 5678 | hackersandwizards.dev | linkedin.com/in/example",
+  ]);
+  expect(text).toMatch(/\S\n$/);
+  expect(fillSignature(template("html"), fields, "html")).toContain(
+    'href="https://linkedin.com/in/example"',
+  );
+});
+
+test("leaves only the website when the phone and LinkedIn fields are blank or absent", () => {
+  const fields = { name: "Example Person", role: "Engineer" };
+  for (const optional of [fields, { ...fields, phone: "  ", linkedin: "  " }]) {
+    const text = fillSignature(template("txt"), optional, "text");
+    const html = fillSignature(template("html"), optional, "html");
+    expect(text.split("\n")[2]).toBe("hackersandwizards.dev");
+    expect([...html.matchAll(/<a\s+href="([^"]+)"/g)].map((match) => match[1])).toEqual([
+      "https://www.hackersandwizards.dev/",
+    ]);
+  }
+});
+
+test("an accented name stays plain in text and is escaped in HTML", () => {
+  const custom = "\n  {{name}}{{#tel}} ({{tel}}){{/tel}}\n\n";
+  const fields = { name: "Joël & Co.", role: "Engineer" };
+  expect(fillSignature(custom, fields, "text")).toBe("Joël & Co.\n");
+  expect(fillSignature(custom, fields, "html")).toBe("\n  Jo&#235;l &#38; Co.\n\n");
+});
+
 // ISO 3166-1 alpha-2, for a form's country field or structured data.
 test("the imprint names its country's ISO code", () => {
   expect(i.countryCode).toBe("DE");

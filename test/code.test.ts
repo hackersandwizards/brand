@@ -55,6 +55,18 @@ test("the block's class is set once, even where the theme's name already gave it
   expect(pre.properties.class).toBe("astro-code hw-code");
 });
 
+test("keeps the block's existing classes when their separators include tabs and spaces", () => {
+  const pre = { properties: { class: "astro-code \t hw-code-theme  hw-code" } };
+  codeClasses.pre(pre);
+  expect(pre.properties.class).toBe("astro-code hw-code-theme hw-code");
+});
+
+test("a token with no explicit colour can still be bold", () => {
+  const node = { properties: {} };
+  codeClasses.span(node, 0, 0, node, { fontStyle: 2 });
+  expect(node.properties).toEqual({ class: "hw-code-bold" });
+});
+
 test("the terminal's 16 ANSI colours are core colours", () => {
   const core = new Set(Object.values(colors).map((c) => c.toLowerCase()));
   const ansi = Object.entries(theme.colors).filter(([k]) => k.startsWith("terminal.ansi"));

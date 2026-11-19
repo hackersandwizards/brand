@@ -42,6 +42,33 @@ test("reads every declaration of tokens.css", () => {
   expect(tokens["--color-teal"]).toBe("#1a7285");
 });
 
+test("reads compact and multiline custom properties and skips commented theme blocks", () => {
+  expect(
+    parseTokens(`/* Old theme
+      @theme { --retired: 1px; }
+    */
+    @theme {
+      --step:/* base step */ 1rem;
+      --measure:2rem;
+      --grid  : repeat(
+        2,   minmax(0, 1fr)
+      );
+    }`),
+  ).toEqual({ "--step": "1rem", "--measure": "2rem", "--grid": "repeat(2, minmax(0, 1fr))" });
+});
+
+test("reads adjacent theme variants with omitted final semicolons", () => {
+  expect(
+    parseTokens(`@theme   static   { --step: 1rem }
+    @theme inline{ --gap: var(--step) }`),
+  ).toEqual({ "--step": "1rem", "--gap": "var(--step)" });
+});
+
+test("reports a missing or unreadable theme block before generating tokens", () => {
+  for (const css of ["body { font-size: 1rem }", "@theme { .nested { --step: 1rem } }"])
+    expect(() => parseTokens(css)).toThrow("a @theme block parseTokens cannot read");
+});
+
 test("the data formats carry expert.css's type steps, its aliases left out; the CSS formats do not", () => {
   const expert = readFileSync(join(ROOT, "expert/expert.css"), "utf8");
   const generated = (file: string) => readFileSync(join(ROOT, "generated", file), "utf8");
@@ -146,6 +173,28 @@ test("fonts.json names each family tokens.css leads with, and every file it list
   for (const stack of [tokens["--font-sans"], tokens["--font-mono"]])
     expect(fonts.faces.map((f) => `"${f.fontFamily}"`)).toContain(stack.split(",")[0]);
   for (const f of fonts.faces) expect(existsSync(join(ROOT, "tokens/fonts", f.file))).toBe(true);
+});
+
+test("font data skips commented faces and keeps the live face's descriptors", () => {
+  const css = String.raw`/* @font-face {
+    font-family: "Retired";
+    src: url("fonts/retired.woff2") format("woff2");
+  } */
+  @font-face {
+    font-family: "Example \"Text\"";
+    src: url("fonts/example.woff2") format("woff2");
+    font-weight: /* variable range */ 100   900;
+    unicode-range: U+0020, U+0050-0059;
+  }`;
+  expect(fontFaces(css)).toEqual([
+    {
+      file: "example.woff2",
+      format: "woff2",
+      fontFamily: String.raw`Example \"Text\"`,
+      fontWeight: "100 900",
+      unicodeRange: "U+0020,U+0050-0059",
+    },
+  ]);
 });
 
 // A static latin-ext face covers what its Latin file lacks only if its range is fonts.css's.

@@ -34,3 +34,18 @@ test("flags an unlisted fork, an entry without a reason, one added against HEAD 
     "brand-scan.json: pill forks nothing; drop its entry (brand-scan --tighten)",
   ]);
 });
+
+test("fork findings name the files and the reason a new allowlist entry is blocked", () => {
+  const found = { pill: ["features/Pill.astro", "shared/pill.tsx"] };
+  expect(unlisted(found, {}, {})).toEqual([
+    "features/Pill.astro, shared/pill.tsx: forks the expert component pill; import it from the package",
+  ]);
+  expect(unlisted(found, { pill: " " }, { pill: "Old entry" })).toEqual([
+    "brand-scan.json: pill names no reason",
+  ]);
+  const allow = { pill: "Existing layout" };
+  expect(unlisted(found, allow, {}, (key) => key === "pill")).toEqual([]);
+  expect(unlisted(found, allow, {}, (key) => key === "header")).toEqual([
+    "brand-scan.json: pill added against HEAD; the list may only shrink, or during a pin change name a fork committed as is",
+  ]);
+});

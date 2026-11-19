@@ -134,6 +134,55 @@ test("flags an unlisted copy, an entry without a reason, one added against HEAD 
   ]);
 });
 
+test("copy findings identify the file and reason, with new entries allowed only for files at the pin change", () => {
+  const path = "src/assets/copied.svg";
+  const found = { [path]: "identical to brand logos/wordmark.svg" };
+  expect(unlistedCopies(found, {}, {})).toEqual([
+    "src/assets/copied.svg: identical to brand logos/wordmark.svg; import it from the package",
+  ]);
+  expect(unlistedCopies(found, { [path]: " " }, { [path]: "Old entry" })).toEqual([
+    "brand-copies.json: src/assets/copied.svg names no reason",
+  ]);
+  const allow = { [path]: "Existing artwork" };
+  expect(unlistedCopies(found, allow, {}, (p) => p === path)).toEqual([]);
+  expect(unlistedCopies(found, allow, {}, (p) => p === "other.svg")).toEqual([
+    "brand-copies.json: src/assets/copied.svg added against HEAD; the list may only shrink, or during a pin change name a file committed as is",
+  ]);
+});
+
+test("a composed document can carry the lockup in a data URL with leading whitespace", () => {
+  const lockup = readFileSync(join(ROOT, "logos/lockup.svg"), "utf8");
+  const image = `<img src="data:image/svg+xml,${encodeURIComponent(` \n  ${lockup}`)}">`;
+  const scan = (head: string) =>
+    copyOf(
+      "document.html",
+      () => `${head}\n${image}`,
+      () => undefined,
+    );
+  expect(scan("<style data-hw-document></style>")).toBeUndefined();
+  expect(scan("<style></style>")).toContain("drawing");
+});
+
+test("document rendering can reformat the wordmark's tag whitespace", () => {
+  const formatted = wordmark.replaceAll("><", ">\n  <").replace(" viewBox", "\n  viewBox");
+  const scan = (head: string) =>
+    copyOf(
+      "document.html",
+      () => `${head}\n${formatted}`,
+      () => undefined,
+    );
+  expect(scan("<style data-hw-document></style>")).toBeUndefined();
+  expect(scan("<style></style>")).toContain("drawing");
+});
+
+test("binary files are checked for byte copies without scanning their contents as markup", () => {
+  const metadata = () => `%PDF-1.7\n% embedded artwork metadata\n${wordmark}`;
+  expect(copyOf("print.pdf", metadata, () => undefined)).toBeUndefined();
+  expect(copyOf("print.pdf", metadata, () => "logos/lockup.pdf")).toBe(
+    "identical to brand logos/lockup.pdf",
+  );
+});
+
 test("a print master known by hash alone is found by its bytes, a directory is no copy", () => {
   const dir = mkdtempSync(join(tmpdir(), "brand-copies-"));
   try {
@@ -146,6 +195,36 @@ test("a print master known by hash alone is found by its bytes, a directory is n
     const sizes = brandSizes(files);
     expect(isBrandCopy(master, files, sizes)).toBe("logos/master-not-on-disk.tif");
     expect(isBrandCopy(dir, files, sizes)).toBeUndefined();
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
+});
+
+test("finds a copy still stored as an LFS pointer when its filename and size differ", () => {
+  const dir = mkdtempSync(join(tmpdir(), "brand-copies-"));
+  try {
+    const path = join(dir, "attachment.bin");
+    const oid = "a".repeat(64);
+    writeFileSync(
+      path,
+      `version https://git-lfs.github.com/spec/v1\noid sha256:${oid}\nsize 4096\n`,
+    );
+    const files = new Map([[oid, "logos/master-not-on-disk.tif"]]);
+    expect(isBrandCopy(path, files, brandSizes(files))).toBe("logos/master-not-on-disk.tif");
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
+});
+
+test("recognises a small shipped file that was copied under a different extension", () => {
+  const dir = mkdtempSync(join(tmpdir(), "brand-copies-"));
+  try {
+    const asset = "applications/mail-signature/template.txt";
+    const bytes = readFileSync(join(ROOT, asset));
+    const path = join(dir, "attachment.bin");
+    writeFileSync(path, bytes);
+    const files = new Map([[contentHash(bytes), asset]]);
+    expect(isBrandCopy(path, files, brandSizes(files))).toBe(asset);
   } finally {
     rmSync(dir, { recursive: true });
   }
