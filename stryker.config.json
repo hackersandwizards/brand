@@ -1,0 +1,30 @@
+{
+  "mutate": [
+    "scan/*.ts",
+    "elements/*.ts",
+    "expert/components/{space-nav,theme-icons}.ts",
+    "scripts/tokens.ts",
+    "applications/{linkedin-visuals,slide-visuals,mail-signature}/*.ts"
+  ],
+  "testRunner": "vitest",
+  "plugins": ["./scripts/stryker-vitest.mjs"],
+  "ignorers": ["puppeteer-callbacks"],
+  "vitest": {
+    "configFile": "vitest.config.ts",
+    "pool": "forks",
+    "related": false
+  },
+  "coverageAnalysis": "perTest",
+  "dryRunTimeoutMinutes": 15,
+  "reporters": ["clear-text", "json"],
+  "jsonReporter": {
+    "fileName": ".stryker-reports/mutation.json"
+  },
+  "tempDirName": ".stryker-tmp",
+  "cleanTempDir": "always",
+  "concurrency": 2,
+  "ignoreStatic": true,
+  "ignorePatterns": [".*"],
+  "incremental": true,
+  "incrementalFile": ".stryker-reports/incremental.json"
+}

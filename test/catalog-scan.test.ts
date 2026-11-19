@@ -7,6 +7,7 @@ import { dirname, join } from "node:path";
 import own from "../package.json";
 import { elementCss, sourceFindings } from "../scan/elements";
 import { ROOT } from "../scripts/git";
+import { checkoutRoot } from "./checkout";
 
 // A built catalog as scaffolding writes it: a home that frames its stories, and one folder per
 // story state under stories/. The planted fork (corner 2px, padding 3px) and the lifted list (7px)
@@ -242,7 +243,7 @@ const EXCEPTIONS = {
     "the row around FilterChip pills and a Clear all link: it draws no pill of its own",
 };
 test("the fork rule over expert/ finds only the recorded forks", () => {
-  const paths = Bun.spawnSync(["git", "ls-files", "expert"], { cwd: ROOT })
+  const paths = Bun.spawnSync(["git", "ls-files", "expert"], { cwd: checkoutRoot() })
     .stdout.toString()
     .trim()
     .split("\n");

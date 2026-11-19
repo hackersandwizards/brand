@@ -1,6 +1,12 @@
 import { expect, test } from "vitest";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { serveFile } from "../catalog/files";
+import { join } from "node:path";
+import { checkoutRoot } from "./checkout";
+
+// The catalog middleware lists tracked assets relative to its source file.
+const { serveFile } = (await import(
+  join(checkoutRoot(), "catalog/files.ts")
+)) as typeof import("../catalog/files");
 
 // A browser refuses an SVG without its type, in <img> and as an icon alike.
 test.each([

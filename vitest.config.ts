@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 const timeout = Number(process.env.SCAFFOLDING_TEST_TIMEOUT_MS || 5000);
+const mutation = Boolean(process.env.STRYKER_MUTATOR_WORKER);
 
 export default defineConfig({
   plugins: [
@@ -29,13 +30,17 @@ export default defineConfig({
           exclude: ["test/catalog/**"],
         },
       },
-      {
-        extends: true,
-        test: {
-          name: "catalog",
-          include: ["test/catalog/**/*.test.ts"],
-        },
-      },
+      ...(!mutation
+        ? [
+            {
+              extends: true,
+              test: {
+                name: "catalog",
+                include: ["test/catalog/**/*.test.ts"],
+              },
+            },
+          ]
+        : []),
     ],
   },
 });

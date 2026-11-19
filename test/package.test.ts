@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { packed as listPacked, ROOT } from "../scripts/git";
+import { checkoutRoot } from "./checkout";
 
 const SHIPPED =
   /^(package\.json|manifest\.json|README\.md|LICENSE|docs\/[\w-]+\.md|(tokens|generated|expert|elements|logos|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(colours|copies|components|markers|elements|retired|help)\.ts|catalog\/(Element\.astro|ElementScript\.astro|element-demos\.ts))$/;
@@ -35,17 +36,18 @@ test("every shipped PNG is an image, not a Git LFS pointer", () => {
 // `files` unread: `export-ignore` alone narrows it, and keeps an LFS pointer out. Archived from the
 // index, so a new shipped file passes once added, before its commit.
 test("the tag archive holds exactly the shipped files, none in Git LFS", () => {
+  const cwd = checkoutRoot();
   const archived = Bun.spawnSync(
     ["sh", "-c", "git archive --worktree-attributes $(git write-tree) | tar -t"],
     {
-      cwd: ROOT,
+      cwd,
     },
   )
     .stdout.toString()
     .split("\n")
     .filter((f) => f && !f.endsWith("/"));
   expect(archived.toSorted()).toEqual(packed.toSorted());
-  const lfs = Bun.spawnSync(["git", "check-attr", "filter", "--", ...archived], { cwd: ROOT })
+  const lfs = Bun.spawnSync(["git", "check-attr", "filter", "--", ...archived], { cwd })
     .stdout.toString()
     .split("\n")
     .filter((line) => line.endsWith(": filter: lfs"));

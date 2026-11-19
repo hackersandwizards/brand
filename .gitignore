@@ -10,6 +10,8 @@ node_modules/
 **/.claude/settings.local.json
 
 .eslintcache
+/.stryker-tmp/
+/.stryker-reports/
 
 # Python bytecode from uv run applications/channel-banners/render.py
 __pycache__/

@@ -95,6 +95,8 @@ data or secret.
   `bun install` points `core.hooksPath` at `.githooks/`.
 - `bun run test` runs the unit suite with Vitest on Bun. After `bun run build`,
   `bun run check:catalog` runs the catalog suite.
+- `bun run mutation` runs Stryker against the Vitest unit suite. It runs outside the gate and
+  writes its report to `.stryker-reports/mutation.json`.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset
