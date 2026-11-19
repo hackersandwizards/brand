@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect } from "bun:test";
+import { afterAll, beforeAll, expect } from "vitest";
 import { stretch, test } from "../limit";
 import type { Browser, HTTPRequest, Page } from "puppeteer-core";
 import { launch } from "../../scan/markers";
@@ -202,7 +202,7 @@ test("a source page's rows load on first use; should they fail, the search goes 
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
   await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
-  expect(new URL(q.url()).pathname).toEndWith("/list-filter/dense/");
+  expect(new URL(q.url()).pathname.endsWith("/list-filter/dense/")).toBe(true);
   expect(new URL(q.url()).searchParams.get("q")).toBe("context");
   await q.close();
 }, 60_000);
@@ -267,7 +267,7 @@ const backWithout = async (q: Page) => {
   await q.goBack({ waitUntil: "load" });
   await q.evaluate(() => (window as unknown as { failLoad?(): void }).failLoad?.());
   await settle();
-  expect(new URL(q.url()).pathname).toEndWith("/list-filter/source/");
+  expect(new URL(q.url()).pathname.endsWith("/list-filter/source/")).toBe(true);
   expect(new URL(q.url()).search).toBe("");
   expect(await q.$eval('input[name="q"]', (input) => (input as HTMLInputElement).value)).toBe("");
   await q.close();

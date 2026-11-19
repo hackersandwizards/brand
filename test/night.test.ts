@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, test } from "bun:test";
+import { afterAll, beforeAll, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import type { Browser } from "puppeteer-core";
 import { ROOT } from "../scripts/git";

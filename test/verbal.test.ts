@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import verbal from "../verbal/verbal.json";
 
 // The claim's highlight word stands in the claim in each language, so a surface can find it.

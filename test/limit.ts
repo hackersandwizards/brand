@@ -1,10 +1,10 @@
-import { it as bunIt, test as bunTest } from "bun:test";
+import { it as vitestIt, test as vitestTest } from "vitest";
 
 // A test's own limit, stretched as the gate stretches the default one under load (scaffolding's
 // docs/gate.md): import test or it from here wherever a test sets its limit.
 export const stretch = Number(process.env.SCAFFOLDING_TEST_TIMEOUT_MS || 5000) / 5000;
 const scaled = (ms: unknown) => (typeof ms === "number" ? ms * stretch : ms);
-const stretched = <T extends typeof bunTest>(t: T): T =>
+const stretched = <T extends typeof vitestTest>(t: T): T =>
   new Proxy(t, {
     apply: (target, self, [name, fn, ms]: unknown[]) => {
       Reflect.apply(target, self, [name, fn, scaled(ms)]);
@@ -21,5 +21,5 @@ const stretched = <T extends typeof bunTest>(t: T): T =>
         : Reflect.get(target, key, receiver),
   });
 
-export const test = stretched(bunTest);
-export const it = stretched(bunIt);
+export const test = stretched(vitestTest);
+export const it = stretched(vitestIt);

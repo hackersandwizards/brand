@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect } from "bun:test";
+import { afterAll, beforeAll, describe, expect } from "vitest";
 import { test } from "./limit";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -682,7 +682,7 @@ test("--site serves a built folder: a page path starting with / is on it, nothin
     expect([moved.status, moved.headers.get("location")]).toEqual([301, "/catalog/"]);
     expect((await fetch(`${server.url.origin}/100%.html`)).status).toBe(404);
     expect((await fetch(`${server.url.origin}/%2e%2e/outside.txt`)).status).toBe(404);
-    expect(toUrl("/catalog/")).toStartWith("file://");
+    expect(toUrl("/catalog/").startsWith("file://")).toBe(true);
   } finally {
     await server.stop(true);
     rmSync(base, { recursive: true, force: true });

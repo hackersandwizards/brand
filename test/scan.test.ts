@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import { forks, unlisted } from "../scan/components";
 
 test("finds a consumer component named like an expert component in any folder, nothing else", () => {

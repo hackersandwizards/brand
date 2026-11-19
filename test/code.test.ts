@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import theme from "../generated/code-theme.json";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

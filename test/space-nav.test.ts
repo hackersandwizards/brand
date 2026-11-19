@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { buildSpaceTree, containsPath } from "../expert/components/space-nav";
 
 describe("containsPath", () => {

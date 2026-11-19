@@ -1,6 +1,6 @@
 // Every command in bin answers --help and -h with its usage on stdout and exit 0, before it reads a
 // file, a config or the git tree, so it runs from an empty folder.
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

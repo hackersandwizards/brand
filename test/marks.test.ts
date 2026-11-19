@@ -1,4 +1,4 @@
-import { expect } from "bun:test";
+import { expect } from "vitest";
 import { test } from "./limit";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

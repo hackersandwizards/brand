@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { compile } from "tailwindcss";
@@ -211,9 +211,12 @@ test("each stack names its fallback face after the web face, and both font files
 // A page inlining print.css resolves its imports by this one-line, double-quoted, relative form,
 // and an @import after any other rule is dropped by the browser.
 test("print.css imports fonts.css's fallback faces before any rule", () => {
-  expect(print.replace(/\/\*[^]*?\*\//g, "").trimStart()).toStartWith(
-    '@import "../generated/fallback-faces.css";\n',
-  );
+  expect(
+    print
+      .replace(/\/\*[^]*?\*\//g, "")
+      .trimStart()
+      .startsWith('@import "../generated/fallback-faces.css";\n'),
+  ).toBe(true);
 });
 
 // A surface serving the font files from its own path writes fonts.css's rules with its own urls.

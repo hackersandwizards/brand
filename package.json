@@ -102,8 +102,8 @@
     "dev": "cd catalog && bun --bun astro dev",
     "catalog": "bun run dev",
     "build": "check-lock bun --bun astro build --root catalog",
-    "test": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun test --timeout ${SCAFFOLDING_TEST_TIMEOUT_MS:-5000} --path-ignore-patterns='test/catalog/**' --path-ignore-patterns='dist/**'",
-    "check:catalog": "bun test --timeout ${SCAFFOLDING_TEST_TIMEOUT_MS:-5000} ./test/catalog/",
+    "test": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun --bun vitest run --project unit",
+    "check:catalog": "bun --bun vitest run --project catalog",
     "check:tokens": "bun scripts/tokens.ts --check",
     "check:staged": "check-staged"
   },
@@ -132,7 +132,8 @@
     "svgo": "4.1.0",
     "tailwindcss": "4.3.5",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "8.72.2"
+    "typescript-eslint": "8.72.2",
+    "vitest": "5.1.0"
   },
   "prettier": "@hackersandwizards/scaffolding/prettier",
   "dependencies": {

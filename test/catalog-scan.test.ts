@@ -1,4 +1,4 @@
-import { afterAll, expect } from "bun:test";
+import { afterAll, expect } from "vitest";
 import { z } from "astro/zod";
 import { test } from "./limit";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

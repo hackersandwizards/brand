@@ -1,7 +1,7 @@
 // A consumer raising its brand pin may list, in the same commit, what the new scanner finds in its
 // files as committed at HEAD; anything its own new code adds still fails. Each case runs the
 // command in a throwaway Git repository, as a consumer's gate does.
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";

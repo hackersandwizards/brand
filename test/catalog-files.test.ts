@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { serveFile } from "../catalog/files";
 
@@ -11,7 +11,7 @@ test.each([
   const headers: Record<string, string> = {};
   const res = { setHeader: (k: string, v: string) => (headers[k] = v), end: () => {} };
   serveFile({ url } as IncomingMessage, res as unknown as ServerResponse, () => {});
-  expect(headers["Content-Type"]).toStartWith(type);
+  expect(headers["Content-Type"].startsWith(type)).toBe(true);
 });
 
 test("dev passes a malformed escape on", () => {

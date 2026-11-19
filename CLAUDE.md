@@ -93,6 +93,8 @@ data or secret.
   the `pre-push` hook runs it. The hooks are scaffolding's skeleton hooks, and `.githooks/README.md`
   lists what each runs, the `pre-push` refusal of the 248 commits `.confidential-purged.json` lists included.
   `bun install` points `core.hooksPath` at `.githooks/`.
+- `bun run test` runs the unit suite with Vitest on Bun. After `bun run build`,
+  `bun run check:catalog` runs the catalog suite.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset

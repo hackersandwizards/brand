@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect } from "bun:test";
+import { afterAll, beforeAll, expect } from "vitest";
 import { test } from "../limit";
 import axe from "axe-core";
 import { join } from "node:path";
