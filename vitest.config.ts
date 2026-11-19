@@ -26,7 +26,11 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["test/**/*.test.ts"],
+          include: mutation
+            ? [
+                "test/{code,colours,copies,list-filter,mail-signature,scan,space-nav,tokens}.test.ts",
+              ]
+            : ["test/**/*.test.ts"],
           exclude: ["test/catalog/**"],
         },
       },

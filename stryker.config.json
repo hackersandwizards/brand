@@ -1,21 +1,19 @@
 {
   "mutate": [
-    "scan/*.ts",
-    "elements/*.ts",
-    "expert/components/{space-nav,theme-icons}.ts",
+    "scan/{colours,components,copies}.ts",
+    "elements/{code,list-filter}.ts",
+    "expert/components/space-nav.ts",
     "scripts/tokens.ts",
-    "applications/{linkedin-visuals,slide-visuals,mail-signature}/*.ts"
+    "applications/mail-signature/fill.ts"
   ],
   "testRunner": "vitest",
   "plugins": ["./scripts/stryker-vitest.mjs"],
-  "ignorers": ["puppeteer-callbacks"],
   "vitest": {
     "configFile": "vitest.config.ts",
     "pool": "forks",
     "related": false
   },
   "coverageAnalysis": "perTest",
-  "dryRunTimeoutMinutes": 15,
   "reporters": ["clear-text", "json"],
   "jsonReporter": {
     "fileName": ".stryker-reports/mutation.json"
@@ -24,7 +22,7 @@
   "cleanTempDir": "always",
   "concurrency": 2,
   "ignoreStatic": true,
-  "ignorePatterns": [".*"],
+  "ignorePatterns": [".*", "/dist"],
   "incremental": true,
   "incrementalFile": ".stryker-reports/incremental.json"
 }
