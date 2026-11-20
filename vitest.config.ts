@@ -17,7 +17,7 @@ export default mergeConfig(base, {
     },
   ],
   test: {
-    // The browser suites ran one file at a time under Bun.
+    // Run one test file at a time so the browser suites do not compete for Chrome.
     fileParallelism: false,
     projects: [
       {
@@ -29,11 +29,18 @@ export default mergeConfig(base, {
                 "test/{code,colours,copies,list-filter,mail-signature,scan,space-nav,tokens}.test.ts",
               ]
             : ["test/**/*.test.ts"],
-          exclude: ["test/catalog/**"],
+          exclude: ["test/integration/**", "test/catalog/**"],
         },
       },
       ...(!mutation
         ? [
+            {
+              extends: true,
+              test: {
+                name: "integration",
+                include: ["test/integration/**/*.test.ts"],
+              },
+            },
             {
               extends: true,
               test: {

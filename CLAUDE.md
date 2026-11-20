@@ -86,14 +86,15 @@ data or secret.
 ## Commands
 
 - `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
-  structure, coupling, spaces, confidential, licenses, the unit tests, the catalog build and the item
-  check (`admin`) side by side, then `check:catalog` (the built portal and stories, `brand-elements` and
-  AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). Under load
+  structure, coupling, spaces, confidential, licenses, the fast tests, the catalog build and the item
+  check (`admin`) side by side, then `check:integration`, `check:catalog` (the built portal and
+  stories, `brand-elements` and AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). Under load
   the full gate can exceed 600 s. The stock hooks and the changed gate they use are documented in
   `.githooks/README.md`.
   `bun install` points `core.hooksPath` at `.githooks/`.
-- `bun run test` runs the unit suite with Vitest on Bun. After `bun run build`,
-  `bun run check:catalog` runs the catalog suite.
+- `bun run test` runs the fast suite with Vitest on Bun, including in the changed gate for source
+  pushes. `bun run check:integration` runs the tests that launch a browser or produce build
+  artifacts. After `bun run build`, `bun run check:catalog` tests `dist/`.
 - `bun run mutation` runs Stryker outside the gate with a 15-minute cap and writes
   `.stryker-reports/mutation.json`.
   It uses eight in-process Vitest files (1–32 ms each) for the colour, component and copy checks,

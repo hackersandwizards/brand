@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, expect } from "vitest";
-import { test } from "./limit";
+import { test } from "../limit";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser, Protocol } from "puppeteer-core";
-import { ROOT } from "../scripts/git";
-import { launch, open } from "../scan/markers";
+import { ROOT } from "../../scripts/git";
+import { launch, open } from "../../scan/markers";
 
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
 const doc = (sheets: string[], body: string, cls = "") =>

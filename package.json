@@ -104,6 +104,7 @@
     "build": "check-lock bun --bun astro build --root catalog",
     "test": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun --bun vitest run --project unit",
     "mutation": "scaffolding-mutation",
+    "check:integration": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun --bun vitest run --project integration",
     "check:catalog": "bun --bun vitest run --project catalog",
     "check:tokens": "bun scripts/tokens.ts --check",
     "check:staged": "check-staged"
@@ -165,11 +166,12 @@
     ],
     "test": "test",
     "fullOnly": {
-      "test": "launches browsers in the unit project",
-      "check:catalog": "runs the catalog browser suite",
+      "check:integration": "launches browsers and produces CSS or package archives",
+      "check:catalog": "tests the built catalog, including its browser suite",
       "check:tokens": "builds the generated copy bundle and checks generated output"
     },
     "check": [
+      "check:integration",
       "check:catalog",
       "check:tokens"
     ]

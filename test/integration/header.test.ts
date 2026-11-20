@@ -1,15 +1,15 @@
 import { afterAll, beforeAll, describe, expect } from "vitest";
-import { it } from "./limit";
+import { it } from "../limit";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
-import { findChrome, NO_KEYCHAIN } from "../applications/linkedin-visuals/render";
-import { launch } from "../scan/markers";
-import catalogs from "../expert/catalogs.json";
-import { isStringList } from "../scan/help";
-import { ROOT } from "../scripts/git";
+import { findChrome, NO_KEYCHAIN } from "../../applications/linkedin-visuals/render";
+import { launch } from "../../scan/markers";
+import catalogs from "../../expert/catalogs.json";
+import { isStringList } from "../../scan/help";
+import { ROOT } from "../../scripts/git";
 
 const SCRATCH = mkdtempSync(join(tmpdir(), "hw-header-"));
 afterAll(() => rmSync(SCRATCH, { recursive: true, force: true }));
