@@ -12,7 +12,6 @@
     "types": ["bun"]
   },
   "include": [
-    "vitest.config.ts",
     "catalog/**/*.ts",
     "scripts/**/*.ts",
     "scan/**/*.ts",

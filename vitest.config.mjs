@@ -1,9 +1,9 @@
-import { defineConfig } from "vitest/config";
+import base from "@hackersandwizards/scaffolding/vitest";
+import { mergeConfig } from "vitest/config";
 
-const timeout = Number(process.env.SCAFFOLDING_TEST_TIMEOUT_MS || 5000);
 const mutation = Boolean(process.env.STRYKER_MUTATOR_WORKER);
 
-export default defineConfig({
+export default mergeConfig(base, {
   plugins: [
     {
       name: "bun-import-meta",
@@ -17,8 +17,6 @@ export default defineConfig({
     },
   ],
   test: {
-    testTimeout: timeout,
-    hookTimeout: timeout,
     // The browser suites ran one file at a time under Bun.
     fileParallelism: false,
     projects: [
