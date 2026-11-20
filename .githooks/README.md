@@ -6,15 +6,15 @@ Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `p
 
 | Hook            | Trigger                                                     | Runs                                                                                                                                            |
 | --------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pre-commit`    | every commit that is not a conflict-free merge              | `bun run check:staged`: scaffolding's `check-staged` (gitleaks, coupling, confidential, prettier, eslint, stylelint on CSS and Astro; `check-licenses` when `package.json` or `bun.lock` is staged, `admin-check` when an item is) |
+| `pre-commit`    | every commit that is not a conflict-free merge              | `bun run check:staged`: scaffolding's `check-staged` (gitleaks, coupling, confidential, Prettier, ESLint, Oxlint, Stylelint on CSS and Astro; `check-licenses` when `package.json` or `bun.lock` is staged, `admin-check` when an item is) |
 | `commit-msg`    | every commit                                                | `check-confidential` on the message                                                                                                             |
-| `pre-push`      | every push                                                  | `check-confidential prepush` refuses commits listed in `.confidential-purged.json`. After the LFS upload, `bun run check --changed` selects fast steps by the pushed branch's changed paths. Unmapped paths select all fast steps. Source changes select the fast unit suite. The full gate also runs the integration suite, the catalog build and its tests, and the generated output check. |
+| `pre-push`      | every push                                                  | `check-confidential prepush` refuses commits listed in `.confidential-purged.json` and runs Git LFS when needed. Then `bun run check --changed` selects fast steps by the pushed branch's changed paths. Unmapped paths select all fast steps. Source changes select the fast unit suite. The full gate also runs the integration suite, the catalog build and its tests, and the generated output check. |
 | `post-merge`    | a merge that changed `bun.lock` or `package.json`           | `install`: a held lock skips it, and a skip or failure is named on stderr |
 | `post-checkout` | a branch checkout that changed `bun.lock` or `package.json`, and one from no commit (a new worktree) without `node_modules` | the same install |
 
 ## LFS
 
-`core.hooksPath` bypasses `.git/hooks/`, so `pre-push` hands the refs to `git lfs pre-push` itself and fails when `git-lfs` is missing or the upload fails: a push never carries pointers without their objects. Smudging on checkout and merge is the LFS filter's job, not a hook's. Git LFS's `post-checkout`, `post-commit` and `post-merge` hooks only make `lockable` files read-only, and `.gitattributes` declares none, so this repo carries no `post-commit`, and its `post-checkout` and `post-merge` leave Git LFS out.
+`core.hooksPath` bypasses `.git/hooks/`. The `check-confidential prepush` command calls `git lfs pre-push` when the push may carry LFS objects or touch a lockable file. It refuses the push if Git LFS is required and the command is missing or fails. The LFS filter smudges files on checkout and merge. Git LFS's `post-checkout`, `post-commit` and `post-merge` hooks make lockable files read-only. This repository declares no lockable files in `.gitattributes`, so its checkout and merge hooks omit Git LFS and it needs no `post-commit` hook.
 
 ## Troubleshooting
 

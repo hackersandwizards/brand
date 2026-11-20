@@ -85,8 +85,8 @@ data or secret.
 
 ## Commands
 
-- `bun run check`: scaffolding's runner (`scaffolding check`): format, lint, styles, typecheck,
-  structure, coupling, spaces, confidential, licenses, the fast tests, the catalog build and the item
+- `bun run check`: scaffolding's runner (`scaffolding check`): format, ESLint, Oxlint, styles,
+  typecheck, structure, coupling, import cycles, spaces, confidential, licenses, the fast tests, the catalog build and the item
   check (`admin`) side by side, then `check:integration`, `check:catalog` (the built portal and
   stories, `brand-elements` and AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). Under load
   the full gate can exceed 600 s. The stock hooks and the changed gate they use are documented in
