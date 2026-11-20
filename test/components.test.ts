@@ -97,6 +97,26 @@ test("SpaceNav's home link takes hw-nav's weight: no weight class on its list", 
   expect(beforeHome.slice(beforeHome.lastIndexOf("<ul"))).not.toMatch(/\bfont-/);
 });
 
+test("SpaceNavTree wraps the root and renders bare items directly in the branch list", async () => {
+  const component = await loadComponent("/expert/components/SpaceNavTree.astro");
+  const container = await experimental_AstroContainer.create();
+  const child = { ...node, href: "/space/branch/page" };
+  const branch = { ...node, href: "/space/branch", label: "Branch", children: [child] };
+  const render = async (bare: boolean) =>
+    (
+      await container.renderToString(component, {
+        props: { nodes: [branch], currentPath: child.href, overview: "Start", bare },
+      })
+    ).replace(/\s*(<[^>]+>)\s*/g, "$1");
+
+  const items =
+    '<li><details class="hw-disclosure" open><summary>Branch</summary><ul>' +
+    '<li><a href="/space/branch">Start</a></li>' +
+    `<li><a href="/space/branch/page" aria-current="page">${P}</a></li></ul></details></li>`;
+  expect(await render(false)).toBe(`<ul>${items}</ul>`);
+  expect(await render(true)).toBe(items);
+});
+
 test("SpaceNav takes its words from labels, English by default", async () => {
   const component = await loadComponent("/expert/components/SpaceNav.astro");
   const container = await experimental_AstroContainer.create();

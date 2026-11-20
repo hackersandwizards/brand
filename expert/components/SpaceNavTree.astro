@@ -14,11 +14,10 @@ interface Props {
 
 const { nodes, currentPath, overview = "Overview", bare = false } = Astro.props;
 const current = (href: string) => (href === currentPath ? "page" : undefined);
-const Wrap = bare ? Fragment : "ul";
 ---
 
-<Wrap>
-  {nodes.map((node) =>
+{bare ? (
+  nodes.map((node) =>
     node.children.length === 0 ? (
       <li>
         <a href={node.href} aria-current={current(node.href)}>
@@ -42,5 +41,9 @@ const Wrap = bare ? Fragment : "ul";
         </details>
       </li>
     ),
-  )}
-</Wrap>
+  )
+) : (
+  <ul>
+    <Astro.self nodes={nodes} currentPath={currentPath} overview={overview} bare />
+  </ul>
+)}

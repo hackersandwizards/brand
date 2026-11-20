@@ -322,7 +322,7 @@
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
-      "sha256": "4ad0d7f14f491237df72f87e73123c2d8188dbe36863fb48702087e5b970f06a"
+      "sha256": "f7005dc2385dc8796e1dbd5e5a1e6a94932851b95166b5841e6fa727fa3ee68d"
     },
     {
       "path": "expert/components/ThemeToggle.astro",
