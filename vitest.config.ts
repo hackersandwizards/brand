@@ -9,7 +9,7 @@ export default mergeConfig(base, {
       name: "bun-import-meta",
       enforce: "pre",
       // Vite gives transformed modules dirname even when the test process runs on Bun.
-      transform(code, id) {
+      transform(code: string, id: string) {
         if (id.endsWith(".ts") && /\bimport\.meta\.dir\b/.test(code)) {
           return code.replace(/\bimport\.meta\.dir\b/g, "import.meta.dirname");
         }
