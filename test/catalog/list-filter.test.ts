@@ -110,13 +110,17 @@ test("on a phone the facets fold behind the Filters button, and every target on 
 }, 60_000);
 
 // The page as a browser whose module script failed to load: every module script dropped.
-const withoutModules = async (p: Page) => {
+const withoutModules = async (p: Page, transform = (html: string) => html) => {
   await p.setRequestInterception(true);
   const intercept = async (request: HTTPRequest) => {
     if (request.resourceType() !== "document") return request.continue();
     const answer = await fetch(request.url());
     const body = (await answer.text()).replace(/<script type="module"[\s\S]*?<\/script>/g, "");
-    return request.respond({ status: answer.status, contentType: "text/html", body });
+    return request.respond({
+      status: answer.status,
+      contentType: "text/html",
+      body: transform(body),
+    });
   };
   p.on("request", (request) => {
     intercept(request).catch(reportError);
@@ -139,6 +143,27 @@ test("on a phone whose script failed, the facets and the search button stay usab
   expect(await q.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(false);
   await p.close();
   await q.close();
+}, 60_000);
+
+test("first-paint setup leaves the fallback intact when the preceding element is not the filter", async () => {
+  const p = await tab();
+  const errors: unknown[] = [];
+  p.on("pageerror", (error) => errors.push(error));
+  try {
+    await p.setViewport({ width: 390, height: 844 });
+    await withoutModules(p, (html) =>
+      html.replace(
+        /<script>([^<]*?const root = document\.currentScript)/,
+        "<script></script><script>$1",
+      ),
+    );
+    await p.goto(story("screen"), { waitUntil: "load" });
+    expect(await p.$eval("[data-list-filter] + script", (script) => script.textContent)).toBe("");
+    expect(await p.$eval("[data-filter-submit]", (submit) => submit.checkVisibility())).toBe(true);
+    expect(errors).toEqual([]);
+  } finally {
+    await p.close();
+  }
 }, 60_000);
 
 const noScript = async (name: string) => {

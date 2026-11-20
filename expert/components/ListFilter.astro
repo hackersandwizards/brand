@@ -236,15 +236,29 @@ const filtersButton = filtersLabel(
    to its state without script, so the facets and the search button stay usable. */
 }
 <script is:inline>
-  {
-    const root = document.currentScript.previousElementSibling;
+  (() => {
+    const root = document.currentScript?.previousElementSibling;
+    if (!(root instanceof HTMLElement) || !root.hasAttribute("data-list-filter")) return;
     const form = root.querySelector("form");
     const list = root.querySelector("[data-filter-list]");
     const count = root.querySelector("[data-filter-count]");
-    const overview = root.dataset.overview && document.getElementById(root.dataset.overview);
-    const was = [form.hidden, list.hidden, overview && overview.hidden, count.textContent];
+    if (
+      !(form instanceof HTMLFormElement) ||
+      !(list instanceof HTMLElement) ||
+      !(count instanceof HTMLElement)
+    )
+      return;
+    const overviewId = root.dataset.overview;
+    const overview = overviewId ? document.getElementById(overviewId) : null;
+    const formHidden = form.hidden;
+    const listHidden = list.hidden;
+    const overviewHidden = overview?.hidden ?? false;
+    const countText = count.textContent;
     const params = new URLSearchParams(location.search);
-    const set = [...form.querySelectorAll("[name]")].some((field) => params.get(field.name));
+    const set = [...form.querySelectorAll("[name]")].some((field) => {
+      const name = field.getAttribute("name");
+      return name !== null && params.get(name);
+    });
     root.dataset.js = "";
     root.dataset.closed = "";
     form.hidden = false;
@@ -257,10 +271,12 @@ const filtersButton = filtersLabel(
       if ("ready" in root.dataset) return;
       delete root.dataset.js;
       delete root.dataset.closed;
-      [form.hidden, list.hidden, , count.textContent] = was;
-      if (overview) overview.hidden = was[2];
+      form.hidden = formHidden;
+      list.hidden = listHidden;
+      count.textContent = countText;
+      if (overview) overview.hidden = overviewHidden;
     });
-  }
+  })();
 </script>
 
 <script>
