@@ -82,6 +82,7 @@ With [bun](https://bun.sh) installed:
 - `bun install` installs and points the git hooks at `.githooks/`
 - `bun run check` runs the gate: scaffolding's shared steps (admin-check among them), then the built catalog's tests and `generated/`
 - `bun run test` runs the unit suite with Vitest on Bun
+- `bun run mutation` runs Stryker with a 15-minute cap
 - `bun run dev` serves the catalog at `http://127.0.0.1:4326/` (the base drops in dev)
 - `bun run build` writes `dist/`, as the Pages workflow publishes it
 

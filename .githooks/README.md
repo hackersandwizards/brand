@@ -8,7 +8,7 @@ Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `p
 | --------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pre-commit`    | every commit that is not a conflict-free merge              | `bun run check:staged`: scaffolding's `check-staged` (gitleaks, coupling, confidential, prettier, eslint, stylelint on CSS and Astro; `check-licenses` when `package.json` or `bun.lock` is staged, `admin-check` when an item is) |
 | `commit-msg`    | every commit                                                | `check-confidential` on the message                                                                                                             |
-| `pre-push`      | every push                                                  | `check-confidential prepush`: refuses commits listed in `.confidential-purged.json`, then the LFS upload; a pushed branch then runs `bun run check --changed` over its range: the quick steps alone where it touches only `.claude/` rules and skill prose, else the whole gate, as `scaffolding.changed` maps no path |
+| `pre-push`      | every push                                                  | `check-confidential prepush` refuses commits listed in `.confidential-purged.json`. After the LFS upload, `bun run check --changed` selects fast steps by the pushed branch's changed paths. Unmapped paths select all fast steps. The catalog build, unit suite, catalog suite and generated output check run in the full gate. |
 | `post-merge`    | a merge that changed `bun.lock` or `package.json`           | `install`: a held lock skips it, and a skip or failure is named on stderr |
 | `post-checkout` | a branch checkout that changed `bun.lock` or `package.json`, and one from no commit (a new worktree) without `node_modules` | the same install |
 
@@ -21,4 +21,4 @@ Project-scoped hooks at `.githooks/`, enabled per clone by `bun install` (the `p
 - **Hooks not firing**: confirm `git config core.hooksPath` returns `.githooks` and `ls .githooks` shows executable files.
 - **bun, gitleaks, prettier or eslint missing**: the commit fails closed; `brew install gitleaks`, `bun install`.
 - **git-lfs missing**: the push fails closed; `brew install git-lfs`.
-- **Other checks**: only `pre-push` runs `bun run check`. A session runs the ones that fit its change before committing, from the commands in `CLAUDE.md`.
+- **Other checks** run `bun run check` for the full gate or use the commands in `CLAUDE.md` to check a specific change.

@@ -103,7 +103,7 @@
     "catalog": "bun run dev",
     "build": "check-lock bun --bun astro build --root catalog",
     "test": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun --bun vitest run --project unit",
-    "mutation": "stryker run",
+    "mutation": "scaffolding-mutation",
     "check:catalog": "bun --bun vitest run --project catalog",
     "check:tokens": "bun scripts/tokens.ts --check",
     "check:staged": "check-staged"
@@ -114,7 +114,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.39.1",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.31.0",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.32.0",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v3.3.0",
     "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.4",
@@ -164,6 +164,11 @@
       }
     ],
     "test": "test",
+    "fullOnly": {
+      "test": "launches browsers in the unit project",
+      "check:catalog": "runs the catalog browser suite",
+      "check:tokens": "builds the generated copy bundle and checks generated output"
+    },
     "check": [
       "check:catalog",
       "check:tokens"
