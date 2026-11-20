@@ -1035,6 +1035,8 @@ if (import.meta.main) {
   let stories: string[] = [];
   try {
     const raw = readElementsConfig(readFileSync(LIST, "utf8"));
+    if (raw.lightOnly != null && typeof raw.lightOnly !== "boolean")
+      throw new Error(`${LIST} "lightOnly": expected a boolean`);
     config = {
       pages: listedElementPages(raw.pages),
       exceptions: listedElementExceptions(raw.exceptions),

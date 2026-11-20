@@ -365,18 +365,23 @@ const pathOf = (page: string) => {
   }
 };
 
-/** The lookup of a document's policy in `csp`: the first listed glob matching its path decides, and
- *  a path none matches has none. Throws on a malformed value. */
-export function policies(csp: unknown) {
+function readCsp(csp: unknown): Csp {
   const valid = (p: unknown): p is string =>
     typeof p === "string" && !!p.trim() && !/[\r\n]/.test(p);
-  if (valid(csp)) return () => csp;
+  if (valid(csp)) return csp;
   const entries = isRecord(csp) ? Object.entries(csp) : [];
   if (!entries.length || !entries.every((entry): entry is [string, string] => valid(entry[1])))
     throw new Error(
       `brand-elements.json "csp": one line of policy or { "<glob>": "<policy>" }, not ${JSON.stringify(csp)}`,
     );
-  const globs = entries.map(([glob, p]) => [new Bun.Glob(glob), p] as const);
+  return Object.fromEntries(entries);
+}
+
+/** The first listed glob matching a document's path decides its policy. */
+export function policies(csp: unknown) {
+  const parsed = readCsp(csp);
+  if (typeof parsed === "string") return () => parsed;
+  const globs = Object.entries(parsed).map(([glob, p]) => [new Bun.Glob(glob), p] as const);
   return (url: string) => globs.find(([glob]) => glob.match(pathOf(url)))?.[1];
 }
 
@@ -850,7 +855,7 @@ export function applyExceptions(
     if (
       !isRecord(e) ||
       typeof e.reason !== "string" ||
-      !e.reason ||
+      !e.reason.trim() ||
       typeof e.off !== "number" ||
       !Number.isInteger(e.off) ||
       e.off < 1
@@ -978,10 +983,10 @@ export type Site = string | { dir: string; at?: string };
 const basePath = (at: string) => `/${at.replace(/^\/+|\/+$/g, "")}/`.replace("//", "/");
 /** The folder and path of a "site" or --site with --site-at; undefined for none. */
 export const listedSite = (site?: unknown, at?: string) => {
-  if (!site) return undefined;
+  if (site == null) return undefined;
   const dir = typeof site === "string" ? site : isRecord(site) ? site.dir : undefined;
   const prefix = isRecord(site) ? site.at : undefined;
-  if (typeof dir !== "string" || !dir || (!at && prefix && typeof prefix !== "string"))
+  if (typeof dir !== "string" || !dir || (!at && prefix != null && typeof prefix !== "string"))
     throw new Error(
       `"site": a folder or { "dir": "<folder>", "at": "<path>" }, not ${JSON.stringify(site)}`,
     );
@@ -1000,11 +1005,12 @@ export const listedCatalog = ({
   at?: string;
   exclude?: string[];
 } => {
-  if (!catalog) return {};
-  if (typeof catalog === "string") return { dir: catalog };
+  if (catalog == null) return {};
+  if (typeof catalog === "string" && catalog) return { dir: catalog };
   if (
     !isRecord(catalog) ||
     typeof catalog.dir !== "string" ||
+    !catalog.dir ||
     (catalog.at != null && typeof catalog.at !== "string") ||
     (catalog.exclude !== undefined && !isStringList(catalog.exclude))
   )
@@ -1025,18 +1031,7 @@ export const listedElementPages = (value: unknown) => {
   return value;
 };
 
-export const listedCsp = (value: unknown): Csp | undefined => {
-  if (value === undefined) return;
-  if (typeof value === "string") return value;
-  if (isRecord(value)) {
-    const entries = Object.entries(value);
-    if (entries.every((entry): entry is [string, string] => typeof entry[1] === "string"))
-      return Object.fromEntries(entries);
-  }
-  throw new Error(
-    `brand-elements.json "csp": one line of policy or { "<glob>": "<policy>" }, not ${JSON.stringify(value)}`,
-  );
-};
+export const listedCsp = (value: unknown) => (value === undefined ? undefined : readCsp(value));
 
 /** `run` over `items`, at most `limit` at a time, each call told which of the `limit` workers runs it;
  * the results in the items' order. */

@@ -275,6 +275,29 @@ test.each(["elements", "markers"])("brand-%s exits 2 on a malformed csp", (scan)
   expect(r.stderr.toString()).toContain(`brand-${scan}: brand-elements.json "csp"`);
 });
 
+test.each([
+  { field: "site", value: false },
+  { field: "site", value: "" },
+  { field: "site", value: { dir: "dist", at: false } },
+  { field: "catalog", value: false },
+  { field: "catalog", value: "" },
+  { field: "catalog", value: { dir: "" } },
+])("both scanners reject an invalid $field setting ($value)", ({ field, value }) => {
+  file("brand-elements.json", JSON.stringify({ [field]: value }));
+  for (const scan of ["elements", "markers"]) {
+    const run = Bun.spawnSync(["bun", join(import.meta.dir, `../scan/${scan}.ts`)], { cwd: dir });
+    expect(run.exitCode).toBe(2);
+    expect(run.stderr.toString()).toContain(`"${field}":`);
+  }
+});
+
+test("brand-elements exits 2 when lightOnly is a string", () => {
+  file("brand-elements.json", '{"lightOnly":"true"}');
+  const run = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
+  expect(run.exitCode).toBe(2);
+  expect(run.stderr.toString()).toContain('"lightOnly": expected a boolean');
+});
+
 test("a rule setting only private custom properties defines its class; an unclosed :not( ends", () => {
   expect(definedClasses(".hw-x { --_hw-tray: 1rem; --space-2: 0 }")).toEqual(["hw-x"]);
   expect(definedClasses(".a:not(.b { color: red }")).toEqual(["a"]);

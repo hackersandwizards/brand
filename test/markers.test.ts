@@ -21,8 +21,13 @@ test("a reading with no ink on either side fails", () => {
   expect(failing(r)).toBe(true);
 });
 
-// A declared exception keeps its page's off readings up to its count, and reports itself once it
-// keeps nothing, so a fixed page drops it.
+test("a marker exception needs a reason beyond whitespace", () => {
+  const exceptions = { "/list/": { reason: " \t ", off: 1 } };
+  expect(applyExceptions([], exceptions).findings).toEqual([
+    'markers exception "/list/": needs a "reason" and an "off" count of at least 1',
+  ]);
+});
+
 test("marker exceptions keep their readings, fail over their count and report a stale entry", () => {
   const off = (page: string): Reading => ({
     page,
