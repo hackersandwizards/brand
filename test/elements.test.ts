@@ -115,6 +115,13 @@ test("the screen preset sets every setting an element reads", () => {
   ).toEqual([]);
 });
 
+test("rules opens nested at-rules and continues with the next top-level rule", () => {
+  expect(rules("@layer x { @media print { .a, .b { color: red; border: 0 } } } .c{x:1}")).toEqual([
+    { selectors: [".a", ".b"], props: ["color", "border"] },
+    { selectors: [".c"], props: ["x"] },
+  ]);
+});
+
 test("rules substitutes the parent for both ampersands in a sibling selector", () => {
   expect(rules(".card { & + & { x: 1 } }")).toEqual([
     { selectors: [".card + .card"], props: ["x"] },

@@ -33,6 +33,12 @@ describe("list filter", () => {
     expect(isActive({ q: " \t ", facets: { topic: "", tag: "" } })).toBe(false);
   });
 
+  it("ranks a title containing all search words ahead of a prefix containing only one", () => {
+    const titles = ["Context", "Specifications, tests, and context engineering"];
+    expect(ranked(titles, (title) => title, "context engineering")).toEqual([titles[1], titles[0]]);
+    expect(ranked(titles, (title) => title, " ")).toBe(titles);
+  });
+
   it("marks the search words and escapes the rest", () => {
     expect(highlight("Context <b> & Code", ["context", "code"])).toBe(
       "<mark>Context</mark> &lt;b&gt; &amp; <mark>Code</mark>",
@@ -156,8 +162,10 @@ describe("initListFilter", () => {
 });
 
 test("keeps a comma inside an address", () => {
-  expect(rebaseSrcset("data:image/png;base64,AAAA 1x", (url) => `B/${url}`)).toBe(
-    "B/data:image/png;base64,AAAA 1x",
+  const at = (url: string) => `B/${url}`;
+  expect(rebaseSrcset("data:image/png;base64,AAAA 1x", at)).toBe("B/data:image/png;base64,AAAA 1x");
+  expect(rebaseSrcset("w_100,h_100/a.png 1x,c.png 2x", at)).toBe(
+    "B/w_100,h_100/a.png 1x,B/c.png 2x",
   );
 });
 

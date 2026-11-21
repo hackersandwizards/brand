@@ -30,10 +30,19 @@ test.prop(
   },
 );
 
-test.prop([fc.integer({ min: 0, max: 15 })], {
-  examples: [[0], [1], [2], [4], [7], [8], [15]],
-})("sets only the italic, bold and underline bits of the font style", (fontStyle) => {
-  const node = { properties: { style: "color: black" } };
+test.prop([fc.integer({ min: 0, max: 15 }), fc.boolean()], {
+  examples: [
+    [0, true],
+    [1, true],
+    [2, true],
+    [2, false],
+    [4, true],
+    [7, true],
+    [8, true],
+    [15, true],
+  ],
+})("sets the italic, bold and underline bits with or without inline style", (fontStyle, styled) => {
+  const node = { properties: styled ? { style: "color: black" } : {} };
   codeClasses.span(node, 0, 0, node, { fontStyle });
   const flags = fontStyle.toString(2).padStart(3, "0").slice(-3).split("").reverse();
   const classes = ["italic", "bold", "underline"].filter((_, index) => flags[index] === "1");

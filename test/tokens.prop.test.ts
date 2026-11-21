@@ -3,16 +3,22 @@ import { expect } from "vitest";
 import { parseTokens, rgb } from "../scripts/tokens";
 
 test.prop(
-  [fc.array(fc.integer(), { maxLength: 24 }), fc.constantFrom(" ", "\n\t"), unicodeString],
+  [
+    fc.array(fc.integer(), { maxLength: 24 }),
+    fc.constantFrom(" ", "\n\t"),
+    unicodeString,
+    fc.boolean(),
+  ],
   {
     examples: [
-      [[], " ", ""],
-      [[0, -1, 1], "\n\t", "漢".repeat(1024)],
+      [[], " ", "", false],
+      [[0, -1, 1], "\n\t", "漢".repeat(1024), false],
+      [[0, 1], " ", "", true],
     ],
   },
 )(
   "reads custom properties from adjacent theme variants across comments and whitespace",
-  (sizes, space, rawComment) => {
+  (sizes, space, rawComment, compact) => {
     const comment = rawComment.replaceAll("*/", "* /");
     const entries = sizes.map((size, index) => [`--size-${index}`, `${size}px`] as const);
     const css =
@@ -20,7 +26,7 @@ test.prop(
       entries
         .map(
           ([name, value], index) =>
-            `@theme${space}${index % 2 ? "inline" : "static"} {${name}${space}:/* ${comment} */${space}${value}}`,
+            `@theme${space}${index % 2 ? "inline" : "static"}${compact ? "" : " "}{${name}${space}:/* ${comment} */${space}${value}}`,
         )
         .join("");
     expect(parseTokens(css)).toEqual(Object.fromEntries(entries));

@@ -7,19 +7,19 @@
 // reason, on an entry no fork answers (stale), and on an entry added against HEAD: the list may only shrink. Where the working tree
 // changes the brand pin package.json holds at HEAD, an entry may also name a fork whose files are
 // committed at HEAD and unchanged since, which a newer package's component makes one.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
   COMPONENT,
   committedAsIs,
   listTree,
   pinChange,
-  runGit,
+  readReasonAllowlists,
   scanned,
   skippedReport,
   writeAllowlist,
 } from "./colours";
-import { answerHelp, isRecord } from "./help";
+import { answerHelp } from "./help";
 
 const USAGE = `usage: brand-scan [--tighten]
 Fails on a component in the working tree named like an expert component that brand-scan.json does
@@ -71,26 +71,13 @@ export const unlisted = (
   ]),
 ];
 
-function readComponentAllowlist(json: string): Allowlist {
-  const value: unknown = JSON.parse(json);
-  if (!isRecord(value)) throw new Error(`${LIST}: expected an object of reasons`);
-  return Object.fromEntries(
-    Object.entries(value).map(([name, reason]) => {
-      if (typeof reason !== "string") throw new Error(`${LIST}: "${name}" needs a string reason`);
-      return [name, reason];
-    }),
-  );
-}
-
 if (import.meta.main) {
   answerHelp(USAGE);
   const tree = listTree("brand-scan");
   const report = skippedReport("brand-scan", tree);
   if (report) console.log(report);
   const found = forks(tree);
-  const allow = existsSync(LIST) ? readComponentAllowlist(readFileSync(LIST, "utf8")) : {};
-  const head = runGit(["show", `HEAD:./${LIST}`]);
-  const committed = head.status === 0 ? readComponentAllowlist(head.stdout) : undefined;
+  const { allow, committed } = readReasonAllowlists(LIST);
   const upgrade = committed !== undefined && pinChange("brand-scan") !== undefined;
   const mayAdd = (k: string) => upgrade && k in found && found[k].every(committedAsIs);
   if (process.argv.includes("--tighten")) {

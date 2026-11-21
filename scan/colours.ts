@@ -326,7 +326,7 @@ export const fnColour = (fn: string, args: string) => {
   const unit = /[a-z]+$/.exec(parts[0])?.[0];
   n[0] *= unit === "turn" ? 360 : unit === "rad" ? 180 / Math.PI : unit === "grad" ? 0.9 : 1;
   if (fn.toLowerCase().startsWith("rgb")) {
-    const channels = parts.slice(0, 3).map((x, i) => (x.endsWith("%") ? n[i] * 2.55 : n[i]));
+    const channels = parts.slice(0, 3).map((x, i) => (x.endsWith("%") ? (n[i] * 255) / 100 : n[i]));
     return toHex(channels.map((channel) => Math.min(255, Math.max(0, channel))));
   }
   const [h, s, l] = [n[0], n[1] / 100, n[2] / 100];
@@ -604,6 +604,27 @@ export const tighten = (
 export const runGit = (args: string[]) =>
   spawnSync("git", args, { encoding: "utf8", maxBuffer: 1 << 30 });
 
+function readAllowlists<T>(file: string, parse: (json: string) => T) {
+  const allow = existsSync(file) ? parse(readFileSync(file, "utf8")) : undefined;
+  const head = runGit(["show", `HEAD:./${file}`]);
+  const committed = head.status === 0 ? parse(head.stdout) : undefined;
+  return { allow, committed };
+}
+
+export function readReasonAllowlists(file: string) {
+  const { allow = {}, committed } = readAllowlists(file, (json): Record<string, string> => {
+    const value: unknown = JSON.parse(json);
+    if (!isRecord(value)) throw new Error(`${file}: expected an object of reasons`);
+    return Object.fromEntries(
+      Object.entries(value).map(([name, reason]) => {
+        if (typeof reason !== "string") throw new Error(`${file}: "${name}" needs a string reason`);
+        return [name, reason] as const;
+      }),
+    );
+  });
+  return { allow, committed };
+}
+
 /** Every file under the current directory, tracked or untracked, .gitignore honoured. */
 export const listTree = (cmd: string) => {
   const ls = runGit(["ls-files", "-z", "--cached", "--others", "--exclude-standard"]);
@@ -753,13 +774,34 @@ export const writeAllowlist = (cmd: string, path: string, next: object, done = "
   }
 };
 
+function parseColourAllowlist(json: string): Allowlist {
+  const value: unknown = JSON.parse(json);
+  if (!isRecord(value)) throw new Error(`${ALLOWLIST}: expected an object of allowances`);
+  return Object.fromEntries(
+    Object.entries(value).map(([file, entry]) => {
+      const label = `${ALLOWLIST}: "${file}"`;
+      if (!isRecord(entry)) throw new Error(`${label} needs an object of counts and a reason`);
+      const { reason, partner } = entry;
+      if (reason !== undefined && typeof reason !== "string")
+        throw new Error(`${label}: "reason" needs a string`);
+      if (partner !== undefined && typeof partner !== "string")
+        throw new Error(`${label}: "partner" needs a string`);
+      for (const metric of METRICS) {
+        const count = entry[metric];
+        if (
+          count !== undefined &&
+          (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0)
+        )
+          throw new Error(`${label}: "${metric}" needs a non-negative integer`);
+      }
+      return [file, { ...entry, reason: reason ?? "" }] as const;
+    }),
+  );
+}
+
 if (import.meta.main) {
   answerHelp(USAGE);
-  const allow = existsSync(ALLOWLIST)
-    ? (JSON.parse(readFileSync(ALLOWLIST, "utf8")) as Allowlist)
-    : undefined;
-  const head = runGit(["show", `HEAD:./${ALLOWLIST}`]);
-  const committed = head.status === 0 ? (JSON.parse(head.stdout) as Allowlist) : undefined;
+  const { allow, committed } = readAllowlists(ALLOWLIST, parseColourAllowlist);
   const { files, skipped } = scanTree();
   const report = exceptionReport("brand-colours", skipped);
   if (report) console.log(report);

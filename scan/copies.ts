@@ -8,7 +8,7 @@
 // without a reason, on an entry whose file is no copy (stale), and on an entry added against HEAD: the list may only shrink. Where the working
 // tree changes the brand pin package.json holds at HEAD, an entry may also name a file committed
 // at HEAD and unchanged since, which a newer scanner finds.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
   brandFiles,
@@ -19,7 +19,7 @@ import {
   isBrandCopy,
   listTree,
   pinChange,
-  runGit,
+  readReasonAllowlists,
   skippedReport,
   writeAllowlist,
 } from "./colours";
@@ -153,6 +153,7 @@ export const tightenCopies = (
 
 export function checkCopies(args: string[]) {
   answerHelp(USAGE);
+  const { allow, committed } = readReasonAllowlists(LIST);
   const brand = brandFiles();
   const sizes = brandSizes(brand);
   const found: Record<string, string> = {};
@@ -168,9 +169,6 @@ export function checkCopies(args: string[]) {
   }
   const report = skippedReport("brand-copies", tree);
   if (report) console.log(report);
-  const allow = existsSync(LIST) ? (JSON.parse(readFileSync(LIST, "utf8")) as Allowlist) : {};
-  const head = runGit(["show", `HEAD:./${LIST}`]);
-  const committed = head.status === 0 ? (JSON.parse(head.stdout) as Allowlist) : undefined;
   const upgrade = committed !== undefined && pinChange("brand-copies") !== undefined;
   const mayAdd = (p: string) => upgrade && p in found && committedAsIs(p);
   if (args.includes("--tighten")) {

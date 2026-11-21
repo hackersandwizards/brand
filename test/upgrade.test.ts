@@ -2,7 +2,7 @@
 // files as committed at HEAD; anything its own new code adds still fails. Each case runs the
 // command in a throwaway Git repository, as a consumer's gate does.
 import { afterAll, expect, test, vi } from "vitest";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import own from "../package.json";
@@ -70,6 +70,55 @@ const CSS = ".a { border-radius: 6px; color: #123456; }\n";
 const entry = (radius: number) =>
   JSON.stringify({ "a.css": { hex: 1, radius, reason: "r" } }, null, 2);
 
+test.each([
+  {
+    label: "working-tree array",
+    before: "{}",
+    after: "[]",
+    source: "",
+    error: "expected an object of allowances",
+  },
+  {
+    label: "committed array",
+    before: "[]",
+    after: "{}",
+    source: "",
+    error: "expected an object of allowances",
+  },
+  {
+    label: "non-numeric metric",
+    before: entry(1),
+    after: '{"a.css":{"hex":"invalid","radius":1,"reason":"r"}}',
+    source: CSS,
+    error: '"a.css": "hex" needs a non-negative integer',
+  },
+])(
+  "brand-colours rejects a $label before checking or tightening",
+  ({ before, after, source, error }) => {
+    const file = "brand-colours.json";
+    const dir = consumer({ [file]: before, "a.css": source });
+    write(dir, { [file]: after });
+    for (const args of [[], ["--tighten"]]) {
+      const result = Bun.spawnSync(["bun", join(ROOT, "scan", "colours.ts"), ...args], {
+        cwd: dir,
+      });
+      expect(result.exitCode).toBe(1);
+      expect(result.stderr.toString()).toContain(`${file}: ${error}`);
+    }
+    expect(readFileSync(join(dir, file), "utf8")).toBe(after);
+  },
+);
+
+test("brand-colours --tighten keeps counts when the existing entry has no reason yet", () => {
+  const file = "brand-colours.json";
+  const dir = consumer({ [file]: '{"a.css":{"hex":1,"radius":1}}', "a.css": CSS });
+  expect(run(dir, "colours.ts", "--tighten")).toBe(0);
+  expect(JSON.parse(readFileSync(join(dir, file), "utf8"))).toEqual({
+    "a.css": { hex: 1, radius: 1, reason: "" },
+  });
+  expect(run(dir, "colours.ts")).toBe(1);
+});
+
 test("brand-colours: a pin raise may list what the new scanner finds in the committed file", () => {
   const dir = consumer({ "a.css": CSS, "brand-colours.json": entry(0) });
   expect(run(dir, "colours.ts")).toBe(1);
@@ -119,21 +168,68 @@ test("brand-colours --tighten during a pin raise lists the committed file's new 
 
 const FAVICON = readFileSync(join(ROOT, "logos/favicon.svg"), "utf8");
 
+const checkConsumerCopies = (dir: string, args: string[] = []) => {
+  const before = process.cwd();
+  try {
+    process.chdir(dir);
+    return checkCopies(args);
+  } finally {
+    process.chdir(before);
+  }
+};
+
+test("brand-copies leaves an absent allowlist absent when there are no copies", () => {
+  const dir = consumer({});
+  expect(checkConsumerCopies(dir)).toBe(0);
+  expect(checkConsumerCopies(dir, ["--tighten"])).toBe(0);
+  expect(existsSync(join(dir, "brand-copies.json"))).toBe(false);
+});
+
+test("brand-copies preserves a valid reason through checking and tightening", () => {
+  const file = "brand-copies.json";
+  const allow = { "public/a.svg": "Référence" };
+  const dir = consumer({ [file]: JSON.stringify(allow), "public/a.svg": FAVICON });
+  expect(checkConsumerCopies(dir)).toBe(0);
+  expect(checkConsumerCopies(dir, ["--tighten"])).toBe(0);
+  expect(JSON.parse(readFileSync(join(dir, file), "utf8"))).toEqual(allow);
+});
+
+test.each(["{}", "[]"])(
+  "brand-copies rejects an array allowance in the working tree or at HEAD (HEAD=%s)",
+  (committed) => {
+    const file = "brand-copies.json";
+    const dir = consumer({ [file]: committed });
+    write(dir, { [file]: committed === "{}" ? "[]" : "{}" });
+    expect(() => checkConsumerCopies(dir)).toThrow(
+      "brand-copies.json: expected an object of reasons",
+    );
+    expect(() => checkConsumerCopies(dir, ["--tighten"])).toThrow(
+      "brand-copies.json: expected an object of reasons",
+    );
+  },
+);
+
+test("brand-copies --tighten rejects an allowance whose reason is not a string", () => {
+  const file = "brand-copies.json";
+  const dir = consumer({ [file]: '{"copy.svg":null}' });
+  expect(() => checkConsumerCopies(dir, ["--tighten"])).toThrow(
+    'brand-copies.json: "copy.svg" needs a string reason',
+  );
+  expect(readFileSync(join(dir, file), "utf8")).toBe('{"copy.svg":null}');
+});
+
 test("brand-copies --tighten admits the committed copy __proto__ during a pin raise", () => {
   const dir = consumer({ ["__proto__"]: FAVICON, "brand-copies.json": "{}" });
   raise(dir);
-  const before = process.cwd();
   const log = vi.spyOn(console, "log");
   try {
-    process.chdir(dir);
-    expect(checkCopies([])).toBe(1);
-    expect(checkCopies(["--tighten"])).toBe(0);
-    const allow: unknown = JSON.parse(readFileSync("brand-copies.json", "utf8"));
+    expect(checkConsumerCopies(dir)).toBe(1);
+    expect(checkConsumerCopies(dir, ["--tighten"])).toBe(0);
+    const allow: unknown = JSON.parse(readFileSync(join(dir, "brand-copies.json"), "utf8"));
     expect(allow).toEqual({ ["__proto__"]: "" });
     expect(log).toHaveBeenCalledWith("brand-copies: brand-copies.json tightened");
   } finally {
     log.mockRestore();
-    process.chdir(before);
   }
 });
 

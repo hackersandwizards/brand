@@ -143,6 +143,15 @@ test("a first tighten records findings without inventing a reason", () => {
   });
 });
 
+test("tightening drops an unused allowance and keeps each file and metric within its own ceiling", () => {
+  expect(
+    tighten(
+      { "a.css": { ...zero, hex: 1, rgb: 1 }, "b.css": { ...zero, hex: 1 } },
+      { ...allow, "clean.css": { hex: 1, reason: "r" } },
+    ),
+  ).toEqual({ "a.css": { hex: 1, reason: "r" } });
+});
+
 test("tighten preserves a file literally named __proto__", () => {
   const files = { ["__proto__"]: { ...zero, hex: 1 } };
   const prior = { ["__proto__"]: { reason: "recorded", hex: 1 } };
@@ -284,12 +293,18 @@ test("rgb() and hsl() literals count like hex: off-token as rgb, a token's colou
 
 test.each([
   ["RGB", " 100% 0% 20% / 40% ", "#ff0033"],
+  ["rgb", "50% 30% 70%", "#804db3"],
   ["hsl", "0.5turn 50% 25%", "#206060"],
   ["hsl", "100grad 100% 50%", "#80ff00"],
   ["hsl", "1.5707963267948966rad 100% 50%", "#80ff00"],
   ["hsl", "120deg 50% 75%", "#9fdf9f"],
 ])("resolves %s(%s) before opacity", (fn, args, hex) => {
   expect(fnColour(fn, args)).toBe(hex);
+});
+
+test("counts rgb(74 222 50%) as the brand green", () => {
+  const { counts } = scanSource(".a { color: rgb(74 222 50%); }", ".css");
+  expect(counts).toEqual({ ...zero, tokenHex: 1 });
 });
 
 test("a channel with a prefix, trailing unit or CSS keyword is no RGB literal", () => {

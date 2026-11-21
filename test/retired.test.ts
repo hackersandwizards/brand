@@ -70,6 +70,14 @@ test("finds every retired line with or without its stop, plural, possessive and 
 });
 
 // Speaker notes reach a build as JSON-serialised island props, their line breaks escaped.
+test("finds retired lines in an island's JSON-serialised speaker notes", () => {
+  const [first, ...rest] = line.split(" ");
+  for (const whitespace of ["\n", "\r\n", "\t", "\f", "\b"]) {
+    const props = JSON.stringify({ notes: first + whitespace + rest.join(" ") });
+    expect(retiredIn(`<astro-island props="${props.replaceAll('"', "&quot;")}">`)).toEqual([line]);
+  }
+});
+
 test("keeps escaped backslashes literal in a retired line", () => {
   const [a, ...rest] = line.split(" ");
   const tail = rest.join(" ");
