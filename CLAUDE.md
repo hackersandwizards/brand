@@ -95,20 +95,11 @@ data or secret.
 - `bun run test` runs the fast suite with Vitest on Bun, including in the changed gate for source
   pushes. `bun run check:integration` runs the tests that launch a browser or produce build
   artifacts. After `bun run build`, `bun run check:catalog` tests `dist/`.
+- `bun run explore` runs the property tests with a fresh seed and 512 cases each. Pass
+  `--seed <seed>` to replay a run.
 - `bun run mutation` runs Stryker outside the gate with a 15-minute cap and writes
-  `.stryker-reports/mutation.json`.
-  It uses eight in-process Vitest files (1–32 ms each) for the colour, component and copy checks,
-  code classes, list filtering, space navigation, token helpers and mail-signature filling.
-  The browser, server and subprocess suites stay outside the run (`markers` 207.4 s, `elements`
-  170.6 s, `behaviour` 53.2 s, `catalog-scan` 46.1 s, `header` 4.31 s, `disclosure` 3.77 s,
-  `linkedin-visuals` 2.31 s, `upgrade` 1.26 s, `marks` 584 ms, `help` 487 ms, `git-env` 461 ms,
-  `retired` 240 ms, `night` 225 ms and `components` 165 ms), along with the source these suites
-  exercise through Chrome or a separate process (`scan/{elements,help,markers,retired}.ts`,
-  `elements/{behaviour,form,table}.ts`, `expert/components/theme-icons.ts`,
-  `applications/{linkedin-visuals,slide-visuals}/*.ts` and `applications/mail-signature/cli.ts`),
-  the built-catalog suites (`catalog/stories` 100.8 s, `catalog/list-filter` 40.3 s and
-  `catalog/portal` 16.7 s), the generated `elements/copy.ts` and the packaging, data and asset checks
-  (`package` 102 ms, `manifest` 33 ms, `catalog-files` 10 ms, `logo-rules` 5 ms and `verbal` 2 ms).
+  `.stryker-reports/mutation.json`. Its source scope is in `stryker.config.mjs`; the Vitest
+  unit project lists the suites run under mutation. Only in-process tests exercise mutants.
 - `bun run fix`: `eslint --fix`, then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset

@@ -44,7 +44,7 @@ export function fillSignature(
     linkedinShort: linkedin.replace(/^https:\/\/(www\.)?/, ""),
   };
   const value = (key: string) => {
-    if (!(key in values)) throw new Error(`mail signature: unknown field {{${key}}}`);
+    if (!Object.hasOwn(values, key)) throw new Error(`mail signature: unknown field {{${key}}}`);
     return values[key];
   };
   const filled = template

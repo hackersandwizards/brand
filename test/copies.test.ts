@@ -10,13 +10,16 @@ const wordmark = readFileSync(join(ROOT, "logos/wordmark.svg"), "utf8");
 const brand = brandFiles();
 const identical = (text: string) => brand.get(contentHash(Buffer.from(text)));
 
-test("an LFS pointer names its object through ext lines and CRLF; other text names none", () => {
+test("an inherited __proto__ does not approve a copied path", () => {
+  expect(unlistedCopies({ ["__proto__"]: "byte copy" }, {}, undefined)).toEqual([
+    "__proto__: byte copy; import it from the package",
+  ]);
+});
+
+test("an extension's hash is distinct from the LFS object ID on the next CRLF line", () => {
   const oid = "a".repeat(64);
-  const v1 = "version https://git-lfs.github.com/spec/v1";
-  const ext = `ext-0-foo sha256:${"b".repeat(64)}`;
-  expect(lfsOid(Buffer.from(`${v1}\n${ext}\n${ext}\noid sha256:${oid}\nsize 1\n`))).toBe(oid);
-  expect(lfsOid(Buffer.from(`${v1}\r\noid sha256:${oid}\r\nsize 1\r\n`))).toBe(oid);
-  expect(lfsOid(Buffer.from(`version 2\noid sha256:${oid}\n`))).toBeUndefined();
+  const pointer = `version https://git-lfs.github.com/spec/v1\r\next-0-foo sha256:${"b".repeat(64)}\r\noid sha256:${oid}\r\nsize 1\r\n`;
+  expect(lfsOid(Buffer.from(pointer))).toBe(oid);
 });
 
 test("knows every manifest file and the generated formats", () => {

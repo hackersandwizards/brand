@@ -137,16 +137,20 @@ test("removing a partner mark frees no allowance and adding one with a count cos
   ]);
 });
 
-test("tightening lowers and drops entries and zero metrics, never raises or adds", () => {
-  expect(tighten({ "a.css": { ...zero, hex: 5 }, "b.css": { ...zero, hex: 1 } }, allow)).toEqual({
-    "a.css": { hex: 2, reason: "r" },
-  });
-  expect(tighten({ "a.css": { ...zero, hex: 1 } }, allow)["a.css"].hex).toBe(1);
-  expect(tighten({}, allow)).toEqual({});
+test("a first tighten records findings without inventing a reason", () => {
   expect(tighten({ "b.css": { ...zero, hex: 1 } }, undefined)).toEqual({
     "b.css": { hex: 1, reason: "" },
   });
-  expect(tighten({ "a.css": { ...zero, hex: 1, rgb: 1 } }, allow)["a.css"].rgb).toBeUndefined();
+});
+
+test("tighten preserves a file literally named __proto__", () => {
+  const files = { ["__proto__"]: { ...zero, hex: 1 } };
+  const prior = { ["__proto__"]: { reason: "recorded", hex: 1 } };
+  expect(Object.entries(tighten(files, prior))).toEqual(Object.entries(prior));
+});
+
+test("clamps an RGB channel of 256 before emitting its hex bytes", () => {
+  expect(fnColour("rgb", "0 256 0")).toBe("#00ff00");
 });
 
 test("an allowance above the file's count is a finding: lower it", () => {

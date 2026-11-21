@@ -542,7 +542,7 @@
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "77d1b895995aa645637b7079863c29bae676b18f5cedb5d3920d52c7158d2122"
+      "sha256": "7de196a9ab527e427cddf65c689dfcb720e05cb607018c64c8987f020e53590a"
     },
     {
       "path": "elements/choice.css",

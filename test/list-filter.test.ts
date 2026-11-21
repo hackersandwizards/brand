@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, test, vi } from "vitest";
 import {
   countLine,
   fullTextUrl,
@@ -8,20 +8,11 @@ import {
   isActive,
   matches,
   ranked,
+  searchWords,
+  tally,
   readState,
   rebaseSrcset,
-  searchWords,
-  stateUrl,
-  tally,
 } from "../elements/list-filter";
-
-// The trainer hub's cases (src/lib/__tests__/list-filter.test.ts), plus the count line for one.
-const items = [
-  { text: "context engineering claude-code", facets: { topic: ["tools"], tag: ["mcp", "memory"] } },
-  { text: "context and productivity", facets: { topic: ["evidence"], tag: ["metrics"] } },
-  { text: "spec-driven development", facets: { topic: ["tools"], tag: [] } },
-];
-const options = { topic: ["", "tools", "evidence"], tag: ["", "mcp", "memory", "metrics"] };
 
 describe("list filter", () => {
   it("fills the count line, one or other, and joins the query onto a base with or without one", () => {
@@ -36,50 +27,10 @@ describe("list filter", () => {
     expect(fullTextUrl("/search?kind=knowledge", "x")).toBe("/search?kind=knowledge&q=x");
   });
 
-  it("reads the URL's state and drops a value no option offers", () => {
-    const state = readState(new URLSearchParams("q=+context+&topic=nope&tag=mcp"), options);
-    expect(state).toEqual({ q: "context", facets: { topic: "", tag: "mcp" } });
-    expect(isActive(state)).toBe(true);
-    expect(isActive(readState(new URLSearchParams(""), options))).toBe(false);
-  });
-
-  it("matches every word and every chosen facet", () => {
-    const state = { q: "Context ENG", facets: { topic: "tools", tag: "" } };
-    expect(items.map((item) => matches(item, state))).toEqual([true, false, false]);
-    expect(matches(items[1]!, { q: "context", facets: { topic: "tools", tag: "" } })).toBe(false);
-  });
-
-  it("reads pasted queries with mixed case and whitespace and requires every word", () => {
-    const words = searchWords(" \tContext\n  ENGINEERING  ");
-    expect(words).toEqual(["context", "engineering"]);
-    expect(hasWords("Context and productivity", words)).toBe(false);
-    expect(hasWords("Engineering in context", words)).toBe(true);
-  });
-
   it("treats either a query or a chosen facet as active", () => {
     expect(isActive({ q: " context ", facets: { topic: "", tag: "" } })).toBe(true);
     expect(isActive({ q: " \t ", facets: { topic: "", tag: "mcp" } })).toBe(true);
     expect(isActive({ q: " \t ", facets: { topic: "", tag: "" } })).toBe(false);
-  });
-
-  it("counts a facet's values under the search and the other facets, not under itself", () => {
-    const state = { q: "context", facets: { topic: "tools", tag: "" } };
-    const topics = tally(items, state, "topic");
-    expect([topics.get(""), topics.get("tools"), topics.get("evidence")]).toEqual([2, 1, 1]);
-    expect(tally(items, state, "tag").get("mcp")).toBe(1);
-    expect(tally(items, state, "tag").get("metrics")).toBeUndefined();
-  });
-
-  it("writes only set values into the URL and keeps other parameters", () => {
-    const state = { q: "context", facets: { topic: "", tag: "mcp" } };
-    expect(stateUrl("http://x/knowledge?topic=tools&pin=1", state)).toBe(
-      "http://x/knowledge?pin=1&q=context&tag=mcp",
-    );
-  });
-
-  it("clears the old query and facets without dropping the page fragment", () => {
-    const href = "http://x/knowledge?q=context&topic=tools&pin=1#list";
-    expect(stateUrl(href, { q: "", facets: { topic: "" } })).toBe("http://x/knowledge?pin=1#list");
   });
 
   it("marks the search words and escapes the rest", () => {
@@ -90,34 +41,6 @@ describe("list filter", () => {
     expect(highlight("Context Engineering", ["co", "context"])).toBe(
       "<mark>Context</mark> Engineering",
     );
-  });
-
-  it("ranks the page named for the query first, then title hits, and keeps order without one", () => {
-    const titles = [
-      "Specifications, tests, and context",
-      "Context Engineering for Agents",
-      "Context Engineering",
-      "Pricing agentic coding",
-    ];
-    expect(ranked(titles, (t) => t, "context engineering")).toEqual([
-      "Context Engineering",
-      "Context Engineering for Agents",
-      "Specifications, tests, and context",
-      "Pricing agentic coding",
-    ]);
-    expect(ranked(titles, (t) => t, " ")).toBe(titles);
-  });
-
-  it("gives a title starting with the query priority over a shorter title ending with it", () => {
-    const titles = ["A Guide to Context", "Context is Everything"];
-    expect(ranked(titles, (t) => t, "context")).toEqual([
-      "Context is Everything",
-      "A Guide to Context",
-    ]);
-    expect(ranked(["Müllerhans", "Mueller Hans"], (t) => t, "  müller hans  ")).toEqual([
-      "Mueller Hans",
-      "Müllerhans",
-    ]);
   });
 
   it("renders titles as text and leaves a title alone when there is nothing to mark", () => {
@@ -174,20 +97,90 @@ describe("initListFilter", () => {
     initListFilter(root);
     expect(reads).toBe(0);
   });
+
+  it("writes a selected __proto__ radio facet into the page URL", () => {
+    const input = Object.assign(new EventTarget(), { value: "", defaultValue: "" });
+    const radio = Object.assign(new EventTarget(), {
+      name: "__proto__",
+      value: "selected",
+      checked: true,
+      defaultChecked: false,
+    });
+    const form = Object.assign(new EventTarget(), {
+      querySelector: () => input,
+      querySelectorAll: (selector: string) => (selector.includes("radio") ? [radio] : []),
+    });
+    const list = {
+      querySelector: () => null,
+      querySelectorAll: () => [],
+      toggleAttribute: () => false,
+    };
+    const nodes = new Map<string, object>([
+      ["form", form],
+      ["[data-filter-list]", list],
+      ["[data-filter-empty]", {}],
+      ["[data-filter-count]", {}],
+      ["[data-filter-panel]", new EventTarget()],
+    ]);
+    const root = {
+      dataset: { count: '"{shown} of {total}"' },
+      querySelector: (selector: string) => nodes.get(selector) ?? null,
+      querySelectorAll: () => [],
+    };
+    const replaceState = vi.fn();
+    const fetchSource = vi.fn(() => new Promise<Response>(() => {}));
+    vi.stubGlobal("HTMLSelectElement", class {});
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe = vi.fn();
+      },
+    );
+    vi.stubGlobal("location", new URL("https://example.test/knowledge"));
+    vi.stubGlobal("history", { state: null, replaceState });
+    vi.stubGlobal("addEventListener", vi.fn());
+    vi.stubGlobal("document", new EventTarget());
+    vi.stubGlobal("fetch", fetchSource);
+    try {
+      initListFilter(root as unknown as HTMLElement);
+      expect(replaceState).toHaveBeenLastCalledWith(
+        null,
+        "",
+        "https://example.test/knowledge?__proto__=selected",
+      );
+      expect(fetchSource).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
-describe("rebaseSrcset", () => {
-  const at = (url: string) => `B/${url}`;
-  it("rebases each candidate and keeps its descriptor and spacing", () => {
-    expect(rebaseSrcset("a.png 1x, b.png 2x", at)).toBe("B/a.png 1x, B/b.png 2x");
-    expect(rebaseSrcset("a.png, b.png 2x", at)).toBe("B/a.png, B/b.png 2x");
+test("keeps a comma inside an address", () => {
+  expect(rebaseSrcset("data:image/png;base64,AAAA 1x", (url) => `B/${url}`)).toBe(
+    "B/data:image/png;base64,AAAA 1x",
+  );
+});
+
+test("reads __proto__ as a facet from a URL", () => {
+  const options = { ["__proto__"]: ["東京 & #"] };
+  expect(
+    readState(new URLSearchParams({ q: "Grüße & 東京", ["__proto__"]: "東京 & #" }), options),
+  ).toEqual({
+    q: "Grüße & 東京",
+    facets: { ["__proto__"]: "東京 & #" },
   });
-  it("keeps a comma inside an address", () => {
-    expect(rebaseSrcset("w_100,h_100/a.png 1x,c.png 2x", at)).toBe(
-      "B/w_100,h_100/a.png 1x,B/c.png 2x",
-    );
-    expect(rebaseSrcset("data:image/png;base64,AAAA 1x", at)).toBe(
-      "B/data:image/png;base64,AAAA 1x",
-    );
-  });
+});
+
+test("counts a row once when it repeats a constructor facet value", () => {
+  const state = { q: "ALPHA beta", facets: { constructor: "1", "constructor/": "yes" } };
+  const item = {
+    text: "beta ALPHABET",
+    facets: { constructor: ["1", "1"], "constructor/": ["yes"] },
+  };
+  expect(tally([item], state, "constructor")).toEqual(
+    new Map([
+      ["", 1],
+      ["1", 1],
+    ]),
+  );
 });

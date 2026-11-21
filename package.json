@@ -103,7 +103,8 @@
     "catalog": "bun run dev",
     "build": "check-lock bun --bun astro build --root catalog",
     "test": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun --bun vitest run --project unit",
-    "mutation": "scaffolding-mutation",
+    "explore": "scaffolding-explore",
+    "mutation": "SCAFFOLDING_MUTATION_BUN=1 scaffolding-mutation",
     "check:integration": "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR bun --bun vitest run --project integration",
     "check:catalog": "bun --bun vitest run --project catalog",
     "check:tokens": "bun scripts/tokens.ts --check",
@@ -115,7 +116,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.40.0",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.34.0",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.35.0",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v3.3.0",
     "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.4",

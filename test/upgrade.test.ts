@@ -1,11 +1,12 @@
 // A consumer raising its brand pin may list, in the same commit, what the new scanner finds in its
 // files as committed at HEAD; anything its own new code adds still fails. Each case runs the
 // command in a throwaway Git repository, as a consumer's gate does.
-import { afterAll, expect, test } from "vitest";
+import { afterAll, expect, test, vi } from "vitest";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import own from "../package.json";
+import { checkCopies } from "../scan/copies";
 import { isRecord } from "../scan/help";
 
 const ROOT = join(import.meta.dir, "..");
@@ -117,6 +118,24 @@ test("brand-colours --tighten during a pin raise lists the committed file's new 
 });
 
 const FAVICON = readFileSync(join(ROOT, "logos/favicon.svg"), "utf8");
+
+test("brand-copies --tighten admits the committed copy __proto__ during a pin raise", () => {
+  const dir = consumer({ ["__proto__"]: FAVICON, "brand-copies.json": "{}" });
+  raise(dir);
+  const before = process.cwd();
+  const log = vi.spyOn(console, "log");
+  try {
+    process.chdir(dir);
+    expect(checkCopies([])).toBe(1);
+    expect(checkCopies(["--tighten"])).toBe(0);
+    const allow: unknown = JSON.parse(readFileSync("brand-copies.json", "utf8"));
+    expect(allow).toEqual({ ["__proto__"]: "" });
+    expect(log).toHaveBeenCalledWith("brand-copies: brand-copies.json tightened");
+  } finally {
+    log.mockRestore();
+    process.chdir(before);
+  }
+});
 
 test("brand-copies: a pin raise may list a committed file, never a new one", () => {
   const dir = consumer({ "public/a.svg": FAVICON, "brand-copies.json": "{}" });

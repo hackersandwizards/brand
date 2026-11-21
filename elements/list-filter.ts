@@ -70,16 +70,20 @@ export function readState(
   params: URLSearchParams,
   options: Record<string, readonly string[]>,
 ): FilterState {
-  const facets: Record<string, string> = {};
-  for (const [param, values] of Object.entries(options)) {
-    const value = params.get(param) ?? "";
-    facets[param] = values.includes(value) ? value : "";
-  }
+  const facets = Object.fromEntries(
+    Object.entries(options).map(([param, values]) => {
+      const value = params.get(param);
+      return [param, values.find((option) => option === value) ?? ""];
+    }),
+  );
   return { q: params.get("q")?.trim() ?? "", facets };
 }
 
 export const isActive = (state: FilterState) =>
   searchWords(state.q).length > 0 || Object.values(state.facets).some(Boolean);
+
+const facetValues = (item: FilterItem, param: string) =>
+  Object.hasOwn(item.facets, param) ? item.facets[param] : [];
 
 /** Every word in the text and every chosen facet value on the item. `except` leaves one facet out,
  *  which is how that facet's own counts are taken. */
@@ -87,7 +91,7 @@ export function matches(item: FilterItem, state: FilterState, except?: string): 
   const words = searchWords(state.q);
   if (!hasWords(item.text, words)) return false;
   return Object.entries(state.facets).every(
-    ([param, value]) => param === except || !value || (item.facets[param] ?? []).includes(value),
+    ([param, value]) => param === except || !value || facetValues(item, param).includes(value),
   );
 }
 
@@ -96,7 +100,7 @@ export function tally(items: FilterItem[], state: FilterState, param: string) {
   const counts = new Map<string, number>();
   for (const item of items) {
     if (!matches(item, state, param)) continue;
-    for (const value of ["", ...(item.facets[param] ?? [])])
+    for (const value of new Set(["", ...facetValues(item, param)]))
       counts.set(value, (counts.get(value) ?? 0) + 1);
   }
   return counts;
@@ -288,6 +292,7 @@ export function initListFilter(root: HTMLElement) {
   const copy = readCountCopy(root.dataset.count!);
   // Each facet's values in the form's order: a fieldset of radios sharing its name, or a select.
   const options: Record<string, string[]> = {};
+  Object.setPrototypeOf(options, null);
   for (const el of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
     'input[type="radio"], select',
   ))
@@ -414,6 +419,7 @@ export function initListFilter(root: HTMLElement) {
 
   const state = (): FilterState => {
     const facets: Record<string, string> = {};
+    Object.setPrototypeOf(facets, null);
     for (const param in options) facets[param] = value(param);
     return { q: input.value.trim(), facets };
   };

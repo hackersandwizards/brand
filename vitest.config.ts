@@ -17,6 +17,7 @@ export default mergeConfig(base, {
     },
   ],
   test: {
+    server: mutation ? { deps: { inline: ["@hackersandwizards/scaffolding"] } } : undefined,
     // Run one test file at a time so the browser suites do not compete for Chrome.
     fileParallelism: false,
     projects: [
@@ -26,7 +27,8 @@ export default mergeConfig(base, {
           name: "unit",
           include: mutation
             ? [
-                "test/{code,colours,copies,list-filter,mail-signature,scan,space-nav,tokens}.test.ts",
+                "test/{behaviour,code,colours,copies,elements,list-filter,mail-signature,markers,retired,scan,space-nav,tokens,upgrade}.test.ts",
+                "test/*.prop.test.ts",
               ]
             : ["test/**/*.test.ts"],
           exclude: ["test/integration/**", "test/catalog/**"],

@@ -8,7 +8,7 @@ test("a page path with a malformed escape is matched as it stands", () => {
 });
 
 test("a reading with no ink on either side fails", () => {
-  const r: Reading = {
+  const reading: Reading = {
     page: "x",
     label: "x",
     kind: "glyph",
@@ -18,7 +18,7 @@ test("a reading with no ink on either side fails", () => {
     indent: null,
     double: false,
   };
-  expect(failing(r)).toBe(true);
+  expect(failing(reading)).toBe(true);
 });
 
 test("a marker exception needs a reason beyond whitespace", () => {

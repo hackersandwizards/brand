@@ -53,15 +53,17 @@ export const unlisted = (
   mayAdd: (k: string) => boolean = () => false,
 ) => [
   ...Object.entries(found)
-    .filter(([k]) => !(k in allow))
+    .filter(([k]) => !Object.hasOwn(allow, k))
     .map(
       ([k, ps]) => `${ps.join(", ")}: forks the expert component ${k}; import it from the package`,
     ),
   ...Object.entries(allow).flatMap(([k, r]) => [
     ...(r?.trim() ? [] : [`${LIST}: ${k} names no reason`]),
     // An entry no fork answers would let a fork of that name added later pass unseen.
-    ...(k in found ? [] : [`${LIST}: ${k} forks nothing; drop its entry (brand-scan --tighten)`]),
-    ...(committed && !(k in committed) && !mayAdd(k)
+    ...(Object.hasOwn(found, k)
+      ? []
+      : [`${LIST}: ${k} forks nothing; drop its entry (brand-scan --tighten)`]),
+    ...(committed && !Object.hasOwn(committed, k) && !mayAdd(k)
       ? [
           `${LIST}: ${k} added against HEAD; the list may only shrink, or during a pin change name a fork committed as is`,
         ]

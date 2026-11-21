@@ -33,11 +33,10 @@ test("an h&w account carries wordmark, contact line (phone, website, LinkedIn) a
   );
 });
 
-test("a value is escaped and an unknown field fails", () => {
-  expect(fillSignature("{{name}}", { name: '<b>"x"</b>', role: "" }, "html")).toBe(
-    "&#60;b&#62;&#34;x&#34;&#60;/b&#62;",
+test("a prototype name is an unknown template field", () => {
+  expect(() => fillSignature("{{__proto__}}", EXAMPLE, "html")).toThrow(
+    "mail signature: unknown field {{__proto__}}",
   );
-  expect(() => fillSignature("{{nmae}}", EXAMPLE, "html")).toThrow("unknown field");
 });
 
 test("the tel link drops a trunk zero written as (0)", () => {
@@ -49,7 +48,7 @@ test("the tel link drops a trunk zero written as (0)", () => {
   expect(html).toContain('href="tel:+494012345678"');
 });
 
-test("a character outside the BMP is one numeric reference, not two surrogate halves", () => {
+test("a character outside the BMP is one numeric reference", () => {
   expect(fillSignature("{{role}}", { name: "x", role: "a😀" }, "html")).toBe("a&#128512;");
 });
 

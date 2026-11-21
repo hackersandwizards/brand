@@ -325,8 +325,10 @@ export const fnColour = (fn: string, args: string) => {
   const n = parts.slice(0, 3).map((x) => parseFloat(x));
   const unit = /[a-z]+$/.exec(parts[0])?.[0];
   n[0] *= unit === "turn" ? 360 : unit === "rad" ? 180 / Math.PI : unit === "grad" ? 0.9 : 1;
-  if (fn.toLowerCase().startsWith("rgb"))
-    return toHex(parts.slice(0, 3).map((x, i) => (x.endsWith("%") ? n[i] * 2.55 : n[i])));
+  if (fn.toLowerCase().startsWith("rgb")) {
+    const channels = parts.slice(0, 3).map((x, i) => (x.endsWith("%") ? n[i] * 2.55 : n[i]));
+    return toHex(channels.map((channel) => Math.min(255, Math.max(0, channel))));
+  }
   const [h, s, l] = [n[0], n[1] / 100, n[2] / 100];
   const k = (m: number) => (m + h / 30) % 12;
   const a = s * Math.min(l, 1 - l);
@@ -575,11 +577,11 @@ export const tighten = (
   allow: Allowlist | undefined,
   ceiling: Record<string, Counts> = {},
 ) => {
-  const next: Allowlist = {};
+  const next = new Map<string, Allowlist[string]>();
   for (const [file, counts] of Object.entries(files)) {
     const prior = allow?.[file];
     if (isPartner(file, prior)) {
-      next[file] = prior!;
+      next.set(file, prior!);
       continue;
     }
     const limit = (k: (typeof METRICS)[number]) =>
@@ -590,13 +592,13 @@ export const tighten = (
     ) as Partial<Counts>;
     // A misplaced partner stays, so the next run still reports it.
     if (Object.keys(c).length)
-      next[file] = {
+      next.set(file, {
         ...c,
         reason: prior?.reason ?? "",
         ...(prior?.partner !== undefined && { partner: prior.partner }),
-      };
+      });
   }
-  return next;
+  return Object.fromEntries(next);
 };
 
 export const runGit = (args: string[]) =>

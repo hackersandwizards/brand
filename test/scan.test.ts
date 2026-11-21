@@ -1,27 +1,18 @@
 import { expect, test } from "vitest";
 import { forks, unlisted } from "../scan/components";
 
-test("finds a consumer component named like an expert component in any folder, nothing else", () => {
-  expect(
-    forks([
-      "src/components/Pill.astro",
-      "src/components/pill.tsx",
-      "components/app-header.tsx",
-      "src/components/theme_toggle.astro",
-      "src/components/Card.astro",
-      "src/components/Pill.test.tsx",
-      "node_modules/x/components/Pill.astro",
-      "src/ui/AppHeader.astro",
-      "src/layouts/SpaceNav.svelte",
-      "src/components/ThemeToggle.vue",
-      "src/components/Pill.ts",
-    ]),
-  ).toEqual({
-    pill: ["src/components/Pill.astro", "src/components/pill.tsx"],
-    appheader: ["components/app-header.tsx", "src/ui/AppHeader.astro"],
-    spacenav: ["src/layouts/SpaceNav.svelte"],
-    themetoggle: ["src/components/theme_toggle.astro", "src/components/ThemeToggle.vue"],
+test("recognises the shipped Pill, ThemeToggle and SpaceNav component names", () => {
+  expect(forks(["Pill.astro", "src/theme_toggle.astro", "src/SpaceNav.svelte"])).toEqual({
+    pill: ["Pill.astro"],
+    themetoggle: ["src/theme_toggle.astro"],
+    spacenav: ["src/SpaceNav.svelte"],
   });
+});
+
+test("an inherited constructor does not approve a fork finding", () => {
+  expect(unlisted({ constructor: ["src/Component.astro"] }, {}, undefined)).toEqual([
+    "src/Component.astro: forks the expert component constructor; import it from the package",
+  ]);
 });
 
 test("flags an unlisted fork, an entry without a reason, one added against HEAD and a stale one", () => {

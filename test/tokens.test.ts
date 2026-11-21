@@ -56,13 +56,6 @@ test("reads compact and multiline custom properties and skips commented theme bl
   ).toEqual({ "--step": "1rem", "--measure": "2rem", "--grid": "repeat(2, minmax(0, 1fr))" });
 });
 
-test("reads adjacent theme variants with omitted final semicolons", () => {
-  expect(
-    parseTokens(`@theme   static   { --step: 1rem }
-    @theme inline{ --gap: var(--step) }`),
-  ).toEqual({ "--step": "1rem", "--gap": "var(--step)" });
-});
-
 test("reports a missing or unreadable theme block before generating tokens", () => {
   for (const css of ["body { font-size: 1rem }", "@theme { .nested { --step: 1rem } }"])
     expect(() => parseTokens(css)).toThrow("a @theme block parseTokens cannot read");

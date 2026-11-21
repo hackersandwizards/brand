@@ -124,13 +124,15 @@ export const unlistedCopies = (
   mayAdd: (p: string) => boolean = () => false,
 ) => [
   ...Object.entries(found)
-    .filter(([p]) => !(p in allow))
+    .filter(([p]) => !Object.hasOwn(allow, p))
     .map(([p, why]) => `${p}: ${why}; import it from the package`),
   ...Object.entries(allow).flatMap(([p, r]) => [
     ...(r?.trim() ? [] : [`${LIST}: ${p} names no reason`]),
     // An entry on a file that is no copy would let a copy placed there later pass unseen.
-    ...(p in found ? [] : [`${LIST}: ${p} is no copy; drop its entry (brand-copies --tighten)`]),
-    ...(committed && !(p in committed) && !mayAdd(p)
+    ...(Object.hasOwn(found, p)
+      ? []
+      : [`${LIST}: ${p} is no copy; drop its entry (brand-copies --tighten)`]),
+    ...(committed && !Object.hasOwn(committed, p) && !mayAdd(p)
       ? [
           `${LIST}: ${p} added against HEAD; the list may only shrink, or during a pin change name a file committed as is`,
         ]
@@ -138,11 +140,23 @@ export const unlistedCopies = (
   ]),
 ];
 
-if (import.meta.main) {
+export const tightenCopies = (
+  found: Record<string, string>,
+  allow: Allowlist,
+  mayAdd: (file: string) => boolean,
+) =>
+  Object.fromEntries(
+    Object.keys(found).flatMap<[string, string]>((file) =>
+      Object.hasOwn(allow, file) ? [[file, allow[file]]] : mayAdd(file) ? [[file, ""]] : [],
+    ),
+  );
+
+export function checkCopies(args: string[]) {
   answerHelp(USAGE);
   const brand = brandFiles();
   const sizes = brandSizes(brand);
   const found: Record<string, string> = {};
+  Object.setPrototypeOf(found, null);
   const tree = listTree("brand-copies");
   for (const p of tree.filter((p) => !exception(p))) {
     const hit = copyOf(
@@ -159,21 +173,19 @@ if (import.meta.main) {
   const committed = head.status === 0 ? (JSON.parse(head.stdout) as Allowlist) : undefined;
   const upgrade = committed !== undefined && pinChange("brand-copies") !== undefined;
   const mayAdd = (p: string) => upgrade && p in found && committedAsIs(p);
-  if (process.argv.includes("--tighten")) {
-    const next = Object.fromEntries(
-      Object.keys(found)
-        .filter((p) => p in allow || mayAdd(p))
-        .map((p) => [p, allow[p] ?? ""]),
-    );
-    writeAllowlist("brand-copies", LIST, next);
+  if (args.includes("--tighten")) {
+    writeAllowlist("brand-copies", LIST, tightenCopies(found, allow, mayAdd));
   } else {
     const bad = unlistedCopies(found, allow, committed, mayAdd);
     if (bad.length) {
       console.error(
         `${bad.join("\n")}\nbrand-copies: ${bad.length} findings. Read the file from node_modules/@hackersandwizards/brand, or name the exception with its reason in ${LIST}.`,
       );
-      process.exit(1);
+      return 1;
     }
     console.log(`brand-copies: no copy of a brand file outside ${LIST}`);
   }
+  return 0;
 }
+
+if (import.meta.main) process.exitCode = checkCopies(process.argv);

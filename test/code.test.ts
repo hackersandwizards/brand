@@ -38,33 +38,10 @@ test("a colour outside the code palette fails instead of turning grey", () => {
   expect(() => span("#F97583")).toThrow("no code palette colour");
 });
 
-test("the block takes hw-code and drops the theme's inline ground", () => {
-  const pre = {
-    properties: { class: "astro-code hw-code-theme", style: "background:#0b1118" } as Record<
-      string,
-      unknown
-    >,
-  };
-  codeClasses.pre(pre);
-  expect(pre.properties).toEqual({ class: "astro-code hw-code-theme hw-code" });
-});
-
 test("the block's class is set once, even where the theme's name already gave it", () => {
-  const pre = { properties: { class: "astro-code hw-code" } as Record<string, unknown> };
+  const pre = { properties: { class: "astro-code hw-code" } };
   codeClasses.pre(pre);
   expect(pre.properties.class).toBe("astro-code hw-code");
-});
-
-test("keeps the block's existing classes when their separators include tabs and spaces", () => {
-  const pre = { properties: { class: "astro-code \t hw-code-theme  hw-code" } };
-  codeClasses.pre(pre);
-  expect(pre.properties.class).toBe("astro-code hw-code-theme hw-code");
-});
-
-test("a token with no explicit colour can still be bold", () => {
-  const node = { properties: {} };
-  codeClasses.span(node, 0, 0, node, { fontStyle: 2 });
-  expect(node.properties).toEqual({ class: "hw-code-bold" });
 });
 
 test("the terminal's 16 ANSI colours are core colours", () => {

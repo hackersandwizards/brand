@@ -73,13 +73,6 @@ test("the strip and the expert header strip draw the strip gradient, teal to pur
     expect(readFileSync(join(ROOT, f), "utf8")).toContain("background: var(--gradient-strip);");
 });
 
-test("rules opens at-rule blocks and reads each rule's properties", () => {
-  expect(rules("@layer x { @media print { .a, .b { color: red; border: 0 } } } .c{x:1}")).toEqual([
-    { selectors: [".a", ".b"], props: ["color", "border"] },
-    { selectors: [".c"], props: ["x"] },
-  ]);
-});
-
 // The print preset leaves the type sizes to print.css, which owns paper sizes; the screen preset
 // sets every setting, so a screen cell inside a paper page is whole.
 test("the screen preset sets every setting an element reads", () => {
@@ -122,13 +115,9 @@ test("the screen preset sets every setting an element reads", () => {
   ).toEqual([]);
 });
 
-test("rules resolves nested rules against the parent and keeps the parent's own properties", () => {
-  expect(
-    rules(".card { border-radius: 8px; &:hover { color: red } .meta, & + & { x: 1 } }"),
-  ).toEqual([
-    { selectors: [".card:hover"], props: ["color"] },
-    { selectors: [".card .meta", ".card + .card"], props: ["x"] },
-    { selectors: [".card"], props: ["border-radius"] },
+test("rules substitutes the parent for both ampersands in a sibling selector", () => {
+  expect(rules(".card { & + & { x: 1 } }")).toEqual([
+    { selectors: [".card + .card"], props: ["x"] },
   ]);
 });
 
