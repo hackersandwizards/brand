@@ -17,7 +17,6 @@ export default mergeConfig(base, {
     },
   ],
   test: {
-    server: mutation ? { deps: { inline: ["@hackersandwizards/scaffolding"] } } : undefined,
     // Run one test file at a time so the browser suites do not compete for Chrome.
     fileParallelism: false,
     projects: [
