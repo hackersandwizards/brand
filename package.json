@@ -111,7 +111,8 @@
     "check:staged": "check-staged"
   },
   "overrides": {
-    "minimatch": "11.0.5"
+    "minimatch": "11.0.9",
+    "qs": "6.17.1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -119,28 +120,28 @@
     "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.35.4",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v3.3.1",
     "@tailwindcss/vite": "4.3.5",
-    "@types/bun": "1.4.4",
+    "@types/bun": "1.4.5",
     "@typescript/native": "npm:typescript@7.0.2",
-    "astro": "7.4.11",
+    "astro": "7.4.13",
     "astrobook": "0.13.3",
-    "axe-core": "4.14.0",
-    "eslint": "10.14.0",
+    "axe-core": "4.14.1",
+    "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-astro": "3.2.1",
     "lightningcss": "1.33.0",
-    "lucide-static": "1.72.0",
-    "prettier": "3.10.0",
+    "lucide-static": "1.77.0",
+    "prettier": "3.10.1",
     "satteri": "0.11.7",
     "sharp": "0.35.5",
-    "stylelint": "18.0.0",
+    "stylelint": "18.1.0",
     "svgo": "4.1.0",
     "tailwindcss": "4.3.5",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "8.72.2"
+    "typescript-eslint": "8.73.0"
   },
   "prettier": "@hackersandwizards/scaffolding/prettier",
   "dependencies": {
-    "puppeteer-core": "25.17.0"
+    "puppeteer-core": "25.18.1"
   },
   "admin": {
     "label": "Brand",

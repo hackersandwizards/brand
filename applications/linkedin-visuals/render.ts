@@ -73,7 +73,7 @@ export function findChrome(): string {
     )
     .find((path) => existsSync(path));
   if (found) return found;
-  const args = ["@puppeteer/browsers@3.2.6", "install", "chrome@stable", "--path", cache];
+  const args = ["@puppeteer/browsers@3.2.7", "install", "chrome@stable", "--path", cache];
   return execFileSync("bunx", [...args, "--format", "{{path}}"], { encoding: "utf-8" }).trim();
 }
 

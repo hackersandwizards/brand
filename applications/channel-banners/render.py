@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pillow>=11", "fonttools>=4", "brotli>=1", "resvg-py>=0.5"]
+# dependencies = ["pillow>=13.0.0", "fonttools>=4.68.0", "brotli>=1.2.1", "resvg-py>=0.5"]
 # ///
 """Render every channel banner into this folder from this repo's lockup and fonts.
 
