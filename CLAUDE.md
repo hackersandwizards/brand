@@ -86,12 +86,14 @@ data or secret.
 ## Commands
 
 - `bun run check`: scaffolding's runner (`scaffolding check`): format, ESLint, Oxlint, styles,
-  typecheck, structure, coupling, import cycles, spaces, confidential, licenses, the fast tests, the catalog build and the item
+  typecheck, structure, coupling, import cycles, shell, markdown, spaces, confidential, licenses, the fast tests, the catalog build and the item
   check (`admin`) side by side, then `check:integration`, `check:catalog` (the built portal and
   stories, `brand-elements` and AA text contrast over every story) and `check:tokens` (the freshness of `generated/`). Under load
   the full gate can exceed 600 s. The stock hooks and the changed gate they use are documented in
   `.githooks/README.md`.
   `bun install` points `core.hooksPath` at `.githooks/`.
+- `bun run scaffolding shell` runs ShellCheck over tracked shell scripts. `bun run scaffolding markdown`
+  lints every tracked Markdown file, including content records. Add `--fix` to apply markdownlint's fixes.
 - `bun run test` runs the fast suite with Vitest on Bun, including in the changed gate for source
   pushes. `bun run check:integration` runs the tests that launch a browser or produce build
   artifacts. After `bun run build`, `bun run check:catalog` tests `dist/`.
