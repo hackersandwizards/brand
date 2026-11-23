@@ -97,12 +97,12 @@ data or secret.
 - `bun run test` runs the fast suite with Vitest on Bun, including in the changed gate for source
   pushes. `bun run check:integration` runs the tests that launch a browser or produce build
   artifacts. After `bun run build`, `bun run check:catalog` tests `dist/`.
-- `bun run explore` runs the property tests with a fresh seed and 512 cases each. Pass
+- `bun run scaffolding-explore` runs the property tests with a fresh seed and 512 cases each. Pass
   `--seed <seed>` to replay a run.
 - `bun run mutation` runs Stryker outside the gate with a 15-minute cap and writes
   `.stryker-reports/mutation.json`. Its source scope is in `stryker.config.mjs`; the Vitest
   unit project lists the suites run under mutation. Only in-process tests exercise mutants.
-- `bun run fix`: `eslint --fix`, then `prettier --write`.
+- `bun run scaffolding fix` runs `eslint --fix` and then `prettier --write`.
 - `bun run dev` (alias `bun run catalog`): the catalog's Astro dev server at
   `http://127.0.0.1:4326/` (`http://brand.localhost` where Caddy proxies it): scaffolding's preset
   drops the `/brand` base in dev and redirects `/brand/...` there. The portal reads the working tree
