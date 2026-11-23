@@ -225,7 +225,7 @@ One prompt verbatim (brand designer, Claude, run 1; file list shortened):
 > 70 % zoom on a laptop (\*-2-pdf.png), and two 16:9 slides projected in a training room or shared
 > in a video call (\*-3-slide.png, \*-4-slide.png). Images are shown at 1000 px on the long side.
 > Audience: the brand's own design team. There are two sets, K and M, each with the same four
-> surfaces; files are named <set>-<surface>.png: […]. Look at every file. Criteria fixed before any
+> surfaces; files are named \<set>-\<surface>.png: […]. Look at every file. Criteria fixed before any
 > score (2026-11-01): consistency (the labels, tags/pills and cards read as one family across
 > website, PDF and slide), fit per medium (each surface looks right for how it is seen: laptop
 > screen, A4 PDF at about 70 % zoom, projected 16:9 slide), calm (nothing competes, no clutter,
@@ -265,7 +265,7 @@ One prompt verbatim (density, co-founder, Claude, run 1; paths shortened):
 > desktop), two pages: the dashboard with its attention list, and the deals list. Viewed in a
 > browser at 1440x900 CSS px on a laptop at desk distance. Images are full-size screenshots of that
 > viewport. There are three sets, R, S and T, each showing the same two pages with the same data;
-> files are named <set>-<n>-<page>.png. Audience: you, in the role above. Files, look at every one:
+> files are named \<set>-\<n>-\<page>.png. Audience: you, in the role above. Files, look at every one:
 > […] Criteria fixed before any score: information per screen (how much you can scan without
 > scrolling), legibility (every text readable without strain at desk distance), calm (breathing
 > room, not cramped, nothing competes), hierarchy (what matters reads first), fit for daily expert

@@ -172,8 +172,8 @@ build step: `"check:retired": "brand-retired dist"`.
 Your design-system page shows each shared element you use as a tile,
 `<div data-hw-tile="card" data-hw-version="<brand version>">` holding the element in your medium,
 the version read from `@hackersandwizards/brand/package.json` when the page is built,
-marked in the page's own language, "from brand v<version>" on an English page and "aus brand
-v<version>" on a German one, with a link to the element's entry in the brand catalog, and each element you keep as your own
+marked in the page's own language, "from brand v\<version>" on an English page and "aus brand
+v\<version>" on a German one, with a link to the element's entry in the brand catalog, and each element you keep as your own
 in full with its reason, `<section data-hw-exception="<name>">`. On an Astro page the tile is
 `@hackersandwizards/brand/Element.astro`: `<Element name="pill" scale="dense" lang="de"
 note="..."><span class="hw-pill">...</span></Element>` draws the caption, the version and the link,

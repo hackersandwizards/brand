@@ -551,25 +551,25 @@ Gespräch buchen: https://haw.dev/call
 
 The live page shows the texts from before 08.11. (read 10.11.); the German fields stood empty on 08.11.
 
-**Tagline, English**
+##### Tagline, English
 
 ```text
 Founder & Co-CEO of hackers&wizards, co-author of Building the Agentic Software Factory (Packt), program chair of code.talks.
 ```
 
-**Bio, English**
+##### Bio, English
 
 ```text
 Benedikt Stemmildt is Founder & Co-CEO of hackers&wizards in Hamburg, which trains and mentors engineering and product teams in agentic engineering until every role works in tune with the others. He co-wrote Building the Agentic Software Factory with Alex Merced (Packt), hosts the Rethink Engineering podcast and chairs the program of code.talks. Before that he worked as engineer, architect and CIO at OTTO, Breuninger and BLUME2000. On stage he talks about moving teams from vibe coding to agentic engineering, architecture when AI writes more code, and developer experience as strategy.
 ```
 
-**Tagline, German**
+##### Tagline, German
 
 ```text
 Founder & Co-CEO von hackers&wizards, Co-Autor von Building the Agentic Software Factory (Packt), Programmleitung der code.talks.
 ```
 
-**Bio, German**
+##### Bio, German
 
 ```text
 Benedikt Stemmildt ist Founder & Co-CEO von hackers&wizards in Hamburg, das Engineering- und Produktteams in Agentic Engineering schult und mit Mentoring begleitet, bis alle Rollen eingespielt zusammenarbeiten. Mit Alex Merced schrieb er Building the Agentic Software Factory (Packt), er moderiert den Podcast Rethink Engineering und leitet das Programm der code.talks. Davor arbeitete er als Engineer, Architekt und CIO bei OTTO, Breuninger und BLUME2000. Auf der Bühne spricht er darüber, wie Teams von Vibe Coding zu Agentic Engineering kommen, über Architektur, wenn AI mehr Code schreibt, und über Developer Experience als Strategie.
