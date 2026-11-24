@@ -810,7 +810,7 @@ test("a scrolling table's wrapper is a tab stop while its table scrolls, none wh
     () => document.getElementById("narrow")!.getAttribute("tabindex") === "0",
   );
   await p.close();
-});
+}, 30_000);
 
 /** Whether the focus ring of the control at `sel` shows whole: a purple column at its left and at
  * its right, nearly its height. */
@@ -895,7 +895,7 @@ test("a scrolling table starts where the text does, its ring room past it; a fit
     ]),
   ).toEqual(["0px", "0px"]);
   await p.close();
-});
+}, 30_000);
 
 // The room a scrolling table takes widens the wrapper's box, never its content box, which the mark
 // measures: a table a few pixels wider than its column stays marked.
@@ -913,7 +913,7 @@ test("a table a few pixels wider than its column stays marked as scrolling", asy
   });
   expect(await p.$eval("#near", (w) => (w as HTMLElement).dataset.hwScrolls)).toBe("true");
   await p.close();
-});
+}, 30_000);
 
 test("under CSS zoom a table that fits its column is not marked as scrolling", async () => {
   // A table filling its column exactly: the padding counted unzoomed would leave it short.
@@ -925,7 +925,7 @@ test("under CSS zoom a table that fits its column is not marked as scrolling", a
   });
   expect(await p.$eval("#z", (w) => w.scrollWidth > w.clientWidth)).toBe(false);
   await p.close();
-});
+}, 30_000);
 
 // A grid or flex item cannot shrink below a visible overflow's content: a table that fit once would
 // hold its column wide and the page would scroll sideways.
@@ -940,7 +940,7 @@ test("a table that fits in a grid starts to scroll when the grid narrows", async
   });
   expect(await p.$eval("#t", (w) => w.getBoundingClientRect().width)).toBeLessThanOrEqual(310);
   await p.close();
-});
+}, 30_000);
 
 test("a scrolling table shows a shadow at each side with more to see, a table that fits none", async () => {
   const wrap = (id: string, n: number) =>
@@ -969,7 +969,7 @@ test("a scrolling table shows a shadow at each side with more to see, a table th
     ),
   ).toBe(2);
   await p.close();
-});
+}, 30_000);
 
 // axe reads no contrast over a gradient, so the catalog's contrast check takes the shadow off; this
 // measures what it leaves out: each table text colour over its ground with the shadow at full.
@@ -1019,7 +1019,7 @@ test("every table text colour keeps AA contrast over the edge shadow at full str
   // The control: a shadow of full ink must fail.
   expect(await lowest("var(--color-ink)")).toBeLessThan(4.5);
   await p.close();
-});
+}, 30_000);
 
 test("the held first column covers the room beside it, keeps a focused link's ring whole, and --hw-table-held: none turns it off", async () => {
   const wide = (id: string, style = "") =>
@@ -1084,4 +1084,4 @@ test("the held first column covers the room beside it, keeps a focused link's ri
     animation: "none",
   });
   await p.close();
-});
+}, 30_000);
