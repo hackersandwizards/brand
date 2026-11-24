@@ -157,11 +157,6 @@
         "check": "coupling",
         "path": "applications/channel-banners/render.py",
         "reason": "Python reads the testimonials marks at their installed path: it cannot resolve package exports"
-      },
-      {
-        "check": "structure",
-        "path": ".claude/settings.json",
-        "reason": "This repository keeps its own SessionStart hook, a plain bun install without the lock, rather than the skeleton's"
       }
     ],
     "test": "test",
