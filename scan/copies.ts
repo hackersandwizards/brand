@@ -91,8 +91,8 @@ export const withoutEngineLogoUris = (text: string) => {
   const kept: string[] = [];
   let start = 0;
   for (const match of text.matchAll(uris)) {
-    const uri = match.groups;
-    if (!uri || !engineLogo(svgOf(uri.params, uri.data))) continue;
+    const { params, data } = match.groups as { params: string; data: string };
+    if (!engineLogo(svgOf(params, data))) continue;
     kept.push(text.slice(start, match.index));
     start = match.index + match[0].length;
   }

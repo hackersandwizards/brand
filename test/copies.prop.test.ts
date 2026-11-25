@@ -4,39 +4,48 @@ import { lfsOid } from "../scan/assets";
 import { tightenCopies, unlistedCopies } from "../scan/copies";
 
 const V1 = "version https://git-lfs.github.com/spec/v1";
-test.prop(
-  [
-    fc.uint8Array({ minLength: 32, maxLength: 32 }),
-    fc.array(unicodeString, { maxLength: 2 }),
-    fc.record({
-      newline: fc.constantFrom("\n", "\r\n"),
-      version: fc.constantFrom("version 2", V1),
-    }),
+const objectIdBytes = fc.uint8Array({ minLength: 32, maxLength: 32 });
+const extensionNames = fc.array(unicodeString, { maxLength: 2 });
+const lineEnding = fc.constantFrom("\n", "\r\n");
+
+/** Builds the object ID and extension lines shared by both pointer versions. */
+const lfsPointerEntries = (bytes: Uint8Array, names: string[]) => {
+  const oid = Buffer.from(bytes).toString("hex");
+  const extensionOid = Buffer.from(bytes.map((byte) => 255 - byte)).toString("hex");
+  const extensions = names.map(
+    (name, index) => `ext-${index}-${name.replace(/[\r\n]/g, "-")} sha256:${extensionOid}`,
+  );
+  return { oid, entries: [...extensions, `oid sha256:${oid}`, ""] };
+};
+
+test.prop([objectIdBytes, extensionNames, lineEnding], {
+  examples: [
+    [new Uint8Array(32), ["é", "長".repeat(600)], "\r\n"],
+    [new Uint8Array(32), ["𐔊"], "\n"],
+    [new Uint8Array(32), ["x".repeat(826)], "\n"],
+    [new Uint8Array(32), ["x".repeat(827)], "\n"],
   ],
-  {
-    examples: [
-      [new Uint8Array(32), ["é", "長".repeat(600)], { newline: "\r\n", version: V1 }],
-      [new Uint8Array(32), ["𐔊"], { newline: "\n", version: V1 }],
-      [new Uint8Array(32), ["x".repeat(826)], { newline: "\n", version: V1 }],
-      [new Uint8Array(32), ["x".repeat(827)], { newline: "\n", version: V1 }],
-      [new Uint8Array(32), [], { newline: "\n", version: "version 2" }],
-    ],
-  },
-)(
-  "reads the object ID from a v1 Git LFS pointer after optional extension lines",
-  (bytes, names, { newline, version }) => {
-    const oid = Buffer.from(bytes).toString("hex");
-    const extensionOid = Buffer.from(bytes.map((byte) => 255 - byte)).toString("hex");
-    const extensions = names.map(
-      (name, index) => `ext-${index}-${name.replace(/[\r\n]/g, "-")} sha256:${extensionOid}`,
-    );
-    const pointer = [version, ...extensions, `oid sha256:${oid}`, "size 7", ""].join(newline);
-    const headerSize = Buffer.byteLength(pointer) - Buffer.byteLength("size 7" + newline);
-    expect(lfsOid(Buffer.from(pointer))).toBe(
-      version === V1 && headerSize <= 1024 ? oid : undefined,
-    );
+})(
+  "reads the exact object ID from a v1 Git LFS pointer only within the 1024-byte header",
+  (bytes, names, newline) => {
+    const { oid, entries } = lfsPointerEntries(bytes, names);
+    const header = [V1, ...entries].join(newline);
+    const headerSize = Buffer.byteLength(header);
+    const actual = lfsOid(Buffer.from(`${header}size 7${newline}`));
+    expect({ readsObjectId: actual === oid, rejectsPointer: actual === undefined }).toEqual({
+      readsObjectId: headerSize <= 1024,
+      rejectsPointer: headerSize > 1024,
+    });
   },
 );
+
+test.prop([objectIdBytes, extensionNames, lineEnding], {
+  examples: [[new Uint8Array(32), [], "\n"]],
+})("rejects a Git LFS pointer with a version 2 header", (bytes, names, newline) => {
+  const { entries } = lfsPointerEntries(bytes, names);
+  const header = ["version 2", ...entries].join(newline);
+  expect(lfsOid(Buffer.from(`${header}size 7${newline}`))).toBeUndefined();
+});
 
 const pathKey = fc.oneof(fc.constantFrom("__proto__", "constructor", "toString"), unicodeString);
 test.prop([pathKey], {

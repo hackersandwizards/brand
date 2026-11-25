@@ -38,6 +38,26 @@ const char = (code: number, m: string) =>
   Number.isInteger(code) && code <= 0x10ffff && code !== 60 && code !== 62
     ? String.fromCodePoint(code)
     : m;
+
+const JS_ESCAPES = {
+  b: " ",
+  f: " ",
+  n: " ",
+  r: " ",
+  t: " ",
+  '"': '"',
+  "/": "/",
+  "\\": "\\",
+};
+
+/** Decodes JS escapes once, leaving any backslash produced by decoding literal. */
+export const decodeJsEscapes = (text: string) =>
+  text.replace(
+    /\\(?:u([\da-fA-F]{4})|([bfnrt"/\\]))/g,
+    (m, hex: string | undefined, single: keyof typeof JS_ESCAPES) =>
+      hex === undefined ? JS_ESCAPES[single] : char(parseInt(hex, 16), m),
+  );
+
 // Whitespace collapsed, with none before punctuation: a line wrapped or set across elements matches.
 const squash = (s: string) => s.replace(/\s+/g, " ").replace(/ (?=[.,;:!?])/g, "");
 // A run of `*` or `_` at a word's edge is markdown emphasis; inside a word, as in snake_case, it stays.
@@ -46,10 +66,7 @@ const EMPHASIS = /(?<![\p{L}\p{N}*_])[*_]+|[*_]+(?![\p{L}\p{N}*_])/gu;
 // entities; soft hyphens, zero-width characters and markdown emphasis dropped.
 const normalise = (s: string) =>
   squash(
-    s
-      .replace(/\\(u[\da-fA-F]{4}|[bfnrt"/\\])/g, (m, code: string) =>
-        code.startsWith("u") ? char(parseInt(code.slice(1), 16), m) : code.replace(/[bfnrt]/, " "),
-      )
+    decodeJsEscapes(s)
       .replace(/&#x([\da-f]+);/gi, (m, h: string) => char(parseInt(h, 16), m))
       .replace(/&#(\d+);/g, (m, d: string) => char(Number(d), m))
       .replace(/&(\w+);/g, (m, e: string) => ENTITIES[e] ?? m)
@@ -82,7 +99,7 @@ export const retiredIn = (text: string) => {
 };
 
 /** A file's text, or undefined for a binary (a NUL byte in its first 8000). */
-export const textOf = (path: string) => {
+const textOf = (path: string) => {
   const fd = openSync(path, "r");
   try {
     const head = Buffer.alloc(8000);

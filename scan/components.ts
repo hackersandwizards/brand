@@ -28,7 +28,6 @@ not list.
              pin change, for such a fork; writes no list where none was and none is needed.`;
 
 export const LIST = "brand-scan.json";
-export type Allowlist = Record<string, string>;
 
 // The name without case and word separators, so app-header.tsx counts as AppHeader.
 const key = (path: string) => basename(path, extname(path)).toLowerCase().replace(/[-_]/g, "");
@@ -77,14 +76,13 @@ if (import.meta.main) {
   if (report) console.log(report);
   const found = forks(tree);
   const lists = readReasonAllowlists(LIST);
-  const allow = lists.allow;
   const upgrade = lists.committed !== undefined && pinChange("brand-scan") !== undefined;
   const mayAdd = (k: string) => upgrade && k in found && found[k].every(committedAsIs);
   if (process.argv.includes("--tighten")) {
     const next = Object.fromEntries(
       Object.keys(found)
-        .filter((k) => k in allow || mayAdd(k))
-        .map((k) => [k, allow[k] ?? ""]),
+        .filter((k) => k in lists.allow || mayAdd(k))
+        .map((k) => [k, lists.allow[k] ?? ""]),
     );
     const wrote = writeAllowlist(LIST, next);
     console.log(

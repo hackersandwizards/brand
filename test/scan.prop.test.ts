@@ -6,10 +6,13 @@ test.prop(
   [
     unicodeString,
     fc
-      .record({ separator: fc.constantFrom("", "-", "_"), upper: fc.boolean() })
-      .map(({ separator, upper }) => {
+      .record({
+        separator: fc.constantFrom("", "-", "_"),
+        applyCase: fc.constantFrom("toLowerCase", "toUpperCase"),
+      })
+      .map(({ separator, applyCase }) => {
         const base = "App" + separator + "Header";
-        return { base, name: upper ? base.toUpperCase() : base.toLowerCase() };
+        return { base, name: base[applyCase]() };
       }),
     fc.constantFrom(".astro", ".tsx", ".jsx", ".vue", ".svelte"),
   ],

@@ -1,8 +1,8 @@
 import { afterAll, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
-import { retiredIn, scanRetiredPaths } from "../scan/retired";
+import { dirname, join, relative } from "node:path";
+import { decodeJsEscapes, retiredIn, scanRetiredPaths } from "../scan/retired";
 import { packed, ROOT } from "../scripts/git";
 import verbal from "../verbal/verbal.json";
 
@@ -26,6 +26,17 @@ const run = (...args: string[]) => {
 };
 const PAGE = `<html><body><p>${verbal.claim.en}</p><h1>${verbal.headline.en}</h1><p>${verbal.boilerplate.en.replaceAll("&", "&amp;")}</p></body></html>`;
 const line = verbal.retired[1].text;
+
+test.each([
+  { label: "an escaped backslash before u0041", input: "\\\\u0041", expected: "\\u0041" },
+  { label: "a Unicode escape", input: "\\u00e4", expected: "ä" },
+  { label: "a newline escape", input: "\\n", expected: " " },
+  { label: "an escaped quote", input: '\\"', expected: '"' },
+  { label: "an escaped slash", input: "\\/", expected: "/" },
+  { label: "a lone trailing backslash", input: "end\\", expected: "end\\" },
+])("decodes JS escapes with $label", ({ input, expected }) => {
+  expect(decodeJsEscapes(input)).toBe(expected);
+});
 
 test("finds a retired line raw, split across elements and entity-encoded", () => {
   const [a, b, c, ...rest] = line.split(" ");
@@ -176,7 +187,10 @@ test("no file the package ships carries a retired line, verbal.json aside", () =
   const paths = packed()
     .filter((f) => !f.startsWith("verbal/"))
     .map((f) => join(ROOT, f));
-  expect(scanRetiredPaths(paths).hits).toEqual(new Map());
+  const diagnostics = [...scanRetiredPaths(paths).hits].flatMap(([file, lines]) =>
+    lines.map((line) => `${relative(ROOT, file)}: ${line}`),
+  );
+  expect(diagnostics).toEqual([]);
 });
 
 test("brand-retired exits 2 on no path, a missing path and a folder without a text file", () => {
