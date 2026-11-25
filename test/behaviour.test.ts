@@ -11,10 +11,11 @@ test("the behaviour files hold no markup built from strings they did not create"
     "elements/carousel.ts",
     "elements/command.ts",
     "elements/copy.ts",
-    "elements/interaction.ts",
     "elements/list-navigation.ts",
+    "elements/motion-preference.ts",
     "elements/popover.ts",
     "elements/tree.ts",
+    "elements/usage-hold.ts",
   ])
     expect(readFileSync(join(ROOT, f), "utf8")).not.toMatch(/innerHTML|insertAdjacentHTML/);
 });

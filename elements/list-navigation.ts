@@ -1,3 +1,4 @@
+/** Returns the next index for an arrow or boundary key in an ordered list. */
 export function moveInList(items: HTMLElement[], key: string, current: number) {
   if (key === "ArrowDown") return (current + 1) % items.length;
   if (key === "ArrowUp")

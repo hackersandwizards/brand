@@ -42,6 +42,7 @@ const openingFocus = new Map<string, "first" | "last">([
   ["ArrowUp", "last"],
 ] as const);
 
+/** Opens the trigger's menu at the first or last enabled item according to the arrow. */
 function openMenuFromTrigger(e: KeyboardEvent, target: HTMLElement) {
   const focus = openingFocus.get(e.key);
   if (!focus) return;
@@ -53,6 +54,7 @@ function openMenuFromTrigger(e: KeyboardEvent, target: HTMLElement) {
   menu.showPopover();
 }
 
+/** Routes menu navigation, trigger arrows, and tooltip Escape. */
 export function onPopoverKey(e: KeyboardEvent) {
   const target = e.target as HTMLElement;
   const menu = target.closest?.<HTMLElement>(".hw-menu[popover]:popover-open");
@@ -64,16 +66,19 @@ export function onPopoverKey(e: KeyboardEvent) {
       .forEach((t) => t.hidePopover());
 }
 
+/** Dismisses the containing popover after a menu item click. */
 export function closeMenuOnItemClick(target: HTMLElement) {
   target.closest('.hw-menu [role^="menuitem"]')?.closest<HTMLElement>("[popover]")?.hidePopover();
 }
 
+/** Consumes the opening focus direction when a menu becomes visible. */
 function focusInitialMenuItem(menu: HTMLElement) {
   const items = menuItems(menu);
   (firstFocus.get(menu) === "last" ? items.at(-1) : items[0])?.focus();
   firstFocus.delete(menu);
 }
 
+/** Reflects open state on the trigger and places menus and popovers beside it. */
 export function onPopoverToggle(e: Event) {
   const pop = e.target as HTMLElement;
   if (!pop.matches?.(placed)) return;
@@ -110,7 +115,8 @@ const hideTip = (tip: HTMLElement) => {
   hideTimer = window.setTimeout(() => tip.matches(":popover-open") && tip.hidePopover(), 100);
 };
 
-export function installPopoverInteractions() {
+/** Installs pointer and focus listeners for context menus and tooltips. */
+export function installContextMenusAndTooltips() {
   document.addEventListener("contextmenu", (e) => {
     const host = (e.target as HTMLElement).closest<HTMLElement>("[data-hw-context]");
     if (!host) return;

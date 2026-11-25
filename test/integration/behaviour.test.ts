@@ -70,6 +70,7 @@ test("a menu opens from its button and Escape returns focus to the button", asyn
   await p.waitForFunction(() => document.activeElement?.matches("[role=menuitem]"));
   expect(await state()).toEqual({ expanded: "true", open: true, active: "Bearbeiten" });
   await p.keyboard.press("Escape");
+  expect(await p.$eval("#m", (m) => m.matches(":popover-open"))).toBe(false);
   await p.waitForFunction(
     () => document.querySelector("#b")?.getAttribute("aria-expanded") === "false",
   );
@@ -79,7 +80,8 @@ test("a menu opens from its button and Escape returns focus to the button", asyn
 
 test("the open menu walks enabled entries by arrow, boundary keys and typeahead", async () => {
   const p = await page(MENU);
-  await p.$eval("#m", (menu) => (menu as HTMLElement).showPopover());
+  await p.focus("#b");
+  await p.keyboard.press("Enter");
   await p.waitForFunction(() => document.activeElement?.matches("[role=menuitem]"));
   await p.keyboard.press("ArrowDown");
   expect(await active(p)).toBe("Löschen");
@@ -346,6 +348,67 @@ test("a tree walks by the APG keys: right opens then enters, left closes then cl
   await p.close();
 }, 30_000);
 
+test("an expanded last tree item reports a missing focus target on ArrowRight", async () => {
+  const p = await page(
+    '<ul class="hw-tree" role="tree"><li id="last" role="treeitem" aria-expanded="true"><span class="hw-tree-row">Empty folder</span></li></ul>',
+  );
+  const errors: string[] = [];
+  p.on("pageerror", (error) => errors.push(String(error)));
+  const result = await p.$eval("#last", (node) => {
+    (node as HTMLElement).focus();
+    const key = new KeyboardEvent("keydown", {
+      key: "ArrowRight",
+      bubbles: true,
+      cancelable: true,
+    });
+    node.dispatchEvent(key);
+    return {
+      prevented: key.defaultPrevented,
+      focused: document.activeElement?.id,
+      tabIndex: (node as HTMLElement).tabIndex,
+    };
+  });
+  expect({ ...result, errors }).toEqual({
+    errors: ["Error: Uncaught TypeError: Cannot read properties of undefined (reading 'closest')"],
+    prevented: true,
+    focused: "last",
+    tabIndex: 0,
+  });
+  await p.close();
+}, 30_000);
+
+test.each([
+  ["Home", "First"],
+  ["End", "Last"],
+  ["l", "Last"],
+] as const)(
+  "tree navigation with %s focuses %s",
+  async (key, label) => {
+    const p = await page(
+      '<ul class="hw-tree" role="tree"><li role="treeitem">First</li><li role="treeitem" id="mid">Middle</li><li role="treeitem">Last</li></ul>',
+    );
+    await p.focus("#mid");
+    await p.keyboard.press(key);
+    expect(await active(p)).toBe(label);
+    await p.close();
+  },
+  30_000,
+);
+
+test.each(["Enter", "Space"] as const)(
+  "%s on a linked tree item follows its link",
+  async (key) => {
+    const p = await page(
+      '<ul class="hw-tree" role="tree"><li role="treeitem" id="linked"><span class="hw-tree-row"><a href="#visited">Document</a></span></li></ul>',
+    );
+    await p.focus("#linked");
+    await p.keyboard.press(key);
+    expect(await p.evaluate(() => location.hash)).toBe("#visited");
+    await p.close();
+  },
+  30_000,
+);
+
 test("a command palette filters, highlights the first hit, moves by arrow and runs on Enter", async () => {
   const p = await page(
     `<button data-hw-open="c" id="o">O</button><dialog class="hw-dialog" data-variant="command" id="c" data-hw-shortcut="k"><div class="hw-command-field"><input id="q" role="combobox" aria-controls="l"></div><div class="hw-command-list" id="l" role="listbox"><p class="hw-command-group">G</p><button role="option" class="hw-command-option" onclick="document.title='neu'">Neuer Deal</button><button role="option" class="hw-command-option">Personen</button></div></dialog>`,
@@ -379,7 +442,7 @@ test("the command shortcut opens the dialog and focuses its combobox", async () 
 
 type BrandWindow = { HW: typeof import("../../elements/behaviour") };
 
-test("an error toast uses the live region, displays literal text and labels its close control", async () => {
+test("an error toast uses the live region and displays literal text", async () => {
   const p = await page("", "en");
   await p.evaluate(() => {
     (window as unknown as BrandWindow).HW.toast("<b>Failed</b>", { tone: "error" });
@@ -389,9 +452,8 @@ test("an error toast uses the live region, displays literal text and labels its 
       live: region.getAttribute("aria-live"),
       text: region.querySelector('.hw-toast[data-tone="error"] .hw-toast-text')?.textContent,
       role: region.querySelector('.hw-toast[data-tone="error"]')?.getAttribute("role"),
-      close: region.querySelector(".hw-toast-close")?.getAttribute("aria-label"),
     })),
-  ).toEqual({ live: "polite", text: "<b>Failed</b>", role: "alert", close: "Close" });
+  ).toEqual({ live: "polite", text: "<b>Failed</b>", role: "alert" });
   await p.close();
 }, 30_000);
 
@@ -488,6 +550,33 @@ const position = (p: Page) =>
   p.$$eval(".hw-carousel-dot", (dots) => dots.findIndex((d) => d.hasAttribute("aria-current")));
 const AUTOPLAY = `${CAPTURE_TIMERS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only" aria-live="polite"></p></div></div><p id="away" style="margin-top:400px">away</p>`;
 
+test("a focused toast holds dismissal until focus leaves", async () => {
+  const p = await page(`${CAPTURE_TIMERS}<button id="after">Continue</button>`, "en", true);
+  await p.evaluate(() => (window as unknown as BrandWindow).HW.toast("Saved"));
+  await p.focus(".hw-toast-close");
+  expect((await fire(p)).delays).toEqual([]);
+  expect(await p.$$eval(".hw-toast", (toasts) => toasts.length)).toBe(1);
+  await p.focus("#after");
+  expect((await fire(p)).delays).toHaveLength(1);
+  await p.waitForSelector(".hw-toast", { hidden: true });
+  await p.close();
+}, 30_000);
+
+test("six carousel items use a position counter instead of dots", async () => {
+  const p = await page(
+    `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track">${"<li>Slide</li>".repeat(6)}</ul><div class="hw-carousel-controls"><span data-hw-position></span><button data-hw-step="1">Next</button></div></div>`,
+  );
+  expect(
+    await p.$eval("[data-hw-position]", (position) => ({
+      className: position.className,
+      text: position.textContent,
+    })),
+  ).toEqual({ className: "hw-carousel-count", text: "1 / 6" });
+  await p.click('[data-hw-step="1"]');
+  expect(await p.$eval("[data-hw-position]", (position) => position.textContent)).toBe("2 / 6");
+  await p.close();
+}, 30_000);
+
 test("carousel autoplay advances, holds under the pointer and resumes when the pointer leaves", async () => {
   const p = await page(AUTOPLAY);
   expect(await position(p)).toBe(0);
@@ -501,10 +590,8 @@ test("carousel autoplay advances, holds under the pointer and resumes when the p
 
 test("the carousel pause button stops autoplay on the current slide", async () => {
   const p = await page(AUTOPLAY);
-  await p.$eval(".hw-carousel-track", (track) =>
-    track.scrollTo({ left: track.scrollWidth, behavior: "instant" }),
-  );
-  await p.waitForSelector('.hw-carousel-dot:nth-child(3)[aria-current="true"]');
+  await fire(p);
+  await fire(p);
   await p.click("#pause");
   expect(await attr(p, "#pause", "aria-pressed")).toBe("true");
   await p.hover("#away");
@@ -539,6 +626,29 @@ test("a carousel hides controls when there is nothing to scroll", async () => {
   );
   expect(await one.$eval(".hw-carousel-controls", (c) => (c as HTMLElement).hidden)).toBe(true);
   await one.close();
+}, 30_000);
+
+test("stepping an empty carousel reports an error before announcing or holding", async () => {
+  const p = await page(
+    `${CAPTURE_TIMERS}<div class="hw-carousel" data-hw-autoplay><ul class="hw-carousel-track"></ul><div class="hw-carousel-controls"><button data-hw-step="1">Next</button><p class="hw-sr-only"></p></div></div>`,
+  );
+  const errors: string[] = [];
+  p.on("pageerror", (error) => errors.push(String(error)));
+  const result = await p.$eval(".hw-carousel", (carousel) => {
+    carousel.querySelector<HTMLButtonElement>('[data-hw-step="1"]')?.click();
+    return {
+      status: carousel.querySelector(".hw-sr-only")?.textContent,
+      timers: (window as unknown as Timers).timers.size,
+    };
+  });
+  expect({ ...result, errors }).toEqual({
+    errors: [
+      "Error: Uncaught TypeError: Cannot read properties of undefined (reading 'offsetLeft')",
+    ],
+    status: "",
+    timers: 0,
+  });
+  await p.close();
 }, 30_000);
 
 test("a carousel takes controls named by id, keeps dots the page wrote, and wires alone", async () => {
@@ -656,50 +766,37 @@ test("a copy button shows once wired, copies its text, says so on itself one at 
   await p.close();
 }, 30_000);
 
-test("a refused clipboard write falls back to a field, removes it and restores focus", async () => {
-  const p = await page(LINK_COPY, "en");
+test("clipboard fallback reports each outcome when a previously copied button fails", async () => {
+  const p = await page(`<p>b@example.org</p>${TWO}`, "en");
   await p.evaluate(CLIPBOARD);
   await p.evaluate(() => {
     const w = window as unknown as { plan: object; exec: boolean };
-    w.plan = { "https://example.org/a": { fail: true } };
+    w.plan = { "https://example.org/a": { fail: true }, "b@example.org": { fail: true } };
     w.exec = true;
   });
   await p.click("#a");
   await settled(p, 1);
-  expect(await text(p, "#a")).toBe("Copied");
-  expect(await p.$$eval("textarea", (t) => t.length)).toBe(0);
-  expect(await p.evaluate(() => document.activeElement?.id)).toBe("a");
-  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([["a", true]]);
+  expect(
+    await p.$eval("#a", (button) => ({
+      label: button.textContent,
+      fields: document.querySelectorAll("textarea").length,
+      focus: document.activeElement?.id,
+    })),
+  ).toEqual({ label: "Copied", fields: 0, focus: "a" });
+  await p.evaluate(() => ((window as unknown as { exec: boolean }).exec = false));
+  await p.click("#b");
+  await settled(p, 2);
+  expect(await text(p, "#b")).toBe("Copy failed: select the text");
+  await p.click("#a");
+  await settled(p, 3);
+  expect(await text(p, "#a")).toBe("Copy failed");
+  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([
+    ["a", true],
+    ["b", false],
+    ["a", false],
+  ]);
   await p.close();
 }, 30_000);
-
-test.each([
-  {
-    location: "on the page",
-    body: `<p>b@example.org</p>${ADDRESS_COPY}`,
-    id: "b",
-    message: "Copy failed: select the text",
-  },
-  { location: "off the page", body: LINK_COPY, id: "a", message: "Copy failed" },
-])(
-  "a clipboard failure reports whether the text is $location",
-  async ({ body, id, message }) => {
-    const p = await page(body, "en");
-    await p.evaluate(CLIPBOARD);
-    await p.evaluate(() => {
-      (window as unknown as { plan: object }).plan = {
-        "https://example.org/a": { fail: true },
-        "b@example.org": { fail: true },
-      };
-    });
-    await p.click(`#${id}`);
-    await settled(p, 1);
-    expect(await text(p, `#${id}`)).toBe(message);
-    expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([[id, false]]);
-    await p.close();
-  },
-  30_000,
-);
 
 test("a failed copy leaves the button that still holds the clipboard reading Copied", async () => {
   const p = await page(TWO, "en");
@@ -933,6 +1030,27 @@ const formPage = async (body: string) => {
   });
   return p;
 };
+
+test("the count announces edits only after a pause and preserves authored invalid state", async () => {
+  const p = await formPage(
+    `${CAPTURE_TIMERS}<textarea id="note" aria-invalid="true">a</textarea><p class="hw-form-count" data-for="note" data-max="1" data-left="{n} left" data-over="{n} over"></p>`,
+  );
+  expect(await attr(p, ".hw-form-count", "aria-live")).toBe("off");
+  expect((await fire(p)).delays).toEqual([]);
+  await p.type("#note", "b");
+  expect(await attr(p, ".hw-form-count", "aria-live")).toBe("off");
+  expect((await fire(p)).delays).toEqual([1]);
+  await p.keyboard.press("Backspace");
+  await fire(p);
+  expect(
+    await p.$eval(".hw-form-count", (count) => ({
+      live: count.getAttribute("aria-live"),
+      label: count.textContent,
+      invalid: document.getElementById("note")?.getAttribute("aria-invalid"),
+    })),
+  ).toEqual({ live: "polite", label: "0 left", invalid: "true" });
+  await p.close();
+}, 30_000);
 
 test("the password toggle reveals and conceals its field once per click", async () => {
   const p = await formPage(

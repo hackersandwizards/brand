@@ -1,7 +1,7 @@
 # Exports and commands
 
 Every file and command a consumer may use. The [README](../README.md) shows the install line and
-the most used imports.
+the most used imports. Use the element entry points listed here. Their supporting modules are internal.
 
 ## The dependency line
 

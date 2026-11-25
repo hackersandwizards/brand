@@ -49,17 +49,20 @@ function addClasses(properties: Record<string, unknown>, add: string[]) {
   properties.class = [...new Set([...have, ...add])].join(" ");
 }
 
+/** Recognises inherited, palette, and terminal colours before rendering. */
 function colorRole(color: string | undefined) {
   if (!color) return "fg";
   const hex = color.toLowerCase();
   const role = roleOf.get(hex);
   if (role) return role;
-  // Shiki's terminal colours outside the roles have no class in code.css.
+  // A terminal colour (Shiki's ansi language) outside the roles keeps its inline style: core
+  // colours all, but no class of code.css carries them.
   if (ANSI.has(hex)) return "ansi";
   // A colour outside the palette would go grey unnoticed: another theme, or a stale one.
   throw new Error(`${color} is no code palette colour: highlight with code-theme.json`);
 }
 
+/** Writes palette and font classes and preserves ANSI rendering styles. */
 function decorateCodeToken(token: Token) {
   const role = colorRole(token.color);
   const classes = STYLES.filter(([flag]) => (token.fontStyle ?? 0) & flag).map(([, s]) =>

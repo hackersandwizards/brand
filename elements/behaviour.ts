@@ -7,10 +7,11 @@
 import { carousels } from "./carousel.ts";
 import { commandInput, filterCommand, onCommandKey } from "./command.ts";
 import { copyButtons, german, modalOrBody, wireOnce } from "./copy.ts";
-import { holdWhileUsed, reducedMotion } from "./interaction.ts";
+import { reducedMotion } from "./motion-preference.ts";
+import { holdWhileUsed } from "./usage-hold.ts";
 import {
   closeMenuOnItemClick,
-  installPopoverInteractions,
+  installContextMenusAndTooltips,
   onPopoverKey,
   onPopoverToggle,
 } from "./popover.ts";
@@ -44,6 +45,7 @@ export function openDialog(dialog: HTMLDialogElement) {
   dialog.querySelector<HTMLInputElement>('[role="combobox"]')?.focus();
 }
 
+/** Opens the named dialog on Ctrl or Command when Alt is absent. */
 function onDialogShortcut(e: KeyboardEvent) {
   const shortcut =
     !e.altKey && (e.metaKey || e.ctrlKey)
@@ -62,29 +64,36 @@ const outsidePanel = (d: Element, e: MouseEvent) => {
   return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
 };
 
-// A backdrop close needs the press outside too: a text selection may end past the panel's edge.
-let pressedDialog: HTMLDialogElement | null = null;
-function trackDialogPress(e: PointerEvent) {
-  pressedDialog =
-    e.target instanceof HTMLDialogElement && outsidePanel(e.target, e) ? e.target : null;
+/** A backdrop close needs the press outside too: a text selection may end past the panel's edge. */
+function dialogBackdrop() {
+  let pressedDialog: HTMLDialogElement | null = null;
+  return {
+    press(e: PointerEvent) {
+      pressedDialog =
+        e.target instanceof HTMLDialogElement && outsidePanel(e.target, e) ? e.target : null;
+    },
+    dismiss(e: MouseEvent) {
+      // A click outside the panel lands on the dialog itself.
+      if (
+        pressedDialog &&
+        e.target === pressedDialog &&
+        pressedDialog.classList.contains("hw-dialog") &&
+        pressedDialog.dataset.hwDismiss !== "none" &&
+        outsidePanel(pressedDialog, e)
+      )
+        pressedDialog.close();
+    },
+  };
 }
 
-function onDialogClick(e: MouseEvent, target: HTMLElement) {
+/** Opens and closes dialogs through their declared controls. */
+function onDialogClick(target: HTMLElement) {
   const opener = target.closest<HTMLElement>("[data-hw-open]");
   if (opener) {
     const dialog = byId(opener.dataset.hwOpen!);
     if (dialog instanceof HTMLDialogElement) openDialog(dialog);
   }
   if (target.closest("[data-hw-close]")) target.closest("dialog")?.close();
-  // A click outside the panel lands on the dialog itself.
-  if (
-    pressedDialog &&
-    target === pressedDialog &&
-    pressedDialog.classList.contains("hw-dialog") &&
-    pressedDialog.dataset.hwDismiss !== "none" &&
-    outsidePanel(pressedDialog, e)
-  )
-    pressedDialog.close();
 }
 
 // Tabs: arrow keys move focus and show the panel; the list is one stop in the Tab order.
@@ -128,11 +137,13 @@ function onTabKey(e: KeyboardEvent, tab: HTMLElement) {
   selectTab(tabs[to]!);
 }
 
+/** Selects the clicked tab and reveals its panel. */
 function onTabClick(target: HTMLElement) {
   const tab = target.closest<HTMLElement>('.hw-tabs [role="tab"]');
   if (tab) selectTab(tab);
 }
 
+/** Starts each tablist with one tab stop and its panel visible. */
 function initTabs(root: ParentNode) {
   for (const list of root.querySelectorAll<HTMLElement>('.hw-tabs[role="tablist"]')) {
     const tabs = [...list.querySelectorAll<HTMLElement>('[role="tab"]')];
@@ -163,6 +174,7 @@ export type Toast = {
   duration?: number;
   action?: { label: string; run: () => void };
 };
+/** Builds an alert or status message with literal text and its controls. */
 function createToast(message: string, { tone = "info", action }: Toast) {
   const el = document.createElement("div");
   el.className = "hw-toast";
@@ -193,6 +205,7 @@ function createToast(message: string, { tone = "info", action }: Toast) {
   return el;
 }
 
+/** Counts readable time, holding dismissal while the toast is hovered or focused. */
 function dismissToastAfter(el: HTMLElement, duration: number) {
   let left = duration;
   let started = Date.now();
@@ -228,6 +241,7 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
   return el;
 }
 
+/** Keeps the toast region reachable when a dialog changes state. */
 function followToastModal(e: Event) {
   if (e.target instanceof HTMLDialogElement) region();
 }
@@ -235,19 +249,21 @@ function followToastModal(e: Event) {
 function installDocument() {
   // A second bundle of this file on the page installs nothing again.
   if (!wireOnce(document, "behaviour")) return;
-  document.addEventListener("pointerdown", trackDialogPress, true);
+  const backdrop = dialogBackdrop();
+  document.addEventListener("pointerdown", backdrop.press, true);
   // A toast stays reachable: its region follows the open modal, and leaves it when that closes.
   document.addEventListener("close", region, true);
   document.addEventListener("toggle", followToastModal, true);
   document.addEventListener("toggle", onPopoverToggle, true);
   document.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
-    onDialogClick(e, target);
+    onDialogClick(target);
+    backdrop.dismiss(e);
     closeMenuOnItemClick(target);
     onTreeRowClick(target);
     onTabClick(target);
   });
-  installPopoverInteractions();
+  installContextMenusAndTooltips();
   document.addEventListener("keydown", (e) => {
     onPopoverKey(e);
     onDialogShortcut(e);

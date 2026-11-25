@@ -28,12 +28,14 @@ function focusNode(node: HTMLElement) {
 }
 type TreePosition = { node: HTMLElement; visible: HTMLElement[]; index: number };
 
+/** Expands a closed branch or moves to its next visible node. */
 function enterBranch({ node, visible, index }: TreePosition) {
   const expanded = node.getAttribute("aria-expanded");
   if (expanded === "false") node.setAttribute("aria-expanded", "true");
   if (expanded === "true") focusTreeIndex(visible, index + 1);
 }
 
+/** Collapses an open branch or moves to its visible parent. */
 function leaveBranch({ node, visible }: TreePosition) {
   if (node.getAttribute("aria-expanded") === "true") {
     node.setAttribute("aria-expanded", "false");
@@ -43,15 +45,16 @@ function leaveBranch({ node, visible }: TreePosition) {
   if (parent && visible.includes(parent)) focusNode(parent);
 }
 
+/** Follows the row's own link or activates the node. */
 function followTreeNode({ node }: TreePosition) {
   const link = node.querySelector<HTMLElement>(":scope > .hw-tree-row a");
   if (link) link.click();
   else activateNode(node);
 }
 
+/** Moves the roving tab stop when navigation yields a nonnegative index. */
 function focusTreeIndex(visible: HTMLElement[], index: number) {
-  const next = visible[index];
-  if (next) focusNode(next);
+  if (index >= 0) focusNode(visible[index]!);
 }
 
 const treeKeys = new Map<string, (position: TreePosition) => void>([
@@ -68,6 +71,7 @@ const treeKeys = new Map<string, (position: TreePosition) => void>([
   [" ", followTreeNode],
 ]);
 
+/** Moves focus to the next visible node matching a typed character without Ctrl or Command. */
 function searchTreeByKey(e: KeyboardEvent, { visible, index }: TreePosition) {
   if (e.key.length !== 1 || e.ctrlKey || e.metaKey) return;
   e.preventDefault();
@@ -75,6 +79,7 @@ function searchTreeByKey(e: KeyboardEvent, { visible, index }: TreePosition) {
   focusTreeIndex(visible, next);
 }
 
+/** Dispatches navigation and activation keys from the focused tree item. */
 export function onTreeKey(e: KeyboardEvent, node: HTMLElement) {
   if (e.target !== node) return;
   const visible = visibleNodes(node.closest('[role="tree"]')!);
@@ -85,11 +90,13 @@ export function onTreeKey(e: KeyboardEvent, node: HTMLElement) {
   handle(position);
 }
 
+/** Activates the tree item owning the clicked row. */
 export function onTreeRowClick(target: HTMLElement) {
   const row = target.closest<HTMLElement>(".hw-tree-row");
   if (row) activateNode(row.parentElement as HTMLElement);
 }
 
+/** Starts each tree at its selected item or the first item. */
 export function initTrees(root: ParentNode) {
   for (const tree of root.querySelectorAll<HTMLElement>('.hw-tree[role="tree"]')) {
     const nodes = [...tree.querySelectorAll<HTMLElement>('[role="treeitem"]')];

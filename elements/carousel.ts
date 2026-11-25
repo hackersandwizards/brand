@@ -1,7 +1,9 @@
 // Carousel navigation, its controls, and the optional autoplay clock.
 import { german, wireOnce } from "./copy.ts";
-import { holdWhileUsed, reducedMotion } from "./interaction.ts";
+import { reducedMotion } from "./motion-preference.ts";
+import { holdWhileUsed } from "./usage-hold.ts";
 
+/** Creates the labelled button and fill for one slide. */
 function carouselDot(label: string) {
   const dot = document.createElement("button");
   dot.type = "button";
@@ -11,6 +13,7 @@ function carouselDot(label: string) {
   return dot;
 }
 
+/** Reuses authored dots when they match the slide count, or prepares the counter. */
 function preparePosition(position: HTMLElement, total: number, of: string) {
   let written = [...position.querySelectorAll<HTMLButtonElement>(".hw-carousel-dot")];
   if (written.length !== total) {
@@ -29,6 +32,7 @@ function preparePosition(position: HTMLElement, total: number, of: string) {
   });
 }
 
+/** Renders slide position and exposes reader steps through the controls. */
 class CarouselControls {
   private readonly of = german() ? "von" : "of";
   private readonly position: HTMLElement | null;
@@ -70,13 +74,14 @@ class CarouselControls {
   }
 }
 
+/** Owns track scroll position, snap selection, and overflow detection. */
 class CarouselViewport {
   private readonly items: HTMLElement[];
   readonly root: HTMLElement;
   readonly track: HTMLElement;
   readonly controls: CarouselControls;
   active = 0;
-  onSlideChange = () => {};
+  private restartStep?: () => void;
 
   constructor(root: HTMLElement, track: HTMLElement, controls: HTMLElement) {
     this.root = root;
@@ -89,17 +94,16 @@ class CarouselViewport {
   private offset(index: number) {
     // An item's scroll position is its distance from the first item, so the track's padding
     // (the focus ring's room) stays out of the sum.
-    return (this.items[index]?.offsetLeft ?? 0) - (this.items[0]?.offsetLeft ?? 0);
+    return this.items[index]!.offsetLeft - this.items[0]!.offsetLeft;
   }
 
   private select(index: number) {
-    if (index !== this.active) this.onSlideChange();
+    if (index !== this.active) this.restartStep?.();
     this.active = index;
     this.controls.render(index);
   }
 
   go(index: number) {
-    if (!this.items.length) return this.active;
     const wrapped = (index + this.items.length) % this.items.length;
     this.track.scrollTo({
       left: this.offset(wrapped),
@@ -129,20 +133,25 @@ class CarouselViewport {
     this.select(nearest);
   }
 
+  /** A new slide starts the autoplay step afresh, before the controls render. */
+  onSlideChange(restart: () => void) {
+    this.restartStep = restart;
+  }
+
+  updateControlVisibility() {
+    // Only a track that scrolls shows its controls; a phone-only carousel is a grid from 48rem.
+    this.controls.element.hidden = this.track.scrollWidth <= this.track.clientWidth + 2;
+  }
+
   watchLayout(onFitChange: () => void) {
     const {
       track,
       controls: { element },
     } = this;
-    const fit = () => {
-      // A phone-only carousel is a grid from 48rem.
-      element.hidden = track.scrollWidth <= track.clientWidth + 2;
-    };
     new ResizeObserver(() => {
-      fit();
+      this.updateControlVisibility();
       onFitChange();
     }).observe(track);
-    fit();
     // A lazy image beside the view would wait for a sideways scroll: load them all once in view.
     new IntersectionObserver(([entry], observer) => {
       if (!entry?.isIntersecting || element.hidden) return;
@@ -152,9 +161,10 @@ class CarouselViewport {
   }
 }
 
-// The reader's hold in ms. The autoplay step is set in carousel.css, the time its dot fills.
+// The hold after the reader's own step, in ms. The step is carousel.css's, the time its dot fills.
 const READER_HOLD = 4000;
 
+/** Runs the step clock only while the reader and the viewport allow it. */
 class CarouselAutoplay {
   private readonly holds = new Set<string>();
   private remaining: number;
@@ -176,7 +186,7 @@ class CarouselAutoplay {
   }
 
   connect() {
-    this.viewport.onSlideChange = () => this.restart();
+    this.viewport.onSlideChange(() => this.restart());
     for (const surface of this.surfaces) holdWhileUsed(surface, (by, on) => this.hold(by, on));
     new IntersectionObserver(([entry]) => this.hold("offscreen", !entry?.isIntersecting)).observe(
       this.viewport.root,
@@ -243,7 +253,8 @@ function markSurfaces(surfaces: HTMLElement[], name: string, on: boolean) {
   for (const surface of surfaces) surface.toggleAttribute(name, on);
 }
 
-function startCarouselAutoplay(viewport: CarouselViewport) {
+/** Reads the CSS step duration and marks the surfaces that display autoplay. */
+function createCarouselAutoplay(viewport: CarouselViewport) {
   const { root } = viewport;
   if (!("hwAutoplay" in root.dataset)) return;
   const controls = viewport.controls.element;
@@ -252,11 +263,10 @@ function startCarouselAutoplay(viewport: CarouselViewport) {
   markSurfaces(surfaces, "data-hw-autoplay", true);
   const step = parseFloat(getComputedStyle(root).getPropertyValue("--_hw-step")) * 1000;
   if (!(step > 0)) return;
-  const autoplay = new CarouselAutoplay(viewport, surfaces, step);
-  autoplay.connect();
-  return autoplay;
+  return new CarouselAutoplay(viewport, surfaces, step);
 }
 
+/** Connects a complete track and its controls once, when both are present. */
 function enhanceCarousel(carousel: HTMLElement) {
   const track = carousel.querySelector<HTMLElement>(".hw-carousel-track");
   const controls =
@@ -265,13 +275,16 @@ function enhanceCarousel(carousel: HTMLElement) {
   // Not wired until both are there, so a later call wires controls added since.
   if (!track || !controls || !wireOnce(carousel, "carousel")) return;
   const viewport = new CarouselViewport(carousel, track, controls);
+  viewport.updateControlVisibility();
+  // The autoplay's hooks: a new slide starts its step afresh, a reader's step holds it.
+  const autoplay = createCarouselAutoplay(viewport);
   viewport.controls.connect(viewport, (index) => {
     viewport.controls.announce(viewport.go(index));
     autoplay?.readerHold();
   });
   viewport.watchScroll();
   viewport.watchLayout(() => autoplay?.update());
-  const autoplay = startCarouselAutoplay(viewport);
+  autoplay?.connect();
 }
 
 /** Wires every carousel in `root` alone, without the document-wide behaviour handlers. */

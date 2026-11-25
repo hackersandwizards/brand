@@ -18,6 +18,7 @@ function markOption(input: HTMLInputElement, option: HTMLElement | undefined) {
   input.setAttribute("aria-activedescendant", option.id);
   option.scrollIntoView({ block: "nearest" });
 }
+/** Moves the active option without moving focus from the command field. */
 export function onCommandKey(e: KeyboardEvent, input: HTMLInputElement) {
   const options = optionsOf(input);
   const now = options.findIndex((o) => o.getAttribute("aria-selected") === "true");
@@ -32,6 +33,7 @@ export function onCommandKey(e: KeyboardEvent, input: HTMLInputElement) {
   e.preventDefault();
   markOption(input, options[moveInList(options, e.key, now)]);
 }
+/** Filters local options and marks the first visible result. */
 export function filterCommand(input: HTMLInputElement) {
   const list = document.getElementById(input.getAttribute("aria-controls") ?? "")!;
   if (list.hasAttribute("data-hw-remote")) return;

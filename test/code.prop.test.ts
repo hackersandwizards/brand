@@ -49,7 +49,6 @@ test.prop([fc.integer({ min: 0, max: 15 }), fc.boolean()], {
   codeClasses.tokens([[token]]);
   const flags = fontStyle.toString(2).padStart(3, "0").slice(-3).split("").reverse();
   const classes = ["italic", "bold", "underline"].filter((_, index) => flags[index] === "1");
-  expect(token.htmlAttrs).toEqual(
-    classes.length ? { class: classes.map((name) => `hw-code-${name}`).join(" ") } : {},
-  );
+  const attrs = classes.length ? { class: classes.map((name) => `hw-code-${name}`).join(" ") } : {};
+  expect({ attrs: token.htmlAttrs, override: token.htmlStyle }).toEqual({ attrs, override: {} });
 });

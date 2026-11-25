@@ -33,10 +33,16 @@ test("every colour of code-theme.json becomes a class, never an inline style", (
       override: {},
     });
   }
-  expect(themedToken("#B97AF1", 3).htmlAttrs).toEqual({
-    class: "hw-code-keyword hw-code-italic hw-code-bold",
+  const keyword = themedToken("#B97AF1", 3);
+  expect({ attrs: keyword.htmlAttrs, override: keyword.htmlStyle }).toEqual({
+    attrs: { class: "hw-code-keyword hw-code-italic hw-code-bold" },
+    override: {},
   });
-  expect(themedToken(theme.colors["editor.foreground"]).htmlAttrs).toEqual({});
+  const foreground = themedToken(theme.colors["editor.foreground"]);
+  expect({ attrs: foreground.htmlAttrs, override: foreground.htmlStyle }).toEqual({
+    attrs: {},
+    override: {},
+  });
 });
 
 test("codeTokenClasses are exactly the classes the transformer puts on a token", () => {
@@ -66,10 +72,12 @@ test("the terminal's 16 ANSI colours are core colours", () => {
 
 test("a terminal colour outside the roles keeps its inline style, a stray colour still fails", () => {
   const amber = theme.colors["terminal.ansiYellow"];
-  const { htmlAttrs, htmlStyle } = themedToken(amber, 1);
-  expect({ attrs: htmlAttrs, override: htmlStyle }).toEqual({
+  const { htmlAttrs, htmlStyle, color, fontStyle } = themedToken(amber, 1);
+  expect({ attrs: htmlAttrs, override: htmlStyle, color, fontStyle }).toEqual({
     attrs: { style: `color:${amber}`, class: "hw-code-italic" },
     override: undefined,
+    color: amber,
+    fontStyle: 1,
   });
   expect(() => themedToken("#F97583")).toThrow("no code palette colour");
 });

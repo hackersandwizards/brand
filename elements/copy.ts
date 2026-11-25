@@ -107,17 +107,19 @@ const COPY_MESSAGES = {
   failed: { de: "Kopieren fehlgeschlagen", en: "Copy failed" },
 };
 
+/** Chooses the outcome from the write result and whether its text can be selected. */
 function copyOutcome(ok: boolean, text: string) {
   if (ok) return "copied";
   return onPage(text) ? "select" : "failed";
 }
 
+/** Updates the button labels to reflect which write owns the clipboard. */
 function showCopyOutcome(
   button: HTMLElement,
   outcome: keyof typeof COPY_MESSAGES,
   language: "de" | "en",
 ) {
-  // The last successful write owns the clipboard.
+  // The write that lands last holds the clipboard, so its button alone reads as copied.
   if (outcome === "copied") for (const other of shown) if (other !== button) restore(other);
   for (const other of shown) if (!other.isConnected) shown.delete(other);
   shown.add(button);
@@ -126,6 +128,7 @@ function showCopyOutcome(
   announceCopy(message);
 }
 
+/** Adds one transient announcement per completed press to the live region. */
 function announceCopy(message: string) {
   const note = document.createElement("span");
   note.textContent = message;
@@ -141,6 +144,7 @@ export function copyButton(button: HTMLElement) {
   wire(button);
 }
 
+/** Reports the clipboard result and lets the latest press control its button label. */
 async function pressCopyButton(button: HTMLElement) {
   const press = ++presses;
   latest.set(button, press);
