@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 import { transform } from "lightningcss";
 import type { Browser } from "puppeteer-core";
 import own from "../../package.json";
+import { installElementDom } from "../../scan/element-dom";
 import { ELEMENTS } from "../../scan/element-rules";
 import { elementPage, measureLightPage, measurePage } from "../../scan/element-page";
 import { launch, open } from "../../scan/browser";
@@ -50,6 +51,9 @@ const file = (name: string, html: string) => {
   return join(dir, name);
 };
 
+/** A fixture page with a resolved navigation URL and its report name. */
+const targetFile = (name: string, html: string) => elementPage(file(name, html));
+
 let browser: Browser;
 beforeAll(async () => {
   browser = await launch();
@@ -61,7 +65,7 @@ afterAll(async () => {
 
 // An element inside an exception's instance is not measured.
 test("every element matches its rule in every scale and theme", async () => {
-  const r = await measurePage(browser, file("clean.html", page()));
+  const r = await measurePage(browser, targetFile("clean.html", page()));
   expect(r.findings).toEqual([]);
   expect(r.seen.sort()).toEqual(Object.keys(ELEMENTS).sort());
   expect(r.exceptions).toEqual(["total-band"]);
@@ -70,7 +74,7 @@ test("every element matches its rule in every scale and theme", async () => {
 test.each(Object.entries(DRIFT))(
   "a drifted %s is red",
   async (name, css) => {
-    const r = await measurePage(browser, file(`drift-${name}.html`, page(css)));
+    const r = await measurePage(browser, targetFile(`drift-${name}.html`, page(css)));
     expect(r.findings.some((f) => f.element === name)).toBe(true);
   },
   60_000,
@@ -79,7 +83,7 @@ test.each(Object.entries(DRIFT))(
 test("a read-only check that loses its tick mask or its ring's scale is red", async () => {
   const r = await measurePage(
     browser,
-    file("drift-readonly.html", page(".hw-check[data-readonly] { mask: none; scale: none }")),
+    targetFile("drift-readonly.html", page(".hw-check[data-readonly] { mask: none; scale: none }")),
   );
   const props = r.findings.filter((f) => f.element === "check").map((f) => f.prop);
   expect(props).toContain("mask-image");
@@ -93,7 +97,7 @@ test("one drifted instance among many is red", async () => {
   ).join("");
   const r = await measurePage(
     browser,
-    file(
+    targetFile(
       "one-of-many.html",
       page("#odd { padding-left: 13px }").replace("</body>", `${pills}</body>`),
     ),
@@ -144,13 +148,13 @@ test("an element of the catalog shell is not measured", async () => {
   const html = only(
     `${shell}<div data-hw-tile="label" data-hw-version="${own.version}">${DEMOS.label}</div>`,
   );
-  const r = await measurePage(browser, file("shell.html", html));
+  const r = await measurePage(browser, targetFile("shell.html", html));
   expect(r.findings).toEqual([]);
   expect(r.seen).toEqual(["label"]);
   // Control: the same markup without the marker is measured.
   const bare = await measurePage(
     browser,
-    file("no-shell.html", html.replaceAll("data-hw-shell ", "")),
+    targetFile("no-shell.html", html.replaceAll("data-hw-shell ", "")),
   );
   expect(bare.findings.map((f) => f.element)).toContain("card");
   expect(bare.seen).toContain("card");
@@ -165,7 +169,7 @@ test("the focus-ring tile measures its sample, not the link to brand's catalogue
   const run = async (name: string, sample: string, css = "") => {
     const r = await measurePage(
       browser,
-      file(name, only(`<style>${css}</style>${tile(sample)}`, "hw-focus-ring")),
+      targetFile(name, only(`<style>${css}</style>${tile(sample)}`, "hw-focus-ring")),
     );
     return { labels: [...new Set(r.findings.map((f) => f.label))], seen: r.seen };
   };
@@ -194,13 +198,16 @@ test("an element in a closed details is measured open; a header's menu stays shu
   const tile = `<div data-hw-tile="focus-ring" data-hw-version="${own.version}">${DEMOS["focus-ring"]}</div>`;
   const closed = await measurePage(
     browser,
-    file("fold.html", fold(`<details><summary>Mehr</summary>${tile}</details>`)),
+    targetFile("fold.html", fold(`<details><summary>Mehr</summary>${tile}</details>`)),
   );
   expect(closed.findings).toEqual([]);
   // Control: the menu in a header is left shut, and its focusable reads no ring.
   const menu = await measurePage(
     browser,
-    file("menu.html", fold(`<header><details><summary>Menü</summary>${tile}</details></header>`)),
+    targetFile(
+      "menu.html",
+      fold(`<header><details><summary>Menü</summary>${tile}</details></header>`),
+    ),
   );
   expect(menu.findings.map((f) => f.prop)).toEqual(["outline-style"]);
 }, 60_000);
@@ -214,7 +221,7 @@ test("a border of no width is no drift, whatever its style; a drawn one is", asy
     );
   const none = await measurePage(
     browser,
-    file(
+    targetFile(
       "zero-border.html",
       unruled(".hw-facts:not([data-variant]) > div { border: 0 solid red }"),
     ),
@@ -222,7 +229,7 @@ test("a border of no width is no drift, whatever its style; a drawn one is", asy
   expect(none.findings).toEqual([]);
   const drawn = await measurePage(
     browser,
-    file(
+    targetFile(
       "drawn-border.html",
       unruled(".hw-facts:not([data-variant]) > div { border-top: 1px solid }"),
     ),
@@ -233,7 +240,7 @@ test("a border of no width is no drift, whatever its style; a drawn one is", asy
 test("a setting the medium sets, or a property the element leaves to it, is no drift", async () => {
   const r = await measurePage(
     browser,
-    file(
+    targetFile(
       "setting.html",
       page(".hw-card { --hw-card-pad: 3rem; font-size: 9pt } .hw-label { --hw-label-size: 9.5pt }"),
     ),
@@ -243,11 +250,11 @@ test("a setting the medium sets, or a property the element leaves to it, is no d
 
 test("inside a brand corner every block takes the small corner; a brand corner there is red, hidden too", async () => {
   const nested = `<div class="hw-card"><pre class="hw-code">x</pre><div class="hw-callout">y</div><img style="border-radius: var(--radius-brand); width: 40px; height: 40px" alt=""></div>`;
-  const r = await measurePage(browser, file("nested.html", only(nested)));
+  const r = await measurePage(browser, targetFile("nested.html", only(nested)));
   expect(r.findings).toEqual([]);
   const hard = await measurePage(
     browser,
-    file(
+    targetFile(
       "nested-hard.html",
       only(
         `<div class="hw-card"><div style="border-radius: 20px 5px; height: 40px">z</div></div><div class="hw-card" hidden><i style="border-radius: 20px 5px">h</i></div>`,
@@ -264,7 +271,7 @@ test("inside a brand corner every block takes the small corner; a brand corner t
 test("the same colour in another notation is no drift, another colour is", async () => {
   const same = await measurePage(
     browser,
-    file(
+    targetFile(
       "notation.html",
       page(
         '[data-theme="dark"] .hw-card:not([data-variant]) { border-color: rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.07) }',
@@ -274,7 +281,7 @@ test("the same colour in another notation is no drift, another colour is", async
   expect(same.findings).toEqual([]);
   const other = await measurePage(
     browser,
-    file(
+    targetFile(
       "notation-drift.html",
       page(
         '[data-theme="dark"] .hw-card:not([data-variant]) { background-color: rgba(255, 255, 255, 0.12) }',
@@ -288,19 +295,19 @@ test("the same colour in another notation is no drift, another colour is", async
 // rules never draw there. A day token still counts.
 test("a light-only page needs no night token, a day token still counts", async () => {
   const noNight = page(":root { --color-night-muted: initial }");
-  const strict = await measurePage(browser, file("light-strict.html", noNight));
+  const strict = await measurePage(browser, targetFile("light-strict.html", noNight));
   expect(strict.findings.some((f) => f.prop === "--color-night-muted")).toBe(true);
-  const light = await measureLightPage(browser, file("light-only.html", noNight));
+  const light = await measureLightPage(browser, targetFile("light-only.html", noNight));
   expect(light.findings.filter((f) => f.got === "undefined")).toEqual([]);
   const noDay = page(":root { --color-teal-dark: initial }");
-  const day = await measureLightPage(browser, file("light-day.html", noDay));
+  const day = await measureLightPage(browser, targetFile("light-day.html", noDay));
   expect(day.findings.some((f) => f.prop === "--color-teal-dark")).toBe(true);
 }, 60_000);
 
 test("a brand token the surface never defines is red", async () => {
   const r = await measurePage(
     browser,
-    file("token.html", page(":root { --type-small-family: initial }")),
+    targetFile("token.html", page(":root { --type-small-family: initial }")),
   );
   expect(r.findings.some((f) => f.prop === "--type-small-family")).toBe(true);
 }, 60_000);
@@ -361,7 +368,7 @@ test("every label clears 4.5:1 on every wash, light and night, at 412 px", async
   expect(low).toEqual([]);
   const plain = await measurePage(
     browser,
-    file(
+    targetFile(
       "wash-drift.html",
       page('.hw-status .hw-label[data-hue="red"] { color: var(--color-red) }'),
     ),
@@ -412,16 +419,14 @@ test("every text in every sample clears WCAG AA in every scale, day and night", 
       // Reads style only for visible, non-exempt elements with text of their own.
       const contrastText = (el: Element) => {
         const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
-        if (!own || el.closest(":disabled, [aria-hidden]")) return;
+        if (!own || el.closest(":disabled, [aria-hidden]")) return [];
         const style = getComputedStyle(el);
-        if (style.visibility === "hidden" || style.display === "none") return;
-        return { el, style };
+        if (style.visibility === "hidden" || style.display === "none") return [];
+        return [{ el, style }];
       };
       return [...tiles].flatMap((tile) => {
-        const text = [tile, ...tile.querySelectorAll("*")].map(contrastText);
-        return text.flatMap((sample) => {
-          if (!sample) return [];
-          const { el, style: s } = sample;
+        const text = [tile, ...tile.querySelectorAll("*")].flatMap(contrastText);
+        return text.flatMap(({ el, style: s }) => {
           const under = behind(el);
           const [x, y] = [lum(over(rgba(s.color), under)), lum(under)].sort((p, q) => q - p);
           const ratio = (x! + 0.05) / (y! + 0.05);
@@ -469,7 +474,7 @@ test("every text in every sample clears WCAG AA in every scale, day and night", 
 test("a light subtree inside a dark one draws the day rule", async () => {
   const r = await measurePage(
     browser,
-    file(
+    targetFile(
       "nested.html",
       page().replace(
         "</body>",
@@ -497,7 +502,7 @@ test("a light subtree inside a dark one draws the day rule", async () => {
 test("an element in a table cell and a pill's remove button are measured", async () => {
   const r = await measurePage(
     browser,
-    file(
+    targetFile(
       "cell.html",
       page().replace(
         "</body>",
@@ -524,7 +529,7 @@ test("an element in a table cell and a pill's remove button are measured", async
 test("a link in a smaller table cell is measured at the cell's size", async () => {
   const r = await measurePage(
     browser,
-    file(
+    targetFile(
       "cell-link.html",
       page().replace(
         "</body>",
@@ -541,16 +546,42 @@ test("a link sized by its own class is measured in em of that size", async () =>
   const icon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/></svg>';
   const row = (offset = "") =>
     `<style>.own-size { font-size: 13px; ${offset} }</style><p style="display:flex"><a class="hw-link own-size" href="#y">Profil</a><a class="hw-link own-size" href="#z">${icon}Ada</a></p></body>`;
-  const r = await measurePage(browser, file("sized-link.html", page().replace("</body>", row())));
+  const r = await measurePage(
+    browser,
+    targetFile("sized-link.html", page().replace("</body>", row())),
+  );
   expect(r.findings).toEqual([]);
   // Control: the same links drawn 0.3em below the baseline fail.
   const drift = await measurePage(
     browser,
-    file("sized-link-drift.html", page().replace("</body>", row("text-underline-offset: 0.3em;"))),
+    targetFile(
+      "sized-link-drift.html",
+      page().replace("</body>", row("text-underline-offset: 0.3em;")),
+    ),
   );
-  expect(drift.findings.map((f) => [f.prop, f.got, f.want])).toEqual([
-    ["text-underline-offset", "0.3em", "0.2em"],
-    ["text-underline-offset", "0.3em", "0.2em"],
+  expect(
+    drift.findings.map(({ element, label, prop, got, want }) => ({
+      element,
+      label,
+      prop,
+      got,
+      want,
+    })),
+  ).toEqual([
+    {
+      element: "link",
+      label: 'a.hw-link "Profil"',
+      prop: "text-underline-offset",
+      got: "0.3em",
+      want: "0.2em",
+    },
+    {
+      element: "link",
+      label: 'a.hw-link "Ada"',
+      prop: "text-underline-offset",
+      got: "0.3em",
+      want: "0.2em",
+    },
   ]);
 }, 60_000);
 
@@ -559,7 +590,7 @@ test("a joined field row is measured joined", async () => {
     '<div class="hw-field-row" data-joined><input class="hw-field" aria-label="Suche"><button type="button" class="hw-button">Go</button></div>';
   const r = await measurePage(
     browser,
-    file("joined.html", page().replace("</body>", `${joined}</body>`)),
+    targetFile("joined.html", page().replace("</body>", `${joined}</body>`)),
   );
   expect(r.findings).toEqual([]);
 }, 60_000);
@@ -567,7 +598,7 @@ test("a joined field row is measured joined", async () => {
 test("night is measured against the night rule", async () => {
   const r = await measurePage(
     browser,
-    file("night.html", page('[data-theme="dark"] .hw-pill { color: var(--color-ink) }')),
+    targetFile("night.html", page('[data-theme="dark"] .hw-pill { color: var(--color-ink) }')),
   );
   expect(r.findings.filter((f) => f.element === "pill").length).toBeGreaterThan(0);
 }, 60_000);
@@ -683,14 +714,14 @@ test("the prose block's links and lists hold against Typography's layer", async 
     only(
       `<style>${css}</style><div data-hw-tile="prose" data-hw-version="${own.version}">${DEMOS.prose!.replace('class="hw-prose"', 'class="prose hw-prose"')}</div>`,
     );
-  const clean = await measurePage(browser, file("prose-typography.html", html(typography)));
+  const clean = await measurePage(browser, targetFile("prose-typography.html", html(typography)));
   expect(clean.findings).toEqual([]);
   for (const [drift, want] of [
     [".prose.hw-prose a:not(.not-prose) { font-weight: 500 }", "a font-weight"],
     [".prose.hw-prose ul:not(.not-prose) { padding-inline-start: 1.625em }", "ul padding-left"],
     [".prose.hw-prose ol:not(.not-prose) { padding-inline-start: 1.625em }", "ol padding-left"],
   ] as const) {
-    const r = await measurePage(browser, file("prose-drift.html", html(drift)));
+    const r = await measurePage(browser, targetFile("prose-drift.html", html(drift)));
     expect(
       r.findings.map(
         (f) => `${f.label.slice(f.label.lastIndexOf('" ') + 2).split(":")[0]} ${f.prop}`,
@@ -711,14 +742,14 @@ const formPage = () =>
   );
 test("a policy refusing data: images is red on the form field's error icon, green with img-src data:", async () => {
   const url = formPage();
-  const red = await measurePage(browser, elementPage(url, undefined, POLICY));
+  const red = await measurePage(browser, { ...elementPage(url), csp: POLICY });
   expect(red.refused).toContainEqual({
     page: url,
     element: "p.hw-form-error::before",
     source: "data",
     directive: "img-src",
   });
-  const green = await measurePage(browser, elementPage(url, undefined, `${POLICY} data:`));
+  const green = await measurePage(browser, { ...elementPage(url), csp: `${POLICY} data:` });
   expect(green.refused).toEqual([]);
   expect(green.findings).toEqual([]);
 }, 60_000);
@@ -772,11 +803,11 @@ const fieldRow = (id: string) =>
 const fieldWithError = `<div class="hw-form-field">${fieldRow("ff")}<p class="hw-form-error" id="ff-err">Gebt eine ID ein.</p></div>`;
 
 /** Bounding edges for the field fixture at one viewport width. */
-async function fieldEdges(width: number, fixture: { body: string; ids: string[] }) {
+async function fieldEdges(width: number, fixture: { name: string; body: string; ids: string[] }) {
   const tab = await browser.newPage();
   try {
     const html = only(`<div data-hw-scale="screen">${fixture.body}</div>`);
-    await open(tab, pathToFileURL(file(`field-row-${width}.html`, html)).href);
+    await open(tab, pathToFileURL(file(`field-row-${fixture.name}.html`, html)).href);
     await tab.setViewport({ width, height: 800 });
     return await tab.evaluate(
       (ids) =>
@@ -794,19 +825,31 @@ async function fieldEdges(width: number, fixture: { body: string; ids: string[] 
 }
 
 test("a stacked form field on a phone puts the error between the field and button", async () => {
-  const phone = await fieldEdges(390, { body: fieldWithError, ids: ["ff-in", "ff-err", "ff-btn"] });
+  const phone = await fieldEdges(390, {
+    name: "phone-form",
+    body: fieldWithError,
+    ids: ["ff-in", "ff-err", "ff-btn"],
+  });
   expect(phone["ff-in"]!.bottom < phone["ff-err"]!.top).toBe(true);
   expect(phone["ff-err"]!.bottom < phone["ff-btn"]!.top).toBe(true);
   expect(phone["ff-btn"]!.top - phone["ff-err"]!.bottom).toBeCloseTo(12, 1);
 }, 60_000);
 
 test("a bare field row on a phone leaves 0.75rem between the field and the stacked button", async () => {
-  const phone = await fieldEdges(390, { body: fieldRow("bare"), ids: ["bare-in", "bare-btn"] });
+  const phone = await fieldEdges(390, {
+    name: "phone-bare",
+    body: fieldRow("bare"),
+    ids: ["bare-in", "bare-btn"],
+  });
   expect(phone["bare-btn"]!.top - phone["bare-in"]!.bottom).toBeCloseTo(12, 1);
 }, 60_000);
 
 test("a form field on a desktop keeps the field and button inline above the error", async () => {
-  const desk = await fieldEdges(1280, { body: fieldWithError, ids: ["ff-in", "ff-err", "ff-btn"] });
+  const desk = await fieldEdges(1280, {
+    name: "desktop-form",
+    body: fieldWithError,
+    ids: ["ff-in", "ff-err", "ff-btn"],
+  });
   expect(desk["ff-btn"]!.top).toBe(desk["ff-in"]!.top);
   expect(desk["ff-err"]!.top > desk["ff-btn"]!.bottom).toBe(true);
 }, 60_000);
@@ -860,7 +903,7 @@ test("a label on a heading keeps its weight whichever brand file loads first", a
   const measure = (name: string, sheets: readonly string[]) =>
     measurePage(
       browser,
-      file(
+      targetFile(
         name,
         `<!doctype html><html><head>${sheets.map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body>${heading}</body></html>`,
       ),
@@ -891,7 +934,7 @@ test("an element carrying hidden, or inside one, is not measured", async () => {
   const tile = `<div data-hw-tile="label" data-hw-version="${own.version}">${DEMOS.label}</div>`;
   const hidden = await measurePage(
     browser,
-    file(
+    targetFile(
       "hidden.html",
       only(
         `${drift}${tile}<div class="hw-card" hidden>a</div><div hidden><div class="hw-card">b</div></div>`,
@@ -903,7 +946,7 @@ test("an element carrying hidden, or inside one, is not measured", async () => {
   // Control: the same cards shown are measured, and the drift is red.
   const shown = await measurePage(
     browser,
-    file(
+    targetFile(
       "shown.html",
       only(`${drift}${tile}<div class="hw-card">a</div><div><div class="hw-card">b</div></div>`),
     ),
@@ -921,13 +964,13 @@ test("a focused element is measured against its focused reference", async () => 
       "hw-focus-ring",
     );
   for (const theme of ["light", "dark"]) {
-    const r = await measurePage(browser, file(`focused-${theme}.html`, page(theme)));
+    const r = await measurePage(browser, targetFile(`focused-${theme}.html`, page(theme)));
     expect(r.findings).toEqual([]);
   }
   // Control: a surface's own focus colour on the same button is still red.
   const drift = await measurePage(
     browser,
-    file(
+    targetFile(
       "focused-drift.html",
       page("light").replace(
         "</body>",
@@ -985,7 +1028,7 @@ test("a focused node after an element in the same parent is read at its own plac
   const card = `<div data-theme="light"><div class="hw-card"><span class="hw-label">Kurs</span><button class="hw-icon-button" data-tone="danger" aria-label="Entfernen"><svg viewBox="0 0 20 20"></svg></button></div></div>`;
   const focused = await measurePage(
     browser,
-    file(
+    targetFile(
       "focused-nested.html",
       only(
         `${card}<script>document.querySelector('[data-tone="danger"]').focus({ focusVisible: true })</script>`,
@@ -997,7 +1040,7 @@ test("a focused node after an element in the same parent is read at its own plac
   const target = (css: string) =>
     measurePage(
       browser,
-      file(
+      targetFile(
         "target-drift.html",
         only(
           `<style>${css}</style><label class="hw-check-target"><input type="checkbox" class="hw-check" aria-label="Erledigt"></label>`,
@@ -1012,15 +1055,49 @@ test("a focused node after an element in the same parent is read at its own plac
   ).toEqual(["width", "height"]);
 }, 60_000);
 
+test("a reference focuses the matching descendant beyond an earlier measured sibling", async () => {
+  const css = ".target { color: rgb(4, 5, 6) } .target:focus-visible { color: rgb(1, 2, 3) }";
+  const html = `<!doctype html><style>${css}</style><div class="sample"><span class="sibling">Before</span><button class="target">Focus</button></div>`;
+  const tab = await browser.newPage();
+  try {
+    await open(tab, pathToFileURL(file("reference-focus-descendant.html", html)).href);
+    await tab.$eval("button", (button) => button.focus({ focusVisible: true }));
+    const dom = await installElementDom(tab);
+    try {
+      const result = await dom.evaluate(
+        (api, css) =>
+          api.compare({
+            css,
+            selectors: { label: ".sibling", card: ".sample" },
+            styles: {
+              label: { own: [], parts: [] },
+              card: { own: [], parts: [{ selector: ".target", properties: ["color"] }] },
+            },
+            tokens: {},
+            settings: [],
+            tolerance: 0.02,
+          }),
+        css,
+      );
+      expect(result.findings).toEqual([]);
+      expect(await tab.$eval("button", (button) => document.activeElement === button)).toBe(true);
+    } finally {
+      await dom.dispose();
+    }
+  } finally {
+    await tab.close();
+  }
+}, 60_000);
+
 // A class whose rule is gone leaves its element unstyled, which no other check sees.
 test("a class brand once defined, or an hw-* class, that no loaded sheet defines is red", async () => {
   const buttons = `<button class="hw-button">Copy answers</button><button class="pick btn-secondary">Pick recommended</button><button class="btn-primary">Copy answers</button><span class="hw-buton">x</span><p class="flex mt-2 own">Utility and own classes</p><div data-hw-shell><span class="hw-shell-only">shell</span></div>`;
   const [bare, own, negated] = await Promise.all([
-    measurePage(browser, file("removed.html", only(buttons))),
+    measurePage(browser, targetFile("removed.html", only(buttons))),
     // Control: the shared element and a consumer's own rule for the old name pass.
     measurePage(
       browser,
-      file(
+      targetFile(
         "own.html",
         only(`${buttons}<style>.btn-primary, .btn-secondary, .hw-buton { color: red }</style>`),
       ),
@@ -1028,7 +1105,7 @@ test("a class brand once defined, or an hw-* class, that no loaded sheet defines
     // A name only inside :not() styles nothing of its own.
     measurePage(
       browser,
-      file(
+      targetFile(
         "negated.html",
         only(`${buttons}<style>button:not(.btn-primary) { color: red }</style>`),
       ),
@@ -1113,13 +1190,16 @@ test("a popover holding a nav pads 0.75rem all round, a text popover keeps 1rem 
   await p.close();
   const drifted = await measurePage(
     browser,
-    file("popover-nav-drift.html", only(`<style>#nav { padding-inline: 1rem }</style>${body}`)),
+    targetFile(
+      "popover-nav-drift.html",
+      only(`<style>#nav { padding-inline: 1rem }</style>${body}`),
+    ),
   );
   expect(drifted.findings.filter((f) => f.element === "popover").map((f) => f.prop)).toEqual([
     "padding-right",
     "padding-left",
   ]);
-  const clean = await measurePage(browser, file("popover-nav-clean.html", only(body)));
+  const clean = await measurePage(browser, targetFile("popover-nav-clean.html", only(body)));
   expect(clean.findings.filter((f) => f.element === "popover")).toEqual([]);
 }, 60_000);
 
@@ -1148,13 +1228,16 @@ test("a nav caption after a list keeps its margin: a page resetting it is red", 
   const body = `<div data-hw-scale="dense"><nav class="hw-nav"><p class="hw-label hw-nav-group" data-tone="muted">A</p><ul><li><a href="#">B</a></li></ul><p class="hw-label hw-nav-group" data-tone="muted">C</p><ul><li><a href="#">D</a></li></ul></nav></div>`;
   const reset = await measurePage(
     browser,
-    file("nav-caption-reset.html", only(`<style>.hw-nav p { margin-block: 0 }</style>${body}`)),
+    targetFile(
+      "nav-caption-reset.html",
+      only(`<style>.hw-nav p { margin-block: 0 }</style>${body}`),
+    ),
   );
   expect(reset.findings.filter((f) => f.element === "nav").map((f) => f.prop)).toEqual([
     "margin-bottom",
     "margin-top",
   ]);
-  const clean = await measurePage(browser, file("nav-caption-clean.html", only(body)));
+  const clean = await measurePage(browser, targetFile("nav-caption-clean.html", only(body)));
   expect(clean.findings.filter((f) => f.element === "nav")).toEqual([]);
 }, 60_000);
 

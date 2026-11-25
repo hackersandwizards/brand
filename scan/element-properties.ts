@@ -212,3 +212,20 @@ export const setsOwned = (element: string, declared: string) =>
         (/^border-(width|style|color)$/.test(prop) && q.endsWith(prop.slice(6))),
     ),
   );
+
+export type ElementStyleRules = {
+  own: string[];
+  parts: { selector: string; properties: string[] }[];
+};
+
+/** Property rules indexed by element so each instance reads only its own parts. */
+export function elementStyleRules(owned: Record<string, string[]>) {
+  const rules: Record<string, ElementStyleRules> = {};
+  for (const [key, properties] of Object.entries(owned)) {
+    const [element, ...rest] = key.split(" ");
+    const entry = (rules[element] ??= { own: [], parts: [] });
+    if (rest.length) entry.parts.push({ selector: rest.join(" "), properties });
+    else entry.own = properties;
+  }
+  return rules;
+}

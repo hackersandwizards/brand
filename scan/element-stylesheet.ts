@@ -1,5 +1,14 @@
 /** Utility families in dispatch order, with specific utilities before their broader families. */
 const UTILITY_PROPERTIES: [RegExp, string[]][] = [
+  [/^p-/, ["padding"]],
+  [/^px-/, ["padding-inline"]],
+  [/^py-/, ["padding-block"]],
+  [/^pt-/, ["padding-top"]],
+  [/^pr-/, ["padding-right"]],
+  [/^pb-/, ["padding-bottom"]],
+  [/^pl-/, ["padding-left"]],
+  [/^ps-/, ["padding-inline-start"]],
+  [/^pe-/, ["padding-inline-end"]],
   [/^rounded(-|$)/, ["border-radius"]],
   [/^border(?!-(collapse|separate|spacing))(-|$)/, ["border"]],
   [
@@ -20,18 +29,6 @@ const UTILITY_PROPERTIES: [RegExp, string[]][] = [
   [/^opacity-/, ["opacity"]],
 ];
 
-const PADDING_SIDES: Record<string, string> = {
-  "": "",
-  x: "-inline",
-  y: "-block",
-  t: "-top",
-  r: "-right",
-  b: "-bottom",
-  l: "-left",
-  s: "-inline-start",
-  e: "-inline-end",
-};
-
 /** The properties a Tailwind utility sets, as far as an element owns them: a state variant
  *  (hover:, focus:, ...) sets nothing at rest, a breakpoint, theme or print variant does. A text-*
  *  of a theme's own name may be a size or a colour, so it stands for both. */
@@ -41,8 +38,6 @@ export const utility = (token: string): string[] => {
   const name = parts.pop()!.replace(/^!|!$/g, "");
   if (parts.some((v) => !/^(sm|md|lg|xl|2xl|dark|print|motion-safe|(min|max)-.+|@.+)$/.test(v)))
     return [];
-  const pad = /^p([xytrblse])?-/.exec(name);
-  if (pad) return [`padding${PADDING_SIDES[pad[1] ?? ""]}`];
   return UTILITY_PROPERTIES.find(([pattern]) => pattern.test(name))?.[1] ?? [];
 };
 

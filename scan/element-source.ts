@@ -1,5 +1,5 @@
 import { basename, extname } from "node:path";
-import type { Exception } from "./element-exceptions";
+import type { Exception } from "./elements-config";
 import { setsOwned } from "./element-properties";
 import { outside, rules } from "./element-stylesheet";
 import { ENGINE_STYLE } from "./engine-style";

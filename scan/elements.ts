@@ -58,15 +58,12 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { launch } from "./browser";
 import { listedCsp, policies, refusalLine } from "./browser-csp";
 import { pool, tabs } from "./browser-workers";
-import {
-  type Config,
-  exceptionFindings,
-  LIST,
-  listedElementExceptions,
-} from "./element-exceptions";
+import { exceptionFindings, listedElementExceptions } from "./element-exceptions";
 import { elementPage, measureLightPage, measurePage, type PageResult } from "./element-page";
 import { sourceFindings } from "./element-source";
 import {
+  type Config,
+  LIST,
   listedCatalog,
   listedElementPages,
   listedSite,
@@ -143,7 +140,7 @@ if (import.meta.main) {
     const measure = config.lightOnly ? measureLightPage : measurePage;
     results.push(
       ...(await pool(pages, tabs(8), (url) =>
-        measure(browser, elementPage(url, base, config.csp)),
+        measure(browser, { ...elementPage(url, base), csp: config.csp }),
       )),
     );
   } finally {

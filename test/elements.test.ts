@@ -3,8 +3,9 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "n
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { definedClasses, isBrandClass } from "../scan/element-classes";
-import { exceptionFindings, type Config } from "../scan/element-exceptions";
-import { setsOwned } from "../scan/element-properties";
+import { exceptionFindings } from "../scan/element-exceptions";
+import type { Config } from "../scan/elements-config";
+import { elementStyleRules, setsOwned } from "../scan/element-properties";
 import { ELEMENTS, SETTINGS } from "../scan/element-rules";
 import { rules, utility as utilityProperties } from "../scan/element-stylesheet";
 import { sourceFindings } from "../scan/element-source";
@@ -390,35 +391,33 @@ test.each<{ rule: string; actual: StyleSnapshot; reference: StyleSnapshot; prope
     property: "padding-left",
   },
 ])("$rule reports no style difference", ({ actual, reference, property }) => {
-  expect(
-    diffElementStyles(
-      { element: "card", label: "sample", actual, reference, properties: [property] },
-      0.02,
-    ),
-  ).toEqual([]);
+  expect(diffElementStyles({ actual, reference }, [property], 0.02)).toEqual([]);
 });
 
 test("a different em length reports the original values without the :em qualifier", () => {
   const actual = { "text-underline-offset:em": "0.3em" };
   const reference = { "text-underline-offset:em": "0.2em" };
-  expect(
-    diffElementStyles(
-      {
-        element: "link",
-        label: 'a.hw-link "Agenda"',
-        actual,
-        reference,
-        properties: ["text-underline-offset:em"],
-      },
-      0.02,
-    ),
-  ).toEqual([
-    {
-      element: "link",
-      label: 'a.hw-link "Agenda"',
-      prop: "text-underline-offset",
-      got: "0.3em",
-      want: "0.2em",
-    },
+  expect(diffElementStyles({ actual, reference }, ["text-underline-offset:em"], 0.02)).toEqual([
+    { prop: "text-underline-offset", got: "0.3em", want: "0.2em" },
   ]);
+});
+
+test("owned style properties keep multiword selectors and part declaration order", () => {
+  expect(
+    elementStyleRules({
+      "link :scope > svg": ["width:em"],
+      card: ["padding-left"],
+      link: ["text-underline-offset:em"],
+      "link span": ["font-weight"],
+    }),
+  ).toEqual({
+    link: {
+      own: ["text-underline-offset:em"],
+      parts: [
+        { selector: ":scope > svg", properties: ["width:em"] },
+        { selector: "span", properties: ["font-weight"] },
+      ],
+    },
+    card: { own: ["padding-left"], parts: [] },
+  });
 });

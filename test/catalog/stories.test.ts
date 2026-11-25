@@ -4,7 +4,7 @@ import axe from "axe-core";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import { exceptionFindings } from "../../scan/element-exceptions";
-import { measurePage } from "../../scan/element-page";
+import { elementPage, measurePage } from "../../scan/element-page";
 import { ELEMENTS } from "../../scan/element-rules";
 import { launch, open } from "../../scan/browser";
 import { pool } from "../../scan/browser-workers";
@@ -32,7 +32,7 @@ test("every story passes brand-elements, every element story shows its element",
   const expert = pages.filter(expertStory);
   expect(expert.length).toBeGreaterThan(0);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
-  const results = await pool(pages, 8, (p) => measurePage(browser, p));
+  const results = await pool(pages, 8, (p) => measurePage(browser, elementPage(p)));
   // An expert component may hold no shared element, such as the header's frame.
   expect(pages.filter((p, i) => !expertStory(p) && !results[i]!.seen.length)).toEqual([]);
   expect(results.flatMap((r) => r.findings)).toEqual([]);
@@ -104,7 +104,7 @@ test("a faint choice count fails the contrast check and brand-elements", async (
   const url = storyPages().find((p) => p.endsWith("/Forms/filter-value/screen/"))!;
   const faint = ".hw-choice-count { opacity: 0.8 }";
   expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
-  const { findings } = await measurePage(browser, url, faint);
+  const { findings } = await measurePage(browser, elementPage(url), faint);
   expect(findings.some((f) => f.prop === "opacity")).toBe(true);
 }, 60_000);
 

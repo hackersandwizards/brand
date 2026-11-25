@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import { closeSync, openSync, readdirSync, readSync } from "node:fs";
 import { join } from "node:path";
-import { measurePage } from "../../scan/element-page";
+import { elementPage, measurePage } from "../../scan/element-page";
 import { ELEMENTS } from "../../scan/element-rules";
 import { kebab } from "../../scan/element-source";
 import { ROOT } from "../../scripts/git";
@@ -164,11 +164,11 @@ const url = pathToFileURL(`${DIST}/index.html`).href;
 // is measured open, and the overview, all views hidden, as a control.
 test("the portal's samples match their rules", async () => {
   const views = [...new Set(page("index.html").match(/(?<=data-page=")[a-z-]+/g))];
-  const rs = await Promise.all(views.map((v) => measurePage(browser, `${url}#${v}`)));
+  const rs = await Promise.all(views.map((v) => measurePage(browser, elementPage(`${url}#${v}`))));
   // Every element but one: the focus ring is read only on a focused tile.
   expect(new Set(rs.flatMap((r) => r.seen)).size).toBe(Object.keys(ELEMENTS).length - 1);
   expect(rs.flatMap((r) => r.findings)).toEqual([]);
-  expect((await measurePage(browser, url)).seen).toEqual([]);
+  expect((await measurePage(browser, elementPage(url))).seen).toEqual([]);
 }, 60_000);
 
 // The portal's own lists take the rule; with the browser's disc they read 0.56 to 0.61 px off.

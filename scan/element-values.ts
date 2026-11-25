@@ -1,19 +1,12 @@
-export type ElementStyleRules = {
-  own: string[];
-  parts: { selector: string; properties: string[] }[];
-};
-
 export type StyleSnapshot = Record<string, string>;
 
-export type ComputedStylePair = {
-  element: string;
-  label: string;
+/** Computed style readings for the same element or part on both sides. */
+export type StyleSnapshots = {
   actual: StyleSnapshot;
   reference: StyleSnapshot;
-  properties: string[];
 };
 
-export type StyleDifference = Pick<ComputedStylePair, "element" | "label"> & {
+export type StyleDifference = {
   prop: string;
   got: string;
   want: string;
@@ -62,7 +55,7 @@ function borderSide(prop: string) {
 
 /** The computed values of `list` on `x`, with the width of each border side it names; a
  *  property marked ":em" in em of x's font size. */
-function snapshotStyles(x: Element, list: string[]): StyleSnapshot {
+export function snapshotStyles(x: Element, list: string[]): StyleSnapshot {
   const g = getComputedStyle(x);
   const props = list.flatMap((prop) => {
     const side = borderSide(prop);
@@ -83,7 +76,8 @@ function snapshotStyles(x: Element, list: string[]): StyleSnapshot {
 
 /** Differences between the measured styles of an element or part and its brand reference. */
 export function diffElementStyles(
-  { element, label, actual, reference, properties }: ComputedStylePair,
+  { actual, reference }: StyleSnapshots,
+  properties: string[],
   tolerance: number,
 ): StyleDifference[] {
   const findings: StyleDifference[] = [];
@@ -95,15 +89,10 @@ export function diffElementStyles(
     const got = actual[prop]!;
     const want = reference[prop]!;
     if (!sameStyleValue(got, want, tolerance))
-      findings.push({ element, label, prop: prop.replace(/:em$/, ""), got, want });
+      findings.push({ prop: prop.replace(/:em$/, ""), got, want });
   }
   return findings;
 }
-
-export type ElementStyles = {
-  snapshot: typeof snapshotStyles;
-  diff: typeof diffElementStyles;
-};
 
 /** Declares style readers in the browser's private measurement scope. */
 export const elementStyleFunctions = [

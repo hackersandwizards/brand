@@ -1,10 +1,17 @@
 import type { JSHandle, Page } from "puppeteer-core";
 import {
   elementStyleFunctions,
-  type ElementStyles,
-  type ElementStyleRules,
+  type diffElementStyles as DiffElementStyles,
+  type snapshotStyles as SnapshotStyles,
   type StyleDifference,
 } from "./element-values";
+import type { ElementStyleRules } from "./element-properties";
+
+// The declarations installed by installElementDom supply these names inside the page.
+declare const snapshotStyles: typeof SnapshotStyles;
+declare const diffElementStyles: typeof DiffElementStyles;
+
+export type ElementFinding = { element: string; label: string } & StyleDifference;
 
 const SKIP = "[data-hw-reference], [data-hw-exception], [data-hw-shell]";
 
@@ -19,7 +26,7 @@ export type ElementReference = {
 
 type Instance = { element: string; el: Element; settings: [string, string][] };
 type PageFocus = { node: HTMLElement | null; visible: boolean };
-type ReferenceFocus = { got: HTMLElement; want: HTMLElement; visible: boolean; restore: PageFocus };
+type ReferenceFocus = { got: PageFocus; want: PageFocus; restore: PageFocus };
 type Reference = Instance & { clone: HTMLElement; focus: ReferenceFocus | null };
 type MountedReference = Reference & { host: HTMLSpanElement };
 
@@ -30,7 +37,7 @@ function elementLabel(el: Element) {
 
 /** The first instance missing each required token, plus settings on each measurable instance. */
 function discoverElementInstances({ selectors, tokens, settings }: ElementReference) {
-  const findings: StyleDifference[] = [];
+  const findings: ElementFinding[] = [];
   const missing = new Set<string>();
   const instances: Instance[] = [];
   for (const [element, selector] of Object.entries(selectors)) {
@@ -76,7 +83,7 @@ function hasBrandCorner(el: Element) {
 // before any reference.
 function nestedCornerFindings() {
   const branded = new Set([...document.querySelectorAll("body *")].filter(hasBrandCorner));
-  const findings: StyleDifference[] = [];
+  const findings: ElementFinding[] = [];
   for (const el of branded) {
     if (el.closest(SKIP)) continue;
     for (let p = el.parentElement; p; p = p.parentElement)
@@ -119,12 +126,15 @@ function referenceFocus(
   restore: PageFocus,
 ): ReferenceFocus | null {
   if (element === "focus-ring")
-    return { got: el as HTMLElement, want: clone, visible: true, restore };
+    return {
+      got: { node: el as HTMLElement, visible: true },
+      want: { node: clone, visible: true },
+      restore,
+    };
   if (!restore.node || !el.contains(restore.node)) return null;
   return {
-    got: restore.node,
-    want: counterpart(el, clone, restore.node),
-    visible: restore.visible,
+    got: restore,
+    want: { node: counterpart(el, clone, restore.node), visible: restore.visible },
     restore,
   };
 }
@@ -215,17 +225,13 @@ function mountElementReference(sample: Reference, sheet: CSSStyleSheet): Mounted
 }
 
 /** Reads an instance or reference and its named parts after focusing its target. */
-function readElementSide(
-  { el, focus, visible }: { el: Element; focus?: HTMLElement; visible?: boolean },
-  { own, parts }: ElementStyleRules,
-  snapshot: ElementStyles["snapshot"],
-) {
-  focus?.focus({ focusVisible: visible });
+function readElementSide(el: Element, { own, parts }: ElementStyleRules, focus?: PageFocus) {
+  focus?.node?.focus({ focusVisible: focus.visible });
   return {
-    own: snapshot(el, own),
+    own: snapshotStyles(el, own),
     parts: parts.map(({ selector, properties }) => {
       const part = el.querySelector(selector);
-      return part && snapshot(part, properties);
+      return part && snapshotStyles(part, properties);
     }),
   };
 }
@@ -233,27 +239,18 @@ function readElementSide(
 /** Findings for one instance and its reference, with the page's original focus restored. */
 function readElementPair(
   { el, clone, element, focus }: MountedReference,
-  { styles, tolerance }: ElementReference,
-  { snapshot, diff }: ElementStyles,
+  rules: ElementStyleRules,
+  tolerance: number,
 ) {
-  const rules = styles[element];
   // Each side read while its focus target holds focus; the page's own focus back after the pair.
-  const actual = readElementSide(
-    { el, focus: focus?.got, visible: focus?.visible },
-    rules,
-    snapshot,
-  );
-  const reference = readElementSide(
-    { el: clone, focus: focus?.want, visible: focus?.visible },
-    rules,
-    snapshot,
-  );
+  const actual = readElementSide(el, rules, focus?.got);
+  const reference = readElementSide(clone, rules, focus?.want);
   if (focus) {
-    focus.want.blur();
+    focus.want.node?.blur();
     focus.restore.node?.focus({ focusVisible: focus.restore.visible });
   }
   const label = elementLabel(el);
-  const findings: StyleDifference[] = [];
+  const findings: ElementFinding[] = [];
   if (element === "focus-ring" && actual.own["outline-style"] === "none")
     findings.push({
       element,
@@ -262,27 +259,28 @@ function readElementPair(
       got: "none",
       want: reference.own["outline-style"]!,
     });
-  findings.push(
-    ...diff(
-      { element, label, actual: actual.own, reference: reference.own, properties: rules.own },
-      tolerance,
-    ),
-  );
+  for (const difference of diffElementStyles(
+    { actual: actual.own, reference: reference.own },
+    rules.own,
+    tolerance,
+  ))
+    findings.push({ element, label, ...difference });
+
   rules.parts.forEach(({ selector, properties }, i) => {
     const [got, want] = [actual.parts[i], reference.parts[i]];
-    if (got && want)
-      findings.push(
-        ...diff(
-          { element, label: `${label} ${selector}`, actual: got, reference: want, properties },
-          tolerance,
-        ),
-      );
+    if (!got || !want) return;
+    for (const difference of diffElementStyles(
+      { actual: got, reference: want },
+      properties,
+      tolerance,
+    ))
+      findings.push({ element, label: `${label} ${selector}`, ...difference });
   });
   return findings;
 }
 
 /** Runs in the page: each hub element against its reference, as findings plus the exceptions found. */
-function compareElementPage(reference: ElementReference, style: ElementStyles) {
+function compareElementPage(reference: ElementReference) {
   const active = initialPageFocus();
   // In passes, so the page restyles twice rather than once per instance: read every instance's
   // settings and tokens, insert every reference, then read every pair.
@@ -297,7 +295,8 @@ function compareElementPage(reference: ElementReference, style: ElementStyles) {
   const mounted: MountedReference[] = [];
   try {
     for (const clone of clones) mounted.push(mountElementReference(clone, sheet));
-    for (const pair of mounted) findings.push(...readElementPair(pair, reference, style));
+    for (const pair of mounted)
+      findings.push(...readElementPair(pair, reference.styles[pair.element], reference.tolerance));
   } finally {
     for (const { host } of mounted) host.remove();
   }
@@ -311,7 +310,7 @@ type ElementDom = {
   compare: (reference: ElementReference) => ReturnType<typeof compareElementPage>;
 };
 
-/** Installs the named readers in a private CDP handle, so the page keeps no added script or global. */
+/** Installs the named readers with Puppeteer’s evaluateHandle, without a script tag or page global. */
 export async function installElementDom(page: Page) {
   const functions = [
     ...elementStyleFunctions,
@@ -338,9 +337,6 @@ export async function installElementDom(page: Page) {
   return (await page.evaluateHandle(`(() => {
     const SKIP = ${JSON.stringify(SKIP)};
     ${declarations}
-    return { compare: (reference) => compareElementPage(reference, {
-      snapshot: snapshotStyles,
-      diff: diffElementStyles,
-    }) };
+    return { compare: compareElementPage };
   })()`)) as JSHandle<ElementDom>;
 }

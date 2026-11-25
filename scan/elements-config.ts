@@ -1,5 +1,17 @@
+import type { Csp } from "./browser-csp";
 import { isRecord, isStringList } from "./help";
 import { basePath, type CatalogDirectory, type MountedSite } from "./site";
+
+export const LIST = "brand-elements.json";
+export type Exception = string | { reason: string; files?: string[] };
+export type Config = {
+  pages: string[];
+  exceptions?: Record<string, Exception>;
+  lightOnly?: boolean;
+  site?: Site;
+  catalog?: Catalog;
+  csp?: Csp;
+};
 
 /** The "site" of brand-elements.json: a built folder, served at its root or, as { dir, at }, at the
  * base path it was built for. */

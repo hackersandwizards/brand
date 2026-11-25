@@ -1,17 +1,6 @@
-import type { Csp } from "./browser-csp";
-import type { Catalog, Site } from "./elements-config";
+import { LIST, type Config, type Exception } from "./elements-config";
 import { isRecord, isStringList } from "./help";
 
-export const LIST = "brand-elements.json";
-export type Exception = string | { reason: string; files?: string[] };
-export type Config = {
-  pages: string[];
-  exceptions?: Record<string, Exception>;
-  lightOnly?: boolean;
-  site?: Site;
-  catalog?: Catalog;
-  csp?: Csp;
-};
 const reasonOf = (e: Exception) => (typeof e === "string" ? e : e.reason);
 
 /** The exceptions: each declared one names its reason, and each one a page carries is declared,
