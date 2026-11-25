@@ -478,8 +478,11 @@ const PRODUCTS: Product[] = [
         ["Stargazer", TEXTILE.stargazer],
       ] as const
     ).flatMap(([n, col]) => [
-      [wear(col, front, 380, 120, false, false), `front, ${n}`],
-      [wear(col, back, 380, 60, false, true), `back, ${n}`],
+      [
+        wear({ kind: "shirt", side: "front", color: col }, front, { x: 380, y: 120 }),
+        `front, ${n}`,
+      ],
+      [wear({ kind: "shirt", side: "back", color: col }, back, { x: 380, y: 60 }), `back, ${n}`],
     ]),
     stems: ["shirt-T12-front", "shirt-T12-back"],
   },
@@ -491,7 +494,10 @@ const PRODUCTS: Product[] = [
         ["Purple Love", TEXTILE["purple-love"]],
         ["Stargazer", TEXTILE.stargazer],
       ] as const
-    ).map(([n, col]) => [wear(col, hoodie, 380, 215, true, false), `front, ${n}`]),
+    ).map(([n, col]) => [
+      wear({ kind: "hoodie", side: "front", color: col }, hoodie, { x: 380, y: 215 }),
+      `front, ${n}`,
+    ]),
     stems: ["hoodie-H12-front"],
   },
   {

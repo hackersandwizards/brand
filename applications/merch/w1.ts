@@ -10,7 +10,8 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { colors } from "../../generated/tokens";
 import { browser } from "../backgrounds/render";
-import { TEXTILE, wear as wearPrint } from "./mockup";
+import { type Print, TEXTILE, wear } from "./mockup";
+import { dilate, erode, type Mask, trace } from "./mask";
 
 const DIR = import.meta.dir;
 const LOGOS = join(DIR, "../../logos");
@@ -22,6 +23,7 @@ const CUT = "#EC008C";
 // lockup and compact lockup widths in the D files, in brand units (wordmark: 6571)
 const LOCKUP_UNITS = 7988.814;
 
+type Point = { x: number; y: number };
 type Cut = { svg: string; vbX: number; vbY: number; vbW: number; vbH: number };
 function cut(name: string): Cut {
   const svg = readFileSync(join(LOGOS, `${name}.svg`), "utf8");
@@ -35,7 +37,7 @@ const night = cut("wordmark-night");
 const outline = cut("wordmark-outline");
 
 // The cut nested at x/y mm, its letters as wide as a 6571-unit wordmark of `wm` mm.
-function placeWordmark(c: Cut, x: number, y: number, wm: number) {
+function placeWordmark(c: Cut, { x, y }: Point, wm: number) {
   const k = wm / 6571;
   const w = c.vbW * k;
   const h = c.vbH * k;
@@ -48,7 +50,7 @@ function placeWordmark(c: Cut, x: number, y: number, wm: number) {
 
 // Textile print: the wordmark alone on a transparent file with 0.5 mm air, as the D files had.
 function textilePrint(c: Cut, wm: number) {
-  const p = placeWordmark(c, 0.5, 0.5, wm);
+  const p = placeWordmark(c, { x: 0.5, y: 0.5 }, wm);
   const W = +(p.w + 1).toFixed(3);
   const H = +(p.h + 1).toFixed(3);
   return {
@@ -61,7 +63,7 @@ function textilePrint(c: Cut, wm: number) {
 // Kiss-cut sticker: Night to the edge with 3 mm bleed, 3 mm air round the wordmark, 3 mm corners,
 // the cut line as a 0.25 mm magenta stroke in the group `CutContour`.
 function stickerPrint(wm: number) {
-  const p = placeWordmark(night, 3, 3, wm);
+  const p = placeWordmark(night, { x: 3, y: 3 }, wm);
   const w = +(p.w + 6).toFixed(3);
   const h = +(p.h + 6).toFixed(3);
   const W = w + 6;
@@ -82,90 +84,6 @@ function stickerPrint(wm: number) {
 const EMOJI = join(LOGOS, "emoji-logo-short.png");
 const PX = 20;
 
-// Squared distance of every pixel to the nearest set pixel (Felzenszwalb and Huttenlocher).
-function distances(mask: Uint8Array, w: number, h: number) {
-  const n = Math.max(w, h);
-  const f = new Float64Array(n);
-  const v = new Int32Array(n);
-  const z = new Float64Array(n + 1);
-  const d = Float64Array.from(mask, (m) => (m ? 0 : 1e20));
-  const pass = (len: number, idx: (i: number) => number) => {
-    for (let i = 0; i < len; i++) f[i] = d[idx(i)];
-    const meet = (q: number, p: number) => (f[q] + q * q - f[p] - p * p) / (2 * q - 2 * p);
-    let k = 0;
-    v[0] = 0;
-    z[0] = -1e20;
-    z[1] = 1e20;
-    for (let q = 1; q < len; q++) {
-      while (meet(q, v[k]) <= z[k]) k--;
-      k++;
-      v[k] = q;
-      z[k] = meet(q, v[k - 1]);
-      z[k + 1] = 1e20;
-    }
-    k = 0;
-    for (let q = 0; q < len; q++) {
-      while (z[k + 1] < q) k++;
-      d[idx(q)] = (q - v[k]) ** 2 + f[v[k]];
-    }
-  };
-  for (let x = 0; x < w; x++) pass(h, (y) => y * w + x);
-  for (let y = 0; y < h; y++) pass(w, (x) => y * w + x);
-  return d;
-}
-const dilate = (m: Uint8Array, w: number, h: number, mm: number) =>
-  Uint8Array.from(distances(m, w, h), (d) => (d <= (mm * PX) ** 2 ? 1 : 0));
-const erode = (m: Uint8Array, w: number, h: number, mm: number) =>
-  Uint8Array.from(
-    dilate(
-      Uint8Array.from(m, (x) => 1 - x),
-      w,
-      h,
-      mm,
-    ),
-    (x) => 1 - x,
-  );
-
-// The outer edge of the set pixels along the pixel corners, then Douglas-Peucker to 1 px.
-function trace(m: Uint8Array, w: number, h: number) {
-  const on = (x: number, y: number) => x >= 0 && y >= 0 && x < w && y < h && m[y * w + x] === 1;
-  const start = m.indexOf(1);
-  const [sx, sy] = [start % w, Math.floor(start / w)];
-  const DX = [1, 0, -1, 0];
-  const DY = [0, 1, 0, -1];
-  const pts: [number, number][] = [];
-  let [x, y, dir] = [sx, sy, 0];
-  do {
-    pts.push([x, y]);
-    x += DX[dir];
-    y += DY[dir];
-    // the pixels ahead to the left and to the right of the walk, the set side on the right
-    const left = [on(x, y - 1), on(x, y), on(x - 1, y), on(x - 1, y - 1)][dir];
-    const right = [on(x, y), on(x - 1, y), on(x - 1, y - 1), on(x, y - 1)][dir];
-    if (left) dir = (dir + 3) % 4;
-    else if (!right) dir = (dir + 1) % 4;
-  } while (x !== sx || y !== sy || dir !== 0);
-  const keep = new Uint8Array(pts.length);
-  const simplify = (a: number, b: number) => {
-    const [[ax, ay], [bx, by]] = [pts[a], pts[b]];
-    const len = Math.hypot(bx - ax, by - ay) || 1;
-    let [far, at] = [1, -1];
-    for (let i = a + 1; i < b; i++) {
-      const dist = Math.abs((bx - ax) * (ay - pts[i][1]) - (ax - pts[i][0]) * (by - ay)) / len;
-      if (dist > far) [far, at] = [dist, i];
-    }
-    if (at < 0) return;
-    keep[at] = 1;
-    simplify(a, at);
-    simplify(at, b);
-  };
-  const half = pts.length >> 1;
-  keep[0] = keep[half] = keep[pts.length - 1] = 1;
-  simplify(0, half);
-  simplify(half, pts.length - 1);
-  return pts.filter((_, i) => keep[i]);
-}
-
 // Die-cut sticker of the wizard `side` mm square: white to the cut with 1.5 mm white bleed past it,
 // the cut line as in the kiss-cut files, the cut's box at 0, 0 with 3 mm round it.
 async function wizardPrint(side: number) {
@@ -178,13 +96,13 @@ async function wizardPrint(side: number) {
     .extractChannel("alpha")
     .raw()
     .toBuffer();
-  const rim = dilate(
-    Uint8Array.from(alpha, (a) => (a >= 128 ? 1 : 0)),
-    S,
-    S,
-    2.5,
-  );
-  const pts = trace(erode(dilate(rim, S, S, 1.5), S, S, 1.5), S, S);
+  const mask: Mask = {
+    data: Uint8Array.from(alpha, (a) => (a >= 128 ? 1 : 0)),
+    width: S,
+    height: S,
+  };
+  const rim = dilate(mask, 2.5 * PX);
+  const pts = trace(erode(dilate(rim, 1.5 * PX), 1.5 * PX));
   const x0 = Math.min(...pts.map((p) => p[0]));
   const y0 = Math.min(...pts.map((p) => p[1]));
   const w = (Math.max(...pts.map((p) => p[0])) - x0) / PX;
@@ -250,9 +168,10 @@ try {
       .jpeg({ quality: 90 })
       .toFile(join(MOCKUPS, `${name}.jpg`));
 
-  const wear = (col: string, art: string, ax: number, ay: number, hood: boolean, back: boolean) => {
-    const f = files[art as keyof typeof files];
-    return wearPrint(col, { href: uri(f.svg), W: f.W, H: f.H }, ax, ay, hood, back);
+  // Embed the print file at its physical size in the textile mockup.
+  const mockupPrint = (art: keyof typeof files): Print => {
+    const f = files[art];
+    return { href: uri(f.svg), W: f.W, H: f.H };
   };
   const zoom = (col: string, art: string, px: number) => {
     const f = files[art as keyof typeof files];
@@ -267,8 +186,20 @@ try {
     ["purple-love", TEXTILE["purple-love"]],
   ] as const;
   const views = shirtColours.flatMap(([n, col]) => [
-    [`Brust, ${n}`, wear(col, "shirt-T12-front", 380, 120, false, false)],
-    [`Rücken, ${n}`, wear(col, "shirt-T12-back", 380, 60, false, true)],
+    [
+      `Brust, ${n}`,
+      wear({ kind: "shirt", side: "front", color: col }, mockupPrint("shirt-T12-front"), {
+        x: 380,
+        y: 120,
+      }),
+    ],
+    [
+      `Rücken, ${n}`,
+      wear({ kind: "shirt", side: "back", color: col }, mockupPrint("shirt-T12-back"), {
+        x: 380,
+        y: 60,
+      }),
+    ],
   ]);
   const shirtSheet = mockupPage(
     `<div style="display:flex;gap:30px;padding:30px 30px 0">${views
@@ -276,14 +207,20 @@ try {
       .join("")}</div>`,
     "#E4E6EA",
   );
-  await jpg(await b.shot(shirtSheet, 1600, 520, 1), "shirt-T12");
+  await jpg(await b.shot(shirtSheet, { width: 1600, height: 520 }), "shirt-T12");
   for (const [n, col] of shirtColours) {
     await jpg(
-      await b.shot(mockupPage(zoom(col, "shirt-T12-front", 3), "#E4E6EA"), 1040, 240, 1),
+      await b.shot(mockupPage(zoom(col, "shirt-T12-front", 3), "#E4E6EA"), {
+        width: 1040,
+        height: 240,
+      }),
       `shirt-T12-front-${n}-crop`,
     );
     await jpg(
-      await b.shot(mockupPage(zoom(col, "shirt-T12-back", 8), "#E4E6EA"), 1200, 360, 1),
+      await b.shot(mockupPage(zoom(col, "shirt-T12-back", 8), "#E4E6EA"), {
+        width: 1200,
+        height: 360,
+      }),
       `shirt-T12-back-${n}-crop`,
     );
   }
@@ -293,15 +230,18 @@ try {
     `<div style="display:flex;gap:30px;padding:30px 30px 0">${shirtColours
       .map(
         ([n, col]) =>
-          `<div style="width:620px;height:690px">${wear(col, "hoodie-H12-front", 380, 215, true, false)}${cap(`Brust, ${n}`)}</div>`,
+          `<div style="width:620px;height:690px">${wear({ kind: "hoodie", side: "front", color: col }, mockupPrint("hoodie-H12-front"), { x: 380, y: 215 })}${cap(`Brust, ${n}`)}</div>`,
       )
       .join("")}</div>`,
     "#E4E6EA",
   );
-  await jpg(await b.shot(hoodieSheet, 1340, 780, 1), "hoodie-H12");
+  await jpg(await b.shot(hoodieSheet, { width: 1340, height: 780 }), "hoodie-H12");
   for (const [n, col] of shirtColours)
     await jpg(
-      await b.shot(mockupPage(zoom(col, "hoodie-H12-front", 3), "#E4E6EA"), 1040, 240, 1),
+      await b.shot(mockupPage(zoom(col, "hoodie-H12-front", 3), "#E4E6EA"), {
+        width: 1040,
+        height: 240,
+      }),
       `hoodie-H12-front-${n}-crop`,
     );
 
@@ -327,7 +267,7 @@ try {
       `<div style="position:absolute;left:30px;top:30px;width:780px;height:520px;border-radius:30px;background:linear-gradient(135deg,#b0b5c4,#7c849c)"><div style="position:absolute;right:120px;bottom:110px">${st(2.6)}</div></div><div style="position:absolute;left:850px;top:30px;width:720px;height:520px;background:#f2f2f2;display:flex;align-items:center;justify-content:center">${st(flat)}</div>`,
       "#d0d2d8", // --color-border
     );
-    const png = await b.shot(sheet, 1600, 580, 1);
+    const png = await b.shot(sheet, { width: 1600, height: 580 });
     await jpg(png, name);
     await jpg(
       await sharp(png).extract({ left: 850, top: 30, width: 720, height: 520 }).png().toBuffer(),

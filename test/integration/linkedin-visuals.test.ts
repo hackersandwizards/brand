@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,10 +14,30 @@ afterAll(() => rmSync(SCRATCH, { recursive: true, force: true }));
 // seconds and grows with the machine's load (11 to 60 s at load 130); the limit is the
 // one screenshot() gives Chrome itself.
 const CHROME = 60_000;
+type Point = { x: number; y: number };
+type Region = { left: number; top: number; width: number; height: number };
+
+const near = (a: number[], b: number[]) => a.reduce((d, c, i) => d + Math.abs(c - b[i]), 0) < 30;
+
+// Read RGB samples relative to the decoded image's channel count and row width.
+async function readFrame(file: string) {
+  const { data, info } = await sharp(file).raw().toBuffer({ resolveWithObject: true });
+  const pixel = ({ x, y }: Point) => {
+    const offset = (y * info.width + x) * info.channels;
+    return [...data.subarray(offset, offset + 3)];
+  };
+  const region = ({ left, top, width, height }: Region) =>
+    Array.from({ length: width * height }, (_, index) =>
+      pixel({ x: left + (index % width), y: top + Math.floor(index / width) }),
+    );
+  return { size: { width: info.width, height: info.height }, pixel, region };
+}
+
 describe("applications/linkedin-visuals/frame.ts", () => {
-  it(
-    "frames any input at 1080x1350, headline in white on a gradient band, logo bottom right",
-    async () => {
+  describe("a framed landscape image", () => {
+    let frame: Awaited<ReturnType<typeof readFrame>>;
+
+    beforeAll(async () => {
       const input = join(SCRATCH, "in.png");
       const output = join(SCRATCH, "out.png");
       // Landscape on purpose: the frame owns the format, whatever the input's.
@@ -25,49 +45,54 @@ describe("applications/linkedin-visuals/frame.ts", () => {
         .png()
         .toFile(input);
       execFileSync("bun", [FRAME, input, output, "--headline", "Your repo remembers"]);
+      frame = await readFrame(output);
+    }, CHROME);
 
-      const { data, info } = await sharp(output).raw().toBuffer({ resolveWithObject: true });
-      expect([info.width, info.height]).toEqual([1080, 1350]);
-      const px = (x: number, y: number) => {
-        const i = (y * 1080 + x) * info.channels;
-        return [...data.subarray(i, i + 3)];
-      };
-      const near = (a: number[], b: number[]) =>
-        a.reduce((d, c, i) => d + Math.abs(c - b[i]), 0) < 30;
-      const count = (
-        x0: number,
-        y0: number,
-        x1: number,
-        y1: number,
-        hit: (p: number[]) => boolean,
-      ) => {
-        let n = 0;
-        for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) if (hit(px(x, y))) n++;
-        return n;
-      };
+    it("uses the 1080 by 1350 portrait canvas", () => {
+      expect(frame.size).toEqual({ width: 1080, height: 1350 });
+    });
 
-      const tint = [0xee, 0xf1, 0xf4];
-      expect(px(540, 675)).toEqual([255, 0, 0]);
-      // The band runs full bleed from teal at top left to purple at the right, and ends on the tint.
-      expect(near(px(2, 2), [26, 114, 133])).toBe(true);
-      expect(near(px(1077, 250), [147, 51, 234])).toBe(true);
-      expect(px(20, 300)).toEqual(tint);
-      expect(px(20, 1340)).toEqual(tint);
-      // The headline is white on the band; the image, scaled up to the card's width, reaches up into
-      // the band.
-      expect(count(56, 60, 1024, 200, (p) => p.every((c) => c > 240))).toBeGreaterThan(2000);
-      expect(px(540, 215)).toEqual([255, 0, 0]);
-      expect(px(1020, 900)).toEqual([255, 0, 0]);
-      expect(px(540, 190)).not.toEqual([255, 0, 0]);
-      expect(near(px(20, 230), tint)).toBe(false);
-      // The logo is the brand lockup: its pixel "&" is amp grey #7C849C.
-      let amp = 0;
-      for (let y = 1180; y < 1300; y++)
-        for (let x = 600; x < 1024; x++) if (near(px(x, y), [0x7c, 0x84, 0x9c])) amp++;
-      expect(amp).toBeGreaterThan(200);
-    },
-    CHROME,
-  );
+    const tint = [0xee, 0xf1, 0xf4];
+
+    // The band runs full bleed from teal at top left to purple at the right, and ends on the tint.
+    it("runs the teal-to-purple band full bleed", () => {
+      expect(near(frame.pixel({ x: 2, y: 2 }), [26, 114, 133])).toBe(true);
+      expect(near(frame.pixel({ x: 1077, y: 250 }), [147, 51, 234])).toBe(true);
+      expect(near(frame.pixel({ x: 20, y: 230 }), tint)).toBe(false);
+    });
+
+    it.each([
+      { x: 20, y: 300 },
+      { x: 20, y: 1340 },
+    ])("returns to the tint at ($x, $y) below the band", (point) => {
+      expect(frame.pixel(point)).toEqual(tint);
+    });
+
+    // The headline is white on the band; the image, scaled up to the card's width, reaches up into
+    // the band.
+    it("sets the headline in white on the band", () => {
+      const region = frame.region({ left: 56, top: 60, width: 968, height: 140 });
+      expect(
+        region.filter((pixel) => pixel.every((channel) => channel > 240)).length,
+      ).toBeGreaterThan(2000);
+    });
+
+    it("scales the image to the card's width and overlaps the lower edge of the band", () => {
+      const red = [255, 0, 0];
+      expect({
+        centre: frame.pixel({ x: 540, y: 675 }),
+        upperEdge: frame.pixel({ x: 540, y: 215 }),
+        rightEdge: frame.pixel({ x: 1020, y: 900 }),
+      }).toEqual({ centre: red, upperEdge: red, rightEdge: red });
+      expect(frame.pixel({ x: 540, y: 190 })).not.toEqual(red);
+    });
+
+    // The logo is the brand lockup: its pixel "&" is amp grey #7C849C.
+    it("draws the brand lockup at bottom right", () => {
+      const region = frame.region({ left: 600, top: 1180, width: 424, height: 120 });
+      expect(region.filter((pixel) => near(pixel, [0x7c, 0x84, 0x9c])).length).toBeGreaterThan(200);
+    });
+  });
 
   it(
     "sets a sketch's near-background paper to the card's colour and keeps its drawing",
@@ -75,13 +100,15 @@ describe("applications/linkedin-visuals/frame.ts", () => {
       const input = join(SCRATCH, "paper.png");
       const output = join(SCRATCH, "paper-out.png");
       // The generator's measured paper, #F5F8F9, with a purple-light band across the middle.
-      const [w, h] = [400, 400];
-      const raw = Buffer.alloc(w * h * 3);
-      for (let i = 0; i < w * h; i++) {
-        const band = Math.abs(Math.floor(i / w) - h / 2) < 40;
-        raw.set(band ? [212, 173, 247] : [0xf5, 0xf8, 0xf9], i * 3);
-      }
-      await sharp(raw, { raw: { width: w, height: h, channels: 3 } })
+      await sharp({ create: { width: 400, height: 400, channels: 3, background: "#F5F8F9" } })
+        .composite([
+          {
+            input: { create: { width: 400, height: 79, channels: 3, background: "#D4ADF7" } },
+            left: 0,
+            top: 161,
+          },
+        ])
+        .removeAlpha()
         .png()
         .toFile(input);
       execFileSync("bun", [FRAME, input, output, "--headline", "Paper"]);

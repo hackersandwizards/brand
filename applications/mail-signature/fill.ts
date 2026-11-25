@@ -26,16 +26,19 @@ export const EXAMPLE: SignatureFields = {
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"]|[^\x20-\x7e]/gu, (c) => `&#${c.codePointAt(0)};`);
 
-export function fillSignature(
-  template: string,
-  fields: SignatureFields,
-  format: "html" | "text",
-): string {
+const plain = (value: string) => value;
+const formats = new Map([
+  ["html", { encode: escapeHtml, finish: plain }],
+  ["text", { encode: plain, finish: (value: string) => `${value.trim()}\n` }],
+]);
+
+// Normalize contact fields before substituting any template value.
+function signatureValues(fields: SignatureFields): Record<string, string> {
   const linkedin = fields.linkedin?.trim() ?? "";
   // The value lands in an href: any other scheme (javascript:, data:) would run or load in the mail.
   if (linkedin && URL.parse(linkedin)?.protocol !== "https:")
     throw new Error(`mail signature: linkedin must be an https: URL, got ${linkedin}`);
-  const values: Record<string, string> = {
+  return {
     name: fields.name.trim(),
     role: fields.role.trim(),
     phone: fields.phone?.trim() ?? "",
@@ -43,16 +46,23 @@ export function fillSignature(
     linkedin,
     linkedinShort: linkedin.replace(/^https:\/\/(www\.)?/, ""),
   };
+}
+
+export function fillSignature(
+  template: string,
+  fields: SignatureFields,
+  format: "html" | "text",
+): string {
+  const values = signatureValues(fields);
   const value = (key: string) => {
     if (!Object.hasOwn(values, key)) throw new Error(`mail signature: unknown field {{${key}}}`);
     return values[key];
   };
+  const { encode, finish } = formats.get(format) ?? { encode: plain, finish: plain };
   const filled = template
     .replace(/\{\{#(\w+)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, key: string, body: string) =>
       value(key) ? body : "",
     )
-    .replace(/\{\{(\w+)\}\}/g, (_, key: string) =>
-      format === "html" ? escapeHtml(value(key)) : value(key),
-    );
-  return format === "text" ? `${filled.trim()}\n` : filled;
+    .replace(/\{\{(\w+)\}\}/g, (_, key: string) => encode(value(key)));
+  return finish(filled);
 }

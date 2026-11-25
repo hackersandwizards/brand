@@ -76,114 +76,185 @@ function gradientSquare() {
 // The stand wall behind the banners: --wall=dark,mid,white renders one view set per wall.
 const WALLS: Record<string, string> = { mid: "#8f9298", dark: "#1e2024", white: "#f2f2ef" };
 
+const CAMERAS = {
+  "6m": { width: 1600, height: 900, pixelsPerMm: 0.25, floorY: 740, bannerX: 640, aisle: true },
+  "2m": { width: 1400, height: 1500, pixelsPerMm: 0.62, floorY: 1410, bannerX: 70, aisle: false },
+};
+type Camera = (typeof CAMERAS)[keyof typeof CAMERAS];
+type BannerPair = { tall: string; square: string };
+type Lighting =
+  { mode: "ambient"; wall: string } | { mode: "backlit"; wall: string; luminance: number };
+
+const HALL = {
+  ambient: {
+    wall: "#3a3d44,#5b5f68",
+    floor: "#7d746b,#5f5750",
+    frameShadow: "box-shadow:0 0 0 2px #cfcfcf, 0 8px 22px rgba(0,0,0,.25)",
+    foot: "#888",
+    person: "",
+    neighbourGlowMm: 0,
+  },
+  backlit: {
+    wall: "#060709,#0f1013",
+    floor: "#16130f,#0b0a09",
+    frameShadow: "box-shadow:0 0 0 2px #2b2d31",
+    foot: "#2b2d31",
+    person: "filter:brightness(.35)",
+    neighbourGlowMm: 500,
+  },
+};
+
 // A booth aisle drawn to scale: k pixels per millimetre, the stand wall in one of WALLS. The 1 x 2 m frame
 // stands on the floor, the 1 x 1 m frame on feet with its top at 2 m, a high table beside it.
 // lit: the frames are LED lightboxes in a dark hall. The banner pixels stay as rendered (paper white is
 // the brightest the frame gets), a blurred copy screened over each frame is the bloom, and the floor
 // catches light in proportion to the banners' mean luminance `lit` (0 to 1).
-function boothView(
-  tallPng: string,
-  squarePng: string,
-  far: boolean,
-  wall = WALLS.mid,
-  lit?: number,
-) {
-  const k = far ? 0.25 : 0.62;
-  const W = far ? 1600 : 1400;
-  const H = far ? 900 : 1500;
-  const floorY = H - (far ? 160 : 90);
-  const mm = (v: number) => v * k;
-  const bx = far ? 640 : 70;
+function boothView(banners: BannerPair, camera: Camera, lighting: Lighting) {
+  const { width: W, height: H, floorY, bannerX: bx, aisle } = camera;
+  const mm = (v: number) => v * camera.pixelsPerMm;
+  const hall = HALL[lighting.mode];
   const neighbour = (x: number, c: string, txt: string) =>
-    `<div style="position:absolute;left:${x}px;top:${floorY - mm(2400)}px;width:${mm(2900)}px;height:${mm(2400)}px;background:${c};${lit === undefined ? "" : `box-shadow:0 0 ${mm(500)}px ${c};`}display:flex;align-items:flex-start;justify-content:center;padding-top:${mm(300)}px;font:700 ${mm(170)}px Inter;color:#fff">${txt}</div>`;
+    `<div style="position:absolute;left:${x}px;top:${floorY - mm(2400)}px;width:${mm(2900)}px;height:${mm(2400)}px;background:${c};${hall.neighbourGlowMm ? `box-shadow:0 0 ${mm(hall.neighbourGlowMm)}px ${c};` : ""}display:flex;align-items:flex-start;justify-content:center;padding-top:${mm(300)}px;font:700 ${mm(170)}px Inter;color:#fff">${txt}</div>`;
   const person = (x: number, c: string, s = 1) =>
-    `<div style="position:absolute;left:${x}px;top:${floorY - mm(1780 * s)}px;width:${mm(480 * s)}px;height:${mm(1780 * s) + 40}px;${lit === undefined ? "" : "filter:brightness(.35)"}"><div style="width:${mm(240 * s)}px;height:${mm(240 * s)}px;border-radius:50%;background:#c49a7a;margin:0 auto"></div><div style="width:100%;height:${mm(1540 * s)}px;background:${c};border-radius:${mm(160)}px ${mm(160)}px 0 0"></div></div>`;
+    `<div style="position:absolute;left:${x}px;top:${floorY - mm(1780 * s)}px;width:${mm(480 * s)}px;height:${mm(1780 * s) + 40}px;${hall.person}"><div style="width:${mm(240 * s)}px;height:${mm(240 * s)}px;border-radius:50%;background:#c49a7a;margin:0 auto"></div><div style="width:100%;height:${mm(1540 * s)}px;background:${c};border-radius:${mm(160)}px ${mm(160)}px 0 0"></div></div>`;
   const table = `<div style="position:absolute;left:${bx + mm(2250)}px;top:${floorY - mm(1100)}px;width:${mm(700)}px;height:${mm(1100)}px"><div style="height:${mm(40)}px;background:#e8e8e8;border-radius:${mm(20)}px"></div><div style="width:${mm(60)}px;height:${mm(1060)}px;background:#9a9a9a;margin:0 auto"></div></div>`;
-  const shadow =
-    lit === undefined
-      ? "box-shadow:0 0 0 2px #cfcfcf, 0 8px 22px rgba(0,0,0,.25)"
-      : "box-shadow:0 0 0 2px #2b2d31";
   const frame = (src: string, x: number, h: number) => {
     const at = `position:absolute;left:${x}px;top:${floorY - mm(2000)}px;width:${mm(1000)}px;height:${mm(h)}px`;
     const bloom = (blur: number, o: number) =>
       `<img src="${src}" style="${at};filter:blur(${mm(blur)}px) brightness(1.4);opacity:${o};mix-blend-mode:screen">`;
     // The wide glow lies behind the frame, onto the wall; the tight one over it, as halation on the type.
-    if (lit === undefined) return `<img src="${src}" style="${at};${shadow}">`;
-    return `${bloom(300, 0.8)}<img src="${src}" style="${at};${shadow}">${bloom(25, 0.3)}`;
+    if (lighting.mode === "ambient") return `<img src="${src}" style="${at};${hall.frameShadow}">`;
+    return `${bloom(300, 0.8)}<img src="${src}" style="${at};${hall.frameShadow}">${bloom(25, 0.3)}`;
   };
-  const hall =
-    lit === undefined
-      ? ["#3a3d44,#5b5f68", "#7d746b,#5f5750"]
-      : ["#060709,#0f1013", "#16130f,#0b0a09"];
   const spill =
-    lit === undefined
+    lighting.mode === "ambient"
       ? ""
-      : `<div style="position:absolute;left:${bx - mm(800)}px;top:${floorY}px;width:${mm(3600)}px;height:${mm(1400)}px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,${(0.35 * lit).toFixed(2)}),transparent 70%)"></div>`;
-  return `<!doctype html><meta charset="utf-8"><style>*{margin:0;box-sizing:border-box}body{width:${W}px;height:${H}px;position:relative;overflow:hidden;font-family:Inter;background:linear-gradient(${hall[0].split(",")[0]},${hall[0].split(",")[1]} ${floorY - 200}px)}</style>
-<div style="position:absolute;left:0;right:0;top:${floorY}px;bottom:0;background:linear-gradient(${hall[1]})"></div>${spill}
-${far ? neighbour(bx - mm(3100), "#c0392b", "CLOUDSCALE") + neighbour(bx + mm(3200), "#1f6feb", "DataFlux") : ""}
-<div style="position:absolute;left:${bx - mm(100)}px;top:${floorY - mm(2500)}px;width:${mm(2200)}px;height:${mm(2500)}px;background:${wall}"></div>
-${frame(tallPng, bx, 2000)}
-${frame(squarePng, bx + mm(1050), 1000)}
-<div style="position:absolute;left:${bx + mm(1500)}px;top:${floorY - mm(1000)}px;width:${mm(40)}px;height:${mm(1000)}px;background:${lit === undefined ? "#888" : "#2b2d31"}"></div>
+      : `<div style="position:absolute;left:${bx - mm(800)}px;top:${floorY}px;width:${mm(3600)}px;height:${mm(1400)}px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,${(0.35 * lighting.luminance).toFixed(2)}),transparent 70%)"></div>`;
+  return `<!doctype html><meta charset="utf-8"><style>*{margin:0;box-sizing:border-box}body{width:${W}px;height:${H}px;position:relative;overflow:hidden;font-family:Inter;background:linear-gradient(${hall.wall.split(",")[0]},${hall.wall.split(",")[1]} ${floorY - 200}px)}</style>
+<div style="position:absolute;left:0;right:0;top:${floorY}px;bottom:0;background:linear-gradient(${hall.floor})"></div>${spill}
+${aisle ? neighbour(bx - mm(3100), "#c0392b", "CLOUDSCALE") + neighbour(bx + mm(3200), "#1f6feb", "DataFlux") : ""}
+<div style="position:absolute;left:${bx - mm(100)}px;top:${floorY - mm(2500)}px;width:${mm(2200)}px;height:${mm(2500)}px;background:${lighting.wall}"></div>
+${frame(fileUrl(banners.tall), bx, 2000)}
+${frame(fileUrl(banners.square), bx + mm(1050), 1000)}
+<div style="position:absolute;left:${bx + mm(1500)}px;top:${floorY - mm(1000)}px;width:${mm(40)}px;height:${mm(1000)}px;background:${hall.foot}"></div>
 ${table}
-${far ? person(bx - mm(1500), "#2d3e50") + person(bx + mm(2350), "#6b4f3a", 0.97) + person(bx + mm(3900), "#34495e", 1.02) : ""}`;
+${aisle ? person(bx - mm(1500), "#2d3e50") + person(bx + mm(2350), "#6b4f3a", 0.97) + person(bx + mm(3900), "#34495e", 1.02) : ""}`;
 }
 
-async function generateBooth() {
-  const args = process.argv.slice(2);
+type ViewSelection = { mode: "ambient"; walls: string[] } | { mode: "backlit" };
+type BoothCamera = Awaited<ReturnType<typeof browser>>;
+type BannerSheet = { stem: string; html: string; widthMm: number; heightMm: number };
+type BoothView = { path: string; camera: Camera; lighting: Lighting };
+
+// Read the output directory, exhibition views and optional print run from the CLI.
+function parseBoothArgs(args: string[]) {
   const out = args[0];
   if (!out) throw new Error("usage: generate.ts <out dir> [--pdf]");
   const pdf = args.includes("--pdf");
   const walls = args
-    .find((a) => a.startsWith("--wall="))
+    .find((arg) => arg.startsWith("--wall="))
     ?.slice(7)
     .split(",");
-  const lit = args.includes("--lit");
+  const views: ViewSelection = args.includes("--lit")
+    ? { mode: "backlit" }
+    : { mode: "ambient", walls: walls ?? [""] };
+  return { out, pdf, views };
+}
+
+// Crop the bleed: the views show the final format.
+function cropBleed(png: Buffer, { widthMm, heightMm }: BannerSheet) {
+  return sharp(png)
+    .extract({ left: 32, top: 32, width: widthMm * 1.6, height: heightMm * 1.6 })
+    .png()
+    .toBuffer();
+}
+
+// Capture the trimmed final-format banner at the booth mockups' raster density.
+async function writeBoothBanner(b: BoothCamera, out: string, sheet: BannerSheet) {
+  // 1040 x 2040 mm sheet at 0.8 px per mm (the tokens' screen scale), twice for detail.
+  const viewport = {
+    width: (sheet.widthMm + 40) * 0.8,
+    height: (sheet.heightMm + 40) * 0.8,
+    scale: 2,
+  };
+  const path = join(out, `${sheet.stem}.png`);
+  writeFileSync(path, await cropBleed(await b.shot(sheet.html, viewport), sheet));
+  return path;
+}
+
+// Mean luminance of both banners, area-weighted 2:1, for the floor light of a lit view.
+async function boothLuminance({ tall, square }: BannerPair) {
+  // Mean luminance of one banner's pixels on the Rec. 709 scale.
+  const lum = async (file: string) => {
+    const [r, g, bl] = (await sharp(file).stats()).channels.map((c) => c.mean / 255);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+  };
+  return (2 * (await lum(tall)) + (await lum(square))) / 3;
+}
+
+// Pair each requested wall and light setting with the near and far cameras.
+async function planBoothViews(
+  out: string,
+  banners: BannerPair,
+  selection: ViewSelection,
+): Promise<BoothView[]> {
+  const walls =
+    selection.mode === "backlit"
+      ? [
+          {
+            label: "lit",
+            lighting: {
+              mode: "backlit",
+              wall: WALLS.dark,
+              luminance: await boothLuminance(banners),
+            },
+          } as const,
+        ]
+      : selection.walls.map(
+          (label) =>
+            ({
+              label,
+              lighting: { mode: "ambient", wall: WALLS[label || "mid"] ?? WALLS.mid },
+            }) as const,
+        );
+  return walls.flatMap(({ label, lighting }) =>
+    Object.entries(CAMERAS).map(([distance, camera]) => ({
+      path: join(out, "views", `gradient${label && `-${label}`}-${distance}.jpg`),
+      camera,
+      lighting,
+    })),
+  );
+}
+
+// Write separate print masters with their HTML sources and all sides of the bleed.
+async function writeBoothPdfs(b: BoothCamera, out: string, sheets: BannerSheet[]) {
+  for (const sheet of sheets) writeFileSync(join(out, `${sheet.stem}.html`), sheet.html);
+  for (const { stem, html, widthMm, heightMm } of sheets) {
+    writeFileSync(join(out, `${stem}.pdf`), await b.pdf(html, widthMm + 40, heightMm + 40));
+  }
+}
+
+async function generateBooth() {
+  const { out, pdf, views } = parseBoothArgs(process.argv.slice(2));
   mkdirSync(join(out, "views"), { recursive: true });
   const b = await browser();
   try {
-    const name = "gradient";
-    // 1040 x 2040 mm sheet at 0.8 px per mm (the tokens' screen scale), twice for detail.
-    const t = gradientTall();
-    const s = gradientSquare();
-    const tallFile = join(out, `${name}-100x200.png`);
-    const squareFile = join(out, `${name}-100x100.png`);
-    // Crop the bleed: the views show the final format.
-    const crop = async (png: Buffer, w: number, h: number) =>
-      sharp(png)
-        .extract({ left: 32, top: 32, width: w * 1.6, height: h * 1.6 })
-        .png()
-        .toBuffer();
-    writeFileSync(tallFile, await crop(await b.shot(t, 832, 1632, 2), 1000, 2000));
-    writeFileSync(squareFile, await crop(await b.shot(s, 832, 832, 2), 1000, 1000));
-    // Mean luminance of both banners, area-weighted 2:1, for the floor light of a lit view.
-    const lum = async (f: string) => {
-      const [r, g, bl] = (await sharp(f).stats()).channels.map((c) => c.mean / 255);
-      return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+    const tall = { stem: "gradient-100x200", html: gradientTall(), widthMm: 1000, heightMm: 2000 };
+    const square = {
+      stem: "gradient-100x100",
+      html: gradientSquare(),
+      widthMm: 1000,
+      heightMm: 1000,
     };
-    const glow = lit ? (2 * (await lum(tallFile)) + (await lum(squareFile))) / 3 : undefined;
-    for (const wall of lit ? ["lit"] : (walls ?? [""]))
-      for (const far of [true, false]) {
-        const view = boothView(
-          fileUrl(tallFile),
-          fileUrl(squareFile),
-          far,
-          WALLS[lit ? "dark" : wall || "mid"],
-          glow,
-        );
-        const [w, h] = far ? [1600, 900] : [1400, 1500];
-        writeFileSync(
-          join(out, "views", `${name}${wall && `-${wall}`}-${far ? "6m" : "2m"}.jpg`),
-          await toJpeg(await b.shot(view, w, h, 1)),
-        );
-      }
-    if (pdf) {
-      writeFileSync(join(out, `${name}-100x200.html`), t);
-      writeFileSync(join(out, `${name}-100x100.html`), s);
-      writeFileSync(join(out, `${name}-100x200.pdf`), await b.pdf(t, 1040, 2040));
-      writeFileSync(join(out, `${name}-100x100.pdf`), await b.pdf(s, 1040, 1040));
+    const banners = {
+      tall: await writeBoothBanner(b, out, tall),
+      square: await writeBoothBanner(b, out, square),
+    };
+    for (const { path, camera, lighting } of await planBoothViews(out, banners, views)) {
+      const view = boothView(banners, camera, lighting);
+      writeFileSync(path, await toJpeg(await b.shot(view, camera)));
     }
+    if (pdf) await writeBoothPdfs(b, out, [tall, square]);
   } finally {
     await b.close();
   }

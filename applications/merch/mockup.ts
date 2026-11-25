@@ -5,23 +5,28 @@
 // Stanley/Stella textile colours
 export const TEXTILE = { stargazer: "#39505C", "purple-love": "#6C5A9E" };
 
+export type Garment = { kind: "shirt" | "hoodie"; side: "front" | "back"; color: string };
+export type PrintAnchor = { x: number; y: number };
+
 // A garment in mm: body 520 wide, sleeves to 760, 740 long; hood and long sleeves for the hoodie.
-export function garment(col: string, hood: boolean, back: boolean) {
+export function garment({ kind, side, color }: Garment) {
+  const hood = kind === "hoodie";
+  const back = side === "back";
   const neck = back ? "Q380,26 460,0" : "Q380,90 460,0";
   const sleeves = hood
     ? "L690,40 L770,580 L690,595 L645,250 L640,740 L120,740 L115,250 L70,595 L-10,580 L70,40"
     : "L760,140 L690,260 L640,220 L640,740 L120,740 L120,220 L70,260 L0,140";
   const hoodShape = hood
     ? back
-      ? `<path d="M240,40 Q240,-125 380,-125 Q520,-125 520,40 Z" fill="${col}" stroke="rgba(0,0,0,.25)" stroke-width="3"/>`
-      : `<path d="M240,40 Q240,-125 380,-125 Q520,-125 520,40 Z" fill="${col}" stroke="rgba(0,0,0,.25)" stroke-width="3"/><path d="M285,30 Q290,-80 380,-85 Q470,-80 475,30 Z" fill="rgba(0,0,0,.35)"/>`
+      ? `<path d="M240,40 Q240,-125 380,-125 Q520,-125 520,40 Z" fill="${color}" stroke="rgba(0,0,0,.25)" stroke-width="3"/>`
+      : `<path d="M240,40 Q240,-125 380,-125 Q520,-125 520,40 Z" fill="${color}" stroke="rgba(0,0,0,.25)" stroke-width="3"/><path d="M285,30 Q290,-80 380,-85 Q470,-80 475,30 Z" fill="rgba(0,0,0,.35)"/>`
     : "";
   // hoodie front: the kangaroo pocket and the hem rib
   const pocket =
     hood && !back
       ? `<path d="M250,455 L510,455 L548,668 L212,668 Z" fill="rgba(0,0,0,.05)" stroke="rgba(0,0,0,.28)" stroke-width="3"/><path d="M122,680 L638,680" stroke="rgba(0,0,0,.2)" stroke-width="3"/>`
       : "";
-  return `${hoodShape}<path d="M180,0 L300,0 ${neck} L580,0 ${sleeves} Z" fill="${col}" stroke="rgba(0,0,0,.18)" stroke-width="3"/>${pocket}`;
+  return `${hoodShape}<path d="M180,0 L300,0 ${neck} L580,0 ${sleeves} Z" fill="${color}" stroke="rgba(0,0,0,.18)" stroke-width="3"/>${pocket}`;
 }
 
 // The hoodie's drawcords, about 190 mm long with metal ends, drawn over the print.
@@ -31,8 +36,8 @@ const CORDS = `<path d="M352,38 Q350,120 347,190" stroke="rgba(0,0,0,.32)" strok
 export type Print = { href: string; W: number; H: number; cut?: string };
 
 // The garment with the print centred on ax, its top at ay.
-export const wear = (col: string, p: Print, ax: number, ay: number, hood: boolean, back: boolean) =>
-  `<svg viewBox="-20 -130 800 890" width="100%" height="100%">${garment(col, hood, back)}<image href="${p.href}" x="${ax - p.W / 2}" y="${ay}" width="${p.W}" height="${p.H}"/>${hood && !back ? CORDS : ""}</svg>`;
+export const wear = (spec: Garment, p: Print, { x: ax, y: ay }: PrintAnchor) =>
+  `<svg viewBox="-20 -130 800 890" width="100%" height="100%">${garment(spec)}<image href="${p.href}" x="${ax - p.W / 2}" y="${ay}" width="${p.W}" height="${p.H}"/>${spec.kind === "hoodie" && spec.side === "front" ? CORDS : ""}</svg>`;
 
 // A flat product whose print file is its whole face with 3 mm bleed (cloth, notebook cover): the
 // final format with its corner radius and a shadow.

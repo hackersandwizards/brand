@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import i from "../verbal/imprint.json";
 import { join } from "node:path";
@@ -10,24 +10,37 @@ const template = (ext: string) =>
   readFileSync(join(ROOT, "applications/mail-signature", `template.${ext}`), "utf-8");
 const GMBH = "HRB&nbsp;198840";
 
-test("an h&w account carries wordmark, contact line (phone, website, LinkedIn) and the GmbH lines", () => {
-  const html = fillSignature(template("html"), EXAMPLE, "html");
-  expect(html).toContain(">hackers</span>");
-  expect(html).toContain(GMBH);
-  expect(html).toContain('href="tel:+494012345678"');
-  expect(html).not.toContain("{{");
-  expect(html).not.toContain("mailto:");
-  const links = [...html.matchAll(/<a\s+href="([^"]+)"/g)].map((m) => m[1]);
-  expect(links).toEqual([
-    "tel:+494012345678",
-    "https://www.hackersandwizards.dev/",
-    "https://www.linkedin.com/in/kim-beispiel",
-  ]);
-  // A web link is underlined, so it reads as a link without its colour; the phone number is not.
-  const decoration = [...html.matchAll(/<a\s[^>]*>/g)].map(
-    (m) => m[0].match(/text-decoration: (\w+)/)?.[1],
-  );
-  expect(decoration).toEqual(["none", "underline", "underline"]);
+describe("the HTML signature for an h&w account", () => {
+  let html: string;
+
+  beforeAll(() => {
+    html = fillSignature(template("html"), EXAMPLE, "html");
+  });
+
+  test("renders the complete HTML signature for an h&w account", () => {
+    expect(html).toContain(">hackers</span>");
+    expect(html).toContain(GMBH);
+    expect(html).toContain('href="tel:+494012345678"');
+    expect(html).not.toContain("{{");
+    expect(html).not.toContain("mailto:");
+  });
+
+  test("links the phone, website and LinkedIn, underlining the web links", () => {
+    const links = [...html.matchAll(/<a\s+href="([^"]+)"/g)].map((m) => m[1]);
+    expect(links).toEqual([
+      "tel:+494012345678",
+      "https://www.hackersandwizards.dev/",
+      "https://www.linkedin.com/in/kim-beispiel",
+    ]);
+    // A web link is underlined, so it reads as a link without its colour; the phone number is not.
+    const decoration = [...html.matchAll(/<a\s[^>]*>/g)].map(
+      (m) => m[0].match(/text-decoration: (\w+)/)?.[1],
+    );
+    expect(decoration).toEqual(["none", "underline", "underline"]);
+  });
+});
+
+test("renders the full plain-text contact line and GmbH imprint", () => {
   expect(fillSignature(template("txt"), EXAMPLE, "text")).toBe(
     "Kim Beispiel\nFreie Trainerin, hackers&wizards\n+49 40 1234 5678 | hackersandwizards.dev | linkedin.com/in/kim-beispiel\n\nhackers&wizards GmbH, Sitz Hamburg, Osterstraße 95, 20259 Hamburg\nAmtsgericht Hamburg, HRB 198840\nGeschäftsführer: Benedikt Stemmildt, Stefan Munz\n",
   );
@@ -111,18 +124,10 @@ test("the imprint names its country's ISO code", () => {
 test("both templates' GmbH lines state imprint.json", () => {
   const lines = `Sitz ${i.seat}, ${i.street}, ${i.postcode} ${i.city}\n${i.court}, ${i.register}\nGeschäftsführer: ${i.managingDirectors.join(", ")}`;
   expect(template("txt")).toContain(`${lines}\n`);
-  const entities: Record<string, string> = {
-    nbsp: " ",
-    szlig: "ß",
-    auml: "ä",
-    uuml: "ü",
-    amp: "&",
-  };
-  const html = template("html")
-    .replace(/<br \/>/g, " ")
-    .replace(/&(\w+);/g, (e, name: string) => entities[name] ?? e)
-    .replace(/\s+/g, " ");
-  expect(html).toContain(lines.replace(/\n/g, " "));
+  const street = i.street.replaceAll("ß", "&szlig;").split(" ").join("&nbsp;");
+  const register = i.register.split(" ").join("&nbsp;");
+  const html = `Sitz ${i.seat}, ${street}, ${i.postcode}&nbsp;${i.city}<br />${i.court}, ${register}<br />Gesch&auml;ftsf&uuml;hrer: ${i.managingDirectors.join(", ")}`;
+  expect(template("html").replace(/\s+/g, " ")).toContain(html);
 });
 
 // A mail cannot read a token, so the template types its colours: each one is a brand colour.

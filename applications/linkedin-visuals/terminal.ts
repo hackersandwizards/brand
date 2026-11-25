@@ -40,19 +40,24 @@ const codeLine = (s: string) =>
     (_, tag: string, text: string) => `<span style="color:${COLOR[tag]}">${text}</span>`,
   ) || "&nbsp;";
 
+/** Validates the terminal's row count and visible character limit. */
+export function terminalLineFaults(lines: unknown): string[] {
+  if (!Array.isArray(lines) || lines.length < 4 || lines.length > 6)
+    return ["lines is no list of four to six texts"];
+  if (!lines.every((line) => typeof line === "string"))
+    return ["lines is no list of four to six texts"];
+  return lines.flatMap((line, index) =>
+    line.replace(/<\/?[tprc]>/g, "").length > 36 ? [`line ${index} is over 36 characters`] : [],
+  );
+}
+
 /** The spec's faults, empty for a spec the window shows whole. */
 export function specFaults(spec: Partial<Spec>): string[] {
   const { title, lines, highlight, note } = spec;
-  const text = (l: string) => l.replace(/<\/?[tprc]>/g, "");
   return [
     ...(typeof title === "string" ? [] : ["title is no text"]),
     ...(typeof note === "string" ? [] : ["note is no text"]),
-    ...(Array.isArray(lines) &&
-    lines.length >= 4 &&
-    lines.length <= 6 &&
-    lines.every((l) => typeof l === "string")
-      ? lines.flatMap((l, i) => (text(l).length > 36 ? [`line ${i} is over 36 characters`] : []))
-      : ["lines is no list of four to six texts"]),
+    ...terminalLineFaults(lines),
     ...(Number.isInteger(highlight) && highlight! >= 0 && highlight! < (lines?.length ?? 0)
       ? []
       : ["highlight is no index of a line"]),
@@ -104,8 +109,9 @@ if (import.meta.main) {
   // Rendered in the scratch folder, so a failed render leaves the previous image in place.
   const dir = mkdtempSync(join(tmpdir(), "linkedin-terminal-"));
   try {
-    writeFileSync(join(dir, "t.html"), terminalHtml(spec));
-    await screenshot(dir, "t.html", [SIZE, SIZE, SCALE], join(dir, "t.png"));
+    const html = join(dir, "t.html");
+    writeFileSync(html, terminalHtml(spec));
+    await screenshot(html, { width: SIZE, height: SIZE, scale: SCALE }, join(dir, "t.png"));
     const sharp = await loadSharp();
     await sharp(join(dir, "t.png"))
       .trim({ background: tokens["--color-bg"], threshold: 6 })

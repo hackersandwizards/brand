@@ -80,11 +80,12 @@ export function findChrome(): string {
 /** Chrome otherwise asks the macOS keychain for "Chromium Safe Storage", a dialog per launch. */
 export const NO_KEYCHAIN = ["--use-mock-keychain", "--password-store=basic"];
 
-/** Screenshots `html` (a file in `dir`) at width x height CSS px, captured at `scale`. */
+export type Viewport = { width: number; height: number; scale?: number };
+
+/** Screenshots the HTML file at width x height CSS px, captured at `scale`. */
 export async function screenshot(
-  dir: string,
   html: string,
-  [width, height, scale]: number[],
+  { width, height, scale = 1 }: Viewport,
   out: string,
 ): Promise<void> {
   await promisify(execFile)(
@@ -93,14 +94,14 @@ export async function screenshot(
       "--headless=new",
       ...NO_KEYCHAIN,
       // Its own profile, so it never attaches to a Chrome the user has open.
-      `--user-data-dir=${join(dir, "profile")}`,
+      `--user-data-dir=${join(dirname(html), "profile")}`,
       "--hide-scrollbars",
       `--force-device-scale-factor=${scale}`,
       `--window-size=${width},${height}`,
       // Holds the screenshot until the faces and the images have loaded.
       "--virtual-time-budget=10000",
       `--screenshot=${resolve(out)}`,
-      pathToFileURL(join(dir, html)).href,
+      pathToFileURL(html).href,
     ],
     { timeout: 60_000 },
   );

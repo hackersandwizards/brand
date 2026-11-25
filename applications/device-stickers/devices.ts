@@ -73,9 +73,13 @@ export function stickerCaptions() {
   ];
 }
 
+type Centre = { cx: number; cy: number };
+type Size = { w: number; h: number };
+type CenteredBox = Centre & Size;
+
 // The sticker as printed: the print file without its cut line, clipped to the cut, with a shadow of
 // the cut's shape, centred on cx, cy.
-function stickerAt(stem: string, cx: number, cy: number, id: string) {
+function stickerAt(stem: string, { cx, cy }: Centre, id: string) {
   const { w, h, cut, svg: file } = stickerFile(stem);
   const inner = file
     .replace(/<g id="CutContour">.*?<\/g>/s, "")
@@ -84,18 +88,18 @@ function stickerAt(stem: string, cx: number, cy: number, id: string) {
 }
 
 // The Apple logo's outline in a 100 x 122 box, scaled to its measured box.
-function appleMark(cx: number, cy: number, w: number, h: number) {
+function appleMark({ cx, cy, w, h }: CenteredBox) {
   return `<g transform="translate(${cx - w / 2} ${cy - h / 2}) scale(${w / 100} ${h / 122})" fill="${F.logo}"><path d="M50 36C42 36 34 31 24 31 10 31 0 43 0 62c0 26 16 60 32 60 8 0 11-4 18-4s10 4 18 4c14 0 26-24 30-36-12-5-19-15-19-27 0-10 6-17 13-21-7-5-15-7-20-7-10 0-14 5-22 5Z"/><path d="M50 28C50 14 60 4 74 2 74 16 64 27 50 28Z"/></g>`;
 }
 
 const SHADE = `<linearGradient id="shade" x2="1" y2="1"><stop offset="0" stop-color="${F.body[0]}"/><stop offset="1" stop-color="${F.body[1]}"/></linearGradient>`;
 
 // The device's centre line, dashed, from 3 mm above to 3 mm below it.
-const axis = (w: number, h: number) =>
+const axis = ({ w, h }: Size) =>
   `<path d="M${w / 2} -3V${h + 3}" stroke="${LINE}" stroke-width="0.4" stroke-dasharray="2 1.5" opacity=".7"/>`;
 
 // The measure right of the device, from its bottom edge up to the wordmark sticker's centre.
-function measure(w: number, h: number, above: number) {
+function measure({ w, h }: Size, above: number) {
   const x = w + 8;
   const y = h - above;
   const tip = (yy: number, dir: number) =>
@@ -104,19 +108,20 @@ function measure(w: number, h: number, above: number) {
 }
 
 // One device on a sheet with 6 mm round it and room for the measure on the right, in millimetres.
-function sheet(w: number, h: number, above: number, body: string) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w + 52}mm" height="${h + 12}mm" viewBox="-6 -6 ${w + 52} ${h + 12}"><defs>${SHADE}</defs>${body}${measure(w, h, above)}</svg>\n`;
+function sheet(size: Size, above: number, body: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.w + 52}mm" height="${size.h + 12}mm" viewBox="-6 -6 ${size.w + 52} ${size.h + 12}"><defs>${SHADE}</defs>${body}${measure(size, above)}</svg>\n`;
 }
 
 // The back of an open MacBook Pro 14-inch lid as people facing it see it, the hinge at the bottom.
 function drawLid() {
   const { w, d, logo } = LID;
+  const size = { w, h: d };
+  const centre = { cx: w / 2, cy: d / 2 + logo.dy };
   const p = PLACEMENT.macbook;
   return sheet(
-    w,
-    d,
+    size,
     p.above,
-    `<rect width="${w}" height="${d}" rx="9" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.6"/><rect x="${w * 0.2}" y="${d - 3}" width="${w * 0.6}" height="3" fill="${F.edge}" opacity=".55"/>${appleMark(w / 2, d / 2 + logo.dy, logo.w, logo.h)}${axis(w, d)}${stickerAt(LID_WIZARD, w / 2, d / 2 + logo.dy, "mz")}${stickerAt(p.stem, w / 2, d - p.above, "ms")}`,
+    `<rect width="${w}" height="${d}" rx="9" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.6"/><rect x="${w * 0.2}" y="${d - 3}" width="${w * 0.6}" height="3" fill="${F.edge}" opacity=".55"/>${appleMark({ ...centre, w: logo.w, h: logo.h })}${axis(size)}${stickerAt(LID_WIZARD, centre, "mz")}${stickerAt(p.stem, { cx: w / 2, cy: d - p.above }, "ms")}`,
   );
 }
 
@@ -127,10 +132,9 @@ function drawIphone() {
   const lens = (cx: number, cy: number) =>
     `<circle cx="${cx}" cy="${cy}" r="8.2" fill="#8b8f96"/><circle cx="${cx}" cy="${cy}" r="7" fill="#1b1d22"/>`;
   return sheet(
-    w,
-    h,
+    PHONE,
     p.above,
-    `<rect width="${w}" height="${h}" rx="11.81" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.4"/>${appleMark(logo.cx, logo.cy, logo.w, logo.h)}<rect x="5.2" y="4.9" width="61.9" height="37.8" rx="7" fill="${F.body[0]}" stroke="${F.edge}" stroke-width="0.4"/>${lens(14.4, 14.7)}${lens(32.6, 24)}${lens(14.4, 33.2)}<circle cx="57.6" cy="13.9" r="3.5" fill="#f2efe4"/><circle cx="57.6" cy="34.5" r="3.5" fill="#1b1d22"/>${axis(w, h)}${stickerAt(p.stem, w / 2, h - p.above, "ps")}`,
+    `<rect width="${w}" height="${h}" rx="11.81" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.4"/>${appleMark(logo)}<rect x="5.2" y="4.9" width="61.9" height="37.8" rx="7" fill="${F.body[0]}" stroke="${F.edge}" stroke-width="0.4"/>${lens(14.4, 14.7)}${lens(32.6, 24)}${lens(14.4, 33.2)}<circle cx="57.6" cy="13.9" r="3.5" fill="#f2efe4"/><circle cx="57.6" cy="34.5" r="3.5" fill="#1b1d22"/>${axis(PHONE)}${stickerAt(p.stem, { cx: w / 2, cy: h - p.above }, "ps")}`,
   );
 }
 
@@ -139,10 +143,9 @@ function drawIpad() {
   const { w, h, logo } = TABLET;
   const p = PLACEMENT.ipad;
   return sheet(
-    w,
-    h,
+    TABLET,
     p.above,
-    `<rect width="${w}" height="${h}" rx="12" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.5"/><rect x="5" y="5" width="33" height="33" rx="8" fill="${F.body[1]}" stroke="${F.edge}" stroke-width="0.4"/><circle cx="14.5" cy="14.5" r="4.4" fill="#1b1d22"/><circle cx="14.5" cy="29" r="4.4" fill="#1b1d22"/><circle cx="29" cy="21.7" r="3.6" fill="#1b1d22"/>${[-5.27, 0, 5.27].map((dx) => `<circle cx="${w / 2 + dx}" cy="${h - 12}" r="2.13" fill="${F.edge}"/>`).join("")}${appleMark(w / 2, h / 2, logo.w, logo.h)}${axis(w, h)}${stickerAt(p.stem, w / 2, h - p.above, "is")}`,
+    `<rect width="${w}" height="${h}" rx="12" fill="url(#shade)" stroke="${F.edge}" stroke-width="0.5"/><rect x="5" y="5" width="33" height="33" rx="8" fill="${F.body[1]}" stroke="${F.edge}" stroke-width="0.4"/><circle cx="14.5" cy="14.5" r="4.4" fill="#1b1d22"/><circle cx="14.5" cy="29" r="4.4" fill="#1b1d22"/><circle cx="29" cy="21.7" r="3.6" fill="#1b1d22"/>${[-5.27, 0, 5.27].map((dx) => `<circle cx="${w / 2 + dx}" cy="${h - 12}" r="2.13" fill="${F.edge}"/>`).join("")}${appleMark({ cx: w / 2, cy: h / 2, w: logo.w, h: logo.h })}${axis(TABLET)}${stickerAt(p.stem, { cx: w / 2, cy: h - p.above }, "is")}`,
   );
 }
 

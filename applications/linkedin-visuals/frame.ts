@@ -113,12 +113,10 @@ async function frameImage(input: string, output: string, headline: string): Prom
   if (!existsSync(input)) throw new Error(`No input image at ${input}`);
   const dir = mkdtempSync(join(tmpdir(), "linkedin-frame-"));
   try {
-    writeFileSync(
-      join(dir, "frame.html"),
-      await frameHtml(await matchPaper(resolve(input), dir), headline),
-    );
+    const html = join(dir, "frame.html");
+    writeFileSync(html, await frameHtml(await matchPaper(resolve(input), dir), headline));
     // Rendered in the scratch folder, so an output naming the input never deletes the image first.
-    await screenshot(dir, "frame.html", [WIDTH, HEIGHT, SCALE], join(dir, "frame.png"));
+    await screenshot(html, { width: WIDTH, height: HEIGHT, scale: SCALE }, join(dir, "frame.png"));
     copyFileSync(join(dir, "frame.png"), output);
   } finally {
     rmSync(dir, { recursive: true, force: true });

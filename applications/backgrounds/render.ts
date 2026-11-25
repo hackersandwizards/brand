@@ -8,8 +8,9 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import sharp from "sharp";
 import { version } from "../../package.json";
-import { findChrome, NO_KEYCHAIN } from "../linkedin-visuals/render";
+import { findChrome, NO_KEYCHAIN, type Viewport } from "../linkedin-visuals/render";
 import { lfsOid } from "../../scan/assets";
+import { connectCdp } from "./cdp";
 
 const BRAND = resolve(import.meta.dir, "../..");
 
@@ -46,12 +47,21 @@ export const fontFaces = `
 @font-face{font-family:Inter;src:url(${brand.fonts}/inter-latin-600-normal.woff2);font-weight:600}
 @font-face{font-family:Inter;src:url(${brand.fonts}/inter-latin-700-normal.woff2);font-weight:700}`;
 
-type Pending = {
-  resolve: (v: Record<string, unknown>) => void;
-  reject: (e: Error) => void;
-};
+type DevTools = Awaited<ReturnType<typeof connectCdp>>;
 
-export async function browser() {
+// In port-zero mode Chrome tells its client the DevTools address through the profile directory.
+async function chromeSocket(profile: string) {
+  const portFile = join(profile, "DevToolsActivePort");
+  for (let i = 0; !existsSync(portFile) || !readFileSync(portFile, "utf8").includes("\n"); i++) {
+    if (i > 200) throw new Error("Chrome did not start");
+    await Bun.sleep(50);
+  }
+  const [port, path] = readFileSync(portFile, "utf8").trim().split("\n");
+  return `ws://127.0.0.1:${port}${path}`;
+}
+
+// Boot a dedicated Chrome process and own its temporary profile.
+async function openChrome() {
   const profile = mkdtempSync(join(tmpdir(), "hw-render-"));
   const proc = spawn(findChrome(), [
     "--headless=new",
@@ -62,121 +72,67 @@ export async function browser() {
     "--hide-scrollbars",
     "--force-color-profile=srgb",
   ]);
-  const portFile = join(profile, "DevToolsActivePort");
-  let ws: WebSocket;
-  let id = 0;
-  const pending = new Map<number, Pending>();
-  const events: ((m: { method: string; sessionId?: string }) => void)[] = [];
-  const send = (method: string, params: object = {}, sessionId?: string) =>
-    new Promise<Record<string, unknown>>((ok, ko) => {
-      pending.set(++id, { resolve: ok, reject: ko });
-      ws.send(JSON.stringify({ id, method, params, sessionId }));
-    });
-  let sessionId: string;
-  try {
-    for (let i = 0; !existsSync(portFile) || !readFileSync(portFile, "utf8").includes("\n"); i++) {
-      if (i > 200) throw new Error("Chrome did not start");
-      await Bun.sleep(50);
-    }
-    const [port, path] = readFileSync(portFile, "utf8").trim().split("\n");
-    ws = new WebSocket(`ws://127.0.0.1:${port}${path}`);
-    await new Promise((ok, ko) => {
-      ws.addEventListener("open", ok, { once: true });
-      ws.addEventListener("error", () => ko(new Error("Chrome's DevTools socket failed")), {
-        once: true,
-      });
-    });
-    // A Chrome that exits mid-run answers no pending call: fail them, so no await hangs.
-    ws.addEventListener("close", () => {
-      for (const p of pending.values()) p.reject(new Error("Chrome's DevTools socket closed"));
-      pending.clear();
-    });
-    ws.addEventListener("message", (e) => {
-      const message: unknown = JSON.parse(String(e.data));
-      if (!message || typeof message !== "object") return;
-      if ("id" in message && typeof message.id === "number") {
-        const request = pending.get(message.id);
-        if (!request) return;
-        pending.delete(message.id);
-        if ("error" in message && message.error) {
-          const error = message.error;
-          request.reject(
-            new Error(
-              typeof error === "object" && "message" in error && typeof error.message === "string"
-                ? error.message
-                : "Invalid Chrome DevTools error",
-            ),
-          );
-        } else if (
-          "result" in message &&
-          message.result &&
-          typeof message.result === "object" &&
-          !Array.isArray(message.result)
-        ) {
-          request.resolve({ ...message.result });
-        } else request.reject(new Error("Invalid Chrome DevTools result"));
-      } else if ("method" in message && typeof message.method === "string") {
-        const sessionId = "sessionId" in message ? message.sessionId : undefined;
-        if (sessionId === undefined || typeof sessionId === "string")
-          for (const f of events) f({ method: message.method, sessionId });
-      }
-    });
-    const { targetId } = await send("Target.createTarget", { url: "about:blank" });
-    ({ sessionId } = (await send("Target.attachToTarget", { targetId, flatten: true })) as {
-      sessionId: string;
-    });
-    await send("Page.enable", {}, sessionId);
-  } catch (e) {
+  const stop = () => {
     proc.kill();
     rmSync(profile, { recursive: true, force: true });
-    throw e;
+  };
+  try {
+    return { cdp: await connectCdp(await chromeSocket(profile)), stop };
+  } catch (error) {
+    stop();
+    throw error;
   }
-  const scratch = mkdtempSync(join(tmpdir(), "hw-html-"));
+}
 
-  async function load(html: string, ready = "document.fonts.ready") {
-    const file = join(scratch, `${id}.html`);
-    if (!/^https?:/.test(html)) writeFileSync(file, html);
-    const loaded = new Promise<void>((ok) => {
-      const f = (m: { method: string; sessionId?: string }) => {
-        if (m.method === "Page.loadEventFired" && m.sessionId === sessionId) {
-          events.splice(events.indexOf(f), 1);
-          ok();
-        }
-      };
-      events.push(f);
-    });
-    await send("Page.navigate", { url: /^https?:/.test(html) ? html : fileUrl(file) }, sessionId);
+class RenderPage {
+  #scratch = mkdtempSync(join(tmpdir(), "hw-html-"));
+  private readonly cdp: DevTools;
+  private readonly sessionId: string;
+
+  constructor(cdp: DevTools, sessionId: string) {
+    this.cdp = cdp;
+    this.sessionId = sessionId;
+  }
+
+  // Wait for both the page navigation and the caller's readiness expression.
+  private async load(html: string, ready = "document.fonts.ready") {
+    // Chrome uses the filename as the title of a PDF whose document has no <title>.
+    const file = join(this.#scratch, `${this.cdp.lastRequestId}.html`);
+    const remote = /^https?:/.test(html);
+    if (!remote) writeFileSync(file, html);
+    const loaded = this.cdp.once("Page.loadEventFired", this.sessionId);
+    const url = remote ? html : fileUrl(file);
+    await this.cdp.send("Page.navigate", { url }, this.sessionId);
     await loaded;
-    await send("Runtime.evaluate", { expression: ready, awaitPromise: true }, sessionId);
+    await this.cdp.send(
+      "Runtime.evaluate",
+      { expression: ready, awaitPromise: true },
+      this.sessionId,
+    );
   }
 
   // Render an HTML string at width x height CSS px and the given scale; returns PNG bytes.
   // html may be an http(s) URL to capture instead. ready: an expression whose promise the capture
   // waits for.
-  async function shot(
-    html: string,
-    width: number,
-    height: number,
-    scale = 1,
-    ready = "document.fonts.ready",
-  ) {
-    await send(
+  async shot(html: string, { width, height, scale = 1 }: Viewport, ready = "document.fonts.ready") {
+    await this.cdp.send(
       "Emulation.setDeviceMetricsOverride",
       { width, height, deviceScaleFactor: scale, mobile: false },
-      sessionId,
+      this.sessionId,
     );
-    await load(html, ready);
-    const { data } = (await send(
+    await this.load(html, ready);
+    const { data } = (await this.cdp.send(
       "Page.captureScreenshot",
       { format: "png", clip: { x: 0, y: 0, width, height, scale: 1 } },
-      sessionId,
+      this.sessionId,
     )) as { data: string };
     return Buffer.from(data, "base64");
   }
 
-  async function pdf(html: string, widthMm: number, heightMm: number) {
-    await load(html);
-    const { data } = (await send(
+  // Print the document at its physical paper dimensions, preserving the background.
+  async pdf(html: string, widthMm: number, heightMm: number) {
+    await this.load(html);
+    const { data } = (await this.cdp.send(
       "Page.printToPDF",
       {
         paperWidth: widthMm / 25.4,
@@ -188,19 +144,44 @@ export async function browser() {
         printBackground: true,
         preferCSSPageSize: true,
       },
-      sessionId,
+      this.sessionId,
     )) as { data: string };
     return Buffer.from(data, "base64");
   }
 
-  async function close() {
-    await send("Browser.close").catch(() => {});
-    ws.close();
-    proc.kill();
-    rmSync(profile, { recursive: true, force: true });
-    rmSync(scratch, { recursive: true, force: true });
+  clearDocuments() {
+    rmSync(this.#scratch, { recursive: true, force: true });
   }
-  return { shot, pdf, close };
+}
+
+// Open one page session for a batch of screenshots and print renders.
+export async function browser() {
+  const { cdp, stop } = await openChrome();
+  try {
+    const { targetId } = await cdp.send("Target.createTarget", { url: "about:blank" });
+    const { sessionId } = (await cdp.send("Target.attachToTarget", {
+      targetId,
+      flatten: true,
+    })) as {
+      sessionId: string;
+    };
+    await cdp.send("Page.enable", {}, sessionId);
+    const page = new RenderPage(cdp, sessionId);
+    return {
+      shot: page.shot.bind(page),
+      pdf: page.pdf.bind(page),
+      async close() {
+        await cdp.send("Browser.close").catch(() => {});
+        cdp.close();
+        stop();
+        page.clearDocuments();
+      },
+    };
+  } catch (error) {
+    cdp.close();
+    stop();
+    throw error;
+  }
 }
 
 // A brand colour mixed with white, the way the brand tokens build their -light tones.

@@ -118,7 +118,10 @@ if (import.meta.main) {
       (r) => !only.length || only.includes(r.name),
     )) {
       if (!description) throw new Error(`${name} has no GitHub description`);
-      const png = await chrome.shot(card(name, description, REPOSITORIES[name]), W, H);
+      const png = await chrome.shot(card(name, description, REPOSITORIES[name]), {
+        width: W,
+        height: H,
+      });
       const kb = png.length / 1024;
       if (kb >= 1024) throw new Error(`${name} is ${kb.toFixed(0)} KB, GitHub takes under 1 MB`);
       await Bun.write(join(import.meta.dir, file(name)), png);
