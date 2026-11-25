@@ -18,19 +18,12 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { inlineImports } from "../applications/linkedin-visuals/render";
+import { codeTheme } from "./code-theme";
+import { declarations } from "./css-declarations";
+import { fontOutputs } from "./font-outputs";
 import { ROOT } from "./git";
 
 export const SOURCE = join(ROOT, "tokens/tokens.css");
-
-/** The declarations of a CSS block, comments dropped, whitespace collapsed. */
-const declarations = (body: string) => {
-  const out: Record<string, string> = {};
-  for (const decl of body.replace(/\/\*[\s\S]*?\*\//g, "").split(";")) {
-    const m = decl.match(/^\s*([\w-]+)\s*:\s*([\s\S]+?)\s*$/);
-    if (m) out[m[1]] = m[2].replace(/\s+/g, " ").replace(/\( /g, "(").replace(/ \)/g, ")");
-  }
-  return out;
-};
 
 /** The custom properties of tokens.css's theme blocks, static ones included, in source order.
  *  Throws on a theme block it cannot read, such as one holding a nested rule. */
@@ -110,192 +103,6 @@ export const resolveColors = (tokens: Record<string, string>) => {
   );
 };
 
-/** github-dark's scopes, in its order, each under the --code-* role that colours it: the theme's
- *  structure stays, the colours are the brand's. Its function and variable colours take fg, its
- *  constants keyword. A role suffixed with /<style> sets that font style. */
-const CODE_SCOPES: [string, string[]][] = [
-  ["comment", ["comment", "punctuation.definition.comment", "string.comment"]],
-  [
-    "keyword",
-    [
-      "constant",
-      "entity.name.constant",
-      "variable.other.constant",
-      "variable.other.enummember",
-      "variable.language",
-      "support",
-      "meta.property-name",
-      "string variable",
-      "support.constant",
-      "support.variable",
-      "meta.module-reference",
-      "markup.inline.raw",
-      "meta.diff.header",
-      "meta.output",
-    ],
-  ],
-  ["fg", ["entity", "entity.name"]],
-  [
-    "fg",
-    [
-      "variable.parameter.function",
-      "storage.modifier.package",
-      "storage.modifier.import",
-      "storage.type.java",
-      "variable",
-      "variable.other",
-      "punctuation.definition.list.begin.markdown",
-      "markup.changed",
-      "punctuation.definition.changed",
-      "brackethighlighter.tag",
-      "brackethighlighter.curly",
-      "brackethighlighter.round",
-      "brackethighlighter.square",
-      "brackethighlighter.angle",
-      "brackethighlighter.quote",
-    ],
-  ],
-  [
-    "inserted",
-    [
-      "entity.name.tag",
-      "markup.quote",
-      "markup.inserted",
-      "meta.diff.header.to-file",
-      "punctuation.definition.inserted",
-    ],
-  ],
-  ["keyword", ["keyword", "storage", "storage.type"]],
-  [
-    "string",
-    [
-      "string",
-      "punctuation.definition.string",
-      "string punctuation.section.embedded source",
-      "source.regexp",
-      "string.regexp",
-      "string.regexp.character-class",
-      "string.regexp constant.character.escape",
-      "string.regexp source.ruby.embedded",
-      "string.regexp string.regexp.arbitrary-repitition",
-    ],
-  ],
-  [
-    "deleted/italic",
-    ["invalid.broken", "invalid.deprecated", "invalid.illegal", "invalid.unimplemented"],
-  ],
-  [
-    "deleted",
-    [
-      "message.error",
-      "markup.deleted",
-      "meta.diff.header.from-file",
-      "punctuation.definition.deleted",
-      "brackethighlighter.unmatched",
-    ],
-  ],
-  ["inserted/bold", ["string.regexp constant.character.escape"]],
-  ["keyword/bold", ["markup.heading", "markup.heading entity.name", "meta.separator"]],
-  ["fg/italic", ["markup.italic"]],
-  ["fg/bold", ["markup.bold"]],
-  ["fg/bold", ["meta.diff.range"]],
-  ["string/underline", ["constant.other.reference.link", "string.other.link"]],
-];
-
-// A terminal's 16 ANSI colours on the code ground, each a core colour: Shiki's ansi language reads
-// them. Normal and bright differ only where the brand has a lighter step.
-const ANSI: [string, string][] = [
-  ["Black", "night-subtle"],
-  ["Red", "red-night"],
-  ["Green", "green"],
-  ["Yellow", "amber"],
-  ["Blue", "teal-night"],
-  ["Magenta", "purple-night"],
-  ["Cyan", "teal-light"],
-  ["White", "night-muted"],
-  ["BrightBlack", "night-subtle"],
-  ["BrightRed", "factory-light"],
-  ["BrightGreen", "green"],
-  ["BrightYellow", "amber"],
-  ["BrightBlue", "teal-light"],
-  ["BrightMagenta", "purple-light"],
-  ["BrightCyan", "teal-light"],
-  ["BrightWhite", "night-ink"],
-];
-
-/** The Shiki theme of the --code-* tokens, named hw-code. */
-export const codeTheme = (tokens: Record<string, string>, colors: Record<string, string>) => {
-  const code = (role: string) => {
-    const value = tokens[`--code-${role}`];
-    const hex = value?.startsWith("var(") ? colors[value.slice(4, -1)] : value;
-    if (!hex) throw new Error(`--code-${role}: ${value} resolves to no colour`);
-    return hex;
-  };
-  return {
-    name: "hw-code",
-    type: "dark",
-    colors: {
-      "editor.background": code("bg"),
-      "editor.foreground": code("fg"),
-      ...Object.fromEntries(ANSI.map(([k, c]) => [`terminal.ansi${k}`, colors[`--color-${c}`]])),
-    },
-    tokenColors: CODE_SCOPES.map(([role, scope]) => {
-      const [name, fontStyle] = role.split("/");
-      return { scope, settings: { foreground: code(name), ...(fontStyle && { fontStyle }) } };
-    }),
-  };
-};
-
-const FONT_FACE = /@font-face\s*\{([^}]*)\}/g;
-/** The @font-face matches of a stylesheet, a face commented out left out. */
-const faces = (css: string) => [...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(FONT_FACE)];
-/** The @font-face rules of a stylesheet, as written. */
-export const faceRules = (css: string) => faces(css).map(([face]) => face);
-/** A src of local() fonts alone: a fallback face. A src mixing local() and url() is no fallback. */
-const LOCAL = /src:(?:\s*local\("[^"]+"\),?)+;/;
-
-/** The fallback faces of fonts.css, as written. */
-export const fallbackFaces = (css: string) => faceRules(css).filter((face) => LOCAL.test(face));
-
-/** The @font-face rules of fonts.css (or print.css), each descriptor camel-cased (fontFamily
- *  unquoted, unicodeRange unspaced), src as the file under ./fonts/ and its format. A face without
- *  unicodeRange takes every character. A fallback face (a src of local() fonts alone) is left
- *  out: fallbackData lists those. */
-export const fontFaces = (css: string) =>
-  faces(css)
-    .filter(([face]) => !LOCAL.test(face))
-    .map(([, body]): Record<string, string> => {
-      const { src, ...rest } = declarations(body);
-      const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
-      return { file, format, ...camelCased(rest) };
-    });
-
-/** fonts.css's fallback faces as data, descriptors as fontFaces gives them, src as the local font
- *  names in order. */
-const fallbackData = (css: string) =>
-  faces(css)
-    .filter(([face]) => LOCAL.test(face))
-    .map(([, body]): Record<string, string | string[]> => {
-      const { src, ...rest } = declarations(body);
-      return {
-        local: [...src.matchAll(/local\("([^"]+)"\)/g)].map((m) => m[1]),
-        ...camelCased(rest),
-      };
-    });
-
-/** @font-face descriptors camel-cased, fontFamily unquoted, unicodeRange unspaced. */
-const camelCased = (descriptors: Record<string, string>): Record<string, string> =>
-  Object.fromEntries(
-    Object.entries(descriptors).map(([k, v]) => [
-      k.replace(/-(\w)/g, (_, c: string) => c.toUpperCase()),
-      k === "font-family"
-        ? v.replace(/^"|"$/g, "")
-        : k === "unicode-range"
-          ? v.replace(/ /g, "")
-          : v,
-    ]),
-  );
-
 /** The --color-* tokens and every token whose value reads one of them, however indirectly. */
 const dayAgain = (tokens: Record<string, string>) => {
   const out = new Set(Object.keys(tokens).filter((k) => k.startsWith("--color-")));
@@ -305,22 +112,6 @@ const dayAgain = (tokens: Record<string, string>) => {
       if ([...v.matchAll(/var\((--[\w-]+)/g)].some((m) => out.has(m[1]!))) out.add(k);
   }
   return out;
-};
-
-/** The sans and mono stacks of the mail signature template, the fonts a mail client shows with no
- *  web font. Throws where the template carries no such pair, or a third stack. */
-const mailStacks = () => {
-  const html = readFileSync(join(ROOT, "applications/mail-signature/template.html"), "utf8");
-  const stacks = [...html.replaceAll("&quot;", '"').matchAll(/font-family:\s*([^;]+);/g)].map((m) =>
-    m[1]!.trim(),
-  );
-  const sans = stacks.find((s) => s.endsWith("sans-serif"));
-  const mono = stacks.find((s) => s.endsWith("monospace"));
-  if (!sans || !mono || stacks.some((s) => s !== sans && s !== mono))
-    throw new Error(
-      "mail-signature/template.html: every font-family is one sans or one mono stack",
-    );
-  return { sans, mono };
 };
 
 /** copy.ts wired, for a page loading one script: an IIFE, so its names stay out of the page's. */
@@ -349,33 +140,6 @@ export const flat = (path: string): string => {
     .trim()}\n`;
 };
 
-/** generated/font-faces.ts: fonts.css's rules, as written, in a function of the font files' url. */
-const fontFaceModule = (screen: string) => {
-  const rules = faceRules(screen).join("\n\n");
-  if (/[`\\]|\$\{/.test(rules))
-    throw new Error("tokens/fonts.css: a rule a template literal would alter");
-  if (rules.match(/url\(/g)?.length !== rules.match(/url\("fonts\/[^"]+"\)/g)?.length)
-    throw new Error('tokens/fonts.css: a url() not written url("fonts/<file>")');
-  return `// Generated from tokens/fonts.css by scripts/tokens.ts. Edit the source, never this file.
-
-/** fonts.css's @font-face rules, its web faces and fallback faces with every descriptor, for a
- *  surface that serves the font files from its own path: each file's url is \`base\` followed by the
- *  file name, or what \`base\` returns for the file name, such as a data: URL. */
-export const fontFaceRules = (base: string | ((file: string) => string)) => {
-  const url = typeof base === "string" ? (file: string) => base + file : base;
-  return \`${rules.replace(/url\("fonts\/([^"]+)"\)/g, (_, file: string) => `url("\${url(${JSON.stringify(file)})}")`)}\`;
-};
-
-/** The font files to preload: the web faces without unicode-range, which every page draws. A
- *  surface preloads each at the url its fontFaceRules base gives the file. */
-export const preloadFiles = ${JSON.stringify(
-    fontFaces(screen)
-      .filter((face) => !face.unicodeRange)
-      .map((face) => face.file),
-  )} as const;
-`;
-};
-
 const FLAT = (source: string) =>
   `/* Generated from ${source} by scripts/tokens.ts. Edit the source, never this file.
    The source with every @import resolved in place: a page that links the stylesheet links this
@@ -384,8 +148,6 @@ ${flat(join(ROOT, source))}`;
 
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
-  const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");
-  const fallbacks = fallbackFaces(screen);
   const tokens = parseTokens(css);
   const declare = (names: string[]) => names.map((k) => `  ${k}: ${tokens[k]};`).join("\n");
   const colors = resolveColors(tokens);
@@ -407,28 +169,10 @@ const generate = () => {
     "tokens.ts": `// ${dataHead}\nexport const tokens = ${JSON.stringify(data, null, 2)} as const;\n\nexport const colors = ${JSON.stringify(colors, null, 2)} as const;\n`,
     "tokens.py": `# ${dataHead}\nTOKENS = ${JSON.stringify(data, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
     "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
-    "fonts.json":
-      JSON.stringify(
-        { faces: fontFaces(screen), fallbacks: fallbackData(screen), mail: mailStacks() },
-        null,
-        2,
-      ) + "\n",
-    "font-faces.ts": fontFaceModule(screen),
-    "static-fonts.css": `/* Generated from tokens/print.css and tokens/fonts.css by scripts/tokens.ts. Edit the
-   sources, never this file. print.css's static faces without the print scale (static files, never
-   variable ones, so Chrome embeds real glyphs in a PDF), then fonts.css's fallback faces.
-   Import it as @hackersandwizards/brand/static-fonts.css. */
-${faceRules(readFileSync(join(ROOT, "tokens/print.css"), "utf8"))
-  .map((face) => face.replaceAll('url("fonts/', 'url("../tokens/fonts/'))
-  .concat(fallbacks)
-  .join("\n\n")}
-`,
-    "fallback-faces.css": `/* Generated from tokens/fonts.css by scripts/tokens.ts. Edit the source, never this file.
-   fonts.css's fallback faces alone, the local fonts its stacks name after each web face, which
-   print.css imports so a printed page whose face is missing a character, or fails to load, keeps
-   the web face's widths. */
-${fallbacks.join("\n\n")}
-`,
+    ...fontOutputs(
+      readFileSync(join(ROOT, "tokens/fonts.css"), "utf8"),
+      readFileSync(join(ROOT, "tokens/print.css"), "utf8"),
+    ),
     "elements.css": FLAT("elements/elements.css"),
     "copy.js": copyScript(),
     "document.css": FLAT("tokens/document.css"),

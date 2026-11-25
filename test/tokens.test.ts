@@ -1,21 +1,16 @@
-import { expect, test } from "vitest";
+import { assert, expect, test } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import generatedCodeTheme from "../generated/code-theme.json";
 import { fontFaceRules, preloadFiles } from "../generated/font-faces";
 import fonts from "../generated/fonts.json";
 import { tokens as jsonTokens } from "../generated/tokens.json";
 import { tokens as generatedTokens } from "../generated/tokens";
-import { ROOT } from "../scripts/git";
-import {
-  faceRules,
-  fallbackFaces,
-  fontFaces,
-  palettes,
-  parseTokens,
-  resolveColors,
-  rgb,
-  SOURCE,
-} from "../scripts/tokens";
+import { codeTheme } from "../scripts/code-theme";
+import { declarations } from "../scripts/css-declarations";
+import { faceRules, fallbackFaces, fontFaces } from "../scripts/font-outputs";
+import { ROOT, sha256 } from "../scripts/git";
+import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
 
 const css = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(css);
@@ -61,6 +56,13 @@ test("reports a missing or unreadable theme block before generating tokens", () 
     expect(() => parseTokens(css)).toThrow("a @theme block parseTokens cannot read");
 });
 
+test("CSS declarations drop comments and collapse whitespace without changing values", () => {
+  expect(declarations('font-family: /* face */ "Example"; grid: repeat( 2,   1fr );')).toEqual({
+    "font-family": '"Example"',
+    grid: "repeat(2, 1fr)",
+  });
+});
+
 test("the data formats carry expert.css's type steps, its aliases left out; the CSS formats do not", () => {
   const expert = readFileSync(join(ROOT, "expert/expert.css"), "utf8");
   const generated = (file: string) => readFileSync(join(ROOT, "generated", file), "utf8");
@@ -89,6 +91,10 @@ test("the data formats carry expert.css's type steps, its aliases left out; the 
 test("mixes color-mix() tokens in sRGB", () => {
   expect(colors["--color-night-ink"]).toBe("#ebeced"); // white 92 % on night
   expect(colors["--color-subtle"]).toBe(colors["--color-muted"]);
+});
+
+test("the Shiki theme maps token roles and ANSI colours to the shipped theme", () => {
+  expect(codeTheme(tokens, colors)).toEqual(generatedCodeTheme);
 });
 
 test("ampersand-light, written out against night.css's loop, stays ampersand 60 % on white", () => {
@@ -133,12 +139,13 @@ test("the two palettes hold every brand colour, and name only brand colours", ()
     .filter((k) => !namesAnother(k))
     .map((k) => k.replace("--color-", ""));
   expect([...cells].sort()).toEqual(own.sort());
-  expect(neutrals.every((r) => r.day !== "-" || r.night !== "-")).toBe(true);
+  expect(neutrals.map(({ day, night }) => [day, night])).not.toContainEqual(["-", "-"]);
 });
 
 test("every code colour clears 4.5:1 on night and night-2", () => {
-  const roles = Object.keys(tokens).filter((k) => k.startsWith("--code-") && k !== "--code-bg");
-  expect(roles).toHaveLength(6);
+  const roles = new Set(Object.keys(tokens).filter((k) => k.startsWith("--code-")));
+  expect(roles.delete("--code-bg")).toBe(true);
+  expect(roles.size).toBe(6);
   for (const k of roles)
     for (const ground of ["night", "night-2"])
       expect(contrast(colors[tokens[k].slice(4, -1)], colors[`--color-${ground}`])).toBeGreaterThan(
@@ -278,15 +285,56 @@ test("fontFaceRules gives fonts.css's rules, each url the base or the function's
   );
 });
 
+test.each([
+  {
+    name: "a literal base",
+    base: "/cdn/fonts/",
+    hash: "4eb8cc241eadbf0363de2dc2fc01cc0761d6d780849ce683c5293b37f65acb20",
+  },
+  {
+    name: "a data URL callback",
+    base: (file: string) => `data:font/woff2;base64,${btoa(file)}`,
+    hash: "4ae11192f920dafed3a909931a61bd616ab1351225885d491f3535dd5afc1a0a",
+  },
+  {
+    name: "a callback returning literal replacement syntax",
+    base: (file: string) => `https://cdn.example/$&/${file}`,
+    hash: "2ff5b05ca548da7c6022041780a8d156fcd2bba54373ccaa66387096b338e1e8",
+  },
+])("fontFaceRules retains the original CSS for $name", ({ base, hash }) => {
+  expect(sha256(Buffer.from(fontFaceRules(base)))).toBe(hash);
+});
+
+test("fontFaceRules calls the URL resolver in font source order", () => {
+  const files: string[] = [];
+  fontFaceRules((file) => {
+    files.push(file);
+    return file;
+  });
+  expect(files).toEqual([
+    "inter-latin-wght-normal.woff2",
+    "inter-latin-ext-wght-normal.woff2",
+    "jetbrains-mono-latin-wght-normal.woff2",
+    "jetbrains-mono-latin-ext-wght-normal.woff2",
+  ]);
+});
+
 // A surface preloads preloadFiles and writes fontFaceRules: a preload no rule draws, or a face every
 // page draws left unpreloaded, costs a request or a swap.
 test("preloadFiles names the files of fontFaceRules' and fonts.json's faces without a unicode-range", () => {
   const unranged = faceRules(fontFaceRules("/x/"))
-    .filter((face) => !face.includes("unicode-range") && face.includes("url("))
-    .map((face) => face.match(/url\("\/x\/([^"]+)"\)/)![1]);
+    .filter((face) => !face.includes("unicode-range"))
+    .flatMap((face) => face.split("url(").slice(1))
+    .map((source) => {
+      const url = /^"([^"]+)"\)/.exec(source);
+      assert(url, "A web font source must contain a double-quoted URL.");
+      return url[1];
+    });
   expect(unranged.length).toBeGreaterThan(0);
-  expect(unranged).toEqual([...preloadFiles]);
-  expect(fonts.faces.filter((f) => !("unicodeRange" in f)).map((f) => f.file)).toEqual(unranged);
+  expect(unranged).toEqual(preloadFiles.map((file) => `/x/${file}`));
+  expect(fonts.faces.filter((f) => !("unicodeRange" in f)).map(({ file }) => `/x/${file}`)).toEqual(
+    unranged,
+  );
   for (const file of preloadFiles) expect(existsSync(join(ROOT, "tokens/fonts", file))).toBe(true);
 });
 
@@ -349,8 +397,11 @@ test("every custom property is interface or named internal in docs/exports.md", 
     [...readFileSync(join(ROOT, f), "utf8").matchAll(/(?:^|[;{\s])(--[\w-]+)\s*:/g)].map(
       (m) => m[1]!,
     );
-  const opening = (f: string) =>
-    /^\/\*[\s\S]*?\*\//.exec(readFileSync(join(ROOT, f), "utf8"))?.[0] ?? "";
+  const opening = (f: string) => {
+    const comment = /^\/\*[\s\S]*?\*\//.exec(readFileSync(join(ROOT, f), "utf8"));
+    assert(comment, `Add an opening comment to ${f} that names its settings.`);
+    return comment[0];
+  };
   const elements = readdirSync(join(ROOT, "elements"))
     .filter((f) => f.endsWith(".css"))
     .map((f) => `elements/${f}`);
@@ -358,19 +409,23 @@ test("every custom property is interface or named internal in docs/exports.md", 
     .filter((f) => f.endsWith(".css"))
     .map((f) => `tokens/${f}`)
     .concat("expert/expert.css", "elements/scales.css");
-  const iface = new Set(files.flatMap(defined));
-  const settings = elements.map(opening).join("\n");
+  const settings = elements.flatMap((file) =>
+    [...opening(file).matchAll(/--[\w-]+/g)].map(([name]) => name),
+  );
+  const iface = new Set([...files.flatMap(defined), ...settings]);
   const section = /## Custom properties\n([\s\S]*?)(\n## |$)/.exec(
     readFileSync(join(ROOT, "docs/exports.md"), "utf8"),
-  )?.[1];
-  expect(section).toBeDefined();
-  const internal = section!.split("Internal")[1] ?? "";
+  );
+  assert(section, "Restore the Custom properties section in docs/exports.md.");
+  const internal = section[1].split("Internal")[1];
+  assert(internal, "Document the internal custom properties in docs/exports.md.");
+  const patterns = [...internal.matchAll(/`(--[\w-]+\*?)`/g)].map(
+    ([, name]) => new RegExp(`^${name.replace("*", "[\\w-]*")}$`),
+  );
+  expect(patterns).not.toHaveLength(0);
   const rest = [...elements, "expert/header.css", "expert/app-base.css"]
     .flatMap((f) => defined(f).map((p) => [f, p] as const))
-    .filter(([, p]) => !iface.has(p) && !new RegExp(`${p}(?![\\w-])`).test(settings))
-    .filter(([, p]) => {
-      const family = /^(--_|--tw-prose-)/.exec(p)?.[1];
-      return !internal.includes(family ? `\`${family}*\`` : `\`${p}\``);
-    });
+    .filter(([, p]) => !iface.has(p))
+    .filter(([, p]) => !patterns.some((pattern) => pattern.test(p)));
   expect(rest).toEqual([]);
 });

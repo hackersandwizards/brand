@@ -2,23 +2,29 @@ import { fc, test, unicodeString } from "@hackersandwizards/scaffolding/property
 import { expect } from "vitest";
 import { parseTokens, rgb } from "../scripts/tokens";
 
+// The whitespace before a theme variant and between its keyword and opening brace.
+type ThemeSpacing = { beforeVariant: string; beforeBrace: string };
+const SPACES = { beforeVariant: " ", beforeBrace: " " } satisfies ThemeSpacing;
+const LINES = { beforeVariant: "\n\t", beforeBrace: " " } satisfies ThemeSpacing;
+const COMPACT = { beforeVariant: " ", beforeBrace: "" } satisfies ThemeSpacing;
+const COMPACT_LINES = { beforeVariant: "\n\t", beforeBrace: "" } satisfies ThemeSpacing;
+
 test.prop(
   [
     fc.array(fc.integer(), { maxLength: 24 }),
-    fc.constantFrom(" ", "\n\t"),
+    fc.constantFrom(SPACES, LINES, COMPACT, COMPACT_LINES),
     unicodeString,
-    fc.boolean(),
   ],
   {
     examples: [
-      [[], " ", "", false],
-      [[0, -1, 1], "\n\t", "漢".repeat(1024), false],
-      [[0, 1], " ", "", true],
+      [[], SPACES, ""],
+      [[0, -1, 1], LINES, "漢".repeat(1024)],
+      [[0, 1], COMPACT, ""],
     ],
   },
 )(
   "reads custom properties from adjacent theme variants across comments and whitespace",
-  (sizes, space, rawComment, compact) => {
+  (sizes, { beforeVariant, beforeBrace }, rawComment) => {
     const comment = rawComment.replaceAll("*/", "* /");
     const entries = sizes.map((size, index) => [`--size-${index}`, `${size}px`] as const);
     const css =
@@ -26,7 +32,7 @@ test.prop(
       entries
         .map(
           ([name, value], index) =>
-            `@theme${space}${index % 2 ? "inline" : "static"}${compact ? "" : " "}{${name}${space}:/* ${comment} */${space}${value}}`,
+            `@theme${beforeVariant}${index % 2 ? "inline" : "static"}${beforeBrace}{${name}${beforeVariant}:/* ${comment} */${beforeVariant}${value}}`,
         )
         .join("");
     expect(parseTokens(css)).toEqual(Object.fromEntries(entries));
