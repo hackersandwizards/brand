@@ -25,16 +25,21 @@ test("each logo's clear space is the h's height over the file's height", () => {
 
 test("sizes names each logo SVG's and logo PNG's width and height, as the file sets them", () => {
   const files = readdirSync(join(ROOT, "logos"));
-  const svgs = files.filter((f) => f.endsWith(".svg"));
+  const svgs = files.filter((f) => f.endsWith(".svg")).filter((f) => f !== "favicon.svg");
+  const favicon = /<svg[^>]*>/.exec(readFileSync(join(ROOT, "logos", "favicon.svg"), "utf8"));
+  assert(favicon, "favicon.svg must have an SVG root");
+  expect(favicon[0]).not.toMatch(/ (?:width|height)="/);
   // The lockup and wordmark PNGs the package ships (package.json files); a PNG's header holds its
   // width and height at bytes 16 to 24.
   const pngs = files.filter((f) => /^(lockup|wordmark).*\.png$/.test(f));
   const measured = Object.fromEntries<{ width: number; height: number }>([
-    ...svgs.flatMap((f) => {
+    ...svgs.map((f): [string, { width: number; height: number }] => {
       const root = /<svg[^>]*>/.exec(readFileSync(join(ROOT, "logos", f), "utf8"))![0];
-      return [...root.matchAll(/<svg(?=[^>]* width="(\d+)")(?=[^>]* height="(\d+)")/g)].map(
-        ([, width, height]) => [f, { width: Number(width), height: Number(height) }] as const,
-      );
+      const width = / width="(\d+)"/.exec(root)?.[1];
+      const height = / height="(\d+)"/.exec(root)?.[1];
+      assert(width, `${f} must declare an integer width`);
+      assert(height, `${f} must declare an integer height`);
+      return [f, { width: Number(width), height: Number(height) }];
     }),
     ...pngs.map((f): [string, { width: number; height: number }] => {
       const head = readFileSync(join(ROOT, "logos", f)).subarray(0, 24);

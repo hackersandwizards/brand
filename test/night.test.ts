@@ -28,13 +28,14 @@ const darkSelector = [
   ],
 ];
 
-const nightScopeReferences = (file: string) => {
+/** Counts dark scopes and records whether each CSS variable reference is inside one. */
+const nightScopeReferences = (source: string) => {
   const scopes: boolean[] = [];
-  const references: string[] = [];
+  const references: { name: string; inDark: boolean }[] = [];
   let count = 0;
   transform({
-    filename: file,
-    code: readFileSync(`${ROOT}/${file}`),
+    filename: "scope.css",
+    code: Buffer.from(source),
     visitor: {
       Rule: {
         scope({ value }) {
@@ -43,18 +44,39 @@ const nightScopeReferences = (file: string) => {
           count += Number(dark);
         },
       },
-      RuleExit: {
-        scope() {
-          scopes.pop();
-        },
+      // Lightning CSS skips the scope-specific exit callback.
+      RuleExit(rule) {
+        if (rule.type === "scope") scopes.pop();
       },
       Variable({ name }) {
-        if (scopes.includes(true)) references.push(name.ident);
+        references.push({ name: name.ident, inDark: scopes.includes(true) });
       },
     },
   });
-  return { file, count, references };
+  return { count, references };
 };
+
+test("dark scope classification includes nested rules and ends at the scope boundary", () => {
+  const source = `
+    @scope ([data-theme="dark"]) {
+      .swatch { color: var(--accent); }
+      @media (min-width: 1px) {
+        .swatch { border-color: var(--border); }
+      }
+    }
+    @scope ([data-theme="light"]) {
+      .swatch { color: var(--foreground); }
+    }
+  `;
+  expect(nightScopeReferences(source)).toEqual({
+    count: 1,
+    references: [
+      { name: "--accent", inDark: true },
+      { name: "--border", inDark: true },
+      { name: "--foreground", inDark: false },
+    ],
+  });
+});
 
 // A data-theme="dark" element below a light html keeps that page's roles (expert.css), so an
 // element's night scope reads the night roles from --hw-night-*, never --accent and its kin.
@@ -68,10 +90,16 @@ test("the elements' night scopes read no page role", () => {
     "--input",
     "--muted",
   ];
-  const stylesheets = [...new Bun.Glob("elements/*.css").scanSync(ROOT)].map(nightScopeReferences);
+  const stylesheets = [...new Bun.Glob("elements/*.css").scanSync(ROOT)].map((file) => ({
+    file,
+    ...nightScopeReferences(css(file)),
+  }));
   expect(stylesheets.reduce((total, sheet) => total + sheet.count, 0)).toBeGreaterThan(0);
   const found = stylesheets.flatMap(({ file, references }) =>
-    references.filter((name) => roles.includes(name)).map((name) => ({ file, name })),
+    references
+      .filter(({ inDark }) => inDark)
+      .filter(({ name }) => roles.includes(name))
+      .map(({ name }) => ({ file, name })),
   );
   expect(found).toEqual([]);
 });

@@ -29,22 +29,15 @@ const root = (roles: Record<string, string>) => {
   return (k: string) => colors[k.startsWith("--color-") ? k : `--color-role${k}`];
 };
 
-test("light roles resolve to the token values, without a cycle", () => {
-  const value = root(light);
-  expect({
-    border: value("--border"),
-    colorBorder: value("--color-border"),
-    slate: value("--hue-slate"),
-  }).toEqual({ border: "#d0d2d8", colorBorder: "#d0d2d8", slate: "#545861" });
-  expect({
-    border: value("--border"),
-    slate: value("--hue-slate"),
-    muted: value("--hw-muted"),
-  }).toEqual({
-    border: token["--color-border"],
-    slate: token["--color-muted"],
-    muted: token["--color-muted"],
-  });
+test.each([
+  { role: "--border", source: "#d0d2d8", expected: "#d0d2d8" },
+  { role: "--border", source: "--color-border", expected: token["--color-border"] },
+  { role: "--color-border", source: "#d0d2d8", expected: "#d0d2d8" },
+  { role: "--hue-slate", source: "#545861", expected: "#545861" },
+  { role: "--hue-slate", source: "--color-muted", expected: token["--color-muted"] },
+  { role: "--hw-muted", source: "--color-muted", expected: token["--color-muted"] },
+])("light resolves $role to $source without a cycle", ({ role, expected }) => {
+  expect(root(light)(role)).toBe(expected);
 });
 
 test("every light and dark role resolves to a colour", () => {
