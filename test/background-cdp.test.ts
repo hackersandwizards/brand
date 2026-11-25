@@ -89,7 +89,7 @@ describe("DevTools socket", () => {
     socket.deliver({ id: 9, result: {} });
     socket.deliver({ id: 2, result: { enabled: true } });
     socket.deliver({ id: 1, result: { targetId: "target-a" } });
-    expect(socket.sent.map((wire) => JSON.parse(wire))).toEqual([
+    expect(socket.sent.map((wire): unknown => JSON.parse(wire))).toEqual([
       { id: 1, method: "Target.createTarget", params: { url: "about:blank" } },
       { id: 2, method: "Page.enable", params: {}, sessionId: "page-a" },
     ]);
