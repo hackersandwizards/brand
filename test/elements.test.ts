@@ -1,18 +1,15 @@
-import { afterAll, expect, test } from "vitest";
+import { afterAll, assert, expect, test } from "vitest";
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  exceptionFindings,
-  definedClasses,
-  isBrandClass,
-  ELEMENTS,
-  rules,
-  SETTINGS,
-  setsOwned,
-  sourceFindings,
-  type Config,
-} from "../scan/elements";
+import { definedClasses, isBrandClass } from "../scan/element-classes";
+import { exceptionFindings, type Config } from "../scan/element-exceptions";
+import { setsOwned } from "../scan/element-properties";
+import { ELEMENTS, SETTINGS } from "../scan/element-rules";
+import { rules, utility as utilityProperties } from "../scan/element-stylesheet";
+import { sourceFindings } from "../scan/element-source";
+import { diffElementStyles, type StyleSnapshot } from "../scan/element-values";
+
 import { tokens } from "../generated/tokens";
 import { packed, ROOT } from "../scripts/git";
 import { DRIFT } from "./element-drift";
@@ -109,10 +106,10 @@ test("the screen preset sets every setting an element reads", () => {
     "--hw-carousel-columns",
   ]);
   // The night roles expert.css and night.css set, never a scale.
-  const night = (s: string) => s.startsWith("--hw-night-");
-  expect(
-    SETTINGS.filter((s) => !optional.has(s) && !night(s) && !screen.includes(`${s}:`)),
-  ).toEqual([]);
+  const night = SETTINGS.filter((s) => s.startsWith("--hw-night-"));
+  const declarations = Array.from(screen.matchAll(/(--hw-[\w-]+):/g), ([, name]) => name);
+  const provided = new Set([...optional, ...night, ...declarations]);
+  expect([...new Set(SETTINGS).difference(provided)]).toEqual([]);
 });
 
 test("rules opens nested at-rules and continues with the next top-level rule", () => {
@@ -207,35 +204,49 @@ test("source: a PascalCase component, a camelCase class and a nested rule are re
 // The prose block repeats these elements' rules outside any layer, each declaration as the element
 // file has it (the link's day rule adds Typography's weight undone). The first rule for a selector
 // is day's, the last night's.
-test.each([
-  [".hw-prose :not(pre) > code", "inline-code.css", ".hw-inline-code", ""],
-  [
-    ".hw-prose a:not(.not-prose, .not-prose *)",
-    "link.css",
-    ":is(.hw-link, .hw-links a)",
-    " font-weight: inherit;",
-  ],
-  [
-    ".hw-prose a:not(.not-prose, .not-prose *):is(:hover, [data-hw-hover])",
-    "link.css",
-    ":is(.hw-link, .hw-links a):is(:hover, [data-hw-hover])",
-    "",
-  ],
-])("the prose block's %s repeats %s", (prose, file, selector, extra) => {
-  const block = (f: string, sel: string, night: boolean) => {
-    const src = readFileSync(join(import.meta.dir, "../elements", f), "utf8");
-    const at = night ? src.lastIndexOf(`${sel} {`) : src.indexOf(`${sel} {`);
-    expect(at).toBeGreaterThan(-1);
-    return src
-      .slice(src.indexOf("{", at) + 1, src.indexOf("}", at))
-      .replace(/\s+/g, " ")
-      .trim();
-  };
-  for (const night of [false, true])
-    expect(block("prose.css", prose, night)).toBe(
-      block(file, selector, night) + (night ? "" : extra),
-    );
-});
+const proseRules = [
+  {
+    prose: ".hw-prose :not(pre) > code",
+    original: { file: "inline-code.css", selector: ".hw-inline-code" },
+    dayExtra: "",
+  },
+  {
+    prose: ".hw-prose a:not(.not-prose, .not-prose *)",
+    original: { file: "link.css", selector: ":is(.hw-link, .hw-links a)" },
+    dayExtra: " font-weight: inherit;",
+  },
+  {
+    prose: ".hw-prose a:not(.not-prose, .not-prose *):is(:hover, [data-hw-hover])",
+    original: {
+      file: "link.css",
+      selector: ":is(.hw-link, .hw-links a):is(:hover, [data-hw-hover])",
+    },
+    dayExtra: "",
+  },
+];
+
+test.each(
+  proseRules.flatMap(({ prose, original, dayExtra }) => [
+    { prose, original, theme: "day", occurrence: 0, extra: dayExtra },
+    { prose, original, theme: "night", occurrence: -1, extra: "" },
+  ]),
+)(
+  "the prose block's $prose repeats $original.file by $theme",
+  ({ prose, original, occurrence, extra }) => {
+    const block = ({ file, selector }: { file: string; selector: string }) =>
+      readFileSync(join(import.meta.dir, "../elements", file), "utf8")
+        .split(`${selector} {`)
+        .slice(1)
+        .at(occurrence)
+        ?.split("}")[0];
+    const actual = block({ file: "prose.css", selector: prose });
+    const expected = block(original);
+    assert(actual !== undefined, `prose.css should define ${prose}`);
+    assert(expected !== undefined, `${original.file} should define ${original.selector}`);
+    const normalise = (declarations: string) => declarations.replace(/\s+/g, " ").trim();
+    expect(normalise(actual)).toBe(normalise(expected) + extra);
+  },
+);
 
 const dir = mkdtempSync(join(tmpdir(), "brand-elements-"));
 const file = (name: string, html: string) => {
@@ -305,9 +316,13 @@ test("every class brand's stylesheets define is listed as one brand defines", ()
     .flatMap((f) => definedClasses(readFileSync(join(ROOT, f), "utf8")));
   // Names another tool emits, which brand's rules only read: Typography's opt-out, a Markdown
   // renderer's task item, Tailwind's text-foreground/<n> utilities.
-  const read = (c: string) =>
-    ["not-prose", "task-list-item"].includes(c) || c.startsWith("text-foreground/");
-  expect([...new Set(defined)].filter((c) => !isBrandClass(c) && !read(c))).toEqual([]);
+  const external = new Set([
+    "not-prose",
+    "task-list-item",
+    ...defined.filter((c) => c.startsWith("text-foreground/")),
+  ]);
+  const brand = new Set(defined.filter(isBrandClass));
+  expect([...new Set(defined).difference(brand.union(external))]).toEqual([]);
 });
 
 // data-hw-focus draws an element's whole focused state, so every rule keyed on focus names it too.
@@ -319,15 +334,91 @@ test("every focus rule of the elements and the expert layer also matches data-hw
     "expert/expert.css",
     "expert/header.css",
   ];
-  const unpaired = files.flatMap((f) =>
+  const rules = files.flatMap((f) =>
     [
       ...readFileSync(join(ROOT, f), "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .matchAll(/([^{};]+)\{/g),
-    ]
-      .map((m) => m[1]!.trim())
-      .filter((s) => /:focus\b|:focus-(visible|within)\b/.test(s) && !s.includes("[data-hw-focus]"))
-      .map((s) => `${f}: ${s}`),
+    ].map((m) => `${f}: ${m[1]!.trim()}`),
   );
-  expect(unpaired).toEqual([]);
+  const focus = new Set(rules.filter((s) => /:focus\b|:focus-(visible|within)\b/.test(s)));
+  const explicit = new Set(rules.filter((s) => s.includes("[data-hw-focus]")));
+  expect([...focus.difference(explicit)]).toEqual([]);
+});
+
+test.each([
+  { utility: "text-[1.25rem]", props: ["font-size"] },
+  { utility: "text-theme", props: ["font-size", "color"] },
+  { utility: "text-pretty", props: [] },
+  { utility: "border-spacing-2", props: [] },
+  { utility: "bg-cover", props: [] },
+  { utility: "print:p-2!", props: ["padding"] },
+  { utility: "dark:@sm:pe-6", props: ["padding-inline-end"] },
+  { utility: "size-6", props: ["width", "height"] },
+  { utility: "h-6", props: ["height"] },
+  { utility: "w-6", props: ["width"] },
+])("@apply $utility contributes $props at rest", ({ utility, props }) => {
+  expect(utilityProperties(utility)).toEqual(props);
+});
+
+test("style scopes leave declarations on either side of nested rules with their owner", () => {
+  expect(
+    rules(".panel { color: red; @media print { > .title { font-size: 1em; } } padding: 0; }"),
+  ).toEqual([
+    { selectors: [".panel > .title"], props: ["font-size"] },
+    { selectors: [".panel"], props: ["color", "padding"] },
+  ]);
+});
+
+test.each<{ rule: string; actual: StyleSnapshot; reference: StyleSnapshot; property: string }>([
+  {
+    rule: "a zero-width border",
+    actual: { "border-top-style": "solid", "border-top-width": "0px" },
+    reference: { "border-top-style": "none", "border-top-width": "0px" },
+    property: "border-top-style",
+  },
+  {
+    rule: "the same colour in two notations",
+    actual: { "background-color": "rgba(255, 255, 255, 0.07)" },
+    reference: { "background-color": "color(srgb 1 1 1 / 0.07)" },
+    property: "background-color",
+  },
+  {
+    rule: "a length within 0.02 CSS px",
+    actual: { "padding-left": "16.01px" },
+    reference: { "padding-left": "16px" },
+    property: "padding-left",
+  },
+])("$rule reports no style difference", ({ actual, reference, property }) => {
+  expect(
+    diffElementStyles(
+      { element: "card", label: "sample", actual, reference, properties: [property] },
+      0.02,
+    ),
+  ).toEqual([]);
+});
+
+test("a different em length reports the original values without the :em qualifier", () => {
+  const actual = { "text-underline-offset:em": "0.3em" };
+  const reference = { "text-underline-offset:em": "0.2em" };
+  expect(
+    diffElementStyles(
+      {
+        element: "link",
+        label: 'a.hw-link "Agenda"',
+        actual,
+        reference,
+        properties: ["text-underline-offset:em"],
+      },
+      0.02,
+    ),
+  ).toEqual([
+    {
+      element: "link",
+      label: 'a.hw-link "Agenda"',
+      prop: "text-underline-offset",
+      got: "0.3em",
+      want: "0.2em",
+    },
+  ]);
 });

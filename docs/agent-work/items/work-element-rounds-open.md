@@ -25,7 +25,7 @@ A visible change to a shared element is scored blind on the surfaces that render
    phone at 22 %; v2.16.0 ships 12 % for AA. The comments of the round that showed 12 % are gone
    with its scratch, so only a new phone-at-night round answers it.
 4. **Consumer checks.** What the order of page preparation changes in a `brand-elements`
-   measurement (finding B-19). Not yet explained: `scan/elements.ts` reads the page's classes before
+   measurement (finding B-19). Not yet explained: `scan/element-page.ts` reads the page's classes before
    it opens the folds and waits for the fonts, then measures; no run has varied that order.
 
 Check: each point fixed with its scores, or recorded in the report as kept with its reason, and

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeClasses, codeTokenClasses } from "../elements/code";
 import { colors } from "../generated/tokens";
-import { definedClasses } from "../scan/elements";
+import { definedClasses } from "../scan/element-classes";
 import { ROOT } from "../scripts/git";
 
 test("codeTokenClasses are exactly the token selectors of code.css", () => {

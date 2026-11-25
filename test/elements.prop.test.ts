@@ -1,16 +1,17 @@
 import { fc, test, unicodeString } from "@hackersandwizards/scaffolding/property";
 import { expect } from "vitest";
-import { rules } from "../scan/elements";
+import { rules } from "../scan/element-stylesheet";
 
 const id = fc.stringMatching(/^[a-z]{1,24}$/);
-test.prop([id, id, id, unicodeString], {
+const nestedRule = fc.record({ parent: id, child: id, sibling: id, rawComment: unicodeString });
+test.prop([nestedRule], {
   examples: [
-    ["a", "b", "c", ""],
-    ["parent", "child", "sibling", "長".repeat(1024)],
+    [{ parent: "a", child: "b", sibling: "c", rawComment: "" }],
+    [{ parent: "parent", child: "child", sibling: "sibling", rawComment: "長".repeat(1024) }],
   ],
 })(
   "opens at-rules and expands every nested selector against every parent",
-  (parent, child, sibling, rawComment) => {
+  ({ parent, child, sibling, rawComment }) => {
     const parents = [`.p-${parent}`, `.s-${sibling}`];
     const inside = `.c-${child}`;
     const comment = rawComment.replaceAll("*/", "* /");

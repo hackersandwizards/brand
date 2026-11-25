@@ -241,7 +241,7 @@ callout, note; quote; icon-button; button, btn; breadcrumb; fact) that sets a pr
 padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), read from `.css`, `.scss` and the style
 elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component file under a `components/` folder of such a name that renders
 none of the `hw-*` classes of the elements its name names (a `ProjectCard` without `hw-card`; a button component may render `hw-icon-button`, and a component named for one fact may render one row, a `dt` without a `dl`) and has no exception of that name, on an element carrying an `hw-*` class or
-one brand once defined (`BRAND_CLASSES` in `scan/elements.ts`, such as `btn-primary`) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
+one brand once defined (`BRAND_CLASSES` in `scan/element-classes.ts`, such as `btn-primary`) that no stylesheet loaded on the page defines, so it draws unstyled (a Tailwind utility
 or a class of your own passes, and so does such a class your own CSS defines), on an exception
 without a reason, on a `data-hw-exception` whose name the list declares no exception for,
 on a page showing no element, and on a run whose pages and stories show none. A `brand-elements.json` naming no page

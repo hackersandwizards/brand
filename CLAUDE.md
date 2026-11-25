@@ -70,8 +70,9 @@ data or secret.
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
   rule being `tokens/marker.css`. `browser.ts` opens pages for both measuring scans.
-  `elements.ts` (`brand-elements`) measures the shared elements on
-  the design-system page a consumer names in `brand-elements.json` and its element-named source. `retired.ts` (`brand-retired`) fails on a line of `verbal.json`'s `retired` list in
+  `elements.ts` (`brand-elements`) uses `element-page.ts` to measure the shared elements on the
+  design-system pages from `brand-elements.json`. `element-source.ts` checks element-named source.
+  `retired.ts` (`brand-retired`) fails on a line of `verbal.json`'s `retired` list in
   the built folders or files a consumer names.
   A skill, script or document generator takes the file from the package, never a copy.
 - `README.md` and `docs/*.md`: what a consumer reads. The README holds what the package is, the

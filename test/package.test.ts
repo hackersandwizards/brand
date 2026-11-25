@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { packed as listPacked, ROOT } from "../scripts/git";
 
 const SHIPPED =
-  /^(package\.json|manifest\.json|README\.md|LICENSE|docs\/[\w-]+\.md|(tokens|generated|expert|elements|logos|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(allowlist|assets|engine-style|colour-scan|colour-tokens|colours|copies|components|markers|marker-capture|marker-dom|marker-page|marker-readings|browser|browser-csp|browser-workers|site|elements-config|elements|retired|help|tree)\.ts|catalog\/(Element\.astro|ElementScript\.astro|element-demos\.ts))$/;
+  /^(package\.json|manifest\.json|README\.md|LICENSE|docs\/[\w-]+\.md|(tokens|generated|expert|elements|logos|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(allowlist|assets|engine-style|colour-scan|colour-tokens|colours|copies|components|markers|marker-capture|marker-dom|marker-page|marker-readings|browser|browser-csp|browser-workers|site|elements-config|elements|element-classes|element-dom|element-exceptions|element-page|element-properties|element-rules|element-source|element-stylesheet|element-values|retired|help|tree)\.ts|catalog\/(Element\.astro|ElementScript\.astro|element-demos\.ts))$/;
 const PRINT_MASTERS = /\.tif$|emoji-logo-short\.png$/;
 
 const packed = listPacked();

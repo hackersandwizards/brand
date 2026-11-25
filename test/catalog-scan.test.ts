@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { sourceFindings } from "../scan/elements";
+import { sourceFindings } from "../scan/element-source";
 import { ROOT } from "../scripts/git";
 import { checkoutRoot } from "./checkout";
 

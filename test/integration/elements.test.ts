@@ -7,7 +7,8 @@ import { pathToFileURL } from "node:url";
 import { transform } from "lightningcss";
 import type { Browser } from "puppeteer-core";
 import own from "../../package.json";
-import { ELEMENTS, measurePage } from "../../scan/elements";
+import { ELEMENTS } from "../../scan/element-rules";
+import { elementPage, measureLightPage, measurePage } from "../../scan/element-page";
 import { launch, open } from "../../scan/browser";
 import type { Csp } from "../../scan/browser-csp";
 import { DEMOS } from "../../catalog/element-demos";
@@ -289,10 +290,10 @@ test("a light-only page needs no night token, a day token still counts", async (
   const noNight = page(":root { --color-night-muted: initial }");
   const strict = await measurePage(browser, file("light-strict.html", noNight));
   expect(strict.findings.some((f) => f.prop === "--color-night-muted")).toBe(true);
-  const light = await measurePage(browser, file("light-only.html", noNight), "", true);
+  const light = await measureLightPage(browser, file("light-only.html", noNight));
   expect(light.findings.filter((f) => f.got === "undefined")).toEqual([]);
   const noDay = page(":root { --color-teal-dark: initial }");
-  const day = await measurePage(browser, file("light-day.html", noDay), "", true);
+  const day = await measureLightPage(browser, file("light-day.html", noDay));
   expect(day.findings.some((f) => f.prop === "--color-teal-dark")).toBe(true);
 }, 60_000);
 
@@ -408,12 +409,19 @@ test("every text in every sample clears WCAG AA in every scale, day and night", 
       const tiles = document.querySelectorAll(
         "[data-hw-scale] > :is([data-hw-tile], [data-hw-sample])",
       );
-      return [...tiles].flatMap((tile) =>
-        [tile, ...tile.querySelectorAll("*")].flatMap((el) => {
-          const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
-          if (!own || el.closest(":disabled") || el.closest("[aria-hidden]")) return [];
-          const s = getComputedStyle(el);
-          if (s.visibility === "hidden" || s.display === "none") return [];
+      // Reads style only for visible, non-exempt elements with text of their own.
+      const contrastText = (el: Element) => {
+        const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
+        if (!own || el.closest(":disabled, [aria-hidden]")) return;
+        const style = getComputedStyle(el);
+        if (style.visibility === "hidden" || style.display === "none") return;
+        return { el, style };
+      };
+      return [...tiles].flatMap((tile) => {
+        const text = [tile, ...tile.querySelectorAll("*")].map(contrastText);
+        return text.flatMap((sample) => {
+          if (!sample) return [];
+          const { el, style: s } = sample;
           const under = behind(el);
           const [x, y] = [lum(over(rgba(s.color), under)), lum(under)].sort((p, q) => q - p);
           const ratio = (x! + 0.05) / (y! + 0.05);
@@ -425,8 +433,8 @@ test("every text in every sample clears WCAG AA in every scale, day and night", 
           return [
             `${section.dataset.hwScale} ${section.dataset.theme} ${name} ${el.tagName.toLowerCase()} "${el.textContent!.trim().slice(0, 20)}" ${ratio.toFixed(2)}`,
           ];
-        }),
-      );
+        });
+      });
     });
     // A button or select in a label or a table head takes the role it sits in: its colour, no face.
     const faced = await tab.evaluate(() =>
@@ -703,14 +711,14 @@ const formPage = () =>
   );
 test("a policy refusing data: images is red on the form field's error icon, green with img-src data:", async () => {
   const url = formPage();
-  const red = await measurePage(browser, url, "", false, undefined, POLICY);
+  const red = await measurePage(browser, elementPage(url, undefined, POLICY));
   expect(red.refused).toContainEqual({
     page: url,
     element: "p.hw-form-error::before",
     source: "data",
     directive: "img-src",
   });
-  const green = await measurePage(browser, url, "", false, undefined, `${POLICY} data:`);
+  const green = await measurePage(browser, elementPage(url, undefined, `${POLICY} data:`));
   expect(green.refused).toEqual([]);
   expect(green.findings).toEqual([]);
 }, 60_000);
@@ -759,41 +767,48 @@ test("a keycap leaves a line of UI text as high as an inline keycap does, in the
 // On a phone the unjoined row stacks; inside a form field its button goes under the error message,
 // which stays next to the field it is about. Outside a form field, and on a desktop, the row keeps
 // field and button together.
-test("a stacked field row in a form field puts the error between field and button, 0.75rem from each part", async () => {
-  const p = await browser.newPage();
-  const row = (id: string) =>
-    `<div class="hw-field-row"><input class="hw-field" id="${id}-in" aria-invalid="true"><button class="hw-button" id="${id}-btn" type="submit">Prüfen</button></div>`;
-  await open(
-    p,
-    pathToFileURL(
-      file(
-        "field-row-error.html",
-        only(
-          `<div data-hw-scale="screen"><div class="hw-form-field">${row("ff")}<p class="hw-form-error" id="ff-err">Gebt eine ID ein.</p></div>${row("bare")}</div>`,
+const fieldRow = (id: string) =>
+  `<div class="hw-field-row"><input class="hw-field" id="${id}-in" aria-invalid="true"><button class="hw-button" id="${id}-btn" type="submit">Prüfen</button></div>`;
+const fieldWithError = `<div class="hw-form-field">${fieldRow("ff")}<p class="hw-form-error" id="ff-err">Gebt eine ID ein.</p></div>`;
+
+/** Bounding edges for the field fixture at one viewport width. */
+async function fieldEdges(width: number, fixture: { body: string; ids: string[] }) {
+  const tab = await browser.newPage();
+  try {
+    const html = only(`<div data-hw-scale="screen">${fixture.body}</div>`);
+    await open(tab, pathToFileURL(file(`field-row-${width}.html`, html)).href);
+    await tab.setViewport({ width, height: 800 });
+    return await tab.evaluate(
+      (ids) =>
+        Object.fromEntries(
+          ids.map((id) => {
+            const box = document.getElementById(id)!.getBoundingClientRect();
+            return [id, { top: box.top, bottom: box.bottom }];
+          }),
         ),
-      ),
-    ).href,
-  );
-  const tops = () =>
-    p.evaluate(() =>
-      Object.fromEntries(
-        ["ff-in", "ff-err", "ff-btn", "bare-in", "bare-btn"].map((id) => {
-          const b = document.getElementById(id)!.getBoundingClientRect();
-          return [id, { top: b.top, bottom: b.bottom, left: b.left }];
-        }),
-      ),
+      fixture.ids,
     );
-  await p.setViewport({ width: 390, height: 800 });
-  const phone = await tops();
+  } finally {
+    await tab.close();
+  }
+}
+
+test("a stacked form field on a phone puts the error between the field and button", async () => {
+  const phone = await fieldEdges(390, { body: fieldWithError, ids: ["ff-in", "ff-err", "ff-btn"] });
   expect(phone["ff-in"]!.bottom < phone["ff-err"]!.top).toBe(true);
   expect(phone["ff-err"]!.bottom < phone["ff-btn"]!.top).toBe(true);
   expect(phone["ff-btn"]!.top - phone["ff-err"]!.bottom).toBeCloseTo(12, 1);
+}, 60_000);
+
+test("a bare field row on a phone leaves 0.75rem between the field and the stacked button", async () => {
+  const phone = await fieldEdges(390, { body: fieldRow("bare"), ids: ["bare-in", "bare-btn"] });
   expect(phone["bare-btn"]!.top - phone["bare-in"]!.bottom).toBeCloseTo(12, 1);
-  await p.setViewport({ width: 1280, height: 800 });
-  const desk = await tops();
+}, 60_000);
+
+test("a form field on a desktop keeps the field and button inline above the error", async () => {
+  const desk = await fieldEdges(1280, { body: fieldWithError, ids: ["ff-in", "ff-err", "ff-btn"] });
   expect(desk["ff-btn"]!.top).toBe(desk["ff-in"]!.top);
   expect(desk["ff-err"]!.top > desk["ff-btn"]!.bottom).toBe(true);
-  await p.close();
 }, 60_000);
 
 // A disabled button keeps its look under the pointer, teal and purple, primary and secondary, day and night.
