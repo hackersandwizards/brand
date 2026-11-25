@@ -53,7 +53,7 @@ export function placeAnchor(found: JSHandle<Found>, index: number) {
 }
 
 type Placement = Awaited<ReturnType<typeof placeAnchor>>;
-type Region = { box: Box; beyond: boolean; split: number };
+type Shot = { png: string; clip: Box; scale: number };
 
 /** Translates an anchor-relative clip into page coordinates. */
 function clipOnPage(at: Placement, rel: Box): Box {
@@ -70,25 +70,42 @@ function insideViewport(at: Placement, box: Box) {
   );
 }
 
-// The ink middles left and right of split (CSS px from the clip's left edge), in page px.
-async function readBox(page: Page, { box, beyond, split }: Region): Promise<[number, number]> {
+/** Rounds a page box to the pixels Chrome uses for a screenshot. */
+function screenshotClip(box: Box): Box {
   // Whole px, as puppeteer would round it, so the shot starts where the offsets below count from.
   const [x, y] = [Math.round(box.x), Math.round(box.y)];
-  const clip = {
+  return {
     x,
     y,
     width: Math.round(box.x + box.width) - x,
     height: Math.round(box.y + box.height) - y,
   };
-  const png = await page.screenshot({
-    clip,
-    encoding: "base64",
-    captureBeyondViewport: beyond,
-  });
-  const scale = page.viewport()?.deviceScaleFactor ?? 1;
-  const [left, right] = await page.evaluate(inkMiddle, png, scale, split + box.x - x);
+}
+
+/** Captures a clip against the page's current viewport. */
+function shootWithinViewport(page: Page, clip: Box) {
+  return page.screenshot({ clip, encoding: "base64", captureBeyondViewport: false });
+}
+
+/** Captures the full clip even when it extends beyond the current viewport. */
+function shootBeyondViewport(page: Page, clip: Box) {
+  return page.screenshot({ clip, encoding: "base64", captureBeyondViewport: true });
+}
+
+/** Records the pixels, rounded clip and device scale of a page screenshot. */
+async function captureBox(page: Page, box: Box, shoot: typeof shootWithinViewport): Promise<Shot> {
+  const clip = screenshotClip(box);
+  const png = await shoot(page, clip);
+  const scale = page.viewport()?.deviceScaleFactor;
+  if (scale === undefined) throw new Error("Set the page's device scale before measuring markers");
+  return { png, clip, scale };
+}
+
+// The ink middles left and right of split (CSS px from the clip's left edge), in page px.
+async function readInkMiddles(page: Page, shot: Shot, split: number): Promise<[number, number]> {
+  const [left, right] = await page.evaluate(inkMiddle, shot.png, shot.scale, split);
   // No ink where the marker should be: a marker drawn elsewhere, which fails as NaN.
-  return [left < 0 ? NaN : y + left, right < 0 ? NaN : y + right];
+  return [left < 0 ? NaN : shot.clip.y + left, right < 0 ? NaN : shot.clip.y + right];
 }
 
 /** Reads the marker and both text bands from the same viewport policy and anchor. */
@@ -97,9 +114,14 @@ export async function readMarkerPixels(page: Page, probe: Probe, at: Placement) 
   const marker = clipOnPage(at, probe.marker);
   // Where the page will not scroll a box into view (a script holding it, a page wider than the
   // viewport), both boxes are shot beyond the viewport, so both read the same layout.
-  const beyond = !insideViewport(at, text) || !insideViewport(at, marker);
-  const [x, caps] = await readBox(page, { box: text, beyond, split: probe.split });
-  const [middle] = await readBox(page, { box: marker, beyond, split: Infinity });
+  const shoot =
+    insideViewport(at, text) && insideViewport(at, marker)
+      ? shootWithinViewport
+      : shootBeyondViewport;
+  const textShot = await captureBox(page, text, shoot);
+  const [x, caps] = await readInkMiddles(page, textShot, probe.split + text.x - textShot.clip.x);
+  const markerShot = await captureBox(page, marker, shoot);
+  const [middle] = await readInkMiddles(page, markerShot, Infinity);
   return { x, caps, middle };
 }
 

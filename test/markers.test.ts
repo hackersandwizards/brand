@@ -52,11 +52,12 @@ test("marker exceptions keep off readings by decoded path and leave other failur
     "**/Slide types/content-slide/at-rest/": { reason: "engine rounding", off: 2 },
   });
   expect(kept).toHaveLength(2);
-  // The item with two markers stays bad; a page not measured in this run makes no entry stale.
+  // The item with two markers stays bad.
   expect(bad.map((r) => r.page)).toEqual([UNIT, STORY]);
 });
 
 test("an exception keeping nothing is stale only on a measured page", () => {
+  // A page not measured in this run makes no entry stale.
   const exceptions = {
     "**/ground-intro/": { reason: "engine rounding", off: 1 },
     "**/not-measured/": { reason: "engine rounding", off: 1 },

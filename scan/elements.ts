@@ -1016,7 +1016,8 @@ if (import.meta.main) {
     process.exit(2);
   }
   const i = process.argv.indexOf("--base");
-  if (i >= 0 && !/^https?:$/.test(URL.parse(process.argv[i + 1] ?? "")?.protocol ?? "")) {
+  const externalBase = i >= 0 ? (URL.parse(process.argv[i + 1] ?? "") ?? undefined) : undefined;
+  if (i >= 0 && !/^https?:$/.test(externalBase?.protocol ?? "")) {
     console.error(USAGE);
     process.exit(2);
   }
@@ -1036,12 +1037,7 @@ if (import.meta.main) {
     const { dir, at, exclude } = listedCatalog({ catalog: raw.catalog });
     site = listedSite(raw.site);
     if (config.csp !== undefined) policies(config.csp);
-    if (dir)
-      stories = catalogPages(
-        { dir, at, exclude },
-        site,
-        i >= 0 ? (URL.parse(process.argv[i + 1] ?? "") ?? undefined) : undefined,
-      );
+    if (dir) stories = catalogPages({ dir, at, exclude }, site, externalBase);
   } catch (e) {
     console.error(`brand-elements: ${(e as Error).message}`);
     process.exit(2);
@@ -1065,7 +1061,7 @@ if (import.meta.main) {
     process.exit(2);
   }
   const server = i < 0 && site ? serve(site.dir, site.at) : undefined;
-  const base = i < 0 ? server?.url : new URL(process.argv[i + 1]!);
+  const base = externalBase ?? server?.url;
   const browser = await launch();
   const results: PageResult[] = [];
   try {

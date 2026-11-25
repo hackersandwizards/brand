@@ -21,7 +21,7 @@ export type Probe = {
   exception?: string;
 };
 
-/** collect's probes, the element each scrolls into view and the one holding its line, and whether a
+/** The measured probes, the element each scrolls into view and the one holding its line, and whether a
  * marker sits inside a [data-hw-exception] whose name is in `declared`. */
 export type Found = { probes: Probe[]; anchors: Element[]; texts: Element[]; excepted: boolean };
 
@@ -163,7 +163,9 @@ function findMarkerMatches(declared: string[] = []): DeclaredMatch[] {
   return matches;
 }
 
-/** Rewrites each matched line with contrasting x-height and cap-height bands, then lets layout settle. */
+/** Runs in the page: rewrites the line beside each marker with contrasting x-height and cap-height bands.
+ * The boxes are read two frames after the rewrite, once a script that refits the page to its longer
+ * lines (a slide's fit guard, run by a ResizeObserver) has done so. */
 async function rewriteMarkerLines(matches: Match[]) {
   for (const f of matches) {
     f.text.data = "xxxxHHHH " + f.text.data.trimStart();
@@ -320,7 +322,7 @@ function markerProbe(match: DeclaredMatch): Probe {
   };
 }
 
-/** Collects clip geometry and the live DOM elements used to scroll and verify fonts. */
+/** Returns the boxes to read, with the element each probe of the same index scrolls into view. */
 function buildMarkerProbes(matches: DeclaredMatch[]): Found {
   const probes = matches.map(markerProbe);
   return {

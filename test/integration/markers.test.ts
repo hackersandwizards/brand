@@ -339,6 +339,133 @@ test("marker discovery retains the first kind and the declared source for each t
   }
 }, 30_000);
 
+test.each([
+  [
+    "a 16 px pseudo square wins over a disc",
+    '<ul class="disc"><li class="square">Line</li></ul>',
+    ["before"],
+  ],
+  [
+    "a 17 px pseudo square is too large",
+    '<ul><li class="square" style="--side:17px">Line</li></ul>',
+    [],
+  ],
+  ["a disc wins over a glyph", '<ul class="disc"><li class="glyph">Line</li></ul>', ["native"]],
+  ["a glyph is recognized without a disc", '<ul><li class="glyph">Line</li></ul>', ["glyph"]],
+  [
+    "a painted 16 px square is recognized",
+    '<ul><li><span class="painted"></span> Line</li></ul>',
+    ["element"],
+  ],
+  [
+    "a painted 17 px square is too large",
+    '<ul><li><span class="painted" style="--side:17px"></span> Line</li></ul>',
+    [],
+  ],
+  [
+    "a transparent square paints no marker",
+    '<ul><li><span class="painted" style="background:transparent"></span> Line</li></ul>',
+    [],
+  ],
+  [
+    "a rectangle is not a square marker",
+    '<ul><li><span class="painted" style="height:12px"></span> Line</li></ul>',
+    [],
+  ],
+  [
+    "an unclassed square must be the first element",
+    '<ul><li><b>Lead</b><span class="painted"></span> Line</li></ul>',
+    [],
+  ],
+  [
+    "a brand marker can follow the first element",
+    '<ul><li><b>Lead</b><span class="painted hw-marker"></span> Line</li></ul>',
+    ["element"],
+  ],
+] as const)(
+  "marker discovery: %s",
+  async (_description, html, expected) => {
+    const page = await browser.newPage();
+    try {
+      await page.setContent(`<style>
+      ul { list-style: none }
+      ul.disc { list-style: disc }
+      .square::before, .painted {
+        content: ""; display: inline-block; background: teal;
+        width: var(--side, 16px); height: var(--side, 16px)
+      }
+      .glyph::before { content: "•" }
+    </style>${html}`);
+      const dom = await installMarkerDom(page);
+      expect(await dom.evaluate((api) => api.findMarkers().map(({ kind }) => kind))).toEqual(
+        expected,
+      );
+    } finally {
+      await page.close();
+    }
+  },
+  30_000,
+);
+
+test.each([
+  [
+    "a square above its line has a zero-width marker clip",
+    '<ul><li class="square above">Line</li></ul>',
+    { kind: "before", x: 11, width: 0, textX: 0, double: false },
+  ],
+  [
+    "an inline square and a native disc compete",
+    '<ul class="disc"><li class="square">Line</li></ul>',
+    { kind: "before", x: -1, width: 8.5, textX: 8, double: true },
+  ],
+  [
+    "an emptied native marker does not compete",
+    '<ul class="disc"><li class="square quiet">Line</li></ul>',
+    { kind: "before", x: -1, width: 8.5, textX: 8, double: false },
+  ],
+  [
+    "an element marker in a nested row uses its own anchor and does not compete",
+    '<ul class="disc"><li><code class="row"><span class="hw-marker"></span> Line</code></li></ul>',
+    { kind: "element", x: -1, width: 10, textX: 20, double: false },
+  ],
+] as const)(
+  "marker probe geometry: %s",
+  async (_description, html, expected) => {
+    const page = await browser.newPage();
+    try {
+      await page.setContent(`<style>
+      body { margin: 0; font: 16px/24px monospace }
+      ul { margin: 0; padding: 0; list-style: none }
+      ul.disc { list-style: disc }
+      li { position: relative }
+      .square::before, .hw-marker {
+        content: ""; display: inline-block; width: 8px; height: 8px; background: teal
+      }
+      .above::before { position: absolute; left: 12px; top: -10px }
+      .quiet::marker { content: none }
+      .row { display: flex; gap: 12px }
+      .hw-marker { flex: none }
+    </style>${html}`);
+      const dom = await installMarkerDom(page);
+      const probes = await dom.evaluate(async (api) => {
+        const matches = api.findMarkers();
+        await api.rewriteLines(matches);
+        return api.buildProbes(matches).probes.map(({ kind, marker, text, double }) => ({
+          kind,
+          x: marker.x,
+          width: marker.width,
+          textX: text.x,
+          double,
+        }));
+      });
+      expect(probes).toEqual([expected]);
+    } finally {
+      await page.close();
+    }
+  },
+  30_000,
+);
+
 const STRICT = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
 
 // brand-markers renders under the consumer's policy too, and reports what it refuses.
@@ -696,7 +823,7 @@ describe("a served built folder", () => {
   });
 
   test("directories serve their index and redirect to the trailing slash", async () => {
-    expect(await (await fetch(new URL("/catalog/", server.url))).text()).toBe("<p>catalog</p>");
+    expect(await (await fetch(toUrl("/catalog/", server.url))).text()).toBe("<p>catalog</p>");
     // A folder without its slash redirects, so its relative links resolve as on Pages.
     const moved = await fetch(new URL("/catalog", server.url), { redirect: "manual" });
     expect([moved.status, moved.headers.get("location")]).toEqual([301, "/catalog/"]);
@@ -729,11 +856,14 @@ describe("a site built for a base path", () => {
       await server?.stop(true);
     });
 
-    test("the mounted page and its stylesheet load and the mount redirects to its trailing slash", async () => {
+    test("the mounted page and its stylesheet load", async () => {
       expect((await fetch(new URL("/mail/_astro/a.css", server.url))).status).toBe(200);
       expect(await (await fetch(new URL("/mail/", server.url))).text()).toContain(
         "/mail/_astro/a.css",
       );
+    });
+
+    test("the mount redirects to its trailing slash", async () => {
       const moved = await fetch(new URL("/mail", server.url), { redirect: "manual" });
       expect([moved.status, moved.headers.get("location")]).toEqual([301, "/mail/"]);
     });
@@ -768,9 +898,18 @@ describe("a site built for a base path", () => {
     },
   );
 
-  test("a mounted catalog names its stories below the site's base path", () => {
-    const listed = listedSite({ dir: site, at: "/mail/" });
+  test.each([
+    ["/mail/", "/mail/"],
+    ["a///b", "/a/b/"],
+  ])("a mounted catalog names stories under %s as %s", (at, prefix) => {
+    const listed = listedSite({ dir: site, at });
     expect(catalogPages({ dir: join(site, "catalog") }, listed)).toEqual([
+      `${prefix}catalog/stories/A/b/default/`,
+    ]);
+  });
+
+  test("a directly supplied mount can name a base path without slashes", () => {
+    expect(catalogPages({ dir: join(site, "catalog") }, { dir: site, at: "mail" })).toEqual([
       "/mail/catalog/stories/A/b/default/",
     ]);
   });

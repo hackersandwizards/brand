@@ -124,7 +124,8 @@ if (import.meta.main) {
   const flagAt = opt("--catalog-at", "");
   const json = args.includes("--json");
   const named = args.filter((a) => a !== "--json");
-  if (flagBase && !/^https?:$/.test(URL.parse(flagBase)?.protocol ?? "")) {
+  const externalBase = flagBase ? (URL.parse(flagBase) ?? undefined) : undefined;
+  if (flagBase && !/^https?:$/.test(externalBase?.protocol ?? "")) {
     console.error(USAGE);
     process.exit(2);
   }
@@ -153,11 +154,7 @@ if (import.meta.main) {
       throw new Error('brand-elements.json "markers": expected an object');
     markerExceptions = config.markers;
     if (catalog)
-      stories = catalogPages(
-        { dir: catalog, at, exclude: listed.exclude },
-        site,
-        flagBase ? new URL(flagBase) : undefined,
-      );
+      stories = catalogPages({ dir: catalog, at, exclude: listed.exclude }, site, externalBase);
   } catch (e) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);
@@ -174,7 +171,7 @@ if (import.meta.main) {
     process.exit(2);
   }
   const server = site ? serve(site.dir, site.at) : undefined;
-  const base = server?.url ?? (flagBase ? new URL(flagBase) : undefined);
+  const base = server?.url ?? externalBase;
   const browser = await launch();
   const pages = [...named, ...stories].map((a) => toUrl(a, base));
   const refused: Refusal[] = [];

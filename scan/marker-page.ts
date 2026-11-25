@@ -17,11 +17,7 @@ type Options = {
 
 export type MeasureOptions = Options & { newline?: boolean; css?: string };
 
-/** Runs in the page: rewrites the line beside each marker and returns the boxes to read, with the
- * element each probe of the same index scrolls into view; with `count`, only how many markers it
- * finds, the page's lines left as they are but for the newline. The boxes are read two frames after
- * the rewrite, once a script that refits the page to its longer lines (a slide's fit guard, run by
- * a ResizeObserver) has done so. The count pass calls discovery directly. */
+/** Runs discovery, line rewriting, and probe geometry in the same browser evaluation. */
 async function collectMarkerProbes(
   page: Page,
   { newline = false, exceptions = [] }: MeasureOptions,
@@ -157,7 +153,8 @@ async function prepare(
 
 /** Whether a page shows a marker brand-markers would measure at `scale`, as served or with the
  * newline: one load, where measureMarkers takes one per newline. A superset of the pages that give
- * a reading, as a found marker may still be skipped as decoration. */
+ * a reading, as a found marker may still be skipped as decoration. The count pass reads only how
+ * many markers it finds, the page's lines left as they are but for the newline. */
 export async function hasMarkers(
   browser: Browser | BrowserContext,
   url: string,

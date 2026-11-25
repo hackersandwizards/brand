@@ -116,7 +116,7 @@ function storyStates(stories: string, exclude: string[]) {
 export function catalogPages(catalog: CatalogDirectory, site?: MountedSite, base?: URL) {
   const { dir, at, exclude = [] } = catalog;
   const states = storyStates(join(dir, "stories"), exclude);
-  const root = at ?? (site ? `${site.at}${relative(site.dir, dir)}` : dir);
+  const root = at ?? (site ? `${basePath(site.at)}${relative(site.dir, dir)}` : dir);
   const served = site !== undefined || base !== undefined;
   const file = !/^[a-z]+:\/\//.test(root) && !(served && root.startsWith("/"));
   const encoded = (s: string) => s.split("/").map(encodeURIComponent).join("/");
