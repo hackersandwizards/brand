@@ -350,7 +350,7 @@
     },
     {
       "path": "elements/code.ts",
-      "sha256": "7d21a9d16af9d2a5ba72f7382f148356f5d5fa59c30f32f931112fb159d96ffa"
+      "sha256": "54663bc2ba97246d0dae9823f284570fee718fef0a2afe8e043d4ccdbc608811"
     },
     {
       "path": "elements/inline-code.css",
@@ -458,7 +458,7 @@
     },
     {
       "path": "elements/form.ts",
-      "sha256": "b5ec0ccc110bf7167ee112c3c434fd79f8893e0c318d4ee8a3539ae3fe366e1b"
+      "sha256": "4ff8b1242bdcc30889f961d962e4818a744b1ef92c7360d8e8f1338a93e99ac0"
     },
     {
       "path": "elements/facts.css",
@@ -566,11 +566,35 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "269063105f5dd5e3ca7065354c11a8a11a7b93669cff414ab6924f28665c8070"
+      "sha256": "60282ec735515c0accbde07739ae96da7ca65a564c1686489ec220cf261ea59d"
+    },
+    {
+      "path": "elements/tree.ts",
+      "sha256": "38c4ba5f25d6904a979bde043f3d24b97974e7df03bf2e003ad37db93f5c6469"
+    },
+    {
+      "path": "elements/popover.ts",
+      "sha256": "50449e4cddad02e3bd4d3c029e196d17e63638ec2b6ceda36de73a7382f4ec07"
+    },
+    {
+      "path": "elements/list-navigation.ts",
+      "sha256": "3c1d9e778077d3da60197ae987332a1dbaf97b2d68d06c5ba5a16c656ba38aae"
+    },
+    {
+      "path": "elements/interaction.ts",
+      "sha256": "21b38282205b1215d10cf0caaa11b41fc0e6f2019d851444003071082aec24b1"
+    },
+    {
+      "path": "elements/command.ts",
+      "sha256": "912566ab129bf9975a324949fc9c80979b27867a367489a06c93aa26acafe1e8"
+    },
+    {
+      "path": "elements/carousel.ts",
+      "sha256": "d7fd856c9afd576e943295f0e9e093bda0ad95d3f9024fc0487fec3a349954c3"
     },
     {
       "path": "elements/carousel.css",
-      "sha256": "07ad95e8337baee8fa3da0ae704531d96df14788cbc78ee43b841aafccf5863b"
+      "sha256": "d83f04f91852d373ab22c51a8469791136881a913e95d54cff8952125dbf0131"
     },
     {
       "path": "elements/command.css",
@@ -578,7 +602,7 @@
     },
     {
       "path": "elements/copy.ts",
-      "sha256": "f9b6cc4546f647f6e3d8b85466c4842bfcd0a4c85a39d2650e569b9e482fc97b"
+      "sha256": "198d10d66e251148a9b74c1f5904686f4474e595cd2bd5d9392575e1a966ad30"
     },
     {
       "path": "elements/dialog.css",

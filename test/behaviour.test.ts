@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { assert, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { hastToHtml, markdownToHast, markdownToHtml } from "satteri";
@@ -6,7 +6,16 @@ import { tableScroll, tableScrollPlugin } from "../elements/table";
 import { ROOT } from "../scripts/git";
 
 test("the behaviour files hold no markup built from strings they did not create", () => {
-  for (const f of ["elements/behaviour.ts", "elements/copy.ts"])
+  for (const f of [
+    "elements/behaviour.ts",
+    "elements/carousel.ts",
+    "elements/command.ts",
+    "elements/copy.ts",
+    "elements/interaction.ts",
+    "elements/list-navigation.ts",
+    "elements/popover.ts",
+    "elements/tree.ts",
+  ])
     expect(readFileSync(join(ROOT, f), "utf8")).not.toMatch(/innerHTML|insertAdjacentHTML/);
 });
 
@@ -36,16 +45,48 @@ test("the rehype step wraps each table in a named hw-table-scroll", () => {
     ],
   };
   tableScroll()(tree);
-  const wrappers = tree.children.filter((c) => c.tagName === "div" && c !== wrapped) as {
-    properties: Record<string, unknown>;
-    children: { properties: Record<string, unknown> }[];
-  }[];
-  expect(wrappers.map((w) => w.properties)).toEqual([
-    { className: ["hw-table-scroll"], tabIndex: 0, role: "region", ariaLabel: "Name Wert" },
-    { className: ["hw-table-scroll"], tabIndex: 0, role: "region", ariaLabel: "Preise" },
-    { className: ["hw-table-scroll"], tabIndex: 0, role: "region", ariaLabel: "Preise (2)" },
+  expect(tree.children.map((node) => node.tagName)).toEqual([
+    "div",
+    "h2",
+    "div",
+    "p",
+    "div",
+    "div",
   ]);
-  expect(wrappers[0]!.children[0]!.properties.className).toEqual(["own", "hw-table"]);
+  const [name, , prices, , morePrices] = tree.children;
+  const wrappers = [name, prices, morePrices];
+  expect(wrappers.map((w) => ({ tag: w?.tagName, properties: w?.properties }))).toEqual([
+    {
+      tag: "div",
+      properties: {
+        className: ["hw-table-scroll"],
+        tabIndex: 0,
+        role: "region",
+        ariaLabel: "Name Wert",
+      },
+    },
+    {
+      tag: "div",
+      properties: {
+        className: ["hw-table-scroll"],
+        tabIndex: 0,
+        role: "region",
+        ariaLabel: "Preise",
+      },
+    },
+    {
+      tag: "div",
+      properties: {
+        className: ["hw-table-scroll"],
+        tabIndex: 0,
+        role: "region",
+        ariaLabel: "Preise (2)",
+      },
+    },
+  ]);
+  const namedTable = name?.children?.[0];
+  assert(namedTable, "The Name region must contain the original table");
+  expect(namedTable.properties?.className).toEqual(["own", "hw-table"]);
   // A table already in a wrapper keeps it: one tab stop, one region.
   expect(wrapped.children![0]!.tagName).toBe("table");
 });

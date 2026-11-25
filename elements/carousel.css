@@ -15,7 +15,7 @@
    Controls outside the carousel (a row of their own elsewhere on the page) take an id the
    carousel names in data-hw-controls; they show its autoplay state and hold it while used. Dots
    written in the HTML, one .hw-carousel-dot button with a span per item, are used as they are;
-   otherwise the script writes them. carousels(root) in behaviour.ts wires the carousels alone,
+   otherwise the script writes them. carousels(root) in carousel.ts wires the carousels alone,
    without enhance()'s document-wide handlers.
 
    Settings:

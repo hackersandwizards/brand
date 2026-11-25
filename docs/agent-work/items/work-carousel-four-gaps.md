@@ -12,7 +12,7 @@ evidence: "Checked 13.11. at v2.24.0: carousel.css:76-77 still sizes the control
 
 Brief a brand session to ship the four changes below, so the website can move its swipe rows to `hw-carousel`.
 
-They go into `elements/carousel.css` and `enhanceCarousel` in `elements/behaviour.ts`.
+They go into `elements/carousel.css` and `enhanceCarousel` in `elements/carousel.ts`.
 
 1. The track is a tab stop while it scrolls (`tabIndex` 0): WebKit makes no scroll container one.
 2. On `focusin` inside the track, the focused element's item scrolls to its snap position: a

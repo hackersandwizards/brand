@@ -26,6 +26,7 @@ const bundle = async (src: string, global: string, out: string) => {
 await bundle("elements/behaviour.ts", "HW", "b.js");
 await bundle("elements/copy.ts", "HWCopy", "copy.js");
 await bundle("elements/form.ts", "HWForm", "form.js");
+await bundle("elements/carousel.ts", "HWCarousel", "carousel.js");
 await bundle("elements/behaviour.ts", "HW2", "b2.js");
 const css = ["generated/tokens.root.css", "elements/elements.css"]
   .map((f) => `<link rel="stylesheet" href="${brand(f)}">`)
@@ -56,14 +57,30 @@ afterAll(async () => {
 const MENU = `<button id="b" popovertarget="m" aria-haspopup="menu" aria-expanded="false">Aktionen</button>
 <div id="m" popover role="menu" class="hw-menu" aria-label="A"><button role="menuitem" class="hw-menu-item">Bearbeiten</button><button role="menuitem" class="hw-menu-item" disabled>Gesperrt</button><button role="menuitem" class="hw-menu-item">Löschen</button></div>`;
 
-test("a menu opens on its button, focuses the first entry, walks by key, closes on Escape, returns focus", async () => {
+test("a menu opens from its button and Escape returns focus to the button", async () => {
   const p = await page(MENU);
+  const state = () =>
+    p.$eval("#m", (m) => ({
+      expanded: document.getElementById("b")?.getAttribute("aria-expanded"),
+      open: m.matches(":popover-open"),
+      active: document.activeElement?.textContent?.trim(),
+    }));
   await p.focus("#b");
   await p.keyboard.press("Enter");
   await p.waitForFunction(() => document.activeElement?.matches("[role=menuitem]"));
-  expect(await attr(p, "#b", "aria-expanded")).toBe("true");
-  expect(await p.$eval("#m", (m) => m.matches(":popover-open"))).toBe(true);
-  expect(await active(p)).toBe("Bearbeiten");
+  expect(await state()).toEqual({ expanded: "true", open: true, active: "Bearbeiten" });
+  await p.keyboard.press("Escape");
+  await p.waitForFunction(
+    () => document.querySelector("#b")?.getAttribute("aria-expanded") === "false",
+  );
+  expect(await state()).toEqual({ expanded: "false", open: false, active: "Aktionen" });
+  await p.close();
+}, 30_000);
+
+test("the open menu walks enabled entries by arrow, boundary keys and typeahead", async () => {
+  const p = await page(MENU);
+  await p.$eval("#m", (menu) => (menu as HTMLElement).showPopover());
+  await p.waitForFunction(() => document.activeElement?.matches("[role=menuitem]"));
   await p.keyboard.press("ArrowDown");
   expect(await active(p)).toBe("Löschen");
   await p.keyboard.press("Home");
@@ -72,12 +89,6 @@ test("a menu opens on its button, focuses the first entry, walks by key, closes 
   expect(await active(p)).toBe("Löschen");
   await p.keyboard.press("b");
   expect(await active(p)).toBe("Bearbeiten");
-  await p.keyboard.press("Escape");
-  expect(await p.$eval("#m", (m) => m.matches(":popover-open"))).toBe(false);
-  await p.waitForFunction(
-    () => document.querySelector("#b")?.getAttribute("aria-expanded") === "false",
-  );
-  expect(await active(p)).toBe("Aktionen");
   await p.close();
 }, 30_000);
 
@@ -213,12 +224,14 @@ test("a dialog holding no control draws no ring outside hw-focus-ring too", asyn
   await p.close();
 }, 30_000);
 
+const fact = (i: number, value = String(i)) =>
+  `<div><dt class="hw-label" data-tone="muted">F${i}</dt><dd>${value}</dd></div>`;
+const FACT_ROWS = [1, 2, 3, 4, 5].map((i) => fact(i)).join("");
+
 test("a ruled facts list in columns leaves its whole first row open and rules every later row", async () => {
-  const fact = (i: number) =>
-    `<div><dt class="hw-label" data-tone="muted">F${i}</dt><dd>${i}</dd></div>`;
-  const list = (cols: string) =>
-    `<dl class="hw-facts" data-variant="ruled" ${cols}>${[1, 2, 3, 4, 5].map(fact).join("")}</dl>`;
-  const p = await page(`<div style="width:600px">${list('data-columns="3"')}${list("")}</div>`);
+  const p = await page(
+    `<div style="width:600px"><dl class="hw-facts" data-variant="ruled" data-columns="3">${FACT_ROWS}</dl><dl class="hw-facts" data-variant="ruled">${FACT_ROWS}</dl></div>`,
+  );
   const rows = await p.$$eval("dl", (dls) =>
     dls.map((dl) =>
       [...dl.children].map((d) => [
@@ -232,15 +245,21 @@ test("a ruled facts list in columns leaves its whole first row open and rules ev
   expect(new Set(grid!.slice(0, 3).map(([t]) => t)).size).toBe(1);
   expect(grid![3]![0]).toBe(grid![4]![0]);
   expect(stack!.map(([, b]) => b)).toEqual(["0px", "1px", "1px", "1px", "1px"]);
-  // Unruled, the rows keep the columns' gap apart.
-  await p.$eval("dl", (dl) => dl.removeAttribute("data-variant"));
+  await p.close();
+}, 30_000);
+
+test("the rows of unruled facts keep the columns' gap", async () => {
+  const p = await page(
+    `<div style="width:600px"><dl class="hw-facts" data-columns="3">${FACT_ROWS}</dl></div>`,
+  );
   expect(await p.$eval("dl", (dl) => getComputedStyle(dl).rowGap)).toBe("16px");
-  // In a narrow column a long value wraps rather than drawing over its neighbour.
-  await p.$eval("dl", (dl) => {
-    dl.parentElement!.style.width = "240px";
-    dl.dataset.columns = "4";
-    dl.querySelector("dd")!.textContent = "Präsenztraining";
-  });
+  await p.close();
+}, 30_000);
+
+test("a long fact value wraps inside a narrow column", async () => {
+  const p = await page(
+    `<div style="width:240px"><dl class="hw-facts" data-columns="4">${fact(1, "Präsenztraining")}${[2, 3, 4, 5].map((i) => fact(i)).join("")}</dl></div>`,
+  );
   expect(
     await p.$eval("dl", (dl) => {
       const [a, b] = [...dl.children].map((d) => d.getBoundingClientRect());
@@ -284,14 +303,25 @@ test("tabs: one tab stop, arrows move and show the panel, panels stay in step", 
   const p = await page(
     `<div role="tablist" class="hw-tabs"><button role="tab" class="hw-tab" id="a" aria-selected="true" aria-controls="pa">A</button><button role="tab" class="hw-tab" id="b" aria-selected="false" aria-controls="pb">B</button></div><div id="pa" role="tabpanel">x</div><div id="pb" role="tabpanel">y</div>`,
   );
-  expect(await p.$eval("#b", (e) => (e as HTMLElement).tabIndex)).toBe(-1);
-  expect(await p.$eval("#pb", (e) => (e as HTMLElement).hidden)).toBe(true);
+  const tabState = () =>
+    p.$eval("#b", (tab) => ({
+      tabIndex: (tab as HTMLButtonElement).tabIndex,
+      selected: tab.getAttribute("aria-selected"),
+      active: document.activeElement?.id,
+      paHidden: (document.getElementById("pa") as HTMLElement).hidden,
+      pbHidden: (document.getElementById("pb") as HTMLElement).hidden,
+    }));
+  expect(await tabState()).toMatchObject({ tabIndex: -1, pbHidden: true });
   await p.focus("#a");
   await p.keyboard.press("ArrowRight");
+  expect(await tabState()).toEqual({
+    tabIndex: 0,
+    selected: "true",
+    active: "b",
+    paHidden: true,
+    pbHidden: false,
+  });
   expect(await active(p)).toBe("B");
-  expect(await attr(p, "#b", "aria-selected")).toBe("true");
-  expect(await p.$eval("#pa", (e) => (e as HTMLElement).hidden)).toBe(true);
-  expect(await p.$eval("#pb", (e) => (e as HTMLElement).hidden)).toBe(false);
   await p.keyboard.press("Home");
   expect(await active(p)).toBe("A");
   await p.close();
@@ -331,29 +361,78 @@ test("a command palette filters, highlights the first hit, moves by arrow and ru
   await p.close();
 }, 30_000);
 
-test("a toast is announced, an error stays and carries role=alert, others close themselves, and a toast raises into an open modal", async () => {
-  const p = await page(`<dialog id="d" class="hw-dialog"><p>x</p></dialog>`, "en");
+test("the command shortcut opens the dialog and focuses its combobox", async () => {
+  const p = await page(
+    '<dialog id="command" data-hw-shortcut="k"><input id="query" role="combobox"></dialog>',
+  );
+  await p.keyboard.down("Control");
+  await p.keyboard.press("k");
+  await p.keyboard.up("Control");
+  expect(
+    await p.$eval("#command", (d) => ({
+      modal: d.matches(":modal"),
+      focus: document.activeElement?.id,
+    })),
+  ).toEqual({ modal: true, focus: "query" });
+  await p.close();
+}, 30_000);
+
+type BrandWindow = { HW: typeof import("../../elements/behaviour") };
+
+test("an error toast uses the live region, displays literal text and labels its close control", async () => {
+  const p = await page("", "en");
   await p.evaluate(() => {
-    const w = window as unknown as { HW: { toast: (m: string, o?: object) => void } };
-    w.HW.toast("Saved", { tone: "success", duration: 80 });
-    w.HW.toast("<b>Failed</b>", { tone: "error", duration: 80 });
+    (window as unknown as BrandWindow).HW.toast("<b>Failed</b>", { tone: "error" });
   });
-  expect(await p.$eval(".hw-toasts", (b) => b.getAttribute("aria-live"))).toBe("polite");
-  expect(await p.$eval('.hw-toast[data-tone="error"] .hw-toast-text', (t) => t.textContent)).toBe(
-    "<b>Failed</b>",
+  expect(
+    await p.$eval(".hw-toasts", (region) => ({
+      live: region.getAttribute("aria-live"),
+      text: region.querySelector('.hw-toast[data-tone="error"] .hw-toast-text')?.textContent,
+      role: region.querySelector('.hw-toast[data-tone="error"]')?.getAttribute("role"),
+      close: region.querySelector(".hw-toast-close")?.getAttribute("aria-label"),
+    })),
+  ).toEqual({ live: "polite", text: "<b>Failed</b>", role: "alert", close: "Close" });
+  await p.close();
+}, 30_000);
+
+test("success toasts dismiss after their duration and error toasts persist", async () => {
+  const p = await page("", "en");
+  await p.evaluate(() => {
+    const { HW } = window as unknown as BrandWindow;
+    HW.toast("Saved", { tone: "success", duration: 80 });
+    HW.toast("<b>Failed</b>", { tone: "error", duration: 80 });
+  });
+  expect(await attr(p, '.hw-toast[data-tone="success"] .hw-toast-close', "aria-label")).toBe(
+    "Close",
   );
-  expect(await p.$eval('.hw-toast[data-tone="error"]', (t) => t.getAttribute("role"))).toBe(
-    "alert",
-  );
-  expect(await p.$eval(".hw-toast-close", (b) => b.getAttribute("aria-label"))).toBe("Close");
   await new Promise((r) => setTimeout(r, 2000));
   expect(await p.$$eval('.hw-toast[data-tone="success"]', (t) => t.length)).toBe(0);
   expect(await p.$$eval('.hw-toast[data-tone="error"]', (t) => t.length)).toBe(1);
-  await p.evaluate(() => {
+  await p.close();
+}, 30_000);
+
+test("a toast raised in an already open modal belongs to that dialog immediately", async () => {
+  const p = await page('<dialog id="d" class="hw-dialog"><p>x</p></dialog>', "en");
+  const parent = await p.evaluate(() => {
     (document.querySelector("#d") as HTMLDialogElement).showModal();
-    (window as unknown as { HW: { toast: (m: string) => void } }).HW.toast("In");
+    return (window as unknown as BrandWindow).HW.toast("In").parentElement?.parentElement?.id;
   });
-  expect(await p.$eval(".hw-toasts", (b) => b.parentElement?.id)).toBe("d");
+  expect(parent).toBe("d");
+  await p.close();
+}, 30_000);
+
+test("the toast action runs and removes its toast", async () => {
+  const p = await page("");
+  await p.evaluate(() => {
+    const { HW } = window as unknown as { HW: typeof import("../../elements/behaviour") };
+    HW.toast("Saved", {
+      tone: "error",
+      action: { label: "Undo", run: () => (document.title = "Undone") },
+    });
+  });
+  await p.click(".hw-toast-action");
+  expect(await p.title()).toBe("Undone");
+  expect(await p.$$eval(".hw-toast", (toasts) => toasts.length)).toBe(0);
   await p.close();
 }, 30_000);
 
@@ -397,46 +476,64 @@ const fire = (p: Page) =>
     const due = [...timers];
     timers.clear();
     for (const [, [f]] of due) f();
-    return due.map(([, [, ms]]) => Math.round(ms / 1000));
+    return {
+      delays: due.map(([, [, ms]]) => Math.round(ms / 1000)),
+      held: document.querySelector(".hw-carousel")?.hasAttribute("data-hw-held"),
+      position: [...document.querySelectorAll(".hw-carousel-dot")].findIndex((dot) =>
+        dot.hasAttribute("aria-current"),
+      ),
+    };
   });
 const position = (p: Page) =>
   p.$$eval(".hw-carousel-dot", (dots) => dots.findIndex((d) => d.hasAttribute("aria-current")));
 const AUTOPLAY = `${CAPTURE_TIMERS}<div class="hw-carousel" data-hw-autoplay style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li><li style="flex-basis:100%">2</li><li style="flex-basis:100%">3</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button><button data-hw-pause id="pause" aria-pressed="false">II</button><p class="hw-sr-only" aria-live="polite"></p></div></div><p id="away" style="margin-top:400px">away</p>`;
 
-test("an autoplaying carousel advances each step, holds under the pointer and stops on pause", async () => {
+test("carousel autoplay advances, holds under the pointer and resumes when the pointer leaves", async () => {
   const p = await page(AUTOPLAY);
   expect(await position(p)).toBe(0);
-  expect(await fire(p)).toEqual([6]);
-  expect(await position(p)).toBe(1);
+  expect(await fire(p)).toMatchObject({ delays: [6], position: 1 });
   await p.hover(".hw-carousel-track");
-  expect(await fire(p)).toEqual([]);
-  expect(await p.$eval(".hw-carousel", (c) => c.hasAttribute("data-hw-held"))).toBe(true);
+  expect(await fire(p)).toMatchObject({ delays: [], held: true });
   await p.hover("#away");
-  await fire(p);
-  expect(await position(p)).toBe(2);
+  expect(await fire(p)).toMatchObject({ position: 2 });
+  await p.close();
+}, 30_000);
+
+test("the carousel pause button stops autoplay on the current slide", async () => {
+  const p = await page(AUTOPLAY);
+  await p.$eval(".hw-carousel-track", (track) =>
+    track.scrollTo({ left: track.scrollWidth, behavior: "instant" }),
+  );
+  await p.waitForSelector('.hw-carousel-dot:nth-child(3)[aria-current="true"]');
   await p.click("#pause");
   expect(await attr(p, "#pause", "aria-pressed")).toBe("true");
   await p.hover("#away");
-  expect(await fire(p)).toEqual([]);
+  expect((await fire(p)).delays).toEqual([]);
   expect(await position(p)).toBe(2);
   await p.close();
 }, 30_000);
 
-test("a carousel holds four seconds after the reader's step, starts paused under reduced motion, hides controls with nothing to scroll", async () => {
+test("a carousel holds four seconds after the reader's step", async () => {
   const p = await page(AUTOPLAY);
   await p.$eval(".hw-carousel-track", (t) => t.dispatchEvent(new PointerEvent("pointerdown")));
-  expect(await fire(p)).toEqual([4]);
+  expect((await fire(p)).delays).toEqual([4]);
   expect(await position(p)).toBe(0);
-  expect(await fire(p)).toEqual([6]);
+  expect((await fire(p)).delays).toEqual([6]);
   expect(await position(p)).toBe(1);
   await p.close();
+}, 30_000);
+
+test("reduced motion starts carousel autoplay paused and the reader can resume it", async () => {
   const still = await page(AUTOPLAY, "de", true);
   expect(await attr(still, "#pause", "aria-pressed")).toBe("true");
-  expect(await fire(still)).toEqual([]);
+  expect((await fire(still)).delays).toEqual([]);
   await still.click("#pause");
-  expect(await fire(still)).toEqual([6]);
+  expect((await fire(still)).delays).toEqual([6]);
   expect(await position(still)).toBe(1);
   await still.close();
+}, 30_000);
+
+test("a carousel hides controls when there is nothing to scroll", async () => {
   const one = await page(
     `<div class="hw-carousel" style="width:300px"><ul class="hw-carousel-track"><li style="flex-basis:100%">1</li></ul><div class="hw-carousel-controls"><button data-hw-step="-1">P</button><span data-hw-position></span><button data-hw-step="1">N</button></div></div>`,
   );
@@ -466,7 +563,7 @@ test("a carousel takes controls named by id, keeps dots the page wrote, and wire
   const f = join(dir, "carousels-alone.html");
   writeFileSync(
     f,
-    `<!doctype html><html lang="de"><head>${css}</head><body>${body}<script src="b.js"></script><script>HW.carousels();</script></body></html>`,
+    `<!doctype html><html lang="de"><head>${css}</head><body>${body}<script src="carousel.js"></script><script>HWCarousel.carousels();</script></body></html>`,
   );
   await open(alone, pathToFileURL(f).href);
   await alone.click("#n");
@@ -522,7 +619,9 @@ type Clip = { copied: string[]; events: [string, boolean][] };
 const text = (p: Page, sel: string) => p.$eval(sel, (b) => b.textContent);
 const settled = (p: Page, n: number) =>
   p.waitForFunction((k) => (window as unknown as Clip).events.length === k, {}, n);
-const TWO = `<button id="a" data-hw-copy="https://example.org/a" hidden>Copy link</button><button id="b" data-hw-copy="b@example.org" hidden>Copy address</button>`;
+const LINK_COPY = `<button id="a" data-hw-copy="https://example.org/a" hidden>Copy link</button>`;
+const ADDRESS_COPY = `<button id="b" data-hw-copy="b@example.org" hidden>Copy address</button>`;
+const TWO = LINK_COPY + ADDRESS_COPY;
 
 test("a copy button shows once wired, copies its text, says so on itself one at a time, and tells the page", async () => {
   const p = await page(TWO, "en");
@@ -530,29 +629,39 @@ test("a copy button shows once wired, copies its text, says so on itself one at 
   expect(await p.$eval("#a", (b) => (b as HTMLElement).hidden)).toBe(false);
   await p.click("#a");
   await settled(p, 1);
-  expect(await text(p, "#a")).toBe("Copied");
-  expect(await p.$eval("[data-hw-copy-status]", (n) => n.textContent)).toBe("Copied");
+  expect(
+    await p.$eval("#a", (a) => ({
+      label: a.textContent,
+      status: document.querySelector("[data-hw-copy-status]")?.textContent,
+    })),
+  ).toEqual({ label: "Copied", status: "Copied" });
   await p.click("#b");
   await settled(p, 2);
-  expect(await text(p, "#b")).toBe("Copied");
-  expect(await text(p, "#a")).toBe("Copy link");
-  expect(await p.evaluate(() => (window as unknown as Clip).copied)).toEqual([
-    "https://example.org/a",
-    "b@example.org",
+  expect(await p.$$eval("[data-hw-copy]", (buttons) => buttons.map((b) => b.textContent))).toEqual([
+    "Copy link",
+    "Copied",
   ]);
-  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([
-    ["a", true],
-    ["b", true],
-  ]);
+  expect(
+    await p.evaluate(() => {
+      const { copied, events } = window as unknown as Clip;
+      return { copied, events };
+    }),
+  ).toEqual({
+    copied: ["https://example.org/a", "b@example.org"],
+    events: [
+      ["a", true],
+      ["b", true],
+    ],
+  });
   await p.close();
 }, 30_000);
 
-test("a refused copy falls back to a hidden field, and fails only where that fails too", async () => {
-  const p = await page(`<p>b@example.org</p>${TWO}`, "en");
+test("a refused clipboard write falls back to a field, removes it and restores focus", async () => {
+  const p = await page(LINK_COPY, "en");
   await p.evaluate(CLIPBOARD);
   await p.evaluate(() => {
     const w = window as unknown as { plan: object; exec: boolean };
-    w.plan = { "https://example.org/a": { fail: true }, "b@example.org": { fail: true } };
+    w.plan = { "https://example.org/a": { fail: true } };
     w.exec = true;
   });
   await p.click("#a");
@@ -560,21 +669,37 @@ test("a refused copy falls back to a hidden field, and fails only where that fai
   expect(await text(p, "#a")).toBe("Copied");
   expect(await p.$$eval("textarea", (t) => t.length)).toBe(0);
   expect(await p.evaluate(() => document.activeElement?.id)).toBe("a");
-  await p.evaluate(() => ((window as unknown as { exec: boolean }).exec = false));
-  // The address stands on the page, the link does not: only the first failure points at the text.
-  await p.click("#b");
-  await settled(p, 2);
-  expect(await text(p, "#b")).toBe("Copy failed: select the text");
-  await p.click("#a");
-  await settled(p, 3);
-  expect(await text(p, "#a")).toBe("Copy failed");
-  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([
-    ["a", true],
-    ["b", false],
-    ["a", false],
-  ]);
+  expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([["a", true]]);
   await p.close();
 }, 30_000);
+
+test.each([
+  {
+    location: "on the page",
+    body: `<p>b@example.org</p>${ADDRESS_COPY}`,
+    id: "b",
+    message: "Copy failed: select the text",
+  },
+  { location: "off the page", body: LINK_COPY, id: "a", message: "Copy failed" },
+])(
+  "a clipboard failure reports whether the text is $location",
+  async ({ body, id, message }) => {
+    const p = await page(body, "en");
+    await p.evaluate(CLIPBOARD);
+    await p.evaluate(() => {
+      (window as unknown as { plan: object }).plan = {
+        "https://example.org/a": { fail: true },
+        "b@example.org": { fail: true },
+      };
+    });
+    await p.click(`#${id}`);
+    await settled(p, 1);
+    expect(await text(p, `#${id}`)).toBe(message);
+    expect(await p.evaluate(() => (window as unknown as Clip).events)).toEqual([[id, false]]);
+    await p.close();
+  },
+  30_000,
+);
 
 test("a failed copy leaves the button that still holds the clipboard reading Copied", async () => {
   const p = await page(TWO, "en");
@@ -795,6 +920,56 @@ test("the character count reads the limit, then the overrun as an error, and bac
   await p.keyboard.press("Backspace");
   expect((await read()).slice(0, 3)).toEqual(["Noch 0 Zeichen", null, null]);
   expect(errors).toEqual([]);
+  await p.close();
+}, 30_000);
+
+const formPage = async (body: string) => {
+  const p = await page(body);
+  await p.addScriptTag({ path: join(dir, "form.js") });
+  await p.evaluate(() => {
+    const { HWForm } = window as unknown as { HWForm: typeof import("../../elements/form") };
+    HWForm.enhanceForms();
+    HWForm.enhanceForms();
+  });
+  return p;
+};
+
+test("the password toggle reveals and conceals its field once per click", async () => {
+  const p = await formPage(
+    '<input id="secret" type="password"><button class="hw-field-toggle" aria-controls="secret" aria-pressed="false" hidden>Show</button>',
+  );
+  const state = () =>
+    p.$eval(".hw-field-toggle", (button) => ({
+      hidden: (button as HTMLButtonElement).hidden,
+      pressed: button.getAttribute("aria-pressed"),
+      type: (document.getElementById("secret") as HTMLInputElement).type,
+    }));
+  await p.click(".hw-field-toggle");
+  expect(await state()).toEqual({ hidden: false, pressed: "true", type: "text" });
+  await p.click(".hw-field-toggle");
+  expect(await state()).toEqual({ hidden: false, pressed: "false", type: "password" });
+  await p.close();
+}, 30_000);
+
+test("a range thumb's fill follows input and form reset", async () => {
+  const p = await formPage(
+    '<form><input class="hw-range" type="range" min="10" max="30" value="15"><button type="reset">Reset</button></form>',
+  );
+  const fill = () =>
+    p.$eval(".hw-range", (range) =>
+      (range as HTMLInputElement).style.getPropertyValue("--hw-range-fill"),
+    );
+  expect(await fill()).toBe("25%");
+  await p.focus(".hw-range");
+  await p.keyboard.press("End");
+  expect(await fill()).toBe("100%");
+  await p.click('[type="reset"]');
+  await p.waitForFunction(
+    () =>
+      document
+        .querySelector<HTMLInputElement>(".hw-range")
+        ?.style.getPropertyValue("--hw-range-fill") === "25%",
+  );
   await p.close();
 }, 30_000);
 

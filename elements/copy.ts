@@ -101,6 +101,38 @@ function restore(button: HTMLElement) {
   shown.delete(button);
 }
 
+const COPY_MESSAGES = {
+  copied: { de: "Kopiert", en: "Copied" },
+  select: { de: "Kopieren fehlgeschlagen: Text markieren", en: "Copy failed: select the text" },
+  failed: { de: "Kopieren fehlgeschlagen", en: "Copy failed" },
+};
+
+function copyOutcome(ok: boolean, text: string) {
+  if (ok) return "copied";
+  return onPage(text) ? "select" : "failed";
+}
+
+function showCopyOutcome(
+  button: HTMLElement,
+  outcome: keyof typeof COPY_MESSAGES,
+  language: "de" | "en",
+) {
+  // The last successful write owns the clipboard.
+  if (outcome === "copied") for (const other of shown) if (other !== button) restore(other);
+  for (const other of shown) if (!other.isConnected) shown.delete(other);
+  shown.add(button);
+  const message = COPY_MESSAGES[outcome][language];
+  button.textContent = message;
+  announceCopy(message);
+}
+
+function announceCopy(message: string) {
+  const note = document.createElement("span");
+  note.textContent = message;
+  copyStatus().append(note);
+  setTimeout(() => note.remove(), 1000);
+}
+
 /** Wires a button that copies its data-hw-copy text and shows it was copied, or that it failed, on
  *  itself in words, its own content coming back once another copy succeeds. A button that starts
  *  hidden shows once wired, so a page without script never offers it. */
@@ -109,38 +141,25 @@ export function copyButton(button: HTMLElement) {
   wire(button);
 }
 
+async function pressCopyButton(button: HTMLElement) {
+  const press = ++presses;
+  latest.set(button, press);
+  const language = german() ? "de" : "en";
+  const text = button.dataset.hwCopy ?? "";
+  const ok = await write(text);
+  button.dispatchEvent(new CustomEvent("hw-copy", { bubbles: true, detail: { ok } }));
+  // A newer press of the same button decides what it says.
+  if (latest.get(button) !== press) return;
+  showCopyOutcome(button, copyOutcome(ok, text), language);
+}
+
 function wire(button: HTMLElement) {
   // copy.js and a behaviour.ts bundle on one page wire it once.
   if (!wireOnce(button, "copy")) return;
   labels.set(button, [...button.childNodes]);
   button.hidden = false;
-  const pressButton = async () => {
-    const press = ++presses;
-    latest.set(button, press);
-    const de = german();
-    const text = button.dataset.hwCopy ?? "";
-    const ok = await write(text);
-    button.dispatchEvent(new CustomEvent("hw-copy", { bubbles: true, detail: { ok } }));
-    // A newer press of the same button decides what it says.
-    if (latest.get(button) !== press) return;
-    let said: string;
-    if (ok) {
-      // The write that lands last holds the clipboard, so its button alone reads as copied.
-      for (const b of shown) if (b !== button) restore(b);
-      said = de ? "Kopiert" : "Copied";
-    } else if (onPage(text))
-      said = de ? "Kopieren fehlgeschlagen: Text markieren" : "Copy failed: select the text";
-    else said = de ? "Kopieren fehlgeschlagen" : "Copy failed";
-    for (const b of shown) if (!b.isConnected) shown.delete(b);
-    shown.add(button);
-    button.textContent = said;
-    const note = document.createElement("span");
-    note.textContent = said;
-    copyStatus().append(note);
-    setTimeout(() => note.remove(), 1000);
-  };
   button.addEventListener("click", () => {
-    pressButton().catch(reportError);
+    pressCopyButton(button).catch(reportError);
   });
 }
 

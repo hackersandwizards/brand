@@ -12,65 +12,78 @@ const follow = (field: HTMLInputElement | HTMLTextAreaElement, update: () => voi
   update();
 };
 
-export function enhanceForms(root: ParentNode = document) {
-  const counts = root.querySelectorAll<HTMLElement>(
-    ".hw-form-count[data-for][data-max][data-left][data-over]",
+function markCountOver(count: HTMLElement, field: HTMLTextAreaElement) {
+  count.dataset.state = "over";
+  // The count clears only the invalid state it set, never one the page set.
+  if (field.getAttribute("aria-invalid") === "true") return;
+  field.dataset.hwCountInvalid = "";
+  field.setAttribute("aria-invalid", "true");
+}
+
+function clearCountOver(count: HTMLElement, field: HTMLTextAreaElement) {
+  if (count.dataset.state === "over") delete count.dataset.state;
+  if (field.dataset.hwCountInvalid === undefined) return;
+  delete field.dataset.hwCountInvalid;
+  field.removeAttribute("aria-invalid");
+}
+
+function countAnnouncement(count: HTMLElement) {
+  let pause: ReturnType<typeof setTimeout>;
+  let wiring = true;
+  return (text: string) => {
+    // Silent on load and while typing, read once the reader pauses.
+    count.setAttribute("aria-live", "off");
+    count.textContent = text;
+    clearTimeout(pause);
+    if (!wiring)
+      pause = setTimeout(() => {
+        count.setAttribute("aria-live", "polite");
+        count.textContent = text;
+      }, 1000);
+    wiring = false;
+  };
+}
+
+function wireCount(count: HTMLElement) {
+  const field = document.getElementById(count.dataset.for!) as HTMLTextAreaElement | null;
+  if (!field || !once(count)) return;
+  const max = Number(count.dataset.max);
+  const announce = countAnnouncement(count);
+  follow(field, () => {
+    const left = max - field.value.length;
+    const template = left < 0 ? count.dataset.over! : count.dataset.left!;
+    announce(template.replace("{n}", String(Math.abs(left))));
+    if (left < 0) markCountOver(count, field);
+    else clearCountOver(count, field);
+  });
+}
+
+function wirePasswordToggle(button: HTMLButtonElement) {
+  const field = document.getElementById(button.getAttribute("aria-controls")!);
+  if (!(field instanceof HTMLInputElement) || !once(button)) return;
+  button.hidden = false;
+  button.addEventListener("click", () => {
+    const show = field.type === "password";
+    field.type = show ? "text" : "password";
+    button.setAttribute("aria-pressed", String(show));
+  });
+}
+
+function wireRange(range: HTMLInputElement) {
+  if (!once(range)) return;
+  const min = Number(range.min || 0);
+  const span = Number(range.max || 100) - min || 1;
+  follow(range, () =>
+    range.style.setProperty("--hw-range-fill", `${((range.valueAsNumber - min) / span) * 100}%`),
   );
-  for (const count of counts) {
-    const field = document.getElementById(count.dataset.for!) as HTMLTextAreaElement | null;
-    if (!field || !once(count)) continue;
-    const max = Number(count.dataset.max);
-    let pause: ReturnType<typeof setTimeout>;
-    let wiring = true;
-    follow(field, () => {
-      const left = max - field.value.length;
-      const over = left < 0;
-      const text = (over ? count.dataset.over! : count.dataset.left!).replace(
-        "{n}",
-        String(Math.abs(left)),
-      );
-      // Silent while typing, read once the reader pauses.
-      count.setAttribute("aria-live", "off");
-      count.textContent = text;
-      clearTimeout(pause);
-      // Read once the reader pauses; never as the page loads.
-      if (!wiring)
-        pause = setTimeout(() => {
-          count.setAttribute("aria-live", "polite");
-          count.textContent = text;
-        }, 1000);
-      wiring = false;
-      // The count clears only the state it set, never one the page set.
-      if (over) count.dataset.state = "over";
-      else if (count.dataset.state === "over") delete count.dataset.state;
-      // Likewise the field's invalid state.
-      if (over && field.getAttribute("aria-invalid") !== "true") {
-        field.dataset.hwCountInvalid = "";
-        field.setAttribute("aria-invalid", "true");
-      } else if (!over && field.dataset.hwCountInvalid !== undefined) {
-        delete field.dataset.hwCountInvalid;
-        field.removeAttribute("aria-invalid");
-      }
-    });
-  }
-  for (const button of root.querySelectorAll<HTMLButtonElement>(
-    ".hw-field-toggle[aria-controls]",
-  )) {
-    const field = document.getElementById(button.getAttribute("aria-controls")!);
-    if (!(field instanceof HTMLInputElement) || !once(button)) continue;
-    button.hidden = false;
-    button.addEventListener("click", () => {
-      const show = field.type === "password";
-      field.type = show ? "text" : "password";
-      button.setAttribute("aria-pressed", String(show));
-    });
-  }
-  for (const range of root.querySelectorAll<HTMLInputElement>("input.hw-range")) {
-    if (!once(range)) continue;
-    const min = Number(range.min || 0);
-    const span = Number(range.max || 100) - min || 1;
-    follow(range, () =>
-      range.style.setProperty("--hw-range-fill", `${((range.valueAsNumber - min) / span) * 100}%`),
-    );
-  }
+}
+
+export function enhanceForms(root: ParentNode = document) {
+  for (const count of root.querySelectorAll<HTMLElement>(
+    ".hw-form-count[data-for][data-max][data-left][data-over]",
+  ))
+    wireCount(count);
+  for (const button of root.querySelectorAll<HTMLButtonElement>(".hw-field-toggle[aria-controls]"))
+    wirePasswordToggle(button);
+  for (const range of root.querySelectorAll<HTMLInputElement>("input.hw-range")) wireRange(range);
 }
