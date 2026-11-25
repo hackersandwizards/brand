@@ -129,7 +129,7 @@ data or secret.
   element, never its history: no score, review, date, decision or item id or person. That tracking
   lives in the item files and reports under `docs/agent-work/`, or in the commit message.
 - Nothing about another repo goes on the portal: each system shows its components on its own
-  design-system page, whose URL `catalog/portal.ts` links.
+  design-system page, whose URL `catalog/portal/systems.ts` links.
 - The package holds the core only: tokens, generated formats, print and expert layers, the shared elements, fonts with
   their OFL texts, the area marks with their Lucide licence, small logos,
   the press photos, `verbal/`, `manifest.json`, the LinkedIn post renderers and prompts

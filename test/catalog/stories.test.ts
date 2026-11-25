@@ -26,11 +26,14 @@ afterAll(async () => {
   await server?.stop(true);
 });
 
+// An expert component's stories (expert/components, each in ExpertFrame.astro).
+test("the catalog includes expert component stories", () => {
+  const expert = storyPages().filter(expertStory);
+  expect(expert.length).toBeGreaterThan(0);
+});
+
 test("every story passes brand-elements, every element story shows its element", async () => {
   const pages = storyPages();
-  // An expert component's stories (expert/components, each in ExpertFrame.astro).
-  const expert = pages.filter(expertStory);
-  expect(expert.length).toBeGreaterThan(0);
   // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
   const results = await pool(pages, 8, (p) => measurePage(browser, elementPage(p)));
   // An expert component may hold no shared element, such as the header's frame.

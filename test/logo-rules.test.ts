@@ -83,7 +83,11 @@ test("the header's typed logo sizes are the screen cuts' boxes", () => {
     return `width="${Math.ceil(w!)}" height="${Math.ceil(h!)}"`;
   };
   const read = (f: string) => readFileSync(join(ROOT, f), "utf8");
-  for (const f of ["expert/components/AppHeader.astro", "expert/header.css", "catalog/portal.ts"])
+  for (const f of [
+    "expert/components/AppHeader.astro",
+    "expert/header.css",
+    "catalog/portal/document.ts",
+  ])
     expect({ f, day: read(f).includes(size("lockup-screen")) }).toEqual({ f, day: true });
   for (const f of ["expert/components/AppHeader.astro", "expert/header.css"])
     expect({ f, night: read(f).includes(size("lockup-screen-night")) }).toEqual({ f, night: true });
