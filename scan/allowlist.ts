@@ -1,3 +1,4 @@
+// Consumer scan allowlists and the HEAD baseline that governs their growth.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import own from "../package.json";
 import { isRecord } from "./help";
@@ -11,8 +12,14 @@ export function readAllowlists<T>(file: string, parse: (json: string) => T) {
   return { allow, committed };
 }
 
+/** The working-tree and HEAD versions of a reason-only allowance file. */
+export type ReasonAllowlists = {
+  allow: Record<string, string>;
+  committed: Record<string, string> | undefined;
+};
+
 /** Reads reason-only allowlists, using an empty working list when it is absent. */
-export function readReasonAllowlists(file: string) {
+export function readReasonAllowlists(file: string): ReasonAllowlists {
   const { allow = {}, committed } = readAllowlists(file, (json): Record<string, string> => {
     const value: unknown = JSON.parse(json);
     if (!isRecord(value)) throw new Error(`${file}: expected an object of reasons`);
@@ -69,3 +76,6 @@ export const writeAllowlist = (path: string, next: object): boolean => {
 /** The status line when tightening leaves an absent allowlist absent. */
 export const nothingToAllow = (cmd: string, file: string) =>
   `${cmd}: nothing to allow; no ${file} written`;
+
+/** The status line when tightening writes an allowlist. */
+export const allowlistTightened = (cmd: string, file: string) => `${cmd}: ${file} tightened`;

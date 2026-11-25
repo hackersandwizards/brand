@@ -2,7 +2,7 @@ import { afterAll, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { retiredIn, textOf } from "../scan/retired";
+import { retiredIn, scanRetiredPaths } from "../scan/retired";
 import { packed, ROOT } from "../scripts/git";
 import verbal from "../verbal/verbal.json";
 
@@ -115,27 +115,68 @@ test("passes prose that uses a short line's words mid-sentence", () => {
   for (const p of prose) expect([p, retiredIn(p)]).toEqual([p, []]);
 });
 
-test("brand-retired fails on a built folder carrying a retired line and passes a clean one", () => {
+const retiredPage = `<footer>${line}</footer>`;
+
+test("brand-retired passes a clean build that also contains a binary asset", () => {
   const clean = built({ "index.html": PAGE, "_astro/font.woff2": new Uint8Array([0, 1, 2]) });
-  const dirty = built({ "index.html": PAGE, "about/index.html": `<footer>${line}</footer>` });
   expect(run(clean).code).toBe(0);
-  const hit = run(dirty);
+});
+
+test("brand-retired reports the path and retired line found in a built folder", () => {
+  const hit = run(built({ "about/index.html": retiredPage }));
   expect(hit.code).toBe(1);
   expect(hit.out).toContain(`about/index.html: "${line}"`);
-  expect(run(join(dirty, "about/index.html")).code).toBe(1);
-  expect(run(clean, join(dirty, "about")).code).toBe(1);
-  const linked = built({ "index.html": PAGE });
-  symlinkSync(join(dirty, "about/index.html"), join(linked, "about.html"));
+});
+
+test.each<{ label: string; files: Record<string, string>; paths: string[] }>([
+  {
+    label: "an explicitly named file",
+    files: { "about/index.html": retiredPage },
+    paths: ["about/index.html"],
+  },
+  {
+    label: "one of several folders",
+    files: { "clean/index.html": PAGE, "dirty/about/index.html": retiredPage },
+    paths: ["clean", "dirty/about"],
+  },
+])("brand-retired fails on a retired line in $label", ({ files, paths }) => {
+  const dir = built(files);
+  expect(run(...paths.map((path) => join(dir, path))).code).toBe(1);
+});
+
+test("brand-retired follows a symlink to a built file", () => {
+  const target = built({ "about/index.html": retiredPage });
+  const linked = built({});
+  symlinkSync(join(target, "about/index.html"), join(linked, "about.html"));
   expect(run(linked).code).toBe(1);
+});
+
+test("brand-retired counts a file once when the arguments overlap", () => {
+  const dirty = built({ "index.html": PAGE, "about/index.html": retiredPage });
   expect(run(dirty, join(dirty, "about")).out).toContain("in 1 of 2 files read");
+});
+
+test("separates text and binary files while counting distinct paths", () => {
+  const dir = built({
+    "index.html": PAGE,
+    "about/index.html": retiredPage,
+    "font.woff2": new Uint8Array([0]),
+  });
+  const dirty = join(dir, "about/index.html");
+  const binary = join(dir, "font.woff2");
+  expect(scanRetiredPaths([dir, dirty, binary])).toEqual({
+    hits: new Map([[dirty, [line]]]),
+    empty: [binary],
+    read: 2,
+  });
 });
 
 // The package's own texts reach consumers' prompts, signatures and pages unbuilt.
 test("no file the package ships carries a retired line, verbal.json aside", () => {
-  const hits = packed()
+  const paths = packed()
     .filter((f) => !f.startsWith("verbal/"))
-    .flatMap((f) => retiredIn(textOf(join(ROOT, f)) ?? "").map((l) => `${f}: ${l}`));
-  expect(hits).toEqual([]);
+    .map((f) => join(ROOT, f));
+  expect(scanRetiredPaths(paths).hits).toEqual(new Map());
 });
 
 test("brand-retired exits 2 on no path, a missing path and a folder without a text file", () => {

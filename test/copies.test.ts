@@ -2,18 +2,26 @@ import { expect, test } from "vitest";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { allowlistTightened } from "../scan/allowlist";
 import { brandFiles, brandSizes, contentHash, isBrandCopy, lfsOid } from "../scan/assets";
-import { copyOf, signatures, unlistedCopies } from "../scan/copies";
+import { copyOf, signatures, unlistedCopies, withoutEngineLogoUris } from "../scan/copies";
 import { ROOT } from "../scripts/git";
 
 const wordmark = readFileSync(join(ROOT, "logos/wordmark.svg"), "utf8");
 const brand = brandFiles();
 const identical = (text: string) => brand.get(contentHash(Buffer.from(text)));
+const drawing: unknown = expect.stringContaining("drawing");
 
 test("an inherited __proto__ does not approve a copied path", () => {
-  expect(unlistedCopies({ ["__proto__"]: "byte copy" }, {}, undefined)).toEqual([
-    "__proto__: byte copy; import it from the package",
-  ]);
+  expect(
+    unlistedCopies({ ["__proto__"]: "byte copy" }, { allow: {}, committed: undefined }),
+  ).toEqual(["__proto__: byte copy; import it from the package"]);
+});
+
+test("reports which allowlist tightening wrote", () => {
+  expect(allowlistTightened("brand-copies", "brand-copies.json")).toBe(
+    "brand-copies: brand-copies.json tightened",
+  );
 });
 
 test("an extension's hash is distinct from the LFS object ID on the next CRLF line", () => {
@@ -48,12 +56,14 @@ test("finds an identical copy, a renamed or recoloured logo, and nothing else", 
       ),
     ]),
   );
-  expect(hits["public/brand/wordmark.svg"]).toBe("identical to brand logos/wordmark.svg");
-  expect(hits["public/img/logo.svg"]).toBe("identical to brand logos/wordmark.svg");
-  expect(hits["src/components/Logo.astro"]).toContain("drawing");
-  expect(hits["public/lockup.svg"]).toBe("named like brand logos/lockup.svg");
-  expect(hits["src/components/Card.astro"]).toBeUndefined();
-  expect(hits["src/data/logos.json"]).toBeUndefined();
+  expect(hits).toStrictEqual({
+    "public/brand/wordmark.svg": "identical to brand logos/wordmark.svg",
+    "public/img/logo.svg": "identical to brand logos/wordmark.svg",
+    "src/components/Logo.astro": drawing,
+    "public/lockup.svg": "named like brand logos/lockup.svg",
+    "src/components/Card.astro": undefined,
+    "src/data/logos.json": undefined,
+  });
 });
 
 test("a document the documents engine composed may inline the lockup, nothing else", () => {
@@ -74,35 +84,80 @@ test("a document the documents engine composed may inline the lockup, nothing el
   );
 });
 
-test("a document the documents engine composed may inline the unmodified wordmark, never a changed one", () => {
-  const doc = (head: string, body: string) =>
+// The documents engine's svgUri: percent-encodes only what a URL or an attribute needs.
+const uri = (svg: string) =>
+  `data:image/svg+xml,${svg.replace(/[%#"<>&\n\r\t]/g, encodeURIComponent)}`;
+const base64 = (svg: string) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+const img = (src: string) => `<img class="wordmark" src="${src}" alt="hackers&amp;wizards">`;
+const night = readFileSync(join(ROOT, "logos/wordmark-night.svg"), "utf8");
+const red = wordmark.replace(/fill="[^"]*"/g, 'fill="red"');
+const cropped = wordmark.replace('viewBox="96 96 6571 952"', 'viewBox="96 96 3000 952"');
+const engine = "<style data-hw-readout>.slide{}</style>";
+const wordmarkEncodings = {
+  "percent-encoded": (svg: string) => img(uri(svg)),
+  base64: (svg: string) => img(base64(svg)),
+  inline: (svg: string) => svg,
+};
+
+test.each([
+  {
+    label: "repeated percent-encoded wordmarks",
+    style: engine,
+    body: img(uri(wordmark)).repeat(6),
+    expected: undefined,
+  },
+  {
+    label: "an original base64 wordmark",
+    style: engine,
+    body: img(base64(wordmark)),
+    expected: undefined,
+  },
+  {
+    label: "a night wordmark beside an inline original",
+    style: engine,
+    body: img(uri(night)) + wordmark,
+    expected: undefined,
+  },
+  ...Object.entries(wordmarkEncodings).flatMap(([format, encode]) => [
+    {
+      label: `a recoloured ${format} wordmark`,
+      style: engine,
+      body: encode(red),
+      expected: drawing,
+    },
+    {
+      label: `a cropped ${format} wordmark`,
+      style: engine,
+      body: encode(cropped),
+      expected: drawing,
+    },
+    // Without the engine's marker, the unmodified wordmark is a copy too.
+    {
+      label: `an original ${format} wordmark without the engine marker`,
+      style: "<style>.slide{}</style>",
+      body: encode(wordmark),
+      expected: drawing,
+    },
+  ]),
+])("checks a readout carrying $label", ({ style, body, expected }) => {
+  expect(
     copyOf(
       "src/content/documents/readout.html",
-      () => `<html><head>${head}</head><body>${body}</body></html>`,
+      () => `<html><head>${style}</head><body>${body}</body></html>`,
       () => undefined,
-    );
-  const engine = "<style data-hw-readout>.slide{}</style>";
-  // The documents engine's svgUri: percent-encodes only what a URL or an attribute needs.
-  const uri = (svg: string) =>
-    `data:image/svg+xml,${svg.replace(/[%#"<>&\n\r\t]/g, encodeURIComponent)}`;
-  const base64 = (svg: string) =>
-    `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
-  const img = (src: string) => `<img class="wordmark" src="${src}" alt="hackers&amp;wizards">`;
-  const night = readFileSync(join(ROOT, "logos/wordmark-night.svg"), "utf8");
-  const red = wordmark.replace(/fill="[^"]*"/g, 'fill="red"');
-  const cropped = wordmark.replace('viewBox="96 96 6571 952"', 'viewBox="96 96 3000 952"');
-  expect(doc(engine, img(uri(wordmark)).repeat(6))).toBeUndefined();
-  expect(doc(engine, img(base64(wordmark)))).toBeUndefined();
-  expect(doc(engine, img(uri(night)) + wordmark)).toBeUndefined();
-  for (const changed of [red, cropped]) {
-    expect(doc(engine, img(uri(changed)))).toContain("drawing");
-    expect(doc(engine, img(base64(changed)))).toContain("drawing");
-    expect(doc(engine, changed)).toContain("drawing");
-  }
-  // Without the engine's marker, the unmodified wordmark is a copy too.
-  expect(doc("<style>.slide{}</style>", img(uri(wordmark)))).toContain("drawing");
-  expect(doc("<style>.slide{}</style>", img(base64(wordmark)))).toContain("drawing");
-  expect(doc("<style>.slide{}</style>", wordmark)).toContain("drawing");
+    ),
+  ).toEqual(expected);
+});
+
+test("removes exempt SVG data URIs in both quote styles while preserving other content", () => {
+  const altered = img(uri(red));
+  const malformed = "'data:image/svg+xml,%XX'";
+  const unquoted = base64(wordmark);
+  expect(
+    withoutEngineLogoUris(
+      `"${uri(wordmark)}" ${altered} '${base64(night)}' ${malformed} ${unquoted}`,
+    ),
+  ).toBe(` ${altered}  ${malformed} ${unquoted}`);
 });
 
 test("finds a logo inside a base64 or percent-encoded data: URI in any file", () => {
@@ -128,11 +183,13 @@ test("finds a logo inside a base64 or percent-encoded data: URI in any file", ()
 test("flags an unlisted copy, an entry without a reason, one added against HEAD and a stale one", () => {
   const found = { "public/favicon.svg": "identical to brand logos/favicon.svg" };
   const allow = { "public/favicon.svg": "r" };
-  expect(unlistedCopies(found, allow, allow)).toEqual([]);
-  expect(unlistedCopies(found, {}, {})).toHaveLength(1);
-  expect(unlistedCopies(found, { "public/favicon.svg": " " }, allow)).toHaveLength(1);
-  expect(unlistedCopies(found, allow, {})).toHaveLength(1);
-  expect(unlistedCopies({}, allow, allow)).toEqual([
+  expect(unlistedCopies(found, { allow, committed: allow })).toEqual([]);
+  expect(unlistedCopies(found, { allow: {}, committed: {} })).toHaveLength(1);
+  expect(
+    unlistedCopies(found, { allow: { "public/favicon.svg": " " }, committed: allow }),
+  ).toHaveLength(1);
+  expect(unlistedCopies(found, { allow, committed: {} })).toHaveLength(1);
+  expect(unlistedCopies({}, { allow, committed: allow })).toEqual([
     "brand-copies.json: public/favicon.svg is no copy; drop its entry (brand-copies --tighten)",
   ]);
 });
@@ -140,15 +197,15 @@ test("flags an unlisted copy, an entry without a reason, one added against HEAD 
 test("copy findings identify the file and reason, with new entries allowed only for files at the pin change", () => {
   const path = "src/assets/copied.svg";
   const found = { [path]: "identical to brand logos/wordmark.svg" };
-  expect(unlistedCopies(found, {}, {})).toEqual([
+  expect(unlistedCopies(found, { allow: {}, committed: {} })).toEqual([
     "src/assets/copied.svg: identical to brand logos/wordmark.svg; import it from the package",
   ]);
-  expect(unlistedCopies(found, { [path]: " " }, { [path]: "Old entry" })).toEqual([
-    "brand-copies.json: src/assets/copied.svg names no reason",
-  ]);
+  expect(
+    unlistedCopies(found, { allow: { [path]: " " }, committed: { [path]: "Old entry" } }),
+  ).toEqual(["brand-copies.json: src/assets/copied.svg names no reason"]);
   const allow = { [path]: "Existing artwork" };
-  expect(unlistedCopies(found, allow, {}, (p) => p === path)).toEqual([]);
-  expect(unlistedCopies(found, allow, {}, (p) => p === "other.svg")).toEqual([
+  expect(unlistedCopies(found, { allow, committed: {} }, (p) => p === path)).toEqual([]);
+  expect(unlistedCopies(found, { allow, committed: {} }, (p) => p === "other.svg")).toEqual([
     "brand-copies.json: src/assets/copied.svg added against HEAD; the list may only shrink, or during a pin change name a file committed as is",
   ]);
 });

@@ -11,11 +11,13 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
+  allowlistTightened,
   committedAsIs,
   nothingToAllow,
   pinChange,
   readReasonAllowlists,
   writeAllowlist,
+  type ReasonAllowlists,
 } from "./allowlist";
 import { brandFiles, brandSizes, isBrandCopy } from "./assets";
 import { ENGINE_STYLE } from "./engine-style";
@@ -83,6 +85,20 @@ const WORDMARKS = new Set(
 );
 const engineLogo = (svg: string) => LOCKUP_BOX.test(svg) || WORDMARKS.has(plain(svg));
 
+/** Removes quoted SVG data URIs that carry an exempt engine logo, preserving the other text. */
+export const withoutEngineLogoUris = (text: string) => {
+  const uris = /(?<quote>["'])data:image\/svg\+xml(?<params>[^,"']*),(?<data>[\s\S]*?)\k<quote>/g;
+  const kept: string[] = [];
+  let start = 0;
+  for (const match of text.matchAll(uris)) {
+    const uri = match.groups;
+    if (!uri || !engineLogo(svgOf(uri.params, uri.data))) continue;
+    kept.push(text.slice(start, match.index));
+    start = match.index + match[0].length;
+  }
+  return kept.join("") + text.slice(start);
+};
+
 /** What makes a consumer file a copy of a brand file, or undefined where it is none. */
 export const copyOf = (
   path: string,
@@ -99,14 +115,11 @@ export const copyOf = (
     // lockup-screen.svg), known by its viewBox, an unmodified logos/wordmark*.svg, known by its
     // whole text, and the engine's style elements are left out; every other drawing is still matched.
     if (new RegExp(ENGINE_STYLE.source).test(text))
-      text = text
-        .replace(ENGINE_STYLE, "")
-        .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/g, (svg) => (engineLogo(svg) ? "" : svg))
-        .replace(
-          /(["'])data:image\/svg\+xml([^,"']*),([\s\S]*?)\1/g,
-          (uri, _quote, params: string, data: string) =>
-            engineLogo(svgOf(params, data)) ? "" : uri,
-        );
+      text = withoutEngineLogoUris(
+        text
+          .replace(ENGINE_STYLE, "")
+          .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/g, (svg) => (engineLogo(svg) ? "" : svg)),
+      );
     text = decoded(text);
     for (const s of signatures)
       if (text.includes(s))
@@ -116,8 +129,7 @@ export const copyOf = (
 
 export const unlistedCopies = (
   found: Record<string, string>,
-  allow: Allowlist,
-  committed: Allowlist | undefined,
+  { allow, committed }: ReasonAllowlists,
   mayAdd: (p: string) => boolean = () => false,
 ) => [
   ...Object.entries(found)
@@ -150,7 +162,7 @@ export const tightenCopies = (
 
 export function checkCopies(args: string[]) {
   answerHelp(USAGE);
-  const { allow, committed } = readReasonAllowlists(LIST);
+  const lists = readReasonAllowlists(LIST);
   const brand = brandFiles();
   const sizes = brandSizes(brand);
   const found: Record<string, string> = {};
@@ -166,13 +178,15 @@ export function checkCopies(args: string[]) {
   }
   const report = skippedReport("brand-copies", tree);
   if (report) console.log(report);
-  const upgrade = committed !== undefined && pinChange("brand-copies") !== undefined;
+  const upgrade = lists.committed !== undefined && pinChange("brand-copies") !== undefined;
   const mayAdd = (p: string) => upgrade && p in found && committedAsIs(p);
   if (args.includes("--tighten")) {
-    const wrote = writeAllowlist(LIST, tightenCopies(found, allow, mayAdd));
-    console.log(wrote ? `brand-copies: ${LIST} tightened` : nothingToAllow("brand-copies", LIST));
+    const wrote = writeAllowlist(LIST, tightenCopies(found, lists.allow, mayAdd));
+    console.log(
+      wrote ? allowlistTightened("brand-copies", LIST) : nothingToAllow("brand-copies", LIST),
+    );
   } else {
-    const bad = unlistedCopies(found, allow, committed, mayAdd);
+    const bad = unlistedCopies(found, lists, mayAdd);
     if (bad.length) {
       console.error(
         `${bad.join("\n")}\nbrand-copies: ${bad.length} findings. Read the file from node_modules/@hackersandwizards/brand, or name the exception with its reason in ${LIST}.`,

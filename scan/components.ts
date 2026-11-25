@@ -10,11 +10,13 @@
 import { readdirSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {
+  allowlistTightened,
   committedAsIs,
   nothingToAllow,
   pinChange,
   readReasonAllowlists,
   writeAllowlist,
+  type ReasonAllowlists,
 } from "./allowlist";
 import { answerHelp } from "./help";
 import { COMPONENT, listTree, scanned, skippedReport } from "./tree";
@@ -46,8 +48,7 @@ export const forks = (paths: string[]) => {
 
 export const unlisted = (
   found: Record<string, string[]>,
-  allow: Allowlist,
-  committed: Allowlist | undefined,
+  { allow, committed }: ReasonAllowlists,
   mayAdd: (k: string) => boolean = () => false,
 ) => [
   ...Object.entries(found)
@@ -75,8 +76,9 @@ if (import.meta.main) {
   const report = skippedReport("brand-scan", tree);
   if (report) console.log(report);
   const found = forks(tree);
-  const { allow, committed } = readReasonAllowlists(LIST);
-  const upgrade = committed !== undefined && pinChange("brand-scan") !== undefined;
+  const lists = readReasonAllowlists(LIST);
+  const allow = lists.allow;
+  const upgrade = lists.committed !== undefined && pinChange("brand-scan") !== undefined;
   const mayAdd = (k: string) => upgrade && k in found && found[k].every(committedAsIs);
   if (process.argv.includes("--tighten")) {
     const next = Object.fromEntries(
@@ -85,9 +87,11 @@ if (import.meta.main) {
         .map((k) => [k, allow[k] ?? ""]),
     );
     const wrote = writeAllowlist(LIST, next);
-    console.log(wrote ? `brand-scan: ${LIST} tightened` : nothingToAllow("brand-scan", LIST));
+    console.log(
+      wrote ? allowlistTightened("brand-scan", LIST) : nothingToAllow("brand-scan", LIST),
+    );
   } else {
-    const bad = unlisted(found, allow, committed, mayAdd);
+    const bad = unlisted(found, lists, mayAdd);
     if (bad.length) {
       console.error(`${bad.join("\n")}\nbrand-scan: ${bad.length} findings.`);
       process.exit(1);

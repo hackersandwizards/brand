@@ -47,9 +47,8 @@ const EMPHASIS = /(?<![\p{L}\p{N}*_])[*_]+|[*_]+(?![\p{L}\p{N}*_])/gu;
 const normalise = (s: string) =>
   squash(
     s
-      .replace(
-        /\\(?:u([\da-fA-F]{4})|([bfnrt])|(["/\\]))/g,
-        (m, h?: string, ws?: string, c?: string) => (h ? char(parseInt(h, 16), m) : ws ? " " : c!),
+      .replace(/\\(u[\da-fA-F]{4}|[bfnrt"/\\])/g, (m, code: string) =>
+        code.startsWith("u") ? char(parseInt(code.slice(1), 16), m) : code.replace(/[bfnrt]/, " "),
       )
       .replace(/&#x([\da-f]+);/gi, (m, h: string) => char(parseInt(h, 16), m))
       .replace(/&#(\d+);/g, (m, d: string) => char(Number(d), m))
@@ -111,6 +110,29 @@ const filesUnder = (path: string): string[] =>
         .filter(isFile)
     : [path];
 
+/** Scans each distinct file once and identifies arguments with no readable text. */
+export const scanRetiredPaths = (paths: string[]) => {
+  const scanned = new Map<string, string[] | undefined>();
+  const empty: string[] = [];
+  for (const path of paths) {
+    const files = filesUnder(path);
+    for (const file of files) {
+      if (scanned.has(file)) continue;
+      const text = textOf(file);
+      scanned.set(file, text === undefined ? undefined : retiredIn(text));
+    }
+    if (!files.some((file) => scanned.get(file) !== undefined)) empty.push(path);
+  }
+  let read = 0;
+  const hits = new Map<string, string[]>();
+  for (const [file, lines] of scanned) {
+    if (lines === undefined) continue;
+    read++;
+    if (lines.length) hits.set(file, lines);
+  }
+  return { hits, empty, read };
+};
+
 if (import.meta.main) {
   answerHelp(USAGE);
   const paths = process.argv.slice(2);
@@ -123,23 +145,7 @@ if (import.meta.main) {
     console.error(`brand-retired: ${missing.join(", ")} not found; build first`);
     process.exit(2);
   }
-  const hits = new Map<string, string[]>();
-  const isText = new Map<string, boolean>();
-  const empty: string[] = [];
-  for (const path of paths) {
-    let found = false;
-    for (const file of filesUnder(path)) {
-      if (!isText.has(file)) {
-        const text = textOf(file);
-        isText.set(file, text !== undefined);
-        const lines = text === undefined ? [] : retiredIn(text);
-        if (lines.length) hits.set(file, lines);
-      }
-      found ||= isText.get(file)!;
-    }
-    if (!found) empty.push(path);
-  }
-  const read = [...isText.values()].filter(Boolean).length;
+  const { hits, empty, read } = scanRetiredPaths(paths);
   if (empty.length) {
     console.error(`brand-retired: no text file in ${empty.join(", ")}; build first`);
     process.exit(2);

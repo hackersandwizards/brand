@@ -27,7 +27,13 @@
 // allowed.
 import { readFileSync } from "node:fs";
 import { extname } from "node:path";
-import { nothingToAllow, pinChange, readAllowlists, writeAllowlist } from "./allowlist";
+import {
+  allowlistTightened,
+  nothingToAllow,
+  pinChange,
+  readAllowlists,
+  writeAllowlist,
+} from "./allowlist";
 import { brandFiles, brandSizes, isBrandCopy } from "./assets";
 import { METRICS, scanSource, type Counts, type Metric } from "./colour-scan";
 import { answerHelp, isRecord } from "./help";
@@ -124,10 +130,10 @@ export const grownEntryMetrics = (
   ceiling: Counts | undefined,
 ) => METRICS.filter((k) => (entry[k] ?? 0) > Math.max(committed?.[k] ?? 0, ceiling?.[k] ?? 0));
 
-/** Every way the counts exceed the allowlist, and every entry without a reason or grown against
- *  the committed allowlist beyond `ceiling`, this scanner's counts of the files as committed, which
- *  a pin change passes, where the list's total for that metric grew too: within the total, a value
- *  moved from one file to another. */
+/** Count mismatches and invalid allowlist entries, including entries without a reason.
+ *  Against `baseline`, a file's allowance may grow to this scanner's count in the committed file
+ *  during a pin change. Growth beyond both that ceiling and the committed allowance is a finding
+ *  only when the list's total for that metric grew too, so counts can move between files. */
 export const violations = (
   files: Record<string, Counts>,
   allow: Allowlist,
@@ -262,7 +268,7 @@ if (import.meta.main) {
     const wrote = writeAllowlist(ALLOWLIST, tighten(files, allow, ceiling));
     console.log(
       wrote
-        ? `brand-colours: ${ALLOWLIST} tightened; give every new entry its reason`
+        ? `${allowlistTightened("brand-colours", ALLOWLIST)}; give every new entry its reason`
         : nothingToAllow("brand-colours", ALLOWLIST),
     );
   } else {
