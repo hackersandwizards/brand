@@ -1,18 +1,18 @@
-import { describe, expect, it, test, vi } from "vitest";
+import { assert, describe, expect, it, test, vi } from "vitest";
 import {
   countLine,
   fullTextUrl,
   hasWords,
   highlight,
-  initListFilter,
   isActive,
   matches,
   ranked,
   searchWords,
   tally,
   readState,
-  rebaseSrcset,
 } from "../elements/list-filter";
+import { initListFilter } from "../elements/list-filter-browser";
+import { rebaseSrcset } from "../elements/list-filter-source";
 
 describe("list filter", () => {
   it("fills the count line, one or other, and joins the query onto a base with or without one", () => {
@@ -57,39 +57,65 @@ describe("list filter", () => {
     expect(highlight("Café", searchWords("\u0301"))).toBe("Café");
   });
 
-  it("finds a name however its umlaut, accent or ß is typed, and marks it", () => {
+  it("marks complete source spans when a match starts inside a folded character", () => {
+    expect(highlight("🍵 Cafe\u0301 & Straße", ["cafe", "se"])).toBe(
+      "🍵 <mark>Café</mark> &amp; Stra<mark>ße</mark>",
+    );
+  });
+
+  // "ue" is no umlaut in "blue", so a name written Mueller needs the e.
+  it.each([
+    { q: "mueller", indices: [0, 1] },
+    { q: "müller", indices: [0, 1] },
+    { q: "MÜLLER", indices: [0, 1] },
+    { q: "Muell", indices: [0, 1] },
+    { q: "muller", indices: [0] },
+    { q: "jose strasse", indices: [2] },
+    { q: "josé straße", indices: [2] },
+    { q: "strase", indices: [] },
+  ])("matches folded names for $q", ({ q, indices }) => {
     const people = [
       { text: "müller", facets: {} },
       { text: "Mueller", facets: {} },
       { text: "José Straße", facets: {} },
       { text: "miller", facets: {} },
     ];
-    const hits = (q: string) =>
-      people.flatMap((item, i) => (matches(item, { q, facets: {} }) ? [i] : []));
-    for (const q of ["mueller", "müller", "MÜLLER", "Muell"]) expect(hits(q)).toEqual([0, 1]);
-    // "ue" is no umlaut in "blue", so a name written Mueller needs the e.
-    expect(hits("muller")).toEqual([0]);
-    expect(hits("jose strasse")).toEqual([2]);
-    expect(hits("josé straße")).toEqual([2]);
-    expect(hits("strase")).toEqual([]);
-    expect(hasWords("Café Zoë", searchWords("cafe zoe"))).toBe(true);
-    expect(hasWords("Søren Łukasz Kærgaard", searchWords("soren lukasz kaergaard"))).toBe(true);
-    expect(highlight("Søren", ["soren"])).toBe("<mark>Søren</mark>");
-    expect(highlight("a & b", [])).toBe("a &amp; b");
-    expect(highlight("Anna Müller", ["muller"])).toBe("Anna <mark>Müller</mark>");
-    expect(highlight("Anna Müller", ["mueller"])).toBe("Anna <mark>Müller</mark>");
-    expect(highlight("Straße & Weg", ["strasse"])).toBe("<mark>Straße</mark> &amp; Weg");
-    expect(highlight("Mueller", ["müller"])).toBe("<mark>Mueller</mark>");
-    expect(highlight("Grüße", ["grü"])).toBe("<mark>Grü</mark>ße");
-    expect(ranked(["Anna Mueller", "Müller"], (t) => t, "müller")).toEqual([
-      "Müller",
-      "Anna Mueller",
-    ]);
-    // A title equal to the query in either form ranks as the exact title, above a shorter one.
-    expect(ranked(["Müllerhans", "Mueller Hans"], (t) => t, "müller hans")).toEqual([
-      "Mueller Hans",
-      "Müllerhans",
-    ]);
+    expect(
+      [...people.entries()]
+        .filter(([, item]) => matches(item, { q, facets: {} }))
+        .map(([index]) => index),
+    ).toEqual(indices);
+  });
+
+  it.each([
+    { text: "Café Zoë", query: "cafe zoe" },
+    { text: "Søren Łukasz Kærgaard", query: "soren lukasz kaergaard" },
+  ])("finds every folded query word in $text", ({ text, query }) => {
+    expect(hasWords(text, searchWords(query))).toBe(true);
+  });
+
+  it.each([
+    { text: "Søren", words: ["soren"], html: "<mark>Søren</mark>" },
+    { text: "a & b", words: [], html: "a &amp; b" },
+    { text: "Anna Müller", words: ["muller"], html: "Anna <mark>Müller</mark>" },
+    { text: "Anna Müller", words: ["mueller"], html: "Anna <mark>Müller</mark>" },
+    { text: "Straße & Weg", words: ["strasse"], html: "<mark>Straße</mark> &amp; Weg" },
+    { text: "Mueller", words: ["müller"], html: "<mark>Mueller</mark>" },
+    { text: "Grüße", words: ["grü"], html: "<mark>Grü</mark>ße" },
+  ])("renders escaped highlighting for $text with $words", ({ text, words, html }) => {
+    expect(highlight(text, words)).toBe(html);
+  });
+
+  // A title equal to the query in either form ranks as the exact title, above a shorter one.
+  it.each([
+    { titles: ["Anna Mueller", "Müller"], query: "müller", order: ["Müller", "Anna Mueller"] },
+    {
+      titles: ["Müllerhans", "Mueller Hans"],
+      query: "müller hans",
+      order: ["Mueller Hans", "Müllerhans"],
+    },
+  ])("ranks the folded exact title first for $query", ({ titles, query, order }) => {
+    expect(ranked(titles, (title) => title, query)).toEqual(order);
   });
 });
 
@@ -112,25 +138,39 @@ describe("initListFilter", () => {
       checked: true,
       defaultChecked: false,
     });
+    const formLists = new Map([
+      ['input[type="radio"]', [radio]],
+      ['input[type="radio"], select', [radio]],
+      ["select", []],
+      ["fieldset", []],
+    ]);
     const form = Object.assign(new EventTarget(), {
       querySelector: () => input,
-      querySelectorAll: (selector: string) => (selector.includes("radio") ? [radio] : []),
+      querySelectorAll: (selector: string) => {
+        const targets = formLists.get(selector);
+        assert(targets, `Unexpected form selector: ${selector}`);
+        return targets;
+      },
     });
     const list = {
       querySelector: () => null,
       querySelectorAll: () => [],
       toggleAttribute: () => false,
     };
-    const nodes = new Map<string, object>([
+    const nodes = new Map<string, object | null>([
       ["form", form],
       ["[data-filter-list]", list],
       ["[data-filter-empty]", {}],
       ["[data-filter-count]", {}],
       ["[data-filter-panel]", new EventTarget()],
+      ["[data-filter-toggle]", null],
     ]);
     const root = {
       dataset: { count: '"{shown} of {total}"' },
-      querySelector: (selector: string) => nodes.get(selector) ?? null,
+      querySelector: (selector: string) => {
+        assert(nodes.has(selector), `Unexpected root selector: ${selector}`);
+        return nodes.get(selector);
+      },
       querySelectorAll: () => [],
     };
     const replaceState = vi.fn();

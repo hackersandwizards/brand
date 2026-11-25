@@ -94,7 +94,7 @@ its collection query.
 A list with a search and a facet is `expert/components/ListFilter.astro`: a GET form whose values
 are `hw-choice` (a label around a radio, a link with `aria-current` or a button with
 `aria-pressed`, with its count) and whose field is `hw-search`, sized by your `data-hw-scale` (44 px
-targets on `screen`). Its browser side is `initListFilter` in `elements/list-filter.ts`, which a
+targets on `screen`). Its browser side is `initListFilter` in `elements/list-filter-browser.ts`, which a
 page without Astro runs over the same markup; each row carries `data-filter-item`, its search
 text in `data-filter-text` (case, accents, umlauts and ß fold, so "muller" finds Müller), its facet values as JSON in `data-filter-facets`
 (`{"topic":["tools"]}`), its place in `data-filter-order`; a `[data-filter-title]` gets the matches

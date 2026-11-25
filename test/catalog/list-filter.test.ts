@@ -50,7 +50,7 @@ const showing = async (p: Page, titles: string[]) => {
   return shown(p);
 };
 
-test("search, a choice, the count, clear and the URL work together; Back restores", async () => {
+test("typing filters the list, marks the title and updates the count and URL", async () => {
   const p = await tab();
   await p.setViewport({ width: 1280, height: 900 });
   await p.goto(story("dense"), { waitUntil: "networkidle0" });
@@ -58,23 +58,41 @@ test("search, a choice, the count, clear and the URL work together; Back restore
   expect(await text(p, "[data-filter-count]")).toBe("4 von 4 Einheiten");
   await p.type('input[name="q"]', "context");
   expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
-  expect(await text(p, "[data-filter-count]")).toBe("1 Einheit");
-  expect(new URL(p.url()).searchParams.get("q")).toBe("context");
-  expect(await p.$eval("[data-filter-title] mark", (m) => m.textContent)).toBe("Context");
   // The counts follow the search: Werkzeuge holds the one match.
-  expect(await text(p, '[data-facet-count="tools"]')).toBe("1");
+  expect({
+    count: await text(p, "[data-filter-count]"),
+    q: new URL(p.url()).searchParams.get("q"),
+    mark: await p.$eval("[data-filter-title] mark", (m) => m.textContent),
+    tools: await text(p, '[data-facet-count="tools"]'),
+  }).toEqual({ count: "1 Einheit", q: "context", mark: "Context", tools: "1" });
   await p.click('input[name="q"]', { count: 3 });
   await p.keyboard.press("Backspace");
   await p.waitForFunction(() => !new URL(location.href).searchParams.has("q"));
+  await p.close();
+}, 60_000);
+
+test("Back restores the previous facet choice and its rows", async () => {
+  const p = await tab();
+  await p.setViewport({ width: 1280, height: 900 });
+  await p.goto(story("dense"), { waitUntil: "networkidle0" });
+  const selection = async () => ({
+    rows: (await shown(p)).length,
+    topic: new URL(p.url()).searchParams.get("topic"),
+  });
   await p.click('label.hw-choice:has(input[value="tools"])');
-  expect((await shown(p)).length).toBe(2);
-  expect(new URL(p.url()).searchParams.get("topic")).toBe("tools");
+  expect(await selection()).toEqual({ rows: 2, topic: "tools" });
   await p.click('label.hw-choice:has(input[value="evidence"])');
   expect(await shown(p)).toEqual(["Messbare Produktivität"]);
   await p.goBack();
   await p.waitForFunction(() => new URL(location.href).searchParams.get("topic") === "tools");
-  expect(new URL(p.url()).searchParams.get("topic")).toBe("tools");
-  expect((await shown(p)).length).toBe(2);
+  expect(await selection()).toEqual({ rows: 2, topic: "tools" });
+  await p.close();
+}, 60_000);
+
+test("the form clear action restores all rows and clears the URL", async () => {
+  const p = await tab();
+  await p.setViewport({ width: 1280, height: 900 });
+  await p.goto(`${story("dense")}?topic=tools`, { waitUntil: "networkidle0" });
   await p.click("form [data-filter-clear]");
   expect((await shown(p)).length).toBe(4);
   expect(new URL(p.url()).search).toBe("");
@@ -360,6 +378,39 @@ test("a source page's relative links and images resolve against that page", asyn
   await p.close();
 }, 60_000);
 
+test("a grouped source ranks rows within their own group and hides an empty group", async () => {
+  const p = await tab();
+  const markup = `<div data-filter-list>
+    <div data-filter-group id="guides">
+      <div data-filter-item data-filter-order="0" data-filter-text="About Context"><span data-filter-title>About Context</span></div>
+      <div data-filter-item data-filter-order="1" data-filter-text="Context"><span data-filter-title>Context</span></div>
+    </div>
+    <div data-filter-group id="examples">
+      <div data-filter-item data-filter-order="2" data-filter-text="Examples"><span data-filter-title>Examples</span></div>
+    </div>
+  </div>`;
+  try {
+    await p.setRequestInterception(true);
+    const intercept = (request: HTTPRequest) =>
+      request.resourceType() === "fetch"
+        ? request.respond({ status: 200, contentType: "text/html", body: markup })
+        : request.continue();
+    p.on("request", (request) => {
+      intercept(request).catch(reportError);
+    });
+    await p.goto(story("source"), { waitUntil: "networkidle0" });
+    await p.type('input[name="q"]', "context");
+    await p.waitForFunction(() => document.querySelectorAll("[data-filter-group]").length === 2);
+    expect(await showing(p, ["Context", "About Context"])).toEqual(["Context", "About Context"]);
+    expect(
+      await p.$$eval("#guides [data-filter-title]", (titles) => titles.map((t) => t.textContent)),
+    ).toEqual(["Context", "About Context"]);
+    expect(await p.$eval("#examples", (group) => (group as HTMLElement).hidden)).toBe(true);
+  } finally {
+    await p.close();
+  }
+}, 60_000);
+
 test("on a phone a topic tapped while the source loads names itself on the Filters button", async () => {
   const p = await tab();
   await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
@@ -388,10 +439,10 @@ test("on a phone a topic tapped while the source loads names itself on the Filte
   }
 }, 60_000);
 
-test("inline sets the select beside the search from 64rem; a select filters with the choices", async () => {
+test("inline sets the select beside the search from 64rem", async () => {
   const p = await tab();
   await p.setViewport({ width: 1280, height: 900 });
-  await p.goto(`${story("many")}?days=1`, { waitUntil: "networkidle0" });
+  await p.goto(story("many"), { waitUntil: "networkidle0" });
   const box = (sel: string) =>
     p.$eval(sel, (e) => {
       const r = e.getBoundingClientRect();
@@ -400,13 +451,20 @@ test("inline sets the select beside the search from 64rem; a select filters with
   const [search, select] = [await box(".hw-search"), await box('select[name="topic"]')];
   expect(Math.abs(search.bottom - select.bottom)).toBeLessThan(1);
   expect(select.left).toBeGreaterThan(search.right);
+  // Control: at 1000 px the select stacks below the search.
+  await p.setViewport({ width: 1000, height: 900 });
+  expect((await box('select[name="topic"]')).left).toBeLessThan(search.right);
+  await p.close();
+}, 60_000);
+
+test("a select filters alongside a facet already selected by radio", async () => {
+  const p = await tab();
+  await p.setViewport({ width: 1280, height: 900 });
+  await p.goto(`${story("many")}?days=1`, { waitUntil: "networkidle0" });
   expect((await shown(p)).length).toBe(2);
   await p.select('select[name="topic"]', "tools");
   expect(await shown(p)).toEqual(["Spec-driven Development"]);
   expect(new URL(p.url()).search).toBe("?topic=tools&days=1");
-  // Control: at 1000 px the select stacks below the search.
-  await p.setViewport({ width: 1000, height: 900 });
-  expect((await box('select[name="topic"]')).left).toBeLessThan(search.right);
   await p.close();
 }, 60_000);
 
@@ -427,12 +485,22 @@ test("two facets as choices filter together, each counting under the other", asy
   const p = await tab();
   await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
   expect(await p.$$eval("fieldset", (f) => f.length)).toBe(2);
-  expect(await shown(p)).toEqual(["Context Engineering", "Agenten im Team"]);
-  expect(await text(p, 'fieldset:first-of-type [data-facet-count="tools"]')).toBe("1");
+  expect({
+    rows: await shown(p),
+    tools: await text(p, 'fieldset:first-of-type [data-facet-count="tools"]'),
+  }).toEqual({ rows: ["Context Engineering", "Agenten im Team"], tools: "1" });
   await p.click('label.hw-choice:has(input[name="topic"][value="practice"])');
-  expect(await shown(p)).toEqual(["Agenten im Team"]);
-  expect(new URL(p.url()).search).toBe("?topic=practice&days=2");
-  expect(await text(p, 'fieldset:last-of-type [data-facet-count="1"]')).toBe("0");
+  expect({
+    rows: await shown(p),
+    search: new URL(p.url()).search,
+    oneDay: await text(p, 'fieldset:last-of-type [data-facet-count="1"]'),
+  }).toEqual({ rows: ["Agenten im Team"], search: "?topic=practice&days=2", oneDay: "0" });
+  await p.close();
+}, 60_000);
+
+test("clearing a two-facet filter selects All in both choice groups", async () => {
+  const p = await tab();
+  await p.goto(`${story("listed")}?topic=practice&days=2`, { waitUntil: "networkidle0" });
   await p.click("form [data-filter-clear]");
   expect(
     await p.$$eval("input:checked", (r) => r.map((x) => (x as HTMLInputElement).value)),
@@ -496,26 +564,33 @@ test("Ctrl+K or Cmd+K outside a text field focuses the search; K alone or a pale
   await p.close();
 }, 60_000);
 
-test("on a phone a tapped choice folds the facets and the button names it; a key pick keeps them", async () => {
+test("on a phone a tapped choice folds the facets, names the choice and returns focus", async () => {
   const p = await tab();
   await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
   await p.goto(story("listed"), { waitUntil: "networkidle0" });
-  const panel = () => p.$eval("[data-filter-panel]", (e) => e.checkVisibility());
   const toggle = "[data-filter-toggle]";
   expect(await text(p, toggle)).toBe("Filter");
   await p.tap(toggle);
   await p.tap('label.hw-choice:has(input[name="topic"][value="tools"])');
-  expect(await panel()).toBe(false);
+  expect(await p.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(false);
   expect(await text(p, toggle)).toBe("Werkzeuge");
   expect(await p.$eval(toggle, (e) => e.getAttribute("aria-label"))).toBe("Filter: Werkzeuge");
   expect(await p.evaluate(() => document.activeElement?.hasAttribute("data-filter-toggle"))).toBe(
     true,
   );
-  // Control: a pick by arrow key keeps them open.
+  await p.close();
+}, 60_000);
+
+// Control: a pick by arrow key keeps them open.
+test("on a phone an arrow key keeps the facets open and both labels fit the button's row", async () => {
+  const p = await tab();
+  await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
+  await p.goto(`${story("listed")}?topic=tools`, { waitUntil: "networkidle0" });
+  const toggle = "[data-filter-toggle]";
   await p.tap(toggle);
   await p.focus('input[name="days"][value=""]');
   await p.keyboard.press("ArrowRight");
-  expect(await panel()).toBe(true);
+  expect(await p.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(true);
   expect(await text(p, toggle)).toBe("Werkzeuge, 1 Tag");
   // The button has its own row under the search, the row's width for the chosen values.
   expect(
@@ -531,9 +606,15 @@ test("on a phone a tapped choice folds the facets and the button names it; a key
       };
     }),
   ).toEqual({ full: true, width: true, below: true });
-  // A shared link names its chosen values.
+  await p.close();
+}, 60_000);
+
+// A shared link names its chosen values.
+test("on a phone the Filters button names the facet in a shared link", async () => {
+  const p = await tab();
+  await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
   await p.goto(`${story("listed")}?topic=practice`, { waitUntil: "networkidle0" });
-  expect(await text(p, toggle)).toBe("Praxis");
+  expect(await text(p, "[data-filter-toggle]")).toBe("Praxis");
   await p.close();
 }, 60_000);
 

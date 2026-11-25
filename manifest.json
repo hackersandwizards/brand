@@ -542,7 +542,23 @@
     },
     {
       "path": "elements/list-filter.ts",
-      "sha256": "7de196a9ab527e427cddf65c689dfcb720e05cb607018c64c8987f020e53590a"
+      "sha256": "15e6db718e878d1761766c64dcf090c246d4829acb188801be6bbb26201901e6"
+    },
+    {
+      "path": "elements/list-filter-browser.ts",
+      "sha256": "5a3402ac2b10b26d89f673e4a2958dcb0c7e4ee3826d91be26c19129955e7e4c"
+    },
+    {
+      "path": "elements/list-filter-form.ts",
+      "sha256": "3fee40eef396b84f106932fa4feecba70c5a581a0159e3118529a56f0d2d7fd5"
+    },
+    {
+      "path": "elements/list-filter-source.ts",
+      "sha256": "e69f05dc8fcee6b50c22fa463a42fa09f6406ecf89b6266ea28a46b1b4c936e1"
+    },
+    {
+      "path": "elements/list-filter-view.ts",
+      "sha256": "99dbd1be1dbc88c49a5a3c3eeeb2f3d43c76e9af8cfd7e0e87cadb87506128f0"
     },
     {
       "path": "elements/choice.css",
@@ -554,7 +570,7 @@
     },
     {
       "path": "expert/components/ListFilter.astro",
-      "sha256": "8feb6654445ff2352d45d0f760002106673c913ec9909d0fabadd378e9c9d009"
+      "sha256": "e9cdd3a556ace8c81b53289f962894c6f39980291a7e96b745591a8738f37525"
     },
     {
       "path": "elements/accordion.css",

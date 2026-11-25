@@ -23,7 +23,8 @@ data or secret.
   with its sha256. `elements/` holds the shared elements every system renders, one plain-CSS
   file each with the four scales in `scales.css`, and the framework-free scripts the elements need
   (`behaviour.ts`, with `copy.ts` for a copy-only page and `carousel.ts` for carousel-only wiring,
-  `form.ts`, `code.ts`, `list-filter.ts`, `table.ts`). The behaviour modules `command.ts`,
+  `form.ts`, `code.ts`, `list-filter-browser.ts` (with the shared list-filter protocol in
+  `list-filter.ts`), `table.ts`). The behaviour modules `command.ts`,
   `list-navigation.ts`, `motion-preference.ts`, `popover.ts`, `tree.ts` and `usage-hold.ts` are
   internal implementation files. This repo owns every one of them: no other repo is a source.
 - `press/`: the press kit's photos, the founders' portraits and their photo together, as the

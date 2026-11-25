@@ -1,14 +1,7 @@
 import { fc, test, unicodeString } from "@hackersandwizards/scaffolding/property";
 import { expect } from "vitest";
-import {
-  matches,
-  ranked,
-  readState,
-  rebaseSrcset,
-  searchWords,
-  stateUrl,
-  tally,
-} from "../elements/list-filter";
+import { matches, ranked, readState, searchWords, stateUrl, tally } from "../elements/list-filter";
+import { rebaseSrcset } from "../elements/list-filter-source";
 
 const facetName = fc.oneof(fc.constantFrom("constructor", "__proto__", "toString"), unicodeString);
 const queryWord = unicodeString.map((s) => `w${s.replace(/\s/gu, "_")}z`);
@@ -24,7 +17,9 @@ test.prop([fc.array(queryWord), fc.constantFrom(" ", "\t", "\n", "\u00a0")], {
   );
 });
 
-test.prop([facetName, unicodeString, unicodeString], {
+const urlFacet = facetName.map((key) => (key === "q" || key === "pin" ? `${key}-facet` : key));
+
+test.prop([urlFacet, unicodeString, unicodeString], {
   examples: [
     ["__proto__", "Grüße & 東京", "東京 & #"],
     ["constructor", "", ""],
@@ -32,46 +27,71 @@ test.prop([facetName, unicodeString, unicodeString], {
     ["\t&/#", ` ${"ü".repeat(1024)} `, "%#?"],
   ],
 })(
-  "round-trips offered URL state, omits empty values and preserves unrelated state",
-  (key, q, value) => {
-    const facet = key === "q" || key === "pin" ? `${key}-facet` : key;
+  "writes offered URL state, omits empty values and preserves unrelated state",
+  (facet, q, value) => {
     const options = Object.fromEntries([[facet, [value]]]);
     const facets = Object.fromEntries([[facet, value]]);
     const original = new URL("https://example.test/knowledge?pin=1#list");
     original.searchParams.set("q", "old");
     original.searchParams.set(facet, value + "old");
-    expect(readState(original.searchParams, options)).toEqual({
-      q: "old",
-      facets: Object.fromEntries([[facet, ""]]),
-    });
 
     const url = new URL(stateUrl(original.href, { q, facets }));
-    expect(url.pathname).toBe(original.pathname);
-    expect(url.hash).toBe("#list");
-    expect(url.searchParams.getAll("pin")).toEqual(["1"]);
-    expect(url.searchParams.getAll("q")).toEqual(q ? [q] : []);
-    expect(url.searchParams.getAll(facet)).toEqual(value ? [value] : []);
-    expect(readState(url.searchParams, options)).toEqual({ q: q.trim(), facets });
-    expect(readState(new URLSearchParams(), options)).toEqual({
-      q: "",
-      facets: Object.fromEntries([[facet, ""]]),
+    expect({
+      path: url.pathname,
+      hash: url.hash,
+      pin: url.searchParams.getAll("pin"),
+      q: url.searchParams.getAll("q"),
+      facet: url.searchParams.getAll(facet),
+    }).toEqual({
+      path: original.pathname,
+      hash: "#list",
+      pin: ["1"],
+      q: q ? [q] : [],
+      facet: value ? [value] : [],
     });
+    expect(readState(url.searchParams, options)).toEqual({ q: q.trim(), facets });
   },
 );
 
-test.prop(
-  [
-    facetName,
-    facetName,
-    unicodeString,
-    fc.array(fc.tuple(fc.boolean(), fc.boolean(), fc.integer({ min: -1, max: 4 }))),
+test.prop([urlFacet, unicodeString], {
+  examples: [
+    ["__proto__", "東京 & #"],
+    ["constructor", ""],
+    ["toString", "a=b"],
+    ["\t&/#", "%#?"],
   ],
+})("reads missing or unoffered facet values as empty", (facet, value) => {
+  const options = Object.fromEntries([[facet, [value]]]);
+  const unknown = new URLSearchParams({ pin: "1", q: "old", [facet]: value + "old" });
+  const facets = Object.fromEntries([[facet, ""]]);
+  expect(readState(unknown, options)).toEqual({ q: "old", facets });
+  expect(readState(new URLSearchParams(), options)).toEqual({ q: "", facets });
+});
+
+interface FacetScenario {
+  param: string;
+  otherParam: string;
+  selected: string;
+  alternative: string;
+}
+
+const facetScenario = (param: string, other: string, label: string): FacetScenario => ({
+  param,
+  otherParam: other === param ? other + "/" : other,
+  selected: label + "1",
+  alternative: label + "2",
+});
+
+const distinctFacets = fc
+  .record({ param: facetName, other: facetName, label: unicodeString })
+  .map(({ param, other, label }) => facetScenario(param, other, label));
+
+test.prop(
+  [distinctFacets, fc.array(fc.tuple(fc.boolean(), fc.boolean(), fc.integer({ min: -1, max: 4 })))],
   {
     examples: [
       [
-        "__proto__",
-        "constructor",
-        "",
+        facetScenario("__proto__", "constructor", ""),
         [
           [true, true, 2],
           [true, false, 1],
@@ -81,24 +101,19 @@ test.prop(
         ],
       ],
       [
-        "toString",
-        "__proto__",
-        "Grüße",
+        facetScenario("toString", "__proto__", "Grüße"),
         [
           [true, true, 1],
           [true, false, 0],
           [false, true, 2],
         ],
       ],
-      ["", "", "長".repeat(1024), []],
+      [facetScenario("", "", "長".repeat(1024)), []],
     ],
   },
 )(
   "filters by every word and facet and counts each matching item once per value",
-  (param, other, label, rows) => {
-    const otherParam = other === param ? other + "/" : other;
-    const selected = label + "1";
-    const alternative = label + "2";
+  ({ param, otherParam, selected, alternative }, rows) => {
     const state = {
       q: "ALPHA beta",
       facets: Object.fromEntries([
@@ -130,7 +145,6 @@ test.prop(
     expect(tally(items, state, param)).toEqual(expected);
   },
 );
-
 test.prop([fc.stringMatching(/^[a-z]{1,16}$/), fc.nat(32), fc.boolean()], {
   examples: [
     ["a", 0, true],

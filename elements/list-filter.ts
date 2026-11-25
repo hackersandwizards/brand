@@ -1,14 +1,3 @@
-// The list filter's protocol, framework-free: the matching a server render and the browser share,
-// so a shared link renders the rows the typing showed, and `initListFilter`, the browser side of
-// expert/components/ListFilter.astro, which a page without Astro can run over the same markup.
-// An item is its text and, per facet parameter, the values it carries; the state is the
-// search words and one chosen value per facet, "" for all. Each row of the list carries
-// data-filter-item, its text in data-filter-text, its facet values as JSON in
-// data-filter-facets ({"topic":["tools"]}), its place in the server's order in data-filter-order;
-// a [data-filter-title] inside, holding text only, gets the matched words marked, and a
-// [data-filter-group] hides while none of its rows shows. A server render sets `hidden` on each row
-// where `matches(item, state)` is false, so a shared link shows the same rows without JavaScript.
-// One list filter per page: each reads and writes `?q=`.
 export interface FilterItem {
   text: string;
   facets: Record<string, string[]>;
@@ -109,36 +98,6 @@ export function tally(items: FilterItem[], state: FilterState, param: string) {
 /** The count line: a template such as "{shown} of {total}", or one for a single match and one for
  *  any other number, filled in. */
 export type CountCopy = string | { one: string; other: string };
-function readCountCopy(json: string): CountCopy {
-  const value: unknown = JSON.parse(json);
-  if (typeof value === "string") return value;
-  if (
-    value &&
-    typeof value === "object" &&
-    "one" in value &&
-    "other" in value &&
-    typeof value.one === "string" &&
-    typeof value.other === "string"
-  )
-    return { one: value.one, other: value.other };
-  throw new Error("data-count must be a string or contain one and other strings");
-}
-
-function readFilterFacets(json: string): FilterItem["facets"] {
-  const value: unknown = JSON.parse(json);
-  if (!value || typeof value !== "object" || Array.isArray(value))
-    throw new Error("data-filter-facets must be an object");
-  return Object.fromEntries(
-    Object.entries<unknown>({ ...value }).map(([facet, values]) => {
-      if (
-        !Array.isArray(values) ||
-        !values.every((item): item is string => typeof item === "string")
-      )
-        throw new Error(`data-filter-facets: "${facet}" must be a list of strings`);
-      return [facet, values];
-    }),
-  );
-}
 
 export const countLine = (template: CountCopy, shown: number, total: number) =>
   (typeof template === "string" ? template : shown === 1 ? template.one : template.other)
@@ -194,13 +153,16 @@ const escapeMarkup = (text: string) =>
     (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!,
   );
 
-/** The text as HTML with each search word in a <mark>, every part escaped. A word matches as
- *  `hasWords` finds it, so "muller" marks "Müller". */
-export function highlight(text: string, words: string[]): string {
-  if (!words.length) return escapeMarkup(text);
-  const source = text.normalize("NFC");
-  // Each form of the text character by character, with where in the source each folded character
-  // starts and ends.
+interface FoldedText {
+  folded: string;
+  from: number[];
+  to: number[];
+}
+
+// Each form of the text character by character, with where in the source each folded character
+// starts and ends.
+/** Index the two search spellings against spans in the original text. */
+function indexFoldedText(source: string): FoldedText[] {
   const forms = [0, 1].map(() => ({ folded: "", from: [] as number[], to: [] as number[] }));
   let at = 0;
   for (const char of source) {
@@ -214,14 +176,30 @@ export function highlight(text: string, words: string[]): string {
     });
     at += char.length;
   }
+  return forms;
+}
+
+interface MarkedText {
+  source: string;
+  marked: boolean[];
+}
+
+/** Project every occurrence of the folded words onto its full span in the source. */
+function searchSpans(source: string, words: string[]): MarkedText {
+  const forms = indexFoldedText(source);
+  const needles = Array.from(words, searchForms)
+    .flat()
+    .filter((needle) => needle.length > 0);
   const marked = new Array<boolean>(source.length).fill(false);
-  for (const word of words)
-    for (const needle of searchForms(word)) {
-      if (!needle) continue;
-      for (const { folded, from, to } of forms)
-        for (let hit = folded.indexOf(needle); hit !== -1; hit = folded.indexOf(needle, hit + 1))
-          marked.fill(true, from[hit], to[hit + needle.length - 1]);
-    }
+  for (const needle of needles)
+    for (const { folded, from, to } of forms)
+      for (let hit = folded.indexOf(needle); hit !== -1; hit = folded.indexOf(needle, hit + 1))
+        marked.fill(true, from[hit], to[hit + needle.length - 1]);
+  return { source, marked };
+}
+
+/** Escape the text and wrap each contiguous span marked by the search. */
+function renderSearchSpans({ source, marked }: MarkedText): string {
   let html = "";
   for (let start = 0; start < source.length;) {
     let end = start;
@@ -233,399 +211,14 @@ export function highlight(text: string, words: string[]): string {
   return html;
 }
 
-/** A srcset with each candidate's address passed through `at`, split as the HTML parser does:
- *  an address runs to whitespace, and a comma inside it stays, as in a data: or CDN URL. */
-export function rebaseSrcset(srcset: string, at: (url: string) => string) {
-  let out = "";
-  let rest = srcset;
-  while (rest) {
-    const gap = /^[\s,]*/.exec(rest)![0];
-    const url = /^\S*/.exec(rest.slice(gap.length))![0];
-    const commas = /,*$/.exec(url)![0];
-    rest = rest.slice(gap.length + url.length);
-    // Without a trailing comma, descriptors such as "2x" run to the next comma.
-    const descriptors = commas ? "" : /^[^,]*/.exec(rest)![0];
-    rest = rest.slice(descriptors.length);
-    const bare = url.slice(0, url.length - commas.length);
-    out += gap + (bare ? at(bare) : "") + commas + descriptors;
-  }
-  return out;
+/** The text as HTML with each search word in a <mark>, every part escaped. A word matches as
+ *  `hasWords` finds it, so "muller" marks "Müller". */
+export function highlight(text: string, words: string[]): string {
+  if (!words.length) return escapeMarkup(text);
+  const source = text.normalize("NFC");
+  return renderSearchSpans(searchSpans(source, words));
 }
 
 /** The rows from which a list skips the layout of its rows off screen (data-long, list-filter.css):
  *  from here, rendering every row, one filter step on a slow phone takes longer than a frame. */
 export const LONG_LIST = 100;
-
-/** Whether `el` renders: checkVisibility where the browser has it (Safari from 17.4), else its
- *  boxes, which a fixed element has too. */
-const visible = (el: HTMLElement) => el.checkVisibility?.() ?? el.getClientRects().length > 0;
-
-/** The browser side of ListFilter.astro, over its markup (root [data-list-filter], its value
- *  "always" or "active"): typing (200 ms debounce), each facet's choice or select filter in place, the
- *  state lives in `?q=` and each facet's parameter, Back and Forward restore it, and the counts
- *  follow the search. One search is one history entry, arrowing across one facet's choices is one too.
- *  Ctrl+K or Cmd+K focuses the search; on a phone a tapped choice folds the facets, and the Filters
- *  button names the chosen values.
- *  Rows in a template[data-filter-rows] enter the list; with data-source on the root, the rows of
- *  that page load on first use, and until they do the form's submit goes there. Once wired the
- *  root carries data-ready. */
-export function initListFilter(root: HTMLElement) {
-  // Wired once: a second call would stack every listener.
-  if ("ready" in root.dataset) return;
-  const form = root.querySelector("form")!;
-  const input = form.querySelector<HTMLInputElement>('input[name="q"]')!;
-  const radios = [...form.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
-  const selects = [...form.querySelectorAll("select")];
-  const list = root.querySelector<HTMLElement>("[data-filter-list]")!;
-  const empty = root.querySelector<HTMLElement>("[data-filter-empty]")!;
-  const count = root.querySelector<HTMLElement>("[data-filter-count]")!;
-  const clears = root.querySelectorAll<HTMLElement>("[data-filter-clear]");
-  const fullTexts = root.querySelectorAll<HTMLAnchorElement>("[data-filter-fulltext]");
-  const toggle = root.querySelector<HTMLButtonElement>("[data-filter-toggle]");
-  // The button's text sits in its [data-filter-label], its own word in data-filters; markup
-  // without them keeps the button's text as that word.
-  const toggleLabel = toggle?.querySelector<HTMLElement>("[data-filter-label]");
-  const filtersWord = toggle?.dataset.filters ?? toggle?.textContent?.trim() ?? "";
-  const panel = root.querySelector<HTMLElement>("[data-filter-panel]")!;
-  const overview = root.dataset.overview ? document.getElementById(root.dataset.overview) : null;
-  const browseAlways = root.dataset.listFilter !== "active";
-  const copy = readCountCopy(root.dataset.count!);
-  // Each facet's values in the form's order: a fieldset of radios sharing its name, or a select.
-  const options: Record<string, string[]> = {};
-  Object.setPrototypeOf(options, null);
-  for (const el of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
-    'input[type="radio"], select',
-  ))
-    (options[el.name] ??= []).push(
-      ...(el instanceof HTMLSelectElement
-        ? [...el.options].map((option) => option.value)
-        : [el.value]),
-    );
-  const value = (param: string) =>
-    selects.find((select) => select.name === param)?.value ??
-    radios.find((radio) => radio.name === param && radio.checked)?.value ??
-    "";
-  const choiceSets = [...form.querySelectorAll("fieldset")].flatMap((set) => {
-    const param = set.querySelector<HTMLInputElement>('input[type="radio"]')?.name;
-    return param ? [{ set, param }] : [];
-  });
-  form.hidden = false;
-  const template = list.querySelector<HTMLTemplateElement>("template[data-filter-rows]");
-  template?.replaceWith(template.content);
-
-  type Row = { el: HTMLElement; title: HTMLElement | null; plain: string; item: FilterItem };
-  let rows: Row[] = [];
-  let items: FilterItem[] = [];
-  // The rows as the page placed them, which may be a query's order.
-  let placed: Row[] = [];
-  let groups: HTMLElement[] = [];
-  const collect = () => {
-    rows = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")]
-      .sort((a, b) => Number(a.dataset.filterOrder ?? 0) - Number(b.dataset.filterOrder ?? 0))
-      .map((el) => {
-        const title = el.querySelector<HTMLElement>("[data-filter-title]");
-        const item: FilterItem = {
-          text: el.dataset.filterText ?? "",
-          facets: readFilterFacets(el.dataset.filterFacets ?? "{}"),
-        };
-        return { el, title, plain: title?.textContent ?? "", item };
-      });
-    items = rows.map((row) => row.item);
-    const rowOf = new Map(rows.map((row) => [row.el, row]));
-    placed = [...list.querySelectorAll<HTMLElement>("[data-filter-item]")].map((el) =>
-      rowOf.get(el)!,
-    );
-    groups = [...list.querySelectorAll<HTMLElement>("[data-filter-group]")];
-    list.toggleAttribute("data-long", rows.length >= LONG_LIST);
-  };
-  // In a long list a row off screen skips layout (list-filter.css) and stands in at the mean
-  // content height of the rows the browser renders, measured whenever the list's width changes
-  // (from 0 too, as a hidden list shows); a row once rendered keeps its own height.
-  let width = -1;
-  new ResizeObserver(([entry]) => {
-    if (entry!.contentRect.width === width) return;
-    width = entry!.contentRect.width;
-    if (!list.hasAttribute("data-long")) return;
-    const rendered = rows.filter(
-      ({ el }) =>
-        !el.hidden &&
-        [...el.children].some((child) => child.checkVisibility?.({ contentVisibilityAuto: true })),
-    );
-    if (!rendered.length) return;
-    // The stand-in is the content box's height: padding and border come on top.
-    const box = getComputedStyle(rendered[0]!.el);
-    const inset = [box.paddingTop, box.paddingBottom, box.borderTopWidth, box.borderBottomWidth]
-      .map(parseFloat)
-      .reduce((a, b) => a + b);
-    const mean =
-      rendered.reduce((sum, { el }) => sum + el.getBoundingClientRect().height, 0) /
-      rendered.length;
-    list.style.setProperty("--hw-list-filter-row", `${mean - inset}px`);
-  }).observe(list);
-  collect();
-
-  // The source page's rows arrive on first use; until then nothing filters, and should they never
-  // arrive the form goes to that page.
-  const source = root.dataset.source;
-  let loaded = !source;
-  let failed = false;
-  let loading: Promise<void> | undefined;
-  const load = () =>
-    (loading ??= fetch(source!)
-      .then(async (response) => {
-        if (!response.ok) throw new Error(String(response.status));
-        return { html: await response.text(), base: response.url };
-      })
-      .then(({ html, base }) => {
-        const page = new DOMParser().parseFromString(html, "text/html");
-        // The source's list as it stands, groups included, else its rows alone.
-        const from = page.querySelector("[data-filter-list]");
-        const nodes = from
-          ? [...from.childNodes]
-          : [...page.querySelectorAll("[data-filter-item]")];
-        // Relative addresses resolve against the source page, not this one; a fragment (an SVG
-        // sprite's #icon) and an address that does not parse stay as written.
-        const at = (url: string) => {
-          if (url.startsWith("#")) return url;
-          try {
-            return new URL(url, base).href;
-          } catch {
-            return url;
-          }
-        };
-        for (const node of nodes) {
-          if (!(node instanceof Element)) continue;
-          for (const el of [node, ...node.querySelectorAll("[href], [src], [srcset]")]) {
-            for (const name of ["href", "src"]) {
-              const value = el.getAttribute(name);
-              if (value !== null) el.setAttribute(name, at(value));
-            }
-            const srcset = el.getAttribute("srcset");
-            if (srcset) el.setAttribute("srcset", rebaseSrcset(srcset, at));
-          }
-        }
-        if (from) list.replaceChildren(...nodes);
-        else list.append(...nodes);
-        collect();
-        loaded = true;
-        apply();
-      })
-      .catch(() => {
-        failed = true;
-        // apply() sends a search already typed to the source page, which lists every row; a pending
-        // debounce calls it instead, with what has been typed by then.
-        if (!timer) apply();
-      }));
-
-  const state = (): FilterState => {
-    const facets: Record<string, string> = {};
-    Object.setPrototypeOf(facets, null);
-    for (const param in options) facets[param] = value(param);
-    return { q: input.value.trim(), facets };
-  };
-
-  const apply = () => {
-    const current = state();
-    const words = searchWords(current.q);
-    const faceted = Object.values(current.facets).some(Boolean);
-    const active = words.length > 0 || faceted;
-    if (overview) overview.hidden = active;
-    // A set facet fills the phone's Filters button and names itself there: its facets are folded
-    // away behind it.
-    if (toggle) {
-      if (faceted) toggle.removeAttribute("data-variant");
-      else toggle.setAttribute("data-variant", "secondary");
-      const { text, aria } = filtersLabel(
-        filtersWord,
-        [
-          ...form.querySelectorAll<HTMLInputElement | HTMLOptionElement>(
-            'input[type="radio"]:checked, option:checked',
-          ),
-        ]
-          .filter((el) => el.value)
-          .map((el) => el.dataset.label),
-      );
-      (toggleLabel ?? toggle).textContent = text;
-      if (aria) toggle.setAttribute("aria-label", aria);
-      else toggle.removeAttribute("aria-label");
-    }
-    if (!loaded) {
-      // An entry here carrying a search would load the source again on Back and leave once more:
-      // the source page takes its place.
-      if (active && failed) {
-        const carried = isActive(readState(new URLSearchParams(location.search), options));
-        location[carried ? "replace" : "assign"](stateUrl(form.action, current));
-      } else if (active) void load();
-      list.hidden = true;
-      for (const clear of clears) if (clear.closest("form")) clear.hidden = !active;
-      return;
-    }
-    let shown = 0;
-    const order = ranked(rows, (row) => row.plain, current.q);
-    // Rows move only when the order changes, and only within their own parent, so a grouped list
-    // keeps its groups.
-    if (order.some((row, i) => row !== placed[i])) {
-      for (const row of order) row.el.parentElement?.append(row.el);
-      placed = order;
-    }
-    for (const { el, title, plain, item } of order) {
-      el.hidden = !matches(item, current);
-      if (el.hidden) continue;
-      shown += 1;
-      // A hidden row's title is rewritten when it shows again.
-      if (title) title.innerHTML = highlight(plain, words);
-    }
-    for (const group of groups)
-      group.hidden = !group.querySelector("[data-filter-item]:not([hidden])");
-    const listed = browseAlways || active;
-    list.hidden = !listed || shown === 0;
-    empty.hidden = !listed || shown > 0;
-    count.textContent = listed ? countLine(copy, shown, items.length) : "";
-    for (const clear of clears) if (clear.closest("form")) clear.hidden = !active || shown === 0;
-    for (const link of fullTexts) {
-      link.href = fullTextUrl(link.dataset.filterFulltext!, current.q);
-      link.hidden = !current.q;
-    }
-    for (const { set, param } of choiceSets) {
-      const chips = tally(items, current, param);
-      for (const each of set.querySelectorAll<HTMLElement>("[data-facet-count]"))
-        each.textContent = String(chips.get(each.dataset.facetCount!) ?? 0);
-    }
-    for (const select of selects) {
-      const counts = tally(items, current, select.name);
-      for (const option of select.options)
-        option.textContent = `${option.dataset.label} (${counts.get(option.value) ?? 0})`;
-    }
-  };
-
-  const restore = () => {
-    const { q, facets } = readState(new URLSearchParams(location.search), options);
-    input.value = q;
-    for (const radio of radios) radio.checked = radio.value === (facets[radio.name] ?? "");
-    for (const select of selects) select.value = facets[select.name] ?? "";
-    apply();
-  };
-
-  let timer = 0;
-  // "typing", or "picking" and the facet's parameter: arrowing across one facet's choices.
-  let session = "";
-  // A pick by pointer, which folds the phone's facets; a pick by key keeps them open.
-  let tapped = false;
-  const record = (kind: string) => {
-    // A failed load has just sent an active search to the source page: no entry on the way out.
-    if (failed && isActive(state())) return;
-    const next = stateUrl(location.href, state());
-    if (next === location.href) return;
-    if (session === kind) history.replaceState(history.state, "", next);
-    else history.pushState(history.state, "", next);
-    session = kind;
-  };
-  /** A change that is its own history entry. */
-  const once = (kind: string) => {
-    session = "";
-    apply();
-    record(kind);
-    session = "";
-  };
-  input.addEventListener("input", () => {
-    clearTimeout(timer);
-    timer = window.setTimeout(() => {
-      timer = 0;
-      apply();
-      record("typing");
-    }, 200);
-  });
-  panel.addEventListener("pointerdown", () => {
-    session = "";
-    tapped = true;
-  });
-  for (const radio of radios)
-    radio.addEventListener("change", () => {
-      apply();
-      record(`picking ${radio.name}`);
-    });
-  for (const select of selects) select.addEventListener("change", () => once("picking"));
-  if (source) form.addEventListener("focusin", () => void load());
-  form.addEventListener("submit", (event) => {
-    clearTimeout(timer);
-    timer = 0;
-    if (failed) return;
-    event.preventDefault();
-    once("typing");
-    input.blur();
-  });
-  for (const clear of clears)
-    clear.addEventListener("click", (event) => {
-      event.preventDefault();
-      input.value = "";
-      for (const radio of radios) radio.checked = radio.value === "";
-      for (const select of selects) select.value = "";
-      once("typing");
-      input.focus();
-    });
-  addEventListener("popstate", () => {
-    session = "";
-    restore();
-  });
-  // A server renders the URL's state, a static page does not: the URL wins while the form is as
-  // rendered, what someone typed or picked before this ran wins otherwise.
-  const untouched =
-    input.value === input.defaultValue &&
-    radios.every((radio) => radio.checked === radio.defaultChecked) &&
-    selects.every((select) =>
-      [...select.options].every((option) => option.selected === option.defaultSelected),
-    );
-  if (untouched) restore();
-  else apply();
-  history.replaceState(history.state, "", stateUrl(location.href, state()));
-
-  // Ctrl+K or Cmd+K outside a text field puts the cursor in the search, unless the page's command
-  // palette (dialog[data-hw-shortcut="k"], command.css) takes the key. A single key such as "/"
-  // would need a switch to turn it off (WCAG 2.1.4); one with a modifier does not.
-  document.addEventListener("keydown", (event) => {
-    const target = event.target as HTMLElement;
-    if (
-      event.key?.toLowerCase() !== "k" ||
-      !(event.ctrlKey || event.metaKey) ||
-      event.altKey ||
-      event.shiftKey ||
-      target.isContentEditable ||
-      target.matches("textarea, select, input:not([type=radio], [type=checkbox])") ||
-      !visible(input) ||
-      document.querySelector('dialog[data-hw-shortcut="k"]')
-    )
-      return;
-    event.preventDefault();
-    input.focus();
-  });
-
-  // The phone's facets: the toggle opens and closes them, Escape and a click outside close them,
-  // Escape returning focus to the toggle. A pick by pointer closes them too, so the rows show,
-  // the focus on the toggle; a pick by key keeps them open, the focus where it was.
-  root.dataset.js = "";
-  root.dataset.ready = "";
-  if (!toggle) return;
-  const open = (next: boolean) => {
-    root.toggleAttribute("data-closed", !next);
-    toggle.setAttribute("aria-expanded", String(next));
-  };
-  open(false);
-  toggle.addEventListener("click", () => open(root.hasAttribute("data-closed")));
-  panel.addEventListener("keydown", () => (tapped = false));
-  panel.addEventListener("change", () => {
-    if (tapped && visible(toggle)) {
-      open(false);
-      toggle.focus();
-    }
-    tapped = false;
-  });
-  root.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || root.hasAttribute("data-closed")) return;
-    open(false);
-    if (visible(toggle)) toggle.focus();
-  });
-  document.addEventListener("click", (event) => {
-    const target = event.target as Node;
-    if (!toggle.contains(target) && !panel.contains(target)) open(false);
-  });
-}

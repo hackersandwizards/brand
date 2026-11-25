@@ -3,7 +3,7 @@
  *  renders in full in the default slot: a GET form to its own page, so the server applies the
  *  URL's state and a shared link and a browser without JavaScript show the same rows: each row
  *  sets `hidden` where `matches(item, state)` is false. The browser side and the rows' attributes
- *  are elements/list-filter.ts's; the look is the shared elements
+ *  are elements/list-filter-browser.ts's; the look is the shared elements
  *  (hw-search, hw-choice, hw-field, hw-button) placed by elements/list-filter.css, sized by the
  *  page's data-hw-scale. Each facet shows as choices, "All" first, unless its labels run past
  *  `budget` characters, then as a select; no facet shows the search alone, without Filters button.
@@ -236,51 +236,64 @@ const filtersButton = filtersLabel(
    to its state without script, so the facets and the search button stay usable. */
 }
 <script is:inline>
-  (() => {
-    const root = document.currentScript?.previousElementSibling;
-    if (!(root instanceof HTMLElement) || !root.hasAttribute("data-list-filter")) return;
-    const form = root.querySelector("form");
-    const list = root.querySelector("[data-filter-list]");
-    const count = root.querySelector("[data-filter-count]");
-    if (
-      !(form instanceof HTMLFormElement) ||
-      !(list instanceof HTMLElement) ||
-      !(count instanceof HTMLElement)
-    )
-      return;
-    const overviewId = root.dataset.overview;
-    const overview = overviewId ? document.getElementById(overviewId) : null;
-    const formHidden = form.hidden;
-    const listHidden = list.hidden;
-    const overviewHidden = overview?.hidden ?? false;
-    const countText = count.textContent;
-    const params = new URLSearchParams(location.search);
-    const set = [...form.querySelectorAll("[name]")].some((field) => {
-      const name = field.getAttribute("name");
-      return name !== null && params.get(name);
-    });
-    root.dataset.js = "";
-    root.dataset.closed = "";
-    form.hidden = false;
-    if ("listed" in root.dataset && !set) {
-      list.hidden = true;
-      count.textContent = "";
-    }
-    if (set && overview) overview.hidden = true;
-    addEventListener("DOMContentLoaded", () => {
-      if ("ready" in root.dataset) return;
-      delete root.dataset.js;
-      delete root.dataset.closed;
-      form.hidden = formHidden;
-      list.hidden = listHidden;
-      count.textContent = countText;
-      if (overview) overview.hidden = overviewHidden;
-    });
-  })();
+  {
+    /** Read the list markup next to the script before changing its first-paint state. */
+    const readFirstPaint = (root) => {
+      if (!(root instanceof HTMLElement) || !root.hasAttribute("data-list-filter")) return;
+      const form = root.querySelector("form");
+      const list = root.querySelector("[data-filter-list]");
+      const count = root.querySelector("[data-filter-count]");
+      if (
+        !(form instanceof HTMLFormElement) ||
+        !(list instanceof HTMLElement) ||
+        !(count instanceof HTMLElement)
+      )
+        return;
+      return { root, form, list, count };
+    };
+
+    /** Set the initial visibility and restore the rendered markup if hydration fails. */
+    const prepareFirstPaint = () => {
+      const root = document.currentScript?.previousElementSibling;
+      const markup = readFirstPaint(root);
+      if (!markup) return;
+      const { root: filter, form, list, count } = markup;
+      const overviewId = filter.dataset.overview;
+      const overview = overviewId ? document.getElementById(overviewId) : null;
+      const formHidden = form.hidden;
+      const listHidden = list.hidden;
+      const overviewHidden = overview?.hidden ?? false;
+      const countText = count.textContent;
+      const params = new URLSearchParams(location.search);
+      const set = [...form.querySelectorAll("[name]")].some((field) => {
+        const name = field.getAttribute("name");
+        return name !== null && params.get(name);
+      });
+      filter.dataset.js = "";
+      filter.dataset.closed = "";
+      form.hidden = false;
+      if ("listed" in filter.dataset && !set) {
+        list.hidden = true;
+        count.textContent = "";
+      }
+      if (set && overview) overview.hidden = true;
+      addEventListener("DOMContentLoaded", () => {
+        if ("ready" in filter.dataset) return;
+        delete filter.dataset.js;
+        delete filter.dataset.closed;
+        form.hidden = formHidden;
+        list.hidden = listHidden;
+        count.textContent = countText;
+        if (overview) overview.hidden = overviewHidden;
+      });
+    };
+
+    prepareFirstPaint();
+  }
 </script>
 
 <script>
-  import { initListFilter } from "../../elements/list-filter";
+  import { initListFilter } from "../../elements/list-filter-browser";
 
   for (const root of document.querySelectorAll<HTMLElement>("[data-list-filter]"))
     initListFilter(root);
