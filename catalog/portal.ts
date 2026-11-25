@@ -1104,8 +1104,14 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <script>
 {
-  let theme = null;
-  try { theme = localStorage.getItem("theme"); } catch {}
+  let theme;
+  try {
+    theme = localStorage.getItem("theme");
+  } catch (error) {
+    if (!(error instanceof DOMException) || error.name !== "SecurityError") throw error;
+    // Blocked storage leaves the system colour scheme in effect.
+    theme = null;
+  }
   if (theme === "dark" || (theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.dataset.theme = "dark";
 }
 </script>

@@ -61,15 +61,21 @@ import { MOON, SUN } from "./theme-icons";
         // first rAF lets styles settle before transitions come back.
         root.classList.add("theme-switching");
         root.setAttribute("data-theme", newTheme);
-        // Storage can be blocked (private mode, a file:// page); the flip still holds for this page.
-        try {
-          localStorage.setItem("theme", newTheme);
-        } catch {}
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             root.classList.remove("theme-switching");
           });
         });
+        try {
+          localStorage.setItem("theme", newTheme);
+        } catch (error) {
+          if (
+            !(error instanceof DOMException) ||
+            (error.name !== "SecurityError" && error.name !== "QuotaExceededError")
+          )
+            throw error;
+          // The flip still holds for this page when storage is blocked or full.
+        }
       });
     }
   }

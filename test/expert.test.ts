@@ -14,10 +14,11 @@ const light = block(/:root,\s*\[data-theme="light"\]\s*\{([^}]*)\}/);
 const dark = { ...light, ...block(/html\[data-theme="dark"\]\s*\{([^}]*)\}/) };
 const inline = block(/@theme inline\s*\{([^}]*)\}/);
 const token = resolveColors(parseTokens(readFileSync(SOURCE, "utf8")));
+const namedRoleNames = (roles: Record<string, string>) =>
+  Object.keys(roles).filter((name) => !/^\d/.test(roles[name]!));
 const root = (roles: Record<string, string>) => {
   const all = { ...parseTokens(readFileSync(SOURCE, "utf8")), ...inline, ...roles };
-  const named = Object.entries(roles).filter(([, v]) => !/^\d/.test(v));
-  for (const [k] of named) all[`--color-role${k}`] = `var(${k})`;
+  for (const k of namedRoleNames(roles)) all[`--color-role${k}`] = `var(${k})`;
   // A cycle would recurse without end in resolveColors: name it instead.
   const visit = (k: string, path: string[]): void => {
     if (path.includes(k)) throw new Error(`cycle: ${[...path, k].join(" -> ")}`);
@@ -39,10 +40,14 @@ test("light roles resolve to the token values, without a cycle", () => {
 });
 
 test("every light and dark role resolves to a colour", () => {
-  for (const roles of [light, dark]) {
+  for (const [theme, roles] of Object.entries({ light, dark })) {
+    const names = namedRoleNames(roles);
+    expect(names, `Select named roles from the ${theme} theme`).not.toHaveLength(0);
     const value = root(roles);
-    for (const [k, v] of Object.entries(roles))
-      if (!/^\d/.test(v)) expect(value(k)).toMatch(/^#[0-9a-f]{6}$/);
+    for (const name of names)
+      expect(value(name), `Resolve the ${theme} role ${name} to a colour`).toMatch(
+        /^#[0-9a-f]{6}$/,
+      );
   }
 });
 
