@@ -1,12 +1,33 @@
 #!/usr/bin/env bun
 // The brand colour scan a consumer runs in its own gate, over its working tree from the current
-// directory down (tracked and untracked files, .gitignore honoured). Compares each file's counts
-// against brand-colours.json and exits 1 on any count above or below its entry, any unlisted file
-// with a count, an entry without a reason, a stale entry on a clean file, a misplaced partner mark,
-// or an entry that grew against HEAD beyond the allowlist total (or, during a brand pin change,
-// beyond what this scanner finds in the file as committed at HEAD).
+// directory down (tracked and untracked files, .gitignore honoured). Counts per file: colour
+// literals off the token set, as hex or a CSS colour name in a colour property (a JSX or Astro
+// expression prop's strings included), SVG colour attribute, color-mix(), Tailwind arbitrary value
+// or a custom property set to that name alone (`hex`), or as a colour function, rgb() and hsl()
+// through oklch(), lab(), hwb() and color() (`rgb`), an interpolation's names (${...}) never
+// read as one, colour literals repeating a token value instead of naming it, white and black included
+// (`tokenHex`), font stacks that do not open on a brand family, in font-family, the font
+// shorthand, an SVG attribute or a style key, and Tailwind's font-serif (`font`), Tailwind default
+// palette classes (`palette`), radii (`radius`)
+// and box shadows (`shadow`) whose value is no brand token, vendor-prefixed ones included,
+// Tailwind's default radius and shadow classes with a size included (bare `rounded` and `shadow`
+// match prose, so they are not read). Compares the counts with the consumer's brand-colours.json
+// and exits 1 on any count above or below its entry (an allowance above the count would let a new
+// finding there pass), any unlisted file with a count, an entry without a reason, an entry on a
+// file with no count (stale, so an old allowance cannot hide a new finding there), or an entry
+// that grew against HEAD: the allowlist may only shrink. An entry may grow, a new file's included,
+// where the allowlist's total for that metric does not grow against HEAD, so a value moved from one
+// file to another moves its entry in the same commit. Where the working tree changes the brand
+// pin package.json holds at HEAD, an entry may also grow to what this scanner finds in the file as
+// committed at HEAD, so a pin raise lists a newer scanner's findings in the same commit while
+// anything the consumer's own new code adds still fails. An entry on an SVG naming a `partner`, the
+// third party whose mark it is (a conference's or a client's logo), keeps that file out of the
+// counts with its reason, and may be added in any commit: its colours are its owner's. Prints every
+// built-in exception it applied with the number of files it skipped, and every partner mark it
+// allowed.
 import { readFileSync } from "node:fs";
 import { extname } from "node:path";
+import { nothingToAllow, pinChange, readAllowlists, writeAllowlist } from "./allowlist";
 import { brandFiles, brandSizes, isBrandCopy } from "./assets";
 import { METRICS, scanSource, type Counts, type Metric } from "./colour-scan";
 import { answerHelp, isRecord } from "./help";
@@ -16,11 +37,8 @@ import {
   exceptionReport,
   listTree,
   NOT_STYLING,
-  pinChange,
-  readAllowlists,
   runGit,
   STYLING_EXTENSIONS,
-  writeAllowlist,
 } from "./tree";
 
 const USAGE = `usage: brand-colours [--tighten]
@@ -48,11 +66,12 @@ export const isPartner = (file: string, e: Allowlist[string] | undefined) =>
 const metricTotal = (allow: Allowlist, k: Metric, skip: Set<string>) =>
   Object.entries(allow).reduce((sum, [f, e]) => sum + (skip.has(f) ? 0 : (e[k] ?? 0)), 0);
 
+/** Lists the allowlist paths that qualify as named partner marks. */
 const partnerFiles = (allow: Allowlist) =>
   Object.keys(allow).filter((file) => isPartner(file, allow[file]));
 
 /** Findings where a scanned file's counts sit above or below its allowlist entry. */
-const countViolations = (files: Record<string, Counts>, allow: Allowlist) => {
+export const countViolations = (files: Record<string, Counts>, allow: Allowlist) => {
   const out: string[] = [];
   for (const [file, counts] of Object.entries(files)) {
     if (isPartner(file, allow[file])) continue;
@@ -71,11 +90,15 @@ const countViolations = (files: Record<string, Counts>, allow: Allowlist) => {
 };
 
 /** Metadata and staleness findings for one allowlist entry. */
-const entryViolations = (file: string, entry: Allowlist[string], counts: Counts | undefined) => {
+export const entryViolations = (
+  file: string,
+  entry: Allowlist[string],
+  counts: Counts | undefined,
+) => {
   const out: string[] = [];
   const partner = isPartner(file, entry);
   if (!entry.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
-  // A stale entry could hide a new finding on the same file.
+  // An entry left on a clean file would let a new finding there pass unseen.
   if (!partner && METRICS.every((k) => !counts?.[k]))
     out.push(`${ALLOWLIST}: ${file} is clean; drop its entry (brand-colours --tighten)`);
   if (entry.partner !== undefined && !partner)
@@ -83,9 +106,10 @@ const entryViolations = (file: string, entry: Allowlist[string], counts: Counts 
   return out;
 };
 
-/** Metrics whose non-partner allowlist total grew against HEAD. Partner marks count in no total;
- *  one turned partner in the working tree counts in neither so it frees no total for another file. */
-const grownMetrics = (allow: Allowlist, committed: Allowlist) => {
+/** Metrics whose non-partner allowlist total grew against HEAD. */
+export const grownMetrics = (allow: Allowlist, committed: Allowlist) => {
+  // Partner marks count in no total. One in the committed list counts there too where the working
+  // tree turns it partner, so that frees no total for another entry to grow into.
   const now = new Set(partnerFiles(allow));
   const before = new Set([...now, ...partnerFiles(committed)]);
   return new Set(
@@ -94,15 +118,16 @@ const grownMetrics = (allow: Allowlist, committed: Allowlist) => {
 };
 
 /** Metrics where an entry exceeds both its committed allowance and its pin-change ceiling. */
-const grownEntryMetrics = (
+export const grownEntryMetrics = (
   entry: Allowlist[string],
   committed: Allowlist[string] | undefined,
   ceiling: Counts | undefined,
 ) => METRICS.filter((k) => (entry[k] ?? 0) > Math.max(committed?.[k] ?? 0, ceiling?.[k] ?? 0));
 
-/** Every way the counts exceed the allowlist, and every entry without a reason, stale, misplaced,
- *  or grown against HEAD beyond `baseline`'s ceiling where the list's total for that metric grew
- *  too: within the total, a value moved from one file to another. */
+/** Every way the counts exceed the allowlist, and every entry without a reason or grown against
+ *  the committed allowlist beyond `ceiling`, this scanner's counts of the files as committed, which
+ *  a pin change passes, where the list's total for that metric grew too: within the total, a value
+ *  moved from one file to another. */
 export const violations = (
   files: Record<string, Counts>,
   allow: Allowlist,
@@ -151,7 +176,8 @@ export const tighten = (
   return Object.fromEntries(next);
 };
 
-function validateColourCounts(entry: Record<string, unknown>, label: string) {
+/** Rejects any supplied metric count outside the non-negative safe integers. */
+export function validateColourCounts(entry: Record<string, unknown>, label: string) {
   for (const metric of METRICS) {
     const count = entry[metric];
     if (count === undefined) continue;
@@ -160,7 +186,8 @@ function validateColourCounts(entry: Record<string, unknown>, label: string) {
   }
 }
 
-function parseAllowlistEntry(file: string, entry: unknown): Allowlist[string] {
+/** Validates one path’s allowance and supplies the default empty reason. */
+export function parseAllowlistEntry(file: string, entry: unknown): Allowlist[string] {
   const label = `${ALLOWLIST}: "${file}"`;
   if (!isRecord(entry)) throw new Error(`${label} needs an object of counts and a reason`);
   const { reason, partner } = entry;
@@ -173,6 +200,7 @@ function parseAllowlistEntry(file: string, entry: unknown): Allowlist[string] {
   return { ...entry, reason: reason ?? "" };
 }
 
+/** Reads a JSON object of colour allowances, validating every path entry. */
 function parseColourAllowlist(json: string): Allowlist {
   const value: unknown = JSON.parse(json);
   if (!isRecord(value)) throw new Error(`${ALLOWLIST}: expected an object of allowances`);
@@ -229,12 +257,13 @@ if (import.meta.main) {
         METRICS.some((k) => counts[k] > (committed[file]?.[k] ?? 0)) && committedCounts(file);
       if (c) ceiling[file] = c;
     }
+  // Writes a tightened list and says so; a list that allows nothing is no file where none was.
   if (process.argv.includes("--tighten")) {
     const wrote = writeAllowlist(ALLOWLIST, tighten(files, allow, ceiling));
     console.log(
       wrote
         ? `brand-colours: ${ALLOWLIST} tightened; give every new entry its reason`
-        : `brand-colours: nothing to allow; no ${ALLOWLIST} written`,
+        : nothingToAllow("brand-colours", ALLOWLIST),
     );
   } else {
     const baseline = committed ? { committed, ceiling } : undefined;

@@ -7,7 +7,7 @@ import {
   type ColourLiteral,
   type TokenKind,
 } from "./colour-tokens";
-import { ENGINE_STYLE } from "./tree";
+import { ENGINE_STYLE } from "./engine-style";
 
 export type Counts = {
   hex: number;
@@ -43,14 +43,17 @@ const HEX = /(?<![&\w])#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-]
 const VALUE_BEFORE =
   /(?:(?:colou?r|fill|stroke|background|border|outline|shadow|caret|accent|decoration)[\w-]*["']?\s*[:=]\s*["'`]?(?:[^;{}<>"'`\n]*[\s,(])?|-\[)$/i;
 const FN = /(?<![\w-])(rgba?|hsla?)\(([^()]*)\)/gi;
-// Modern functions count as rgb without conversion where their arguments are literal colours.
+// The other colour functions, counted as rgb without conversion where their arguments are a
+// colour's: numbers, percentages, angles or none, or color()'s colour space first.
 const NUM = String.raw`(?:-?[\d.]+(?:%|deg|g?rad|turn)?|none)`;
 const MODERN = new RegExp(
   String.raw`(?<![\w-])(?:(?:oklch|oklab|lab|lch|hwb)\(\s*${NUM}(?:[\s,_/]+${NUM}){2,3}\s*\)|color\(\s*(?:srgb|srgb-linear|display-p3|a98-rgb|prophoto-rgb|rec2020|xyz|xyz-d50|xyz-d65)[\s_][^()]*\))`,
   "gi",
 );
 const WORD = /(?<![\w$.#/-])([a-z]+)(?![\w./-])/gi;
-// CSS and script colour properties, SVG attributes and color-mix() arguments.
+// Where a value is a colour: a colour property in CSS or JS, a colour attribute in SVG, a
+// color-mix(), and a Tailwind colour class's arbitrary value. The value runs to the declaration's
+// end; a bare identifier in script (color: teal, a variable) is no literal and is left alone.
 const COLOUR_AT =
   /(?<![\w-])(?:color|background(?:-color)?|backgroundColor|border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-color)?|border(?:Top|Right|Bottom|Left)?Color|outline(?:-color)?|outlineColor|fill|stroke|stop-color|stopColor|flood-color|lighting-color|caret-color|caretColor|accent-color|accentColor|text-decoration(?:-color)?|textDecorationColor|column-rule(?:-color)?|--[\w-]*colou?r[\w-]*)\s*[:=]\s*|color-mix\(/g;
 // A custom property set to one colour name and nothing else, in CSS or as a style key.
@@ -60,7 +63,8 @@ const ARBITRARY =
   /(?<![\w-])(?:bg|text|border(?:-[trblxyse])?|ring(?:-offset)?|fill|stroke|outline|divide|decoration|shadow|accent|caret|from|to|via|placeholder)-\[([^\]\s]+)\]/g;
 const FONT =
   /font-family\s*:\s*([^;}"'`\n]+|["'][^;}\n]+)|fontFamily\s*[:=]\s*["'`]([^"'`]+)|["']font-family["']\s*:\s*["']([^"']+)|font-family\s*=\s*["']([^"']+)/g;
-// The font shorthand sets the size, optional line height, then the family list.
+// The font shorthand: style, variant and weight, then the size (with a line height), then the
+// family list, which must open on a brand family like font-family's.
 const SHORTHAND = /(?<![\w-])font\s*[:=]\s*/g;
 const SIZE =
   /(?:^|\s)(?:[\d.]+(?:px|r?em|pt|pc|%|vw|vh|ch|ex|r?lh|cap|ic|[sld]?v(?:h|w|min|max)|cq[iwbh]|q|mm|cm|in)|(?:xx?-|xxx-)?(?:small|large)|medium|larger|smaller|var\([^()]*\)|calc\([^()]*\))(?:\s*\/\s*\S+)?\s+(.+)$/;
@@ -69,6 +73,7 @@ const BRAND_FONT =
 const BRAND_FACE = /^["']?(Inter|JetBrains Mono)( Variable| Fallback( Roboto)?)?$/i;
 const PAL =
   /\b(?:bg|text|border(?:-[trblxyse])?|from|to|via|ring(?:-offset)?|inset-ring|fill|stroke|outline|divide|decoration|shadow|inset-shadow|text-shadow|drop-shadow|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/g;
+// Tailwind's serif stack, which no brand theme maps to a brand family.
 const SERIF = /(?<![\w-])font-serif(?![\w-])/g;
 const PROP =
   /(?<![\w-])(?:-(?:webkit|moz)-)?(border(?:-(?:top|bottom|start|end)-(?:left|right|start|end))?-radius|border(?:Top|Bottom|Start|End)?(?:Left|Right|Start|End)?Radius|--[\w-]*radius[\w-]*|box-shadow|boxShadow|--[\w-]*shadow[\w-]*)\s*[:=]\s*/g;
@@ -78,13 +83,17 @@ const CLASS = new RegExp(
   "g",
 );
 
+/** Identifies source whose bare colour and font names are script identifiers. */
 const isScriptExt = (ext: string) => SCRIPT_EXT.test(ext) || ext === ".py";
+/** Removes script line comments while leaving URL-like slashes alone. */
 const stripLineComments = (s: string) => s.replace(/(^|[^:"'`(])\/\/.*$/gm, "$1");
+/** Removes block comments outside quoted strings. */
 const keepQuotedStrings = (s: string) => s.replace(STRING_OR_BLOCK, (_, str?: string) => str ?? "");
 
 // In markup strings and line comments exist only in script (the frontmatter and <script>) and
 // strings in <style>. Elsewhere an apostrophe is prose and a // is a URL, such as href=//host or a
 // srcset's //cdn/b.png 2x.
+/** Removes comments from markup and its embedded code. */
 const stripMarkupComments = (s: string) => {
   let out = "";
   let last = 0;
@@ -98,17 +107,19 @@ const stripMarkupComments = (s: string) => {
 };
 
 /** Removes engine styles and comments according to file syntax before token scanning. */
-const stripSource = (s: string, ext: string) => {
+export const stripSource = (s: string, ext: string) => {
   if (ext === ".py") return s;
   const out = s.replace(ENGINE_STYLE, "").replace(/<!--[\s\S]*?-->/g, "");
   if (CSS_OR_SVG.test(ext)) return out.replace(BLOCK, "");
   return MARKUP.test(ext) ? stripMarkupComments(out) : stripLineComments(keepQuotedStrings(out));
 };
 
+/** Blanks a source span without shifting subsequent match offsets. */
 const blankRange = (src: string, from: number, to: number) =>
   src.slice(0, from) + " ".repeat(to - from) + src.slice(to);
 
-const isShortHexColour = (h: string, before: string) =>
+/** Distinguishes short hex colours from fragment IDs, selectors and prose. */
+export const isShortHexColour = (h: string, before: string) =>
   (/\d/.test(h) && /[a-f]/i.test(h)) ||
   /^(.)\1\1/.test(h) ||
   (VALUE_BEFORE.test(before) && !/url\(\s*$/i.test(before));
@@ -116,7 +127,7 @@ const isShortHexColour = (h: string, before: string) =>
 /** The strings an expression can take as its value: one at its own level, grouping parentheses
  *  included, that opens it or a branch (after {, (, ?, :, && or ||), never one it compares or tests
  *  with in, nor one inside a key, a call's arguments or an object. */
-const valueStrings = (code: string) => {
+export const valueStrings = (code: string) => {
   const out: RegExpExecArray[] = [];
   // Per open bracket, whether it starts a level of its own; a grouping ( does not.
   const levels: boolean[] = [];
@@ -164,7 +175,7 @@ const readDeclarationValue = (src: string, i: number) => {
 
 /** Counts off-token CSS/JS radius and shadow declarations and blanks shadow values so their colours
  *  are not counted a second time. */
-const scanStyleRadiiAndShadows = (source: string) => {
+export const scanStyleRadiiAndShadows = (source: string) => {
   let src = source;
   const counts = { radius: 0, shadow: 0 };
   for (const m of [...src.matchAll(PROP)]) {
@@ -178,7 +189,7 @@ const scanStyleRadiiAndShadows = (source: string) => {
 };
 
 /** Counts off-token Tailwind radius and shadow utility classes and blanks shadow classes. */
-const scanUtilityRadiiAndShadows = (source: string) => {
+export const scanUtilityRadiiAndShadows = (source: string) => {
   let src = source;
   const counts = { radius: 0, shadow: 0 };
   for (const m of [...src.matchAll(CLASS)]) {
@@ -192,7 +203,7 @@ const scanUtilityRadiiAndShadows = (source: string) => {
 };
 
 /** Extracts hex colour literals (3, 4, 6 and 8 digits) from stripped source. */
-const extractHexColours = (src: string): ColourLiteral[] => {
+export const extractHexColours = (src: string): ColourLiteral[] => {
   const hits: ColourLiteral[] = [];
   for (const m of src.matchAll(HEX)) {
     const h = m[1];
@@ -206,7 +217,7 @@ const extractHexColours = (src: string): ColourLiteral[] => {
 };
 
 /** Extracts rgb(), hsl() and modern CSS colour function literals from stripped source. */
-const extractFunctionColours = (src: string): ColourLiteral[] => {
+export const extractFunctionColours = (src: string): ColourLiteral[] => {
   const hits: ColourLiteral[] = [];
   for (const [lit, fn, args] of src.matchAll(FN)) {
     const hex = fnColour(fn, args);
@@ -217,8 +228,9 @@ const extractFunctionColours = (src: string): ColourLiteral[] => {
 };
 
 /** Extracts candidate words with source offsets, reading only value strings inside `${...}`. */
-const extractInterpolatedWords = (value: string, from: number) => {
+export const extractInterpolatedWords = (value: string, from: number) => {
   const words: { word: string; at: number }[] = [];
+  // An interpolation (${...}) adds only the strings it can take; its names are the code's.
   let read = value;
   for (let i = value.indexOf("${"); i >= 0;) {
     const x = expressionSlice(value, i + 1);
@@ -231,9 +243,11 @@ const extractInterpolatedWords = (value: string, from: number) => {
   return words;
 };
 
-const isComponentColourProp = (src: string, match: RegExpExecArray, ext: string) => {
+/** Identifies markup colour roles that a component resolves to tokens. */
+export const isComponentColourProp = (src: string, match: RegExpExecArray, ext: string) => {
+  // In markup color= and background= are a component's props, which map a name to a token; no
+  // element takes them as a colour. In script only inside a component's tag (<Badge color=...).
   if (!/^(?:color|background)\s*=/.test(match[0])) return false;
-  // In script, colour roles belong to component tags; the same names are ordinary assignments.
   if (MARKUP.test(ext)) return true;
   return (
     PROPS.test(ext) &&
@@ -241,7 +255,8 @@ const isComponentColourProp = (src: string, match: RegExpExecArray, ext: string)
   );
 };
 
-const expressionPropWords = (src: string, match: RegExpExecArray, ext: string) => {
+/** Reads the literal result words of a colour prop written as a brace expression. */
+export const expressionPropWords = (src: string, match: RegExpExecArray, ext: string) => {
   const start = match.index + match[0].length;
   if (!PROPS.test(ext) || !/[\w-]=$/.test(match[0].trimEnd())) return [];
   return valueStrings(expressionSlice(src, start)).flatMap((s) =>
@@ -249,25 +264,31 @@ const expressionPropWords = (src: string, match: RegExpExecArray, ext: string) =
   );
 };
 
-const colourPropertyWords = (src: string, match: RegExpExecArray, ext: string) => {
+/** Reads literal colour words and offsets from one property or function match. */
+export const colourPropertyWords = (src: string, match: RegExpExecArray, ext: string) => {
   if (isComponentColourProp(src, match, ext)) return [];
   const start = match.index + match[0].length;
+  // A JSX, Astro or Svelte expression prop (fill={on ? "teal" : "white"}): the strings it can
+  // take. Any other brace opens an object or a dict, a map of names, which is no value.
   if (src[start] === "{") return expressionPropWords(src, match, ext);
   const quoted = QUOTES.has(src.charAt(start));
   if (isScriptExt(ext)) {
-    // Script and Python identifiers and type unions name values without setting a literal.
+    // In script and Python a bare name after color: or color= is a variable, never a literal.
     if (!quoted && !match[0].startsWith("color-mix")) return [];
+    // A type's union of names (color: "teal" | "purple") is no value.
     if (/^(["'`])[^"'`]*\1\s*\|/.test(src.slice(start, start + 200))) return [];
   }
   return extractInterpolatedWords(readDeclarationValue(src, start).value, start + Number(quoted));
 };
 
-const customPropertyWords = (src: string, ext: string) => {
+/** Reads a standalone colour word from each custom property that sets one. */
+export const customPropertyWords = (src: string, ext: string) => {
   const script = isScriptExt(ext);
   const cssLike = /^\.(s?css|svg)$/.test(ext);
   const words: { word: string; at: number }[] = [];
   for (const m of src.matchAll(CUSTOM)) {
-    // Script needs a quoted literal; in CSS a quoted name is a string.
+    // A custom property whose whole value is one colour name (--mark: white); in script quoted only,
+    // as a bare name there is a variable, and in CSS unquoted only, as a quoted one is a string.
     const allow = script ? Boolean(m[1]) : !(m[1] && cssLike);
     if (allow) words.push(...extractInterpolatedWords(m[2], m.index + m[0].lastIndexOf(m[2])));
   }
@@ -276,11 +297,12 @@ const customPropertyWords = (src: string, ext: string) => {
 
 /** Extracts CSS named colour literals from colour declarations, custom properties and Tailwind
  *  arbitrary colour classes, deduplicating overlapping color-mix() and custom-property spans. */
-const extractNamedColours = (src: string, ext: string): ColourLiteral[] => {
+export const extractNamedColours = (src: string, ext: string): ColourLiteral[] => {
   const positioned = [
     ...[...src.matchAll(COLOUR_AT)].flatMap((m) => colourPropertyWords(src, m, ext)),
     ...customPropertyWords(src, ext),
   ];
+  // A color-mix() inside a colour property is read once, by the position of each word.
   const seen = new Set<number>();
   const hits: ColourLiteral[] = [];
   for (const { word, at } of positioned) {
@@ -296,18 +318,22 @@ const extractNamedColours = (src: string, ext: string): ColourLiteral[] => {
   return hits;
 };
 
+/** Returns the first family from a font stack, with quotes removed. */
 const leadingFamily = (stack: string) => stack.split(",")[0].trim().replace(/["']/g, "");
 
-const extractFontFamilies = (src: string) => {
+/** Reports the off-brand leading families in font-family declarations and attributes. */
+export const extractFontFamilies = (src: string) => {
   const fonts: string[] = [];
   for (const m of src.matchAll(FONT)) {
     const v = (m.slice(1).find((g) => g !== undefined) ?? "").trim();
+    // An @font-face naming one of brand's faces, a fallback face of tokens/fonts.css included.
     if (
       BRAND_FACE.test(v.replace(/["';\s]+$/, "")) &&
       src.lastIndexOf("@font-face", m.index) > src.lastIndexOf("}", m.index)
     )
       continue;
-    // An interpolated family can read literal branches without interpreting its code.
+    // An interpolated family (font-family="${big ? 'Arial' : FAM[fam]}") counts the strings it
+    // can take; its names are the code's.
     const families = v.startsWith("${")
       ? valueStrings(expressionSlice(src, src.indexOf("${", m.index) + 1))
           .map((s) => s[0].slice(1, -1))
@@ -318,7 +344,8 @@ const extractFontFamilies = (src: string) => {
   return fonts;
 };
 
-const extractShorthandFonts = (src: string, ext: string) => {
+/** Reports the off-brand leading families in literal font shorthands. */
+export const extractShorthandFonts = (src: string, ext: string) => {
   const script = isScriptExt(ext);
   const fonts: string[] = [];
   for (const m of src.matchAll(SHORTHAND)) {
@@ -331,7 +358,7 @@ const extractShorthandFonts = (src: string, ext: string) => {
 };
 
 /** Extracts off-brand font families from font-family declarations, font shorthands and font-serif. */
-const scanFonts = (src: string, ext: string) => [
+export const scanFonts = (src: string, ext: string) => [
   ...extractFontFamilies(src),
   ...extractShorthandFonts(src, ext),
   ...[...src.matchAll(SERIF)].map(([lit]) => lit),
@@ -339,7 +366,7 @@ const scanFonts = (src: string, ext: string) => [
 
 /** The counts of one file's source, plus the off-token colours and off-brand fonts it holds. */
 export const scanSource = (raw: string, ext: string) => {
-  // A shadow's colours count only as part of its shadow.
+  // Radii and shadows first: a shadow's colour belongs to the shadow and counts there only.
   const style = scanStyleRadiiAndShadows(stripSource(raw, ext));
   const utility = scanUtilityRadiiAndShadows(style.src);
   const src = utility.src;

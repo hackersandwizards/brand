@@ -9,17 +9,15 @@
 // committed at HEAD and unchanged since, which a newer package's component makes one.
 import { readdirSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { answerHelp } from "./help";
 import {
-  COMPONENT,
   committedAsIs,
-  listTree,
+  nothingToAllow,
   pinChange,
   readReasonAllowlists,
-  scanned,
-  skippedReport,
   writeAllowlist,
-} from "./tree";
+} from "./allowlist";
+import { answerHelp } from "./help";
+import { COMPONENT, listTree, scanned, skippedReport } from "./tree";
 
 const USAGE = `usage: brand-scan [--tighten]
 Fails on a component in the working tree named like an expert component that brand-scan.json does
@@ -87,9 +85,7 @@ if (import.meta.main) {
         .map((k) => [k, allow[k] ?? ""]),
     );
     const wrote = writeAllowlist(LIST, next);
-    console.log(
-      wrote ? `brand-scan: ${LIST} tightened` : `brand-scan: nothing to allow; no ${LIST} written`,
-    );
+    console.log(wrote ? `brand-scan: ${LIST} tightened` : nothingToAllow("brand-scan", LIST));
   } else {
     const bad = unlisted(found, allow, committed, mayAdd);
     if (bad.length) {

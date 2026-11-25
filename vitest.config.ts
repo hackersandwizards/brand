@@ -26,7 +26,7 @@ export default mergeConfig(base, {
           name: "unit",
           include: mutation
             ? [
-                "test/{behaviour,code,colours,copies,elements,list-filter,mail-signature,markers,retired,scan,space-nav,tokens,upgrade}.test.ts",
+                "test/{behaviour,code,colour-rules,colours,copies,elements,list-filter,mail-signature,markers,retired,scan,space-nav,tokens,upgrade}.test.ts",
                 "test/*.prop.test.ts",
               ]
             : ["test/**/*.test.ts"],

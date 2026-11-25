@@ -1,10 +1,7 @@
-// Consumer working-tree traversal, built-in scan exceptions, brand pin-change detection and
-// allowlist persistence shared across brand-colours, brand-copies, brand-scan and brand-elements.
+// Consumer working-tree traversal and built-in scan exceptions.
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { extname } from "node:path";
-import own from "../package.json";
-import { isRecord } from "./help";
 
 /** Exceptions the scan applies before it reads a file, each with its reason. `docs/checks.md` names
  *  the same list; the scan prints each one it applied. */
@@ -74,12 +71,6 @@ export const BRAND_COPY = {
 /** The extensions of a component file, in the frameworks a consumer builds with. */
 export const COMPONENT = new Set([".astro", ".tsx", ".jsx", ".vue", ".svelte"]);
 
-// A style element the documents engine (@hackersandwizards/documents) wrote into a document it
-// composed: the engine's own stylesheets, inlined so the document stands alone, which the engine's
-// gate scans in its source. Whatever else the document carries is the consumer's and is read.
-export const ENGINE_STYLE =
-  /<style\s+data-hw-(?:document|components|page|onepager|readout|certificate)\b[^>]*>[\s\S]*?<\/style>/g;
-
 /** The name of the built-in exception that keeps a path out of the scans, if any. */
 export const exception = (p: string) => EXCEPTIONS.find((e) => e.test(p))?.name;
 
@@ -89,66 +80,12 @@ export const scanned = (p: string) => STYLING_EXTENSIONS.has(extname(p)) && !exc
 export const runGit = (args: string[]) =>
   spawnSync("git", args, { encoding: "utf8", maxBuffer: 1 << 30 });
 
-export function readAllowlists<T>(file: string, parse: (json: string) => T) {
-  const allow = existsSync(file) ? parse(readFileSync(file, "utf8")) : undefined;
-  const head = runGit(["show", `HEAD:./${file}`]);
-  const committed = head.status === 0 ? parse(head.stdout) : undefined;
-  return { allow, committed };
-}
-
-export function readReasonAllowlists(file: string) {
-  const { allow = {}, committed } = readAllowlists(file, (json): Record<string, string> => {
-    const value: unknown = JSON.parse(json);
-    if (!isRecord(value)) throw new Error(`${file}: expected an object of reasons`);
-    return Object.fromEntries(
-      Object.entries(value).map(([name, reason]) => {
-        if (typeof reason !== "string") throw new Error(`${file}: "${name}" needs a string reason`);
-        return [name, reason] as const;
-      }),
-    );
-  });
-  return { allow, committed };
-}
-
 /** Every file under the current directory, tracked or untracked, .gitignore honoured. */
 export const listTree = (cmd: string) => {
   const ls = runGit(["ls-files", "-z", "--cached", "--others", "--exclude-standard"]);
   if (ls.status !== 0) throw new Error(`${cmd}: not a git checkout: ${ls.stderr}`);
   return [...new Set(ls.stdout.split("\0"))].filter((p) => p && existsSync(p));
 };
-
-/** The brand version a package.json pins as a Git tag (`#v<version>`), if any. */
-export const pinnedVersion = (packageJson: string) => {
-  const pkg: unknown = JSON.parse(packageJson);
-  if (!isRecord(pkg)) return;
-  for (const field of ["dependencies", "devDependencies", "optionalDependencies"]) {
-    const dependencies = pkg[field];
-    const pin = isRecord(dependencies) ? dependencies["@hackersandwizards/brand"] : undefined;
-    if (typeof pin !== "string") continue;
-    const m = /#v([^#\s]+)$/.exec(pin);
-    if (m) return m[1];
-  }
-};
-
-/** The brand version package.json pinned at HEAD where the working tree pins this scanner's
- *  version instead; undefined otherwise, a stale install included. */
-export const pinChange = (cmd: string) => {
-  const head = runGit(["show", "HEAD:./package.json"]);
-  const from = head.status === 0 ? pinnedVersion(head.stdout) : undefined;
-  const to = existsSync("package.json")
-    ? pinnedVersion(readFileSync("package.json", "utf8"))
-    : undefined;
-  if (!from || from === own.version || to !== own.version) return;
-  console.log(
-    `${cmd}: pin change v${from} to v${own.version}: the list may take what this scanner finds in the files as committed at HEAD`,
-  );
-  return from;
-};
-
-/** Whether a path is committed at HEAD and unchanged in the working tree. */
-export const committedAsIs = (p: string) =>
-  runGit(["cat-file", "-e", `HEAD:./${p}`]).status === 0 &&
-  runGit(["diff", "--quiet", "HEAD", "--", p]).status === 0;
 
 /** One line per built-in exception that kept a file out, with its count and reason. */
 export const exceptionReport = (cmd: string, skipped: Record<string, number>) =>
@@ -165,11 +102,4 @@ export const skippedReport = (cmd: string, paths: string[]) => {
     if (why) skipped[why] = (skipped[why] ?? 0) + 1;
   }
   return exceptionReport(cmd, skipped);
-};
-
-/** Writes a tightened allowlist when a file already exists or entries remain; returns whether it wrote. */
-export const writeAllowlist = (path: string, next: object): boolean => {
-  if (!existsSync(path) && !Object.keys(next).length) return false;
-  writeFileSync(path, JSON.stringify(next, null, 2) + "\n");
-  return true;
 };

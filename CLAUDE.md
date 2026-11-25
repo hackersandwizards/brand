@@ -60,7 +60,9 @@ data or secret.
   exceptions in the consumer's `brand-colours.json`. `copies.ts` (`brand-copies`) fails on a copy of
   a brand file, exceptions in the consumer's `brand-copies.json`. The paths every scan skips are
   `EXCEPTIONS` in `tree.ts`, each printed when applied and listed in `docs/checks.md`; a new one
-  needs a reason that file states. `components.ts` (`brand-scan`) fails on a consumer component named like an
+  needs a reason that file states. `allowlist.ts` reads and writes the colour, copy and component
+  allowlists and detects brand pin changes. `engine-style.ts` identifies styles inlined by the
+  documents engine. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
   rule being `tokens/marker.css`. `elements.ts` (`brand-elements`) measures the shared elements on

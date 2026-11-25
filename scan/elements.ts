@@ -58,7 +58,8 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import catalogs from "../expert/catalogs.json";
-import { COMPONENT, ENGINE_STYLE, listTree, scanned, skippedReport } from "./tree";
+import { ENGINE_STYLE } from "./engine-style";
+import { COMPONENT, listTree, scanned, skippedReport } from "./tree";
 import { answerHelp, isRecord, isStringList } from "./help";
 
 const USAGE = `usage: brand-elements [--base <url>] [--json]
@@ -820,7 +821,7 @@ export const setsOwned = (element: string, declared: string) =>
 const STYLED = new Set([".css", ".scss", ".astro", ".vue", ".svelte", ".html"]);
 
 /** The CSS of a source file: the file itself, or its style blocks, those the documents engine wrote
- *  left out (brand-colours' ENGINE_STYLE). */
+ *  left out (ENGINE_STYLE in engine-style.ts). */
 const styles = (raw: string, ext: string) =>
   ext === ".css" || ext === ".scss"
     ? raw

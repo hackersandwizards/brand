@@ -3,15 +3,23 @@
 import { colors, tokens } from "../generated/tokens";
 
 export type TokenKind = "radius" | "shadow";
-export type ColourLiteral = { kind: "hex" | "rgb"; literal: string; value?: string };
+export type ColourLiteral = {
+  kind: "hex" | "rgb";
+  literal: string;
+  /** Absent for modern colour functions, which count as rgb without a palette or ladder check. */
+  value?: string;
+};
 
 const palette = new Set<string>([...Object.values(colors), "#ffffff", "#000000"]);
 
+/** Rounds RGB channels to bytes and formats them as hex. */
 const rgbToHex = (rgb: number[]) =>
   "#" + rgb.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("");
 
+/** Reads the three channel values from a hex colour. */
 const hexChannels = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 
+/** Blends two hex colours using the given share of the first. */
 const mixHex = (a: string, p: number, b: string) => {
   const [x, y] = [hexChannels(a), hexChannels(b)];
   return rgbToHex(x.map((v, i) => v * p + y[i] * (1 - p)));
@@ -30,6 +38,7 @@ const ROWS = [
   ["ampersand", "muted"],
 ] as const;
 
+/** Looks up a named colour in the generated token palette. */
 const tokenColor = (name: string) => colors[`--color-${name}` as keyof typeof colors];
 const STEPS = [0.07, ...Array.from({ length: 19 }, (_, i) => (i + 1) / 20)];
 const LADDER = [
@@ -44,6 +53,7 @@ export const onLadder = (hex: string) => {
   return LADDER.some((l) => l.every((v, i) => Math.abs(v - x[i]) <= 1));
 };
 
+/** Normalises CSS spelling and whitespace before token comparison. */
 const normaliseCssValue = (v: string) =>
   v
     .toLowerCase()
@@ -55,6 +65,7 @@ const normaliseCssValue = (v: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+/** Indexes normalised token values for one family prefix. */
 const tokenValues = (prefix: string) =>
   new Set(
     Object.entries(tokens)
@@ -73,6 +84,7 @@ const BRACKET_KEY = /^[a-z_$][\w$.]*\[(["'`])([^"'`]*)\1\]$/;
 
 // A var() whose fallback is a literal or another such var(), at any depth, and theme().
 const VAR = /var\(--[\w-]+(, [^()]+)?\)/g;
+/** Recognises standalone variable references with literal or nested fallbacks. */
 const isPureVar = (v: string) => {
   for (let prev = ""; prev !== v;) [prev, v] = [v, v.replace(VAR, "var")];
   return v === "var" || /^theme\([^()]+\)$/.test(v);

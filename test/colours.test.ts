@@ -97,6 +97,7 @@ test("exempts a named partner SVG from HEAD growth checks", () => {
   expect(
     violations({ [partnerLogo]: { ...zero, hex: 32, rgb: 2 } }, partner, { committed: {} }),
   ).toEqual([]);
+  // Control: the same entry without its partner is a grown entry.
   expect(
     violations(
       { [partnerLogo]: { ...zero, hex: 32 } },
@@ -107,6 +108,7 @@ test("exempts a named partner SVG from HEAD growth checks", () => {
 });
 
 test("flags a partner entry on a non-SVG file", () => {
+  // Only an SVG named for its owner is a partner's mark.
   expect(violations({ "a.ts": { ...zero, hex: 1 } }, misplacedPartner, { committed: {} })).toEqual([
     `brand-colours.json: a.ts: "partner" names a third party's mark, an SVG, by name`,
     "brand-colours.json: a.ts hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
@@ -125,6 +127,7 @@ test("preserves a named partner SVG entry when tightening", () => {
 });
 
 test("keeps a misplaced partner reportable after tightening", () => {
+  // Tightening keeps a misplaced partner, so the run after it still fails on it.
   const counts = { "a.ts": { ...zero, hex: 1 } };
   expect(violations(counts, tighten(counts, misplacedPartner), { committed: {} })).toEqual(
     violations(counts, misplacedPartner, { committed: {} }),
@@ -238,6 +241,7 @@ test.each([
   expect(scanSource(src, ext).counts).toEqual(expected);
 });
 
+// Controls: tokens, keywords and script that only looks like a colour.
 test.each([
   {
     label: "brand fonts and CSS keywords",
@@ -629,12 +633,14 @@ test.each([
     ext: ".tsx",
     expected: { ...zero, tokenHex: 1 },
   },
+  // The strings an interpolation can take are read; its names are not.
   {
     label: "conditional branches in an interpolation",
     src: "const s = `<rect fill=\"${on ? 'tomato' : 'teal'}\"/>`;",
     ext: ".ts",
     expected: { ...zero, hex: 2 },
   },
+  // An interpolation runs to its matching brace; grouping parentheses keep a branch a value.
   {
     label: "a literal fallback after an object argument",
     src: "const s = `<rect fill=\"${tone({ dark }) ?? 'tomato'}\"/>`;",
@@ -647,6 +653,7 @@ test.each([
     ext: ".tsx",
     expected: { ...zero, hex: 2, tokenHex: 1 },
   },
+  // Outside a component's tag color= is an assignment, and JSX in .js reads like .jsx.
   {
     label: "a script assignment outside a component",
     src: 'const color = "tomato";',
@@ -696,6 +703,7 @@ test.each([
     ext: ".astro",
     expected: zero,
   },
+  // A JSX component's colour prop maps a name to a token, as in Astro.
   {
     label: "a JSX component",
     src: '<Badge color={ok ? "green" : "red"} />',
@@ -725,12 +733,14 @@ test.each([
     ext: ".js",
     expected: zero,
   },
+  // A component's colour prop maps a name to a token, and an object after a colon is a map.
   {
     label: "a nested style object",
     src: 'const t = { color: { primary: "teal" } };',
     ext: ".ts",
     expected: zero,
   },
+  // A brace after = in script or Python opens an object or a dict; a compared string is no value.
   {
     label: "an object assigned to color",
     src: 'const color = { ok: "green", bad: "red" };',
@@ -856,6 +866,7 @@ test.each([
       tokenHex: 1,
     },
   },
+  // !important still leaves one name; a quoted value in CSS is a string.
   {
     label: "a name with !important",
     src: ".a { --mark: tomato !important; }",

@@ -17,6 +17,7 @@ export const contentHash = (b: Buffer) => lfsOid(b) ?? createHash("sha256").upda
 
 const PKG = join(import.meta.dir, "..");
 
+/** Lists the files under a package directory, when that directory exists. */
 const walkPackageDir = (dir: string): string[] =>
   existsSync(join(PKG, dir))
     ? readdirSync(join(PKG, dir), { recursive: true, encoding: "utf8" })
@@ -34,6 +35,7 @@ export const brandFiles = () => {
   return out;
 };
 
+/** Checks for an LFS pointer without reading files too large to be one. */
 const isLfsPointer = (path: string) => statSync(path).size < 1024 && !!lfsOid(readFileSync(path));
 
 /** The sizes of the brand files present on disk, to hash only consumer files that could match, and
