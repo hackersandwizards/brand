@@ -1,13 +1,5 @@
-// The list filter's protocol, framework-free: the matching a server render and the browser share,
-// so a shared link renders the rows the typing showed, and `initListFilter`, the browser side of
-// expert/components/ListFilter.astro, which a page without Astro can run over the same markup.
-// An item is its text and, per facet parameter, the values it carries; the state is the
-// search words and one chosen value per facet, "" for all. Each row of the list carries
-// data-filter-item, its text in data-filter-text, its facet values as JSON in
-// data-filter-facets ({"topic":["tools"]}), its place in the server's order in data-filter-order;
-// a [data-filter-title] inside, holding text only, gets the matched words marked, and a
-// [data-filter-group] hides while none of its rows shows. A server render sets `hidden` on each row
-// where `matches(item, state)` is false, so a shared link shows the same rows without JavaScript.
+// `initListFilter`, the browser side of expert/components/ListFilter.astro, which a page without
+// Astro can run over the same markup.
 // One list filter per page: each reads and writes `?q=`.
 import { isActive, readState, stateUrl, type FilterState } from "./list-filter.ts";
 import { FilterForm } from "./list-filter-form.ts";
@@ -19,7 +11,9 @@ import { FilterView } from "./list-filter-view.ts";
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? el.getClientRects().length > 0;
 
 /** The search key chord works with either platform's modifier. */
-function isSearchChord(event: KeyboardEvent) {
+export function isSearchChord(
+  event: Pick<KeyboardEvent, "key" | "ctrlKey" | "metaKey" | "altKey" | "shiftKey">,
+) {
   return (
     event.key?.toLowerCase() === "k" &&
     (event.ctrlKey || event.metaKey) &&
@@ -29,7 +23,10 @@ function isSearchChord(event: KeyboardEvent) {
 }
 
 /** Text entry and native select controls keep their own keystrokes. */
-function acceptsText(target: HTMLElement) {
+export function acceptsText(target: {
+  isContentEditable: boolean;
+  matches(selector: string): boolean;
+}) {
   return (
     target.isContentEditable ||
     target.matches("textarea, select, input:not([type=radio], [type=checkbox])")
@@ -135,7 +132,7 @@ class FilterHistory {
     if (!this.timer) this.apply();
   }
 
-  /** Record search, facet and navigation events at their existing interaction boundaries. */
+  /** Debounce typing, record facet changes, clears and submits, and restore state on navigation. */
   bind(load: () => void) {
     const { input, panel, radios, selects, form, clears } = this.controls;
     input.addEventListener("input", () => {

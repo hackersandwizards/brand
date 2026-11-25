@@ -1,4 +1,4 @@
-import { assert, describe, expect, it, test, vi } from "vitest";
+import { afterEach, assert, describe, expect, it, test, vi } from "vitest";
 import {
   countLine,
   fullTextUrl,
@@ -10,9 +10,11 @@ import {
   searchWords,
   tally,
   readState,
+  type FilterState,
 } from "../elements/list-filter";
-import { initListFilter } from "../elements/list-filter-browser";
-import { rebaseSrcset } from "../elements/list-filter-source";
+import { acceptsText, initListFilter, isSearchChord } from "../elements/list-filter-browser";
+import { FilterForm } from "../elements/list-filter-form";
+import { FilterSource, rebaseSrcset, sourceAddress } from "../elements/list-filter-source";
 
 describe("list filter", () => {
   it("fills the count line, one or other, and joins the query onto a base with or without one", () => {
@@ -198,6 +200,288 @@ describe("initListFilter", () => {
     } finally {
       vi.unstubAllGlobals();
     }
+  });
+});
+
+describe("the search shortcut", () => {
+  it.each([
+    { name: "Ctrl+k", keys: { ctrlKey: true }, accepted: true },
+    { name: "Meta+k", keys: { metaKey: true }, accepted: true },
+    { name: "Ctrl+K", keys: { ctrlKey: true, key: "K" }, accepted: true },
+    { name: "Alt+Ctrl+k", keys: { ctrlKey: true, altKey: true }, accepted: false },
+    { name: "Shift+Ctrl+k", keys: { ctrlKey: true, shiftKey: true }, accepted: false },
+    { name: "plain k", keys: {}, accepted: false },
+    { name: "Ctrl+x", keys: { ctrlKey: true, key: "x" }, accepted: false },
+  ])("$name has shortcut eligibility $accepted", ({ keys, accepted }) => {
+    const event = { key: "k", ctrlKey: false, metaKey: false, altKey: false, shiftKey: false };
+    expect(isSearchChord({ ...event, ...keys })).toBe(accepted);
+  });
+
+  it.each([
+    { markup: "<textarea></textarea>", editable: false, keep: true },
+    { markup: "<select></select>", editable: false, keep: true },
+    { markup: '<input type="text">', editable: false, keep: true },
+    { markup: "<input>", editable: false, keep: true },
+    { markup: '<input type="radio">', editable: false, keep: false },
+    { markup: '<input type="checkbox">', editable: false, keep: false },
+    { markup: "<button></button>", editable: false, keep: false },
+    { markup: "<div contenteditable></div>", editable: true, keep: true },
+  ])("$markup keeps native keystrokes: $keep", ({ markup, editable, keep }) => {
+    const matches = (selector: string) => {
+      const element = vi.fn();
+      new HTMLRewriter().on(selector, { element }).transform(markup);
+      return element.mock.calls.length > 0;
+    };
+    expect(acceptsText({ isContentEditable: editable, matches })).toBe(keep);
+  });
+});
+
+describe("source rows", () => {
+  const address = "https://example.test/knowledge/all/";
+  afterEach(() => vi.unstubAllGlobals());
+
+  const stubSourceDocument = () => {
+    vi.stubGlobal(
+      "DOMParser",
+      class {
+        parseFromString() {
+          return { querySelector: () => ({ childNodes: [] }) };
+        }
+      },
+    );
+  };
+
+  it.each([
+    { given: "../talk/", want: "https://example.test/knowledge/talk/" },
+    { given: "https://assets.example.test/a.png", want: "https://assets.example.test/a.png" },
+    { given: "#icon", want: "#icon" },
+    { given: "http://[broken", want: "http://[broken" },
+  ])("resolves $given as $want", ({ given, want }) => {
+    expect(sourceAddress(given, address)).toBe(want);
+  });
+
+  it("shares one in-flight request and installs and applies its rows once", async () => {
+    const response = Promise.withResolvers<Response>();
+    const fetched = vi.fn(() => response.promise);
+    const settled = Promise.withResolvers<void>();
+    const source = new FilterSource(address);
+    const install = vi.fn(() => source.loaded);
+    const apply = vi.fn(() => {
+      settled.resolve();
+      return source.loaded;
+    });
+    const fail = vi.fn(settled.resolve);
+    vi.stubGlobal("fetch", fetched);
+    stubSourceDocument();
+
+    source.load(install, apply, fail);
+    source.load(install, apply, fail);
+    response.resolve(new Response(""));
+    await settled.promise;
+    source.load(install, apply, fail);
+
+    expect(fetched.mock.calls).toEqual([[address]]);
+    expect(install.mock.calls).toEqual([[{ nodes: [], replace: true }]]);
+    expect(install.mock.results).toEqual([{ type: "return", value: false }]);
+    expect(apply.mock.results).toEqual([{ type: "return", value: true }]);
+    expect(source.failed).toBe(false);
+  });
+
+  it.each([
+    { name: "rejected request", fetchRows: () => Promise.reject(new Error("offline")) },
+    { name: "HTTP error", fetchRows: () => Promise.resolve(new Response("", { status: 503 })) },
+  ])("reports a $name once without installing rows or retrying", async ({ fetchRows }) => {
+    const fetched = vi.fn(fetchRows);
+    const settled = Promise.withResolvers<void>();
+    const source = new FilterSource(address);
+    const install = vi.fn();
+    const apply = vi.fn(settled.resolve);
+    const fail = vi.fn(() => {
+      settled.resolve();
+      return source.failed;
+    });
+    vi.stubGlobal("fetch", fetched);
+    stubSourceDocument();
+
+    source.load(install, apply, fail);
+    source.load(install, apply, fail);
+    await settled.promise;
+    source.load(install, apply, fail);
+
+    expect(fetched.mock.calls).toEqual([[address]]);
+    expect({ loaded: source.loaded, failed: source.failed }).toEqual({
+      loaded: false,
+      failed: true,
+    });
+    expect(fail.mock.results).toEqual([{ type: "return", value: true }]);
+    expect(install).not.toHaveBeenCalled();
+    expect(apply).not.toHaveBeenCalled();
+  });
+
+  it.each([{ address: undefined }, { address: "" }])(
+    "uses local rows without fetching when the address is $address",
+    ({ address }) => {
+      const fetched = vi.fn();
+      vi.stubGlobal("fetch", fetched);
+      const source = new FilterSource(address);
+      const install = vi.fn();
+      const apply = vi.fn();
+      const fail = vi.fn();
+      source.load(install, apply, fail);
+      expect({ loaded: source.loaded, failed: source.failed }).toEqual({
+        loaded: true,
+        failed: false,
+      });
+      expect(fetched).not.toHaveBeenCalled();
+      expect(install).not.toHaveBeenCalled();
+      expect(apply).not.toHaveBeenCalled();
+      expect(fail).not.toHaveBeenCalled();
+    },
+  );
+});
+
+function formFixture(selectName = "days") {
+  const input = { value: "", defaultValue: "" };
+  const all = { name: "topic", value: "", checked: true, defaultChecked: true };
+  const tools = { name: "topic", value: "tools", checked: false, defaultChecked: false };
+  class Select {
+    name = selectName;
+    value = "";
+    options = [
+      { value: "", selected: true, defaultSelected: true },
+      { value: "2", selected: false, defaultSelected: false },
+    ];
+  }
+  const select = new Select();
+  const radios = [all, tools];
+  const fields = new Map<string, object[]>([
+    ['input[type="radio"]', radios],
+    ['input[type="radio"], select', [...radios, select]],
+    ["select", [select]],
+    ["fieldset", []],
+  ]);
+  const form = {
+    querySelector: (selector: string) => {
+      assert(selector === 'input[name="q"]', `Unexpected form selector: ${selector}`);
+      return input;
+    },
+    querySelectorAll: (selector: string) => {
+      const nodes = fields.get(selector);
+      assert(nodes, `Unexpected form selector: ${selector}`);
+      return nodes;
+    },
+  };
+  const nodes = new Map<string, object | null>([
+    ["form", form],
+    ["[data-filter-panel]", {}],
+    ["[data-filter-toggle]", null],
+  ]);
+  const root = {
+    querySelector: (selector: string) => {
+      assert(nodes.has(selector), `Unexpected root selector: ${selector}`);
+      return nodes.get(selector);
+    },
+    querySelectorAll: () => [],
+  };
+  vi.stubGlobal("HTMLSelectElement", Select);
+  return { filter: new FilterForm(root as unknown as HTMLElement), input, all, tools, select };
+}
+
+describe("FilterForm", () => {
+  const clearState: FilterState = { q: "", facets: {} };
+  afterEach(() => vi.unstubAllGlobals());
+
+  it.each([
+    {
+      name: "a checked radio and a select",
+      typed: " context ",
+      tools: true,
+      days: "2",
+      want: { q: "context", facets: { topic: "tools", days: "2" } },
+    },
+    {
+      name: "an unchecked radio group",
+      typed: "",
+      tools: false,
+      days: "",
+      want: { q: "", facets: { topic: "", days: "" } },
+    },
+  ])("reads $name", ({ typed, tools: checked, days, want }) => {
+    const { filter, input, all, tools, select } = formFixture();
+    input.value = typed;
+    all.checked = false;
+    tools.checked = checked;
+    select.value = days;
+    expect(filter.read()).toEqual(want);
+  });
+
+  it("prefers the select when a facet has both a select and a checked radio", () => {
+    const { filter, tools, select } = formFixture("topic");
+    tools.checked = true;
+    select.value = "2";
+    expect(filter.read()).toEqual({ q: "", facets: { topic: "2" } });
+  });
+
+  it("reads a facet named __proto__ as form data", () => {
+    const { filter, select } = formFixture("__proto__");
+    select.value = "2";
+    expect(filter.read()).toEqual({ q: "", facets: { topic: "", ["__proto__"]: "2" } });
+  });
+
+  it.each([
+    {
+      name: "sets all controls from URL state",
+      state: { q: "context", facets: { topic: "tools", days: "2" } },
+      before: { all: true, tools: false, days: "" },
+      want: { q: "context", all: false, tools: true, days: "2" },
+    },
+    {
+      name: "resets omitted facets to All",
+      state: clearState,
+      before: { all: false, tools: true, days: "2" },
+      want: { q: "", all: true, tools: false, days: "" },
+    },
+  ])("$name", ({ state, before, want }) => {
+    const { filter, input, all, tools, select } = formFixture();
+    input.value = "old";
+    all.checked = before.all;
+    tools.checked = before.tools;
+    select.value = before.days;
+    filter.write(state);
+    expect({ q: input.value, all: all.checked, tools: tools.checked, days: select.value }).toEqual(
+      want,
+    );
+  });
+
+  it.each([
+    { name: "the server values", change: () => {}, untouched: true },
+    {
+      name: "typing",
+      change: ({ input }: ReturnType<typeof formFixture>) => {
+        input.value = "context";
+      },
+      untouched: false,
+    },
+    {
+      name: "a radio change",
+      change: ({ tools }: ReturnType<typeof formFixture>) => {
+        tools.checked = true;
+      },
+      untouched: false,
+    },
+    {
+      name: "a select change",
+      change: ({ select }: ReturnType<typeof formFixture>) => {
+        const selected = select.options[1];
+        assert(selected, "expected the two-day option");
+        selected.selected = true;
+      },
+      untouched: false,
+    },
+  ])("reports untouched after $name: $untouched", ({ change, untouched }) => {
+    const fixture = formFixture();
+    change(fixture);
+    expect(fixture.filter.isUntouched()).toBe(untouched);
   });
 });
 

@@ -390,13 +390,17 @@ test("a grouped source ranks rows within their own group and hides an empty grou
     </div>
   </div>`;
   try {
-    await p.setRequestInterception(true);
-    const intercept = (request: HTTPRequest) =>
-      request.resourceType() === "fetch"
-        ? request.respond({ status: 200, contentType: "text/html", body: markup })
-        : request.continue();
-    p.on("request", (request) => {
-      intercept(request).catch(reportError);
+    const session = await p.createCDPSession();
+    await session.send("Fetch.enable", { patterns: [{ urlPattern: story("dense") }] });
+    session.on("Fetch.requestPaused", ({ requestId }) => {
+      session
+        .send("Fetch.fulfillRequest", {
+          requestId,
+          responseCode: 200,
+          responseHeaders: [{ name: "Content-Type", value: "text/html" }],
+          body: Buffer.from(markup).toString("base64"),
+        })
+        .catch(reportError);
     });
     await p.goto(story("source"), { waitUntil: "networkidle0" });
     await p.type('input[name="q"]', "context");

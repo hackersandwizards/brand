@@ -145,6 +145,7 @@ test.prop(
     expect(tally(items, state, param)).toEqual(expected);
   },
 );
+
 test.prop([fc.stringMatching(/^[a-z]{1,16}$/), fc.nat(32), fc.boolean()], {
   examples: [
     ["a", 0, true],

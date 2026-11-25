@@ -1,3 +1,12 @@
+// The list filter's protocol, framework-free: the matching a server render and the browser share,
+// so a shared link renders the rows the typing showed.
+// An item is its text and, per facet parameter, the values it carries; the state is the
+// search words and one chosen value per facet, "" for all. Each row of the list carries
+// data-filter-item, its text in data-filter-text, its facet values as JSON in
+// data-filter-facets ({"topic":["tools"]}), its place in the server's order in data-filter-order;
+// a [data-filter-title] inside, holding text only, gets the matched words marked, and a
+// [data-filter-group] hides while none of its rows shows. A server render sets `hidden` on each row
+// where `matches(item, state)` is false, so a shared link shows the same rows without JavaScript.
 export interface FilterItem {
   text: string;
   facets: Record<string, string[]>;
@@ -179,13 +188,8 @@ function indexFoldedText(source: string): FoldedText[] {
   return forms;
 }
 
-interface MarkedText {
-  source: string;
-  marked: boolean[];
-}
-
 /** Project every occurrence of the folded words onto its full span in the source. */
-function searchSpans(source: string, words: string[]): MarkedText {
+function searchSpans(source: string, words: string[]): boolean[] {
   const forms = indexFoldedText(source);
   const needles = Array.from(words, searchForms)
     .flat()
@@ -195,11 +199,11 @@ function searchSpans(source: string, words: string[]): MarkedText {
     for (const { folded, from, to } of forms)
       for (let hit = folded.indexOf(needle); hit !== -1; hit = folded.indexOf(needle, hit + 1))
         marked.fill(true, from[hit], to[hit + needle.length - 1]);
-  return { source, marked };
+  return marked;
 }
 
 /** Escape the text and wrap each contiguous span marked by the search. */
-function renderSearchSpans({ source, marked }: MarkedText): string {
+function renderSearchSpans(source: string, marked: boolean[]): string {
   let html = "";
   for (let start = 0; start < source.length;) {
     let end = start;
@@ -216,7 +220,7 @@ function renderSearchSpans({ source, marked }: MarkedText): string {
 export function highlight(text: string, words: string[]): string {
   if (!words.length) return escapeMarkup(text);
   const source = text.normalize("NFC");
-  return renderSearchSpans(searchSpans(source, words));
+  return renderSearchSpans(source, searchSpans(source, words));
 }
 
 /** The rows from which a list skips the layout of its rows off screen (data-long, list-filter.css):

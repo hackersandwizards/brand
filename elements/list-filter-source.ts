@@ -19,7 +19,7 @@ export function rebaseSrcset(srcset: string, at: (url: string) => string) {
 
 /** Relative addresses resolve against the source page, not this one; a fragment (an SVG
  *  sprite's #icon) and an address that does not parse stay as written. */
-function sourceAddress(url: string, base: string) {
+export function sourceAddress(url: string, base: string) {
   if (url.startsWith("#")) return url;
   try {
     return new URL(url, base).href;
