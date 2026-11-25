@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileIn } from "../../scan/markers";
+import { fileIn } from "../../scan/site";
 import { ROOT } from "../../scripts/git";
 
 export const DIST = join(ROOT, "dist");

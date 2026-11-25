@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { ROOT } from "../../scripts/git";
 import type { Browser } from "puppeteer-core";
 import { parseTokens } from "../../scripts/tokens";
-import { launch } from "../../scan/markers";
+import { launch } from "../../scan/browser";
 
 const css = readFileSync(join(ROOT, "expert/expert.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 const block = (head: RegExp) => parseTokens(`@theme {${head.exec(css)![1]}}`);

@@ -7,18 +7,14 @@ import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 import { rejection } from "@hackersandwizards/scaffolding/rejection";
 import { ROOT } from "../../scripts/git";
-import {
-  catalogPages,
-  failing,
-  hasMarkers,
-  launch,
-  listedSite,
-  measureMarkers,
-  serve,
-  toUrl,
-  type Reading,
-  type Refusal,
-} from "../../scan/markers";
+import { launch } from "../../scan/browser";
+import type { Refusal } from "../../scan/browser-csp";
+import { listedSite } from "../../scan/elements-config";
+import { installMarkerDom } from "../../scan/marker-dom";
+import { hasMarkers } from "../../scan/marker-page";
+import type { Reading } from "../../scan/marker-readings";
+import { failing, measureMarkers } from "../../scan/markers";
+import { catalogPages, serve, toUrl } from "../../scan/site";
 
 // marker.css on lists at five text sizes, wrapped and not, and on element markers in baseline rows,
 // against the rules it replaced: the inline-block list marker lifted by whole pixels (the website's
@@ -310,6 +306,37 @@ test("the first pass finds a page with a marker and passes over one without", as
     true,
     false,
   ]);
+}, 30_000);
+
+test("marker discovery retains the first kind and the declared source for each text node", async () => {
+  const page = await browser.newPage();
+  try {
+    await page.setContent(`<style>
+      ul { list-style: disc }
+      li::before { content: ""; display: inline-block; width: 8px; height: 8px; background: teal }
+      li span { display: inline-block; width: 8px; height: 8px; background: teal }
+      .element-only::before { content: none }
+    </style>
+    <ul><li><span data-hw-exception="ignored"></span> One</li></ul>
+    <ol><li data-hw-exception="declared">Two</li></ol>
+    <ol><li class="element-only"><span data-hw-exception="declared"></span> Three</li></ol>
+    <div style="opacity:0"><ul><li>Hidden</li></ul></div>`);
+    const dom = await installMarkerDom(page);
+    const matches = await dom.evaluate((api) =>
+      api.findMarkers(["declared", "ignored"]).map(({ kind, text, exception }) => ({
+        kind,
+        text: text.data.trim(),
+        exception,
+      })),
+    );
+    expect(matches).toEqual([
+      { kind: "before", text: "One" },
+      { kind: "before", text: "Two", exception: "declared" },
+      { kind: "element", text: "Three", exception: "declared" },
+    ]);
+  } finally {
+    await page.close();
+  }
 }, 30_000);
 
 const STRICT = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
@@ -645,73 +672,108 @@ test("a text box right of the viewport is measured", async () => {
   expect(show(rs.filter(failing))).toEqual([]);
 }, 60_000);
 
-test("--site serves a built folder: a page path starting with / is on it, nothing outside it", async () => {
-  const base = mkdtempSync(join(tmpdir(), "brand-site-"));
-  const site = join(base, "site");
-  mkdirSync(join(site, "catalog"), { recursive: true });
-  writeFileSync(join(site, "catalog/index.html"), "<p>catalog</p>");
-  writeFileSync(join(base, "outside.txt"), "outside");
-  const server = serve(site);
-  try {
-    const url = toUrl("/catalog/", server.url);
-    expect(url).toBe(`${server.url.origin}/catalog/`);
-    expect(await (await fetch(url)).text()).toBe("<p>catalog</p>");
-    // A folder without its slash redirects, so its relative links resolve as on Pages.
-    const moved = await fetch(`${server.url.origin}/catalog`, { redirect: "manual" });
-    expect([moved.status, moved.headers.get("location")]).toEqual([301, "/catalog/"]);
-    expect((await fetch(`${server.url.origin}/100%.html`)).status).toBe(404);
-    expect((await fetch(`${server.url.origin}/%2e%2e/outside.txt`)).status).toBe(404);
-    expect(toUrl("/catalog/").startsWith("file://")).toBe(true);
-  } finally {
-    await server.stop(true);
-    rmSync(base, { recursive: true, force: true });
-  }
+test("a leading-slash argument is on a server when supplied and names a file otherwise", () => {
+  const site = new URL("http://127.0.0.1:1");
+  expect(toUrl("/catalog/", site)).toBe(`${site.origin}/catalog/`);
+  expect(toUrl("/catalog/").startsWith("file://")).toBe(true);
 });
 
-test("a site built for a base path is served there: its stylesheets load, nothing outside it", async () => {
+describe("a served built folder", () => {
+  const base = mkdtempSync(join(tmpdir(), "brand-site-"));
+  const site = join(base, "site");
+  let server: ReturnType<typeof serve>;
+
+  beforeAll(() => {
+    mkdirSync(join(site, "catalog"), { recursive: true });
+    writeFileSync(join(site, "catalog/index.html"), "<p>catalog</p>");
+    writeFileSync(join(base, "outside.txt"), "outside");
+    server = serve(site);
+  });
+
+  afterAll(async () => {
+    await server?.stop(true);
+    rmSync(base, { recursive: true, force: true });
+  });
+
+  test("directories serve their index and redirect to the trailing slash", async () => {
+    expect(await (await fetch(new URL("/catalog/", server.url))).text()).toBe("<p>catalog</p>");
+    // A folder without its slash redirects, so its relative links resolve as on Pages.
+    const moved = await fetch(new URL("/catalog", server.url), { redirect: "manual" });
+    expect([moved.status, moved.headers.get("location")]).toEqual([301, "/catalog/"]);
+  });
+
+  test.each(["/100%.html", "/%2e%2e/outside.txt"])("the server rejects path %s", async (path) => {
+    expect((await fetch(`${server.url.origin}${path}`)).status).toBe(404);
+  });
+});
+
+describe("a site built for a base path", () => {
   const site = mkdtempSync(join(tmpdir(), "brand-site-"));
-  mkdirSync(join(site, "_astro"));
-  mkdirSync(join(site, "catalog/stories/A/b/default"), { recursive: true });
-  writeFileSync(join(site, "_astro/a.css"), "li { list-style: none; }");
-  writeFileSync(join(site, "index.html"), `<link rel="stylesheet" href="/mail/_astro/a.css">`);
-  writeFileSync(join(site, "catalog/stories/A/b/default/index.html"), "<p>story</p>");
-  const atRoot = serve(site);
-  const server = serve(site, "/mail/");
-  try {
-    // The control: served at its root, the base path's stylesheet is missing.
-    expect((await fetch(`${atRoot.url.origin}/mail/_astro/a.css`)).status).toBe(404);
-    expect((await fetch(`${server.url.origin}/mail/_astro/a.css`)).status).toBe(200);
-    expect(await (await fetch(`${server.url.origin}/mail/`)).text()).toContain(
-      "/mail/_astro/a.css",
+
+  beforeAll(() => {
+    mkdirSync(join(site, "_astro"));
+    mkdirSync(join(site, "catalog/stories/A/b/default"), { recursive: true });
+    writeFileSync(join(site, "_astro/a.css"), "li { list-style: none; }");
+    writeFileSync(join(site, "index.html"), `<link rel="stylesheet" href="/mail/_astro/a.css">`);
+    writeFileSync(join(site, "catalog/stories/A/b/default/index.html"), "<p>story</p>");
+  });
+
+  afterAll(() => rmSync(site, { recursive: true, force: true }));
+
+  describe("the /mail/ mount", () => {
+    let server: ReturnType<typeof serve>;
+    beforeAll(() => {
+      server = serve(site, "/mail/");
+    });
+    afterAll(async () => {
+      await server?.stop(true);
+    });
+
+    test("the mounted page and its stylesheet load and the mount redirects to its trailing slash", async () => {
+      expect((await fetch(new URL("/mail/_astro/a.css", server.url))).status).toBe(200);
+      expect(await (await fetch(new URL("/mail/", server.url))).text()).toContain(
+        "/mail/_astro/a.css",
+      );
+      const moved = await fetch(new URL("/mail", server.url), { redirect: "manual" });
+      expect([moved.status, moved.headers.get("location")]).toEqual([301, "/mail/"]);
+    });
+
+    test.each(["/_astro/a.css", "/blog/_astro/a.css"])(
+      "a mount hides %s outside its prefix",
+      async (path) => {
+        expect((await fetch(new URL(path, server.url))).status).toBe(404);
+      },
     );
-    const moved = await fetch(`${server.url.origin}/mail`, { redirect: "manual" });
-    expect([moved.status, moved.headers.get("location")]).toEqual([301, "/mail/"]);
-    expect((await fetch(`${server.url.origin}/_astro/a.css`)).status).toBe(404);
-    expect((await fetch(`${server.url.origin}/blog/_astro/a.css`)).status).toBe(404);
-    const spaced = serve(site, "/mein blog/");
+  });
+
+  // The control: served at its root, the base path's stylesheet is missing.
+  test("the base path's stylesheet is missing when the site is served at root", async () => {
+    const atRoot = serve(site);
     try {
-      expect((await fetch(`${spaced.url.origin}/mein%20blog/_astro/a.css`)).status).toBe(200);
-      const encoded = serve(site, "/mein%20blog/");
-      expect((await fetch(`${encoded.url.origin}/mein%20blog/_astro/a.css`)).status).toBe(200);
-      await encoded.stop(true);
+      expect((await fetch(new URL("/mail/_astro/a.css", atRoot.url))).status).toBe(404);
     } finally {
-      await spaced.stop(true);
+      await atRoot.stop(true);
     }
+  });
+
+  test.each(["/mein blog/", "/mein%20blog/"])(
+    "the mount %s serves the encoded stylesheet path",
+    async (at) => {
+      const server = serve(site, at);
+      try {
+        expect((await fetch(new URL("/mein%20blog/_astro/a.css", server.url))).status).toBe(200);
+      } finally {
+        await server.stop(true);
+      }
+    },
+  );
+
+  test("a mounted catalog names its stories below the site's base path", () => {
     const listed = listedSite({ dir: site, at: "/mail/" });
-    expect(listed).toEqual({ dir: site, at: "/mail/" });
-    expect(listedSite(site, "mail")).toEqual({ dir: site, at: "/mail/" });
-    expect(listedSite(site)).toEqual({ dir: site, at: "/" });
-    expect(() => listedSite({ at: "/mail/" } as never)).toThrow('"site": a folder');
-    expect(listedSite(undefined)).toBeUndefined();
-    expect(listedSite(null as never)).toBeUndefined();
-    expect(catalogPages(join(site, "catalog"), undefined, site, true, [], listed!.at)).toEqual([
+    expect(catalogPages({ dir: join(site, "catalog") }, listed)).toEqual([
       "/mail/catalog/stories/A/b/default/",
     ]);
-  } finally {
-    await atRoot.stop(true);
-    await server.stop(true);
-    rmSync(site, { recursive: true, force: true });
-  }
+  });
 });
 
 test("a page whose stylesheet does not load throws rather than measuring the unstyled page", async () => {

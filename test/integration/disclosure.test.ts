@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser, Protocol } from "puppeteer-core";
 import { ROOT } from "../../scripts/git";
-import { launch, open } from "../../scan/markers";
+import { launch, open } from "../../scan/browser";
 
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
 const doc = (sheets: string[], body: string, cls = "") =>

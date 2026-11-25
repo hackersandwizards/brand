@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import { findChrome, NO_KEYCHAIN } from "../../applications/linkedin-visuals/render";
-import { launch } from "../../scan/markers";
+import { launch } from "../../scan/browser";
 import catalogs from "../../expert/catalogs.json";
 import { isStringList } from "../../scan/help";
 import { ROOT } from "../../scripts/git";

@@ -4,7 +4,7 @@ export default {
   ...base,
   incremental: false,
   mutate: [
-    "scan/{allowlist,assets,colour-scan,colour-tokens,colours,components,copies,elements,engine-style,markers,retired,tree}.ts",
+    "scan/{allowlist,assets,browser,browser-csp,browser-workers,colour-scan,colour-tokens,colours,components,copies,elements,elements-config,engine-style,marker-capture,marker-dom,marker-page,marker-readings,markers,retired,site,tree}.ts",
     "elements/{code,list-filter,table}.ts",
     "expert/components/space-nav.ts",
     "scripts/tokens.ts",

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import type { Browser } from "puppeteer-core";
 import { ROOT } from "../../scripts/git";
 import { parseTokens, SOURCE } from "../../scripts/tokens";
-import { launch } from "../../scan/markers";
+import { launch } from "../../scan/browser";
 
 // night.css on the element that also declares the day tokens (html carrying both, as under
 // Tailwind's theme layer): every token computes to a value. A night value that refers to a token

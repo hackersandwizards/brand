@@ -7,7 +7,7 @@ import { ROOT } from "../../scripts/git";
 // light and night, the mark's middle sits within half a pixel of the cap-height middle, and a line
 // with the mark is as tall as the same line without it.
 test("the mark sits on the cap-height middle and never makes its line taller", async () => {
-  const { launch } = await import("../../scan/markers");
+  const { launch } = await import("../../scan/browser");
   const { pathToFileURL } = await import("node:url");
   const { mkdtempSync, rmSync, writeFileSync } = await import("node:fs");
   const { tmpdir } = await import("node:os");

@@ -67,29 +67,18 @@ Measures the shared elements on the pages and catalog brand-elements.json names.
 finding, and on a named page with no hub element (a zero proves nothing; a story page may show
 none). Exits 2 on a config naming no page and on a catalog folder without a story page. Needs
 Chrome for Testing (CHROME_BINARY overrides).`;
+import { addCss, focusAll, launch, open, openFolds } from "./browser";
+import { type Csp, listedCsp, policies, refusalLine, refusals } from "./browser-csp";
+import { pool, tabs } from "./browser-workers";
 import {
-  addCss,
-  catalogPages,
-  focusAll,
   type Catalog,
-  type Csp,
   type Site,
-  launch,
   listedCatalog,
-  listedCsp,
   listedElementPages,
   listedSite,
-  open,
-  openFolds,
-  policies,
-  pool,
   readElementsConfig,
-  refusalLine,
-  refusals,
-  serve,
-  tabs,
-  toUrl,
-} from "./markers";
+} from "./elements-config";
+import { catalogPages, serve, toUrl } from "./site";
 
 export const LIST = "brand-elements.json";
 export type Exception = string | { reason: string; files?: string[] };
@@ -1047,7 +1036,12 @@ if (import.meta.main) {
     const { dir, at, exclude } = listedCatalog({ catalog: raw.catalog });
     site = listedSite(raw.site);
     if (config.csp !== undefined) policies(config.csp);
-    if (dir) stories = catalogPages(dir, at, site?.dir, !!site || i >= 0, exclude, site?.at);
+    if (dir)
+      stories = catalogPages(
+        { dir, at, exclude },
+        site,
+        i >= 0 ? (URL.parse(process.argv[i + 1] ?? "") ?? undefined) : undefined,
+      );
   } catch (e) {
     console.error(`brand-elements: ${(e as Error).message}`);
     process.exit(2);

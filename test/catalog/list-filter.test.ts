@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect } from "vitest";
 import { stretch, test } from "../limit";
 import type { Browser, HTTPRequest, Page } from "puppeteer-core";
-import { launch } from "../../scan/markers";
+import { launch } from "../../scan/browser";
 import { BASE, page, serveSite } from "./site";
 
 // The list filter's story driven as a reader would: the website's e2e cases

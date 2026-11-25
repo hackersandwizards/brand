@@ -68,7 +68,8 @@ data or secret.
   documents engine. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the
-  rule being `tokens/marker.css`. `elements.ts` (`brand-elements`) measures the shared elements on
+  rule being `tokens/marker.css`. `browser.ts` opens pages for both measuring scans.
+  `elements.ts` (`brand-elements`) measures the shared elements on
   the design-system page a consumer names in `brand-elements.json` and its element-named source. `retired.ts` (`brand-retired`) fails on a line of `verbal.json`'s `retired` list in
   the built folders or files a consumer names.
   A skill, script or document generator takes the file from the package, never a copy.

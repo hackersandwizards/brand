@@ -4,7 +4,9 @@ import axe from "axe-core";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import { ELEMENTS, exceptionFindings, measurePage } from "../../scan/elements";
-import { catalogPages, launch, open, pool } from "../../scan/markers";
+import { launch, open } from "../../scan/browser";
+import { pool } from "../../scan/browser-workers";
+import { catalogPages } from "../../scan/site";
 import catalogs from "../../expert/catalogs.json";
 import { BASE, contrastMessageKey, DIST, page, serveSite } from "./site";
 
@@ -82,7 +84,7 @@ const expertStory = (url: string) =>
     "data-story-of=",
   );
 const storyPages = () =>
-  catalogPages(join(DIST, "catalog"), `${server.url}${BASE.slice(1)}catalog`);
+  catalogPages({ dir: join(DIST, "catalog"), at: `${server.url}${BASE.slice(1)}catalog` });
 
 // A scrolling table clips the cells at its edge and lays a gradient there, and axe reads the
 // contrast of neither: the pass fits every table into its column, whole and without the shadow,

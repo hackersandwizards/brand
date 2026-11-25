@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser, Page } from "puppeteer-core";
 import sharp from "sharp";
-import { launch, open } from "../../scan/markers";
+import { launch, open } from "../../scan/browser";
 import { ROOT } from "../../scripts/git";
 
 // The keys, focus and placement elements/behaviour.ts gives, in a real browser.
