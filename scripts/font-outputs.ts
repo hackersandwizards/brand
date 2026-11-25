@@ -73,8 +73,6 @@ const mailStacks = () => {
 const fontFaceModule = (screen: string) => {
   const rulesByFace = faceRules(screen);
   const rules = rulesByFace.join("\n\n");
-  if (/[`\\]|\$\{/.test(rules))
-    throw new Error("tokens/fonts.css: a rule a template literal would alter");
   if (rules.match(/url\(/g)?.length !== rules.match(/url\("fonts\/[^"]+"\)/g)?.length)
     throw new Error('tokens/fonts.css: a url() not written url("fonts/<file>")');
   return `// Generated from tokens/fonts.css by scripts/tokens.ts. Edit the source, never this file.

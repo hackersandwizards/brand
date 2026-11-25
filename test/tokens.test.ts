@@ -97,6 +97,32 @@ test("the Shiki theme maps token roles and ANSI colours to the shipped theme", (
   expect(codeTheme(tokens, colors)).toEqual(generatedCodeTheme);
 });
 
+test("Shiki scopes keep their role colours and font styles", () => {
+  const theme = codeTheme(
+    {
+      "--code-bg": "#101010",
+      "--code-fg": "#f0f0f0",
+      "--code-comment": "#888888",
+      "--code-keyword": "var(--color-purple-night)",
+      "--code-string": "#00cccc",
+      "--code-inserted": "#00dd00",
+      "--code-deleted": "#dd0000",
+    },
+    { "--color-purple-night": "#aa00cc" },
+  );
+  expect(theme.colors).toMatchObject({
+    "editor.background": "#101010",
+    "editor.foreground": "#f0f0f0",
+    "terminal.ansiMagenta": "#aa00cc",
+  });
+  expect(theme.tokenColors).toEqual(
+    expect.arrayContaining([
+      { scope: ["keyword", "storage", "storage.type"], settings: { foreground: "#aa00cc" } },
+      { scope: ["markup.italic"], settings: { foreground: "#f0f0f0", fontStyle: "italic" } },
+    ]),
+  );
+});
+
 test("ampersand-light, written out against night.css's loop, stays ampersand 60 % on white", () => {
   const mix = rgb(colors["--color-ampersand"]).map((v) => Math.round(v * 0.6 + 255 * 0.4));
   expect(rgb(colors["--color-ampersand-light"])).toEqual(mix);
@@ -392,6 +418,9 @@ test("translucent white and the scrim are tokens the elements name, never a mix 
 
 // docs/exports.md "Custom properties": every property an exported stylesheet defines is in a
 // property file, a setting some element's opening comment lists, or named there as internal.
+const INTERNAL_LITERALS = ["--hw-fg", "--hw-bg", "--hw-accent", "--hw-header-fill"];
+const INTERNAL_FAMILIES = { "--_*": /^--_/, "--tw-prose-*": /^--tw-prose-/ };
+
 test("every custom property is interface or named internal in docs/exports.md", () => {
   const defined = (f: string) =>
     [...readFileSync(join(ROOT, f), "utf8").matchAll(/(?:^|[;{\s])(--[\w-]+)\s*:/g)].map(
@@ -419,13 +448,14 @@ test("every custom property is interface or named internal in docs/exports.md", 
   assert(section, "Restore the Custom properties section in docs/exports.md.");
   const internal = section[1].split("Internal")[1];
   assert(internal, "Document the internal custom properties in docs/exports.md.");
-  const patterns = [...internal.matchAll(/`(--[\w-]+\*?)`/g)].map(
-    ([, name]) => new RegExp(`^${name.replace("*", "[\\w-]*")}$`),
+  const documented = [...internal.matchAll(/`(--[\w-]*\*?)`/g)].map(([, name]) => name);
+  expect(documented.toSorted()).toEqual(
+    [...INTERNAL_LITERALS, ...Object.keys(INTERNAL_FAMILIES)].sort(),
   );
-  expect(patterns).not.toHaveLength(0);
   const rest = [...elements, "expert/header.css", "expert/app-base.css"]
     .flatMap((f) => defined(f).map((p) => [f, p] as const))
     .filter(([, p]) => !iface.has(p))
-    .filter(([, p]) => !patterns.some((pattern) => pattern.test(p)));
+    .filter(([, p]) => !INTERNAL_LITERALS.includes(p))
+    .filter(([, p]) => !Object.values(INTERNAL_FAMILIES).some((pattern) => pattern.test(p)));
   expect(rest).toEqual([]);
 });

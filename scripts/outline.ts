@@ -80,51 +80,53 @@ async function writeDay(base: string) {
   const src = readFileSync(path, "utf8");
   const wizard = readWizard(src);
   const direction = AWAY[base];
-  const t = await moveFor(src, direction, WIDEN * GAP[base]);
+  const t = await moveFor(src, direction, { gap: WIDEN * GAP[base], radius: 0 });
   const placed = shiftWizard(wizard, { x: direction.x * t, y: direction.y * t });
   const ink = await wizardInk(placed);
   const letters = [INK.x0, INK.y0, INK.x1 - INK.x0, INK.y1 - INK.y0];
   const box = readViewBox(src);
   const next = grow(base, letters, ink);
   const svg = sizedSvg(src.replace(wizard.tag, wizardTag(placed)), next);
-  await writeLogo(base, svg, { day: base, dayWidth: box[2], outputWidth: next[2] });
+  writeSvg(base, svg);
+  await writePng(base, svg, await scaledPngWidth(base, next[2], box[2]));
   console.log(`${base}: wizard moves ${t.toFixed(1)} for a gap of ${WIDEN * GAP[base]} units`);
 }
 
-type SvgRasterScale = { day: string; dayWidth: number; outputWidth: number };
-
-/** Writes a logo SVG and its declared PNG, retaining the day raster's pixels per SVG unit. */
-async function writeLogo(name: string, svg: string, scale?: SvgRasterScale) {
-  const svgPath = `logos/${name}.svg`;
-  const pngPath = `logos/${name}.png`;
-  writeFileSync(join(ROOT, svgPath), svg);
-  const paths = [svgPath];
-  if (scale) {
-    const { width } = await sharp(join(ROOT, "logos", `${scale.day}.png`)).metadata();
-    await sharp(Buffer.from(svg))
-      .resize(Math.round((width * scale.outputWidth) / scale.dayWidth))
-      .png({ compressionLevel: 9, adaptiveFiltering: true })
-      .toFile(join(ROOT, pngPath));
-    paths.push(pngPath);
-  }
-  for (const path of paths) rehash(path);
+/** Writes a logo SVG and records its hash in the manifest. */
+function writeSvg(name: string, svg: string) {
+  const path = `logos/${name}.svg`;
+  writeFileSync(join(ROOT, path), svg);
+  rehash(path);
 }
 
-type LogoCut = { base: string; kind: CutKind };
+/** Preserves the day raster's pixels per SVG unit as the viewport changes. */
+async function scaledPngWidth(base: string, outputWidth: number, dayWidth: number) {
+  const { width } = await sharp(join(ROOT, "logos", `${base}.png`)).metadata();
+  return Math.round((width * outputWidth) / dayWidth);
+}
+
+/** Writes a logo PNG and records its hash in the manifest. */
+async function writePng(name: string, svg: string, width: number) {
+  const path = `logos/${name}.png`;
+  await sharp(Buffer.from(svg))
+    .resize(width)
+    .png({ compressionLevel: 9, adaptiveFiltering: true })
+    .toFile(join(ROOT, path));
+  rehash(path);
+}
 
 /** The relocated wizard with its raster edge, and the ink that the edge adds to the box. */
-async function cutWizard(src: string, { base, kind }: LogoCut, edgeColour: string) {
+async function cutWizard(src: string, base: string, edgeColour: string) {
   const wizard = parseWizard(src);
   if (!wizard) return;
   const direction = AWAY[base];
-  const shift = await moveFor(src, direction, WIDEN * (GAP[base] + RIM) + EDGE);
+  const shift = await moveFor(src, direction, { gap: WIDEN * (GAP[base] + RIM), radius: EDGE });
   const placed = shiftWizard(wizard, { x: direction.x * shift, y: direction.y * shift });
-  console.log(`${base}-${kind}: wizard moves ${shift.toFixed(1)} beyond the day file`);
   const edge = await edgeRaster(placed, EDGE, rgb(edgeColour));
   const { x, y } = edge.origin;
   const side = +edge.width.toFixed(3);
   const image = `<image class="wizard-edge" x="${+x.toFixed(3)}" y="${+y.toFixed(3)}" width="${side}" height="${side}" href="data:image/png;base64,${edge.png.toString("base64")}"/>`;
-  return { tag: wizard.tag, replacement: image + wizardTag(placed), ink: edge.ink };
+  return { tag: wizard.tag, replacement: image + wizardTag(placed), ink: edge.ink, shift };
 }
 
 /** Renders one cut from its day logo, with enough room for its stroke and wizard edge. */
@@ -135,20 +137,21 @@ async function writeCut(base: string, kind: CutKind) {
   let svg = style.svg;
   let ink = [box[0], box[1], box[0] + box[2], box[1] + box[3]];
   if (style.outlineInk) ink = unionInk(ink, style.outlineInk);
-  const wizard = await cutWizard(src, { base, kind }, style.edgeColour);
+  const name = `${base}-${kind}`;
+  const wizard = await cutWizard(src, base, style.edgeColour);
   if (wizard) {
+    console.log(`${name}: wizard moves ${wizard.shift.toFixed(1)} beyond the day file`);
     svg = svg
       .replace(wizard.tag, wizard.replacement)
       .replace(", so the box is the wizard's:", ", the box holds the wizard's edge, and");
     ink = unionInk(ink, wizard.ink);
   }
   const next = grow(base, box, ink);
-  const name = `${base}-${kind}`;
+  const output = sizedSvg(svg, next);
+  writeSvg(name, output);
   // A cut has a PNG where manifest.json lists one.
-  const scale = manifest.files.some((entry) => entry.path === `logos/${name}.png`)
-    ? { day: base, dayWidth: box[2], outputWidth: next[2] }
-    : undefined;
-  await writeLogo(name, sizedSvg(svg, next), scale);
+  if (manifest.files.some((entry) => entry.path === `logos/${name}.png`))
+    await writePng(name, output, await scaledPngWidth(base, next[2], box[2]));
 }
 
 for (const base of Object.keys(GAP)) await writeDay(base);
@@ -193,9 +196,7 @@ for (const [from, to] of [
     svg = svg.replace(b64, small.toString("base64"));
   }
   svg = optimize(svg, SVGO).data;
-  const path = `logos/${to}.svg`;
-  writeFileSync(join(ROOT, path), svg);
-  rehash(path);
+  writeSvg(to, svg);
 }
 // The wizard alone at that size, for a page or document that inlines it: emoji-256.png, a plain Git
 // file the package ships, where the 4096 px master stays in LFS.

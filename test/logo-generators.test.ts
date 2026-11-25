@@ -56,8 +56,8 @@ test.each([
 ])("moves the wizard $axis until its contour clears the letter", async ({ x, y, direction }) => {
   // Keep the contours on the same side of each other across the full search interval.
   const src = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720">${wizardSvg(opaque, 20)}<g fill="#1A7285"><rect x="${x}" y="${y}" width="20" height="20"/></g></svg>`;
-  expect(await moveFor(src, direction, 632)).toBe(0);
-  expect(await moveFor(src, direction, 652)).toBeCloseTo(19.04, 2);
+  expect(await moveFor(src, direction, { gap: 632, radius: 0 })).toBe(0);
+  expect(await moveFor(src, direction, { gap: 650, radius: 2 })).toBeCloseTo(19.04, 2);
 });
 
 test("the wizard's edge uses SVG units and antialiases the silhouette", async () => {

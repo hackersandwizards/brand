@@ -91,10 +91,12 @@ async function alpha(svg: string, box: number[]) {
   return { data, n: info.width };
 }
 
-/** How far (SVG units) the wizard moves along AWAY from where `src` has it, negative towards the
- * letters, so that its contour widened by `widen` lies `target` from theirs, both at alpha 50%.
- * `distanceFromLetters` is that target plus the widening, in SVG units. */
-export async function moveFor(src: string, direction: LogoPoint, distanceFromLetters: number) {
+type ContourClearance = { gap: number; radius: number };
+
+/** How far (SVG units) the wizard moves along `direction` from where `src` has it, negative
+ * towards the letters, so that its contour widened by `radius` lies `gap` from theirs, both at
+ * alpha 50%. The gap and radius are in SVG units. */
+export async function moveFor(src: string, direction: LogoPoint, clearance: ContourClearance) {
   const vb = readViewBox(src);
   const box = [vb[0] - 600, vb[1] - 600, vb[2] + 1200, vb[3] + 1200];
   const letters = await alpha(src.replace(WIZARD, ""), box);
@@ -113,12 +115,12 @@ export async function moveFor(src: string, direction: LogoPoint, distanceFromLet
       const y = Math.round(Math.floor(i / n) + ay * t * K);
       d = Math.min(d, field[y * n + x]);
     }
-    return Math.sqrt(d) / K;
+    return Math.sqrt(d) / K - clearance.radius;
   };
   let [lo, hi] = [-500, 500];
   while (hi - lo > 0.5) {
     const t = (lo + hi) / 2;
-    if (gap(t) < distanceFromLetters) lo = t;
+    if (gap(t) < clearance.gap) lo = t;
     else hi = t;
   }
   return Math.abs(hi) < 2.5 ? 0 : hi; // within the measurement's precision at K
@@ -146,8 +148,8 @@ export async function wizardInk({ png, origin: { x, y }, width }: WizardImage) {
   return [x + x0 * u, y + y0 * u, x + x1 * u, y + y1 * u];
 }
 
-/** The edge raster: the wizard's silhouette (alpha >= 50%) widened by `r` px, antialiased.
- * Both the input radius and the returned geometry are in SVG units. */
+/** The antialiased edge raster of the wizard's silhouette (alpha >= 50%), widened by `radius`.
+ * The radius and returned geometry are in SVG units. The colour is an RGB triple. */
 export async function edgeRaster(wizard: WizardImage, radius: number, colour: number[]) {
   const size = 1024; // twice the embedded wizard, for a smooth contour
   const unit = wizard.width / size;
