@@ -8,11 +8,11 @@ import { ROOT } from "../scripts/git";
 // a lucide-static update that redraws an icon fails here until the mark is copied again. The mark
 // without a data-mark is the other area.
 const ICONS = {
-  trainings: "graduation-cap",
-  factory: "factory",
-  blog: "newspaper",
-  knowledge: "book-open",
-  podcast: "mic",
+  '[data-mark="trainings"]': "graduation-cap",
+  '[data-mark="factory"]': "factory",
+  '[data-mark="blog"]': "newspaper",
+  '[data-mark="knowledge"]': "book-open",
+  '[data-mark="podcast"]': "mic",
   "": "building-2",
 };
 const css = readFileSync(join(ROOT, "tokens/marker.css"), "utf8");
@@ -28,12 +28,12 @@ test("every area mark draws its Lucide icon, other the default", () => {
     ...css.matchAll(
       /\.hw-mark((?:\[data-mark="\w+"\])?) \{[^}]*?--_hw-icon: url\("data:image\/svg\+xml,([^"]+)"\)/g,
     ),
-  ].map(([, selector, uri]) => [selector.replace(/^\[data-mark="(\w+)"\]$/, "$1"), uri!] as const);
-  expect(marks.map(([area]) => area).sort()).toEqual(Object.keys(ICONS).sort());
-  for (const [area, uri] of marks) {
-    expect({ area, shapes: shapes(decodeURIComponent(uri)) }).toEqual({
-      area,
-      shapes: lucide(ICONS[area as keyof typeof ICONS]),
+  ].map(([, selector, uri]) => [selector, uri!] as const);
+  expect(marks.map(([selector]) => selector).sort()).toEqual(Object.keys(ICONS).sort());
+  for (const [selector, uri] of marks) {
+    expect({ selector, shapes: shapes(decodeURIComponent(uri)) }).toEqual({
+      selector,
+      shapes: lucide(ICONS[selector as keyof typeof ICONS]),
     });
   }
 });

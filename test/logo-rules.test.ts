@@ -62,13 +62,12 @@ test("each night cut fills its day file's shapes with their night tones", () => 
     [hex("purple")]: hex("purple-night"),
     [hex("ampersand")]: hex("ampersand-light"),
   };
-  const dayTone = new RegExp(`^(?:${Object.keys(night).join("|")})$`);
   const fills = (f: string) =>
     [...readFileSync(join(ROOT, `logos/${f}.svg`), "utf8").matchAll(/fill="(#[0-9A-F]{6})"/gi)].map(
       (m) => m[1]!.toUpperCase(),
     );
   for (const day of ["wordmark", "lockup", "lockup-compact", "lockup-screen"]) {
-    const want = fills(day).map((c) => c.replace(dayTone, (tone) => night[tone]));
+    const want = fills(day).map((c) => night[c]);
     expect({ day, fills: fills(`${day}-night`) }).toEqual({ day, fills: want });
     expect(want.length).toBeGreaterThan(0);
   }
