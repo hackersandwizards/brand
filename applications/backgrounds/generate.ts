@@ -222,7 +222,7 @@ const homePage = (d: Device, ground = HOME_GROUND, big = false) =>
   ]);
 
 // Read the variant selection and whether to render comparison screens.
-function parseBackgroundArgs(args: string[]) {
+export function parseBackgroundArgs(args: string[]) {
   const out = args[0];
   if (!out) throw new Error("usage: generate.ts <out dir> [variant ...] [--mocks]");
   const names = args.slice(1).filter((arg) => !arg.startsWith("--"));
@@ -234,17 +234,17 @@ function parseBackgroundArgs(args: string[]) {
 }
 
 // The current dark wallpapers are included for comparison with the rendered variants.
-function darkWallpapers(): VariantWallpaperSet {
+export function darkWallpapers(dir = DARK): VariantWallpaperSet {
   return {
     name: "dark",
     tone: "dark",
     files: {
-      mac: join(DARK, "macbook-background.png"),
-      ipad: join(DARK, "ipad-lock-background.png"),
-      "ipad-home": join(DARK, "ipad-home-background.png"),
-      iphone: join(DARK, "iphone-lock-background.png"),
-      "iphone-home": join(DARK, "iphone-home-background.png"),
-      call: join(DARK, "call-background.png"),
+      mac: join(dir, "macbook-background.png"),
+      ipad: join(dir, "ipad-lock-background.png"),
+      "ipad-home": join(dir, "ipad-home-background.png"),
+      iphone: join(dir, "iphone-lock-background.png"),
+      "iphone-home": join(dir, "iphone-home-background.png"),
+      call: join(dir, "call-background.png"),
     },
   };
 }

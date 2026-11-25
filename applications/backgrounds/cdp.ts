@@ -34,6 +34,7 @@ export function parseCdpMessage(raw: string): CdpResponse | CdpEvent | undefined
   return { kind: "event", method, sessionId };
 }
 
+// Route DevTools messages to the command or page listener waiting for them.
 class CdpConnection {
   #pending = new Map<number, Pending>();
   #events = new Set<(event: CdpEvent) => void>();

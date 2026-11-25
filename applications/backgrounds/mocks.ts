@@ -8,6 +8,8 @@ import type { WallFile } from "./wall";
 
 type Renderer = Awaited<ReturnType<typeof browser>>;
 export type Tone = "light" | "mid" | "dark";
+// The PNG a layout writes and the tone its mock screens use.
+export type LayoutWallpaper = { file: WallFile; path: string; tone: Tone };
 export type VariantWallpaperSet = { name: string; tone: Tone; files: Record<string, string> };
 type ScreenMock = { html: string; viewport: Viewport; regions: number[][] };
 type Mock = { panel: string; html: string; viewport: Viewport };
@@ -180,7 +182,7 @@ const SCREEN_MOCKS: Record<Screen, (wall: string, tone: Tone) => ScreenMock> = {
 };
 
 // Select the mock that fits a device and its system screen.
-function screenMock(screen: Screen, wall: string, tone: Tone) {
+export function screenMock(screen: Screen, wall: string, tone: Tone) {
   return SCREEN_MOCKS[screen](fileUrl(wall), tone);
 }
 
@@ -206,7 +208,7 @@ async function detail(png: Buffer, regions: number[][]) {
 }
 
 // Side-by-side lock and home screens for iPad and iPhone comparison.
-function pairedScreens({ tone, files }: VariantWallpaperSet): Mock[] {
+export function pairedScreens({ tone, files }: VariantWallpaperSet): Mock[] {
   const u = (key: string) => fileUrl(files[key] ?? files[key.replace("-home", "")]);
   const ink = clockInk(tone);
   return [
@@ -249,7 +251,7 @@ export async function renderVariantMocks(b: Renderer, out: string, wallpaper: Va
 export async function renderLayoutMocks(
   b: Renderer,
   stem: string,
-  { file, path, tone }: { file: WallFile; path: string; tone: Tone },
+  { file, path, tone }: LayoutWallpaper,
 ) {
   for (const panel of SCREENS_BY_FILE[file] ?? []) {
     const { html, viewport, regions } = screenMock(panel, path, tone);

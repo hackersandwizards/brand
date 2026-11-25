@@ -47,10 +47,10 @@ export const fontFaces = `
 @font-face{font-family:Inter;src:url(${brand.fonts}/inter-latin-600-normal.woff2);font-weight:600}
 @font-face{font-family:Inter;src:url(${brand.fonts}/inter-latin-700-normal.woff2);font-weight:700}`;
 
-type DevTools = Awaited<ReturnType<typeof connectCdp>>;
+type DevTools = Pick<Awaited<ReturnType<typeof connectCdp>>, "lastRequestId" | "once" | "send">;
 
 // In port-zero mode Chrome tells its client the DevTools address through the profile directory.
-async function chromeSocket(profile: string) {
+export async function chromeSocket(profile: string) {
   const portFile = join(profile, "DevToolsActivePort");
   for (let i = 0; !existsSync(portFile) || !readFileSync(portFile, "utf8").includes("\n"); i++) {
     if (i > 200) throw new Error("Chrome did not start");
@@ -61,7 +61,7 @@ async function chromeSocket(profile: string) {
 }
 
 // Boot a dedicated Chrome process and own its temporary profile.
-async function openChrome() {
+export async function openChrome() {
   const profile = mkdtempSync(join(tmpdir(), "hw-render-"));
   const proc = spawn(findChrome(), [
     "--headless=new",
@@ -84,7 +84,8 @@ async function openChrome() {
   }
 }
 
-class RenderPage {
+// A page session owns its HTML inputs and captures PNG or PDF from the loaded document.
+export class RenderPage {
   #scratch = mkdtempSync(join(tmpdir(), "hw-html-"));
   private readonly cdp: DevTools;
   private readonly sessionId: string;

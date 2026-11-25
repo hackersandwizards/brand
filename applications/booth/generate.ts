@@ -81,7 +81,7 @@ const CAMERAS = {
   "2m": { width: 1400, height: 1500, pixelsPerMm: 0.62, floorY: 1410, bannerX: 70, aisle: false },
 };
 type Camera = (typeof CAMERAS)[keyof typeof CAMERAS];
-type BannerPair = { tall: string; square: string };
+type BannerPair<Image = string> = { tall: Image; square: Image };
 type Lighting =
   { mode: "ambient"; wall: string } | { mode: "backlit"; wall: string; luminance: number };
 
@@ -109,6 +109,7 @@ const HALL = {
 // lit: the frames are LED lightboxes in a dark hall. The banner pixels stay as rendered (paper white is
 // the brightest the frame gets), a blurred copy screened over each frame is the bloom, and the floor
 // catches light in proportion to the banners' mean luminance `lit` (0 to 1).
+// The scale k is camera.pixelsPerMm, and lit is lighting.luminance in a backlit view.
 function boothView(banners: BannerPair, camera: Camera, lighting: Lighting) {
   const { width: W, height: H, floorY, bannerX: bx, aisle } = camera;
   const mm = (v: number) => v * camera.pixelsPerMm;
@@ -141,13 +142,16 @@ ${table}
 ${aisle ? person(bx - mm(1500), "#2d3e50") + person(bx + mm(2350), "#6b4f3a", 0.97) + person(bx + mm(3900), "#34495e", 1.02) : ""}`;
 }
 
-type ViewSelection = { mode: "ambient"; walls: string[] } | { mode: "backlit" };
+type AmbientViews = { mode: "ambient"; walls: string[] };
+type ViewSelection = AmbientViews | { mode: "backlit" };
+type IlluminatedViews = AmbientViews | { mode: "backlit"; luminance: number };
 type BoothCamera = Awaited<ReturnType<typeof browser>>;
-type BannerSheet = { stem: string; html: string; widthMm: number; heightMm: number };
+type BannerSize = { widthMm: number; heightMm: number };
+type BannerSheet = BannerSize & { stem: string; html: string };
 type BoothView = { path: string; camera: Camera; lighting: Lighting };
 
 // Read the output directory, exhibition views and optional print run from the CLI.
-function parseBoothArgs(args: string[]) {
+export function parseBoothArgs(args: string[]) {
   const out = args[0];
   if (!out) throw new Error("usage: generate.ts <out dir> [--pdf]");
   const pdf = args.includes("--pdf");
@@ -162,7 +166,7 @@ function parseBoothArgs(args: string[]) {
 }
 
 // Crop the bleed: the views show the final format.
-function cropBleed(png: Buffer, { widthMm, heightMm }: BannerSheet) {
+export function cropBleed(png: Buffer, { widthMm, heightMm }: BannerSize) {
   return sharp(png)
     .extract({ left: 32, top: 32, width: widthMm * 1.6, height: heightMm * 1.6 })
     .png()
@@ -183,9 +187,9 @@ async function writeBoothBanner(b: BoothCamera, out: string, sheet: BannerSheet)
 }
 
 // Mean luminance of both banners, area-weighted 2:1, for the floor light of a lit view.
-async function boothLuminance({ tall, square }: BannerPair) {
+export async function boothLuminance({ tall, square }: BannerPair<string | Buffer>) {
   // Mean luminance of one banner's pixels on the Rec. 709 scale.
-  const lum = async (file: string) => {
+  const lum = async (file: string | Buffer) => {
     const [r, g, bl] = (await sharp(file).stats()).channels.map((c) => c.mean / 255);
     return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
   };
@@ -193,11 +197,7 @@ async function boothLuminance({ tall, square }: BannerPair) {
 }
 
 // Pair each requested wall and light setting with the near and far cameras.
-async function planBoothViews(
-  out: string,
-  banners: BannerPair,
-  selection: ViewSelection,
-): Promise<BoothView[]> {
+export function planBoothViews(out: string, selection: IlluminatedViews): BoothView[] {
   const walls =
     selection.mode === "backlit"
       ? [
@@ -206,7 +206,7 @@ async function planBoothViews(
             lighting: {
               mode: "backlit",
               wall: WALLS.dark,
-              luminance: await boothLuminance(banners),
+              luminance: selection.luminance,
             },
           } as const,
         ]
@@ -250,7 +250,9 @@ async function generateBooth() {
       tall: await writeBoothBanner(b, out, tall),
       square: await writeBoothBanner(b, out, square),
     };
-    for (const { path, camera, lighting } of await planBoothViews(out, banners, views)) {
+    const illuminated: IlluminatedViews =
+      views.mode === "backlit" ? { ...views, luminance: await boothLuminance(banners) } : views;
+    for (const { path, camera, lighting } of planBoothViews(out, illuminated)) {
       const view = boothView(banners, camera, lighting);
       writeFileSync(path, await toJpeg(await b.shot(view, camera)));
     }

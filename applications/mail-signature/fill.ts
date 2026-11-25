@@ -33,7 +33,7 @@ const formats = new Map([
 ]);
 
 // Normalize contact fields before substituting any template value.
-function signatureValues(fields: SignatureFields): Record<string, string> {
+export function signatureValues(fields: SignatureFields): Record<string, string> {
   const linkedin = fields.linkedin?.trim() ?? "";
   // The value lands in an href: any other scheme (javascript:, data:) would run or load in the mail.
   if (linkedin && URL.parse(linkedin)?.protocol !== "https:")
@@ -58,6 +58,7 @@ export function fillSignature(
     if (!Object.hasOwn(values, key)) throw new Error(`mail signature: unknown field {{${key}}}`);
     return values[key];
   };
+  // The plain fallback keeps the raw template behaviour of callers from JavaScript with an unknown format.
   const { encode, finish } = formats.get(format) ?? { encode: plain, finish: plain };
   const filled = template
     .replace(/\{\{#(\w+)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, key: string, body: string) =>

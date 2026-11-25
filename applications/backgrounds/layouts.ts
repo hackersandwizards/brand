@@ -1,6 +1,6 @@
 // Measured wallpaper layouts and the renderer for their variant and screen comparisons.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { crc32 } from "node:zlib";
 import { brand, browser, tint } from "./render";
 import {
@@ -15,11 +15,17 @@ import {
   wallPage,
   type WallFile,
 } from "./wall";
-import { renderLayoutMocks, type Tone } from "./mocks";
+import { renderLayoutMocks, type LayoutWallpaper } from "./mocks";
 
 type Base = "dark" | "light";
 type Point = { x: number; y: number };
-type LayoutJob = { base: Base; file: WallFile; layout: string; elements: El[] };
+type LayoutJob = {
+  base: Base;
+  layout: string;
+  elements: El[];
+  wallpaper: LayoutWallpaper;
+  mockStem: string;
+};
 
 // A pHYs chunk after IHDR, so macOS reads a 2x desktop file at its point size and fills the screen
 // even with "Center". The pixels and every other byte stay as Chrome wrote them.
@@ -232,7 +238,7 @@ function inlineLockup(url: string, size: { width: number } | { height: number },
 }
 
 // Render the measured elements over the ground for the given device.
-function layoutWall({ base, file: f, elements }: LayoutJob) {
+function layoutWall({ base, wallpaper: { file: f }, elements }: LayoutJob) {
   // White-ink marks on the dark ground and on the deep light home ground.
   const night = base === "dark" || f.includes("-home");
   const bg =
@@ -259,7 +265,7 @@ function layoutWall({ base, file: f, elements }: LayoutJob) {
 }
 
 // Read the base tones and optional set of layout IDs from the command line.
-function parseLayoutArgs(args: string[]) {
+export function parseLayoutArgs(args: string[]) {
   const opt = (key: string) => (args.includes(key) ? args[args.indexOf(key) + 1] : undefined);
   const base = opt("--base") as Base | undefined;
   const bases: Base[] = base ? [base] : ["dark", "light"];
@@ -267,13 +273,25 @@ function parseLayoutArgs(args: string[]) {
 }
 
 // Enumerate matching layouts in the table's device and layout order, once per chosen base.
-export function planLayouts(bases: Base[], only?: string[]): LayoutJob[] {
+export function planLayouts(out: string, bases: Base[], only?: string[]): LayoutJob[] {
   const selected = (Object.keys(LAYOUTS) as WallFile[])
     .flatMap((file) =>
       Object.entries(LAYOUTS[file]).map(([layout, elements]) => ({ file, layout, elements })),
     )
     .filter(({ file, layout }) => !only || only.includes(`${file}:${layout}`));
-  return bases.flatMap((base) => selected.map((layout) => ({ base, ...layout })));
+  return bases.flatMap((base) =>
+    selected.map(({ file, layout, elements }) => ({
+      base,
+      layout,
+      elements,
+      wallpaper: {
+        file,
+        path: join(out, base, file, `${layout}.png`),
+        tone: base === "dark" ? "dark" : fileDevice(file) === "mac" ? "mid" : "light",
+      },
+      mockStem: join(out, "mocks", `${base}~${layout}`),
+    })),
+  );
 }
 
 // Write the wallpapers and previews for every selected base and measured layout.
@@ -281,17 +299,14 @@ export async function generateLayouts() {
   const { out, bases, only } = parseLayoutArgs(process.argv.slice(2));
   const b = await browser();
   try {
-    for (const job of planLayouts(bases, only)) {
-      const { base, file, layout } = job;
-      const viewport = fileSize(file);
-      const dir = join(out, base, file);
-      mkdirSync(dir, { recursive: true });
-      const path = join(dir, `${layout}.png`);
-      const mac = fileDevice(file) === "mac";
+    for (const job of planLayouts(out, bases, only)) {
+      const { wallpaper, mockStem } = job;
+      const viewport = fileSize(wallpaper.file);
+      mkdirSync(dirname(wallpaper.path), { recursive: true });
+      const mac = fileDevice(wallpaper.file) === "mac";
       const png = await b.shot(layoutWall(job), viewport);
-      writeFileSync(path, mac ? withDpi(png, 72 * viewport.scale) : png);
-      const tone: Tone = base === "dark" ? "dark" : mac ? "mid" : "light";
-      await renderLayoutMocks(b, join(out, "mocks", `${base}~${layout}`), { file, path, tone });
+      writeFileSync(wallpaper.path, mac ? withDpi(png, 72 * viewport.scale) : png);
+      await renderLayoutMocks(b, mockStem, wallpaper);
     }
   } finally {
     await b.close();

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import i from "../verbal/imprint.json";
 import { join } from "node:path";
-import { EXAMPLE, fillSignature } from "../applications/mail-signature/fill";
+import { EXAMPLE, fillSignature, signatureValues } from "../applications/mail-signature/fill";
 import { colors } from "../generated/tokens";
 import { ROOT } from "../scripts/git";
 
@@ -17,11 +17,23 @@ describe("the HTML signature for an h&w account", () => {
     html = fillSignature(template("html"), EXAMPLE, "html");
   });
 
-  test("renders the complete HTML signature for an h&w account", () => {
+  test("includes the account wordmark", () => {
     expect(html).toContain(">hackers</span>");
+  });
+
+  test("includes the GmbH register number", () => {
     expect(html).toContain(GMBH);
+  });
+
+  test("renders the international phone href", () => {
     expect(html).toContain('href="tel:+494012345678"');
+  });
+
+  test("resolves all template placeholders", () => {
     expect(html).not.toContain("{{");
+  });
+
+  test("omits an email link from the contact line", () => {
     expect(html).not.toContain("mailto:");
   });
 
@@ -138,4 +150,82 @@ test("every colour the template types is a token colour", () => {
     .map((c) => c.toLowerCase());
   expect(typed.length).toBeGreaterThan(0);
   expect(typed.filter((c) => !tokenHexes.has(c))).toEqual([]);
+});
+
+describe("normalized signature fields", () => {
+  test.each([
+    {
+      name: "pasted contact details",
+      input: {
+        name: " A Person ",
+        role: " Trainer ",
+        phone: " +49 (0)40 12 34 ",
+        linkedin: " https://www.linkedin.com/in/person ",
+      },
+      values: {
+        name: "A Person",
+        role: "Trainer",
+        phone: "+49 (0)40 12 34",
+        tel: "+49401234",
+        linkedin: "https://www.linkedin.com/in/person",
+        linkedinShort: "linkedin.com/in/person",
+      },
+    },
+    {
+      name: "absent optional fields",
+      input: { name: "A Person", role: "Trainer" },
+      values: {
+        name: "A Person",
+        role: "Trainer",
+        phone: "",
+        tel: "",
+        linkedin: "",
+        linkedinShort: "",
+      },
+    },
+    {
+      name: "blank optional fields",
+      input: { name: "A Person", role: "Trainer", phone: " ", linkedin: " " },
+      values: {
+        name: "A Person",
+        role: "Trainer",
+        phone: "",
+        tel: "",
+        linkedin: "",
+        linkedinShort: "",
+      },
+    },
+    {
+      name: "an HTTPS URL without www",
+      input: { name: "A Person", role: "Trainer", linkedin: "https://linkedin.com/in/person" },
+      values: {
+        name: "A Person",
+        role: "Trainer",
+        phone: "",
+        tel: "",
+        linkedin: "https://linkedin.com/in/person",
+        linkedinShort: "linkedin.com/in/person",
+      },
+    },
+  ])("normalizes $name", ({ input, values }) => {
+    expect(signatureValues(input)).toEqual(values);
+  });
+
+  test.each([
+    "http://linkedin.com/in/person",
+    "linkedin.com/in/person",
+    "javascript:alert(1)",
+    "data:text/html,x",
+  ])("rejects the LinkedIn URL %s before rendering", (linkedin) => {
+    expect(() => signatureValues({ name: "A Person", role: "Trainer", linkedin })).toThrow(
+      `mail signature: linkedin must be an https: URL, got ${linkedin}`,
+    );
+  });
+});
+
+test("an unknown format from JavaScript preserves raw template whitespace", () => {
+  const format = JSON.parse('"raw"') as Parameters<typeof fillSignature>[2];
+  expect(fillSignature("  {{name}}  ", { name: "A & B", role: "Trainer" }, format)).toBe(
+    "  A & B  ",
+  );
 });

@@ -70,21 +70,26 @@ describe("applications/linkedin-visuals/frame.ts", () => {
 
     // The headline is white on the band; the image, scaled up to the card's width, reaches up into
     // the band.
-    it("sets the headline in white on the band", () => {
-      const region = frame.region({ left: 56, top: 60, width: 968, height: 140 });
-      expect(
-        region.filter((pixel) => pixel.every((channel) => channel > 240)).length,
-      ).toBeGreaterThan(2000);
-    });
+    describe("the headline and the card at the band", () => {
+      it("sets the headline in white on the band", () => {
+        const region = frame.region({ left: 56, top: 60, width: 968, height: 140 });
+        expect(
+          region.filter((pixel) => pixel.every((channel) => channel > 240)).length,
+        ).toBeGreaterThan(2000);
+      });
 
-    it("scales the image to the card's width and overlaps the lower edge of the band", () => {
       const red = [255, 0, 0];
-      expect({
-        centre: frame.pixel({ x: 540, y: 675 }),
-        upperEdge: frame.pixel({ x: 540, y: 215 }),
-        rightEdge: frame.pixel({ x: 1020, y: 900 }),
-      }).toEqual({ centre: red, upperEdge: red, rightEdge: red });
-      expect(frame.pixel({ x: 540, y: 190 })).not.toEqual(red);
+      it.each([
+        { sample: "centre", x: 540, y: 675 },
+        { sample: "upper edge", x: 540, y: 215 },
+        { sample: "right edge", x: 1020, y: 900 },
+      ])("shows the red image at the card's $sample", ({ x, y }) => {
+        expect(frame.pixel({ x, y })).toEqual(red);
+      });
+
+      it("leaves the band above the card clear", () => {
+        expect(frame.pixel({ x: 540, y: 190 })).not.toEqual(red);
+      });
     });
 
     // The logo is the brand lockup: its pixel "&" is amp grey #7C849C.
