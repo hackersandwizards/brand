@@ -2,7 +2,7 @@ import { afterAll, assert, expect, test } from "vitest";
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { definedClasses, isBrandClass } from "../scan/element-classes";
+import { definedClasses, isBrandClass, unstyledBrandClasses } from "../scan/element-classes";
 import { exceptionFindings } from "../scan/element-exceptions";
 import type { Config } from "../scan/elements-config";
 import { elementStyleRules, setsOwned } from "../scan/element-properties";
@@ -309,6 +309,19 @@ test("brand-elements exits 2 when lightOnly is a string", () => {
 test("a rule setting only private custom properties defines its class; an unclosed :not( ends", () => {
   expect(definedClasses(".hw-x { --_hw-tray: 1rem; --space-2: 0 }")).toEqual(["hw-x"]);
   expect(definedClasses(".a:not(.b { color: red }")).toEqual(["a"]);
+});
+
+test("only undefined brand classes are reported, in first-use order with their labels", () => {
+  const used = new Map([
+    ["hw-card", 'article "Agenda"'],
+    ["flex", 'section "Agenda"'],
+    ["btn-secondary", 'button "Pick"'],
+    ["hw-buton", 'button "Save"'],
+  ]);
+  expect(unstyledBrandClasses(used, new Set(["hw-card"]))).toEqual([
+    { cls: "btn-secondary", label: 'button "Pick"' },
+    { cls: "hw-buton", label: 'button "Save"' },
+  ]);
 });
 
 test("every class brand's stylesheets define is listed as one brand defines", () => {

@@ -1089,6 +1089,19 @@ test("a reference focuses the matching descendant beyond an earlier measured sib
   }
 }, 60_000);
 
+test("a light-only scan recognizes a brand class defined by supplemental CSS", async () => {
+  const target = targetFile(
+    "light-supplemental-css.html",
+    only('<button class="btn-secondary">Pick</button>'),
+  );
+  const bare = await measureLightPage(browser, target);
+  expect(bare.unstyled).toEqual([
+    { page: target.name, cls: "btn-secondary", label: 'button "Pick"' },
+  ]);
+  const styled = await measureLightPage(browser, target, ".btn-secondary { display: block }");
+  expect(styled.unstyled).toEqual([]);
+}, 60_000);
+
 // A class whose rule is gone leaves its element unstyled, which no other check sees.
 test("a class brand once defined, or an hw-* class, that no loaded sheet defines is red", async () => {
   const buttons = `<button class="hw-button">Copy answers</button><button class="pick btn-secondary">Pick recommended</button><button class="btn-primary">Copy answers</button><span class="hw-buton">x</span><p class="flex mt-2 own">Utility and own classes</p><div data-hw-shell><span class="hw-shell-only">shell</span></div>`;

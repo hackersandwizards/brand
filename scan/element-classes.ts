@@ -20,6 +20,16 @@ export const BRAND_CLASSES = [
 ];
 export const isBrandClass = (c: string) => c.startsWith("hw-") || BRAND_CLASSES.includes(c);
 
+/** Reports the first use of each brand class absent from the loaded stylesheet definitions. */
+export function unstyledBrandClasses(
+  used: ReadonlyMap<string, string>,
+  defined: ReadonlySet<string>,
+) {
+  return [...used]
+    .filter(([cls]) => isBrandClass(cls) && !defined.has(cls))
+    .map(([cls, label]) => ({ cls, label }));
+}
+
 /** The classes a stylesheet's rules name, anywhere in a selector but inside :not(). */
 export const definedClasses = (css: string) =>
   rules(css).flatMap((r) =>

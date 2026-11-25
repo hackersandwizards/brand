@@ -1,7 +1,7 @@
 import type { Browser, Page } from "puppeteer-core";
 import { addCss, focusAll, open, openFolds } from "./browser";
 import { type Csp, refusals } from "./browser-csp";
-import { definedClasses, isBrandClass } from "./element-classes";
+import { definedClasses, unstyledBrandClasses } from "./element-classes";
 import { type ElementFinding, type ElementReference, installElementDom } from "./element-dom";
 import { elementStyleRules, OWNS } from "./element-properties";
 import { DAY_TOKENS, ELEMENT_CSS, ELEMENTS, SETTINGS, TOKENS } from "./element-rules";
@@ -43,11 +43,7 @@ function usedClasses() {
 }
 
 /** The page's brand classes that have no rule in any loaded stylesheet. */
-async function readUnstyledClasses(
-  page: Page,
-  cdp: Awaited<ReturnType<typeof focusAll>>,
-  url: string,
-) {
+async function readUnstyledClasses(page: Page, cdp: Awaited<ReturnType<typeof focusAll>>) {
   // Every sheet's text, another origin's and an imported one's too, which the page's own script
   // may not read: an element carrying a brand class no rule names draws unstyled.
   const sheets: string[] = [];
@@ -63,10 +59,8 @@ async function readUnstyledClasses(
       )
     ).flatMap(definedClasses),
   );
-  const used = await page.evaluate(usedClasses);
-  return used
-    .filter(([cls]) => isBrandClass(cls) && !defined.has(cls))
-    .map(([cls, label]) => ({ page: url, cls, label }));
+  const used = new Map(await page.evaluate(usedClasses));
+  return unstyledBrandClasses(used, defined);
 }
 
 /** Reads the live page against the brand reference in one browser task. */
@@ -79,54 +73,45 @@ async function measureReferences(page: Page, rules: ElementReference) {
   }
 }
 
-/** Opens the target and checks loaded stylesheet classes before changing any folds. */
-async function prepareElementPage(page: Page, { name, url, csp }: ElementPage, css: string) {
-  await page.setViewport({ width: 1280, height: 900 });
-  await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
-  // Every tab holds focus as the one in front does, so the focus ring reads in pages run side by side.
-  const cdp = await focusAll(page);
-  await open(page, url, csp);
-  if (css) await addCss(page, css);
-  return { page, name, unstyled: await readUnstyledClasses(page, cdp, name) };
-}
-
-/** Measures an opened page after its unstyled classes have been recorded. */
-async function measureOpenedPage(
-  { page, name, unstyled }: Awaited<ReturnType<typeof prepareElementPage>>,
-  tokens: ElementReference["tokens"],
-) {
-  await page.evaluate(openFolds);
-  await page.evaluate(() => document.fonts.ready.then(() => undefined));
-  // Before the references, which draw brand's own images.
-  const refused = await refusals(page, name);
-  const out = await measureReferences(page, { ...reference, tokens });
-  return {
-    ...out,
-    page: name,
-    findings: out.findings.map((f): Finding => ({ page: name, ...f })),
-    unstyled,
-    refused,
+/** Creates a page scanner with a fixed table of required brand tokens. */
+function pageMeasure(tokens: ElementReference["tokens"]) {
+  const rules: ElementReference = { ...reference, tokens };
+  return async function measureElementPage(
+    browser: Browser,
+    { name, url, csp }: ElementPage,
+    css = "",
+  ) {
+    const page = await browser.newPage();
+    try {
+      await page.setViewport({ width: 1280, height: 900 });
+      await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+      // Every tab holds focus as the one in front does, so the focus ring reads in pages run side by side.
+      const cdp = await focusAll(page);
+      await open(page, url, csp);
+      if (css) await addCss(page, css);
+      const unstyled = (await readUnstyledClasses(page, cdp)).map((f) => ({ page: name, ...f }));
+      await page.evaluate(openFolds);
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+      // Before the references, which draw brand's own images.
+      const refused = await refusals(page, name);
+      const out = await measureReferences(page, rules);
+      return {
+        ...out,
+        page: name,
+        findings: out.findings.map((f): Finding => ({ page: name, ...f })),
+        unstyled,
+        refused,
+      };
+    } finally {
+      await page.close();
+    }
   };
 }
 
 export type PageResult = Awaited<ReturnType<typeof measurePage>>;
 
 /** One page's comparison, with its exceptions, after `css` is added. */
-export async function measurePage(browser: Browser, target: ElementPage, css = "") {
-  const page = await browser.newPage();
-  try {
-    return await measureOpenedPage(await prepareElementPage(page, target, css), TOKENS);
-  } finally {
-    await page.close();
-  }
-}
+export const measurePage = pageMeasure(TOKENS);
 
 /** Measures a light-only page after `css` is added. `lightOnly` checks day tokens only. */
-export async function measureLightPage(browser: Browser, target: ElementPage, css = "") {
-  const page = await browser.newPage();
-  try {
-    return await measureOpenedPage(await prepareElementPage(page, target, css), DAY_TOKENS);
-  } finally {
-    await page.close();
-  }
-}
+export const measureLightPage = pageMeasure(DAY_TOKENS);
