@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import manifest from "../manifest.json";
 import { ROOT } from "../scripts/git";
-import { contentHash } from "../scan/colours";
+import { contentHash } from "../scan/assets";
 import { checkoutRoot } from "./checkout";
 
 // A print master .lfsconfig keeps from fetching is a pointer on disk: its oid is the real file's sha256.

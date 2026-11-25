@@ -58,7 +58,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import catalogs from "../expert/catalogs.json";
-import { COMPONENT, ENGINE_STYLE, listTree, scanned, skippedReport } from "./colours";
+import { COMPONENT, ENGINE_STYLE, listTree, scanned, skippedReport } from "./tree";
 import { answerHelp, isRecord, isStringList } from "./help";
 
 const USAGE = `usage: brand-elements [--base <url>] [--json]

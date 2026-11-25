@@ -10,20 +10,18 @@
 // at HEAD and unchanged since, which a newer scanner finds.
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
+import { brandFiles, brandSizes, isBrandCopy } from "./assets";
+import { answerHelp } from "./help";
 import {
-  brandFiles,
-  brandSizes,
   committedAsIs,
   ENGINE_STYLE,
   exception,
-  isBrandCopy,
   listTree,
   pinChange,
   readReasonAllowlists,
   skippedReport,
   writeAllowlist,
-} from "./colours";
-import { answerHelp } from "./help";
+} from "./tree";
 
 const USAGE = `usage: brand-copies [--tighten]
 Fails on a copy of a brand file in the working tree that brand-copies.json does not list.
@@ -172,7 +170,12 @@ export function checkCopies(args: string[]) {
   const upgrade = committed !== undefined && pinChange("brand-copies") !== undefined;
   const mayAdd = (p: string) => upgrade && p in found && committedAsIs(p);
   if (args.includes("--tighten")) {
-    writeAllowlist("brand-copies", LIST, tightenCopies(found, allow, mayAdd));
+    const wrote = writeAllowlist(LIST, tightenCopies(found, allow, mayAdd));
+    console.log(
+      wrote
+        ? `brand-copies: ${LIST} tightened`
+        : `brand-copies: nothing to allow; no ${LIST} written`,
+    );
   } else {
     const bad = unlistedCopies(found, allow, committed, mayAdd);
     if (bad.length) {

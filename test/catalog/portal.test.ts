@@ -7,7 +7,7 @@ import { closeSync, openSync, readdirSync, readSync } from "node:fs";
 import { join } from "node:path";
 import { ELEMENTS, kebab, measurePage } from "../../scan/elements";
 import { ROOT } from "../../scripts/git";
-import { lfsOid } from "../../scan/colours";
+import { lfsOid } from "../../scan/assets";
 import { failing, launch, measureMarkers } from "../../scan/markers";
 import { contrastMessageKey, DIST, fileOf, page } from "./site";
 import manifest from "../../manifest.json";

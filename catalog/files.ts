@@ -13,7 +13,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
-// Its own pointer test, not scan/colours.ts: the Astro config loads this under Vite, without Bun's
+// Its own pointer test, not scan/assets.ts: the Astro config loads this under Vite, without Bun's
 // import.meta.dir.
 const POINTER = "version https://git-lfs.github.com/spec/";
 const git = (args: string[]) => {

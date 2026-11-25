@@ -1,6 +1,7 @@
 import { fc, test, unicodeString } from "@hackersandwizards/scaffolding/property";
 import { expect } from "vitest";
-import { fnColour, tighten } from "../scan/colours";
+import { fnColour } from "../scan/colour-tokens";
+import { tighten } from "../scan/colours";
 
 const channel = fc.integer({ min: -255, max: 510 });
 test.prop([fc.tuple(channel, channel, channel), fc.constantFrom(" ", ", ", "_"), fc.boolean()], {
@@ -20,17 +21,18 @@ test.prop([fc.tuple(channel, channel, channel), fc.constantFrom(" ", ", ", "_"),
 );
 
 const pathKey = fc.oneof(fc.constantFrom("__proto__", "constructor", "toString"), unicodeString);
-test.prop([pathKey, fc.nat(20), fc.nat(20), fc.nat(20)], {
+const hexCounts = fc.record({ live: fc.nat(20), allowed: fc.nat(20), ceiling: fc.nat(20) });
+test.prop([pathKey, hexCounts], {
   examples: [
-    ["__proto__", 2, 1, 0],
-    ["constructor", 3, 1, 2],
-    ["toString", 0, 4, 2],
-    ["長".repeat(1024) + "/style.css", 1, 0, 0],
-    ["", 1, 0, 2],
+    ["__proto__", { live: 2, allowed: 1, ceiling: 0 }],
+    ["constructor", { live: 3, allowed: 1, ceiling: 2 }],
+    ["toString", { live: 0, allowed: 4, ceiling: 2 }],
+    ["長".repeat(1024) + "/style.css", { live: 1, allowed: 0, ceiling: 0 }],
+    ["", { live: 1, allowed: 0, ceiling: 2 }],
   ],
 })(
   "tightens each file's count to the live count or its allowance ceiling",
-  (file, live, allowed, ceiling) => {
+  (file, { live, allowed, ceiling }) => {
     const counts = (hex: number) => ({
       hex,
       tokenHex: 0,

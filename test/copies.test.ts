@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { brandFiles, brandSizes, contentHash, isBrandCopy, lfsOid } from "../scan/colours";
+import { brandFiles, brandSizes, contentHash, isBrandCopy, lfsOid } from "../scan/assets";
 import { copyOf, signatures, unlistedCopies } from "../scan/copies";
 import { ROOT } from "../scripts/git";
 

@@ -59,7 +59,7 @@ data or secret.
   nothing here reads a consumer. `colours.ts` (`brand-colours`: colours, radii, shadows, fonts),
   exceptions in the consumer's `brand-colours.json`. `copies.ts` (`brand-copies`) fails on a copy of
   a brand file, exceptions in the consumer's `brand-copies.json`. The paths every scan skips are
-  `EXCEPTIONS` in `colours.ts`, each printed when applied and listed in `docs/checks.md`; a new one
+  `EXCEPTIONS` in `tree.ts`, each printed when applied and listed in `docs/checks.md`; a new one
   needs a reason that file states. `components.ts` (`brand-scan`) fails on a consumer component named like an
   expert component, exceptions in the consumer's `brand-scan.json`, run by os and the trainer hub.
   `markers.ts` (`brand-markers`) measures the list markers of the pages a consumer names, the

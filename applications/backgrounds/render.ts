@@ -9,7 +9,7 @@ import { pathToFileURL } from "node:url";
 import sharp from "sharp";
 import { version } from "../../package.json";
 import { findChrome, NO_KEYCHAIN } from "../linkedin-visuals/render";
-import { lfsOid } from "../../scan/colours";
+import { lfsOid } from "../../scan/assets";
 
 const BRAND = resolve(import.meta.dir, "../..");
 

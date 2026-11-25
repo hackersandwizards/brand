@@ -1,6 +1,6 @@
 import { fc, test, unicodeString } from "@hackersandwizards/scaffolding/property";
 import { expect } from "vitest";
-import { lfsOid } from "../scan/colours";
+import { lfsOid } from "../scan/assets";
 import { tightenCopies, unlistedCopies } from "../scan/copies";
 
 test.prop(

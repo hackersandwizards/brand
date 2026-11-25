@@ -1,13 +1,8 @@
 import { expect, test } from "vitest";
-import {
-  fnColour,
-  scanned,
-  scanSource,
-  onLadder,
-  tighten,
-  violations,
-  type Allowlist,
-} from "../scan/colours";
+import { scanSource } from "../scan/colour-scan";
+import { fnColour, onLadder } from "../scan/colour-tokens";
+import { tighten, violations, type Allowlist } from "../scan/colours";
+import { scanned } from "../scan/tree";
 
 const zero = { hex: 0, tokenHex: 0, font: 0, palette: 0, rgb: 0, radius: 0, shadow: 0 };
 
@@ -62,13 +57,17 @@ const allow: Allowlist = { "a.css": { ...zero, hex: 2, reason: "r" } };
 
 test("flags a count above its entry, an unlisted file, a missing reason, a grown and a stale entry", () => {
   const a = { "a.css": { ...zero, hex: 2 } };
-  expect(violations(a, allow, allow)).toEqual([]);
+  expect(violations(a, allow, { committed: allow })).toEqual([]);
   expect(
-    violations({ "a.css": { ...zero, hex: 3 }, "b.css": { ...zero, font: 1 } }, allow, allow),
+    violations({ "a.css": { ...zero, hex: 3 }, "b.css": { ...zero, font: 1 } }, allow, {
+      committed: allow,
+    }),
   ).toEqual(["a.css: hex 3, allowed 2", "b.css: font 1, allowed 0"]);
   expect(violations(a, { "a.css": { ...zero, hex: 2, reason: " " } }, undefined)).toHaveLength(1);
-  expect(violations(a, allow, { "a.css": { ...zero, hex: 1, reason: "r" } })).toHaveLength(1);
-  expect(violations({}, allow, allow)).toEqual([
+  expect(
+    violations(a, allow, { committed: { "a.css": { ...zero, hex: 1, reason: "r" } } }),
+  ).toHaveLength(1);
+  expect(violations({}, allow, { committed: allow })).toEqual([
     "brand-colours.json: a.css is clean; drop its entry (brand-colours --tighten)",
   ]);
 });
@@ -80,34 +79,56 @@ test("a value moved to another file moves its entry, while the list's total for 
     "b.css": { ...zero, hex: 2, reason: "moved from a.css" },
   };
   const files = { "a.css": { ...zero, hex: 1, shadow: 1 }, "b.css": { ...zero, hex: 2 } };
-  expect(violations(files, moved, before)).toEqual([]);
+  expect(violations(files, moved, { committed: before })).toEqual([]);
   // Control: the same move with one more hex than a.css gave up.
   const grown = { ...moved, "b.css": { ...zero, hex: 3, reason: "moved from a.css" } };
-  expect(violations({ ...files, "b.css": { ...zero, hex: 3 } }, grown, before)).toEqual([
+  expect(
+    violations({ ...files, "b.css": { ...zero, hex: 3 } }, grown, { committed: before }),
+  ).toEqual([
     "brand-colours.json: b.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
   ]);
 });
 
-test("a partner's mark may be listed against HEAD; a partner entry needs a name, a reason and an SVG", () => {
-  const logo = "public/conf-logo.svg";
-  const partner: Allowlist = { [logo]: { partner: "A Conference", reason: "r" } };
-  expect(violations({ [logo]: { ...zero, hex: 32, rgb: 2 } }, partner, {})).toEqual([]);
-  // Control: the same entry without its partner is a grown entry.
+const partnerLogo = "public/conf-logo.svg";
+const partner = { [partnerLogo]: { partner: "A Conference", reason: "r" } };
+const misplacedPartner = { "a.ts": { ...zero, hex: 1, partner: "A Conference", reason: "r" } };
+
+test("exempts a named partner SVG from HEAD growth checks", () => {
   expect(
-    violations({ [logo]: { ...zero, hex: 32 } }, { [logo]: { ...zero, hex: 32, reason: "r" } }, {}),
+    violations({ [partnerLogo]: { ...zero, hex: 32, rgb: 2 } }, partner, { committed: {} }),
+  ).toEqual([]);
+  expect(
+    violations(
+      { [partnerLogo]: { ...zero, hex: 32 } },
+      { [partnerLogo]: { ...zero, hex: 32, reason: "r" } },
+      { committed: {} },
+    ),
   ).toHaveLength(1);
-  // Only an SVG named for its owner is a partner's mark.
-  const note = { "a.ts": { ...zero, hex: 1, partner: "A Conference", reason: "r" } };
-  expect(violations({ "a.ts": { ...zero, hex: 1 } }, note, {})).toEqual([
+});
+
+test("flags a partner entry on a non-SVG file", () => {
+  expect(violations({ "a.ts": { ...zero, hex: 1 } }, misplacedPartner, { committed: {} })).toEqual([
     `brand-colours.json: a.ts: "partner" names a third party's mark, an SVG, by name`,
     "brand-colours.json: a.ts hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
   ]);
-  const unnamed = { [logo]: { ...zero, hex: 32, partner: " ", reason: "r" } };
-  expect(violations({ [logo]: { ...zero, hex: 32 } }, unnamed, {})).toHaveLength(2);
-  expect(tighten({ [logo]: { ...zero, hex: 30 } }, partner)).toEqual(partner);
-  // Tightening keeps a misplaced partner, so the run after it still fails on it.
+});
+
+test("flags a partner entry with a blank owner", () => {
+  const unnamed = { [partnerLogo]: { ...zero, hex: 32, partner: " ", reason: "r" } };
+  expect(
+    violations({ [partnerLogo]: { ...zero, hex: 32 } }, unnamed, { committed: {} }),
+  ).toHaveLength(2);
+});
+
+test("preserves a named partner SVG entry when tightening", () => {
+  expect(tighten({ [partnerLogo]: { ...zero, hex: 30 } }, partner)).toEqual(partner);
+});
+
+test("keeps a misplaced partner reportable after tightening", () => {
   const counts = { "a.ts": { ...zero, hex: 1 } };
-  expect(violations(counts, tighten(counts, note), {})).toEqual(violations(counts, note, {}));
+  expect(violations(counts, tighten(counts, misplacedPartner), { committed: {} })).toEqual(
+    violations(counts, misplacedPartner, { committed: {} }),
+  );
 });
 
 test("an entry turned partner frees no total for another file to grow into", () => {
@@ -120,7 +141,7 @@ test("an entry turned partner frees no total for another file to grow into", () 
     "b.css": { ...zero, hex: 40, reason: "r" },
   };
   const files = { "a.svg": { ...zero, hex: 50 }, "b.css": { ...zero, hex: 40 } };
-  expect(violations(files, now, head)).toEqual([
+  expect(violations(files, now, { committed: head })).toEqual([
     "brand-colours.json: b.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
   ]);
 });
@@ -132,7 +153,7 @@ test("removing a partner mark frees no allowance and adding one with a count cos
     "page.css": { hex: 1, reason: "Custom colour" },
   };
   const files = { "new.svg": { ...zero, hex: 8 }, "page.css": { ...zero, hex: 1 } };
-  expect(violations(files, allow, committed)).toEqual([
+  expect(violations(files, allow, { committed })).toEqual([
     "brand-colours.json: page.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
   ]);
 });
@@ -163,56 +184,81 @@ test("clamps an RGB channel of 256 before emitting its hex bytes", () => {
 });
 
 test("an allowance above the file's count is a finding: lower it", () => {
-  expect(violations({ "a.css": { ...zero, hex: 1 } }, allow, allow)).toEqual([
+  expect(violations({ "a.css": { ...zero, hex: 1 } }, allow, { committed: allow })).toEqual([
     "brand-colours.json: a.css: hex 1, allowed 2; lower it (brand-colours --tighten)",
   ]);
   // Control: the count the entry allows.
-  expect(violations({ "a.css": { ...zero, hex: 2 } }, allow, allow)).toEqual([]);
+  expect(violations({ "a.css": { ...zero, hex: 2 } }, allow, { committed: allow })).toEqual([]);
 });
 
-test("counts the colour notations, names and font forms beside hex and rgb()", () => {
-  const count = (src: string, ext: string) =>
-    Object.fromEntries(Object.entries(scanSource(src, ext).counts).filter(([, n]) => n));
-  expect(
-    count(
-      ".a { color: oklch(60% 0.2 30); background: tomato; border-color: color-mix(in srgb, red 40%, blue); x: lab(50% 40 59); y: hwb(12 50% 0%); z: color(display-p3 1 0 0) }",
-      ".css",
-    ),
-  ).toEqual({ hex: 3, rgb: 4 });
-  expect(count(".a { font: 600 1rem/1.2 Arial, sans-serif }", ".css")).toEqual({ font: 1 });
-  expect(
-    count(
-      `<div class="border-b-gray-200 border-x-red-500 ring-offset-red-500 placeholder-gray-400 font-serif text-[oklch(0.7_0.1_200)] bg-[tomato]">`,
-      ".astro",
-    ),
-  ).toEqual({ hex: 1, font: 1, palette: 4, rgb: 1 });
-  expect(count(".a { color: #fab } .b { color: #abc }", ".css")).toEqual({ hex: 2 });
-  expect(count(`<svg><path fill="red" d="M0"/></svg>`, ".svg")).toEqual({ hex: 1 });
-  expect(
-    count(
-      `<svg font-family="Arial"></svg><script>const s = { "font-family": "Arial" };</script><style>.a { -webkit-box-shadow: 0 0 1px #000; font-family: Interstate; color: hsl(0.5turn 50% 50%) }</style>`,
-      ".astro",
-    ),
-  ).toEqual({ font: 3, rgb: 1, shadow: 1 });
-  expect(
-    count(".a { color: white; background: color-mix(in srgb, black 7%, transparent) }", ".css"),
-  ).toEqual({
-    tokenHex: 2,
-  });
-  // Controls: tokens, keywords and script that only looks like a colour.
-  expect(
-    count(
-      `.a { font: inherit; font: 600 1rem/1.2 var(--font-sans); font-family: "Inter Variable", sans-serif; font-family: Inter; color: color-mix(in srgb, var(--color-ink) 70%, transparent); background: transparent; fill: currentColor; border: 0 none; color: inherit; background: url(red.png) }`,
-      ".css",
-    ),
-  ).toEqual({});
-  expect(
-    count(
-      `const color = (x: string) => x; color(lab); const lab = (a: number) => a; lab(1); const t = { color: teal, background: bg }; document.querySelector("#fab"); location.hash = "#add"; const font = await loadFont();`,
-      ".ts",
-    ),
-  ).toEqual({});
-  expect(count(`<a href="#add">x</a><a href="#faq">y</a>`, ".html")).toEqual({});
+test.each([
+  {
+    label: "modern functions and names in CSS",
+    src: ".a { color: oklch(60% 0.2 30); background: tomato; border-color: color-mix(in srgb, red 40%, blue); x: lab(50% 40 59); y: hwb(12 50% 0%); z: color(display-p3 1 0 0) }",
+    ext: ".css",
+    expected: { ...zero, hex: 3, rgb: 4 },
+  },
+  {
+    label: "a font shorthand",
+    src: ".a { font: 600 1rem/1.2 Arial, sans-serif }",
+    ext: ".css",
+    expected: { ...zero, font: 1 },
+  },
+  {
+    label: "Tailwind utility styles",
+    src: `<div class="border-b-gray-200 border-x-red-500 ring-offset-red-500 placeholder-gray-400 font-serif text-[oklch(0.7_0.1_200)] bg-[tomato]">`,
+    ext: ".astro",
+    expected: { ...zero, hex: 1, font: 1, palette: 4, rgb: 1 },
+  },
+  {
+    label: "short hex colours in CSS",
+    src: ".a { color: #fab } .b { color: #abc }",
+    ext: ".css",
+    expected: { ...zero, hex: 2 },
+  },
+  {
+    label: "a named SVG fill",
+    src: `<svg><path fill="red" d="M0"/></svg>`,
+    ext: ".svg",
+    expected: { ...zero, hex: 1 },
+  },
+  {
+    label: "font, colour and shadow across Astro sections",
+    src: `<svg font-family="Arial"></svg><script>const s = { "font-family": "Arial" };</script><style>.a { -webkit-box-shadow: 0 0 1px #000; font-family: Interstate; color: hsl(0.5turn 50% 50%) }</style>`,
+    ext: ".astro",
+    expected: { ...zero, font: 3, rgb: 1, shadow: 1 },
+  },
+  {
+    label: "white and black as token values",
+    src: ".a { color: white; background: color-mix(in srgb, black 7%, transparent) }",
+    ext: ".css",
+    expected: { ...zero, tokenHex: 2 },
+  },
+])("counts the styling in $label", ({ src, ext, expected }) => {
+  expect(scanSource(src, ext).counts).toEqual(expected);
+});
+
+test.each([
+  {
+    label: "brand fonts and CSS keywords",
+    src: `.a { font: inherit; font: 600 1rem/1.2 var(--font-sans); font-family: "Inter Variable", sans-serif; font-family: Inter; color: color-mix(in srgb, var(--color-ink) 70%, transparent); background: transparent; fill: currentColor; border: 0 none; color: inherit; background: url(red.png) }`,
+    ext: ".css",
+    expected: zero,
+  },
+  {
+    label: "script identifiers and selector strings",
+    src: `const color = (x: string) => x; color(lab); const lab = (a: number) => a; lab(1); const t = { color: teal, background: bg }; document.querySelector("#fab"); location.hash = "#add"; const font = await loadFont();`,
+    ext: ".ts",
+    expected: zero,
+  },
+  {
+    label: "HTML fragment links",
+    src: `<a href="#add">x</a><a href="#faq">y</a>`,
+    ext: ".html",
+    expected: zero,
+  },
+])("counts nothing for $label", ({ src, ext, expected }) => {
+  expect(scanSource(src, ext).counts).toEqual(expected);
 });
 
 test("a glob or a URL in markup opens no comment; a frontmatter or script line comment is one", () => {
@@ -272,15 +318,13 @@ test("a // in CSS, SVG or a url() hides nothing after it; a script's line commen
 
 test("an entry written before rgb, radius and shadow existed allows none of them", () => {
   const old = { "a.css": { hex: 1, tokenHex: 0, font: 0, palette: 0, reason: "r" } };
-  expect(violations({ "a.css": { ...zero, hex: 1 } }, old, old)).toEqual([]);
-  expect(violations({ "a.css": { ...zero, hex: 1, rgb: 1 } }, old, old)).toHaveLength(1);
+  expect(violations({ "a.css": { ...zero, hex: 1 } }, old, { committed: old })).toEqual([]);
+  expect(
+    violations({ "a.css": { ...zero, hex: 1, rgb: 1 } }, old, { committed: old }),
+  ).toHaveLength(1);
 });
 
 test("rgb() and hsl() literals count like hex: off-token as rgb, a token's colour as tokenHex", () => {
-  expect(fnColour("rgb", "26, 114, 133")).toBe("#1a7285");
-  expect(fnColour("rgba", "26 114 133 / 0.4")).toBe("#1a7285");
-  expect(fnColour("hsl", "0, 0%, 100%")).toBe("#ffffff");
-  expect(fnColour("rgb", "var(--x)")).toBeUndefined();
   const { counts, hexes } = scanSource(
     `.a { color: rgba(255, 214, 0, 0.5); background: rgb(26 114 133 / 40%);
        border-color: hsl(120, 100%, 25%); outline-color: rgb(var(--c)); }
@@ -292,6 +336,9 @@ test("rgb() and hsl() literals count like hex: off-token as rgb, a token's colou
 });
 
 test.each([
+  ["rgb", "26, 114, 133", "#1a7285"],
+  ["rgba", "26 114 133 / 0.4", "#1a7285"],
+  ["hsl", "0, 0%, 100%", "#ffffff"],
   ["RGB", " 100% 0% 20% / 40% ", "#ff0033"],
   ["rgb", "50% 30% 70%", "#804db3"],
   ["hsl", "0.5turn 50% 25%", "#206060"],
@@ -307,10 +354,12 @@ test("counts rgb(74 222 50%) as the brand green", () => {
   expect(counts).toEqual({ ...zero, tokenHex: 1 });
 });
 
-test("a channel with a prefix, trailing unit or CSS keyword is no RGB literal", () => {
-  for (const args of ["a10 20 30", "10px 20 30", "10 none 30", "10 20"])
+test.each(["a10 20 30", "10px 20 30", "10 none 30", "10 20", "var(--x)"])(
+  "rgb(%s) contains no literal colour",
+  (args) => {
     expect(fnColour("rgb", args)).toBeUndefined();
-});
+  },
+);
 
 test("a radius or shadow off the tokens counts, a token, a keyword or a reference does not", () => {
   const ok = scanSource(
@@ -478,8 +527,12 @@ test("a pin change may add up to the scanner's count for the file as committed",
   const committed = { "older.css": { hex: 1, reason: "Existing artwork" } };
   const current = { ...committed, "art.css": { hex: 2, reason: "Existing artwork" } };
   const files = { "older.css": { ...zero, hex: 1 }, "art.css": { ...zero, hex: 2 } };
-  expect(violations(files, current, committed, { "art.css": { ...zero, hex: 2 } })).toEqual([]);
-  expect(violations(files, current, committed, { "art.css": { ...zero, hex: 1 } })).toEqual([
+  expect(
+    violations(files, current, { committed, ceiling: { "art.css": { ...zero, hex: 2 } } }),
+  ).toEqual([]);
+  expect(
+    violations(files, current, { committed, ceiling: { "art.css": { ...zero, hex: 1 } } }),
+  ).toEqual([
     "brand-colours.json: art.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
   ]);
 });
@@ -546,90 +599,274 @@ test.each([
 });
 
 test.each([
-  ["letters as a colour value", `.a{color:#fab}`, ".css", "hex"],
-  ["letters in a border", `.a{border: 1px solid #abc}`, ".css", "hex"],
-  ["letters in a fill", `<rect fill="#abc"/>`, ".svg", "hex"],
-  ["letters in a class's brackets", `<div class="bg-[#fab]"></div>`, ".astro", "hex"],
-  ["a named colour in a style object", `const s = { color: "red" };`, ".tsx", "hex"],
-  ["a style after an apostrophe", `<p>it's</p><style>.a{color:#ff0000}</style>`, ".html", "hex"],
-  ["a quoted colour in Python", `write(p, note, color="red")`, ".py", "hex"],
-])("counts %s", (_, src, ext, metric) => {
-  expect(scanSource(src, ext).counts).toEqual({ ...zero, [metric]: 1 });
+  { label: "letters as a colour value", src: `.a{color:#fab}`, ext: ".css" },
+  { label: "letters in a border", src: `.a{border: 1px solid #abc}`, ext: ".css" },
+  { label: "letters in a fill", src: `<rect fill="#abc"/>`, ext: ".svg" },
+  { label: "letters in a class's brackets", src: `<div class="bg-[#fab]"></div>`, ext: ".astro" },
+  { label: "a named colour in a style object", src: `const s = { color: "red" };`, ext: ".tsx" },
+  {
+    label: "a style after an apostrophe",
+    src: `<p>it's</p><style>.a{color:#ff0000}</style>`,
+    ext: ".html",
+  },
+  { label: "a quoted colour in Python", src: `write(p, note, color="red")`, ext: ".py" },
+])("counts $label", ({ src, ext }) => {
+  expect(scanSource(src, ext).counts).toEqual({ ...zero, hex: 1 });
 });
 
-test("an interpolation is the code's name, never a literal; an expression prop's strings are read", () => {
-  expect(scanSource('const s = `<text font-family="${FAM[fam]}">`;', ".js").counts).toEqual(zero);
-  expect(scanSource('const s = `<rect fill="${white}"/>`;', ".js").counts).toEqual(zero);
-  const prop = '<rect fill={i === 2 ? "var(--color-ink)" : "white"} />';
-  expect(scanSource(prop, ".astro").counts).toEqual({ ...zero, tokenHex: 1 });
-  expect(scanSource(`const r = ${prop};`, ".tsx").counts).toEqual({ ...zero, tokenHex: 1 });
-  // A component's colour prop maps a name to a token, and an object after a colon is a map.
-  expect(scanSource('<Pill color={on ? "teal" : "purple"} />', ".astro").counts).toEqual(zero);
-  expect(scanSource('const t = { color: { primary: "teal" } };', ".ts").counts).toEqual(zero);
-  // A brace after = in script or Python opens an object or a dict; a compared string is no value.
-  expect(scanSource('const color = { ok: "green", bad: "red" };', ".ts").counts).toEqual(zero);
-  expect(scanSource('const fill = { a: "white" };', ".tsx").counts).toEqual(zero);
-  expect(scanSource('background = {"x": "white"}', ".py").counts).toEqual(zero);
-  expect(scanSource('plot(color={"ok": "green"})', ".py").counts).toEqual(zero);
-  const compared = '<path fill={theme === "black" ? "var(--x)" : "var(--y)"} />';
-  expect(scanSource(compared, ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={palette["white"]} />', ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={theme ===\n  "black" ? a : b} />', ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={pick(on, "white")} />', ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={"white" in m ? a : b} />', ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={p[dark ? "white" : "black"]} />', ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={pick(on ? "white" : "black")} />', ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={{ ok: "tomato" }[k]} />', ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={names.includes("black") ? a : b} />', ".astro").counts).toEqual(
-    zero,
-  );
-  // The strings an interpolation can take are read; its names are not.
-  const s = "const s = `<rect fill=\"${on ? 'tomato' : 'teal'}\"/>`;";
-  expect(scanSource(s, ".ts").counts).toEqual({ ...zero, hex: 2 });
-  // An interpolation runs to its matching brace; grouping parentheses keep a branch a value.
-  const call = 'const s = `<rect fill="${tone({ dark }) ?? white}"/>`;';
-  expect(scanSource(call, ".js").counts).toEqual(zero);
-  const nested = "const s = `<rect fill=\"${tone({ dark }) ?? 'tomato'}\"/>`;";
-  expect(scanSource(nested, ".js").counts).toEqual({ ...zero, hex: 1 });
-  const inner = "const s = `<rect fill=\"${pick(`${on ? 'tomato' : 'x'}`)}\"/>`;";
-  expect(scanSource(inner, ".js").counts).toEqual(zero);
-  const group = '<path fill={on ? (dark ? "white" : "tomato") : "teal"} />';
-  expect(scanSource(group, ".tsx").counts).toEqual({ ...zero, hex: 2, tokenHex: 1 });
-  const font = "const s = `<text font-family=\"${big ? 'Arial' : 'Georgia'}\">`;";
-  expect(scanSource(font, ".js").counts).toEqual({ ...zero, font: 2 });
-  // A JSX component's colour prop maps a name to a token, as in Astro.
-  expect(scanSource('<Badge color={ok ? "green" : "red"} />', ".tsx").counts).toEqual(zero);
-  // Outside a component's tag color= is an assignment, and JSX in .js reads like .jsx.
-  expect(scanSource('const color = "tomato";', ".tsx").counts).toEqual({ ...zero, hex: 1 });
-  const early = `<Badge color={ok ? "green" : "red"} />\n${"x".repeat(600)}`;
-  expect(scanSource(early, ".tsx").counts).toEqual(zero);
-  const arrow = '<Badge onClick={() => go()} color={ok ? "green" : "red"} />';
-  expect(scanSource(arrow, ".tsx").counts).toEqual(zero);
-  expect(scanSource('<path fill={on ? "tomato" : "teal"} />', ".js").counts).toEqual({
-    ...zero,
-    hex: 2,
-  });
-  const twice = "const s = `<text font-family=\"${on ? `${A}` : 'Inter'}\">`;";
-  expect(scanSource(twice, ".js").counts).toEqual(zero);
+const svgFillWithFallback = '<rect fill={i === 2 ? "var(--color-ink)" : "white"} />';
+
+test.each([
+  {
+    label: "an Astro fill with a token fallback",
+    src: svgFillWithFallback,
+    ext: ".astro",
+    expected: { ...zero, tokenHex: 1 },
+  },
+  {
+    label: "a JSX fill with a token fallback",
+    src: `const r = ${svgFillWithFallback};`,
+    ext: ".tsx",
+    expected: { ...zero, tokenHex: 1 },
+  },
+  {
+    label: "conditional branches in an interpolation",
+    src: "const s = `<rect fill=\"${on ? 'tomato' : 'teal'}\"/>`;",
+    ext: ".ts",
+    expected: { ...zero, hex: 2 },
+  },
+  {
+    label: "a literal fallback after an object argument",
+    src: "const s = `<rect fill=\"${tone({ dark }) ?? 'tomato'}\"/>`;",
+    ext: ".js",
+    expected: { ...zero, hex: 1 },
+  },
+  {
+    label: "parenthesised conditional branches",
+    src: '<path fill={on ? (dark ? "white" : "tomato") : "teal"} />',
+    ext: ".tsx",
+    expected: { ...zero, hex: 2, tokenHex: 1 },
+  },
+  {
+    label: "a script assignment outside a component",
+    src: 'const color = "tomato";',
+    ext: ".tsx",
+    expected: { ...zero, hex: 1 },
+  },
+  {
+    label: "a JSX fill in a .js file",
+    src: '<path fill={on ? "tomato" : "teal"} />',
+    ext: ".js",
+    expected: {
+      ...zero,
+      hex: 2,
+    },
+  },
+])("counts literal colours in $label", ({ src, ext, expected }) => {
+  expect(scanSource(src, ext).counts).toEqual(expected);
 });
 
-test("a custom property set to a colour name counts once, any other value not at all", () => {
-  const css = ".a { --mark: white; --fill: hotpink; --ease: linear; --text-color: black }";
-  expect(scanSource(css, ".css").counts).toEqual({ ...zero, tokenHex: 2, hex: 1 });
-  expect(scanSource('const s = { "--mark": white };', ".ts").counts).toEqual(zero);
-  expect(scanSource('<div style="--mark: tomato"></div>', ".astro").counts).toEqual({
-    ...zero,
-    hex: 1,
-  });
-  expect(scanSource('const s = { "--mark": "white" };', ".ts").counts).toEqual({
-    ...zero,
-    tokenHex: 1,
-  });
-  // !important still leaves one name; a quoted value in CSS is a string.
-  expect(scanSource(".a { --mark: tomato !important; }", ".css").counts).toEqual({
-    ...zero,
-    hex: 1,
-  });
-  expect(scanSource('.a { --label: "red"; }', ".css").counts).toEqual(zero);
-  expect(scanSource('.a { --label: "red"; }', ".scss").counts).toEqual(zero);
+test.each([
+  {
+    label: "a font lookup",
+    src: 'const s = `<text font-family="${FAM[fam]}">`;',
+    ext: ".js",
+    expected: zero,
+  },
+  {
+    label: "both literal font families",
+    src: "const s = `<text font-family=\"${big ? 'Arial' : 'Georgia'}\">`;",
+    ext: ".js",
+    expected: { ...zero, font: 2 },
+  },
+  {
+    label: "a dynamic family and a brand fallback",
+    src: "const s = `<text font-family=\"${on ? `${A}` : 'Inter'}\">`;",
+    ext: ".js",
+    expected: zero,
+  },
+])("checks literal font families in $label", ({ src, ext, expected }) => {
+  expect(scanSource(src, ext).counts).toEqual(expected);
+});
+
+test.each([
+  {
+    label: "an Astro component",
+    src: '<Pill color={on ? "teal" : "purple"} />',
+    ext: ".astro",
+    expected: zero,
+  },
+  {
+    label: "a JSX component",
+    src: '<Badge color={ok ? "green" : "red"} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a JSX component before a long suffix",
+    src: `<Badge color={ok ? "green" : "red"} />\n${"x".repeat(600)}`,
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a JSX component after an arrow callback",
+    src: '<Badge onClick={() => go()} color={ok ? "green" : "red"} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+])("treats colour roles as component props in $label", ({ src, ext, expected }) => {
+  expect(scanSource(src, ext).counts).toEqual(expected);
+});
+
+test.each([
+  {
+    label: "a bare colour identifier",
+    src: 'const s = `<rect fill="${white}"/>`;',
+    ext: ".js",
+    expected: zero,
+  },
+  {
+    label: "a nested style object",
+    src: 'const t = { color: { primary: "teal" } };',
+    ext: ".ts",
+    expected: zero,
+  },
+  {
+    label: "an object assigned to color",
+    src: 'const color = { ok: "green", bad: "red" };',
+    ext: ".ts",
+    expected: zero,
+  },
+  {
+    label: "an object assigned to fill",
+    src: 'const fill = { a: "white" };',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a Python dict assignment",
+    src: 'background = {"x": "white"}',
+    ext: ".py",
+    expected: zero,
+  },
+  {
+    label: "a Python dict argument",
+    src: 'plot(color={"ok": "green"})',
+    ext: ".py",
+    expected: zero,
+  },
+  {
+    label: "a string compared with a theme",
+    src: '<path fill={theme === "black" ? "var(--x)" : "var(--y)"} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a palette subscript",
+    src: '<path fill={palette["white"]} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a multiline comparison",
+    src: '<path fill={theme ===\n  "black" ? a : b} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a call argument",
+    src: '<path fill={pick(on, "white")} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a string used as the left operand of in",
+    src: '<path fill={"white" in m ? a : b} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "conditional subscript keys",
+    src: '<path fill={p[dark ? "white" : "black"]} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "conditional call arguments",
+    src: '<path fill={pick(on ? "white" : "black")} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "an object literal in a lookup",
+    src: '<path fill={{ ok: "tomato" }[k]} />',
+    ext: ".tsx",
+    expected: zero,
+  },
+  {
+    label: "a string in a membership call",
+    src: '<path fill={names.includes("black") ? a : b} />',
+    ext: ".astro",
+    expected: zero,
+  },
+  {
+    label: "a bare fallback after an object argument",
+    src: 'const s = `<rect fill="${tone({ dark }) ?? white}"/>`;',
+    ext: ".js",
+    expected: zero,
+  },
+  {
+    label: "an interpolation nested inside a call argument",
+    src: "const s = `<rect fill=\"${pick(`${on ? 'tomato' : 'x'}`)}\"/>`;",
+    ext: ".js",
+    expected: zero,
+  },
+])("ignores colour names outside value positions in $label", ({ src, ext, expected }) => {
+  expect(scanSource(src, ext).counts).toEqual(expected);
+});
+
+test.each([
+  {
+    label: "unquoted names across several custom properties",
+    src: ".a { --mark: white; --fill: hotpink; --ease: linear; --text-color: black }",
+    ext: ".css",
+    expected: { ...zero, tokenHex: 2, hex: 1 },
+  },
+  {
+    label: "an unquoted script identifier",
+    src: 'const s = { "--mark": white };',
+    ext: ".ts",
+    expected: zero,
+  },
+  {
+    label: "an inline style",
+    src: '<div style="--mark: tomato"></div>',
+    ext: ".astro",
+    expected: {
+      ...zero,
+      hex: 1,
+    },
+  },
+  {
+    label: "a quoted script value",
+    src: 'const s = { "--mark": "white" };',
+    ext: ".ts",
+    expected: {
+      ...zero,
+      tokenHex: 1,
+    },
+  },
+  {
+    label: "a name with !important",
+    src: ".a { --mark: tomato !important; }",
+    ext: ".css",
+    expected: {
+      ...zero,
+      hex: 1,
+    },
+  },
+  { label: "a quoted CSS string", src: '.a { --label: "red"; }', ext: ".css", expected: zero },
+  { label: "a quoted SCSS string", src: '.a { --label: "red"; }', ext: ".scss", expected: zero },
+])("counts colours in custom properties for $label", ({ src, ext, expected }) => {
+  expect(scanSource(src, ext).counts).toEqual(expected);
 });
