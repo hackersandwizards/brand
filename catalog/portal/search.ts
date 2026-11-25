@@ -1,4 +1,5 @@
 export type PortalSearchEntry = { t: string; k: string; h: string; x?: string };
+export type SearchableSection = { html: string; index: PortalSearchEntry[] };
 
 // Embeds the search index and the browser program that opens and filters the views.
 export const searchScript = (index: PortalSearchEntry[]) => `<script>

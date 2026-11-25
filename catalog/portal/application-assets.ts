@@ -12,12 +12,13 @@ const PREVIEW = ["png", "svg", "html", "txt"];
 export const assetStems = (dir: string) => {
   const ls = spawnSync("git", ["ls-files", "-z", "--", dir], { cwd: ROOT, encoding: "utf8" });
   if (ls.status !== 0) throw new Error(`portal: git ls-files ${dir}: ${ls.stderr}`);
+  return groupApplicationFiles(dir, ls.stdout.split("\0").filter(Boolean));
+};
+
+// Groups a directory's listed files into sorted variants for each displayable stem.
+export function groupApplicationFiles(dir: string, paths: readonly string[]) {
   const stems = new Map<string, ApplicationAsset>();
-  for (const f of ls.stdout
-    .split("\0")
-    .filter(Boolean)
-    .map((p) => basename(p))
-    .sort()) {
+  for (const f of paths.map((p) => basename(p)).sort()) {
     if (SKIP.test(f)) continue;
     const stem = f.replace(/\.\w+$/, "");
     const asset = stems.get(stem);
@@ -25,7 +26,7 @@ export const assetStems = (dir: string) => {
     else stems.set(stem, { dir, stem, files: [f] });
   }
   return stems;
-};
+}
 
 // Renders one tracked application asset with its preferred preview and every downloadable variant.
 export const assetCard = ({ dir, stem, files }: ApplicationAsset, id: string) => {

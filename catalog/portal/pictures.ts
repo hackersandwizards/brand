@@ -3,7 +3,8 @@ import { join } from "node:path";
 import type { CatalogGroup } from "@hackersandwizards/scaffolding/catalog/render.ts";
 import press from "../../press/press.json";
 import { ROOT } from "../../scripts/git";
-import { code, esc, lfsImage, table } from "./markup";
+import { lfsImage } from "./lfs-image";
+import { code, esc, table } from "./markup";
 import { otherTokens, source } from "./token-reference";
 
 // The four chapters on pictures and motion, whose motion rule, sketch style and constraints and

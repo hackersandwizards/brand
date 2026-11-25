@@ -7,7 +7,7 @@ import { ROOT } from "../../scripts/git";
 import { DEMOS, SECTIONS } from "../element-demos";
 import type { PortalAssets } from "./assets";
 import { code, esc } from "./markup";
-import type { PortalSearchEntry } from "./search";
+import type { PortalSearchEntry, SearchableSection } from "./search";
 
 // The shared elements: each file's own words (the first sentence of its comment and its settings), then its
 // sample live in a matrix of the four scales by light and night. Every cell loads the same file;
@@ -75,24 +75,22 @@ const KEYWORDS: Record<string, string> = {
   carousel: "slider swipe scroller",
 };
 // Renders a shared element at all four scales and indexes its title, CSS file and keywords.
-const elementHtml = (
-  { name, title, file }: { name: string; title: string; file: string },
-  index: PortalSearchEntry[],
-) => {
+const elementHtml = ({ name, title, file }: { name: string; title: string; file: string }) => {
   const { words, names } = elementDoc(file);
-  index.push({
+  const entry: PortalSearchEntry = {
     t: title.toLowerCase(),
     k: "element",
     h: `elements/hw-${name}`,
     x: `hw-${name} ${file}.css${KEYWORDS[name] ? ` ${KEYWORDS[name]}` : ""}`,
-  });
+  };
   const cell = (scale: string, night: boolean) =>
     `<div class="el-cell" data-hw-scale="${scale}" ${night ? 'data-theme="dark" data-hw-night' : 'data-theme="light"'}><div class="el-inner">${uniqueIds(DEMOS[name]!, `${scale}${night ? "-night" : ""}`)}</div></div>`;
-  return `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
+  const html = `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
 <p class="meta">${code(`elements/${file}.css`)} · brand v${pkg.version}</p>
 <p>${esc(words)}</p>
 <div class="el-matrix"><span class="el-row label">Light</span><span class="el-row label">Night</span>${SCALES.map(([scale, note]) => `<span class="el-head"><strong>${scale}</strong><br><span class="meta">${note}</span></span>${cell(scale, false)}${cell(scale, true)}`).join("")}</div>
 <p class="meta">Settings: ${names.map(code).join(" · ")}</p>`;
+  return { html, entry };
 };
 // The element samples' scripts, unminified so their exports `enhance` and `enhanceForms` keep those
 // names, as catalog/ElementScript.astro wires the stories.
@@ -120,15 +118,13 @@ enhanceForms();
 </script>`;
 
 // Builds the shared-element matrix and the lazy previews that lead to it.
-export function renderElements(assets: PortalAssets) {
-  const index: PortalSearchEntry[] = [];
+export function renderElements(assets: PortalAssets): SearchableSection & { group: CatalogGroup } {
+  const sections = SECTIONS.map(([section, els]) => ({
+    section,
+    cards: els.map(([name, title, file]) => elementHtml({ name, title, file })),
+  }));
   const elementsHtml = `${sharedIntro}
-${SECTIONS.map(
-  ([section, els]) =>
-    `<h3 id="${sectionId(section)}">${section}</h3>\n${els
-      .map(([name, title, file]) => elementHtml({ name, title, file }, index))
-      .join("\n")}`,
-).join("\n")}
+${sections.map(({ section, cards }) => `<h3 id="${sectionId(section)}">${section}</h3>\n${cards.map(({ html }) => html).join("\n")}`).join("\n")}
 <h3 id="expert-group">Expert: the apps</h3>
 <p>The pieces os and the trainer hub both render, dense, in two themes: the expert components (${EXPERT_COMPONENTS.map(code).join(", ")}), each with its stories in <a href="catalog/">the catalog</a>. Their field is ${code("form-input")}, which takes the field's states and the form field's parts above.</p>`;
   const group: CatalogGroup = {
@@ -143,5 +139,9 @@ ${SECTIONS.map(
       })),
     ],
   };
-  return { group, html: elementsHtml, index };
+  return {
+    group,
+    html: elementsHtml,
+    index: sections.flatMap(({ cards }) => cards.map(({ entry }) => entry)),
+  };
 }

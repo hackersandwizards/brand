@@ -1,23 +1,19 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { CatalogGroup } from "@hackersandwizards/scaffolding/catalog/render.ts";
 import { MARK } from "../../applications/avatars/generate";
-import { stickerCaptions } from "../../applications/device-stickers/devices";
-import { EXAMPLE, fillSignature } from "../../applications/mail-signature/fill";
-import { ROOT } from "../../scripts/git";
 import { type ApplicationAsset, assetCard, assetStems } from "./application-assets";
 import type { PortalAssets } from "./assets";
-import { deferImages, esc, lfsImage, scopeIds, slug, table } from "./markup";
+import { renderDeviceStickers } from "./device-stickers";
+import { lfsImage } from "./lfs-image";
+import { esc, slug, table } from "./markup";
 import { merchPreview, renderMerch } from "./merch";
-import type { PortalSearchEntry } from "./search";
+import type { SearchableSection } from "./search";
+import { renderSignature, signaturePreview } from "./signature";
 
 type Family = {
   id: string;
   title: string;
   note: string;
   dir?: string;
-  // A family that draws its own section instead of one card per file.
-  render?: "merch" | "device-stickers" | "mail-signature";
   // Pages elsewhere that show the family, as [label, href]: an engine's published catalog and
   // its repository on GitHub.
   links?: [string, string][];
@@ -70,21 +66,18 @@ const FAMILIES: Family[] = [
     title: "Merch",
     note: "Each product as it is printed, drawn from its print file; each file as SVG in millimetres with a PDF beside it.",
     dir: "applications/merch",
-    render: "merch",
   },
   {
     id: "device-stickers",
     title: "Device stickers",
     note: "One sticker combination per company device, upright like the Apple logo and centred left to right. Drawn to scale from Apple's dimensions (MacBook Pro 14-inch, iPhone 18 Pro, iPad Pro 11-inch); the dashed line is the device's centre, the measure runs from the bottom edge to the centre of the wordmark sticker. The print files are under Merch.",
     dir: "applications/device-stickers",
-    render: "device-stickers",
   },
   {
     id: "mail-signature",
     title: "Mail signature",
     note: "One signature for every mail from an h&w account, new mails and replies alike, from one template with placeholders: the typed wordmark in colour, name, role, contact line and the three lines § 35a GmbHG requires. `bun run brand-mail-signature` writes an HTML file to open in a browser and copy into the mail client, and a plain-text file for the iPhone. Links in teal #1A7285 (5.54:1 on white). Shown with a fictitious person.",
     dir: "applications/mail-signature",
-    render: "mail-signature",
   },
   {
     id: "slides",
@@ -126,67 +119,54 @@ const familyStems = new Map(
 const fileCount = (id: string) =>
   [...familyStems.get(id)!.values()].reduce((count, asset) => count + asset.files.length, 0);
 
-// Device stickers: each device's SVG inline, all at one scale, with what goes where as its caption.
-const DEVICES = "applications/device-stickers";
-// Embeds device sticker drawings and indexes their placement captions.
-function renderDeviceStickers(assets: PortalAssets, index: PortalSearchEntry[]) {
-  return `<div class="devices" data-theme="light">${stickerCaptions()
-    .map(({ file, title, lines }) => {
-      const id = `device-stickers-${file}`;
-      index.push({
-        t: title,
-        k: "application",
-        h: `applications/${id}`,
-        x: `device stickers ${lines.join(" ")}`,
-      });
-      const svg = assets
-        .pngFiles(readFileSync(join(ROOT, DEVICES, `${file}.svg`), "utf8"))
-        .replace(
-          /width="([\d.]+)mm" height="([\d.]+)mm"/,
-          (_, w, h) =>
-            `width="${(+w * 1.35).toFixed(1)}" height="${(+h * 1.35).toFixed(1)}" role="img" aria-label="${esc(title)}"`,
-        );
-      return `<figure id="${id}">${deferImages(scopeIds(svg, id))}<figcaption><strong>${esc(title)}</strong>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}<span class="dl"><a href="${DEVICES}/${file}.svg" download>svg</a></span></figcaption></figure>`;
-    })
-    .join("")}</div>`;
-}
-
-// Mail signature: the template filled for a fictitious person.
-const SIGNATURE = "applications/mail-signature";
-const signatureTemplate = readFileSync(join(ROOT, SIGNATURE, "template.html"), "utf8");
-const signatureDocument = fillSignature(signatureTemplate, EXAMPLE, "html");
-
-// Shows the filled example signature and links the unfilled templates.
-function renderSignature(assets: PortalAssets, index: PortalSearchEntry[]) {
-  index.push({
-    t: "mail signature",
-    k: "application",
-    h: "applications/mail-signature",
-    x: "mail signature template",
-  });
-  return `<div class="assets"><figure class="asset" id="mail-signature"><div class="views">${assets.frame(signatureDocument, 'title="mail signature"')}</div><figcaption>the filled template</figcaption></figure></div><p class="dl"><a href="${SIGNATURE}/template.html" download>template.html</a><a href="${SIGNATURE}/template.txt" download>template.txt</a></p>`;
-}
-
 // Links an asset's variants and registers its stem and filenames for search.
-function indexAssetCard(asset: ApplicationAsset, family: Family, index: PortalSearchEntry[]) {
+function renderApplicationCard(asset: ApplicationAsset, family: Family) {
   const id = slug(`${family.id}-${asset.stem}`);
-  index.push({
-    t: asset.stem,
-    k: "application",
-    h: `applications/${id}`,
-    x: `${asset.files.join(" ")} ${family.title}`,
-  });
-  return assetCard(asset, id);
+  return {
+    html: assetCard(asset, id),
+    entry: {
+      t: asset.stem,
+      k: "application",
+      h: `applications/${id}`,
+      x: `${asset.files.join(" ")} ${family.title}`,
+    },
+  };
+}
+
+// Presents a file-based family's tracked variants and their search entries.
+function renderAssetCards(family: Family): SearchableSection {
+  if (!family.dir) return { html: "", index: [] };
+  const cards = [...familyStems.get(family.id)!.values()].map((asset) =>
+    renderApplicationCard(asset, family),
+  );
+  return {
+    html: `<div class="assets">${cards.map(({ html }) => html).join("")}</div>`,
+    index: cards.map(({ entry }) => entry),
+  };
+}
+
+// Adds a family's heading, links and file location to its body.
+function familyHtml(f: Family, body: string) {
+  const links = f.links
+    ? `<p class="dl">${f.links.map(([label, href]) => `<a href="${esc(href)}">${esc(label)}</a>`).join("")}</p>`
+    : "";
+  return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}</p>${links}${f.dir ? `<p class="meta">${esc(f.dir)}</p>${body}` : ""}`;
 }
 
 // Renders the applications view from tracked files and the bespoke family displays.
-export function renderApplications(assets: PortalAssets) {
-  const index: PortalSearchEntry[] = [];
-  const special = {
-    merch: renderMerch(familyStems.get("merch")!, index),
-    "device-stickers": renderDeviceStickers(assets, index),
-    "mail-signature": renderSignature(assets, index),
-  };
+export function renderApplications(assets: PortalAssets): SearchableSection {
+  // A family that draws its own section instead of one card per file.
+  // Search lists these sections first, then the tracked-file cards in family order.
+  const sections = new Map<string, SearchableSection>([
+    ["merch", renderMerch(familyStems.get("merch")!)],
+    ["device-stickers", renderDeviceStickers(assets)],
+    ["mail-signature", renderSignature(assets)],
+  ]);
+  const families = FAMILIES.map((family) => {
+    const section = sections.get(family.id) ?? renderAssetCards(family);
+    sections.set(family.id, section);
+    return familyHtml(family, section.html);
+  });
   const applicationsHtml = `<p>Every family of brand files in use. The files sit in applications/ of this repo.</p>
 ${table(
   ["Family", "Files"],
@@ -195,26 +175,14 @@ ${table(
     f.dir ? String(fileCount(f.id)) : "",
   ]),
 )}
-${FAMILIES.map((f) => {
-  const stems = familyStems.get(f.id)!;
-  const links = f.links
-    ? `<p class="dl">${f.links.map(([label, href]) => `<a href="${esc(href)}">${esc(label)}</a>`).join("")}</p>`
-    : "";
-  return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}</p>${links}${
-    f.render
-      ? `<p class="meta">${esc(f.dir)}</p>${special[f.render]}`
-      : f.dir
-        ? `<p class="meta">${esc(f.dir)}</p><div class="assets">${[...stems.values()].map((asset) => indexAssetCard(asset, f, index)).join("")}</div>`
-        : ""
-  }`;
-}).join("")}`;
-  return { html: applicationsHtml, index };
+${families.join("")}`;
+  return { html: applicationsHtml, index: [...sections.values()].flatMap(({ index }) => index) };
 }
 
 // Picks the format the family tile can show directly.
 const familyPreview = (f: Family, assets: PortalAssets) => {
   if (f.id === "merch") return merchPreview();
-  if (f.id === "mail-signature") return assets.sampleFrame(signatureDocument);
+  if (f.id === "mail-signature") return signaturePreview(assets);
   const files = [...familyStems.get(f.id)!.values()].flatMap(({ files }) => files);
   const svg = files.find((x) => x.endsWith(".svg"));
   const png = files.find((x) => x.endsWith(".png"));

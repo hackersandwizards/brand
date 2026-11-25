@@ -1,17 +1,27 @@
 import { expect, test } from "vitest";
-import { assetCard, assetStems } from "../catalog/portal/application-assets";
+import { assetCard, groupApplicationFiles } from "../catalog/portal/application-assets";
 
-test("tracked application files with the same stem form one asset", () => {
-  const dir = "applications/booth";
-  const assets = assetStems(dir);
-  expect(assets.get("booth-banner-gradient-100x100")).toEqual({
-    dir,
-    stem: "booth-banner-gradient-100x100",
-    files: ["booth-banner-gradient-100x100.pdf", "booth-banner-gradient-100x100.png"],
-  });
-  expect(assets.has("banner")).toBe(false);
-  expect(assets.has("generate")).toBe(false);
-  expect(assets.has("qr-hackersandwizards-dev")).toBe(false);
+const dir = "applications/example";
+
+test("groups sorted file variants by stem and keeps different stems separate", () => {
+  const files = [
+    "applications/example/poster.png",
+    "applications/example/badge.svg",
+    "applications/example/poster.pdf",
+  ];
+  expect([...groupApplicationFiles(dir, files).values()]).toEqual([
+    { dir, stem: "badge", files: ["badge.svg"] },
+    { dir, stem: "poster", files: ["poster.pdf", "poster.png"] },
+  ]);
+});
+
+test.each([
+  ["CSS", "applications/example/banner.css"],
+  ["TypeScript", "applications/example/generate.ts"],
+  ["Python", "applications/example/render.py"],
+  ["QR input", "applications/example/qr-source.svg"],
+])("excludes %s from the application inventory", (_kind, file) => {
+  expect(groupApplicationFiles(dir, [file]).size).toBe(0);
 });
 
 test.each([

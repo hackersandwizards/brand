@@ -3,8 +3,9 @@ import { join } from "node:path";
 import { ROOT } from "../../scripts/git";
 import { face, lid, mug, type Print, TEXTILE, wear } from "../../applications/merch/mockup";
 import type { ApplicationAsset } from "./application-assets";
-import { deferImages, esc, scopeIds, slug } from "./markup";
-import type { PortalSearchEntry } from "./search";
+import { esc, slug } from "./markup";
+import type { SearchableSection } from "./search";
+import { deferImages, scopeIds } from "./svg-mockups";
 
 // Merch: each product drawn from its print files (applications/merch/mockup.ts), so the section
 // shows the final layout and changes with the files.
@@ -94,20 +95,22 @@ const PRODUCTS: Product[] = [
 ];
 
 // Draws each product with its print dimensions and links to the tracked print variants.
-export function renderMerch(
-  merchFiles: ReadonlyMap<string, ApplicationAsset>,
-  index: PortalSearchEntry[],
-) {
-  return `<div class="products">${PRODUCTS.map((p) => {
+export function renderMerch(merchFiles: ReadonlyMap<string, ApplicationAsset>): SearchableSection {
+  const products = PRODUCTS.map((p) => {
     const id = `merch-${slug(p.name)}`;
-    index.push({
+    const entry = {
       t: p.name,
       k: "application",
       h: `applications/${id}`,
       x: `merch ${p.stems.join(" ")}`,
-    });
-    return `<article class="product" id="${id}"><div class="mock" data-theme="light">${p.views.map(([svg, c], i) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${deferImages(scopeIds(svg, `${id}-${i}`))}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st)?.files ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
-  }).join("")}</div>`;
+    };
+    const html = `<article class="product" id="${id}"><div class="mock" data-theme="light">${p.views.map(([svg, c], i) => `<figure${svg.includes('id="lid"') ? ' class="wide"' : ""}>${deferImages(scopeIds(svg, `${id}-${i}`))}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div><h4>${esc(p.name)}</h4><p>${esc(p.note)}</p><p class="dl">${p.stems.flatMap((st) => (merchFiles.get(st)?.files ?? []).map((f) => `<a href="${MERCH}/${esc(f)}" download>${esc(f)}</a>`)).join("")}</p></article>`;
+    return { html, entry };
+  });
+  return {
+    html: `<div class="products">${products.map(({ html }) => html).join("")}</div>`,
+    index: products.map(({ entry }) => entry),
+  };
 }
 
 // Shows the first garment on the Merch tile.
