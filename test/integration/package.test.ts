@@ -13,7 +13,7 @@ test("the tag archive holds exactly the shipped files, none in Git LFS", async (
   const listing = Bun.spawn(["tar", "-tf", "-"], { cwd, stdin: archive.stdout });
   const archived = (await new Response(listing.stdout).text())
     .split("\n")
-    .filter((f) => f && !f.endsWith("/"));
+    .filter((f) => /[^/]$/.test(f));
   expect(await archive.exited, "git archive").toBe(0);
   expect(await listing.exited, "tar -tf -").toBe(0);
   expect(archived.toSorted()).toEqual(packed().toSorted());

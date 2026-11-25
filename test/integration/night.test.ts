@@ -45,19 +45,22 @@ test("night.css after tokens.root.css turns every token on a dark html", async (
   const tab = await browser.newPage();
   await tab.setContent(`<!doctype html><html data-theme="dark" data-hw-night><head>
 <style>${tokens}</style><style>${night}</style></head><body><i></i></body></html>`);
-  const wrong = await tab.evaluate((set) => {
+  const computed = await tab.evaluate((set) => {
     const html = getComputedStyle(document.documentElement);
     const probe = document.querySelector("i")!;
-    const out = set.flatMap(([name, value]) => {
+    const measured = set.map(([name, value]) => {
       probe.style.setProperty("--probe", value!);
       const want = getComputedStyle(probe).getPropertyValue("--probe").trim();
       const got = html.getPropertyValue(name!).trim();
-      return got === want ? [] : [`${name}: ${got}, want ${want}`];
+      return { name, got, want };
     });
-    return html.colorScheme === "dark" ? out : [...out, `color-scheme: ${html.colorScheme}`];
+    return { measured, scheme: html.colorScheme };
   }, set);
   await tab.close();
-  expect(wrong).toEqual([]);
+  expect(computed.measured.map(({ name, got }) => ({ name, value: got }))).toEqual(
+    computed.measured.map(({ name, want }) => ({ name, value: want })),
+  );
+  expect(computed.scheme).toBe("dark");
 });
 
 // A light island in that night, such as a catalog frame drawing a light-only page: the nearest

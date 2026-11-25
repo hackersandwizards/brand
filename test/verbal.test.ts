@@ -9,9 +9,13 @@ test("the claim carries its word in both languages", () => {
 
 test("no retired slogan is a current text", () => {
   // Every text with an English and a German version is current.
-  const current = Object.values(verbal).flatMap((v) =>
-    v && typeof v === "object" && "en" in v ? [v.en, v.de].filter((t) => t !== null) : [],
-  );
+  const current = Object.values(verbal)
+    .filter((v) => v !== null)
+    .filter((v) => typeof v === "object")
+    .filter((v) => "en" in v)
+    .flatMap(({ en, de }) => [en, de])
+    .filter((text) => text !== null);
+  expect(current.length).toBeGreaterThan(0);
   expect(verbal.retired.length).toBeGreaterThan(0);
   for (const r of verbal.retired) {
     expect(current.some((c) => c.includes(r.text))).toBe(false);

@@ -23,7 +23,8 @@ test("every file in a copied folder has a manifest entry", () => {
   const listed = new Set(manifest.files.map((f) => f.path));
   const onDisk = ["tokens", "logos", "expert", "elements", "press", "verbal"].flatMap((dir) =>
     readdirSync(join(ROOT, dir), { recursive: true, withFileTypes: true })
-      .filter((e) => e.isFile() && e.name !== ".DS_Store")
+      .filter((e) => e.isFile())
+      .filter((e) => e.name !== ".DS_Store")
       .map((e) => relative(ROOT, join(e.parentPath, e.name))),
   );
   expect(onDisk.filter((p) => !listed.has(p))).toEqual([]);
@@ -33,18 +34,16 @@ test("every file in a copied folder has a manifest entry", () => {
 // before the block, so it still works linked or inlined alone.
 test("every file with a layer block states the order of tokens/layers.css", () => {
   const order = readFileSync(join(ROOT, "tokens/layers.css"), "utf8").trim();
-  const off = manifest.files
+  const layered = manifest.files
     .filter((f) => f.path.endsWith(".css"))
     .map((f) => ({ path: f.path, css: readFileSync(join(ROOT, f.path), "utf8") }))
-    .filter(({ css }) => /^@layer [\w-]+ \{/m.test(css))
-    .filter(({ css }) => {
-      const stated = css.match(/^@layer [\w ,-]+;$/gm) ?? [];
-      return (
-        stated.length !== 1 ||
-        stated[0] !== order ||
-        css.indexOf(order) > css.search(/^@layer [\w-]+ \{/m)
-      );
-    })
-    .map(({ path }) => path);
-  expect(off).toEqual([]);
+    .filter(({ css }) => /^@layer [\w-]+ \{/m.test(css));
+  expect(layered.length).toBeGreaterThan(0);
+  expect(
+    layered.map(({ path, css }) => ({
+      path,
+      statements: [...css.matchAll(/^@layer [\w ,-]+;$/gm)].map(([statement]) => statement),
+      firstLayer: /^@layer (?:[\w ,-]+;$|[\w-]+ \{)/m.exec(css)?.[0],
+    })),
+  ).toEqual(layered.map(({ path }) => ({ path, statements: [order], firstLayer: order })));
 });

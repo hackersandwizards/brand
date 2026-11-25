@@ -1,7 +1,7 @@
 // A consumer raising its brand pin may list, in the same commit, what the new scanner finds in its
 // files as committed at HEAD; anything its own new code adds still fails. Each case runs the
 // command in a throwaway Git repository, as a consumer's gate does.
-import { afterAll, expect, test, vi } from "vitest";
+import { afterAll, assert, expect, test, vi } from "vitest";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -160,7 +160,7 @@ test("brand-colours --tighten during a pin raise lists the committed file's new 
   raise(dir, { "c.css": ".c { border-radius: 8px; }\n" });
   expect(run(dir, "colours.ts", "--tighten")).toBe(0);
   const next: unknown = JSON.parse(readFileSync(join(dir, "brand-colours.json"), "utf8"));
-  if (!isRecord(next)) throw new Error("Expected brand-colours.json to hold an object");
+  assert(isRecord(next), "Expected brand-colours.json to hold an object");
   expect(next["a.css"]).toMatchObject({ hex: 1, radius: 1, reason: "r" });
   expect(next["b.css"]).toMatchObject({ radius: 1, reason: "" });
   expect(next["c.css"]).toBeUndefined();
@@ -194,12 +194,15 @@ test("brand-copies preserves a valid reason through checking and tightening", ()
   expect(JSON.parse(readFileSync(join(dir, file), "utf8"))).toEqual(allow);
 });
 
-test.each(["{}", "[]"])(
-  "brand-copies rejects an array allowance in the working tree or at HEAD (HEAD=%s)",
-  (committed) => {
+test.each([
+  { committed: "{}", working: "[]" },
+  { committed: "[]", working: "{}" },
+])(
+  "brand-copies rejects an array allowance in the working tree or at HEAD (HEAD=$committed)",
+  ({ committed, working }) => {
     const file = "brand-copies.json";
     const dir = consumer({ [file]: committed });
-    write(dir, { [file]: committed === "{}" ? "[]" : "{}" });
+    write(dir, { [file]: working });
     expect(() => checkConsumerCopies(dir)).toThrow(
       "brand-copies.json: expected an object of reasons",
     );

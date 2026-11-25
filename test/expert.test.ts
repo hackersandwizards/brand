@@ -31,12 +31,20 @@ const root = (roles: Record<string, string>) => {
 
 test("light roles resolve to the token values, without a cycle", () => {
   const value = root(light);
-  expect(value("--border")).toBe("#d0d2d8");
-  expect(value("--border")).toBe(token["--color-border"]);
-  expect(value("--color-border")).toBe("#d0d2d8");
-  expect(value("--hue-slate")).toBe("#545861");
-  expect(value("--hue-slate")).toBe(token["--color-muted"]);
-  expect(value("--hw-muted")).toBe(token["--color-muted"]);
+  expect({
+    border: value("--border"),
+    colorBorder: value("--color-border"),
+    slate: value("--hue-slate"),
+  }).toEqual({ border: "#d0d2d8", colorBorder: "#d0d2d8", slate: "#545861" });
+  expect({
+    border: value("--border"),
+    slate: value("--hue-slate"),
+    muted: value("--hw-muted"),
+  }).toEqual({
+    border: token["--color-border"],
+    slate: token["--color-muted"],
+    muted: token["--color-muted"],
+  });
 });
 
 test("every light and dark role resolves to a colour", () => {

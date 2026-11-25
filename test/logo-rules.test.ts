@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { assert, expect, test } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import rules from "../logos/logos.json";
@@ -11,7 +11,8 @@ test("each logo's clear space is the h's height over the file's height", () => {
     const svg = readFileSync(join(ROOT, `logos/${name}.svg`), "utf8");
     const h = /<path d="M288 312H456V360H504V(\d+)H312V504H288V\1H96V(\d+)H288V312Z"/.exec(svg);
     const height = Number(/viewBox="[^"]*?([\d.]+)"/.exec(svg)?.[1]);
-    expect({ name, h: h && Number(h[1]) - Number(h[2]) }).toEqual({
+    assert(h, `${name}.svg must contain the h path used to measure clear space`);
+    expect({ name, h: Number(h[1]) - Number(h[2]) }).toEqual({
       name,
       h: rules.clearSpaceUnits,
     });
@@ -29,10 +30,11 @@ test("sizes names each logo SVG's and logo PNG's width and height, as the file s
   // width and height at bytes 16 to 24.
   const pngs = files.filter((f) => /^(lockup|wordmark).*\.png$/.test(f));
   const measured = Object.fromEntries<{ width: number; height: number }>([
-    ...svgs.flatMap((f): [string, { width: number; height: number }][] => {
+    ...svgs.flatMap((f) => {
       const root = /<svg[^>]*>/.exec(readFileSync(join(ROOT, "logos", f), "utf8"))![0];
-      const [w, h] = [/ width="(\d+)"/, / height="(\d+)"/].map((r) => r.exec(root)?.[1]);
-      return w && h ? [[f, { width: Number(w), height: Number(h) }]] : [];
+      return [...root.matchAll(/<svg(?=[^>]* width="(\d+)")(?=[^>]* height="(\d+)")/g)].map(
+        ([, width, height]) => [f, { width: Number(width), height: Number(height) }] as const,
+      );
     }),
     ...pngs.map((f): [string, { width: number; height: number }] => {
       const head = readFileSync(join(ROOT, "logos", f)).subarray(0, 24);
@@ -50,18 +52,18 @@ test("sizes names each logo SVG's and logo PNG's width and height, as the file s
 // in the gate: each night cut's fills, in order, are its day file's turned to the hue's night tone.
 test("each night cut fills its day file's shapes with their night tones", () => {
   const hex = (t: string) => colors[`--color-${t}` as keyof typeof colors].toUpperCase();
-  const night = new Map(
-    (["teal", "purple", "ampersand"] as const).map((t) => [
-      hex(t),
-      hex(t === "ampersand" ? "ampersand-light" : `${t}-night`),
-    ]),
-  );
+  const night: Record<string, string> = {
+    [hex("teal")]: hex("teal-night"),
+    [hex("purple")]: hex("purple-night"),
+    [hex("ampersand")]: hex("ampersand-light"),
+  };
+  const dayTone = new RegExp(`^(?:${Object.keys(night).join("|")})$`);
   const fills = (f: string) =>
     [...readFileSync(join(ROOT, `logos/${f}.svg`), "utf8").matchAll(/fill="(#[0-9A-F]{6})"/gi)].map(
       (m) => m[1]!.toUpperCase(),
     );
   for (const day of ["wordmark", "lockup", "lockup-compact", "lockup-screen"]) {
-    const want = fills(day).map((c) => night.get(c) ?? c);
+    const want = fills(day).map((c) => c.replace(dayTone, (tone) => night[tone]));
     expect({ day, fills: fills(`${day}-night`) }).toEqual({ day, fills: want });
     expect(want.length).toBeGreaterThan(0);
   }

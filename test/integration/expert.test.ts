@@ -81,7 +81,7 @@ test("every ThemeToggle on a page turns it once and follows data-theme whoever f
 ${new Bun.Transpiler({ loader: "ts" }).transformSync(script!)}</script></body></html>`);
   const state = () =>
     tab.evaluate(() => [
-      document.documentElement.dataset.theme ?? "light",
+      document.documentElement.getAttribute("data-theme"),
       ...[...document.querySelectorAll("[id=theme-toggle]:not([data-own])")].map((b) =>
         b.getAttribute("aria-pressed"),
       ),

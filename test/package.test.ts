@@ -11,7 +11,8 @@ const packed = listPacked();
 
 test("the package ships only the core", () => {
   expect(packed.length).toBeGreaterThan(30);
-  expect(packed.filter((f) => !SHIPPED.test(f) || PRINT_MASTERS.test(f))).toEqual([]);
+  expect(packed.filter((f) => !SHIPPED.test(f))).toEqual([]);
+  expect(packed.filter((f) => PRINT_MASTERS.test(f))).toEqual([]);
   for (const file of [
     "LICENSE",
     "tokens/fonts/OFL-Inter.txt",
@@ -51,10 +52,11 @@ test("every export names a shipped file, a pattern at least one", () => {
   const { exports } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf-8")) as {
     exports: Record<string, string>;
   };
-  const missing = Object.values(exports)
-    .map((target) => target.replace(/^\.\//, ""))
-    .filter((t) =>
-      t.endsWith("*") ? !packed.some((f) => f.startsWith(t.slice(0, -1))) : !packed.includes(t),
-    );
-  expect(missing).toEqual([]);
+  const targets = Object.values(exports).map((target) => target.replace(/^\.\//, ""));
+  const literalFiles = targets.filter((target) => !target.endsWith("*"));
+  const prefixes = targets
+    .filter((target) => target.endsWith("*"))
+    .map((target) => target.slice(0, -1));
+  expect(literalFiles.filter((target) => !packed.includes(target))).toEqual([]);
+  expect(prefixes.filter((prefix) => !packed.some((file) => file.startsWith(prefix)))).toEqual([]);
 });
