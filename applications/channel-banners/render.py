@@ -45,13 +45,23 @@ LIFT = 0.078  # the wordmark's centre line lies this share of the lockup height 
 # The box a layout's "h" and edges measure the lockup by, in SVG units: the night cut sits so its
 # letters land where they sit in it, whatever its own box holds round the wizard.
 LAYOUT_BOX = [-1321.814, -288.642, 7988.814, 1489]
-NIGHT_BOX = [float(v) for v in re.search(r'viewBox="([^"]+)"', (BRAND / "logos/lockup-night.svg").read_text()).group(1).split()]
+NIGHT_BOX = [
+    float(v)
+    for v in re.search(
+        r'viewBox="([^"]+)"', (BRAND / "logos/lockup-night.svg").read_text()
+    )
+    .group(1)
+    .split()
+]
 
 WHITE = (234, 235, 236)
 SUBLINE = (223, 224, 226)
 # on night the accent takes its night tone, as the website and the apps do
 COLORS = run_path(str(BRAND / "generated/tokens.py"))["COLORS"]
-ACCENTS = {"teal": COLORS["--color-teal-night"], "purple": COLORS["--color-purple-night"]}
+ACCENTS = {
+    "teal": COLORS["--color-teal-night"],
+    "purple": COLORS["--color-purple-night"],
+}
 BASE = tuple(int(COLORS["--color-night"][i : i + 2], 16) for i in (1, 3, 5))
 TEAL_GLOW, PURPLE_GLOW = (7, 41, 46), (35, 9, 54)
 
@@ -59,16 +69,30 @@ VERBAL = json.loads((BRAND / "verbal/verbal.json").read_text())
 TESTIMONIALS = BRAND / "node_modules/@hackersandwizards/testimonials"
 CLIENTS = TESTIMONIALS / "marks"
 # A file may sit under several companies; one allowed entry releases it.
-SHOWN = {m["file"] for m in json.loads((TESTIMONIALS / "data/marks.json").read_text()) if m["surface"] == "allowed"}
+SHOWN = {
+    m["file"]
+    for m in json.loads((TESTIMONIALS / "data/marks.json").read_text())
+    if m["surface"] == "allowed"
+}
 
 
 def corner_glows(w, h):
     """Teal top left, purple bottom right: the direction of --gradient-magic, as on slides and devices."""
-    return [(0, 0, 0.21 * w, 0.63 * h, TEAL_GLOW, 1), (w, h, 0.25 * w, 0.63 * h, PURPLE_GLOW, 1)]
+    return [
+        (0, 0, 0.21 * w, 0.63 * h, TEAL_GLOW, 1),
+        (w, h, 0.25 * w, 0.63 * h, PURPLE_GLOW, 1),
+    ]
 
 
 def headline(x, baseline, size, track, *parts, font=MONO):
-    return {"x": x, "baseline": baseline, "size": size, "track": track, "parts": parts, "font": font}
+    return {
+        "x": x,
+        "baseline": baseline,
+        "size": size,
+        "track": track,
+        "parts": parts,
+        "font": font,
+    }
 
 
 def claim_block(size, step, track, x=480):
@@ -79,7 +103,9 @@ def claim_block(size, step, track, x=480):
     return [
         headline(x, 0, size, track, *first),
         headline(x, step, size, track, *second),
-        headline(x, step + DESCRIPTOR[2] * size, d, 0, (DESCRIPTOR[0], 2), font=MONO_SUB),
+        headline(
+            x, step + DESCRIPTOR[2] * size, d, 0, (DESCRIPTOR[0], 2), font=MONO_SUB
+        ),
     ]
 
 
@@ -91,8 +117,13 @@ def logos(band, radius, items):
 # ink top two units below the lockup's ink, a client band one unit below the text. The unit is half
 # the wordmark's cap height, the logo's own measure. The group is centred in the area every device
 # shows; the set reads as one when the logo sits on top everywhere.
-LOCKUP_CAP = (79.8, 44)  # lockup height, wordmark cap height in px, measured on the profile render
-INK_ALPHA = 5  # lockup pixels up to this alpha are resampling haze above the wizard, not ink
+LOCKUP_CAP = (
+    79.8,
+    44,
+)  # lockup height, wordmark cap height in px, measured on the profile render
+INK_ALPHA = (
+    5  # lockup pixels up to this alpha are resampling haze above the wizard, not ink
+)
 
 
 def ink_rows(parts, size, font=MONO):
@@ -113,14 +144,20 @@ def line_cols(line):
         return line["x"] + a, line["x"] + b
     step = line["track"] * line["size"]
     x = line["x"] + sum(f.getlength(ch) + step for ch in text[:-1])
-    return line["x"] + f.getbbox(text[0], anchor="ls")[0], x + f.getbbox(text[-1], anchor="ls")[2]
+    return line["x"] + f.getbbox(text[0], anchor="ls")[0], x + f.getbbox(
+        text[-1], anchor="ls"
+    )[2]
 
 
 @cache
 def lockup_ink(lh):
     """The lockup's ink box at height lh, in px from the resized night cut's top left."""
     u = lh / LAYOUT_BOX[3]
-    lock = Image.open(LOCKUP).convert("RGBA").resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
+    lock = (
+        Image.open(LOCKUP)
+        .convert("RGBA")
+        .resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
+    )
     return lock.getchannel("A").point(lambda v: 255 if v > INK_ALPHA else 0).getbbox()
 
 
@@ -138,7 +175,9 @@ def lockup_rows(lh):
     return top + a, top + b
 
 
-def grid(size, lh, lines, area=None, band=None, top=None, left=None, glows=None, floor=None):
+def grid(
+    size, lh, lines, area=None, band=None, top=None, left=None, glows=None, floor=None
+):
     """A surface on the grid. lines: headline dicts, baselines relative to the first line's; band:
     (x0, x1, height, radius, [(file, cx, cy below the band top, h)]); area: the rows every device
     shows, the whole height by default; top fixes the lockup's ink top instead of centring; left
@@ -165,13 +204,19 @@ def grid(size, lh, lines, area=None, band=None, top=None, left=None, glows=None,
     s = {
         "size": size,
         "lines": [{**ln, "baseline": b1 + ln["baseline"]} for ln in lines],
-        "lockup": {"h": lh, "anchor": top - lt, "left": lines[0]["x"] if left is None else left},
+        "lockup": {
+            "h": lh,
+            "anchor": top - lt,
+            "left": lines[0]["x"] if left is None else left,
+        },
         "top": top,
     }
     if band:
         x0, x1, bh, radius, items = band
         y = b1 + lines[-1]["baseline"] + dn + unit
-        s["logos"] = logos((x0, y, x1, y + bh), radius, [(f, cx, y + cy, h) for f, cx, cy, h in items])
+        s["logos"] = logos(
+            (x0, y, x1, y + bh), radius, [(f, cx, y + cy, h) for f, cx, cy, h in items]
+        )
     if glows:
         s["glows"] = glows
     return s
@@ -187,7 +232,9 @@ def grid_surfaces():
     )
     # slide 1 hangs from slide 2's top, so the lockup and the headline's top stay put across the change;
     # its claim in slide 2's headline size, which fills the slide more: ink x 469 to 1288, rows 49 to 333
-    s1 = grid((1584, 396), 79.8, claim_block(49.0, 59.3, -0.050), top=s2["top"], left=480)
+    s1 = grid(
+        (1584, 396), 79.8, claim_block(49.0, 59.3, -0.050), top=s2["top"], left=480
+    )
     return {
         # the group centred on the cover, which every device shows nearly whole (x 9 to 1503 measured
         # 31.10.); the page's logo tile covers the lower left up to x 384 in the iPhone app and up
@@ -195,7 +242,10 @@ def grid_surfaces():
         "company-cover": grid(
             (1512, 256),
             68,
-            [headline(510.5, 0, 40.0, -0.042, ("Agentic engineering", 0)), headline(511.5, 43, 40.0, -0.05, ("training and mentoring.", 1))],
+            [
+                headline(510.5, 0, 40.0, -0.042, ("Agentic engineering", 0)),
+                headline(511.5, 43, 40.0, -0.05, ("training and mentoring.", 1)),
+            ],
         ),
         # LinkedIn's profile banner is judged in the iPhone app and the desktop site on a laptop, where
         # the photo ends left of x 427 and x 336 (measured on real screenshots); LinkedIn's mobile
@@ -207,13 +257,25 @@ def grid_surfaces():
         # covers the lower left, centre x 210 to 234, y 500, radius 170 to 174 at 1440, 390 and 440 px
         # (measured 1.11. on x.com logged out), so the group centres on the width right of x 384:
         # ink x 384 to 1202, rows 109 to 392
-        "x-profile": grid((1500, 500), 79.8, claim_block(49.0, 59.3, -0.050), area=(60, 440), floor=384),
+        "x-profile": grid(
+            (1500, 500),
+            79.8,
+            claim_block(49.0, 59.3, -0.050),
+            area=(60, 440),
+            floor=384,
+        ),
         # The XING cover: at 1024 px XING crops it centred to 976 x 220, so rows 172 to 468 show on
         # every desktop; a 390 px phone shows it whole. The photo covers x < 323 below row 309 at 1024
         # px, and x 67 to 441 below row 363 on the phone (measured 8.11. on xing.com logged out). The
         # group sits right of the phone's photo, in the desktop rows, at 0.9 of slide 1's size:
         # ink x 470 to 1198, rows 193 to 447
-        "xing-profile": grid((1312, 639), 71.8, claim_block(44.1, 53.4, -0.050), area=(172, 468), floor=470),
+        "xing-profile": grid(
+            (1312, 639),
+            71.8,
+            claim_block(44.1, 53.4, -0.050),
+            area=(172, 468),
+            floor=470,
+        ),
         # The Sessionize cover: Sessionize serves 2000 x 500 and shows it full width, 224 px high below
         # 832 px, 288 below 992, 400 above, centred (object-fit cover), so a 375 px phone shows x 581 to 1419
         # and a 2560 px screen rows 94 to 406; the round photo overlaps the bottom 32 px (measured 1.11. on
@@ -251,7 +313,15 @@ def grid_surfaces():
             [
                 headline(150, 0, 111.6, -0.05, ("KI-Schulungen für", 0)),
                 headline(150, 121, 111.6, -0.05, ("Agentic Engineering.", 0)),
-                headline(151, 238, 47.5, 0, ("200+ Teams", 1), (" und 1.000+ Entwickler:innen trainiert.", 2), font=MONO_SUB),
+                headline(
+                    151,
+                    238,
+                    47.5,
+                    0,
+                    ("200+ Teams", 1),
+                    (" und 1.000+ Entwickler:innen trainiert.", 2),
+                    font=MONO_SUB,
+                ),
             ],
         ),
         # the group centred in the 2560 x 423 strip every device shows, on the width too (ink x 735 to
@@ -278,7 +348,10 @@ def claim_lines():
     shortest, its word in the accent."""
     claim = VERBAL["claim"]
     words = claim["en"].split(" ")
-    rows = min(([" ".join(words[:i]), " ".join(words[i:])] for i in range(1, len(words))), key=lambda r: max(map(len, r)))
+    rows = min(
+        ([" ".join(words[:i]), " ".join(words[i:])] for i in range(1, len(words))),
+        key=lambda r: max(map(len, r)),
+    )
     word = claim["word"]["en"]
 
     def parts(text):
@@ -292,8 +365,20 @@ PROFILE_LINES = claim_lines()
 # the line under the claim on the profile banners: verbal.json's descriptor, its size and its
 # baseline's distance below the claim's second row, both as shares of the claim size
 DESCRIPTOR = (VERBAL["descriptor"]["en"], 0.62, 1.11)
-PROFILE_LOGOS = [("mercedes-benz.webp", 569, 63), ("dm.svg", 682.5, 71), ("tchibo.svg", 842, 47), ("vorwerk.svg", 1025, 53), ("bonprix.webp", 1201.5, 45)]
-FEATURED_LOGOS = [("mercedes-benz.webp", 188, 78), ("dm.svg", 327.5, 88), ("tchibo.svg", 522.5, 57), ("vorwerk.svg", 747, 64), ("bonprix.webp", 963.5, 55)]
+PROFILE_LOGOS = [
+    ("mercedes-benz.webp", 569, 63),
+    ("dm.svg", 682.5, 71),
+    ("tchibo.svg", 842, 47),
+    ("vorwerk.svg", 1025, 53),
+    ("bonprix.webp", 1201.5, 45),
+]
+FEATURED_LOGOS = [
+    ("mercedes-benz.webp", 188, 78),
+    ("dm.svg", 327.5, 88),
+    ("tchibo.svg", 522.5, 57),
+    ("vorwerk.svg", 747, 64),
+    ("bonprix.webp", 963.5, 55),
+]
 for _file in {f for f, *_ in PROFILE_LOGOS + FEATURED_LOGOS} - SHOWN:
     raise SystemExit(f"{_file}: testimonials' marks.json allows no surface to show it")
 
@@ -323,7 +408,9 @@ def glow_mask(w, h, cx, cy, rx, ry, strength, q=4):
         dy = ((y + 0.5) * h / sh - cy) / ry
         for x in range(sw):
             dx = ((x + 0.5) * w / sw - cx) / rx
-            data.append(round(max(0.0, 1 - (dx * dx + dy * dy) ** 0.5) * strength * 255))
+            data.append(
+                round(max(0.0, 1 - (dx * dx + dy * dy) ** 0.5) * strength * 255)
+            )
     mask = Image.new("L", (sw, sh))
     mask.putdata(data)
     return mask.resize((w, h), Image.BILINEAR)
@@ -333,7 +420,9 @@ def background(w, h, glows, k):
     img = Image.new("RGB", (w, h), BASE)
     for cx, cy, rx, ry, delta, strength in glows:
         layer = Image.new("RGB", (w, h), tuple(b + d for b, d in zip(BASE, delta)))
-        img = Image.composite(layer, img, glow_mask(w, h, cx * k, cy * k, rx * k, ry * k, strength))
+        img = Image.composite(
+            layer, img, glow_mask(w, h, cx * k, cy * k, rx * k, ry * k, strength)
+        )
     return img
 
 
@@ -367,8 +456,12 @@ def brand_corner(im, radius):
     """The brand corner (--radius-brand, 20px 5px): radius top left and bottom right, a quarter of it elsewhere."""
     box = (0, 0, im.width - 1, im.height - 1)
     big, small = Image.new("L", im.size, 0), Image.new("L", im.size, 0)
-    ImageDraw.Draw(big).rounded_rectangle(box, radius, fill=255, corners=(True, False, True, False))
-    ImageDraw.Draw(small).rounded_rectangle(box, radius / 4, fill=255, corners=(False, True, False, True))
+    ImageDraw.Draw(big).rounded_rectangle(
+        box, radius, fill=255, corners=(True, False, True, False)
+    )
+    ImageDraw.Draw(small).rounded_rectangle(
+        box, radius / 4, fill=255, corners=(False, True, False, True)
+    )
     return ImageChops.multiply(big, small)
 
 
@@ -389,21 +482,36 @@ def render(name, accent="teal", k=1, canvas=None, margin=0, content=True):
         for file, cx, cy, lh in s["logos"]["items"]:
             path = CLIENTS / file
             if path.suffix == ".svg":
-                path = BytesIO(svg_to_bytes(svg_path=str(path), height=round(lh * k * 4), background="white"))
-            src = Image.open(path).convert("RGBA")  # raster marks have transparent grounds
+                path = BytesIO(
+                    svg_to_bytes(
+                        svg_path=str(path), height=round(lh * k * 4), background="white"
+                    )
+                )
+            src = Image.open(path).convert(
+                "RGBA"
+            )  # raster marks have transparent grounds
             lw = lh * src.width / src.height
             src = src.resize((round(lw * k), round(lh * k)), Image.LANCZOS)
-            band.paste(src, (round((cx + margin - lw / 2) * k) - x0, round((cy - lh / 2) * k) - y0), src)
+            band.paste(
+                src,
+                (round((cx + margin - lw / 2) * k) - x0, round((cy - lh / 2) * k) - y0),
+                src,
+            )
         mask = brand_corner(band, s["logos"]["radius"] * k)
         img.paste(band, (x0, y0), mask)
     lk = s["lockup"]
     lh = lk["h"] * k
     u = lh / LAYOUT_BOX[3]  # px per SVG unit
     lock = Image.open(LOCKUP).convert("RGBA")
-    lock = lock.resize((round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS)
+    lock = lock.resize(
+        (round(NIGHT_BOX[2] * u), round(NIGHT_BOX[3] * u)), Image.LANCZOS
+    )
     x = (lk["left"] + margin) * k
     top = lk["anchor"] * k - lh / 2 - LIFT * lh
-    x, top = x - (LAYOUT_BOX[0] - NIGHT_BOX[0]) * u, top - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u
+    x, top = (
+        x - (LAYOUT_BOX[0] - NIGHT_BOX[0]) * u,
+        top - (LAYOUT_BOX[1] - NIGHT_BOX[1]) * u,
+    )
     img.paste(lock, (round(x), round(top)), lock)
     return img
 
@@ -419,15 +527,24 @@ def build(out, accent):
         print(file, "ink", img.convert("L").point(lambda v: 255 * (v > 70)).getbbox())
     # Canva page 4200 x 700: the cover layout on a 1536 x 256 canvas, 12 px each side, scaled
     cv = {"canvas": (1536, 256), "margin": 12, "k": 4200 / 1536}
-    render("company-cover", accent, **cv).save(out / "linkedin-company-cover-canva-4200x700.png", optimize=True)
+    render("company-cover", accent, **cv).save(
+        out / "linkedin-company-cover-canva-4200x700.png", optimize=True
+    )
     render("company-cover", accent, content=False, **cv).save(
         out / "linkedin-company-cover-canva-background-4200x700.png", optimize=True
     )
 
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     p.add_argument("--accent", choices=ACCENTS, default="teal")
-    p.add_argument("--out", type=Path, default=DOCS, help="candidates go elsewhere; the default writes the shipped set")
+    p.add_argument(
+        "--out",
+        type=Path,
+        default=DOCS,
+        help="candidates go elsewhere; the default writes the shipped set",
+    )
     a = p.parse_args()
     build(a.out, a.accent)
