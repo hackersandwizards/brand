@@ -27,7 +27,6 @@ from pathlib import Path
 from runpy import run_path
 
 from fontTools.ttLib import TTFont
-
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 from resvg_py import svg_to_bytes
 
