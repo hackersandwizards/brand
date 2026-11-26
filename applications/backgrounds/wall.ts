@@ -33,11 +33,11 @@ export const fileSize = (f: WallFile) =>
   f === "ipad-home-wide" ? IPAD_WIDE : f === "mac-studio" ? STUDIO : DEVICES[fileDevice(f)];
 
 export const C = {
-  teal: colors["--color-teal"]!,
-  purple: colors["--color-purple"]!,
-  bg: colors["--color-bg"]!,
-  tealNight: colors["--color-teal-night"]!,
-  purpleNight: colors["--color-purple-night"]!,
+  teal: colors["--color-teal"],
+  purple: colors["--color-purple"],
+  bg: colors["--color-bg"],
+  tealNight: colors["--color-teal-night"],
+  purpleNight: colors["--color-purple-night"],
 };
 export const GRADIENT = `linear-gradient(180deg, ${C.purple}, ${C.teal})`;
 // Mid-tone ground for paired home screens: white iOS labels stay legible on it.

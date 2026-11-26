@@ -31,20 +31,22 @@ export function applyExceptions(
   exceptions: Record<string, unknown> = {},
   measured: string[] = off.map((r) => r.page),
 ) {
-  const entries = Object.entries(exceptions).map(([glob, e]) => ({
+  const entries: { glob: string; e: unknown; g: Bun.Glob; readings: Reading[] }[] = Object.entries(
+    exceptions,
+  ).map(([glob, e]) => ({
     glob,
     e,
     g: new Bun.Glob(glob),
+    readings: [],
   }));
-  const by = new Map<string, Reading[]>(entries.map(({ glob }) => [glob, []]));
   const bad: Reading[] = [];
   for (const r of off) {
     const hit = !r.double && entries.find(({ g }) => g.match(pathOf(r.page)));
-    if (hit) by.get(hit.glob)!.push(r);
+    if (hit) hit.readings.push(r);
     else bad.push(r);
   }
-  const findings = entries.flatMap(({ glob, e }) => {
-    const n = by.get(glob)!.length;
+  const findings = entries.flatMap(({ glob, e, readings }) => {
+    const n = readings.length;
     if (
       !isRecord(e) ||
       typeof e.reason !== "string" ||
@@ -59,6 +61,6 @@ export function applyExceptions(
     if (n > e.off) return [`markers exception "${glob}": ${n} off readings, ${e.off} kept`];
     return [];
   });
-  const kept = [...by.values()].flat();
+  const kept = entries.flatMap(({ readings }) => readings);
   return { bad, kept, findings };
 }

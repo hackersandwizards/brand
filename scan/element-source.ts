@@ -64,7 +64,7 @@ function componentFinding(path: string, raw: string, allow: Record<string, Excep
   const name = kebab(basename(path, ext));
   if (name in allow) return;
   // Each element the name names, such as callout and card in note-card; rendering one passes.
-  const elements = [...name.matchAll(NAMED_ALL)].map((m) => WORD[m[1]!]!);
+  const elements = [...name.matchAll(NAMED_ALL)].map(([, word]) => WORD[word]);
   if (!elements.length) return;
   if (elements.some((e) => new RegExp(RENDERS[e] ?? `(?<![\\w-])hw-${e}(?![\\w-])`).test(raw)))
     return;

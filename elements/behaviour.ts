@@ -90,7 +90,7 @@ function dialogBackdrop() {
 function onDialogClick(target: HTMLElement) {
   const opener = target.closest<HTMLElement>("[data-hw-open]");
   if (opener) {
-    const dialog = byId(opener.dataset.hwOpen!);
+    const dialog = byId(opener.getAttribute("data-hw-open"));
     if (dialog instanceof HTMLDialogElement) openDialog(dialog);
   }
   if (target.closest("[data-hw-close]")) target.closest("dialog")?.close();
@@ -98,11 +98,9 @@ function onDialogClick(target: HTMLElement) {
 
 // Tabs: arrow keys move focus and show the panel; the list is one stop in the Tab order.
 function tabsOf(tab: HTMLElement) {
-  return [
-    ...tab
-      .closest('[role="tablist"]')!
-      .querySelectorAll<HTMLElement>('[role="tab"]:not([disabled])'),
-  ];
+  const list = tab.closest('[role="tablist"]');
+  if (list === null) throw new Error('Tablist missing: tab requires a [role="tablist"] ancestor');
+  return [...list.querySelectorAll<HTMLElement>('[role="tab"]:not([disabled])')];
 }
 function selectTab(tab: HTMLElement) {
   for (const t of tabsOf(tab)) {
@@ -133,8 +131,10 @@ function onTabKey(e: KeyboardEvent, tab: HTMLElement) {
             : -1;
   if (to < 0) return;
   e.preventDefault();
-  tabs[to]!.focus();
-  selectTab(tabs[to]!);
+  const next = tabs[to];
+  if (next === undefined) throw new Error(`Tab missing: index ${to}`);
+  next.focus();
+  selectTab(next);
 }
 
 /** Selects the clicked tab and reveals its panel. */

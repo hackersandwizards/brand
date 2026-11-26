@@ -53,11 +53,12 @@ const toggle = readFileSync(join(ROOT, "expert/components/ThemeToggle.astro"), "
   /^---[^]*?---\s*(<button[^]*?<\/button>)\s*<script>([^]*?)<\/script>/,
 );
 if (!toggle) throw new Error("portal: ThemeToggle.astro is no longer a button and a script");
-const themeToggle = toggle[1]!.replace(
+const [, toggleButton, toggleSource] = toggle;
+const themeToggle = toggleButton.replace(
   /\{(SUN|MOON)\}/g,
   (_, k: string) => `"${k === "SUN" ? SUN : MOON}"`,
 );
-const themeScript = new Bun.Transpiler({ loader: "ts" }).transformSync(toggle[2]!);
+const themeScript = new Bun.Transpiler({ loader: "ts" }).transformSync(toggleSource);
 
 const header = `<header class="hw-header">
 <div class="hw-header-strip"></div>

@@ -18,8 +18,11 @@ const NIGHT: [string, string][] = [
 ].map(([day, night]) => [tokenHex(day), tokenHex(night)]);
 
 /** The SVG coordinate system as x, y, width and height. */
-export const readViewBox = (svg: string) =>
-  /viewBox="([^"]+)"/.exec(svg)![1].split(" ").map(Number);
+export const readViewBox = (svg: string) => {
+  const viewBox = /viewBox="([^"]+)"/.exec(svg)?.[1];
+  if (viewBox === undefined) throw new Error("SVG viewBox missing: logo SVG");
+  return viewBox.split(" ").map(Number);
+};
 
 /** The box holding `ink` (x0 y0 x1 y1), grown from `box` (x y w h) by the base's rule. */
 export function grow(base: string, box: number[], ink: number[]) {

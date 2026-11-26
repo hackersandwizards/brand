@@ -32,7 +32,9 @@ function onMenuKey(e: KeyboardEvent, menu: HTMLElement) {
     next = typeahead(items, e.key, now);
   if (next < 0) return;
   e.preventDefault();
-  items[next]!.focus();
+  const item = items[next];
+  if (item === undefined) throw new Error(`Menu item missing: index ${next}`);
+  item.focus();
 }
 
 const firstFocus = new WeakMap<HTMLElement, "first" | "last">();
@@ -120,7 +122,9 @@ export function installContextMenusAndTooltips() {
   document.addEventListener("contextmenu", (e) => {
     const host = (e.target as HTMLElement).closest<HTMLElement>("[data-hw-context]");
     if (!host) return;
-    const pop = document.getElementById(host.dataset.hwContext!);
+    const id = host.dataset.hwContext;
+    if (id === undefined) return;
+    const pop = document.getElementById(id);
     if (!pop) return;
     e.preventDefault();
     pop.showPopover();

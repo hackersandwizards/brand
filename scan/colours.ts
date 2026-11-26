@@ -64,9 +64,13 @@ export type AllowlistBaseline = {
 };
 export const ALLOWLIST = "brand-colours.json";
 
-/** Whether an entry is a partner's mark: an SVG naming the third party it belongs to. */
-export const isPartner = (file: string, e: Allowlist[string] | undefined) =>
-  Boolean(e?.partner?.trim()) && extname(file) === ".svg";
+/** The partner entry for an SVG naming the third party it belongs to. */
+const partnerEntry = (file: string, entry: Allowlist[string] | undefined) =>
+  entry?.partner?.trim() && extname(file) === ".svg" ? entry : undefined;
+
+/** Whether an entry is a partner's mark. */
+export const isPartner = (file: string, entry: Allowlist[string] | undefined) =>
+  partnerEntry(file, entry) !== undefined;
 
 /** The allowlist's sum of one metric, the files in `skip` left out. */
 const metricTotal = (allow: Allowlist, k: Metric, skip: Set<string>) =>
@@ -161,8 +165,9 @@ export const tighten = (
   const next = new Map<string, Allowlist[string]>();
   for (const [file, counts] of Object.entries(files)) {
     const prior = allow?.[file];
-    if (isPartner(file, prior)) {
-      next.set(file, prior!);
+    const partner = partnerEntry(file, prior);
+    if (partner) {
+      next.set(file, partner);
       continue;
     }
     const limit = (k: Metric) =>

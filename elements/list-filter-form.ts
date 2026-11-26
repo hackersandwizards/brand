@@ -45,13 +45,19 @@ export class FilterForm {
   private readonly filtersWord: string;
 
   constructor(root: HTMLElement) {
-    this.form = root.querySelector("form")!;
-    this.input = this.form.querySelector<HTMLInputElement>('input[name="q"]')!;
+    const form = root.querySelector("form");
+    if (form === null) throw new Error("List filter form missing");
+    this.form = form;
+    const input = form.querySelector<HTMLInputElement>('input[name="q"]');
+    if (input === null) throw new Error('List filter query field missing: input[name="q"]');
+    this.input = input;
     this.radios = [...this.form.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
     this.selects = [...this.form.querySelectorAll("select")];
     this.clears = root.querySelectorAll<HTMLElement>("[data-filter-clear]");
     this.fullTexts = root.querySelectorAll<HTMLAnchorElement>("[data-filter-fulltext]");
-    this.panel = root.querySelector<HTMLElement>("[data-filter-panel]")!;
+    const panel = root.querySelector<HTMLElement>("[data-filter-panel]");
+    if (panel === null) throw new Error("List filter panel missing: [data-filter-panel]");
+    this.panel = panel;
     this.toggle = root.querySelector<HTMLButtonElement>("[data-filter-toggle]");
     // The button's text sits in its [data-filter-label], its own word in data-filters; markup
     // without them keeps the button's text as that word.
@@ -127,7 +133,10 @@ export class FilterForm {
   /** Offer to continue an active query in the full-text search. */
   showFullText(q: string) {
     for (const link of this.fullTexts) {
-      link.href = fullTextUrl(link.dataset.filterFulltext!, q);
+      const base = link.dataset.filterFulltext;
+      if (base === undefined)
+        throw new Error("Full-text search address missing: data-filter-fulltext");
+      link.href = fullTextUrl(base, q);
       link.hidden = !q;
     }
   }
@@ -136,8 +145,10 @@ export class FilterForm {
   showCounts(items: FilterItem[], state: FilterState) {
     for (const { set, param } of this.sets) {
       const chips = tally(items, state, param);
-      for (const each of set.querySelectorAll<HTMLElement>("[data-facet-count]"))
-        each.textContent = String(chips.get(each.dataset.facetCount!) ?? 0);
+      for (const each of set.querySelectorAll<HTMLElement>("[data-facet-count]")) {
+        const value = each.dataset.facetCount;
+        each.textContent = String((value === undefined ? undefined : chips.get(value)) ?? 0);
+      }
     }
     for (const select of this.selects) {
       const counts = tally(items, state, select.name);

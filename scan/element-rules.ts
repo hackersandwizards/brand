@@ -4,8 +4,10 @@ import catalogs from "../expert/catalogs.json";
 
 // A tile's links naming the sample's source: into brand's published portal, or to the element's
 // entry on any host (a portal served locally).
-const BRAND = catalogs.find((c) => c.name === "Brand")!;
-const SOURCE = `[href^="${BRAND.portal}"], [href$="${BRAND.anchors!.element.replace("<element>", "focus-ring")}"]`;
+const BRAND = catalogs.find((c) => c.name === "Brand");
+if (BRAND === undefined) throw new Error("Catalog entry missing: Brand");
+if (BRAND.anchors === undefined) throw new Error("Catalog anchors missing: Brand");
+const SOURCE = `[href^="${BRAND.portal}"], [href$="${BRAND.anchors.element.replace("<element>", "focus-ring")}"]`;
 
 const DIR = join(import.meta.dir, "../elements");
 /** Each element by name: the selector that finds it on a page. */

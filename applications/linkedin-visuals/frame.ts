@@ -43,9 +43,9 @@ const CARD = colors["--color-bg"];
 
 /** Sets the inner image's paper to exactly the card's colour; returns the path to frame. */
 async function matchPaper(input: string, dir: string): Promise<string> {
-  const card = CARD.slice(1)
-    .match(/../g)!
-    .map((h) => parseInt(h, 16));
+  const channels = CARD.slice(1).match(/../g);
+  if (channels === null) throw new Error(`Card colour channels missing: ${CARD}`);
+  const card = channels.map((h) => parseInt(h, 16));
   const sharp = await loadSharp();
   // Upright and in three colour channels, whatever the file's orientation and colour space.
   const { data, info } = await sharp(input)

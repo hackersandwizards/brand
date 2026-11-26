@@ -35,7 +35,7 @@ const wordText = (v: string | null, lang: string) =>
 const wordsHtml = `<p>The claim, mission, vision, values and terms as ${code("verbal/verbal.json")}, exported as ${code("@hackersandwizards/brand/verbal.json")}: a surface imports the text instead of retyping it. Source: ${esc(verbal.source)}</p>
 <table class="hw-table words words-cols"><thead><tr><th>Element</th><th>English</th><th>Deutsch</th></tr></thead><tbody>${PAIRS.map(
   (k) =>
-    `<tr><td><strong>${k[0]!.toUpperCase() + k.slice(1)}</strong>${metaOf(k)}</td><td data-lang>${tag("EN")}${wordText(verbal[k].en, "en")}</td><td data-lang>${tag("DE")}${wordText(verbal[k].de, "de")}</td></tr>`,
+    `<tr><td><strong>${k.charAt(0).toUpperCase() + k.slice(1)}</strong>${metaOf(k)}</td><td data-lang>${tag("EN")}${wordText(verbal[k].en, "en")}</td><td data-lang>${tag("DE")}${wordText(verbal[k].de, "de")}</td></tr>`,
 ).join("")}</tbody></table>
 <h3>Name, values, terms</h3>
 ${table(

@@ -11,6 +11,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { decodeEscaped } from "../scan/help";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 // Its own pointer test, not scan/assets.ts: the Astro config loads this under Vite, without Bun's
@@ -47,12 +48,10 @@ const isServed = (path: string) => {
 
 /** The dev server's middleware. Astro hands it the path below the base; the base is the portal. */
 export function serveFile(req: IncomingMessage, res: ServerResponse, next: () => void) {
-  let path: string;
-  try {
-    path = decodeURIComponent(new URL(req.url ?? "/", "http://x").pathname);
-  } catch {
-    return next(); // A malformed escape names no file.
-  }
+  const url = URL.parse(req.url ?? "/", "http://x");
+  if (url === null) return next();
+  const path = decodeEscaped(url.pathname);
+  if (path === undefined) return next(); // A malformed escape names no file.
   if (path === "/") {
     req.url = "/index.html";
     return next();

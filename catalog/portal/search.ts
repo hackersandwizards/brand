@@ -1,8 +1,11 @@
+import { decodeEscaped } from "../../scan/help";
+
 export type PortalSearchEntry = { t: string; k: string; h: string; x?: string };
 export type SearchableSection = { html: string; index: PortalSearchEntry[] };
 
 // Embeds the search index and the browser program that opens and filters the views.
 export const searchScript = (index: PortalSearchEntry[]) => `<script>
+const decodeHash = ${decodeEscaped.toString()};
 const INDEX = ${JSON.stringify(index).replace(/</g, "\\u003c")};
 const cat = document.querySelector(".hw-catalog"), q = cat.querySelector(".hw-catalog-search"), results = document.getElementById("results");
 const tiles = [...cat.querySelectorAll(".hw-catalog-tile")];
@@ -10,8 +13,7 @@ const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;
 const words = () => q.value.toLowerCase().split(/\\s+/).filter(Boolean);
 const show = () => {
   const raw = location.hash.slice(1);
-  let decoded = raw;
-  try { decoded = decodeURIComponent(raw); } catch {} // a stray % in a hand-typed link
+  const decoded = decodeHash(raw) ?? raw; // a stray % in a hand-typed link
   const [page, anchor] = decoded.split("/");
   const view = document.querySelector('section[data-page="' + CSS.escape(page) + '"]') ? page : "";
   const searching = words().length > 0;

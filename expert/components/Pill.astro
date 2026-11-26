@@ -57,7 +57,7 @@ else {
   const named = (prefix: string) =>
     words
       .filter((c) => c.startsWith(prefix))
-      .map((c) => c.slice(prefix.length).split("/")[0]!)
+      .map((c) => c.slice(prefix.length).split("/")[0])
       .find((h) => !NOT_HUE.test(h));
   const hue = named("bg-") ?? named("text-");
   if (!hue || hue === "muted" || hue === "foreground") attrs["data-tone"] = "neutral";

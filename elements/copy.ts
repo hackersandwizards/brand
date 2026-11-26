@@ -22,6 +22,11 @@ let presses = 0;
 export const modalOrBody = () => document.querySelector("dialog:modal") ?? document.body;
 export const german = () => (document.documentElement.lang || "de").startsWith("de");
 
+function containsCopyText(content: string | null, text: string) {
+  if (content === null) throw new Error("Text content missing: copy selection candidate");
+  return content.includes(text);
+}
+
 /** Whether `text` stands on the page outside the copy buttons, so selecting it is a way out. */
 function onPage(text: string) {
   const t = text.trim();
@@ -30,7 +35,7 @@ function onPage(text: string) {
   for (let n = walk.nextNode(); n; n = walk.nextNode()) {
     const el = n.parentElement;
     if (
-      n.textContent!.includes(t) &&
+      containsCopyText(n.textContent, t) &&
       el &&
       !el.closest("[data-hw-copy]") &&
       (el.checkVisibility?.() ?? el.getClientRects().length > 0)
@@ -67,38 +72,45 @@ function copyStatus() {
   return status;
 }
 
-/** Writes `text` to the clipboard, through a hidden field where the Clipboard API is missing or
- *  refuses. */
-async function write(text: string) {
+/** Writes `text` through a hidden field on browsers without an available clipboard. */
+function legacyCopy(text: string) {
+  const field = document.createElement("textarea");
+  field.value = text;
+  field.readOnly = true;
+  // 16 px keeps a phone's Safari from zooming in on the focused field.
+  field.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px";
+  const back = document.activeElement as HTMLElement | null;
+  modalOrBody().append(field);
+  field.select();
+  // A phone's Safari selects nothing in a read-only field without a range.
+  field.setSelectionRange(0, text.length);
   try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    const field = document.createElement("textarea");
-    field.value = text;
-    field.readOnly = true;
-    // 16 px keeps a phone's Safari from zooming in on the focused field.
-    field.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px";
-    const back = document.activeElement as HTMLElement | null;
-    modalOrBody().append(field);
-    field.select();
-    // A phone's Safari selects nothing in a read-only field without a range.
-    field.setSelectionRange(0, text.length);
-    let ok = false;
-    try {
-      ok = document.execCommand("copy");
-    } catch (error) {
-      if (!(error instanceof DOMException && error.name === "InvalidStateError")) throw error;
-    } finally {
-      field.remove();
-      back?.focus({ preventScroll: true });
-    }
-    return ok;
+    return document.execCommand("copy");
+  } catch (error) {
+    if (!(error instanceof DOMException && error.name === "InvalidStateError")) throw error;
+    return false;
+  } finally {
+    field.remove();
+    back?.focus({ preventScroll: true });
   }
 }
 
-function restore(button: HTMLElement) {
-  button.replaceChildren(...labels.get(button)!);
+/** Writes `text` to the clipboard, through a hidden field where the Clipboard API is missing or
+ *  refuses. */
+async function write(text: string, clipboard: Clipboard | undefined) {
+  if (typeof clipboard?.writeText !== "function") return legacyCopy(text);
+  try {
+    await clipboard.writeText(text);
+    return true;
+  } catch (error) {
+    if (!(error instanceof DOMException && error.name === "NotAllowedError")) throw error;
+  }
+  return legacyCopy(text);
+}
+
+function restore(button: HTMLElement, label: Node[] | undefined) {
+  if (label === undefined) throw new Error("Copy label missing: button was not wired");
+  button.replaceChildren(...label);
   shown.delete(button);
 }
 
@@ -121,7 +133,8 @@ function showCopyOutcome(
   language: "de" | "en",
 ) {
   // The write that lands last holds the clipboard, so its button alone reads as copied.
-  if (outcome === "copied") for (const other of shown) if (other !== button) restore(other);
+  if (outcome === "copied")
+    for (const other of shown) if (other !== button) restore(other, labels.get(other));
   for (const other of shown) if (!other.isConnected) shown.delete(other);
   shown.add(button);
   const message = COPY_MESSAGES[outcome][language];
@@ -151,7 +164,7 @@ async function pressCopyButton(button: HTMLElement) {
   latest.set(button, press);
   const language = german() ? "de" : "en";
   const text = button.dataset.hwCopy ?? "";
-  const ok = await write(text);
+  const ok = await write(text, globalThis.navigator?.clipboard);
   button.dispatchEvent(new CustomEvent("hw-copy", { bubbles: true, detail: { ok } }));
   // A newer press of the same button decides what it says.
   if (latest.get(button) !== press) return;

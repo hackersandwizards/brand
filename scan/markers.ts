@@ -111,11 +111,13 @@ export async function measureMarkers(
 if (import.meta.main) {
   answerHelp(USAGE);
   const args = process.argv.slice(2);
-  const opt = (name: string, fallback: string) => {
+  const opt = (name: string, fallback: string): string | undefined => {
     const i = args.indexOf(name);
-    return i < 0 ? fallback : args.splice(i, 2)[1]!;
+    return i < 0 ? fallback : args.splice(i, 2)[1];
   };
-  const scales = opt("--scale", "2,4").split(",").map(Number);
+  const scale = opt("--scale", "2,4");
+  if (scale === undefined) throw new Error("Option value missing: --scale");
+  const scales = scale.split(",").map(Number);
   const width = Number(opt("--width", "1280"));
   const flagSite = opt("--site", "");
   const flagSiteAt = opt("--site-at", "");
@@ -195,40 +197,45 @@ if (import.meta.main) {
       Array.from({ length: workers }, () => browser.createBrowserContext()),
     );
     const stories = pages.slice(named.length);
-    const marked = await pool(stories, tabs(4 * workers), (url, w) =>
-      hasMarkers(contexts[w % workers]!, url, {
+    const marked = await pool(stories, tabs(4 * workers), (url, w) => {
+      const context = contexts[w % workers];
+      if (context === undefined)
+        throw new Error(`Browser context missing: story ${url}, worker ${w}`);
+      return hasMarkers(context, url, {
         scale: scales[0],
         width,
         csp,
         refused,
-      }),
-    );
+      });
+    });
     const runs = [...pages.slice(0, named.length), ...stories.filter((_, i) => marked[i])].flatMap(
       (url) => scales.flatMap((scale) => [false, true].map((newline) => ({ url, scale, newline }))),
     );
     readings = (
-      await pool(runs, workers, async ({ url, ...options }, w) =>
-        fallbacks.has(url)
-          ? []
-          : measureMarkers(contexts[w]!, url, {
-              ...options,
-              width,
-              csp,
-              // Once per page: a story's in the first pass, a named page's in its first run.
-              refused:
-                options.scale === scales[0] && !options.newline && !stories.includes(url)
-                  ? refused
-                  : undefined,
-              exceptions,
-              excepted,
-            }).catch((e) => {
-              if (!(e instanceof FallbackFace)) throw e;
-              // A story's refusals came from the first pass.
-              if (!fallbacks.has(url) && !stories.includes(url)) refused.push(...e.refused);
-              fallbacks.set(url, e.message);
-              return [];
-            }),
-      )
+      await pool(runs, workers, async ({ url, ...options }, w) => {
+        if (fallbacks.has(url)) return [];
+        const context = contexts[w];
+        if (context === undefined)
+          throw new Error(`Browser context missing: page ${url}, worker ${w}`);
+        return measureMarkers(context, url, {
+          ...options,
+          width,
+          csp,
+          // Once per page: a story's in the first pass, a named page's in its first run.
+          refused:
+            options.scale === scales[0] && !options.newline && !stories.includes(url)
+              ? refused
+              : undefined,
+          exceptions,
+          excepted,
+        }).catch((e) => {
+          if (!(e instanceof FallbackFace)) throw e;
+          // A story's refusals came from the first pass.
+          if (!fallbacks.has(url) && !stories.includes(url)) refused.push(...e.refused);
+          fallbacks.set(url, e.message);
+          return [];
+        });
+      })
     ).flat();
   } finally {
     await browser.close();

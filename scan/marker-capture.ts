@@ -1,6 +1,42 @@
 import type { JSHandle, Page } from "puppeteer-core";
 import type { Box, Found, Probe } from "./marker-dom";
 
+/** Finds the CSS-pixel origin of an element's content box. */
+export function contentLeft(el: Element) {
+  const s = getComputedStyle(el);
+  // Under a CSS zoom a rect is in zoomed px and a computed length is not.
+  return (
+    el.getBoundingClientRect().left +
+    (parseFloat(s.borderLeftWidth) + parseFloat(s.paddingLeft)) * el.currentCSSZoom
+  );
+}
+
+// Where the item's first line starts: its first content, text or an element such as a code chip.
+export function lineStart(host: Element) {
+  for (const n of host.childNodes) {
+    if (n instanceof Text && !n.data.trim()) continue;
+    const range = document.createRange();
+    range.selectNodeContents(n);
+    if (n instanceof Text) range.setStart(n, n.data.length - n.data.trimStart().length);
+    const r = n instanceof Element ? n.getClientRects()[0] : range.getClientRects()[0];
+    if (r) return r.left;
+  }
+  return contentLeft(host);
+}
+
+/** Measures the band painted by four characters of a line. */
+export function rectOf(node: Text, start = 0) {
+  const range = document.createRange();
+  range.setStart(node, start);
+  range.setEnd(node, start + 4);
+  const rect = range.getClientRects()[0];
+  if (rect === undefined) throw new Error(`Text band rectangle missing: offset ${start}`);
+  return rect;
+}
+
+/** Declares text geometry readers in the browser's private measurement scope. */
+export const markerLineFunctions = [contentLeft, lineStart, rectOf];
+
 /** Selects the clips with measurable boxes, keeping their corresponding anchor index. */
 export function readableProbes(found: JSHandle<Found>) {
   return found.evaluate(({ probes }) =>
@@ -133,30 +169,33 @@ async function inkMiddle(png: string, scale: number, split: number): Promise<[nu
   const img = await createImageBitmap(
     new Blob([Uint8Array.from(atob(png), (c) => c.charCodeAt(0))], { type: "image/png" }),
   );
-  const ctx = new OffscreenCanvas(img.width, img.height).getContext("2d")!;
+  const ctx = new OffscreenCanvas(img.width, img.height).getContext("2d");
+  if (ctx === null) throw new Error("Canvas context missing: marker screenshot");
   ctx.drawImage(img, 0, 0);
   const { data, width, height } = ctx.getImageData(0, 0, img.width, img.height);
   const counts = new Map<number, number>();
   for (let i = 0; i < data.length; i += 4) {
-    const key = (data[i]! << 16) | (data[i + 1]! << 8) | data[i + 2]!;
+    const key = (data[i] << 16) | (data[i + 1] << 8) | data[i + 2];
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  const bg = [...counts].sort((a, b) => b[1] - a[1])[0]![0];
-  const total = [0, 0];
-  const sum = [0, 0];
+  const [background] = [...counts].sort((a, b) => b[1] - a[1]);
+  if (background === undefined) throw new Error("Background colour missing: marker screenshot");
+  const [bg] = background;
+  const total: [number, number] = [0, 0];
+  const sum: [number, number] = [0, 0];
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
       const ink = Math.hypot(
-        data[i]! - (bg >> 16),
-        data[i + 1]! - ((bg >> 8) & 255),
-        data[i + 2]! - (bg & 255),
+        data[i] - (bg >> 16),
+        data[i + 1] - ((bg >> 8) & 255),
+        data[i + 2] - (bg & 255),
       );
       const side = x + 0.5 < split * scale ? 0 : 1;
-      total[side]! += ink;
-      sum[side]! += ink * (y + 0.5);
+      total[side] += ink;
+      sum[side] += ink * (y + 0.5);
     }
   // -1 for no ink, as NaN and Infinity leave the page as null.
-  const middle = (side: number) => (total[side] ? sum[side]! / total[side]! / scale : -1);
+  const middle = (side: 0 | 1) => (total[side] ? sum[side] / total[side] / scale : -1);
   return [middle(0), middle(1)];
 }

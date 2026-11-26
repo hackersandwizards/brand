@@ -18,7 +18,7 @@ type Family = {
   // its repository on GitHub.
   links?: [string, string][];
 };
-const FAMILIES: Family[] = [
+const FAMILY_DESCRIPTIONS: Family[] = [
   {
     id: "backgrounds",
     title: "Backgrounds for devices and calls",
@@ -113,11 +113,13 @@ const FAMILIES: Family[] = [
   },
 ];
 
-const familyStems = new Map(
-  FAMILIES.map((f) => [f.id, f.dir ? assetStems(f.dir) : new Map<string, ApplicationAsset>()]),
-);
-const fileCount = (id: string) =>
-  [...familyStems.get(id)!.values()].reduce((count, asset) => count + asset.files.length, 0);
+const FAMILIES = FAMILY_DESCRIPTIONS.map((f) => ({
+  ...f,
+  stems: f.dir ? assetStems(f.dir) : new Map<string, ApplicationAsset>(),
+}));
+type FamilyWithAssets = (typeof FAMILIES)[number];
+const fileCount = (family: FamilyWithAssets) =>
+  [...family.stems.values()].reduce((count, asset) => count + asset.files.length, 0);
 
 // Links an asset's variants and registers its stem and filenames for search.
 function renderApplicationCard(asset: ApplicationAsset, family: Family) {
@@ -134,11 +136,9 @@ function renderApplicationCard(asset: ApplicationAsset, family: Family) {
 }
 
 // Presents a file-based family's tracked variants and their search entries.
-function renderAssetCards(family: Family): SearchableSection {
+function renderAssetCards(family: FamilyWithAssets): SearchableSection {
   if (!family.dir) return { html: "", index: [] };
-  const cards = [...familyStems.get(family.id)!.values()].map((asset) =>
-    renderApplicationCard(asset, family),
-  );
+  const cards = [...family.stems.values()].map((asset) => renderApplicationCard(asset, family));
   return {
     html: `<div class="assets">${cards.map(({ html }) => html).join("")}</div>`,
     index: cards.map(({ entry }) => entry),
@@ -157,8 +157,10 @@ function familyHtml(f: Family, body: string) {
 export function renderApplications(assets: PortalAssets): SearchableSection {
   // A family that draws its own section instead of one card per file.
   // Search lists these sections first, then the tracked-file cards in family order.
+  const merch = FAMILIES.find(({ id }) => id === "merch");
+  if (merch === undefined) throw new Error("Application family missing: merch");
   const sections = new Map<string, SearchableSection>([
-    ["merch", renderMerch(familyStems.get("merch")!)],
+    ["merch", renderMerch(merch.stems)],
     ["device-stickers", renderDeviceStickers(assets)],
     ["mail-signature", renderSignature(assets)],
   ]);
@@ -172,7 +174,7 @@ ${table(
   ["Family", "Files"],
   FAMILIES.map((f) => [
     `<a href="#applications/app-${f.id}">${esc(f.title)}</a>`,
-    f.dir ? String(fileCount(f.id)) : "",
+    f.dir ? String(fileCount(f)) : "",
   ]),
 )}
 ${families.join("")}`;
@@ -180,10 +182,10 @@ ${families.join("")}`;
 }
 
 // Picks the format the family tile can show directly.
-const familyPreview = (f: Family, assets: PortalAssets) => {
+const familyPreview = (f: FamilyWithAssets, assets: PortalAssets) => {
   if (f.id === "merch") return merchPreview();
   if (f.id === "mail-signature") return signaturePreview(assets);
-  const files = [...familyStems.get(f.id)!.values()].flatMap(({ files }) => files);
+  const files = [...f.stems.values()].flatMap(({ files }) => files);
   const svg = files.find((x) => x.endsWith(".svg"));
   const png = files.find((x) => x.endsWith(".png"));
   return svg
@@ -200,7 +202,7 @@ export const applicationsGroup = (assets: PortalAssets): CatalogGroup => ({
     name: f.title,
     href: `#applications/app-${f.id}`,
     note: f.dir ?? "@hackersandwizards/documents",
-    pill: f.dir ? `${fileCount(f.id)} files` : undefined,
+    pill: f.dir ? `${fileCount(f)} files` : undefined,
     html: familyPreview(f, assets),
   })),
 });

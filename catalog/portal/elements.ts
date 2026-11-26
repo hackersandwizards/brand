@@ -25,12 +25,13 @@ const SCALES: [string, string][] = [
 const elementDoc = (file: string) => {
   const head = readFileSync(join(ROOT, "elements", `${file}.css`), "utf8").match(
     /^\/\*([\s\S]*?)\*\//,
-  )![1]!;
+  )?.[1];
+  if (head === undefined) throw new Error(`Opening comment missing: elements/${file}.css`);
   const [rule, settings = ""] = head.split(/\n\s*Settings[^\n]*\n/);
-  const words = rule!.replace(/\s+/g, " ").trim();
+  const words = rule.replace(/\s+/g, " ").trim();
   return {
     words: words.match(/^.*?\.(?=\s|$)/)?.[0] ?? words,
-    names: [...settings.matchAll(/(--hw-[\w-]+)/g)].map((m) => m[1]!),
+    names: [...settings.matchAll(/(--hw-[\w-]+)/g)].map(([, setting]) => setting),
   };
 };
 // A sample's ids, every attribute naming one of them and its radio groups' names, suffixed so they
@@ -75,7 +76,15 @@ const KEYWORDS: Record<string, string> = {
   carousel: "slider swipe scroller",
 };
 // Renders a shared element at all four scales and indexes its title, CSS file and keywords.
-const elementHtml = ({ name, title, file }: { name: string; title: string; file: string }) => {
+const elementHtml = ({
+  name,
+  title,
+  file,
+}: {
+  name: (typeof SECTIONS)[number][1][number][0];
+  title: string;
+  file: string;
+}) => {
   const { words, names } = elementDoc(file);
   const entry: PortalSearchEntry = {
     t: title.toLowerCase(),
@@ -84,7 +93,7 @@ const elementHtml = ({ name, title, file }: { name: string; title: string; file:
     x: `hw-${name} ${file}.css${KEYWORDS[name] ? ` ${KEYWORDS[name]}` : ""}`,
   };
   const cell = (scale: string, night: boolean) =>
-    `<div class="el-cell" data-hw-scale="${scale}" ${night ? 'data-theme="dark" data-hw-night' : 'data-theme="light"'}><div class="el-inner">${uniqueIds(DEMOS[name]!, `${scale}${night ? "-night" : ""}`)}</div></div>`;
+    `<div class="el-cell" data-hw-scale="${scale}" ${night ? 'data-theme="dark" data-hw-night' : 'data-theme="light"'}><div class="el-inner">${uniqueIds(DEMOS[name], `${scale}${night ? "-night" : ""}`)}</div></div>`;
   const html = `<h4 id="hw-${name}">${title} <code>${CLASS[name] ?? `.hw-${name}`}</code></h4>
 <p class="meta">${code(`elements/${file}.css`)} · brand v${pkg.version}</p>
 <p>${esc(words)}</p>
@@ -135,7 +144,7 @@ ${sections.map(({ section, cards }) => `<h3 id="${sectionId(section)}">${section
         href: `#elements/hw-${name}`,
         note: `${CLASS[name] ?? `.hw-${name}`} · elements/${file}.css`,
         pill: section,
-        html: assets.sampleFrame(DEMOS[name]!),
+        html: assets.sampleFrame(DEMOS[name]),
       })),
     ],
   };

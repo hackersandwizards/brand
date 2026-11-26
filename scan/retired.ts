@@ -13,6 +13,7 @@ import {
 import { join } from "node:path";
 import verbal from "../verbal/verbal.json";
 import { answerHelp } from "./help";
+import { statIfPresent } from "./site";
 
 const USAGE = `usage: brand-retired <dir or file>...
 Fails where a text file in the named built folders or files carries a line of verbal.json's
@@ -85,7 +86,8 @@ const RETIRED = verbal.retired.map((r) => {
   );
   const capital = "capital" in r && r.capital;
   const hit = (f: string) => {
-    for (const m of f.matchAll(re)) if (!capital || /\p{Lu}/u.test(m[0][0]!)) return true;
+    for (const [matched] of f.matchAll(re))
+      if (!capital || /\p{Lu}/u.test(matched.charAt(0))) return true;
     return false;
   };
   return [r.text, hit] as const;
@@ -113,18 +115,11 @@ const textOf = (path: string) => {
 
 // statSync follows a symlinked file, which a Dirent's isFile() does not; a link that leads
 // nowhere, in a loop or through a file is none.
-const isFile = (f: string) => {
-  try {
-    return statSync(f).isFile();
-  } catch {
-    return false;
-  }
-};
 const filesUnder = (path: string): string[] =>
   statSync(path).isDirectory()
     ? readdirSync(path, { recursive: true, encoding: "utf8" })
         .map((f) => join(path, f))
-        .filter(isFile)
+        .filter((file) => statIfPresent(file)?.isFile())
     : [path];
 
 /** Scans each distinct file once and identifies arguments with no readable text. */

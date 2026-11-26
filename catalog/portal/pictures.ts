@@ -9,12 +9,19 @@ import { otherTokens, source } from "./token-reference";
 
 // The four chapters on pictures and motion, whose motion rule, sketch style and constraints and
 // photo credit are read from the files that own them, never retyped here.
-const promptLine = (prompt: string, key: string) =>
-  prompt.match(new RegExp(`^${key}: (.+)$`, "m"))![1]!.replace(/ \[[^\]]*\]/g, "");
-const motionRule = source
-  .match(/\/\*\s*Motion\. ([\s\S]*?)\*\/\s*--motion-fast/)![1]!
-  .replace(/\s+/g, " ")
-  .trim();
+const promptLine = (prompt: string, key: string) => {
+  const line = prompt.match(new RegExp(`^${key}: (.+)$`, "m"))?.[1];
+  if (line === undefined) throw new Error(`Sketch prompt line missing: ${key}`);
+  return line.replace(/ \[[^\]]*\]/g, "");
+};
+const motion = source.match(/\/\*\s*Motion\. ([\s\S]*?)\*\/\s*--motion-fast/)?.[1];
+if (motion === undefined) throw new Error("Motion rule missing: tokens/tokens.css");
+const motionRule = motion.replace(/\s+/g, " ").trim();
+const pressPreview = () => {
+  const [photo] = press.photos;
+  if (photo === undefined) throw new Error("Press photo missing: press/press.json");
+  return `press/${photo.file}`;
+};
 const sketchRule = (use: string, file: string) => {
   const prompt = readFileSync(join(ROOT, file), "utf8");
   return `<h3 class="label">Rule for ${use}</h3>
@@ -73,7 +80,7 @@ const picturesGroup: CatalogGroup = {
       name: "Photography",
       href: "#photography",
       note: `The press kit's ${press.photos.length} photos and their credit`,
-      image: `press/${press.photos[0]!.file}`,
+      image: pressPreview(),
     },
     {
       name: "Illustration",

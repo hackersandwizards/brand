@@ -38,14 +38,16 @@ const colourCell = (name: string, palette: string) => {
   const k = `--color-${name}`;
   const first = !anchored.has(k);
   anchored.add(k);
+  const hex = colors[k];
+  if (hex === undefined) throw new Error(`Colour token missing: ${k}`);
   if (first)
     index.push({
       t: k,
       k: "colour",
       h: `colours/color-${slug(name)}`,
-      x: `${colors[k]} ${palette}`,
+      x: `${hex} ${palette}`,
     });
-  return swatch(colors[k]!, code(name), first ? ` id="color-${slug(name)}"` : "");
+  return swatch(hex, code(name), first ? ` id="color-${slug(name)}"` : "");
 };
 const tintCell = (base: string, p: number) => {
   const k = tintToken(base, p);
@@ -62,6 +64,12 @@ const neutralRows = neutrals.map((r) => [
   colourCell(r.day, "Neutrals"),
   nightCell(r.night, "Neutrals"),
 ]);
+const chartCell = (series: string) => {
+  const label = code(series);
+  const colour = tokens[series]?.match(/--color-([\w-]+)/)?.[1];
+  if (colour === undefined) throw new Error(`Chart colour reference missing: ${series}`);
+  return `${label} ${code(colour)}`;
+};
 const hueRows = hues.map((r) => {
   const series = chartOf(r.base, r.text);
   return [
@@ -71,7 +79,7 @@ const hueRows = hues.map((r) => {
     nightCell(r.night, "Hues"),
     tintCell(r.base, 7),
     tintCell(r.base, 40),
-    series ? `${code(series)} ${code(tokens[series]!.match(/--color-([\w-]+)/)![1])}` : "",
+    series ? chartCell(series) : "",
   ];
 });
 const coloursHtml = `<p>Two palettes hold every brand colour. The neutrals build every page, by day and by night; the hues carry meaning. Copy a hex with a click.</p>

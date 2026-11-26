@@ -8,16 +8,19 @@ export const prerender = true;
 export const getStaticPaths = () =>
   Object.keys(portal().assets).map((name) => ({ params: { name } }));
 
-const TYPES: Record<string, string> = {
-  css: "text/css; charset=utf-8",
-  html: "text/html; charset=utf-8",
-  png: "image/png",
-};
+const TYPES = new Map([
+  ["css", "text/css; charset=utf-8"],
+  ["html", "text/html; charset=utf-8"],
+  ["png", "image/png"],
+]);
 
 export const GET: APIRoute = ({ params }) => {
-  const data = portal().assets[params.name!];
-  if (!data) return new Response("Not found", { status: 404 });
-  return new Response(Buffer.from(data, "base64"), {
-    headers: { "Content-Type": TYPES[params.name!.split(".").pop()!]! },
-  });
+  const assets = portal().assets;
+  const { name } = params;
+  const data = name === undefined ? undefined : assets[name];
+  if (name === undefined || !data) return new Response("Not found", { status: 404 });
+  const body = Buffer.from(data, "base64");
+  const type = TYPES.get(name.slice(name.lastIndexOf(".") + 1));
+  if (type === undefined) throw new Error(`Content type missing: ${name}`);
+  return new Response(body, { headers: { "Content-Type": type } });
 };

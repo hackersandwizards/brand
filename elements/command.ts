@@ -3,15 +3,17 @@ import { moveInList } from "./list-navigation.ts";
 
 // Command palette: focus stays in the field, the highlight moves over the visible options.
 export const commandInput = '.hw-command-field > [role="combobox"]';
+function commandList(input: Element) {
+  const id = input.getAttribute("aria-controls") ?? "";
+  const list = document.getElementById(id);
+  if (list === null) throw new Error(`Command option list missing: aria-controls="${id}"`);
+  return list;
+}
 const optionsOf = (input: Element) => [
-  ...document
-    .getElementById(input.getAttribute("aria-controls") ?? "")!
-    .querySelectorAll<HTMLElement>('[role="option"]:not([hidden])'),
+  ...commandList(input).querySelectorAll<HTMLElement>('[role="option"]:not([hidden])'),
 ];
 function markOption(input: HTMLInputElement, option: HTMLElement | undefined) {
-  for (const o of document
-    .getElementById(input.getAttribute("aria-controls") ?? "")!
-    .querySelectorAll('[role="option"]'))
+  for (const o of commandList(input).querySelectorAll('[role="option"]'))
     o.setAttribute("aria-selected", String(o === option));
   if (!option) return input.removeAttribute("aria-activedescendant");
   if (!option.id) option.id = `hw-option-${Math.random().toString(36).slice(2)}`;
@@ -26,7 +28,9 @@ export function onCommandKey(e: KeyboardEvent, input: HTMLInputElement) {
     // Enter with no marked option keeps its own meaning.
     if (now < 0) return;
     e.preventDefault();
-    options[now]!.click();
+    const option = options[now];
+    if (option === undefined) throw new Error(`Command option missing: index ${now}`);
+    option.click();
     return;
   }
   if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
@@ -35,7 +39,7 @@ export function onCommandKey(e: KeyboardEvent, input: HTMLInputElement) {
 }
 /** Filters local options and marks the first visible result. */
 export function filterCommand(input: HTMLInputElement) {
-  const list = document.getElementById(input.getAttribute("aria-controls") ?? "")!;
+  const list = commandList(input);
   if (list.hasAttribute("data-hw-remote")) return;
   const words = searchWords(input.value);
   let shown = 0;

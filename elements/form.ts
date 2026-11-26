@@ -51,13 +51,17 @@ function countAnnouncement(count: HTMLElement) {
 
 /** Tracks the remaining characters and validity on input or reset. */
 function wireCount(count: HTMLElement) {
-  const field = document.getElementById(count.dataset.for!) as HTMLTextAreaElement | null;
+  const id = count.dataset.for;
+  if (id === undefined) return;
+  const field = document.getElementById(id) as HTMLTextAreaElement | null;
   if (!field || !once(count)) return;
   const max = Number(count.dataset.max);
   const announce = countAnnouncement(count);
   follow(field, () => {
     const left = max - field.value.length;
-    const template = left < 0 ? count.dataset.over! : count.dataset.left!;
+    const template = left < 0 ? count.dataset.over : count.dataset.left;
+    if (template === undefined)
+      throw new Error(`Character count copy missing: data-${left < 0 ? "over" : "left"}`);
     announce(template.replace("{n}", String(Math.abs(left))));
     if (left < 0) markCountOver(count, field);
     else clearCountOver(count, field);
@@ -66,7 +70,9 @@ function wireCount(count: HTMLElement) {
 
 /** Reveals or conceals the named password field. */
 function wirePasswordToggle(button: HTMLButtonElement) {
-  const field = document.getElementById(button.getAttribute("aria-controls")!);
+  const id = button.getAttribute("aria-controls");
+  if (id === null) return;
+  const field = document.getElementById(id);
   if (!(field instanceof HTMLInputElement) || !once(button)) return;
   button.hidden = false;
   button.addEventListener("click", () => {

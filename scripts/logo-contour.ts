@@ -20,7 +20,11 @@ function wizardFromMatch(match: RegExpExecArray): WizardImage {
 }
 
 /** Reads a lockup's required embedded wizard image. */
-export const readWizard = (src: string) => wizardFromMatch(WIZARD.exec(src)!);
+export const readWizard = (src: string) => {
+  const match = WIZARD.exec(src);
+  if (match === null) throw new TypeError("Wizard image missing: logo SVG");
+  return wizardFromMatch(match);
+};
 
 /** Finds the wizard if the logo includes one. */
 export function parseWizard(src: string): WizardImage | undefined {

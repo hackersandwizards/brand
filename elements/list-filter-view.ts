@@ -14,7 +14,8 @@ import type { SourceRows } from "./list-filter-source.ts";
 type Row = { el: HTMLElement; title: HTMLElement | null; plain: string; item: FilterItem };
 
 /** Decode the count copy the server put on the filter root. */
-function readCountCopy(json: string): CountCopy {
+function readCountCopy(json: string | undefined): CountCopy {
+  if (json === undefined) throw new Error("List filter count copy missing: data-count");
   const value: unknown = JSON.parse(json);
   if (typeof value === "string") return value;
   if (
@@ -62,8 +63,9 @@ function readRow(el: HTMLElement): Row {
 function observeRowHeight(list: HTMLElement, rows: () => Row[]) {
   let width = -1;
   new ResizeObserver(([entry]) => {
-    if (entry!.contentRect.width === width) return;
-    width = entry!.contentRect.width;
+    if (entry === undefined) throw new Error("Resize entry missing: list filter");
+    if (entry.contentRect.width === width) return;
+    width = entry.contentRect.width;
     if (list.hasAttribute("data-long")) measureRowHeight(list, rows());
   }).observe(list);
 }
@@ -75,9 +77,10 @@ function measureRowHeight(list: HTMLElement, rows: Row[]) {
       !el.hidden &&
       [...el.children].some((child) => child.checkVisibility?.({ contentVisibilityAuto: true })),
   );
-  if (!rendered.length) return;
+  const [first] = rendered;
+  if (first === undefined) return;
   // The stand-in is the content box's height: padding and border come on top.
-  const box = getComputedStyle(rendered[0]!.el);
+  const box = getComputedStyle(first.el);
   const inset = [box.paddingTop, box.paddingBottom, box.borderTopWidth, box.borderBottomWidth]
     .map(parseFloat)
     .reduce((a, b) => a + b);
@@ -100,6 +103,12 @@ function showRows(rows: Row[], state: FilterState): number {
   return shown;
 }
 
+function filterResult(root: HTMLElement, selector: string) {
+  const result = root.querySelector<HTMLElement>(selector);
+  if (result === null) throw new Error(`List filter result element missing: ${selector}`);
+  return result;
+}
+
 /** The DOM view of the results, including rows supplied by a template or fetched from a page. */
 export class FilterView {
   private readonly list: HTMLElement;
@@ -115,12 +124,12 @@ export class FilterView {
   private groups: HTMLElement[] = [];
 
   constructor(root: HTMLElement) {
-    this.list = root.querySelector<HTMLElement>("[data-filter-list]")!;
-    this.empty = root.querySelector<HTMLElement>("[data-filter-empty]")!;
-    this.count = root.querySelector<HTMLElement>("[data-filter-count]")!;
+    this.list = filterResult(root, "[data-filter-list]");
+    this.empty = filterResult(root, "[data-filter-empty]");
+    this.count = filterResult(root, "[data-filter-count]");
     this.overview = root.dataset.overview ? document.getElementById(root.dataset.overview) : null;
     this.browseAlways = root.dataset.listFilter !== "active";
-    this.copy = readCountCopy(root.dataset.count!);
+    this.copy = readCountCopy(root.dataset.count);
   }
 
   /** Activate rendered rows and begin measuring the list as its width changes. */
@@ -147,7 +156,11 @@ export class FilterView {
       .map(readRow);
     this.items = this.rows.map((row) => row.item);
     const rowOf = new Map(this.rows.map((row) => [row.el, row]));
-    this.placed = elements.map((el) => rowOf.get(el)!);
+    this.placed = elements.map((el) => {
+      const row = rowOf.get(el);
+      if (row === undefined) throw new Error("List filter row missing from the element index");
+      return row;
+    });
     this.groups = [...this.list.querySelectorAll<HTMLElement>("[data-filter-group]")];
     this.list.toggleAttribute("data-long", this.rows.length >= LONG_LIST);
   }

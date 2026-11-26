@@ -20,10 +20,16 @@ export interface FilterState {
 /** The search words of a query: every word counts from its first character. */
 export const searchWords = (q: string) => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
+function substitutions(entries: Record<string, string>) {
+  const keys = Object.keys(entries).map((key) => key.replace(/[\\\]\-^]/g, "\\$&"));
+  const pattern = new RegExp(`[${keys.join("")}]`, "g");
+  return (text: string) => text.replace(pattern, (char) => entries[char]);
+}
+
 // Quoted keys: a page may load this script without a charset, and a bare non-ASCII key then breaks
-// the parse. LETTERS are those without a decomposition to drop an accent from (ø, æ, œ, ł, đ, ı).
-const SPELLED: Record<string, string> = { "\u00e4": "ae", "\u00f6": "oe", "\u00fc": "ue" };
-const LETTERS: Record<string, string> = {
+// the parse. The letters simplified here are those without a decomposition to drop an accent from (ø, æ, œ, ł, đ, ı).
+const spellUmlauts = substitutions({ "\u00e4": "ae", "\u00f6": "oe", "\u00fc": "ue" });
+const simplifyLetters = substitutions({
   "\u00df": "ss",
   "\u00f8": "o",
   "\u00e6": "ae",
@@ -31,7 +37,7 @@ const LETTERS: Record<string, string> = {
   "\u0142": "l",
   "\u0111": "d",
   "\u0131": "i",
-};
+});
 const folds = new Map<string, [string, string]>();
 
 /** A text's two search forms, lowercase with ß as ss: accents dropped (Müller: muller) and German
@@ -42,12 +48,9 @@ const folds = new Map<string, [string, string]>();
 function searchForms(text: string): [string, string] {
   let forms = folds.get(text);
   if (forms) return forms;
-  const lower = text
-    .toLowerCase()
-    .normalize("NFC")
-    .replace(/[\u00df\u00f8\u00e6\u0153\u0142\u0111\u0131]/g, (char) => LETTERS[char]!);
+  const lower = simplifyLetters(text.toLowerCase().normalize("NFC"));
   const bare = (form: string) => form.normalize("NFD").replace(/\p{M}/gu, "");
-  forms = [bare(lower), bare(lower.replace(/[\u00e4\u00f6\u00fc]/g, (char) => SPELLED[char]!))];
+  forms = [bare(lower), bare(spellUmlauts(lower))];
   if (folds.size > 10_000) folds.clear();
   folds.set(text, forms);
   return forms;
@@ -156,11 +159,13 @@ export function stateUrl(href: string, state: FilterState): string {
   return url.href;
 }
 
-const escapeMarkup = (text: string) =>
-  text.replace(
-    /[&<>"']/g,
-    (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!,
-  );
+const escapeMarkup = substitutions({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+});
 
 interface FoldedText {
   folded: string;
@@ -176,7 +181,8 @@ function indexFoldedText(source: string): FoldedText[] {
   let at = 0;
   for (const char of source) {
     searchForms(char).forEach((form, index) => {
-      const each = forms[index]!;
+      const each = forms[index];
+      if (each === undefined) throw new Error(`Folded text form missing: index ${index}`);
       each.folded += form;
       for (let i = 0; i < form.length; i++) {
         each.from.push(at);

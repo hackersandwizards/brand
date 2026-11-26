@@ -2,7 +2,7 @@ import type { CatalogGroup } from "@hackersandwizards/scaffolding/catalog/render
 
 // Each system's own design-system page, served by its dev server, and the public address its owner
 // publishes, which the Pages copy links instead; a system without a page is not listed.
-const SYSTEMS = [
+const SYSTEMS: [name: string, url: string, published?: string][] = [
   ["website", "http://website.localhost/design-system/"],
   ["os", "http://os.localhost/design-system/"],
   ["trainer-hub", "http://trainer-hub.localhost/design-system/"],
@@ -18,9 +18,9 @@ const PUBLIC = Object.fromEntries(SYSTEMS.filter((s) => s[2]).map(([, url, pub])
 export const systemsGroup: CatalogGroup = {
   name: "Systems",
   items: SYSTEMS.map(([name, url]) => ({
-    name: name!,
-    href: url!,
-    note: `its design-system page, ${url!.replace(/^https?:\/\//, "")}`,
+    name,
+    href: url,
+    note: `its design-system page, ${url.replace(/^https?:\/\//, "")}`,
   })),
 };
 

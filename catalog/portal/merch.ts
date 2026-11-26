@@ -12,7 +12,9 @@ import { deferImages, scopeIds } from "./svg-mockups";
 const MERCH = "applications/merch";
 const print = (stem: string): Print & { stem: string } => {
   const svg = readFileSync(join(ROOT, MERCH, `${stem}.svg`), "utf8");
-  const [, W, H] = svg.match(/width="([\d.]+)mm" height="([\d.]+)mm"/)!;
+  const size = svg.match(/width="([\d.]+)mm" height="([\d.]+)mm"/);
+  if (size === null) throw new Error(`Merch dimensions missing: ${stem}.svg`);
+  const [, W, H] = size;
   const cut = svg.match(/<g id="CutContour"><path d="([^"]+)"/)?.[1];
   return { stem, href: `${MERCH}/${stem}.svg`, W: +W, H: +H, cut };
 };
@@ -27,7 +29,7 @@ const stickers = ["stickerP-P10", "stickerL-L13", "stickerB-B16", "stickerD-D1"]
 const wizards = ["stickerZ-Z1", "stickerZ-Z2"].map(print);
 const cloths = ["cloth-K9", "cloth-K10", "cloth-K12"].map(print);
 const notebook = print("notebook-N6");
-const PRODUCTS: Product[] = [
+const PRODUCTS: [Product, ...Product[]] = [
   {
     name: "Shirt T12",
     note: `Purple Love and Stargazer. Front chest: the wordmark in the outline cut, ${mm(front.W - 1)} wide. Back neck: the same cut, ${mm(back.W - 1)} wide.`,
@@ -114,4 +116,8 @@ export function renderMerch(merchFiles: ReadonlyMap<string, ApplicationAsset>): 
 }
 
 // Shows the first garment on the Merch tile.
-export const merchPreview = () => scopeIds(PRODUCTS[0]!.views[0]![0], "tile-merch");
+export const merchPreview = () => {
+  const [view] = PRODUCTS[0].views;
+  if (view === undefined) throw new Error(`Merch preview missing: ${PRODUCTS[0].name}`);
+  return scopeIds(view[0], "tile-merch");
+};

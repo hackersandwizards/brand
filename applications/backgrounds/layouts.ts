@@ -212,23 +212,26 @@ const LAYOUTS: Record<WallFile, Record<string, El[]>> = {
 
 // The boxes the layouts measure the lockup and the compact lockup by, in SVG units: each cut sits
 // so its letters land where they sit in these, whatever its own box holds round the wizard.
-const LAYOUT_BOX: Record<string, number[]> = {
+const LAYOUT_BOX = {
   lockup: [-1321.814, -288.642, 7988.814, 1489],
   "lockup-compact": [96, -2322.396, 6571, 3269.396],
-};
+} as const;
 
 // A lockup inlined with the 4096 px wizard master in place of the 512 px PNG the brand SVG embeds:
 // the iPad lock draws the wizard at 435 px and iPadOS enlarges it 1.155 times. Width, height and
 // position name the layout box.
 function inlineLockup(url: string, size: { width: number } | { height: number }, { x, y }: Point) {
-  const box = (file: string) =>
-    readFileSync(new URL(file), "utf8")
-      .match(/viewBox="([^"]+)"/)![1]
-      .split(" ")
-      .map(Number);
+  const box = (file: string) => {
+    const viewBox = readFileSync(new URL(file), "utf8").match(/viewBox="([^"]+)"/)?.[1];
+    if (viewBox === undefined) throw new Error(`SVG viewBox missing: ${file}`);
+    return viewBox.split(" ").map(Number);
+  };
   const svg = readFileSync(new URL(url), "utf8");
   const [vx, vy, vw, vh] = box(url);
-  const [dx, dy, dw, dh] = LAYOUT_BOX[/(lockup(-compact)?)(-night)?\.svg$/.exec(url)![1]];
+  const layout = /(lockup(-compact)?)(-night)?\.svg$/.exec(url)?.[1];
+  if (layout !== "lockup" && layout !== "lockup-compact")
+    throw new Error(`Lockup layout missing: ${url}`);
+  const [dx, dy, dw, dh] = LAYOUT_BOX[layout];
   const k = "width" in size ? size.width / dw : size.height / dh;
   const pos = `left:${x - (dx - vx) * k}px;top:${y - (dy - vy) * k}px`;
   return svg

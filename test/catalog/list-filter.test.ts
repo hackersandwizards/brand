@@ -2,6 +2,7 @@ import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import type { Browser, HTTPRequest, Page } from "puppeteer-core";
 import { launch } from "../../scan/browser";
+import { waitForTitles } from "../wait-for-titles";
 import { BASE, page, serveSite } from "./site";
 
 // The list filter's story driven as a reader would: the website's e2e cases
@@ -35,8 +36,8 @@ const text = (p: Page, sel: string) => p.$eval(sel, (e) => e.textContent!.trim()
 const settle = () => new Promise((r) => setTimeout(r, 350));
 /** The titles shown once the search's debounce has applied them, or what shows after the wait. */
 const showing = async (p: Page, titles: string[]) => {
-  await p
-    .waitForFunction(
+  await waitForTitles(
+    p.waitForFunction(
       (want) =>
         JSON.stringify(
           [...document.querySelectorAll<HTMLElement>("[data-filter-item]")]
@@ -45,8 +46,8 @@ const showing = async (p: Page, titles: string[]) => {
         ) === want,
       {},
       JSON.stringify(titles),
-    )
-    .catch(() => undefined);
+    ),
+  );
   return shown(p);
 };
 
@@ -299,7 +300,7 @@ const held = async () => {
   await q.evaluateOnNewDocument(() => {
     const fetch = () =>
       new Promise((_, reject) => {
-        Object.assign(window, { failLoad: () => reject(new Error("offline")) });
+        Object.assign(window, { failLoad: () => reject(new TypeError("offline")) });
       });
     Object.assign(window, { fetch });
   });

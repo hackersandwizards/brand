@@ -92,7 +92,8 @@ async function fallbackFace(page: Page, found: JSHandle<Found>) {
     const declared = new Set([...document.fonts].map((f) => name(f.family)));
     let n = 0;
     for (const el of new Set(texts)) {
-      const first = getComputedStyle(el).fontFamily.split(",")[0]!.trim();
+      const [family] = getComputedStyle(el).fontFamily.split(",");
+      const first = family.trim();
       if (!declared.has(name(first))) continue;
       el.setAttribute("data-hw-font-probe", first.replace(/^["']|["']$/g, ""));
       n++;
@@ -113,7 +114,9 @@ async function fallbackFace(page: Page, found: JSHandle<Found>) {
       if (fonts.length && !fonts.some((f) => f.isCustomFont)) {
         const { attributes } = await cdp.send("DOM.getAttributes", { nodeId });
         const family = attributes[attributes.indexOf("data-hw-font-probe") + 1];
-        return { face: fonts[0]!.familyName, family };
+        const [first] = fonts;
+        if (first === undefined) throw new Error(`Platform font missing: node ${nodeId}`);
+        return { face: first.familyName, family };
       }
     }
   } finally {

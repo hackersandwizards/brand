@@ -39,10 +39,12 @@ const INK = colors["--color-ink"];
 // shape the element in `CutContour`, a rounded rectangle or the die-cut path.
 function stickerFile(stem: string) {
   const svg = readFileSync(join(MERCH, `${stem}.svg`), "utf8");
-  const [, W, H] = svg.match(/width="([\d.]+)mm" height="([\d.]+)mm"/)!.map(Number);
-  const cut = svg
-    .match(/<g id="CutContour"[^>]*>(.*?)<\/g>/s)![1]
-    .replace(/\s(fill|stroke|stroke-width)="[^"]*"/g, "");
+  const size = svg.match(/width="([\d.]+)mm" height="([\d.]+)mm"/);
+  if (size === null) throw new Error(`Sticker dimensions missing: ${stem}.svg`);
+  const [, W, H] = size.map(Number);
+  const contour = svg.match(/<g id="CutContour"[^>]*>(.*?)<\/g>/s)?.[1];
+  if (contour === undefined) throw new Error(`CutContour missing: ${stem}.svg`);
+  const cut = contour.replace(/\s(fill|stroke|stroke-width)="[^"]*"/g, "");
   return { svg, W, H, w: W - 6, h: H - 6, cut };
 }
 

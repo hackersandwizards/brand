@@ -67,7 +67,7 @@ export const aliases = (css: string) =>
     ...(/\/\* Aliases\b[^]*?\*\/([^]*?)\n\s*\n/.exec(css)?.[1] ?? "").matchAll(
       /(--color-[\w-]+):/g,
     ),
-  ].map((m) => m[1]!);
+  ].map(([, name]) => name);
 
 export const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const hex = (c: number[]) =>
@@ -109,7 +109,7 @@ const dayAgain = (tokens: Record<string, string>) => {
   for (let size = 0; size !== out.size;) {
     size = out.size;
     for (const [k, v] of Object.entries(tokens))
-      if ([...v.matchAll(/var\((--[\w-]+)/g)].some((m) => out.has(m[1]!))) out.add(k);
+      if ([...v.matchAll(/var\((--[\w-]+)/g)].some(([, name]) => out.has(name))) out.add(k);
   }
   return out;
 };

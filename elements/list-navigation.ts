@@ -13,7 +13,11 @@ export function typeahead(items: HTMLElement[], char: string, from: number) {
   const c = char.toLowerCase();
   for (let i = 1; i <= items.length; i++) {
     const at = (from + i) % items.length;
-    if (items[at]!.textContent!.trim().toLowerCase().startsWith(c)) return at;
+    const item = items[at];
+    if (item === undefined) throw new Error(`Typeahead item missing: index ${at}`);
+    const text = item.textContent;
+    if (text === null) throw new Error(`Typeahead text missing: index ${at}`);
+    if (text.trim().toLowerCase().startsWith(c)) return at;
   }
   return -1;
 }

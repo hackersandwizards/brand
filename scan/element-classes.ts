@@ -41,6 +41,6 @@ export const definedClasses = (css: string) =>
           depth += s[j] === "(" ? 1 : s[j] === ")" ? -1 : 0;
         s = s.slice(0, i) + s.slice(j);
       }
-      return [...s.matchAll(/\.((?:\\.|[\w-])+)/g)].map((m) => m[1]!.replace(/\\(.)/g, "$1"));
+      return [...s.matchAll(/\.((?:\\.|[\w-])+)/g)].map(([, cls]) => cls.replace(/\\(.)/g, "$1"));
     }),
   );

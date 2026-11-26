@@ -58,7 +58,10 @@ export function specFaults(spec: Partial<Spec>): string[] {
     ...(typeof title === "string" ? [] : ["title is no text"]),
     ...(typeof note === "string" ? [] : ["note is no text"]),
     ...terminalLineFaults(lines),
-    ...(Number.isInteger(highlight) && highlight! >= 0 && highlight! < (lines?.length ?? 0)
+    ...(typeof highlight === "number" &&
+    Number.isInteger(highlight) &&
+    highlight >= 0 &&
+    highlight < (lines?.length ?? 0)
       ? []
       : ["highlight is no index of a line"]),
   ];

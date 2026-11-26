@@ -23,7 +23,9 @@ export const fontFaces = (css: string) =>
     .filter(([face]) => !LOCAL.test(face))
     .map(([, body]): Record<string, string> => {
       const { src, ...rest } = declarations(body);
-      const [, file, format] = src.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/)!;
+      const source = src?.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/);
+      if (source == null) throw new Error(`Font file or format missing: ${rest["font-family"]}`);
+      const [, file, format] = source;
       return { file, format, ...camelCased(rest) };
     });
 
@@ -57,8 +59,8 @@ const camelCased = (descriptors: Record<string, string>): Record<string, string>
  *  web font. Throws where the template carries no such pair, or a third stack. */
 const mailStacks = () => {
   const html = readFileSync(join(ROOT, "applications/mail-signature/template.html"), "utf8");
-  const stacks = [...html.replaceAll("&quot;", '"').matchAll(/font-family:\s*([^;]+);/g)].map((m) =>
-    m[1]!.trim(),
+  const stacks = [...html.replaceAll("&quot;", '"').matchAll(/font-family:\s*([^;]+);/g)].map(
+    ([, font]) => font.trim(),
   );
   const sans = stacks.find((s) => s.endsWith("sans-serif"));
   const mono = stacks.find((s) => s.endsWith("monospace"));

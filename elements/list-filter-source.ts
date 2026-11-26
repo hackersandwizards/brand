@@ -4,14 +4,18 @@ export function rebaseSrcset(srcset: string, at: (url: string) => string) {
   let out = "";
   let rest = srcset;
   while (rest) {
-    const gap = /^[\s,]*/.exec(rest)![0];
-    const url = /^\S*/.exec(rest.slice(gap.length))![0];
-    const commas = /,*$/.exec(url)![0];
-    rest = rest.slice(gap.length + url.length);
+    const start = rest.search(/[^\s,]/);
+    const gap = rest.slice(0, start < 0 ? rest.length : start);
+    rest = rest.slice(gap.length);
+    const end = rest.search(/\s/);
+    const url = rest.slice(0, end < 0 ? rest.length : end);
+    const bare = url.replace(/,*$/, "");
+    const commas = url.slice(bare.length);
+    rest = rest.slice(url.length);
     // Without a trailing comma, descriptors such as "2x" run to the next comma.
-    const descriptors = commas ? "" : /^[^,]*/.exec(rest)![0];
+    const comma = rest.indexOf(",");
+    const descriptors = commas ? "" : rest.slice(0, comma < 0 ? rest.length : comma);
     rest = rest.slice(descriptors.length);
-    const bare = url.slice(0, url.length - commas.length);
     out += gap + (bare ? at(bare) : "") + commas + descriptors;
   }
   return out;
@@ -21,10 +25,13 @@ export function rebaseSrcset(srcset: string, at: (url: string) => string) {
  *  sprite's #icon) and an address that does not parse stay as written. */
 export function sourceAddress(url: string, base: string) {
   if (url.startsWith("#")) return url;
+  if (typeof URL.canParse === "function")
+    return URL.canParse(url, base) ? new URL(url, base).href : url;
   try {
     return new URL(url, base).href;
-  } catch {
-    return url;
+  } catch (error) {
+    if (error instanceof TypeError) return url;
+    throw error;
   }
 }
 
@@ -50,11 +57,37 @@ export interface SourceRows {
   replace: boolean;
 }
 
+function sourceUnavailable(error: unknown) {
+  return (
+    error instanceof TypeError || (error instanceof DOMException && error.name === "AbortError")
+  );
+}
+
+/** A browser fetch rejects with TypeError on network or invalid-request failures. */
+async function sourceResponse(source: string) {
+  try {
+    return await fetch(source);
+  } catch (error) {
+    if (!sourceUnavailable(error)) throw error;
+  }
+}
+
+/** A network failure while reading the body still leaves the source unavailable. */
+async function sourceBody(response: Response) {
+  try {
+    return await response.text();
+  } catch (error) {
+    if (!sourceUnavailable(error)) throw error;
+  }
+}
+
 /** Read the fetched markup and resolve its links before placing it in another document. */
-async function fetchSourceRows(source: string): Promise<SourceRows> {
-  const response = await fetch(source);
-  if (!response.ok) throw new Error(String(response.status));
-  const page = new DOMParser().parseFromString(await response.text(), "text/html");
+async function fetchSourceRows(source: string): Promise<SourceRows | undefined> {
+  const response = await sourceResponse(source);
+  if (!response?.ok) return undefined;
+  const html = await sourceBody(response);
+  if (html === undefined) return undefined;
+  const page = new DOMParser().parseFromString(html, "text/html");
   // The source's list as it stands, groups included, else its rows alone.
   const from = page.querySelector("[data-filter-list]");
   const nodes = from ? [...from.childNodes] : [...page.querySelectorAll("[data-filter-item]")];
@@ -78,15 +111,16 @@ export class FilterSource {
   /** Share the first request between focus and filtering, including when that request failed. */
   load(install: (rows: SourceRows) => void, apply: () => void, onFailure: () => void) {
     if (!this.address) return;
-    this.loading ??= fetchSourceRows(this.address)
-      .then((rows) => {
-        install(rows);
-        this.loaded = true;
-        apply();
-      })
-      .catch(() => {
+    this.loading ??= fetchSourceRows(this.address).then((rows) => {
+      if (rows === undefined) {
         this.failed = true;
         onFailure();
-      });
+        return;
+      }
+      install(rows);
+      this.loaded = true;
+      apply();
+    });
+    return this.loading;
   }
 }

@@ -18,8 +18,11 @@ export async function open(page: Page, url: string, csp?: Csp) {
   const missing: string[] = [];
   const failed = (r: HTTPRequest) => {
     const u = new URL(r.url());
-    if (r.resourceType() === "stylesheet" && (u.protocol === "file:" || u.origin === origin))
-      missing.push(r.url() + (r.failure() ? ` (${r.failure()!.errorText})` : ""));
+    if (r.resourceType() === "stylesheet" && (u.protocol === "file:" || u.origin === origin)) {
+      const address = r.url();
+      const failure = r.failure();
+      missing.push(address + (failure ? ` (${failure.errorText})` : ""));
+    }
   };
   const status = (r: HTTPResponse) => r.status() >= 400 && failed(r.request());
   page.on("requestfailed", failed).on("response", status);

@@ -150,7 +150,11 @@ if (import.meta.main) {
   const rendered = results.flatMap((r) => r.findings);
   const unstyled = results.flatMap((r) => r.unstyled);
   const refused = results.flatMap((r) => r.refused);
-  const empty = named.filter((_, i) => !results[i]!.seen.length);
+  const empty = named.filter((url, i) => {
+    const result = results[i];
+    if (result === undefined) throw new Error(`Element scan result missing: ${url}`);
+    return result.seen.length === 0;
+  });
   // No shared element on any page or story: a run that measures nothing passes nothing.
   const nothing = results.every((r) => !r.seen.length);
   if (nothing) console.error(`brand-elements: no shared element on any page of ${LIST}`);

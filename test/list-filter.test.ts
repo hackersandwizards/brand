@@ -274,11 +274,11 @@ describe("source rows", () => {
     vi.stubGlobal("fetch", fetched);
     stubSourceDocument();
 
-    source.load(install, apply, fail);
-    source.load(install, apply, fail);
+    void source.load(install, apply, fail);
+    void source.load(install, apply, fail);
     response.resolve(new Response(""));
     await settled.promise;
-    source.load(install, apply, fail);
+    void source.load(install, apply, fail);
 
     expect(fetched.mock.calls).toEqual([[address]]);
     expect(install.mock.calls).toEqual([[{ nodes: [], replace: true }]]);
@@ -288,7 +288,7 @@ describe("source rows", () => {
   });
 
   it.each([
-    { name: "rejected request", fetchRows: () => Promise.reject(new Error("offline")) },
+    { name: "rejected request", fetchRows: () => Promise.reject(new TypeError("offline")) },
     { name: "HTTP error", fetchRows: () => Promise.resolve(new Response("", { status: 503 })) },
   ])("reports a $name once without installing rows or retrying", async ({ fetchRows }) => {
     const fetched = vi.fn(fetchRows);
@@ -303,10 +303,10 @@ describe("source rows", () => {
     vi.stubGlobal("fetch", fetched);
     stubSourceDocument();
 
-    source.load(install, apply, fail);
-    source.load(install, apply, fail);
+    void source.load(install, apply, fail);
+    void source.load(install, apply, fail);
     await settled.promise;
-    source.load(install, apply, fail);
+    void source.load(install, apply, fail);
 
     expect(fetched.mock.calls).toEqual([[address]]);
     expect({ loaded: source.loaded, failed: source.failed }).toEqual({
@@ -327,7 +327,7 @@ describe("source rows", () => {
       const install = vi.fn();
       const apply = vi.fn();
       const fail = vi.fn();
-      source.load(install, apply, fail);
+      void source.load(install, apply, fail);
       expect({ loaded: source.loaded, failed: source.failed }).toEqual({
         loaded: true,
         failed: false,

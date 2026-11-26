@@ -25,10 +25,16 @@ interface Props {
 }
 
 const { name, scale = "screen", night = false, settings, note, lang = "en" } = Astro.props;
-const brand = catalogs.find((c) => c.name === "Brand")!;
-const entry = brand.portal! + brand.anchors!.element.replace("<element>", name);
+const brand = catalogs.find((c) => c.name === "Brand");
+if (brand === undefined) throw new Error("Brand catalog entry missing: expert/catalogs.json");
+if (brand.anchors === undefined)
+  throw new Error("Brand catalog anchors missing: expert/catalogs.json");
+if (brand.portal === undefined)
+  throw new Error("Brand catalog portal missing: expert/catalogs.json");
+const entry = brand.portal + brand.anchors.element.replace("<element>", name);
 const own = Astro.slots.has("default");
-if (!own && !(name in DEMOS))
+const demos: Partial<Record<string, string>> = DEMOS;
+if (!own && !(name in demos))
   throw new Error(`Element: "${name}" is no shared element with a brand sample; pass your own`);
 const words = /^de\b/.test(lang) ? ["aus brand", "Katalog"] : ["from brand", "catalogue"];
 ---
@@ -47,7 +53,7 @@ const words = /^de\b/.test(lang) ? ["aus brand", "Katalog"] : ["from brand", "ca
     data-theme={night ? "dark" : undefined}
     style={settings}
   >
-    {own ? <slot /> : <Fragment set:html={DEMOS[name]} />}
+    {own ? <slot /> : <Fragment set:html={demos[name]} />}
   </div>
 </div>
 {!own && <ElementScript />}

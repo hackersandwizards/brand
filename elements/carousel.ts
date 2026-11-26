@@ -94,7 +94,12 @@ class CarouselViewport {
   private offset(index: number) {
     // An item's scroll position is its distance from the first item, so the track's padding
     // (the focus ring's room) stays out of the sum.
-    return this.items[index]!.offsetLeft - this.items[0]!.offsetLeft;
+    const item = this.items[index];
+    if (item === undefined) throw new Error(`Carousel slide missing: index ${index}`);
+    const left = item.offsetLeft;
+    const first = this.items[0];
+    if (first === undefined) throw new Error("Carousel slide missing: first slide");
+    return left - first.offsetLeft;
   }
 
   private select(index: number) {

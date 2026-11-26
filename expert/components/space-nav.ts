@@ -24,7 +24,7 @@ export function containsPath(node: SpaceNode, path: string): boolean {
 export const humanizeSegment = (segment: string) =>
   segment
     .split("-")
-    .map((w) => (w ? w[0]!.toUpperCase() + w.slice(1) : w))
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
 /** The tree under `base`: a node per entry and per folder above one, a folder's `index` page

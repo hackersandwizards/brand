@@ -183,7 +183,7 @@ export const OWNS: Record<string, string[]> = {
   "prose li.task-list-item input": CHECK,
 };
 
-const LOGICAL: Record<string, string[]> = {
+const LOGICAL: Partial<Record<string, string[]>> = {
   block: ["top", "bottom"],
   inline: ["left", "right"],
   "block-start": ["top"],
@@ -199,19 +199,27 @@ const physical = (prop: string) => {
   const m = /^(padding|margin|border)-(block|inline)(-start|-end)?(-width|-style|-color)?$/.exec(
     prop,
   );
-  return m ? LOGICAL[m[2]! + (m[3] ?? "")]!.map((side) => `${m[1]}-${side}${m[4] ?? ""}`) : [prop];
+  if (!m) return [prop];
+  const [, name, axis, edge = "", suffix = ""] = m;
+  const sides = LOGICAL[axis + edge];
+  if (sides === undefined) throw new Error(`Logical property sides missing: ${prop}`);
+  return sides.map((side) => `${name}-${side}${suffix}`);
 };
 /** Whether a declared property, a shorthand or logical one included, sets one the element owns. */
 export const setsOwned = (element: string, declared: string) =>
-  physical(declared).some((prop) =>
-    OWNS[element]!.map((q) => q.replace(/:em$/, "")).some(
-      (q) =>
-        q === prop ||
-        q.startsWith(`${prop}-`) ||
-        (prop === "border-radius" && q.endsWith("-radius")) ||
-        (/^border-(width|style|color)$/.test(prop) && q.endsWith(prop.slice(6))),
-    ),
-  );
+  physical(declared).some((prop) => {
+    const owned = OWNS[element];
+    if (owned === undefined) throw new Error(`Owned properties missing: ${element}`);
+    return owned
+      .map((q) => q.replace(/:em$/, ""))
+      .some(
+        (q) =>
+          q === prop ||
+          q.startsWith(`${prop}-`) ||
+          (prop === "border-radius" && q.endsWith("-radius")) ||
+          (/^border-(width|style|color)$/.test(prop) && q.endsWith(prop.slice(6))),
+      );
+  });
 
 export type ElementStyleRules = {
   own: string[];

@@ -25,7 +25,7 @@ export async function pool<T, R>(
   let next = 0;
   await Promise.all(
     Array.from({ length: Math.min(items.length, limit) }, async (_, worker) => {
-      for (let i = next++; i < items.length; i = next++) out[i] = await run(items[i]!, worker);
+      for (let i = next++; i < items.length; i = next++) out[i] = await run(items[i], worker);
     }),
   );
   return out;

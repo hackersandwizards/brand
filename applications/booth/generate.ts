@@ -38,11 +38,15 @@ const outlineLockup = (widthMm: number) =>
 // side as shares of the wizard's width (the edge is centred on the wizard).
 function wizardEdge() {
   const svg = readFileSync(new URL(brand.lockupOutline), "utf8");
-  const [, ex, side, href] =
+  const edge =
     /<image class="wizard-edge" x="([-\d.]+)" y="[-\d.]+" width="([\d.]+)" height="[\d.]+" href="([^"]+)"/.exec(
       svg,
-    )!;
-  const [, wx, ww] = /<image x="([-\d.]+)" y="[-\d.]+" width="([\d.]+)"/.exec(svg)!;
+    );
+  if (edge === null) throw new Error("Wizard edge missing: booth outline lockup");
+  const [, ex, side, href] = edge;
+  const image = /<image x="([-\d.]+)" y="[-\d.]+" width="([\d.]+)"/.exec(svg);
+  if (image === null) throw new Error("Wizard image missing: booth outline lockup");
+  const [, wx, ww] = image;
   return { href, offset: (+wx - +ex) / +ww, side: +side / +ww };
 }
 // The 1 x 1 m wizard's width in mm, edge excluded.

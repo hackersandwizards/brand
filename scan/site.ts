@@ -1,14 +1,11 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { decodeEscaped, isRecord } from "./help";
 
 export const pathOf = (page: string) => {
   const path = URL.parse(page)?.pathname ?? page;
-  try {
-    return decodeURIComponent(path);
-  } catch {
-    return path; // a malformed escape, which a glob reads as written
-  }
+  return decodeEscaped(path) ?? path; // A glob reads a malformed escape as written.
 };
 
 /** A page argument as a URL: a URL as it is, a path starting with / on the served site `site`, else
@@ -20,26 +17,30 @@ export const toUrl = (arg: string, site?: URL) =>
       ? new URL(arg, site).href
       : pathToFileURL(resolve(arg)).href;
 
+/** Follows symlinks. A path through a file or a symlink loop also names no file. */
+export function statIfPresent(file: string) {
+  if (file.includes("\0")) return undefined;
+  try {
+    return statSync(file, { throwIfNoEntry: false });
+  } catch (error) {
+    if (
+      isRecord(error) &&
+      (error.code === "ENOENT" || error.code === "ENOTDIR" || error.code === "ELOOP")
+    )
+      return undefined;
+    throw error;
+  }
+}
+
 /** The file a path names inside `root`, a folder answering with its index.html, as a static host
  * does; undefined for none or for a path leaving `root`. */
 export const fileIn = (root: string, path: string) => {
-  let file: string;
-  try {
-    file = join(root, decodeURIComponent(path));
-  } catch {
-    return; // a malformed escape names no file
-  }
+  const decoded = decodeEscaped(path);
+  if (decoded === undefined) return; // A malformed escape names no file.
+  let file = join(root, decoded);
   if (!file.startsWith(`${root}/`)) return;
-  // A path running on past a file (ENOTDIR) or holding a NUL throws rather than naming no file.
-  const stat = (f: string) => {
-    try {
-      return statSync(f, { throwIfNoEntry: false });
-    } catch {
-      return undefined;
-    }
-  };
-  if (stat(file)?.isDirectory()) file = join(file, "index.html");
-  return stat(file)?.isFile() ? file : undefined;
+  if (statIfPresent(file)?.isDirectory()) file = join(file, "index.html");
+  return statIfPresent(file)?.isFile() ? file : undefined;
 };
 
 /** A built site folder served on a free local port at `at`, its root by default, or the base path

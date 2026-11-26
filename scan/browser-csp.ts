@@ -1,4 +1,11 @@
-import type { CDPSession, Page, Protocol } from "puppeteer-core";
+import {
+  ConnectionClosedError,
+  ProtocolError,
+  type CDPSession,
+  type Frame,
+  type Page,
+  type Protocol,
+} from "puppeteer-core";
 import { isRecord } from "./help";
 import { pathOf } from "./site";
 
@@ -38,12 +45,45 @@ export async function attachCsp(page: Page, origin: string, csp: Csp) {
   };
   // Fetch.continueResponse drops added headers on http; fulfilling with the body keeps them.
   cdp.on("Fetch.requestPaused", (e) => {
-    void answerPaused(cdp, e, policyFor);
+    void answerPaused(cdp, e, policyFor).catch(reportError);
   });
   await cdp.send("Fetch.enable", {
     patterns: [{ resourceType: "Document", requestStage: "Response" }],
   });
   return unmatched;
+}
+
+/** The target closed or the browser discarded the interception during navigation. */
+function requestEnded(error: unknown) {
+  return (
+    error instanceof ProtocolError &&
+    (error instanceof ConnectionClosedError ||
+      error.name === "TargetCloseError" ||
+      /^Invalid InterceptionId\.?$/.test(error.originalMessage))
+  );
+}
+
+async function failPaused(cdp: CDPSession, requestId: string) {
+  if (cdp.detached) return;
+  try {
+    await cdp.send("Fetch.failRequest", { requestId, errorReason: "Failed" });
+  } catch (error) {
+    if (!requestEnded(error)) throw error;
+  }
+}
+
+async function releasePaused(cdp: CDPSession, requestId: string, error: unknown) {
+  try {
+    await failPaused(cdp, requestId);
+  } catch (cleanupError) {
+    if (requestEnded(error)) throw cleanupError;
+    throw new AggregateError(
+      [error, cleanupError],
+      "Could not answer or release a paused CSP request",
+      { cause: cleanupError },
+    );
+  }
+  if (!requestEnded(error)) throw error;
 }
 
 /** Continues an untouched document response or fulfills it with the host's policy and body. */
@@ -71,12 +111,10 @@ async function answerPaused(
       ],
       body: base64Encoded ? body : Buffer.from(body).toString("base64"),
     });
-  } catch {
+  } catch (error) {
     // Failed loudly: a document left paused would time out without its cause. Where the page
     // closed meanwhile, this fails too.
-    await cdp
-      .send("Fetch.failRequest", { requestId: e.requestId, errorReason: "Failed" })
-      .catch(() => undefined);
+    await releasePaused(cdp, e.requestId, error);
   }
 }
 
@@ -141,15 +179,30 @@ function readRefusals() {
 export const refusalLine = (r: Refusal) =>
   `${r.page} ${r.element}: the page's Content-Security-Policy refuses ${r.source} (${r.directive}); allow it in the policy the host sends (and in brand-elements.json "csp"), or draw the element without it`;
 
+async function frameRefusals(frame: Frame) {
+  if (frame.detached) return [];
+  try {
+    return await frame.evaluate(readRefusals);
+  } catch (error) {
+    if (requestEnded(error)) return [];
+    if (
+      error instanceof Error &&
+      /^(?:Execution context was destroyed(?:, most likely because of a navigation\.)?|Attempted to use detached Frame '[^']+'\.)$/.test(
+        error.message,
+      )
+    )
+      return [];
+    throw error;
+  }
+}
+
 /** The refusals on `page` and in its frames, each once, two frames after its last change so the
- *  images its styles now draw have been requested. A frame that cannot be read is skipped. */
+ *  images its styles now draw have been requested. A frame lost to navigation or detachment is skipped. */
 export const refusals = async (page: Page, url: string): Promise<Refusal[]> => {
   await page.evaluate(
     () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
   );
-  const found = await Promise.all(
-    page.frames().map((f) => f.evaluate(readRefusals).catch(() => [])),
-  );
+  const found = await Promise.all(page.frames().map(frameRefusals));
   return [...new Map(found.flat().map((r) => [JSON.stringify(r), { page: url, ...r }])).values()];
 };
 

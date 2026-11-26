@@ -19,12 +19,16 @@ function activateNode(node: HTMLElement) {
   focusNode(node);
 }
 function focusNode(node: HTMLElement) {
-  node
-    .closest('[role="tree"]')!
+  treeOf(node)
     .querySelectorAll<HTMLElement>('[tabindex="0"]')
     .forEach((n) => (n.tabIndex = -1));
   node.tabIndex = 0;
   node.focus();
+}
+function treeOf(node: HTMLElement) {
+  const tree = node.closest('[role="tree"]');
+  if (tree === null) throw new Error('Tree missing: tree item requires a [role="tree"] ancestor');
+  return tree;
 }
 type TreePosition = { node: HTMLElement; visible: HTMLElement[]; index: number };
 
@@ -54,7 +58,10 @@ function followTreeNode({ node }: TreePosition) {
 
 /** Moves the roving tab stop when navigation yields a nonnegative index. */
 function focusTreeIndex(visible: HTMLElement[], index: number) {
-  if (index >= 0) focusNode(visible[index]!);
+  if (index < 0) return;
+  const node = visible[index];
+  if (node === undefined) throw new Error(`Visible tree item missing: index ${index}`);
+  focusNode(node);
 }
 
 const treeKeys = new Map<string, (position: TreePosition) => void>([
@@ -82,7 +89,7 @@ function searchTreeByKey(e: KeyboardEvent, { visible, index }: TreePosition) {
 /** Dispatches navigation and activation keys from the focused tree item. */
 export function onTreeKey(e: KeyboardEvent, node: HTMLElement) {
   if (e.target !== node) return;
-  const visible = visibleNodes(node.closest('[role="tree"]')!);
+  const visible = visibleNodes(treeOf(node));
   const position = { node, visible, index: visible.indexOf(node) };
   const handle = treeKeys.get(e.key);
   if (!handle) return searchTreeByKey(e, position);

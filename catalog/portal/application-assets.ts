@@ -30,7 +30,7 @@ export function groupApplicationFiles(dir: string, paths: readonly string[]) {
 
 // Renders one tracked application asset with its preferred preview and every downloadable variant.
 export const assetCard = ({ dir, stem, files }: ApplicationAsset, id: string) => {
-  const ext = (f: string) => f.split(".").pop()!;
+  const ext = (f: string) => f.slice(f.lastIndexOf(".") + 1);
   const shown = PREVIEW.map((e) => files.find((f) => ext(f) === e)).find(Boolean);
   const href = (f: string) => `${dir}/${esc(f)}`;
   const view = !shown

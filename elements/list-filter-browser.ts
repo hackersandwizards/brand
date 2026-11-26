@@ -195,11 +195,13 @@ class BrowserListFilter {
 
   /** Load and install the optional source page's rows, then refresh the filter. */
   private readonly load = () => {
-    this.source.load(
-      (rows) => this.view.install(rows),
-      this.apply,
-      () => this.navigation.sourceFailed(),
-    );
+    this.source
+      .load(
+        (rows) => this.view.install(rows),
+        this.apply,
+        () => this.navigation.sourceFailed(),
+      )
+      ?.catch(reportError);
   };
 
   /** Use the source page itself when fetching its rows fails. */

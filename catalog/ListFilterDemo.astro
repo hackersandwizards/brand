@@ -44,7 +44,7 @@ const four = [
   { title: "Spec-driven Development", topic: "tools", days: "1 Tag", hue: "teal" },
   { title: "Messbare Produktivität", topic: "evidence", days: "1 Tag", hue: "purple" },
   { title: "Agenten im Team", topic: "practice", days: "2 Tage", hue: "amber" },
-];
+] as const;
 const summaries = [
   "Was ein Agent wissen muss, bevor er anfängt.",
   "Vom Ticket zur Spezifikation, die ein Agent abarbeitet, und zurück zur Abnahme durch das Team.",
@@ -52,17 +52,23 @@ const summaries = [
 ];
 const rows =
   mode === "long"
-    ? Array.from({ length: 120 }, (_, i) => ({
-        ...four[i % 4]!,
-        title: `${four[i % 4]!.title} ${Math.floor(i / 4) + 1}`,
-        summary: summaries[i % 3],
-      }))
+    ? Array.from({ length: 30 }, (_, i) =>
+        four.map((row, j) => ({
+          ...row,
+          title: `${row.title} ${i + 1}`,
+          summary: summaries[(i * four.length + j) % summaries.length],
+        })),
+      ).flat()
     : four.map((r) => ({ ...r, summary: undefined }));
 const both = mode === "listed" || mode === "many";
-const items = rows.map((r) => ({
-  text: r.title,
-  facets: both ? { topic: [r.topic], days: [r.days[0]!] } : { topic: [r.topic] },
+const entries = rows.map((row) => ({
+  row,
+  item: {
+    text: row.title,
+    facets: both ? { topic: [row.topic], days: [row.days.charAt(0)] } : { topic: [row.topic] },
+  },
 }));
+const items = entries.map(({ item }) => item);
 const topic = { param: "topic", legend: "Thema", options: facetOptions };
 const days = {
   param: "days",
@@ -100,12 +106,12 @@ const facets = mode === "none" ? [] : both ? [topic, days] : [topic];
     {mode === "source" ? (
       <div />
     ) : (
-      rows.map((r, i) => (
+      entries.map(({ row: r, item }, i) => (
         <ListRow
           stripeColor={`stripe-${r.hue}`}
           data-filter-item
-          data-filter-text={items[i]!.text}
-          data-filter-facets={JSON.stringify(items[i]!.facets)}
+          data-filter-text={item.text}
+          data-filter-facets={JSON.stringify(item.facets)}
           data-filter-order={i}
           current={i === 0}
         >

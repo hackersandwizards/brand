@@ -21,7 +21,7 @@ import {
 } from "./allowlist";
 import { brandFiles, brandSizes, isBrandCopy } from "./assets";
 import { ENGINE_STYLE } from "./engine-style";
-import { answerHelp } from "./help";
+import { answerHelp, decodeEscaped } from "./help";
 import { exception, listTree, skippedReport } from "./tree";
 
 const USAGE = `usage: brand-copies [--tighten]
@@ -51,13 +51,9 @@ export const signatures = new Set(
 const TEXT = /\.(svg|html?|astro|[cm]?[jt]sx?|vue|svelte|css|md|mdx)$/;
 /** The svg text of a data: URI's parameters and data. */
 const svgOf = (params: string, data: string) => {
-  try {
-    return params.endsWith(";base64")
-      ? Buffer.from(data, "base64").toString("utf8")
-      : decodeURIComponent(data).replace(/^\s+/, "");
-  } catch {
-    return "";
-  }
+  if (params.endsWith(";base64")) return Buffer.from(data, "base64").toString("utf8");
+  const decoded = decodeEscaped(data);
+  return decoded === undefined ? "" : decoded.replace(/^\s+/, "");
 };
 // A data: URI's parameters and data, quoted up to its closing quote, or unquoted as in a CSS url().
 const DATA_URI = /(["'])data:([^,"']*),((?:(?!\1)[\s\S])*)\1|data:([^,"'\s()]*),([^"'\s()]+)/g;
@@ -68,7 +64,12 @@ const decoded = (text: string): string =>
     ...[...text.matchAll(DATA_URI)].map((m) => decoded(svgOf(m[2] ?? m[4], m[3] ?? m[5]))),
   ].join("\n");
 // The opening tag of the lockup the documents engine inlines, by its viewBox.
-const box = (f: string) => /viewBox="([^"]+)"/.exec(readFileSync(join(LOGOS, f), "utf8"))![1];
+const box = (f: string) => {
+  const match = /viewBox="([^"]+)"/.exec(readFileSync(join(LOGOS, f), "utf8"));
+  if (match === null) throw new Error(`Logo viewBox missing: ${f}`);
+  const [, viewBox] = match;
+  return viewBox;
+};
 const LOCKUP_BOX = new RegExp(
   `^<svg\\b[^>]*viewBox="(?:${[...new Set(["lockup.svg", "lockup-screen.svg"].map(box))].join("|").replace(/\./g, "\\.")})"`,
 );

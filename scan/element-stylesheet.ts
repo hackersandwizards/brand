@@ -35,7 +35,9 @@ const UTILITY_PROPERTIES: [RegExp, string[]][] = [
 export const utility = (token: string): string[] => {
   // Variants split at a colon outside an arbitrary value's brackets.
   const parts = token.split(/:(?![^[]*\])/);
-  const name = parts.pop()!.replace(/^!|!$/g, "");
+  const last = parts.pop();
+  if (last === undefined) throw new Error(`Utility name missing: ${token}`);
+  const name = last.replace(/^!|!$/g, "");
   if (parts.some((v) => !/^(sm|md|lg|xl|2xl|dark|print|motion-safe|(min|max)-.+|@.+)$/.test(v)))
     return [];
   return UTILITY_PROPERTIES.find(([pattern]) => pattern.test(name))?.[1] ?? [];
@@ -77,9 +79,9 @@ function ruleSelectors(head: string, parents?: string[]) {
 /** Properties named by declarations and by Tailwind utilities in @apply. */
 function declaredProperties(css: string) {
   return [
-    ...[...css.matchAll(/(?:^|;)\s*([\w-]+)\s*:/g)].map((m) => m[1]!),
-    ...[...css.matchAll(/@apply\s+([^;]+)/g)].flatMap((m) =>
-      m[1]!.trim().split(/\s+/).flatMap(utility),
+    ...[...css.matchAll(/(?:^|;)\s*([\w-]+)\s*:/g)].map(([, prop]) => prop),
+    ...[...css.matchAll(/@apply\s+([^;]+)/g)].flatMap(([, tokens]) =>
+      tokens.trim().split(/\s+/).flatMap(utility),
     ),
   ];
 }

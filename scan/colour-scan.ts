@@ -169,8 +169,9 @@ const readDeclarationValue = (src: string, i: number) => {
     src.slice(i, i + 100),
   );
   if (name) return { value: name[0], end: i + name[0].length };
-  const m = /^[^;}"'`{<>]{0,400}/.exec(src.slice(i))!;
-  return { value: m[0], end: i + m[0].length };
+  const css = /^[^;}"'`{<>]{0,400}/.exec(src.slice(i));
+  if (css === null) throw new Error(`CSS declaration match missing: offset ${i}`);
+  return { value: css[0], end: i + css[0].length };
 };
 
 /** Counts off-token CSS/JS radius and shadow declarations and blanks shadow values so their colours

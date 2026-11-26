@@ -28,7 +28,9 @@ function comparableColour(value: string) {
   return value.replace(
     /rgba?\(([^)]*)\)|color\(srgb ([^)]*)\)/g,
     (match, rgb?: string, srgb?: string) => {
-      const n = (rgb ?? srgb)!
+      const channels = rgb ?? srgb;
+      if (channels === undefined) throw new Error(`Colour channels missing: ${match}`);
+      const n = channels
         .split(/[\s,/]+/)
         .filter(Boolean)
         .map(parseFloat);
@@ -86,8 +88,10 @@ export function diffElementStyles(
     // preflight gives every element a solid zero-width border the reference has as none).
     const side = borderSide(prop);
     if (side && actual[`${side}-width`] === "0px" && reference[`${side}-width`] === "0px") continue;
-    const got = actual[prop]!;
-    const want = reference[prop]!;
+    const got = actual[prop];
+    if (got === undefined) throw new Error(`Actual style missing: ${prop}`);
+    const want = reference[prop];
+    if (want === undefined) throw new Error(`Reference style missing: ${prop}`);
     if (!sameStyleValue(got, want, tolerance))
       findings.push({ prop: prop.replace(/:em$/, ""), got, want });
   }

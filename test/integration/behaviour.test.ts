@@ -436,9 +436,7 @@ test(
       };
     });
     expect({ ...result, errors }).toEqual({
-      errors: [
-        "Error: Uncaught TypeError: Cannot read properties of undefined (reading 'closest')",
-      ],
+      errors: ["Error: Uncaught Error: Visible tree item missing: index 1"],
       prevented: true,
       focused: "last",
       tabIndex: 0,
@@ -775,9 +773,7 @@ test(
       };
     });
     expect({ ...result, errors }).toEqual({
-      errors: [
-        "Error: Uncaught TypeError: Cannot read properties of undefined (reading 'offsetLeft')",
-      ],
+      errors: ["Error: Uncaught Error: Carousel slide missing: index NaN"],
       status: "",
       timers: 0,
     });
@@ -858,7 +854,7 @@ const CLIPBOARD = () => {
       writeText: async (t: string) => {
         const { fail, ms = 0 } = w.plan[t] ?? {};
         await new Promise((r) => setTimeout(r, ms));
-        if (fail) throw new Error("denied");
+        if (fail) throw new DOMException("denied", "NotAllowedError");
         w.copied.push(t);
       },
     },

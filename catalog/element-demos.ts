@@ -7,7 +7,7 @@ const list = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 const board = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>`;
 const moon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${MOON}"/></svg>`;
 
-export const DEMOS: Record<string, string> = {
+const demos = {
   label: `<span class="hw-label">Training für ein Team</span><br><span class="hw-label" data-tone="muted">Kurz gesagt</span><br><span class="hw-label" data-hue="purple">Teil zwei</span><br><span class="hw-label" data-tone="muted"><button type="button">Name ↑</button></span>`,
   "label-box": `<span class="hw-label hw-label-box" data-hue="teal">Teil eins</span> <span class="hw-label hw-label-box" data-hue="purple">Teil zwei</span> <span class="hw-label hw-label-box" data-tone="ink">Die Fabrik</span><br><span class="hw-label-box"><span class="hw-label" data-tone="muted">Stage</span> <span class="hw-label" data-tone="ink">Review</span></span>`,
   pill: `<span class="hw-pill">Software Engineers</span> <span class="hw-pill" data-tone="neutral">QA</span> <span class="hw-pill" data-variant="outline">Remote</span> <span class="hw-pill" data-caps>Angebot</span><br><span class="hw-pill" data-editable>Foundations<span class="hw-pill-chevron"></span></span> <span class="hw-pill" data-tone="neutral">agentic<button type="button" class="hw-pill-remove" aria-label="Entfernen"></button></span> <span class="hw-pill" data-variant="add">+ Tag</span> <span class="hw-pill" data-state="draft">Entwurf</span> <span class="hw-pill" data-tone="warning">überfällig</span><br><span class="hw-pill" data-priority="0">P0</span> <span class="hw-pill" data-priority="1">P1</span> <span class="hw-pill" data-priority="2">P2</span> <span class="hw-pill" data-priority="3">P3</span> <span class="hw-pill" data-priority="4">P4</span> <span class="hw-pill" data-variant="outline">P–</span>`,
@@ -64,11 +64,13 @@ export const DEMOS: Record<string, string> = {
   carousel: `<div class="hw-carousel" aria-roledescription="carousel" aria-label="Stimmen"><ul class="hw-carousel-track"><li class="hw-card">Erste Stimme</li><li class="hw-card">Zweite Stimme</li><li class="hw-card">Dritte Stimme</li></ul><div class="hw-carousel-controls"><div class="hw-carousel-tray"><button type="button" data-hw-step="-1" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><span data-hw-position><button type="button" class="hw-carousel-dot" aria-label="1 von 3" aria-current="true"><span></span></button><button type="button" class="hw-carousel-dot" aria-label="2 von 3"><span></span></button><button type="button" class="hw-carousel-dot" aria-label="3 von 3"><span></span></button></span><button type="button" data-hw-step="1" aria-label="Weiter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div><p class="hw-sr-only" aria-live="polite"></p></div></div>`,
 };
 
+export const DEMOS: Record<string, string> = demos;
+
 // The elements in sections, as mature UI libraries group theirs: forms, actions, navigation,
 // feedback, overlays, data display, typography, containers, and the utilities every element shares. Each is
 // [name, title, file]; the portal draws the sections, and the catalog's story folders and their
 // order follow them.
-export const SECTIONS: [string, [string, string, string][]][] = [
+export const SECTIONS: [string, [keyof typeof demos, string, string][]][] = [
   [
     "Forms",
     [

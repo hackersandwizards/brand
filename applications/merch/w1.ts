@@ -18,7 +18,7 @@ const LOGOS = join(DIR, "../../logos");
 // Mockups for review only, outside git.
 const MOCKUPS = join(DIR, "../../captures/merch");
 mkdirSync(MOCKUPS, { recursive: true });
-const NIGHT = colors["--color-night"]!;
+const NIGHT = colors["--color-night"];
 const CUT = "#EC008C";
 // lockup and compact lockup widths in the D files, in brand units (wordmark: 6571)
 const LOCKUP_UNITS = 7988.814;
@@ -27,10 +27,9 @@ type Point = { x: number; y: number };
 type Cut = { svg: string; vbX: number; vbY: number; vbW: number; vbH: number };
 function cut(name: string): Cut {
   const svg = readFileSync(join(LOGOS, `${name}.svg`), "utf8");
-  const [vbX, vbY, vbW, vbH] = svg
-    .match(/viewBox="([^"]+)"/)![1]
-    .split(/\s+/)
-    .map(Number);
+  const viewBox = svg.match(/viewBox="([^"]+)"/)?.[1];
+  if (viewBox === undefined) throw new Error(`SVG viewBox missing: ${name}.svg`);
+  const [vbX, vbY, vbW, vbH] = viewBox.split(/\s+/).map(Number);
   return { svg, vbX, vbY, vbW, vbH };
 }
 const night = cut("wordmark-night");

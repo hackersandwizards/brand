@@ -1,5 +1,6 @@
+import { rejection } from "@hackersandwizards/scaffolding/rejection";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
-import { afterAll, beforeAll, expect, test } from "vitest";
+import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { getViteConfig } from "astro/config";
@@ -209,3 +210,23 @@ test(
   },
   limit(30_000),
 );
+
+test("a Brand tile without a portal names its missing catalog setting", async () => {
+  const catalog = (await server.ssrLoadModule("/expert/catalogs.json")) as {
+    default: { name: string; portal?: string }[];
+  };
+  const brand = catalog.default.find(({ name }) => name === "Brand");
+  const portal = brand?.portal;
+  assert(brand !== undefined, "Brand catalog fixture missing");
+  assert(portal !== undefined, "Brand portal fixture missing");
+  const component = await loadComponent("/catalog/Element.astro");
+  const container = await experimental_AstroContainer.create();
+  delete brand.portal;
+  try {
+    expect(await rejection(container.renderToString(component, { props: { name: "pill" } }))).toBe(
+      "Error: Brand catalog portal missing: expert/catalogs.json",
+    );
+  } finally {
+    brand.portal = portal;
+  }
+});

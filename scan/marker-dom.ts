@@ -1,4 +1,14 @@
 import type { JSHandle, Page } from "puppeteer-core";
+import {
+  markerLineFunctions,
+  type contentLeft as ContentLeft,
+  type lineStart as LineStart,
+  type rectOf as RectOf,
+} from "./marker-capture";
+
+declare const contentLeft: typeof ContentLeft;
+declare const lineStart: typeof LineStart;
+declare const rectOf: typeof RectOf;
 
 type Edges = Pick<DOMRectReadOnly, "left" | "right" | "top" | "bottom">;
 type Origin = Pick<Edges, "left" | "top">;
@@ -50,21 +60,31 @@ function markerVisible(el: Element) {
   );
 }
 
+/** The element whose style and layout paint a marker's line. */
+function markerTextParent(text: Text) {
+  const parent = text.parentElement;
+  if (parent === null) throw new Error("Text parent missing: marker line");
+  return parent;
+}
+
+/** Filters a text node for the line measured beside the marker. */
+function visibleProseText(node: Node, list: Element | null) {
+  if (!(node instanceof Text)) return false;
+  if (list && markerTextParent(node).closest("ul, ol") !== list) return false;
+  if (!node.data.trim()) return false;
+  const parent = markerTextParent(node);
+  // Code (a mono chip, often smaller) has its own x-height; the line's is the text's.
+  return markerVisible(parent) && !parent.closest("code, kbd, samp");
+}
+
 /** Finds the line's first visible prose Text node, within the same list. */
 function firstText(el: Node) {
   // A marker's neighbour may be bare text, which a walker rooted at it never returns.
-  if (el instanceof Text)
-    return el.textContent!.trim() && markerVisible(el.parentElement!) ? el : null;
+  if (el instanceof Text) return el.data.trim() && markerVisible(markerTextParent(el)) ? el : null;
   const list = el instanceof Element ? el.closest("ul, ol") : null;
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
     acceptNode: (n) =>
-      (!list || n.parentElement!.closest("ul, ol") === list) &&
-      n.textContent!.trim() &&
-      markerVisible(n.parentElement!) &&
-      // Code (a mono chip, often smaller) has its own x-height; the line's is the text's.
-      !n.parentElement!.closest("code, kbd, samp")
-        ? NodeFilter.FILTER_ACCEPT
-        : NodeFilter.FILTER_SKIP,
+      visibleProseText(n, list) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP,
   });
   return walker.nextNode() as Text | null;
 }
@@ -118,14 +138,23 @@ function pseudoMarker(host: Element): Match | undefined {
   if (text) return { host, text, kind };
 }
 
+/** Finds the first nonblank sibling of a painted marker. */
+function markerSibling(mark: Element) {
+  for (let next = mark.nextSibling; next; next = next.nextSibling) {
+    const text = next.textContent;
+    if (text === null) throw new Error("Text content missing: marker sibling");
+    if (text.trim()) return next;
+  }
+  return null;
+}
+
 /** Finds a brand square or a list item's square, followed by a line of text. */
 function elementMarker(mark: Element): Match | undefined {
   if (mark.childNodes.length || mark.classList.contains("hw-mark")) return;
   const host = mark.parentElement;
   if (!host) return;
   if (!isMarkerChild(mark, host) || !isPaintedSquare(mark)) return;
-  let next = mark.nextSibling;
-  while (next && !next.textContent!.trim()) next = next.nextSibling;
+  const next = markerSibling(mark);
   const text = next ? firstText(next) : null;
   if (text) return { host, text, kind: "element", mark };
 }
@@ -179,38 +208,6 @@ async function rewriteMarkerLines(matches: Match[]) {
   await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
 }
 
-/** Finds the CSS-pixel origin of an element's content box. */
-function contentLeft(el: Element) {
-  const s = getComputedStyle(el);
-  // Under a CSS zoom a rect is in zoomed px and a computed length is not.
-  return (
-    el.getBoundingClientRect().left +
-    (parseFloat(s.borderLeftWidth) + parseFloat(s.paddingLeft)) * el.currentCSSZoom
-  );
-}
-
-// Where the item's first line starts: its first content, text or an element such as a code chip.
-function lineStart(host: Element) {
-  for (const n of host.childNodes) {
-    if (n instanceof Text && !n.textContent!.trim()) continue;
-    const range = document.createRange();
-    range.selectNodeContents(n);
-    if (n instanceof Text)
-      range.setStart(n, n.textContent!.length - n.textContent!.trimStart().length);
-    const r = n instanceof Element ? n.getClientRects()[0] : range.getClientRects()[0];
-    if (r) return r.left;
-  }
-  return contentLeft(host);
-}
-
-/** Measures the band painted by four characters of a line. */
-function rectOf(node: Text, start = 0) {
-  const range = document.createRange();
-  range.setStart(node, start);
-  range.setEnd(node, start + 4);
-  return range.getClientRects()[0]!;
-}
-
 // An absolutely placed ::before, such as a timeline's waypoint, may sit anywhere left of the text
 // and be turned or moved: its box is that of an element appended to the item with the pseudo's
 // computed style, which the browser places, transforms and zooms alike, 1 px wider on each side.
@@ -227,7 +224,7 @@ function placed(host: Element) {
 
 /** Identifies the element relative to which both pixel clips are measured. */
 function markerAnchor(match: Match) {
-  return match.kind === "element" ? match.mark : match.text.parentElement!;
+  return match.kind === "element" ? match.mark : markerTextParent(match.text);
 }
 
 /** Measures an anchor-relative box from four viewport edges. */
@@ -282,7 +279,11 @@ function doubleMarker({ kind, host }: Match, li: Element | null) {
 
 /** Makes the label printed with a marker reading. */
 function markerLabel(el: Element) {
-  return `${el.tagName.toLowerCase()}${el.classList[0] ? "." + el.classList[0] : ""} "${el.textContent!.trim().slice(0, 30)}"`;
+  const tag = el.tagName.toLowerCase();
+  const cls = el.classList[0] ? "." + el.classList[0] : "";
+  const text = el.textContent;
+  if (text === null) throw new Error(`Text content missing: marker on ${tag}${cls}`);
+  return `${tag}${cls} "${text.trim().slice(0, 30)}"`;
 }
 
 // A system's own mark, declared in brand-elements.json, is measured and marked with its name.
@@ -298,7 +299,7 @@ function markerProbe(match: DeclaredMatch): Probe {
   const anchor = markerAnchor(match).getBoundingClientRect();
   const t = rectOf(text);
   const c = rectOf(text, 4);
-  const em = parseFloat(getComputedStyle(text.parentElement!).fontSize);
+  const em = parseFloat(getComputedStyle(markerTextParent(text)).fontSize);
   // The marker stands left of where the line starts, which is the text or an element before it,
   // such as a code chip; only its height comes from the text.
   const start = kind === "element" ? t.left : lineStart(host);
@@ -328,7 +329,7 @@ function buildMarkerProbes(matches: DeclaredMatch[]): Found {
   return {
     probes,
     anchors: matches.map(markerAnchor),
-    texts: matches.map(({ text }) => text.parentElement!),
+    texts: matches.map(({ text }) => markerTextParent(text)),
     excepted: probes.some((probe) => probe.exception !== undefined),
   };
 }
@@ -345,20 +346,21 @@ export async function installMarkerDom(page: Page) {
   const functions = [
     insertListNewlines,
     markerVisible,
+    markerTextParent,
+    visibleProseText,
     firstText,
     ownMarker,
     isSquareBefore,
     pseudoMarkerKind,
     isPseudoMarkerHost,
     pseudoMarker,
+    markerSibling,
     elementMarker,
     isMarkerChild,
     isPaintedSquare,
     findMarkerMatches,
     rewriteMarkerLines,
-    contentLeft,
-    lineStart,
-    rectOf,
+    ...markerLineFunctions,
     placed,
     markerAnchor,
     relativeBox,

@@ -186,9 +186,14 @@ for (const [from, to] of [
 ]) {
   let svg = readFileSync(join(ROOT, "logos", `${from}.svg`), "utf8");
   const images = [...svg.matchAll(/<image ([^>]*)href="data:image\/png;base64,([^"]+)"/g)].map(
-    ([, attrs, b64]) => ({ attrs, b64, units: Number(/width="([\d.]+)"/.exec(attrs)![1]) }),
+    ([, attrs, b64]) => {
+      const width = /width="([\d.]+)"/.exec(attrs)?.[1];
+      if (width === undefined) throw new Error(`Embedded image width missing: logos/${from}.svg`);
+      return { attrs, b64, units: Number(width) };
+    },
   );
-  const wizard = images.find((i) => !i.attrs.includes("wizard-edge"))!;
+  const wizard = images.find((i) => !i.attrs.includes("wizard-edge"));
+  if (wizard === undefined) throw new Error(`Wizard image missing: logos/${from}.svg`);
   const { width } = await sharp(Buffer.from(wizard.b64, "base64")).metadata();
   const perUnit = width / wizard.units / SCREEN;
   for (const { b64, units } of images) {

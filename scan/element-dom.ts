@@ -76,7 +76,7 @@ function hasBrandCorner(el: Element) {
     g.borderBottomRightRadius,
     g.borderBottomLeftRadius,
   ].map(parseFloat);
-  return tl! > tr! && tl === br && tr === bl;
+  return tl > tr && tl === br && tr === bl;
 }
 
 // The brand corner inside a brand corner, over every element of the page (a closed panel too),
@@ -112,11 +112,24 @@ function initialPageFocus(): PageFocus {
 }
 
 /** The node in `copy` at the place `node` holds in `root`. */
-function counterpart(root: Element, copy: Element, node: Element) {
+function counterpart(root: Element, copy: HTMLElement, node: Element) {
   const path: number[] = [];
-  for (let n = node; n !== root; n = n.parentElement!)
-    path.unshift([...n.parentElement!.children].indexOf(n));
-  return path.reduce<Element>((x, i) => x.children[i]!, copy) as HTMLElement;
+  for (let n = node; n !== root;) {
+    const parent = n.parentElement;
+    if (parent === null)
+      throw new Error("Focus target parent missing: inside the measured element");
+    path.unshift([...parent.children].indexOf(n));
+    n = parent;
+  }
+  const target = path.pop();
+  if (target === undefined) return copy;
+  const parent = path.reduce<Element>((el, i) => {
+    const child = el.children[i];
+    if (child === undefined) throw new Error(`Focus target child missing: reference index ${i}`);
+    return child;
+  }, copy);
+  const counterpart = parent.children[target];
+  return counterpart === undefined ? null : (counterpart as HTMLElement);
 }
 
 // Each side's focus target: the focus ring's own element, else the page's focused node inside the
@@ -251,14 +264,17 @@ function readElementPair(
   }
   const label = elementLabel(el);
   const findings: ElementFinding[] = [];
-  if (element === "focus-ring" && actual.own["outline-style"] === "none")
+  if (element === "focus-ring" && actual.own["outline-style"] === "none") {
+    const want = reference.own["outline-style"];
+    if (want === undefined) throw new Error("Reference style missing: focus-ring outline-style");
     findings.push({
       element,
       label,
       prop: "outline-style",
       got: "none",
-      want: reference.own["outline-style"]!,
+      want,
     });
+  }
   for (const difference of diffElementStyles(
     { actual: actual.own, reference: reference.own },
     rules.own,
@@ -300,9 +316,11 @@ function compareElementPage(reference: ElementReference) {
   } finally {
     for (const { host } of mounted) host.remove();
   }
-  const exceptions = [...document.querySelectorAll("[data-hw-exception]")].map((el) =>
-    el.getAttribute("data-hw-exception")!,
-  );
+  const exceptions = [...document.querySelectorAll("[data-hw-exception]")].map((el) => {
+    const name = el.getAttribute("data-hw-exception");
+    if (name === null) throw new Error(`Exception name missing: ${elementLabel(el)}`);
+    return name;
+  });
   return { findings, seen: [...new Set(instances.map(({ element }) => element))], exceptions };
 }
 
