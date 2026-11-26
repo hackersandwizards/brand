@@ -125,10 +125,48 @@ const copyScript = () => {
 
 const LAYER_ORDER = readFileSync(join(ROOT, "tokens/layers.css"), "utf8").trim();
 
+const CSS_CLOSERS = new Map([
+  ["{", "}"],
+  ["(", ")"],
+  ["[", "]"],
+]);
+
+function* topLevelCssBoundaries(css: string) {
+  const closers: string[] = [];
+  let previous = { token: "", end: 0 };
+  // Strings, escapes and unquoted URLs can contain punctuation that does not delimit a rule.
+  const tokens =
+    /\\[^]|"(?:\\[^]|[^"\\])*"|'(?:\\[^]|[^'\\])*'|(?<![\w-])url\((?:\\[^]|[^"'()\\])*\)|[^ \t\n\r\f]/gi;
+  for (const { 0: token, index } of css.matchAll(tokens)) {
+    if (token === closers.at(-1)) closers.pop();
+    if (closers.length === 0 && "{};".includes(token)) yield { token, index, previous };
+    const closer = CSS_CLOSERS.get(token);
+    if (closer) closers.push(closer);
+    previous = { token, end: index + token.length };
+  }
+}
+
 /** Adjacent top-level :root rules as one, each declaration kept in its place. */
-const mergeAdjacentRootRules = (css: string): string => {
-  const merged = css.replace(/^(:root \{[^{}]*?)\s*\}\s*:root \{/m, "$1");
-  return merged === css ? css : mergeAdjacentRootRules(merged);
+export const mergeAdjacentRootRules = (css: string): string => {
+  let start = 0;
+  let root = false;
+  let left: { token: string; end: number } | undefined;
+  let from = 0;
+  let merged = "";
+  for (const { token, index, previous } of topLevelCssBoundaries(css)) {
+    if (token === "{") {
+      root = /^[ \t\n\r\f]*:root[ \t\n\r\f]*$/.test(css.slice(start, index));
+      if (root && left) {
+        merged += css.slice(from, left.end);
+        if (left.token !== ";" && left.token !== "{") merged += ";";
+        from = index + 1;
+      }
+    } else {
+      left = token === "}" && root ? previous : undefined;
+      start = index + 1;
+    }
+  }
+  return merged + css.slice(from);
 };
 
 /** A stylesheet with its relative @imports replaced by the files, recursively, each where the
@@ -152,7 +190,7 @@ const FLAT = (source: string) =>
    one instead, so its first paint waits on one request. */
 ${flat(join(ROOT, source))}`;
 
-const pythonString = (value: string) => {
+export const pythonString = (value: string) => {
   const json = JSON.stringify(value);
   const doubleQuotes = value.match(/"/g)?.length ?? 0;
   const singleQuotes = value.match(/'/g)?.length ?? 0;
@@ -163,7 +201,7 @@ const pythonString = (value: string) => {
   return `'${body.replaceAll("'", "\\'")}'`;
 };
 
-const pythonDict = (entries: Record<string, string>) =>
+export const pythonDict = (entries: Record<string, string>) =>
   `{\n${Object.entries(entries)
     .map(([key, value]) => `    ${pythonString(key)}: ${pythonString(value)},\n`)
     .join("")}}`;

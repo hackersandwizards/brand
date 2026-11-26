@@ -5,13 +5,23 @@ import { join } from "node:path";
 import generatedCodeTheme from "../generated/code-theme.json";
 import { fontFaceRules, preloadFiles } from "../generated/font-faces";
 import fonts from "../generated/fonts.json";
-import { tokens as jsonTokens } from "../generated/tokens.json";
+import { colors as jsonColors, tokens as jsonTokens } from "../generated/tokens.json";
 import { tokens as generatedTokens } from "../generated/tokens";
 import { codeTheme } from "../scripts/code-theme";
 import { declarations } from "../scripts/css-declarations";
 import { faceRules, fallbackFaces, fontFaces } from "../scripts/font-outputs";
 import { ROOT, sha256 } from "../scripts/git";
-import { flat, palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
+import {
+  flat,
+  mergeAdjacentRootRules,
+  palettes,
+  parseTokens,
+  pythonDict,
+  pythonString,
+  resolveColors,
+  rgb,
+  SOURCE,
+} from "../scripts/tokens";
 
 const css = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(css);
@@ -52,10 +62,12 @@ test("reads compact and multiline custom properties and skips commented theme bl
   ).toEqual({ "--step": "1rem", "--measure": "2rem", "--grid": "repeat(2, minmax(0, 1fr))" });
 });
 
-test("reports a missing or unreadable theme block before generating tokens", () => {
-  for (const css of ["body { font-size: 1rem }", "@theme { .nested { --step: 1rem } }"])
+test.each(["body { font-size: 1rem }", "@theme { .nested { --step: 1rem } }"])(
+  "rejects the missing or unreadable theme block in %s",
+  (css) => {
     expect(() => parseTokens(css)).toThrow("a @theme block parseTokens cannot read");
-});
+  },
+);
 
 test("CSS declarations drop comments and collapse whitespace without changing values", () => {
   expect(declarations('font-family: /* face */ "Example"; grid: repeat( 2,   1fr );')).toEqual({
@@ -64,9 +76,38 @@ test("CSS declarations drop comments and collapse whitespace without changing va
   });
 });
 
+test("a root in a selector list keeps its own declarations", () => {
+  const css = ".outer,\n:root { --a: 1; }\n:root { --b: 2; }";
+  expect(mergeAdjacentRootRules(css)).toBe(css);
+});
+
+test("adjacent roots keep declaration order and gain a missing semicolon", () => {
+  expect(mergeAdjacentRootRules(":root { --a: 1 }\n:root { --b: 2; --a: 3; }")).toBe(
+    ":root { --a: 1; --b: 2; --a: 3; }",
+  );
+});
+
+test.each(["@media print", "@layer layout", ".outer"])(
+  "roots inside %s stay separate",
+  (parent) => {
+    const css = `${parent} {\n:root { --a: 1; }\n:root { --b: 2; }\n}`;
+    expect(mergeAdjacentRootRules(css)).toBe(css);
+  },
+);
+
 test("the flat document puts adjacent stage and document tokens in one root rule", () => {
-  const document = flat(join(ROOT, "tokens/document.css"));
-  expect(document.match(/^:root\s*\{/gm)).toHaveLength(1);
+  const rootDeclarations = (css: string) =>
+    Array.from(css.replace(/\/\*[^]*?\*\//g, "").matchAll(/^:root\s*\{([^{}]*)\}/gm), ([, body]) =>
+      body
+        .split(";")
+        .map((decl) => decl.trim())
+        .filter(Boolean),
+    );
+  const sourceRoots = ["stage.css", "document.css"].flatMap((file) =>
+    rootDeclarations(readFileSync(join(ROOT, "tokens", file), "utf8")),
+  );
+  expect(sourceRoots).toHaveLength(2);
+  expect(rootDeclarations(flat(join(ROOT, "tokens/document.css")))).toEqual([sourceRoots.flat()]);
 });
 
 test("the data formats carry expert.css's type steps, its aliases left out; the CSS formats do not", () => {
@@ -76,35 +117,43 @@ test("the data formats carry expert.css's type steps, its aliases left out; the 
   const root = generated("tokens.root.css");
   const steps = [...expert.matchAll(/^ {2}(--text-[\w-]+): (?!var\()([^;]+);/gm)];
   const stepNames = steps.map(([, name]) => name);
-  for (const name of [
-    "--text-page",
-    "--text-heading",
-    "--text-subheading",
-    "--text-subheading--line-height",
-    "--text-ui",
-    "--text-micro",
-  ])
-    expect(stepNames).toContain(name);
-  for (const [, name, value] of steps) {
-    expect(json[defined(name, "expert type step name")]).toBe(
-      defined(value, "expert type step value"),
-    );
-    expect(root).not.toContain(`${name}:`);
-  }
+  expect(stepNames).toEqual(
+    expect.arrayContaining([
+      "--text-page",
+      "--text-heading",
+      "--text-subheading",
+      "--text-subheading--line-height",
+      "--text-ui",
+      "--text-micro",
+    ]),
+  );
+  expect(stepNames.map((name) => json[defined(name, "expert type step name")])).toEqual(
+    steps.map(([, , value]) => defined(value, "expert type step value")),
+  );
+  expect(stepNames.filter((name) => root.includes(`${name}:`))).toEqual([]);
   expect(json["--text-meta"]).toBeUndefined();
   expect<Record<string, string>>(generatedTokens).toEqual(json);
-  const python = generated("tokens.py");
-  const pythonTokens = python.slice(python.indexOf("TOKENS = ") + 9, python.indexOf("\n\nCOLORS"));
-  // Ruff's quotes: a value holding more double than single quotes is single-quoted.
-  const asJson: Record<string, string> = { '"': '\\"', "\\'": "'", "\\\\": "\\\\" };
-  const jsonFromPython = pythonTokens
-    .replace(
-      /: '(.+)',$/gm,
-      (_, body: string) =>
-        `: "${body.replace(/\\\\|\\'|"/g, (escape) => String(asJson[escape]))}",`,
-    )
-    .replace(/,\n\}$/, "\n}");
-  expect(JSON.parse(jsonFromPython)).toEqual(json);
+});
+
+test("tokens.py writes the generated JSON dictionaries verbatim in Python format", () => {
+  const head =
+    "# Generated from tokens/tokens.css and expert/expert.css by scripts/tokens.ts. Edit the sources, never this file.";
+  const json = jsonTokens;
+  expect(readFileSync(join(ROOT, "generated/tokens.py"), "utf8")).toBe(
+    `${head}\nTOKENS = ${pythonDict(json)}\n\nCOLORS = ${pythonDict(jsonColors)}\n`,
+  );
+});
+
+test.each([
+  ["plain", '"plain"'],
+  [`one "two"'s`, String.raw`'one "two"\'s'`],
+  [`a"b'c`, String.raw`"a\"b'c"`],
+  [String.raw`a\b`, String.raw`"a\\b"`],
+  ["it's", `"it's"`],
+  [String.raw`a\"b"`, String.raw`'a\\"b"'`],
+  ["café", '"café"'],
+])("pythonString formats %j as a Python literal", (value, literal) => {
+  expect(pythonString(value)).toBe(literal);
 });
 
 test("mixes color-mix() tokens in sRGB", () => {
@@ -153,16 +202,17 @@ test("holds 32 brand colours, a token naming another adding none", () => {
   expect(new Set(own.map((k) => colors[k])).size).toBe(32);
 });
 
-test("every role clears WCAG AA: text on light 4.5:1 on bg and white, night on night and night-2", () => {
+test.each([
+  ["text", "bg"],
+  ["text", "white"],
+  ["night", "night"],
+  ["night", "night-2"],
+] as const)("every %s role clears WCAG AA at 4.5:1 on %s", (role, ground) => {
   expect(hues).toHaveLength(7);
-  for (const { text, night } of hues) {
-    for (const ground of ["bg", "white"])
-      expect(contrast(colors[`--color-${text}`], colors[`--color-${ground}`])).toBeGreaterThan(4.5);
-    for (const ground of ["night", "night-2"])
-      expect(contrast(colors[`--color-${night}`], colors[`--color-${ground}`])).toBeGreaterThan(
-        4.5,
-      );
-  }
+  for (const hue of hues)
+    expect(contrast(colors[`--color-${hue[role]}`], colors[`--color-${ground}`])).toBeGreaterThan(
+      4.5,
+    );
 });
 
 test("the two palettes hold every brand colour, and name only brand colours", () => {
@@ -187,25 +237,22 @@ test("the two palettes hold every brand colour, and name only brand colours", ()
   expect(neutrals.map(({ day, night }) => [day, night])).not.toContainEqual(["-", "-"]);
 });
 
-test("every code colour clears 4.5:1 on night and night-2", () => {
+test.each(["night", "night-2"])("every code colour clears 4.5:1 on %s", (ground) => {
   const roles = new Set(Object.keys(tokens).filter((k) => k.startsWith("--code-")));
   expect(roles.delete("--code-bg")).toBe(true);
   expect(roles.size).toBe(6);
   for (const k of roles)
-    for (const ground of ["night", "night-2"])
-      expect(contrast(colors[tokens[k].slice(4, -1)], colors[`--color-${ground}`])).toBeGreaterThan(
-        4.5,
-      );
+    expect(contrast(colors[tokens[k].slice(4, -1)], colors[`--color-${ground}`])).toBeGreaterThan(
+      4.5,
+    );
 });
 
-test("every chart series clears 3:1 on white", () => {
-  for (let i = 1; i <= 6; i++) {
-    const ref = defined(
-      tokens[`--chart-${i}`].match(/^var\((--color-[\w-]+)\)$/),
-      "chart colour reference",
-    )[1];
-    expect(contrast(colors[ref], "#ffffff")).toBeGreaterThan(3);
-  }
+test.each([1, 2, 3, 4, 5, 6])("chart series %i clears 3:1 on white", (series) => {
+  const ref = defined(
+    tokens[`--chart-${series}`].match(/^var\((--color-[\w-]+)\)$/),
+    "chart colour reference",
+  )[1];
+  expect(contrast(colors[ref], "#ffffff")).toBeGreaterThan(3);
 });
 
 test("print.css's page-box variables match its @page rule, which cannot read them", () => {
@@ -217,9 +264,13 @@ test("print.css's page-box variables match its @page rule, which cannot read the
 });
 
 test("fonts.json names each family tokens.css leads with, and every file it lists ships", () => {
-  for (const stack of [tokens["--font-sans"], tokens["--font-mono"]])
-    expect(fonts.faces.map((f) => `"${f.fontFamily}"`)).toContain(stack.split(",")[0]);
-  for (const f of fonts.faces) expect(existsSync(join(ROOT, "tokens/fonts", f.file))).toBe(true);
+  const primaryFamilies = [tokens["--font-sans"], tokens["--font-mono"]].map(
+    (stack) => stack.split(",")[0],
+  );
+  expect(fonts.faces.map((f) => `"${f.fontFamily}"`)).toEqual(
+    expect.arrayContaining(primaryFamilies),
+  );
+  expect(fonts.faces.filter((f) => !existsSync(join(ROOT, "tokens/fonts", f.file)))).toEqual([]);
 });
 
 test("font data skips commented faces and keeps the live face's descriptors", () => {
@@ -256,23 +307,24 @@ test("print.css's latin-ext faces take fonts.css's range, at every Latin weight"
     faces
       .filter((f) => new RegExp(`-${subset}-\\d+-normal`).test(f.file))
       .map((f) => `${f.fontFamily} ${f.fontWeight}`);
-  for (const f of faces.filter((f) => f.file.includes("-latin-ext-")))
-    expect(f.unicodeRange).toBe(range[f.fontFamily]);
+  const latinExt = faces.filter((f) => f.file.includes("-latin-ext-"));
+  expect(latinExt.map((f) => f.unicodeRange)).toEqual(latinExt.map((f) => range[f.fontFamily]));
   expect(weights("latin")).not.toEqual([]);
   expect(weights("latin-ext")).toEqual(weights("latin"));
 });
 
 // A live page shows the fallback face meanwhile, never blank text for up to 3 s.
 test("every screen and static face is font-display: swap", () => {
-  for (const f of [...fonts.faces, ...fontFaces(print)]) expect(f.fontDisplay).toBe("swap");
+  const faces = [...fonts.faces, ...fontFaces(print)];
+  expect(new Set(faces.map((face) => face.fontDisplay))).toEqual(new Set(["swap"]));
 });
 
 test("static-fonts.css holds print.css's faces, each url reaching its file from generated/", () => {
   const css = readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8");
   // fontFaces throws on a src outside url("fonts/…"), so a url the generator missed fails here.
   expect(fontFaces(css.replaceAll('url("../tokens/', 'url("'))).toEqual(fontFaces(print));
-  for (const [, url] of css.matchAll(/url\("([^"]+)"\)/g))
-    expect(existsSync(join(ROOT, "generated", url))).toBe(true);
+  const urls = [...css.matchAll(/url\("([^"]+)"\)/g)].map(([, url]) => url);
+  expect(urls.filter((url) => !existsSync(join(ROOT, "generated", url)))).toEqual([]);
 });
 
 // A face drawn before its web face arrives keeps the web face's lines only if the stack names a
@@ -280,36 +332,45 @@ test("static-fonts.css holds print.css's faces, each url reaching its file from 
 // file declares it.
 test("each stack names its fallback face after the web face, and both font files declare it", () => {
   const screen = fallbackFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8"));
-  const stacked = new Set<string>();
-  for (const stack of ["--font-sans", "--font-mono", "--font-code"]) {
+  const stacks = ["--font-sans", "--font-mono", "--font-code"].map((stack) => {
     const names = defined(tokens[stack], stack)
       .split(",")
       .map((f) => f.trim());
     const primary = defined(names[0], "primary font family");
     const fallback = primary.replace(" Variable", " Fallback");
     const at = names.indexOf(fallback);
-    expect(
-      names
-        .slice(0, at)
-        .every((n) => n.startsWith(defined(primary.split(" ")[0], "primary font prefix"))),
-    ).toBe(at > 0);
-    for (let i = at; names[i]?.startsWith(fallback.slice(0, -1)); i++)
-      stacked.add(defined(names[i], "fallback font family"));
-  }
+    const prefix = defined(primary.split(" ")[0], "primary font prefix");
+    const webFaces = names.slice(0, at);
+    const tail = names.slice(at);
+    const end = [...tail, ""].findIndex((name) => !name.startsWith(fallback.slice(0, -1)));
+    return {
+      fallbacks: tail.slice(0, end),
+      placement: {
+        afterWebFaces: at > 0,
+        unrelatedWebFaces: webFaces.filter((name) => !name.startsWith(prefix)),
+      },
+    };
+  });
+  const expectedPlacement = { afterWebFaces: true, unrelatedWebFaces: [] };
+  expect(stacks.map(({ placement }) => placement)).toEqual([
+    expectedPlacement,
+    expectedPlacement,
+    expectedPlacement,
+  ]);
+  const stacked = new Set(stacks.flatMap(({ fallbacks }) => fallbacks));
   expect(
     new Set(
       screen.map((face) => defined(face.match(/font-family: ("[^"]+")/), "quoted font family")[1]),
     ),
   ).toEqual(stacked);
-  for (const face of screen)
-    for (const d of [
-      "size-adjust",
-      "ascent-override",
-      "descent-override",
-      "line-gap-override",
-      "unicode-range",
-    ])
-      expect(face).toContain(`${d}: `);
+  const descriptors = [
+    "size-adjust",
+    "ascent-override",
+    "descent-override",
+    "line-gap-override",
+    "unicode-range",
+  ];
+  expect(screen.flatMap((face) => descriptors.filter((d) => !face.includes(`${d}: `)))).toEqual([]);
   expect(fallbackFaces(readFileSync(join(ROOT, "generated/static-fonts.css"), "utf8"))).toEqual(
     screen,
   );
@@ -397,7 +458,7 @@ test("preloadFiles names the files of fontFaceRules' and fonts.json's faces with
   expect(fonts.faces.filter((f) => !("unicodeRange" in f)).map(({ file }) => `/x/${file}`)).toEqual(
     unranged,
   );
-  for (const file of preloadFiles) expect(existsSync(join(ROOT, "tokens/fonts", file))).toBe(true);
+  expect(preloadFiles.filter((file) => !existsSync(join(ROOT, "tokens/fonts", file)))).toEqual([]);
 });
 
 // Tailwind v4 resolves a utility such as text-<name> against two theme namespaces: text-label is
