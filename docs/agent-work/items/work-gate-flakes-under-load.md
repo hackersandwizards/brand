@@ -5,7 +5,7 @@ priority: 3
 order: 1790
 area: software-engineering
 owner: Ada
-evidence: "Checked 12.11.: no recurrence recorded since 10.11.; two mitigations landed (hooks take the gate's stretched limit, test/limit.ts; v2.23.0's list-filter tests wait for what they assert), but neither 5 s hook timeout is explained. Internal."
+evidence: "Checked 12.11.: no recurrence recorded since 10.11.; two mitigations landed (hooks take the gate's stretched limit, now supplied by @hackersandwizards/scaffolding/test-timeout; v2.23.0's list-filter tests wait for what they assert), but neither 5 s hook timeout is explained. Internal."
 ---
 
 # Explain the 5 s timeout of a browser hook in brand's tests

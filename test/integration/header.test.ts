@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, describe, expect } from "vitest";
-import { it } from "../limit";
+import { limit } from "@hackersandwizards/scaffolding/test-timeout";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -65,9 +65,13 @@ const misses = (css: string, width: number): string[] => {
 describe("expert/header.css", () => {
   const css = readFileSync(join(ROOT, "expert/header.css"), "utf8");
   for (const width of [1440, 390])
-    it(`makes the whole lockup one link with the pointer and no text selection at ${width} px`, () => {
-      expect(misses(css, width)).toEqual([]);
-    }, 30_000);
+    it(
+      `makes the whole lockup one link with the pointer and no text selection at ${width} px`,
+      () => {
+        expect(misses(css, width)).toEqual([]);
+      },
+      limit(30_000),
+    );
 });
 
 // The nav scrolls sideways, so it clips on every side and is exactly as tall as its links: a focus
@@ -105,11 +109,15 @@ document.getElementById("out").textContent = String(Math.max(n.top - (l.top - gr
 };
 
 describe("expert/header.css focus", () => {
-  it("draws a nav link's focus ring inside the nav, which clips it", () => {
-    expect(ringOutside(readFileSync(join(ROOT, "expert/header.css"), "utf8"))).toBeLessThanOrEqual(
-      0,
-    );
-  }, 30_000);
+  it(
+    "draws a nav link's focus ring inside the nav, which clips it",
+    () => {
+      expect(
+        ringOutside(readFileSync(join(ROOT, "expert/header.css"), "utf8")),
+      ).toBeLessThanOrEqual(0);
+    },
+    limit(30_000),
+  );
 });
 
 // The header with the catalog list (catalogs.json, Mail current on its home, Slides below it) at `width`: whether every link
@@ -166,13 +174,19 @@ ${nav}</div></header>
     return r;
   };
 
-  for (const width of [375, 1440])
-    for (const nested of [false, true])
-      it(`shows every catalog at ${width} px${nested ? ", nested beside a control" : ""}, the header as tall as --spacing-app-header`, async () => {
-        const r = await catalogPage(width, { nested });
-        expect(r.inView).toBe(true);
-        expect(r.height).toBe(r.token);
-      });
+  it.each([
+    { width: 375, variant: "direct", nested: false },
+    { width: 375, variant: "nested beside a control", nested: true },
+    { width: 1440, variant: "direct", nested: false },
+    { width: 1440, variant: "nested beside a control", nested: true },
+  ])(
+    "shows every catalog at $width px ($variant) at the header token's height",
+    async ({ width, nested }) => {
+      const r = await catalogPage(width, { nested });
+      expect(r.inView).toBe(true);
+      expect(r.height).toBe(r.token);
+    },
+  );
   it('marks the current catalog under aria-current "page" and "true" alike', async () => {
     expect((await catalogPage(1440)).marked).toEqual(["Slides", "Mail"]);
   });
@@ -251,11 +265,10 @@ ${img.replace("{lockupNight}", `"file://${ROOT}/logos/lockup-screen-night.svg"`)
     const onLight = night();
     await tab.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
     await tab.waitForFunction(
-      () =>
-        document.querySelector<HTMLImageElement>(".hw-header-logo-night")!.complete &&
-        document.querySelector<HTMLImageElement>(".hw-header-logo-night")!.naturalWidth > 0,
+      () => document.querySelector<HTMLImageElement>(".hw-header-logo-night")!.naturalWidth > 0,
       { timeout: 5000 },
     );
+    await tab.$eval(".hw-header-logo-night", (image) => (image as HTMLImageElement).decode());
     await tab.close();
     expect([onLight, night()]).toEqual([false, true]);
   });

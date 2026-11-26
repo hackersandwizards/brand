@@ -87,11 +87,12 @@ async function write(text: string) {
     let ok = false;
     try {
       ok = document.execCommand("copy");
-    } catch {
-      // ok stays false
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "InvalidStateError")) throw error;
+    } finally {
+      field.remove();
+      back?.focus({ preventScroll: true });
     }
-    field.remove();
-    back?.focus({ preventScroll: true });
     return ok;
   }
 }

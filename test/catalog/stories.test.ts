@@ -1,12 +1,12 @@
-import { afterAll, beforeAll, expect } from "vitest";
-import { test } from "../limit";
+import { limit } from "@hackersandwizards/scaffolding/test-timeout";
+import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import axe from "axe-core";
 import { join } from "node:path";
-import type { Browser } from "puppeteer-core";
+import type { Browser, Viewport } from "puppeteer-core";
 import { exceptionFindings } from "../../scan/element-exceptions";
 import { elementPage, measurePage } from "../../scan/element-page";
 import { ELEMENTS } from "../../scan/element-rules";
-import { launch, open } from "../../scan/browser";
+import { addCss, launch, open } from "../../scan/browser";
 import { pool } from "../../scan/browser-workers";
 import { catalogPages } from "../../scan/site";
 import catalogs from "../../expert/catalogs.json";
@@ -32,18 +32,23 @@ test("the catalog includes expert component stories", () => {
   expect(expert.length).toBeGreaterThan(0);
 });
 
-test("every story passes brand-elements, every element story shows its element", async () => {
-  const pages = storyPages();
-  // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
-  const results = await pool(pages, 8, (p) => measurePage(browser, elementPage(p)));
-  // An expert component may hold no shared element, such as the header's frame.
-  expect(pages.filter((p, i) => !expertStory(p) && !results[i]!.seen.length)).toEqual([]);
-  expect(results.flatMap((r) => r.findings)).toEqual([]);
-  expect(results.flatMap((r) => r.unstyled)).toEqual([]);
-  expect(exceptionFindings({ pages }, results)).toEqual([]);
-  const seen = new Set(results.flatMap((r) => r.seen));
-  expect(Object.keys(ELEMENTS).filter((e) => !seen.has(e))).toEqual([]);
-}, 300_000);
+test(
+  "every story passes brand-elements, every element story shows its element",
+  async () => {
+    const pages = storyPages();
+    // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
+    const results = await pool(pages, 8, (p) => measurePage(browser, elementPage(p)));
+    // An expert component may hold no shared element, such as the header's frame.
+    const emptyStories = pages.filter((_, i) => !results[i]!.seen.length);
+    expect(emptyStories.filter((p) => !expertStory(p))).toEqual([]);
+    expect(results.flatMap((r) => r.findings)).toEqual([]);
+    expect(results.flatMap((r) => r.unstyled)).toEqual([]);
+    expect(exceptionFindings({ pages }, results)).toEqual([]);
+    const seen = new Set(results.flatMap((r) => r.seen));
+    expect(Object.keys(ELEMENTS).filter((e) => !seen.has(e))).toEqual([]);
+  },
+  limit(300_000),
+);
 
 // WCAG AA text contrast (axe-core's color-contrast rule) over every element story at every scale
 // and night, as each page loads: hover and focus are not measured. ignoreLength: a one-digit count
@@ -97,114 +102,157 @@ const storyPages = () =>
 const UNSCROLLED =
   ".hw-table-scroll { background: none !important; overflow: visible !important; } .hw-table-scroll .hw-table { width: 100%; table-layout: fixed; overflow-wrap: anywhere; }";
 
-test("every element story passes AA text contrast", async () => {
-  const found = await pool(storyPages(), 8, (url) => contrastFailures(url, UNSCROLLED));
-  expect(found.flat()).toEqual([]);
-}, 300_000);
+test(
+  "every element story passes AA text contrast",
+  async () => {
+    const found = await pool(storyPages(), 8, (url) => contrastFailures(url, UNSCROLLED));
+    expect(found.flat()).toEqual([]);
+  },
+  limit(300_000),
+);
 
 // The control: a one-digit count back at a lowered opacity, which both checks must report.
-test("a faint choice count fails the contrast check and brand-elements", async () => {
-  const url = storyPages().find((p) => p.endsWith("/Forms/filter-value/screen/"))!;
-  const faint = ".hw-choice-count { opacity: 0.8 }";
-  expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
-  const { findings } = await measurePage(browser, elementPage(url), faint);
-  expect(findings.some((f) => f.prop === "opacity")).toBe(true);
-}, 60_000);
+test(
+  "a faint choice count fails the contrast check and brand-elements",
+  async () => {
+    const url = storyPages().find((p) => p.endsWith("/Forms/filter-value/screen/"))!;
+    const faint = ".hw-choice-count { opacity: 0.8 }";
+    expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
+    const { findings } = await measurePage(browser, elementPage(url), faint);
+    expect(findings.some((f) => f.prop === "opacity")).toBe(true);
+  },
+  limit(60_000),
+);
 
-test("faint text in a scrolling table fails the contrast check that lays it out whole", async () => {
-  const url = storyPages().find((p) => p.endsWith("/table-scroll/screen/"))!;
-  // The last column, which sits past the column's edge until the pass fits the table.
-  const faint = `${UNSCROLLED} .hw-table-scroll td:last-child { opacity: 0.3 }`;
-  expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
-}, 60_000);
+test(
+  "faint text in a scrolling table fails the contrast check that lays it out whole",
+  async () => {
+    const url = storyPages().find((p) => p.endsWith("/table-scroll/screen/"))!;
+    // The last column, which sits past the column's edge until the pass fits the table.
+    const faint = `${UNSCROLLED} .hw-table-scroll td:last-child { opacity: 0.3 }`;
+    expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
+  },
+  limit(60_000),
+);
 
 // In a filter bar the choices and both selects (an app's form-input, the brand's hw-field
 // hw-select) stand one height: the control height by mouse, the touch target on a touch screen,
 // day and night. The control: 32 px choices beside 40 px selects.
 const BEFORE = `[data-hw-scale="dense"] { --hw-choice-height: 2rem; --hw-field-height: 2.5rem }
 .form-input { min-height: 2.5rem; padding-block: 0.5rem }`;
-test("a filter bar's choices and selects stand one height by mouse and touch, day and night", async () => {
-  const url = storyPages().find((p) => p.endsWith("/Forms/filter-bar/dense/"))!;
-  const heights = async (touch: boolean, theme: string, css = "") => {
-    const tab = await browser.newPage();
-    try {
-      await tab.emulate({
-        viewport: { width: touch ? 390 : 1440, height: 900, isMobile: touch, hasTouch: touch },
-        userAgent: "",
-      });
-      await open(tab, url);
-      await tab.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
-      if (css) await tab.addStyleTag({ content: css });
-      return await tab.$$eval(".expert-frame :is(.hw-choice, select)", (els) => [
-        ...new Set(els.map((e) => Math.round(e.getBoundingClientRect().height))),
-      ]);
-    } finally {
-      await tab.close();
-    }
-  };
-  for (const theme of ["light", "dark"]) {
-    expect([theme, await heights(false, theme)]).toEqual([theme, [38]]);
-    expect([theme, await heights(true, theme)]).toEqual([theme, [44]]);
-  }
-  expect((await heights(false, "light", BEFORE)).length).toBeGreaterThan(1);
-  expect((await heights(true, "light", BEFORE)).length).toBeGreaterThan(1);
-}, 60_000);
+const mouse = { width: 1440, height: 900, isMobile: false, hasTouch: false };
+const touch = { width: 390, height: 900, isMobile: true, hasTouch: true };
+const storyUrl = (suffix: string) => {
+  const url = storyPages().find((entry) => entry.endsWith(suffix));
+  assert(url, `Expected a catalog story ending in ${suffix}`);
+  return url;
+};
 
-// In the tile, as on a consumer's page, the box without text stands on the axis and at the pitch
-// of the boxes with text, by mouse and on a touch screen, at every scale.
-test("a check story's marks share one axis and one pitch, by mouse and touch", async () => {
-  const pitch = async (scale: string, touch: boolean, css = "") => {
-    const tab = await browser.newPage();
-    try {
-      await tab.emulate({
-        viewport: { width: touch ? 390 : 1440, height: 900, isMobile: touch, hasTouch: touch },
-        userAgent: "",
+async function controlHeights(viewport: Viewport, theme: string, css: string) {
+  const tab = await browser.newPage();
+  try {
+    await tab.setViewport(viewport);
+    await open(tab, storyUrl("/Forms/filter-bar/dense/"));
+    await tab.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+    await addCss(tab, css);
+    return await tab.$$eval(".expert-frame :is(.hw-choice, select)", (els) => [
+      ...new Set(els.map((e) => Math.round(e.getBoundingClientRect().height))),
+    ]);
+  } finally {
+    await tab.close();
+  }
+}
+
+test.each([
+  { pointer: "mouse", viewport: mouse, theme: "light", height: 38 },
+  { pointer: "mouse", viewport: mouse, theme: "dark", height: 38 },
+  { pointer: "touch", viewport: touch, theme: "light", height: 44 },
+  { pointer: "touch", viewport: touch, theme: "dark", height: 44 },
+])(
+  "a filter bar's controls share a $height px height by $pointer in $theme",
+  async ({ viewport, theme, height }) => {
+    expect(await controlHeights(viewport, theme, "")).toEqual([height]);
+  },
+  limit(60_000),
+);
+
+test.each([
+  { pointer: "mouse", viewport: mouse },
+  { pointer: "touch", viewport: touch },
+])(
+  "the old filter bar styles mix control heights by $pointer",
+  async ({ viewport }) => {
+    expect((await controlHeights(viewport, "light", BEFORE)).length).toBeGreaterThan(1);
+  },
+  limit(60_000),
+);
+
+// The box without text stands on the axis and at the pitch of the boxes with text.
+async function checkStoryGeometry(scale: string, viewport: Viewport, css: string) {
+  const tab = await browser.newPage();
+  try {
+    await tab.setViewport(viewport);
+    await open(tab, storyUrl(`/checkbox-and-radio/${scale}/`));
+    await addCss(tab, css);
+    return await tab.$$eval(".sample .hw-check", (els) => {
+      const mid = els.map((e) => {
+        const r = e.getBoundingClientRect();
+        return [r.left + r.width / 2, r.top + r.height / 2] as const;
       });
-      await open(
-        tab,
-        storyPages().find((p) => p.endsWith(`/checkbox-and-radio/${scale}/`))!,
-      );
-      if (css) await tab.addStyleTag({ content: css });
-      return await tab.$$eval(".sample .hw-check", (els) => {
-        const mid = els.map((e) => {
-          const r = e.getBoundingClientRect();
-          return [r.left + r.width / 2, r.top + r.height / 2] as const;
-        });
-        const round = (n: number) => Math.round(n * 4) / 4;
-        return [
-          new Set(mid.map(([x]) => round(x))).size,
-          new Set(mid.slice(1).map(([, y], i) => round(y - mid[i]![1]))).size,
-        ];
-      });
-    } finally {
-      await tab.close();
-    }
-  };
-  for (const scale of ["screen", "dense", "print", "stage"])
-    for (const touch of [false, true])
-      expect([scale, touch, await pitch(scale, touch)]).toEqual([scale, touch, [1, 1]]);
-  // The control: the tile's gap on the lone box's target moves it off the rows' pitch.
-  const gap = ".sample > * + * { margin-top: 0.5em !important }";
-  expect(await pitch("screen", false, gap)).not.toEqual([1, 1]);
-}, 60_000);
+      const round = (n: number) => Math.round(n * 4) / 4;
+      return [
+        new Set(mid.map(([x]) => round(x))).size,
+        new Set(mid.slice(1).map(([, y], i) => round(y - mid[i]![1]))).size,
+      ];
+    });
+  } finally {
+    await tab.close();
+  }
+}
+
+test.each([
+  ["screen", "mouse", mouse],
+  ["dense", "mouse", mouse],
+  ["print", "mouse", mouse],
+  ["stage", "mouse", mouse],
+  ["screen", "touch", touch],
+  ["dense", "touch", touch],
+  ["print", "touch", touch],
+  ["stage", "touch", touch],
+] as const)(
+  "a %s check story's marks share one axis and pitch by %s",
+  async (scale, _pointer, viewport) => {
+    expect(await checkStoryGeometry(scale, viewport, "")).toEqual([1, 1]);
+  },
+  limit(60_000),
+);
+
+test(
+  "a margin on the lone check's target moves it off the rows' pitch",
+  async () => {
+    const gap = ".sample > * + * { margin-top: 0.5em !important }";
+    expect(await checkStoryGeometry("screen", mouse, gap)).not.toEqual([1, 1]);
+  },
+  limit(60_000),
+);
 
 // The catalog's header lists every catalog once, Catalog marked: "page" on the home, "true" below.
-test("the home and a story page link every catalog once, Catalog current", () => {
-  for (const [path, current] of [
-    ["catalog/index.html", "page"],
-    ["catalog/dashboard/Actions/button/dense/index.html", "true"],
-  ]) {
-    const navs = page(path).match(/<nav[^>]*data-hw-catalogs[^>]*>.*?<\/nav>/gs) ?? [];
-    expect(navs.length).toBe(1);
-    const links = [...navs[0]!.matchAll(/<a([^>]*)>([^<]*)<\/a>/g)].map(([, attrs, name]) => [
-      name,
-      attrs!.match(/aria-current="(\w+)"/)?.[1],
-    ]);
-    expect(links.map(([name]) => name)).toEqual([
-      "Brand",
-      "Catalog",
-      ...catalogs.filter((c) => c.name !== "Brand").map((c) => c.name),
-    ]);
-    expect(links.filter(([, cur]) => cur)).toEqual([["Catalog", current]]);
-  }
+test.each([
+  ["catalog/index.html", "page"],
+  ["catalog/dashboard/Actions/button/dense/index.html", "true"],
+])("%s links every catalog once, Catalog current", (path, current) => {
+  const navs = [...page(path).matchAll(/<nav[^>]*data-hw-catalogs[^>]*>.*?<\/nav>/gs)].map(
+    ([nav]) => nav,
+  );
+  expect(navs.length).toBe(1);
+  const links = [...navs[0]!.matchAll(/<a([^>]*)>([^<]*)<\/a>/g)].map(([, attrs, name]) => [
+    name,
+    attrs!.match(/aria-current="(\w+)"/)?.[1],
+  ]);
+  expect(links.map(([name]) => name)).toEqual([
+    "Brand",
+    "Catalog",
+    ...catalogs.filter((c) => c.name !== "Brand").map((c) => c.name),
+  ]);
+  expect(links.filter(([, cur]) => cur)).toEqual([["Catalog", current]]);
 });

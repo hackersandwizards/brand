@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, expect } from "vitest";
-import { test } from "./limit";
+import { limit } from "@hackersandwizards/scaffolding/test-timeout";
+import { afterAll, beforeAll, expect, test } from "vitest";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { getViteConfig } from "astro/config";
@@ -73,9 +73,15 @@ test("every component has placeholder props here", () => {
   expect(components.map(nameOf).sort()).toEqual(Object.keys(props).sort());
 });
 
-test.each(components)(
-  "%s renders standalone",
-  async (path) => {
+const renderMarkers = new Map([["ThemeToggle", 'id="theme-toggle"']]);
+const componentCases = Object.keys(props).map((name) => ({
+  path: `expert/components/${name}`,
+  marker: renderMarkers.get(name) ?? P,
+}));
+
+test.each(componentCases)(
+  "$path renders standalone",
+  async ({ path, marker }) => {
     const name = nameOf(path);
     const component = await loadComponent(`/${path}.astro`);
     const container = await experimental_AstroContainer.create();
@@ -83,9 +89,9 @@ test.each(components)(
       props: props[name],
       slots: { default: `<p>${P}</p>`, aside: `<p>${P}</p>`, lead: `<p>${P}</p>` },
     });
-    expect(html).toContain(name === "ThemeToggle" ? 'id="theme-toggle"' : P);
+    expect(html).toContain(marker);
   },
-  30_000,
+  limit(30_000),
 );
 
 test("SpaceNav's home link takes hw-nav's weight: no weight class on its list", async () => {
@@ -117,72 +123,88 @@ test("SpaceNavTree wraps the root and renders bare items directly in the branch 
   expect(await render(true)).toBe(items);
 });
 
-test("SpaceNav takes its words from labels, English by default", async () => {
-  const component = await loadComponent("/expert/components/SpaceNav.astro");
-  const container = await experimental_AstroContainer.create();
-  const branch = { ...node, href: "/space/branch", children: [node] };
-  const render = (labels?: Record<string, unknown>) =>
-    container.renderToString(component, {
-      props: { ...props.SpaceNav, nodes: [branch], pageCount: 2, labels },
+test(
+  "SpaceNav takes its words from labels, English by default",
+  async () => {
+    const component = await loadComponent("/expert/components/SpaceNav.astro");
+    const container = await experimental_AstroContainer.create();
+    const branch = { ...node, href: "/space/branch", children: [node] };
+    const render = (labels?: Record<string, unknown>) =>
+      container.renderToString(component, {
+        props: { ...props.SpaceNav, nodes: [branch], pageCount: 2, labels },
+      });
+    const english: string = await render();
+    for (const text of ["Browse " + P, "2 pages", P + " home", "Overview", P + " sections"])
+      expect(english).toContain(text);
+    const german: string = await render({
+      sections: "Bereiche",
+      browse: "Durchblättern",
+      pages: (n: number) => `${n} Seiten`,
+      home: "Startseite",
+      overview: "Übersicht",
     });
-  const english: string = await render();
-  for (const text of ["Browse " + P, "2 pages", P + " home", "Overview", P + " sections"])
-    expect(english).toContain(text);
-  const german: string = await render({
-    sections: "Bereiche",
-    browse: "Durchblättern",
-    pages: (n: number) => `${n} Seiten`,
-    home: "Startseite",
-    overview: "Übersicht",
-  });
-  for (const text of [
-    "Durchblättern",
-    "2 Seiten",
-    "Startseite",
-    "Übersicht",
-    'aria-label="Bereiche"',
-  ])
-    expect(german).toContain(text);
-  for (const text of ["Browse", "pages", "home", "Overview", "sections"])
-    expect(german).not.toContain(text);
-}, 30_000);
+    for (const text of [
+      "Durchblättern",
+      "2 Seiten",
+      "Startseite",
+      "Übersicht",
+      'aria-label="Bereiche"',
+    ])
+      expect(german).toContain(text);
+    for (const text of ["Browse", "pages", "home", "Overview", "sections"])
+      expect(german).not.toContain(text);
+  },
+  limit(30_000),
+);
 
-test("ListFilter's Filters button names the chosen values the server renders", async () => {
-  const component = await loadComponent("/expert/components/ListFilter.astro");
-  const container = await experimental_AstroContainer.create();
-  const facets = [{ param: "t", legend: P, options: [{ value: "a", label: "Alpha" }] }];
-  const render = (t: string) =>
-    container.renderToString(component, {
-      props: { ...props.ListFilter, facets, state: { q: "", facets: { t } } },
-    });
-  const chosen: string = await render("a");
-  expect(chosen).toContain('aria-label="Filters: Alpha"');
-  expect(chosen).toMatch(/data-filter-label[^>]*>Alpha</);
-  // Control: nothing chosen, the button says Filters.
-  expect(await render("")).toMatch(/data-filter-label[^>]*>Filters</);
-}, 30_000);
+test(
+  "ListFilter's Filters button names the chosen values the server renders",
+  async () => {
+    const component = await loadComponent("/expert/components/ListFilter.astro");
+    const container = await experimental_AstroContainer.create();
+    const facets = [{ param: "t", legend: P, options: [{ value: "a", label: "Alpha" }] }];
+    const render = (t: string) =>
+      container.renderToString(component, {
+        props: { ...props.ListFilter, facets, state: { q: "", facets: { t } } },
+      });
+    const chosen: string = await render("a");
+    expect(chosen).toContain('aria-label="Filters: Alpha"');
+    expect(chosen).toMatch(/data-filter-label[^>]*>Alpha</);
+    // Control: nothing chosen, the button says Filters.
+    expect(await render("")).toMatch(/data-filter-label[^>]*>Filters</);
+  },
+  limit(30_000),
+);
 
-test("Pill takes the hue table's night tone: ampersand's light tone, teal's night tone", async () => {
-  const component = await loadComponent("/expert/components/Pill.astro");
-  const container = await experimental_AstroContainer.create();
-  const night = async (color: string) =>
-    /--hw-pill-hue-night: ([^"]*)/.exec(
-      await container.renderToString(component, { props: { ...props.Pill, color } }),
-    )?.[1];
-  expect(await night("bg-ampersand/15")).toContain("var(--color-ampersand-light,");
-  expect(await night("bg-teal/15")).toContain("var(--color-teal-night,");
-}, 30_000);
+test(
+  "Pill takes the hue table's night tone: ampersand's light tone, teal's night tone",
+  async () => {
+    const component = await loadComponent("/expert/components/Pill.astro");
+    const container = await experimental_AstroContainer.create();
+    const night = async (color: string) =>
+      /--hw-pill-hue-night: ([^"]*)/.exec(
+        await container.renderToString(component, { props: { ...props.Pill, color } }),
+      )?.[1];
+    expect(await night("bg-ampersand/15")).toContain("var(--color-ampersand-light,");
+    expect(await night("bg-teal/15")).toContain("var(--color-teal-night,");
+  },
+  limit(30_000),
+);
 
-test("Pill gives the warning role the warning tone, every other hue its wash", async () => {
-  const component = await loadComponent("/expert/components/Pill.astro");
-  const container = await experimental_AstroContainer.create();
-  const render = (color: string) =>
-    container.renderToString(component, { props: { ...props.Pill, color } });
-  for (const color of ["bg-warning/15 text-warning", "text-warning"]) {
-    const html = await render(color);
-    expect(html).toContain('data-tone="warning"');
-    expect(html).not.toContain("--hw-pill-hue");
-  }
-  // Control: the error role keeps its hue.
-  expect(await render("bg-error/15 text-error")).toContain("--hw-pill-hue: var(--error,");
-}, 30_000);
+test(
+  "Pill gives the warning role the warning tone, every other hue its wash",
+  async () => {
+    const component = await loadComponent("/expert/components/Pill.astro");
+    const container = await experimental_AstroContainer.create();
+    const render = (color: string) =>
+      container.renderToString(component, { props: { ...props.Pill, color } });
+    for (const color of ["bg-warning/15 text-warning", "text-warning"]) {
+      const html = await render(color);
+      expect(html).toContain('data-tone="warning"');
+      expect(html).not.toContain("--hw-pill-hue");
+    }
+    // Control: the error role keeps its hue.
+    expect(await render("bg-error/15 text-error")).toContain("--hw-pill-hue: var(--error,");
+  },
+  limit(30_000),
+);

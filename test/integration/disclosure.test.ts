@@ -1,10 +1,10 @@
-import { afterAll, beforeAll, expect } from "vitest";
-import { test } from "../limit";
+import { limit } from "@hackersandwizards/scaffolding/test-timeout";
+import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import type { Browser, Protocol } from "puppeteer-core";
+import type { Browser } from "puppeteer-core";
 import { ROOT } from "../../scripts/git";
 import { launch, open } from "../../scan/browser";
 
@@ -47,7 +47,7 @@ test.each([
     await tab.close();
     expect(measured).toEqual({ focused: true, width });
   },
-  30_000,
+  limit(30_000),
 );
 
 // The chevron's centre sits on the centre of the label's first line, one line or wrapped, where
@@ -69,72 +69,82 @@ const chevronPage = doc(
   `<style>body { font: 500 0.875rem/1.5 var(--font-sans) } h2 { font: 700 1.25rem/1.4 var(--font-sans) }</style>${chevronBody}`,
 );
 
-test("the chevron sits in the middle of the label's first line", async () => {
-  const file = join(dir, "chevron.html");
-  writeFileSync(file, chevronPage);
-  const tab = await browser.newPage();
-  await open(tab, pathToFileURL(file).href);
-  await tab.evaluate(() => document.fonts.ready);
-  // A summary's chevron is its ::before, which only the DevTools protocol measures.
-  const cdp = await tab.createCDPSession();
-  const { root } = await cdp.send("DOM.getDocument", { depth: -1 });
-  const pseudos: number[] = [];
-  const walk = (n: Protocol.DOM.Node) => {
-    const before = n.pseudoElements?.find((p) => p.pseudoType === "before");
-    if (n.nodeName === "SUMMARY" && before) pseudos.push(before.nodeId);
-    n.children?.forEach(walk);
-  };
-  walk(root);
-  const chevrons = await Promise.all(
-    pseudos.map(async (nodeId) => {
-      const { model } = await cdp.send("DOM.getBoxModel", { nodeId });
-      return { top: model.border[1]!, height: model.height };
-    }),
-  );
-  const span = await tab.$eval(".hw-disclosure-chevron", (s) => {
-    const r = s.getBoundingClientRect();
-    return { top: r.top, height: r.height };
-  });
-  // The label's first line: a flex item's top, or for the span in the heading the heading's top.
-  const lines = await tab.$$eval(".l", (ls) =>
-    ls.map((l) => {
-      const box = (
-        l.parentElement!.tagName === "H2" ? l.parentElement! : l
-      ).getBoundingClientRect();
-      return { top: box.top, height: parseFloat(getComputedStyle(l).lineHeight) };
-    }),
-  );
-  await tab.close();
-  const centres = [...chevrons, span].map((c, i) => {
-    const line = lines[i]!;
-    return Math.abs(c.top + c.height / 2 - (line.top + line.height / 2));
-  });
-  expect(centres).toHaveLength(6);
-  for (const off of centres) expect(off).toBeLessThan(0.5);
-}, 30_000);
+test(
+  "the chevron sits in the middle of the label's first line",
+  async () => {
+    const file = join(dir, "chevron.html");
+    writeFileSync(file, chevronPage);
+    const tab = await browser.newPage();
+    await open(tab, pathToFileURL(file).href);
+    await tab.evaluate(() => document.fonts.ready);
+    // A summary's chevron is its ::before, which only the DevTools protocol measures.
+    const cdp = await tab.createCDPSession();
+    const { root } = await cdp.send("DOM.getDocument", { depth: -1 });
+    const { nodeIds } = await cdp.send("DOM.querySelectorAll", {
+      nodeId: root.nodeId,
+      selector: "summary:has(> .l)",
+    });
+    const chevrons = await Promise.all(
+      nodeIds.map(async (nodeId) => {
+        const { node: summary } = await cdp.send("DOM.describeNode", { nodeId });
+        const before = summary.pseudoElements?.find((node) => node.pseudoType === "before");
+        assert(before, "The summary renders a ::before chevron");
+        const { model } = await cdp.send("DOM.getBoxModel", {
+          backendNodeId: before.backendNodeId,
+        });
+        return { top: model.border[1]!, height: model.height };
+      }),
+    );
+    const span = await tab.$eval(".hw-disclosure-chevron", (s) => {
+      const r = s.getBoundingClientRect();
+      return { top: r.top, height: r.height };
+    });
+    const headingPseudos = await tab.$$eval("summary:has(> h2)", (summaries) =>
+      summaries.map((summary) => getComputedStyle(summary, "::before").content),
+    );
+    const lines = await tab.$$eval("summary > .l, summary > h2", (labels) =>
+      labels.map((label) => ({
+        top: label.getBoundingClientRect().top,
+        height: parseFloat(getComputedStyle(label).lineHeight),
+      })),
+    );
+    await tab.close();
+    const centres = [...chevrons, span].map((c, i) => {
+      const line = lines[i]!;
+      return Math.abs(c.top + c.height / 2 - (line.top + line.height / 2));
+    });
+    expect(headingPseudos).toEqual(["none"]);
+    expect(centres.map((offset) => offset < 0.5)).toEqual([true, true, true, true, true, true]);
+  },
+  limit(30_000),
+);
 
 // The count pill takes night ink in a night island, also where the page's root sets --foreground
 // to ink, as expert.css does.
-test("the count pill reads night ink on night under a root --foreground", async () => {
-  const file = join(dir, "count-night.html");
-  writeFileSync(
-    file,
-    doc(
-      [],
-      `<style>:root{--foreground:var(--color-ink)}</style><div data-theme="dark" style="background:var(--color-night)"><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary></details></div>`,
-    ),
-  );
-  const tab = await browser.newPage();
-  await open(tab, pathToFileURL(file).href);
-  const [count, nightInk] = await tab.evaluate(() => {
-    const probe = document.createElement("i");
-    probe.style.color = "color-mix(in srgb, var(--color-night-ink) 70%, transparent)";
-    document.body.append(probe);
-    return [
-      getComputedStyle(document.querySelector(".hw-disclosure-count")!).color,
-      getComputedStyle(probe).color,
-    ];
-  });
-  await tab.close();
-  expect(count).toBe(nightInk);
-}, 30_000);
+test(
+  "the count pill reads night ink on night under a root --foreground",
+  async () => {
+    const file = join(dir, "count-night.html");
+    writeFileSync(
+      file,
+      doc(
+        [],
+        `<style>:root{--foreground:var(--color-ink)}</style><div data-theme="dark" style="background:var(--color-night)"><details class="hw-disclosure"><summary>Notes <span class="hw-disclosure-count">8</span></summary></details></div>`,
+      ),
+    );
+    const tab = await browser.newPage();
+    await open(tab, pathToFileURL(file).href);
+    const [count, nightInk] = await tab.evaluate(() => {
+      const probe = document.createElement("i");
+      probe.style.color = "color-mix(in srgb, var(--color-night-ink) 70%, transparent)";
+      document.body.append(probe);
+      return [
+        getComputedStyle(document.querySelector(".hw-disclosure-count")!).color,
+        getComputedStyle(probe).color,
+      ];
+    });
+    await tab.close();
+    expect(count).toBe(nightInk);
+  },
+  limit(30_000),
+);

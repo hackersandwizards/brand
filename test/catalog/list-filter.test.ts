@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, expect } from "vitest";
-import { stretch, test } from "../limit";
+import { limit } from "@hackersandwizards/scaffolding/test-timeout";
+import { afterAll, beforeAll, expect, test } from "vitest";
 import type { Browser, HTTPRequest, Page } from "puppeteer-core";
 import { launch } from "../../scan/browser";
 import { BASE, page, serveSite } from "./site";
@@ -20,7 +20,7 @@ afterAll(async () => {
 /** A tab whose waits stretch under load as the tests' limits do. */
 const tab = async () => {
   const p = await browser.newPage();
-  p.setDefaultTimeout(30_000 * stretch);
+  p.setDefaultTimeout(limit(30_000));
   return p;
 };
 const story = (name: string) =>
@@ -50,82 +50,102 @@ const showing = async (p: Page, titles: string[]) => {
   return shown(p);
 };
 
-test("typing filters the list, marks the title and updates the count and URL", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 1280, height: 900 });
-  await p.goto(story("dense"), { waitUntil: "networkidle0" });
-  expect((await shown(p)).length).toBe(4);
-  expect(await text(p, "[data-filter-count]")).toBe("4 von 4 Einheiten");
-  await p.type('input[name="q"]', "context");
-  expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
-  // The counts follow the search: Werkzeuge holds the one match.
-  expect({
-    count: await text(p, "[data-filter-count]"),
-    q: new URL(p.url()).searchParams.get("q"),
-    mark: await p.$eval("[data-filter-title] mark", (m) => m.textContent),
-    tools: await text(p, '[data-facet-count="tools"]'),
-  }).toEqual({ count: "1 Einheit", q: "context", mark: "Context", tools: "1" });
-  await p.click('input[name="q"]', { count: 3 });
-  await p.keyboard.press("Backspace");
-  await p.waitForFunction(() => !new URL(location.href).searchParams.has("q"));
-  await p.close();
-}, 60_000);
+test(
+  "typing filters the list, marks the title and updates the count and URL",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 1280, height: 900 });
+    await p.goto(story("dense"), { waitUntil: "networkidle0" });
+    expect((await shown(p)).length).toBe(4);
+    expect(await text(p, "[data-filter-count]")).toBe("4 von 4 Einheiten");
+    await p.type('input[name="q"]', "context");
+    expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
+    // The counts follow the search: Werkzeuge holds the one match.
+    expect({
+      count: await text(p, "[data-filter-count]"),
+      q: new URL(p.url()).searchParams.get("q"),
+      mark: await p.$eval("[data-filter-title] mark", (m) => m.textContent),
+      tools: await text(p, '[data-facet-count="tools"]'),
+    }).toEqual({ count: "1 Einheit", q: "context", mark: "Context", tools: "1" });
+    await p.click('input[name="q"]', { count: 3 });
+    await p.keyboard.press("Backspace");
+    await p.waitForFunction(() => !new URL(location.href).searchParams.has("q"));
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("Back restores the previous facet choice and its rows", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 1280, height: 900 });
-  await p.goto(story("dense"), { waitUntil: "networkidle0" });
-  const selection = async () => ({
-    rows: (await shown(p)).length,
-    topic: new URL(p.url()).searchParams.get("topic"),
-  });
-  await p.click('label.hw-choice:has(input[value="tools"])');
-  expect(await selection()).toEqual({ rows: 2, topic: "tools" });
-  await p.click('label.hw-choice:has(input[value="evidence"])');
-  expect(await shown(p)).toEqual(["Messbare Produktivität"]);
-  await p.goBack();
-  await p.waitForFunction(() => new URL(location.href).searchParams.get("topic") === "tools");
-  expect(await selection()).toEqual({ rows: 2, topic: "tools" });
-  await p.close();
-}, 60_000);
+test(
+  "Back restores the previous facet choice and its rows",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 1280, height: 900 });
+    await p.goto(story("dense"), { waitUntil: "networkidle0" });
+    const selection = async () => ({
+      rows: (await shown(p)).length,
+      topic: new URL(p.url()).searchParams.get("topic"),
+    });
+    await p.click('label.hw-choice:has(input[value="tools"])');
+    expect(await selection()).toEqual({ rows: 2, topic: "tools" });
+    await p.click('label.hw-choice:has(input[value="evidence"])');
+    expect(await shown(p)).toEqual(["Messbare Produktivität"]);
+    await p.goBack();
+    await p.waitForFunction(() => new URL(location.href).searchParams.get("topic") === "tools");
+    expect(await selection()).toEqual({ rows: 2, topic: "tools" });
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("the form clear action restores all rows and clears the URL", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 1280, height: 900 });
-  await p.goto(`${story("dense")}?topic=tools`, { waitUntil: "networkidle0" });
-  await p.click("form [data-filter-clear]");
-  expect((await shown(p)).length).toBe(4);
-  expect(new URL(p.url()).search).toBe("");
-  await p.close();
-}, 60_000);
+test(
+  "the form clear action restores all rows and clears the URL",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 1280, height: 900 });
+    await p.goto(`${story("dense")}?topic=tools`, { waitUntil: "networkidle0" });
+    await p.click("form [data-filter-clear]");
+    expect((await shown(p)).length).toBe(4);
+    expect(new URL(p.url()).search).toBe("");
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("a shared URL restores the state, and nothing found offers a way back", async () => {
-  const p = await tab();
-  await p.goto(`${story("dense")}?q=zzz`, { waitUntil: "networkidle0" });
-  expect(await p.$eval('input[name="q"]', (i) => (i as HTMLInputElement).value)).toBe("zzz");
-  expect(await p.$eval("[data-filter-empty]", (e) => (e as HTMLElement).hidden)).toBe(false);
-  expect(await p.$eval("[data-filter-list]", (e) => (e as HTMLElement).hidden)).toBe(true);
-  await p.click("[data-filter-empty] [data-filter-clear]");
-  expect((await shown(p)).length).toBe(4);
-  await p.close();
-}, 60_000);
+test(
+  "a shared URL restores the state, and nothing found offers a way back",
+  async () => {
+    const p = await tab();
+    await p.goto(`${story("dense")}?q=zzz`, { waitUntil: "networkidle0" });
+    expect(await p.$eval('input[name="q"]', (i) => (i as HTMLInputElement).value)).toBe("zzz");
+    expect(await p.$eval("[data-filter-empty]", (e) => (e as HTMLElement).hidden)).toBe(false);
+    expect(await p.$eval("[data-filter-list]", (e) => (e as HTMLElement).hidden)).toBe(true);
+    await p.click("[data-filter-empty] [data-filter-clear]");
+    expect((await shown(p)).length).toBe(4);
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("on a phone the facets fold behind the Filters button, and every target on screen is 44 px", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 390, height: 844 });
-  await p.goto(story("screen"), { waitUntil: "networkidle0" });
-  const panel = () => p.$eval("[data-filter-panel]", (e) => e.checkVisibility());
-  expect(await panel()).toBe(false);
-  await p.click("[data-filter-toggle]");
-  expect(await panel()).toBe(true);
-  const heights = await p.$$eval(".hw-choice, .hw-field, [data-filter-toggle]", (els) =>
-    els.map((e) => e.getBoundingClientRect().height),
-  );
-  expect(heights.every((h) => h >= 44)).toBe(true);
-  await p.keyboard.press("Escape");
-  expect(await panel()).toBe(false);
-  await p.close();
-}, 60_000);
+test(
+  "on a phone the facets fold behind the Filters button, and every target on screen is 44 px",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 390, height: 844 });
+    await p.goto(story("screen"), { waitUntil: "networkidle0" });
+    const panel = () => p.$eval("[data-filter-panel]", (e) => e.checkVisibility());
+    expect(await panel()).toBe(false);
+    await p.click("[data-filter-toggle]");
+    expect(await panel()).toBe(true);
+    const heights = await p.$$eval(".hw-choice, .hw-field, [data-filter-toggle]", (els) =>
+      els.map((e) => e.getBoundingClientRect().height),
+    );
+    expect(heights.every((h) => h >= 44)).toBe(true);
+    await p.keyboard.press("Escape");
+    expect(await panel()).toBe(false);
+    await p.close();
+  },
+  limit(60_000),
+);
 
 // The page as a browser whose module script failed to load: every module script dropped.
 const withoutModules = async (p: Page, transform = (html: string) => html) => {
@@ -145,44 +165,54 @@ const withoutModules = async (p: Page, transform = (html: string) => html) => {
   });
 };
 
-test("on a phone whose script failed, the facets and the search button stay usable", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 390, height: 844 });
-  await withoutModules(p);
-  await p.goto(story("screen"), { waitUntil: "networkidle0" });
-  const visible = (sel: string) => p.$eval(sel, (e) => e.checkVisibility());
-  expect(await visible("[data-filter-panel]")).toBe(true);
-  expect(await visible("[data-filter-submit]")).toBe(true);
-  expect(await visible("[data-filter-toggle]")).toBe(false);
-  // Control: with the script the facets fold.
-  const q = await tab();
-  await q.setViewport({ width: 390, height: 844 });
-  await q.goto(story("screen"), { waitUntil: "networkidle0" });
-  expect(await q.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(false);
-  await p.close();
-  await q.close();
-}, 60_000);
-
-test("first-paint setup leaves the fallback intact when the preceding element is not the filter", async () => {
-  const p = await tab();
-  const errors: unknown[] = [];
-  p.on("pageerror", (error) => errors.push(error));
-  try {
+test(
+  "on a phone whose script failed, the facets and the search button stay usable",
+  async () => {
+    const p = await tab();
     await p.setViewport({ width: 390, height: 844 });
-    await withoutModules(p, (html) =>
-      html.replace(
-        /<script>([^<]*?const root = document\.currentScript)/,
-        "<script></script><script>$1",
-      ),
-    );
-    await p.goto(story("screen"), { waitUntil: "load" });
-    expect(await p.$eval("[data-list-filter] + script", (script) => script.textContent)).toBe("");
-    expect(await p.$eval("[data-filter-submit]", (submit) => submit.checkVisibility())).toBe(true);
-    expect(errors).toEqual([]);
-  } finally {
+    await withoutModules(p);
+    await p.goto(story("screen"), { waitUntil: "networkidle0" });
+    const visible = (sel: string) => p.$eval(sel, (e) => e.checkVisibility());
+    expect(await visible("[data-filter-panel]")).toBe(true);
+    expect(await visible("[data-filter-submit]")).toBe(true);
+    expect(await visible("[data-filter-toggle]")).toBe(false);
+    // Control: with the script the facets fold.
+    const q = await tab();
+    await q.setViewport({ width: 390, height: 844 });
+    await q.goto(story("screen"), { waitUntil: "networkidle0" });
+    expect(await q.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(false);
     await p.close();
-  }
-}, 60_000);
+    await q.close();
+  },
+  limit(60_000),
+);
+
+test(
+  "first-paint setup leaves the fallback intact when the preceding element is not the filter",
+  async () => {
+    const p = await tab();
+    const errors: unknown[] = [];
+    p.on("pageerror", (error) => errors.push(error));
+    try {
+      await p.setViewport({ width: 390, height: 844 });
+      await withoutModules(p, (html) =>
+        html.replace(
+          /<script>([^<]*?const root = document\.currentScript)/,
+          "<script></script><script>$1",
+        ),
+      );
+      await p.goto(story("screen"), { waitUntil: "load" });
+      expect(await p.$eval("[data-list-filter] + script", (script) => script.textContent)).toBe("");
+      expect(await p.$eval("[data-filter-submit]", (submit) => submit.checkVisibility())).toBe(
+        true,
+      );
+      expect(errors).toEqual([]);
+    } finally {
+      await p.close();
+    }
+  },
+  limit(60_000),
+);
 
 const noScript = async (name: string) => {
   const p = await tab();
@@ -199,56 +229,69 @@ const noScript = async (name: string) => {
   return out;
 };
 
-test("under an overview, without JavaScript the rows wait in a template or stay listed", async () => {
-  expect(await noScript("inert")).toEqual({ rows: 0, form: false });
-  expect(await noScript("listed")).toEqual({ rows: 4, form: true });
-  expect(await noScript("source")).toEqual({ rows: 0, form: true });
-}, 60_000);
+test(
+  "under an overview, without JavaScript the rows wait in a template or stay listed",
+  async () => {
+    expect(await noScript("inert")).toEqual({ rows: 0, form: false });
+    expect(await noScript("listed")).toEqual({ rows: 4, form: true });
+    expect(await noScript("source")).toEqual({ rows: 0, form: true });
+  },
+  limit(60_000),
+);
 
-test("under an overview the rows wait for a filter, and the overview steps aside", async () => {
-  for (const name of ["inert", "listed"]) {
+test(
+  "under an overview the rows wait for a filter, and the overview steps aside",
+  async () => {
+    for (const name of ["inert", "listed"]) {
+      const p = await tab();
+      await p.setViewport({ width: 1280, height: 900 });
+      await p.goto(story(name), { waitUntil: "networkidle0" });
+      const overview = `#overview-${name}`;
+      expect(await p.$eval("[data-filter-list]", (e) => (e as HTMLElement).hidden)).toBe(true);
+      expect(await p.$eval(overview, (e) => (e as HTMLElement).hidden)).toBe(false);
+      await p.type('input[name="q"]', "context");
+      expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
+      expect(await p.$eval(overview, (e) => (e as HTMLElement).hidden)).toBe(true);
+      await p.close();
+    }
+  },
+  limit(60_000),
+);
+
+test(
+  "a source page's rows load on first use; should they fail, the search goes there",
+  async () => {
     const p = await tab();
-    await p.setViewport({ width: 1280, height: 900 });
-    await p.goto(story(name), { waitUntil: "networkidle0" });
-    const overview = `#overview-${name}`;
-    expect(await p.$eval("[data-filter-list]", (e) => (e as HTMLElement).hidden)).toBe(true);
-    expect(await p.$eval(overview, (e) => (e as HTMLElement).hidden)).toBe(false);
+    await p.goto(story("source"), { waitUntil: "networkidle0" });
+    expect(await p.$$eval("[data-filter-item]", (rows) => rows.length)).toBe(0);
     await p.type('input[name="q"]', "context");
+    await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
     expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
-    expect(await p.$eval(overview, (e) => (e as HTMLElement).hidden)).toBe(true);
+    expect(await text(p, "[data-filter-count]")).toBe("1 Einheit");
     await p.close();
-  }
-}, 60_000);
 
-test("a source page's rows load on first use; should they fail, the search goes there", async () => {
-  const p = await tab();
-  await p.goto(story("source"), { waitUntil: "networkidle0" });
-  expect(await p.$$eval("[data-filter-item]", (rows) => rows.length)).toBe(0);
-  await p.type('input[name="q"]', "context");
-  await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
-  expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
-  expect(await text(p, "[data-filter-count]")).toBe("1 Einheit");
-  await p.close();
-
-  const q = await tab();
-  await q.setRequestInterception(true);
-  q.on("request", (r) => {
-    (r.resourceType() === "fetch" ? r.respond({ status: 503, body: "" }) : r.continue()).catch(
-      reportError,
-    );
-  });
-  await q.goto(story("source"), { waitUntil: "networkidle0" });
-  // The typed search goes there on its own once the load fails.
-  await q.focus('input[name="q"]');
-  await q.$eval('input[name="q"]', (input) => {
-    (input as HTMLInputElement).value = "context";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-  await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
-  expect(new URL(q.url()).pathname.endsWith("/list-filter/dense/")).toBe(true);
-  expect(new URL(q.url()).searchParams.get("q")).toBe("context");
-  await q.close();
-}, 60_000);
+    const q = await tab();
+    const failedSource = await q.createCDPSession();
+    await failedSource.send("Fetch.enable", { patterns: [{ resourceType: "Fetch" }] });
+    failedSource.on("Fetch.requestPaused", ({ requestId }) => {
+      failedSource
+        .send("Fetch.fulfillRequest", { requestId, responseCode: 503, body: "" })
+        .catch(reportError);
+    });
+    await q.goto(story("source"), { waitUntil: "networkidle0" });
+    // The typed search goes there on its own once the load fails.
+    await q.focus('input[name="q"]');
+    await q.$eval('input[name="q"]', (input) => {
+      (input as HTMLInputElement).value = "context";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
+    expect(new URL(q.url()).pathname.endsWith("/list-filter/dense/")).toBe(true);
+    expect(new URL(q.url()).searchParams.get("q")).toBe("context");
+    await q.close();
+  },
+  limit(60_000),
+);
 
 /** The source page on a load that fails when the page calls failLoad(), its search box focused. */
 const held = async () => {
@@ -269,43 +312,51 @@ const held = async () => {
  *  destroys the context its answer comes back on. */
 const after = (q: Page, step: () => void) =>
   q.evaluate((s) => void setTimeout(new Function(s) as () => void), `(${step})()`);
-const landed = async (q: Page, search: string) => {
+const expectSearchDestination = async (q: Page, search: string) => {
   await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
   expect(new URL(q.url()).searchParams.get("q")).toBe(search);
   await q.close();
 };
 
-test("a source page's load that fails mid-typing goes there with what the debounce holds", async () => {
-  const q = await held();
-  await q.evaluate(async () => {
-    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
-    const typed = (value: string) => {
-      input.value = value;
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    };
-    typed("c");
-    (window as unknown as { failLoad(): void }).failLoad();
-    await new Promise((resolve) => setTimeout(resolve));
-    typed("context");
-  });
-  await landed(q, "context");
-}, 60_000);
+test(
+  "a source page's load that fails mid-typing goes there with what the debounce holds",
+  async () => {
+    const q = await held();
+    await q.evaluate(async () => {
+      const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+      const typed = (value: string) => {
+        input.value = value;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      };
+      typed("c");
+      (window as unknown as { failLoad(): void }).failLoad();
+      await new Promise((resolve) => setTimeout(resolve));
+      typed("context");
+    });
+    await expectSearchDestination(q, "context");
+  },
+  limit(60_000),
+);
 
-test("a search submitted before the source page's load fails goes there", async () => {
-  const q = await held();
-  await after(q, () => {
-    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
-    input.value = "context";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.form!.requestSubmit();
-    (window as unknown as { failLoad(): void }).failLoad();
-  });
-  await landed(q, "context");
-}, 60_000);
+test(
+  "a search submitted before the source page's load fails goes there",
+  async () => {
+    const q = await held();
+    await after(q, () => {
+      const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+      input.value = "context";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.form!.requestSubmit();
+      (window as unknown as { failLoad(): void }).failLoad();
+    });
+    await expectSearchDestination(q, "context");
+  },
+  limit(60_000),
+);
 
 // Back from the source page lands on this one without the search, which would send it there again:
 // its own load failing too, it stays.
-const backWithout = async (q: Page) => {
+const expectBackWithoutSearch = async (q: Page) => {
   await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
   await q.goBack({ waitUntil: "load" });
   await q.evaluate(() => (window as unknown as { failLoad?(): void }).failLoad?.());
@@ -316,84 +367,61 @@ const backWithout = async (q: Page) => {
   await q.close();
 };
 
-test("Back from a facet picked after the source page's load failed does not loop", async () => {
-  const q = await held();
-  await q.evaluate(async () => {
-    (window as unknown as { failLoad(): void }).failLoad();
-    await new Promise((resolve) => setTimeout(resolve));
-  });
-  await after(q, () =>
-    document.querySelector<HTMLInputElement>('input[name="topic"][value="tools"]')!.click(),
-  );
-  await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
-  expect(new URL(q.url()).searchParams.get("topic")).toBe("tools");
-  await backWithout(q);
-}, 60_000);
+test(
+  "Back from a facet picked after the source page's load failed does not loop",
+  async () => {
+    const q = await held();
+    await q.evaluate(async () => {
+      (window as unknown as { failLoad(): void }).failLoad();
+      await new Promise((resolve) => setTimeout(resolve));
+    });
+    await after(q, () =>
+      document.querySelector<HTMLInputElement>('input[name="topic"][value="tools"]')!.click(),
+    );
+    await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
+    expect(new URL(q.url()).searchParams.get("topic")).toBe("tools");
+    await expectBackWithoutSearch(q);
+  },
+  limit(60_000),
+);
 
-test("Back from a search submitted before the source page's load failed does not loop", async () => {
-  const q = await held();
-  await q.keyboard.type("context");
-  await q.keyboard.press("Enter");
-  await after(q, () => (window as unknown as { failLoad(): void }).failLoad());
-  await backWithout(q);
-}, 60_000);
+test(
+  "Back from a search submitted before the source page's load failed does not loop",
+  async () => {
+    const q = await held();
+    await q.keyboard.type("context");
+    await q.keyboard.press("Enter");
+    await after(q, () => (window as unknown as { failLoad(): void }).failLoad());
+    await expectBackWithoutSearch(q);
+  },
+  limit(60_000),
+);
 
-test("Back from a typed search recorded before the source page's load failed does not loop", async () => {
-  const q = await held();
-  await q.evaluate(async () => {
-    const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
-    input.value = "context";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    await new Promise((resolve) => setTimeout(resolve, 350));
-  });
-  await after(q, () => (window as unknown as { failLoad(): void }).failLoad());
-  await backWithout(q);
-}, 60_000);
+test(
+  "Back from a typed search recorded before the source page's load failed does not loop",
+  async () => {
+    const q = await held();
+    await q.evaluate(async () => {
+      const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+      input.value = "context";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      await new Promise((resolve) => setTimeout(resolve, 350));
+    });
+    await after(q, () => (window as unknown as { failLoad(): void }).failLoad());
+    await expectBackWithoutSearch(q);
+  },
+  limit(60_000),
+);
 
-test("a source page's relative links and images resolve against that page", async () => {
-  const p = await tab();
-  await p.setRequestInterception(true);
-  p.on("request", (r) => {
-    const response =
-      r.resourceType() === "fetch"
-        ? r.respond({
-            status: 200,
-            contentType: "text/html",
-            body: `<ul data-filter-list><li data-filter-item data-filter-text="context"><a href="talk/" data-filter-title>Context</a><img src="t.png" srcset="t.png 1x, t2.png 2x" alt=""></li></ul>`,
-          })
-        : r.continue();
-    response.catch(reportError);
-  });
-  await p.goto(story("source"), { waitUntil: "networkidle0" });
-  await p.type('input[name="q"]', "context");
-  await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 1);
-  const dense = new URL("../dense/", p.url()).href;
-  expect(
-    await p.$eval("[data-filter-item]", (row) => [
-      row.querySelector("a")!.getAttribute("href"),
-      row.querySelector("img")!.getAttribute("src"),
-      row.querySelector("img")!.getAttribute("srcset"),
-    ]),
-  ).toEqual([`${dense}talk/`, `${dense}t.png`, `${dense}t.png 1x, ${dense}t2.png 2x`]);
-  await p.close();
-}, 60_000);
-
-test("a grouped source ranks rows within their own group and hides an empty group", async () => {
-  const p = await tab();
-  const markup = `<div data-filter-list>
-    <div data-filter-group id="guides">
-      <div data-filter-item data-filter-order="0" data-filter-text="About Context"><span data-filter-title>About Context</span></div>
-      <div data-filter-item data-filter-order="1" data-filter-text="Context"><span data-filter-title>Context</span></div>
-    </div>
-    <div data-filter-group id="examples">
-      <div data-filter-item data-filter-order="2" data-filter-text="Examples"><span data-filter-title>Examples</span></div>
-    </div>
-  </div>`;
-  try {
-    const session = await p.createCDPSession();
-    await session.send("Fetch.enable", { patterns: [{ urlPattern: story("dense") }] });
-    session.on("Fetch.requestPaused", ({ requestId }) => {
-      session
+test(
+  "a source page's relative links and images resolve against that page",
+  async () => {
+    const p = await tab();
+    const source = await p.createCDPSession();
+    await source.send("Fetch.enable", { patterns: [{ resourceType: "Fetch" }] });
+    const markup = `<ul data-filter-list><li data-filter-item data-filter-text="context"><a href="talk/" data-filter-title>Context</a><img src="t.png" srcset="t.png 1x, t2.png 2x" alt=""></li></ul>`;
+    source.on("Fetch.requestPaused", ({ requestId }) => {
+      source
         .send("Fetch.fulfillRequest", {
           requestId,
           responseCode: 200,
@@ -404,295 +432,396 @@ test("a grouped source ranks rows within their own group and hides an empty grou
     });
     await p.goto(story("source"), { waitUntil: "networkidle0" });
     await p.type('input[name="q"]', "context");
-    await p.waitForFunction(() => document.querySelectorAll("[data-filter-group]").length === 2);
-    expect(await showing(p, ["Context", "About Context"])).toEqual(["Context", "About Context"]);
+    await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 1);
+    const dense = new URL("../dense/", p.url()).href;
     expect(
-      await p.$$eval("#guides [data-filter-title]", (titles) => titles.map((t) => t.textContent)),
-    ).toEqual(["Context", "About Context"]);
-    expect(await p.$eval("#examples", (group) => (group as HTMLElement).hidden)).toBe(true);
-  } finally {
+      await p.$eval("[data-filter-item]", (row) => [
+        row.querySelector("a")!.getAttribute("href"),
+        row.querySelector("img")!.getAttribute("src"),
+        row.querySelector("img")!.getAttribute("srcset"),
+      ]),
+    ).toEqual([`${dense}talk/`, `${dense}t.png`, `${dense}t.png 1x, ${dense}t2.png 2x`]);
     await p.close();
-  }
-}, 60_000);
+  },
+  limit(60_000),
+);
 
-test("on a phone a topic tapped while the source loads names itself on the Filters button", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
-  const { promise: held, resolve: release } = Promise.withResolvers<void>();
-  await p.setRequestInterception(true);
-  p.on("request", (r) => {
-    if (r.resourceType() === "fetch") held.then(() => r.continue()).catch(() => {});
-    else r.continue().catch(() => {});
-  });
-  try {
-    await p.goto(story("source"), { waitUntil: "load" });
-    const toggle = "[data-filter-toggle]";
-    await p.tap(toggle);
-    await p.tap('label.hw-choice:has(input[value="tools"])');
-    expect(await text(p, toggle)).toBe("Werkzeuge");
-    expect(await p.$eval(toggle, (e) => e.hasAttribute("data-variant"))).toBe(false);
-    // The way back shows while the rows load.
-    expect(await p.$eval("form [data-filter-clear]", (e) => (e as HTMLElement).hidden)).toBe(false);
-    release();
-    await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
-    expect(await shown(p)).toEqual(["Context Engineering", "Spec-driven Development"]);
-    expect(await text(p, toggle)).toBe("Werkzeuge");
-  } finally {
-    release();
-    await p.close();
-  }
-}, 60_000);
+test(
+  "a grouped source ranks rows within their own group and hides an empty group",
+  async () => {
+    const p = await tab();
+    const markup = `<div data-filter-list>
+    <div data-filter-group id="guides">
+      <div data-filter-item data-filter-order="0" data-filter-text="About Context"><span data-filter-title>About Context</span></div>
+      <div data-filter-item data-filter-order="1" data-filter-text="Context"><span data-filter-title>Context</span></div>
+    </div>
+    <div data-filter-group id="examples">
+      <div data-filter-item data-filter-order="2" data-filter-text="Examples"><span data-filter-title>Examples</span></div>
+    </div>
+  </div>`;
+    try {
+      const session = await p.createCDPSession();
+      await session.send("Fetch.enable", { patterns: [{ urlPattern: story("dense") }] });
+      session.on("Fetch.requestPaused", ({ requestId }) => {
+        session
+          .send("Fetch.fulfillRequest", {
+            requestId,
+            responseCode: 200,
+            responseHeaders: [{ name: "Content-Type", value: "text/html" }],
+            body: Buffer.from(markup).toString("base64"),
+          })
+          .catch(reportError);
+      });
+      await p.goto(story("source"), { waitUntil: "networkidle0" });
+      await p.type('input[name="q"]', "context");
+      await p.waitForFunction(() => document.querySelectorAll("[data-filter-group]").length === 2);
+      expect(await showing(p, ["Context", "About Context"])).toEqual(["Context", "About Context"]);
+      expect(
+        await p.$$eval("#guides [data-filter-title]", (titles) => titles.map((t) => t.textContent)),
+      ).toEqual(["Context", "About Context"]);
+      expect(await p.$eval("#examples", (group) => (group as HTMLElement).hidden)).toBe(true);
+    } finally {
+      await p.close();
+    }
+  },
+  limit(60_000),
+);
 
-test("inline sets the select beside the search from 64rem", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 1280, height: 900 });
-  await p.goto(story("many"), { waitUntil: "networkidle0" });
-  const box = (sel: string) =>
-    p.$eval(sel, (e) => {
-      const r = e.getBoundingClientRect();
-      return { left: r.left, right: r.right, bottom: r.bottom };
+test(
+  "on a phone a topic tapped while the source loads names itself on the Filters button",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 375, height: 812, hasTouch: true, isMobile: true });
+    const { promise: held, resolve: release } = Promise.withResolvers<void>();
+    const source = await p.createCDPSession();
+    await source.send("Fetch.enable", { patterns: [{ resourceType: "Fetch" }] });
+    source.on("Fetch.requestPaused", ({ requestId }) => {
+      held.then(() => source.send("Fetch.continueRequest", { requestId })).catch(reportError);
     });
-  const [search, select] = [await box(".hw-search"), await box('select[name="topic"]')];
-  expect(Math.abs(search.bottom - select.bottom)).toBeLessThan(1);
-  expect(select.left).toBeGreaterThan(search.right);
-  // Control: at 1000 px the select stacks below the search.
-  await p.setViewport({ width: 1000, height: 900 });
-  expect((await box('select[name="topic"]')).left).toBeLessThan(search.right);
-  await p.close();
-}, 60_000);
+    try {
+      await p.goto(story("source"), { waitUntil: "load" });
+      const toggle = "[data-filter-toggle]";
+      await p.tap(toggle);
+      await p.tap('label.hw-choice:has(input[value="tools"])');
+      expect(await text(p, toggle)).toBe("Werkzeuge");
+      expect(await p.$eval(toggle, (e) => e.hasAttribute("data-variant"))).toBe(false);
+      // The way back shows while the rows load.
+      expect(await p.$eval("form [data-filter-clear]", (e) => (e as HTMLElement).hidden)).toBe(
+        false,
+      );
+      release();
+      await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 4);
+      expect(await shown(p)).toEqual(["Context Engineering", "Spec-driven Development"]);
+      expect(await text(p, toggle)).toBe("Werkzeuge");
+    } finally {
+      release();
+      await p.close();
+    }
+  },
+  limit(60_000),
+);
 
-test("a select filters alongside a facet already selected by radio", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 1280, height: 900 });
-  await p.goto(`${story("many")}?days=1`, { waitUntil: "networkidle0" });
-  expect((await shown(p)).length).toBe(2);
-  await p.select('select[name="topic"]', "tools");
-  expect(await shown(p)).toEqual(["Spec-driven Development"]);
-  expect(new URL(p.url()).search).toBe("?topic=tools&days=1");
-  await p.close();
-}, 60_000);
+test(
+  "inline sets the select beside the search from 64rem",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 1280, height: 900 });
+    await p.goto(story("many"), { waitUntil: "networkidle0" });
+    const box = (sel: string) =>
+      p.$eval(sel, (e) => {
+        const r = e.getBoundingClientRect();
+        return { left: r.left, right: r.right, bottom: r.bottom };
+      });
+    const [search, select] = [await box(".hw-search"), await box('select[name="topic"]')];
+    expect(Math.abs(search.bottom - select.bottom)).toBeLessThan(1);
+    expect(select.left).toBeGreaterThan(search.right);
+    // Control: at 1000 px the select stacks below the search.
+    await p.setViewport({ width: 1000, height: 900 });
+    expect((await box('select[name="topic"]')).left).toBeLessThan(search.right);
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("a facet past its label budget shows as a select and filters", async () => {
-  const p = await tab();
-  await p.goto(story("many"), { waitUntil: "networkidle0" });
-  expect(await p.$$eval('input[name="topic"]', (r) => r.length)).toBe(0);
-  await p.select('select[name="topic"]', "evidence");
-  expect(await shown(p)).toEqual(["Messbare Produktivität"]);
-  expect(new URL(p.url()).searchParams.get("topic")).toBe("evidence");
-  // Control: the story with three topics keeps its choices.
-  await p.goto(story("dense"), { waitUntil: "networkidle0" });
-  expect(await p.$$eval('input[name="topic"]', (r) => r.length)).toBe(4);
-  await p.close();
-}, 60_000);
+test(
+  "a select filters alongside a facet already selected by radio",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 1280, height: 900 });
+    await p.goto(`${story("many")}?days=1`, { waitUntil: "networkidle0" });
+    expect((await shown(p)).length).toBe(2);
+    await p.select('select[name="topic"]', "tools");
+    expect(await shown(p)).toEqual(["Spec-driven Development"]);
+    expect(new URL(p.url()).search).toBe("?topic=tools&days=1");
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("two facets as choices filter together, each counting under the other", async () => {
-  const p = await tab();
-  await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
-  expect(await p.$$eval("fieldset", (f) => f.length)).toBe(2);
-  expect({
-    rows: await shown(p),
-    tools: await text(p, 'fieldset:first-of-type [data-facet-count="tools"]'),
-  }).toEqual({ rows: ["Context Engineering", "Agenten im Team"], tools: "1" });
-  await p.click('label.hw-choice:has(input[name="topic"][value="practice"])');
-  expect({
-    rows: await shown(p),
-    search: new URL(p.url()).search,
-    oneDay: await text(p, 'fieldset:last-of-type [data-facet-count="1"]'),
-  }).toEqual({ rows: ["Agenten im Team"], search: "?topic=practice&days=2", oneDay: "0" });
-  await p.close();
-}, 60_000);
+test(
+  "a facet past its label budget shows as a select and filters",
+  async () => {
+    const p = await tab();
+    await p.goto(story("many"), { waitUntil: "networkidle0" });
+    expect(await p.$$eval('input[name="topic"]', (r) => r.length)).toBe(0);
+    await p.select('select[name="topic"]', "evidence");
+    expect(await shown(p)).toEqual(["Messbare Produktivität"]);
+    expect(new URL(p.url()).searchParams.get("topic")).toBe("evidence");
+    // Control: the story with three topics keeps its choices.
+    await p.goto(story("dense"), { waitUntil: "networkidle0" });
+    expect(await p.$$eval('input[name="topic"]', (r) => r.length)).toBe(4);
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("clearing a two-facet filter selects All in both choice groups", async () => {
-  const p = await tab();
-  await p.goto(`${story("listed")}?topic=practice&days=2`, { waitUntil: "networkidle0" });
-  await p.click("form [data-filter-clear]");
-  expect(
-    await p.$$eval("input:checked", (r) => r.map((x) => (x as HTMLInputElement).value)),
-  ).toEqual(["", ""]);
-  await p.close();
-}, 60_000);
+test(
+  "two facets as choices filter together, each counting under the other",
+  async () => {
+    const p = await tab();
+    await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
+    expect(await p.$$eval("fieldset", (f) => f.length)).toBe(2);
+    expect({
+      rows: await shown(p),
+      tools: await text(p, 'fieldset:first-of-type [data-facet-count="tools"]'),
+    }).toEqual({ rows: ["Context Engineering", "Agenten im Team"], tools: "1" });
+    await p.click('label.hw-choice:has(input[name="topic"][value="practice"])');
+    expect({
+      rows: await shown(p),
+      search: new URL(p.url()).search,
+      oneDay: await text(p, 'fieldset:last-of-type [data-facet-count="1"]'),
+    }).toEqual({ rows: ["Agenten im Team"], search: "?topic=practice&days=2", oneDay: "0" });
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("arrowing through one facet is one history entry, the next facet another", async () => {
-  const p = await tab();
-  await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
-  await p.focus('input[name="topic"][value=""]');
-  await p.keyboard.press("ArrowRight");
-  await p.keyboard.press("ArrowRight");
-  await p.focus('input[name="days"]:checked');
-  await p.keyboard.press("ArrowLeft");
-  expect(new URL(p.url()).search).toBe("?topic=evidence&days=1");
-  await p.goBack();
-  expect(new URL(p.url()).search).toBe("?topic=evidence&days=2");
-  await p.goBack();
-  expect(new URL(p.url()).search).toBe("?days=2");
-  await p.close();
-}, 60_000);
+test(
+  "clearing a two-facet filter selects All in both choice groups",
+  async () => {
+    const p = await tab();
+    await p.goto(`${story("listed")}?topic=practice&days=2`, { waitUntil: "networkidle0" });
+    await p.click("form [data-filter-clear]");
+    expect(
+      await p.$$eval("input:checked", (r) => r.map((x) => (x as HTMLInputElement).value)),
+    ).toEqual(["", ""]);
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("no facet shows the search alone, with no fieldset and no Filters button", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 390, height: 800 });
-  await p.goto(story("none"), { waitUntil: "networkidle0" });
-  expect(await p.$$eval("fieldset, select", (f) => f.length)).toBe(0);
-  expect(await p.$("[data-filter-toggle]")).toBeNull();
-  await p.type('input[name="q"]', "agenten");
-  expect(await showing(p, ["Agenten im Team"])).toEqual(["Agenten im Team"]);
-  // Control: the screen story on a phone has its Filters button.
-  await p.goto(story("screen"), { waitUntil: "networkidle0" });
-  expect(await p.$("[data-filter-toggle]")).not.toBeNull();
-  await p.close();
-}, 60_000);
+test(
+  "arrowing through one facet is one history entry, the next facet another",
+  async () => {
+    const p = await tab();
+    await p.goto(`${story("listed")}?days=2`, { waitUntil: "networkidle0" });
+    await p.focus('input[name="topic"][value=""]');
+    await p.keyboard.press("ArrowRight");
+    await p.keyboard.press("ArrowRight");
+    await p.focus('input[name="days"]:checked');
+    await p.keyboard.press("ArrowLeft");
+    expect(new URL(p.url()).search).toBe("?topic=evidence&days=1");
+    await p.goBack();
+    expect(new URL(p.url()).search).toBe("?topic=evidence&days=2");
+    await p.goBack();
+    expect(new URL(p.url()).search).toBe("?days=2");
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("Ctrl+K or Cmd+K outside a text field focuses the search; K alone or a palette page not", async () => {
-  const p = await tab();
-  await p.goto(story("dense"), { waitUntil: "networkidle0" });
-  const focused = () => p.evaluate(() => document.activeElement?.getAttribute("name"));
-  await p.click("body");
-  await p.keyboard.press("k");
-  expect(await focused()).toBeNull();
-  for (const modifier of ["Control", "Meta"] as const) {
+test(
+  "no facet shows the search alone, with no fieldset and no Filters button",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 390, height: 800 });
+    await p.goto(story("none"), { waitUntil: "networkidle0" });
+    expect(await p.$$eval("fieldset, select", (f) => f.length)).toBe(0);
+    expect(await p.$("[data-filter-toggle]")).toBeNull();
+    await p.type('input[name="q"]', "agenten");
+    expect(await showing(p, ["Agenten im Team"])).toEqual(["Agenten im Team"]);
+    // Control: the screen story on a phone has its Filters button.
+    await p.goto(story("screen"), { waitUntil: "networkidle0" });
+    expect(await p.$("[data-filter-toggle]")).not.toBeNull();
+    await p.close();
+  },
+  limit(60_000),
+);
+
+test(
+  "Ctrl+K or Cmd+K outside a text field focuses the search; K alone or a palette page not",
+  async () => {
+    const p = await tab();
+    await p.goto(story("dense"), { waitUntil: "networkidle0" });
+    const focused = () => p.evaluate(() => document.activeElement?.getAttribute("name"));
     await p.click("body");
-    await p.keyboard.down(modifier);
     await p.keyboard.press("k");
-    await p.keyboard.up(modifier);
-    expect(await focused()).toBe("q");
-  }
-  // A page's command palette keeps the key.
-  await p.evaluate(() =>
-    document.body.insertAdjacentHTML("beforeend", '<dialog data-hw-shortcut="k"></dialog>'),
-  );
-  await p.click("body");
-  await p.keyboard.down("Control");
-  await p.keyboard.press("k");
-  await p.keyboard.up("Control");
-  expect(await focused()).not.toBe("q");
-  await p.close();
-}, 60_000);
+    expect(await focused()).toBeNull();
+    for (const modifier of ["Control", "Meta"] as const) {
+      await p.click("body");
+      await p.keyboard.down(modifier);
+      await p.keyboard.press("k");
+      await p.keyboard.up(modifier);
+      expect(await focused()).toBe("q");
+    }
+    // A page's command palette keeps the key.
+    await p.evaluate(() =>
+      document.body.insertAdjacentHTML("beforeend", '<dialog data-hw-shortcut="k"></dialog>'),
+    );
+    await p.click("body");
+    await p.keyboard.down("Control");
+    await p.keyboard.press("k");
+    await p.keyboard.up("Control");
+    expect(await focused()).not.toBe("q");
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("on a phone a tapped choice folds the facets, names the choice and returns focus", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
-  await p.goto(story("listed"), { waitUntil: "networkidle0" });
-  const toggle = "[data-filter-toggle]";
-  expect(await text(p, toggle)).toBe("Filter");
-  await p.tap(toggle);
-  await p.tap('label.hw-choice:has(input[name="topic"][value="tools"])');
-  expect(await p.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(false);
-  expect(await text(p, toggle)).toBe("Werkzeuge");
-  expect(await p.$eval(toggle, (e) => e.getAttribute("aria-label"))).toBe("Filter: Werkzeuge");
-  expect(await p.evaluate(() => document.activeElement?.hasAttribute("data-filter-toggle"))).toBe(
-    true,
-  );
-  await p.close();
-}, 60_000);
+test(
+  "on a phone a tapped choice folds the facets, names the choice and returns focus",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
+    await p.goto(story("listed"), { waitUntil: "networkidle0" });
+    const toggle = "[data-filter-toggle]";
+    expect(await text(p, toggle)).toBe("Filter");
+    await p.tap(toggle);
+    await p.tap('label.hw-choice:has(input[name="topic"][value="tools"])');
+    expect(await p.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(false);
+    expect(await text(p, toggle)).toBe("Werkzeuge");
+    expect(await p.$eval(toggle, (e) => e.getAttribute("aria-label"))).toBe("Filter: Werkzeuge");
+    expect(await p.evaluate(() => document.activeElement?.hasAttribute("data-filter-toggle"))).toBe(
+      true,
+    );
+    await p.close();
+  },
+  limit(60_000),
+);
 
 // Control: a pick by arrow key keeps them open.
-test("on a phone an arrow key keeps the facets open and both labels fit the button's row", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
-  await p.goto(`${story("listed")}?topic=tools`, { waitUntil: "networkidle0" });
-  const toggle = "[data-filter-toggle]";
-  await p.tap(toggle);
-  await p.focus('input[name="days"][value=""]');
-  await p.keyboard.press("ArrowRight");
-  expect(await p.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(true);
-  expect(await text(p, toggle)).toBe("Werkzeuge, 1 Tag");
-  // The button has its own row under the search, the row's width for the chosen values.
-  expect(
-    await p.$eval(toggle, (t) => {
-      const label = t.querySelector("[data-filter-label]")!;
-      const box = t.getBoundingClientRect();
-      const row = t.parentElement!.getBoundingClientRect();
-      const search = t.parentElement!.querySelector(".hw-search")!.getBoundingClientRect();
-      return {
-        full: label.scrollWidth <= label.clientWidth,
-        width: Math.abs(box.width - row.width) < 0.5,
-        below: box.top >= search.bottom,
-      };
-    }),
-  ).toEqual({ full: true, width: true, below: true });
-  await p.close();
-}, 60_000);
+test(
+  "on a phone an arrow key keeps the facets open and both labels fit the button's row",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
+    await p.goto(`${story("listed")}?topic=tools`, { waitUntil: "networkidle0" });
+    const toggle = "[data-filter-toggle]";
+    await p.tap(toggle);
+    await p.focus('input[name="days"][value=""]');
+    await p.keyboard.press("ArrowRight");
+    expect(await p.$eval("[data-filter-panel]", (e) => e.checkVisibility())).toBe(true);
+    expect(await text(p, toggle)).toBe("Werkzeuge, 1 Tag");
+    // The button has its own row under the search, the row's width for the chosen values.
+    expect(
+      await p.$eval(toggle, (t) => {
+        const label = t.querySelector("[data-filter-label]")!;
+        const box = t.getBoundingClientRect();
+        const row = t.parentElement!.getBoundingClientRect();
+        const search = t.parentElement!.querySelector(".hw-search")!.getBoundingClientRect();
+        return {
+          full: label.scrollWidth <= label.clientWidth,
+          width: Math.abs(box.width - row.width) < 0.5,
+          below: box.top >= search.bottom,
+        };
+      }),
+    ).toEqual({ full: true, width: true, below: true });
+    await p.close();
+  },
+  limit(60_000),
+);
 
 // A shared link names its chosen values.
-test("on a phone the Filters button names the facet in a shared link", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
-  await p.goto(`${story("listed")}?topic=practice`, { waitUntil: "networkidle0" });
-  expect(await text(p, "[data-filter-toggle]")).toBe("Praxis");
-  await p.close();
-}, 60_000);
+test(
+  "on a phone the Filters button names the facet in a shared link",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 390, height: 844, hasTouch: true, isMobile: true });
+    await p.goto(`${story("listed")}?topic=practice`, { waitUntil: "networkidle0" });
+    expect(await text(p, "[data-filter-toggle]")).toBe("Praxis");
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("a short list renders every row: none paints from a whole pixel, so no seam shows", async () => {
-  // The server marks only a long list, so a page whose script fails keeps every row rendered.
-  const html = (name: string) => page(`catalog/stories/Forms/list-filter/${name}/index.html`);
-  expect(html("dense")).not.toContain("data-long");
-  expect(html("long")).toContain("data-long");
-  const p = await tab();
-  await p.goto(story("dense"), { waitUntil: "networkidle0" });
-  expect(await p.$eval("[data-filter-list]", (l) => l.hasAttribute("data-long"))).toBe(false);
-  expect(
-    await p.$$eval("[data-filter-item]", (rows) =>
-      rows.map((r) => getComputedStyle(r).contentVisibility),
-    ),
-  ).toEqual(["visible", "visible", "visible", "visible"]);
-  await p.close();
-}, 60_000);
+test(
+  "a short list renders every row: none paints from a whole pixel, so no seam shows",
+  async () => {
+    // The server marks only a long list, so a page whose script fails keeps every row rendered.
+    const html = (name: string) => page(`catalog/stories/Forms/list-filter/${name}/index.html`);
+    expect(html("dense")).not.toContain("data-long");
+    expect(html("long")).toContain("data-long");
+    const p = await tab();
+    await p.goto(story("dense"), { waitUntil: "networkidle0" });
+    expect(await p.$eval("[data-filter-list]", (l) => l.hasAttribute("data-long"))).toBe(false);
+    expect(
+      await p.$$eval("[data-filter-item]", (rows) =>
+        rows.map((r) => getComputedStyle(r).contentVisibility),
+      ),
+    ).toEqual(["visible", "visible", "visible", "visible"]);
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("a long list's rows off screen skip layout at their rendered height; the focused row renders", async () => {
-  const p = await tab();
-  await p.setViewport({ width: 390, height: 844 });
-  await p.goto(story("long"), { waitUntil: "networkidle0" });
-  const visibility = () =>
-    p.$$eval("[data-filter-item]", (rows) =>
-      rows.slice(0, 2).map((r) => getComputedStyle(r).contentVisibility),
-    );
-  expect(await visibility()).toEqual(["auto", "auto"]);
-  const skipped = () =>
-    p.$eval(
-      "[data-filter-item]:last-child",
-      (row) => !row.firstElementChild!.checkVisibility({ contentVisibilityAuto: true }),
-    );
-  expect(await skipped()).toBe(true);
-  expect(
-    await p.$eval("[data-filter-list]", (l) =>
-      (l as HTMLElement).style.getPropertyValue("--hw-list-filter-row"),
-    ),
-  ).toMatch(/^\d+(\.\d+)?px$/);
-  // The page holds its height while scrolling: a fixed 3rem stand-in grew it by a third.
-  const heights = await p.$eval("[data-filter-list]", async (list) => {
-    let el: HTMLElement | null = list as HTMLElement;
-    while (el && !/(auto|scroll)/.test(getComputedStyle(el).overflowY)) el = el.parentElement;
-    const scroller = el ?? document.documentElement;
-    const seen = [scroller.scrollHeight];
-    for (let y = 0; y < scroller.scrollHeight; y += scroller.clientHeight * 0.8) {
-      scroller.scrollTop = y;
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      seen.push(scroller.scrollHeight);
-    }
-    return seen;
-  });
-  expect(Math.max(...heights) / Math.min(...heights)).toBeLessThan(1.01);
-  await p.$eval("[data-filter-item]", (row) => {
-    (row as HTMLElement).tabIndex = 0;
-    (row as HTMLElement).focus();
-  });
-  expect(await visibility()).toEqual(["visible", "auto"]);
-  await p.close();
-}, 60_000);
+test(
+  "a long list's rows off screen skip layout at their rendered height; the focused row renders",
+  async () => {
+    const p = await tab();
+    await p.setViewport({ width: 390, height: 844 });
+    await p.goto(story("long"), { waitUntil: "networkidle0" });
+    const visibility = () =>
+      p.$$eval("[data-filter-item]", (rows) =>
+        rows.slice(0, 2).map((r) => getComputedStyle(r).contentVisibility),
+      );
+    expect(await visibility()).toEqual(["auto", "auto"]);
+    const skipped = () =>
+      p.$eval(
+        "[data-filter-item]:last-child",
+        (row) => !row.firstElementChild!.checkVisibility({ contentVisibilityAuto: true }),
+      );
+    expect(await skipped()).toBe(true);
+    expect(
+      await p.$eval("[data-filter-list]", (l) =>
+        (l as HTMLElement).style.getPropertyValue("--hw-list-filter-row"),
+      ),
+    ).toMatch(/^\d+(\.\d+)?px$/);
+    // The page holds its height while scrolling: a fixed 3rem stand-in grew it by a third.
+    const heights = await p.$eval("html", async (scroller) => {
+      const seen = [scroller.scrollHeight];
+      for (let y = 0; y < scroller.scrollHeight; y += scroller.clientHeight * 0.8) {
+        scroller.scrollTop = y;
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        seen.push(scroller.scrollHeight);
+      }
+      return seen;
+    });
+    expect(Math.max(...heights) / Math.min(...heights)).toBeLessThan(1.01);
+    await p.$eval("[data-filter-item]", (row) => {
+      (row as HTMLElement).tabIndex = 0;
+      (row as HTMLElement).focus();
+    });
+    expect(await visibility()).toEqual(["visible", "auto"]);
+    await p.close();
+  },
+  limit(60_000),
+);
 
-test("under browse active and listed, no count line shows before the script runs", async () => {
-  for (const [name, first] of [
-    ["listed", ""],
-    ["dense", "4 von 4 Einheiten"],
-  ] as const) {
+test.each([
+  ["listed", ""],
+  ["dense", "4 von 4 Einheiten"],
+] as const)(
+  "the %s count line reads %j before the script runs",
+  async (name, first) => {
     const p = await tab();
     // The module waits until the first frame's count line is read.
     const { promise: held, resolve: release } = Promise.withResolvers<void>();
-    await p.setRequestInterception(true);
-    p.on("request", (r) => {
-      if (r.url().includes("ListFilter.astro_astro_type_script"))
-        held.then(() => r.continue()).catch(reportError);
-      else r.continue().catch(reportError);
+    const scripts = await p.createCDPSession();
+    await scripts.send("Fetch.enable", {
+      patterns: [{ urlPattern: "*ListFilter.astro_astro_type_script*" }],
+    });
+    scripts.on("Fetch.requestPaused", ({ requestId }) => {
+      held.then(() => scripts.send("Fetch.continueRequest", { requestId })).catch(reportError);
     });
     // A module script holds DOMContentLoaded, so the page is read while it loads.
     const loaded = p.goto(story(name));
@@ -709,5 +838,6 @@ test("under browse active and listed, no count line shows before the script runs
     await loaded;
     expect(seen).toBe(first);
     await p.close();
-  }
-}, 60_000);
+  },
+  limit(60_000),
+);

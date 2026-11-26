@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, expect } from "vitest";
-import { test } from "../limit";
+import { limit } from "@hackersandwizards/scaffolding/test-timeout";
+import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import axe from "axe-core";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
@@ -69,7 +69,8 @@ test("catalogs.json's portal anchors lead to every element, every colour and eve
   expect(portal).toBe("https://hackersandwizards.github.io/brand/");
   // Every colour with a value of its own; an alias or a role (var() of another) has no swatch.
   const colours = Object.entries(tokens)
-    .filter(([k, v]) => k.startsWith("--color-") && !v.startsWith("var("))
+    .filter(([k]) => k.startsWith("--color-"))
+    .filter(([, v]) => !v.startsWith("var("))
     .map(([k]) => anchors!.colour.replace("<colour>", k.slice("--color-".length)));
   const elements = Object.keys(ELEMENTS).map((n) => anchors!.element.replace("<element>", n));
   const palettes = ["neutrals", "hues"].map((p) => anchors!.palette.replace("<palette>", p));
@@ -85,7 +86,8 @@ test("catalogs.json's portal anchors lead to every element, every colour and eve
 });
 
 test("the portal lists tokens.css's aliases and no role token among them", () => {
-  const aliases = html.match(/<p class="meta">Aliases, [^]*?<\/p>/)?.[0] ?? "";
+  const aliases = html.match(/<p class="meta">Aliases, [^]*?<\/p>/)?.[0];
+  assert(aliases, "The portal has an aliases paragraph");
   expect(aliases).toContain("<code>--color-subtle</code>");
   expect(aliases).not.toContain("--color-label-text");
 });
@@ -99,7 +101,8 @@ test("the portal counts the logos it shows", () => {
 test("the portal links every logo file the package ships, a master's cut or a delivery file", () => {
   const shipped = manifest.files
     .map((f) => f.path)
-    .filter((p) => p.startsWith("logos/") && !/emoji-logo|\.tif$|\.json$/.test(p));
+    .filter((p) => p.startsWith("logos/"))
+    .filter((p) => !/emoji-logo|\.tif$|\.json$/.test(p));
   expect(shipped.length).toBeGreaterThan(0);
   expect(shipped.filter((p) => !html.includes(`href="${p}" download`))).toEqual([]);
 });
@@ -135,7 +138,8 @@ test("every link and image of the portal resolves in dist/", () => {
         [...s[1]!.matchAll(/url\("([^"]+)"\)/g)].map((m) => m[1]!),
       ),
     )
-    .filter((r) => r && !/^(?:[a-z]+:|\/\/)/.test(r));
+    .filter(Boolean)
+    .filter((r) => !/^(?:[a-z]+:|\/\/)/.test(r));
   expect(refs.length).toBeGreaterThan(100);
   expect([...new Set(refs)].filter((r) => !fileOf(r))).toEqual([]);
   // A Git LFS pointer resolves too and shows as a broken image: `bun install` pulls them.
@@ -162,103 +166,123 @@ const url = pathToFileURL(`${DIST}/index.html`).href;
 
 // Each view is hidden until its link opens it, and brand-elements skips what is hidden: every view
 // is measured open, and the overview, all views hidden, as a control.
-test("the portal's samples match their rules", async () => {
-  const views = [...new Set(page("index.html").match(/(?<=data-page=")[a-z-]+/g))];
-  const rs = await Promise.all(views.map((v) => measurePage(browser, elementPage(`${url}#${v}`))));
-  // Every element but one: the focus ring is read only on a focused tile.
-  expect(new Set(rs.flatMap((r) => r.seen)).size).toBe(Object.keys(ELEMENTS).length - 1);
-  expect(rs.flatMap((r) => r.findings)).toEqual([]);
-  expect((await measurePage(browser, elementPage(url))).seen).toEqual([]);
-}, 60_000);
+test(
+  "the portal's samples match their rules",
+  async () => {
+    const views = [...new Set(page("index.html").match(/(?<=data-page=")[a-z-]+/g))];
+    const rs = await Promise.all(
+      views.map((v) => measurePage(browser, elementPage(`${url}#${v}`))),
+    );
+    // Every element but one: the focus ring is read only on a focused tile.
+    expect(new Set(rs.flatMap((r) => r.seen)).size).toBe(Object.keys(ELEMENTS).length - 1);
+    expect(rs.flatMap((r) => r.findings)).toEqual([]);
+    expect((await measurePage(browser, elementPage(url))).seen).toEqual([]);
+  },
+  limit(60_000),
+);
 
 // The portal's own lists take the rule; with the browser's disc they read 0.56 to 0.61 px off.
-test("the portal's lists sit within 0.25 px", async () => {
-  const rs = [
-    ...(await measureMarkers(browser, url, { scale: 2 })),
-    ...(await measureMarkers(browser, url, { scale: 2, newline: true })),
-  ];
-  expect(rs.length).toBeGreaterThan(0);
-  expect(
-    rs.filter(failing).map((r) => `${r.label} ${r.kind} newline:${r.newline} ${r.offset}`),
-  ).toEqual([]);
-}, 60_000);
+test(
+  "the portal's lists sit within 0.25 px",
+  async () => {
+    const rs = [
+      ...(await measureMarkers(browser, url, { scale: 2 })),
+      ...(await measureMarkers(browser, url, { scale: 2, newline: true })),
+    ];
+    expect(rs.length).toBeGreaterThan(0);
+    expect(
+      rs.filter(failing).map((r) => `${r.label} ${r.kind} newline:${r.newline} ${r.offset}`),
+    ).toEqual([]);
+  },
+  limit(60_000),
+);
 
 // The page title takes the shell's type step, which only brand's tokens set on this page.
-test("the portal's title is brand's --text-page", async () => {
-  const p = await browser.newPage();
-  await p.goto(url);
-  const size = await p.$eval("h1", (el) => getComputedStyle(el).fontSize);
-  expect(size).toBe(`${parseFloat(tokens["--text-page"]) * 16}px`);
-  await p.close();
-}, 60_000);
+test(
+  "the portal's title is brand's --text-page",
+  async () => {
+    const p = await browser.newPage();
+    await p.goto(url);
+    const size = await p.$eval("h1", (el) => getComputedStyle(el).fontSize);
+    expect(size).toBe(`${parseFloat(tokens["--text-page"]) * 16}px`);
+    await p.close();
+  },
+  limit(60_000),
+);
 
 // The portal follows the theme stored under "theme", else the system's, and its header's switch
 // turns it and stores the choice. By night every text of a view clears AA contrast: axe-core over
 // the colours view, whose tables are the portal's own raised surfaces. Not measured: what axe cannot
 // read off this page, the rail's names cut by its scroll and a sample's text on a gradient.
-test("the portal follows the stored theme, its switch turns it, and night stays legible", async () => {
-  // A context of its own, so the stored choice never reaches the other tests' pages.
-  const context = await browser.createBrowserContext();
-  const p = await context.newPage();
-  await p.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
-  await p.goto(url);
-  await p.evaluate(() => localStorage.clear());
-  await p.reload();
-  const theme = () =>
-    p.evaluate(() => [
-      document.documentElement.dataset.theme ?? "light",
-      document.getElementById("theme-toggle")?.getAttribute("aria-pressed"),
-      localStorage.getItem("theme"),
-    ]);
-  expect(await theme()).toEqual(["dark", "true", null]);
-  await p.goto(`${url}#colours`);
-  await p.evaluate(axe.source);
-  const nodes = await p.evaluate(async () => {
-    // ignoreLength: a one-digit count is text. `checks` is a run option axe's types leave out.
-    const options = {
-      runOnly: ["color-contrast"],
-      checks: { "color-contrast": { options: { ignoreLength: true } } },
-    } as axe.RunOptions;
-    const { violations, incomplete } = await (window as unknown as { axe: typeof axe }).axe.run(
-      document,
-      options,
-    );
-    return [...violations, ...incomplete].flatMap((r) =>
-      r.nodes.map((node) => {
-        const data: unknown = node.any[0]?.data;
-        return { target: node.target.join(" "), data };
-      }),
-    );
-  });
-  const unreadable = nodes
-    .filter(
-      ({ data }) =>
-        !["elmPartiallyObscured", "bgGradient"].includes(contrastMessageKey(data) ?? ""),
-    )
-    .map(({ target }) => target);
-  expect(unreadable).toEqual([]);
-  await p.click("#theme-toggle");
-  expect(await theme()).toEqual(["light", "false", "light"]);
-  await p.reload();
-  expect(await theme()).toEqual(["light", "false", "light"]);
-  await p.click("#theme-toggle");
-  await p.reload();
-  expect(await theme()).toEqual(["dark", "true", "dark"]);
-  await context.close();
-}, 60_000);
+test(
+  "the portal follows the stored theme, its switch turns it, and night stays legible",
+  async () => {
+    // A context of its own, so the stored choice never reaches the other tests' pages.
+    const context = await browser.createBrowserContext();
+    const p = await context.newPage();
+    await p.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
+    await p.goto(url);
+    await p.evaluate(() => localStorage.clear());
+    await p.reload();
+    const theme = () =>
+      p.evaluate(() => [
+        document.documentElement.getAttribute("data-theme"),
+        document.getElementById("theme-toggle")?.getAttribute("aria-pressed"),
+        localStorage.getItem("theme"),
+      ]);
+    expect(await theme()).toEqual(["dark", "true", null]);
+    await p.goto(`${url}#colours`);
+    await p.evaluate(axe.source);
+    const nodes = await p.evaluate(async () => {
+      // ignoreLength: a one-digit count is text. `checks` is a run option axe's types leave out.
+      const options = {
+        runOnly: ["color-contrast"],
+        checks: { "color-contrast": { options: { ignoreLength: true } } },
+      } as axe.RunOptions;
+      const { violations, incomplete } = await (window as unknown as { axe: typeof axe }).axe.run(
+        document,
+        options,
+      );
+      return [...violations, ...incomplete].flatMap((r) =>
+        r.nodes.map((node) => {
+          const data: unknown = node.any[0]?.data;
+          return { target: node.target.join(" "), data };
+        }),
+      );
+    });
+    const unmeasured = new Set<string | undefined>(["elmPartiallyObscured", "bgGradient"]);
+    const unreadable = nodes
+      .filter(({ data }) => !unmeasured.has(contrastMessageKey(data)))
+      .map(({ target }) => target);
+    expect(unreadable).toEqual([]);
+    await p.click("#theme-toggle");
+    expect(await theme()).toEqual(["light", "false", "light"]);
+    await p.reload();
+    expect(await theme()).toEqual([null, "false", "light"]);
+    await p.click("#theme-toggle");
+    await p.reload();
+    expect(await theme()).toEqual(["dark", "true", "dark"]);
+    await context.close();
+  },
+  limit(60_000),
+);
 
 // Brand asks for the quote to be marked not-prose, which the measure's own selector skips.
-test("a quote in the prose block keeps the running text's measure", async () => {
-  const p = await browser.newPage();
-  await p.setViewport({ width: 1440, height: 900 });
-  await p.setContent(
-    `<div class="prose hw-prose" style="font-size:16px"><p>Text</p><blockquote class="hw-quote not-prose"><p>Quote</p></blockquote><blockquote class="hw-quote not-prose"><pre>code</pre></blockquote></div>`,
-  );
-  for (const path of ["generated/tokens.root.css", "generated/elements.css"])
-    await p.addStyleTag({ path: join(ROOT, path) });
-  const widths = await p.$$eval(".hw-prose > *", (els) =>
-    els.map((el) => el.getBoundingClientRect().width),
-  );
-  expect(widths).toEqual([528, 528, 768]);
-  await p.close();
-}, 60_000);
+test(
+  "a quote in the prose block keeps the running text's measure",
+  async () => {
+    const p = await browser.newPage();
+    await p.setViewport({ width: 1440, height: 900 });
+    await p.setContent(
+      `<div class="prose hw-prose" style="font-size:16px"><p>Text</p><blockquote class="hw-quote not-prose"><p>Quote</p></blockquote><blockquote class="hw-quote not-prose"><pre>code</pre></blockquote></div>`,
+    );
+    for (const path of ["generated/tokens.root.css", "generated/elements.css"])
+      await p.addStyleTag({ path: join(ROOT, path) });
+    const widths = await p.$$eval(".hw-prose > *", (els) =>
+      els.map((el) => el.getBoundingClientRect().width),
+    );
+    expect(widths).toEqual([528, 528, 768]);
+    await p.close();
+  },
+  limit(60_000),
+);

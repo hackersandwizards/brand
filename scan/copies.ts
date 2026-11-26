@@ -72,7 +72,7 @@ const box = (f: string) => /viewBox="([^"]+)"/.exec(readFileSync(join(LOGOS, f),
 const LOCKUP_BOX = new RegExp(
   `^<svg\\b[^>]*viewBox="(?:${[...new Set(["lockup.svg", "lockup-screen.svg"].map(box))].join("|").replace(/\./g, "\\.")})"`,
 );
-const plain = (svg: string) =>
+const normalizeLogoSvg = (svg: string) =>
   svg
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/\s+/g, " ")
@@ -81,9 +81,9 @@ const plain = (svg: string) =>
 const WORDMARKS = new Set(
   [...logoNames]
     .filter((f) => /^wordmark.*\.svg$/.test(f))
-    .map((f) => plain(readFileSync(join(LOGOS, f), "utf8"))),
+    .map((f) => normalizeLogoSvg(readFileSync(join(LOGOS, f), "utf8"))),
 );
-const engineLogo = (svg: string) => LOCKUP_BOX.test(svg) || WORDMARKS.has(plain(svg));
+const engineLogo = (svg: string) => LOCKUP_BOX.test(svg) || WORDMARKS.has(normalizeLogoSvg(svg));
 
 /** Removes quoted SVG data URIs that carry an exempt engine logo, preserving the other text. */
 export const withoutEngineLogoUris = (text: string) => {

@@ -8,6 +8,13 @@ type Pending = {
   reject: (error: Error) => void;
 };
 
+export class CdpSocketClosed extends Error {
+  constructor() {
+    super("Chrome's DevTools socket closed");
+    this.name = "CdpSocketClosed";
+  }
+}
+
 // Decode a reply's success payload or its protocol error.
 function parseCdpResponse(id: number, { error, result }: CdpResult): CdpResponse {
   if (error) {
@@ -48,8 +55,7 @@ class CdpConnection {
     );
     // A Chrome that exits mid-run answers no pending call: fail them, so no await hangs.
     socket.addEventListener("close", () => {
-      for (const request of this.#pending.values())
-        request.reject(new Error("Chrome's DevTools socket closed"));
+      for (const request of this.#pending.values()) request.reject(new CdpSocketClosed());
       this.#pending.clear();
     });
   }

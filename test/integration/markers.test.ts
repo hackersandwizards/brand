@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, describe, expect } from "vitest";
-import { test } from "../limit";
+import { limit } from "@hackersandwizards/scaffolding/test-timeout";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -285,33 +285,44 @@ test.each([2, 4])(
     const rs = await all(NEW, scale);
     expect(rs.filter((r) => r.kind === "before").length).toBe(46);
     expect(rs.filter((r) => r.kind === "element").length).toBe(8);
-    expect(show(rs.filter((r) => r.kind !== "glyph" && !r.double && failing(r)))).toEqual([]);
+    const singles = rs.filter((r) => r.kind !== "glyph").filter((r) => !r.double);
+    expect(show(singles.filter(failing))).toEqual([]);
     // The square sits right, but the item keeps the disc: it fails, and only it.
     const double = rs.filter((r) => r.double);
-    expect(
-      double.map(
-        (r) => r.label.includes("An item that keeps") && Math.abs(r.offset) <= 0.25 && failing(r),
-      ),
-    ).toEqual([true, true]);
+    const doubleFindings = double.map((r) => ({
+      keptDisc: r.label.includes("An item that keeps"),
+      squareAligned: Math.abs(r.offset) <= 0.25,
+      rejected: failing(r),
+    }));
+    expect(doubleFindings).toEqual([
+      { keptDisc: true, squareAligned: true, rejected: true },
+      { keptDisc: true, squareAligned: true, rejected: true },
+    ]);
   },
-  60_000,
+  limit(60_000),
 );
 
-test("the first pass finds a page with a marker and passes over one without", async () => {
-  const none = file(
-    "none.html",
-    `<!doctype html><ol><li>A numbered item</li></ol><p><span style="display:inline-block;width:10px;height:10px;background:teal"></span> A swatch outside a list</p>`,
-  );
-  expect(await Promise.all([NEW, none].map((url) => hasMarkers(browser, url)))).toEqual([
-    true,
-    false,
-  ]);
-}, 30_000);
+test(
+  "the first pass finds a page with a marker and passes over one without",
+  async () => {
+    const none = file(
+      "none.html",
+      `<!doctype html><ol><li>A numbered item</li></ol><p><span style="display:inline-block;width:10px;height:10px;background:teal"></span> A swatch outside a list</p>`,
+    );
+    expect(await Promise.all([NEW, none].map((url) => hasMarkers(browser, url)))).toEqual([
+      true,
+      false,
+    ]);
+  },
+  limit(30_000),
+);
 
-test("marker discovery retains the first kind and the declared source for each text node", async () => {
-  const page = await browser.newPage();
-  try {
-    await page.setContent(`<style>
+test(
+  "marker discovery retains the first kind and the declared source for each text node",
+  async () => {
+    const page = await browser.newPage();
+    try {
+      await page.setContent(`<style>
       ul { list-style: disc }
       li::before { content: ""; display: inline-block; width: 8px; height: 8px; background: teal }
       li span { display: inline-block; width: 8px; height: 8px; background: teal }
@@ -321,23 +332,25 @@ test("marker discovery retains the first kind and the declared source for each t
     <ol><li data-hw-exception="declared">Two</li></ol>
     <ol><li class="element-only"><span data-hw-exception="declared"></span> Three</li></ol>
     <div style="opacity:0"><ul><li>Hidden</li></ul></div>`);
-    const dom = await installMarkerDom(page);
-    const matches = await dom.evaluate((api) =>
-      api.findMarkers(["declared", "ignored"]).map(({ kind, text, exception }) => ({
-        kind,
-        text: text.data.trim(),
-        exception,
-      })),
-    );
-    expect(matches).toEqual([
-      { kind: "before", text: "One" },
-      { kind: "before", text: "Two", exception: "declared" },
-      { kind: "element", text: "Three", exception: "declared" },
-    ]);
-  } finally {
-    await page.close();
-  }
-}, 30_000);
+      const dom = await installMarkerDom(page);
+      const matches = await dom.evaluate((api) =>
+        api.findMarkers(["declared", "ignored"]).map(({ kind, text, exception }) => ({
+          kind,
+          text: text.data.trim(),
+          exception,
+        })),
+      );
+      expect(matches).toEqual([
+        { kind: "before", text: "One" },
+        { kind: "before", text: "Two", exception: "declared" },
+        { kind: "element", text: "Three", exception: "declared" },
+      ]);
+    } finally {
+      await page.close();
+    }
+  },
+  limit(30_000),
+);
 
 test.each([
   [
@@ -404,7 +417,7 @@ test.each([
       await page.close();
     }
   },
-  30_000,
+  limit(30_000),
 );
 
 test.each([
@@ -463,64 +476,78 @@ test.each([
       await page.close();
     }
   },
-  30_000,
+  limit(30_000),
 );
 
 const STRICT = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'";
 
 // brand-markers renders under the consumer's policy too, and reports what it refuses.
-test("a policy refusing data: images is red on a page's data: icon, green with img-src data:", async () => {
-  const url = file(
-    "csp.html",
-    `<!doctype html><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
-  );
-  const policy = STRICT;
-  const refused: Refusal[] = [];
-  await hasMarkers(browser, url, { csp: policy, refused });
-  expect(refused).toEqual([
-    { page: url, element: "p.hw-form-error::before", source: "data", directive: "img-src" },
-  ]);
-  refused.length = 0;
-  await hasMarkers(browser, url, { csp: `${policy} data:`, refused });
-  expect(refused).toEqual([]);
-}, 30_000);
-
-// The run reads its own screenshots inside the page, which a policy refusing data: images must not
-// stop or see.
-test("markers measure the same under a policy refusing data: images", async () => {
-  const csp = STRICT;
-  const refused: Refusal[] = [];
-  // Two runs without a policy differ by about 1e-4 px; brand-markers reports two decimals.
-  const near = (a: number | null, b: number | null | undefined) =>
-    a !== null && b != null && Math.abs(a - b) < 0.01 ? b : a;
-  const plain = await measureMarkers(browser, NEW, { scale: 2 });
-  const under = await measureMarkers(browser, NEW, { scale: 2, csp, refused });
-  expect(
-    under.map((r, i) => ({
-      ...r,
-      offset: near(r.offset, plain[i]?.offset),
-      indent: near(r.indent, plain[i]?.indent),
-    })),
-  ).toEqual(plain);
-  expect(refused).toEqual([]);
-}, 60_000);
-
-// A policy the page carries itself, as a <meta> or its server's header under --base, is read
-// without "csp"; a refusal inside an iframe counts too.
-test("a page's own policy and an iframe's refusals are reported", async () => {
-  const meta = file(
-    "csp-meta.html",
-    `<!doctype html><meta http-equiv="Content-Security-Policy" content="img-src 'self'"><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
-  );
-  const framed = file("csp-frame.html", `<!doctype html><iframe src="${meta}"></iframe>`);
-  for (const url of [meta, framed]) {
+test(
+  "a policy refusing data: images is red on a page's data: icon, green with img-src data:",
+  async () => {
+    const url = file(
+      "csp.html",
+      `<!doctype html><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
+    );
+    const policy = STRICT;
     const refused: Refusal[] = [];
-    await hasMarkers(browser, url, { refused });
+    await hasMarkers(browser, url, { csp: policy, refused });
     expect(refused).toEqual([
       { page: url, element: "p.hw-form-error::before", source: "data", directive: "img-src" },
     ]);
-  }
-}, 30_000);
+    refused.length = 0;
+    await hasMarkers(browser, url, { csp: `${policy} data:`, refused });
+    expect(refused).toEqual([]);
+  },
+  limit(30_000),
+);
+
+// The run reads its own screenshots inside the page, which a policy refusing data: images must not
+// stop or see.
+test(
+  "markers measure the same under a policy refusing data: images",
+  async () => {
+    const csp = STRICT;
+    const refused: Refusal[] = [];
+    const plain = await measureMarkers(browser, NEW, { scale: 2 });
+    const under = await measureMarkers(browser, NEW, { scale: 2, csp, refused });
+    const identity = ({ offset: _offset, indent: _indent, ...reading }: Reading) => reading;
+    expect(under.map(identity)).toEqual(plain.map(identity));
+    const coordinates = (rs: Reading[]) => rs.flatMap(({ offset, indent }) => [offset, indent]);
+    const actual = coordinates(under);
+    const expected = coordinates(plain);
+    const finite = (n: number | null): n is number => Number.isFinite(n);
+    expect(actual.map(finite)).toEqual(expected.map(finite));
+    expect(actual.filter((n) => !finite(n))).toEqual(expected.filter((n) => !finite(n)));
+    // Two runs without a policy differ by about 1e-4 px; brand-markers reports two decimals.
+    const expectedFinite = expected.filter(finite);
+    const drift = actual.filter(finite).map((n, i) => Math.abs(n - expectedFinite[i]!));
+    expect(Math.max(...drift)).toBeLessThan(0.01);
+    expect(refused).toEqual([]);
+  },
+  limit(60_000),
+);
+
+// A policy the page carries itself, as a <meta> or its server's header under --base, is read
+// without "csp"; a refusal inside an iframe counts too.
+test(
+  "a page's own policy and an iframe's refusals are reported",
+  async () => {
+    const meta = file(
+      "csp-meta.html",
+      `<!doctype html><meta http-equiv="Content-Security-Policy" content="img-src 'self'"><link rel="stylesheet" href="${brand("elements/elements.css")}"><p class="hw-form-error">Wählt ein Format.</p>`,
+    );
+    const framed = file("csp-frame.html", `<!doctype html><iframe src="${meta}"></iframe>`);
+    for (const url of [meta, framed]) {
+      const refused: Refusal[] = [];
+      await hasMarkers(browser, url, { refused });
+      expect(refused).toEqual([
+        { page: url, element: "p.hw-form-error::before", source: "data", directive: "img-src" },
+      ]);
+    }
+  },
+  limit(30_000),
+);
 
 // A host sending different policies by path: "csp" as globs over the page's path, each document,
 // an iframe's too, under the policy of its own path.
@@ -538,51 +565,71 @@ describe("a policy per path", () => {
   };
   const ICON = "p.hw-form-error::before img-src";
 
-  test("each page is rendered under the policy its path matches", async () => {
-    const csp = { "**/path-strict.html": STRICT, "**/path-open.html": OPEN };
-    expect(await refusedOn(form("path-strict.html"), csp)).toEqual([ICON]);
-    expect(await refusedOn(form("path-open.html"), csp)).toEqual([]);
-  }, 30_000);
+  test(
+    "each page is rendered under the policy its path matches",
+    async () => {
+      const csp = { "**/path-strict.html": STRICT, "**/path-open.html": OPEN };
+      expect(await refusedOn(form("path-strict.html"), csp)).toEqual([ICON]);
+      expect(await refusedOn(form("path-open.html"), csp)).toEqual([]);
+    },
+    limit(30_000),
+  );
 
-  test("the first listed glob matching a path decides", async () => {
-    const url = form("path-both.html");
-    expect(await refusedOn(url, { "**/path-both.html": OPEN, "**": STRICT })).toEqual([]);
-    expect(await refusedOn(url, { "**/path-both.html": STRICT, "**": OPEN })).toEqual([ICON]);
-  }, 30_000);
+  test(
+    "the first listed glob matching a path decides",
+    async () => {
+      const url = form("path-both.html");
+      expect(await refusedOn(url, { "**/path-both.html": OPEN, "**": STRICT })).toEqual([]);
+      expect(await refusedOn(url, { "**/path-both.html": STRICT, "**": OPEN })).toEqual([ICON]);
+    },
+    limit(30_000),
+  );
 
-  test("an iframe takes the policy of its own path", async () => {
-    const framed = form("path-framed.html");
-    const url = file("path-outer.html", `<!doctype html><iframe src="${framed}"></iframe>`);
-    const csp = { "**/path-outer.html": OPEN, "**/path-framed.html": STRICT };
-    expect(await refusedOn(url, csp)).toEqual([ICON]);
-    expect(
-      await refusedOn(url, { "**/path-outer.html": STRICT, "**/path-framed.html": OPEN }),
-    ).toEqual([]);
-  }, 30_000);
+  test(
+    "an iframe takes the policy of its own path",
+    async () => {
+      const framed = form("path-framed.html");
+      const url = file("path-outer.html", `<!doctype html><iframe src="${framed}"></iframe>`);
+      const csp = { "**/path-outer.html": OPEN, "**/path-framed.html": STRICT };
+      expect(await refusedOn(url, csp)).toEqual([ICON]);
+      expect(
+        await refusedOn(url, { "**/path-outer.html": STRICT, "**/path-framed.html": OPEN }),
+      ).toEqual([]);
+    },
+    limit(30_000),
+  );
 
-  test("a page no glob matches throws, naming its path", async () => {
-    expect(
-      await rejection(refusedOn(form("path-none.html"), { "**/elsewhere.html": STRICT })),
-    ).toMatch(/"csp": no glob matches .*path-none\.html/);
-  }, 30_000);
+  test(
+    "a page no glob matches throws, naming its path",
+    async () => {
+      expect(
+        await rejection(refusedOn(form("path-none.html"), { "**/elsewhere.html": STRICT })),
+      ).toMatch(/"csp": no glob matches .*path-none\.html/);
+    },
+    limit(30_000),
+  );
 
-  test("a frame of the page's own origin no glob matches throws, another origin's does not", async () => {
-    const framed = form("path-unlisted.html");
-    const csp = { "**/path-own.html": OPEN };
-    const own = file("path-own.html", `<!doctype html><iframe src="${framed}"></iframe>`);
-    expect(await rejection(refusedOn(own, csp))).toMatch(/no glob matches .*path-unlisted\.html/);
-    file("path-bare.html", "<!doctype html><p>A frame</p>");
-    const server = serve(dir);
-    try {
-      const away = file(
-        "path-away.html",
-        `<!doctype html><iframe src="${new URL("path-bare.html", server.url).href}"></iframe>`,
-      );
-      expect(await refusedOn(away, { "**/path-away.html": `${OPEN}; frame-src *` })).toEqual([]);
-    } finally {
-      await server.stop(true);
-    }
-  }, 30_000);
+  test(
+    "a frame of the page's own origin no glob matches throws, another origin's does not",
+    async () => {
+      const framed = form("path-unlisted.html");
+      const csp = { "**/path-own.html": OPEN };
+      const own = file("path-own.html", `<!doctype html><iframe src="${framed}"></iframe>`);
+      expect(await rejection(refusedOn(own, csp))).toMatch(/no glob matches .*path-unlisted\.html/);
+      file("path-bare.html", "<!doctype html><p>A frame</p>");
+      const server = serve(dir);
+      try {
+        const away = file(
+          "path-away.html",
+          `<!doctype html><iframe src="${new URL("path-bare.html", server.url).href}"></iframe>`,
+        );
+        expect(await refusedOn(away, { "**/path-away.html": `${OPEN}; frame-src *` })).toEqual([]);
+      } finally {
+        await server.stop(true);
+      }
+    },
+    limit(30_000),
+  );
 
   test.each([[{}], [{ "**": "" }], [{ "**": 1 }], [{ "**": "a\nb" }], [["a"]], [""]])(
     "a malformed value throws: %j",
@@ -591,34 +638,42 @@ describe("a policy per path", () => {
         /"csp"/,
       );
     },
-    30_000,
+    limit(30_000),
   );
 });
 
 // An area mark opening a list item is an icon, not a list marker. The control: the same box
 // without the class is measured.
-test("an area mark opening a list item is no marker", async () => {
-  const row = (cls: string) =>
-    `<!doctype html><ul style="list-style:none"><li><span class="${cls}" style="width:14px;height:14px;display:inline-block;background:teal"></span> Blog</li></ul>`;
-  const urls = [file("mark.html", row("hw-mark")), file("box.html", row("box"))];
-  expect(await Promise.all(urls.map((url) => hasMarkers(browser, url)))).toEqual([false, true]);
-}, 30_000);
+test(
+  "an area mark opening a list item is no marker",
+  async () => {
+    const row = (cls: string) =>
+      `<!doctype html><ul style="list-style:none"><li><span class="${cls}" style="width:14px;height:14px;display:inline-block;background:teal"></span> Blog</li></ul>`;
+    const urls = [file("mark.html", row("hw-mark")), file("box.html", row("box"))];
+    expect(await Promise.all(urls.map((url) => hasMarkers(browser, url)))).toEqual([false, true]);
+  },
+  limit(30_000),
+);
 
 // A marker inside a [data-hw-exception], declared in brand-elements.json or not, is found and
 // measured, as one outside any is; a declared one is reported apart (below).
-test("a marker inside any [data-hw-exception] is found", async () => {
-  const list = (attr: string) =>
-    `<div ${attr}><ul style="list-style:none"><li><span style="width:8px;height:8px;display:inline-block;background:teal"></span> Stop</li></ul></div>`;
-  const exception = file("exception.html", `<!doctype html>${list('data-hw-exception="track"')}`);
-  const own = file("own.html", `<!doctype html>${list("")}`);
-  expect(
-    await Promise.all([
-      hasMarkers(browser, exception, { exceptions: ["track"] }),
-      hasMarkers(browser, exception, { exceptions: ["other"] }),
-      hasMarkers(browser, own),
-    ]),
-  ).toEqual([true, true, true]);
-}, 30_000);
+test(
+  "a marker inside any [data-hw-exception] is found",
+  async () => {
+    const list = (attr: string) =>
+      `<div ${attr}><ul style="list-style:none"><li><span style="width:8px;height:8px;display:inline-block;background:teal"></span> Stop</li></ul></div>`;
+    const exception = file("exception.html", `<!doctype html>${list('data-hw-exception="track"')}`);
+    const own = file("own.html", `<!doctype html>${list("")}`);
+    expect(
+      await Promise.all([
+        hasMarkers(browser, exception, { exceptions: ["track"] }),
+        hasMarkers(browser, exception, { exceptions: ["other"] }),
+        hasMarkers(browser, own),
+      ]),
+    ).toEqual([true, true, true]);
+  },
+  limit(30_000),
+);
 
 test.each([2, 4])(
   "under a CSS zoom of 0.96897, --hw-zoom holds marker.css within 0.25 px at %dx, and leaving it out fails",
@@ -631,7 +686,7 @@ test.each([2, 4])(
     expect(unset.some((r) => r.kind === "before")).toBe(true);
     expect(unset.some((r) => r.kind === "element")).toBe(true);
   },
-  60_000,
+  limit(60_000),
 );
 
 test.each([2, 4])(
@@ -642,14 +697,18 @@ test.each([2, 4])(
     expect(rs.filter((r) => r.kind === "before").length).toBe(64);
     expect(show(rs.filter(failing))).toEqual([]);
   },
-  60_000,
+  limit(60_000),
 );
 
-test("an unrounded side fails at some 1/64 px offset, element and list alike", async () => {
-  const rs = (await measureMarkers(browser, PLANTED, { scale: 4 })).filter(failing);
-  expect(rs.some((r) => r.kind === "element")).toBe(true);
-  expect(rs.some((r) => r.kind === "before")).toBe(true);
-}, 60_000);
+test(
+  "an unrounded side fails at some 1/64 px offset, element and list alike",
+  async () => {
+    const rs = (await measureMarkers(browser, PLANTED, { scale: 4 })).filter(failing);
+    expect(rs.some((r) => r.kind === "element")).toBe(true);
+    expect(rs.some((r) => r.kind === "before")).toBe(true);
+  },
+  limit(60_000),
+);
 
 test.each([2, 4])(
   "the prose task checkbox sits within 0.25 px at %dx, and a loose item draws no marker",
@@ -659,7 +718,7 @@ test.each([2, 4])(
     expect(rs.filter((r) => r.kind === "before")).toEqual([]);
     expect(show(rs.filter(failing))).toEqual([]);
   },
-  60_000,
+  limit(60_000),
 );
 
 test.each([2, 4])(
@@ -669,105 +728,154 @@ test.each([2, 4])(
     expect(rs.length).toBe(18);
     expect(show(rs.filter(failing))).toEqual([]);
   },
-  60_000,
+  limit(60_000),
 );
 
 // The read-only tick is left out: under a zoom Chrome draws its mask larger than the box (43 rows
 // of ink against 40 at 4x), 0.4 to 0.5 px off.
-test("the prose task box sits within 0.25 px under a zoom of 0.96897 with --hw-zoom", async () => {
-  const rs = (await all(ZOOMED_TASKS, 2)).filter((r) => !r.label.includes("read-only"));
-  expect(rs.length).toBe(24);
-  expect(show(rs.filter(failing))).toEqual([]);
-}, 60_000);
+test(
+  "the prose task box sits within 0.25 px under a zoom of 0.96897 with --hw-zoom",
+  async () => {
+    const rs = (await all(ZOOMED_TASKS, 2)).filter((r) => !r.label.includes("read-only"));
+    expect(rs.length).toBe(24);
+    expect(show(rs.filter(failing))).toEqual([]);
+  },
+  limit(60_000),
+);
 
-test("a list below the first screen of an inner scroller is measured", async () => {
-  const rs = await all(INNER, 2);
-  expect(rs.length).toBe(6);
-  expect(show(rs.filter(failing))).toEqual([]);
-}, 60_000);
+test(
+  "a list below the first screen of an inner scroller is measured",
+  async () => {
+    const rs = await all(INNER, 2);
+    expect(rs.length).toBe(6);
+    expect(show(rs.filter(failing))).toEqual([]);
+  },
+  limit(60_000),
+);
 
-test("a page that refits itself after the lines are rewritten is measured once it settles", async () => {
-  const rs = await all(REFIT, 2);
-  expect(rs.length).toBe(8);
-  expect(show(rs.filter(failing))).toEqual([]);
-}, 60_000);
+test(
+  "a page that refits itself after the lines are rewritten is measured once it settles",
+  async () => {
+    const rs = await all(REFIT, 2);
+    expect(rs.length).toBe(8);
+    expect(show(rs.filter(failing))).toEqual([]);
+  },
+  limit(60_000),
+);
 
 // A timeline's waypoint: a square ::before placed on the item's left edge, far left of its text,
 // turned into a diamond or not. It is read in its own box: turning it about its middle, by
 // transform or by rotate, or moving the text away leaves the reading; moving it down 2 px, by top
 // or by translate, moves the reading 2 px. One ending just short of its text is read too.
-test("an absolutely placed ::before is read whole, however far left of its text and turned", async () => {
-  const stop = (pad: string, cls = "") =>
-    `<li style="padding-left:${pad}" class="${cls}"><p>2025 to now</p><h3 style="margin:0">Co-founder</h3></li>`;
-  const url = file(
-    "stops.html",
-    `<!doctype html><style>body{margin:40px;font:16px/1.5 sans-serif}ol{list-style:none;padding:0}
+test(
+  "an absolutely placed ::before is read whole, however far left of its text and turned",
+  async () => {
+    const stop = (pad: string, cls = "") =>
+      `<li style="padding-left:${pad}" class="${cls}"><p>2025 to now</p><h3 style="margin:0">Co-founder</h3></li>`;
+    const url = file(
+      "stops.html",
+      `<!doctype html><style>body{margin:40px;font:16px/1.5 sans-serif}ol{list-style:none;padding:0}
 li{position:relative;height:80px}li::before{content:"";position:absolute;left:1px;top:6px;width:11px;height:11px;background:#fff;border:1px solid #000}
 .turn::before{transform:rotate(45deg)}.rotate::before{rotate:45deg}.lower::before{top:8px}.moved::before{translate:0 2px}
 p{font-size:.8rem;text-transform:uppercase;margin:0}</style><ol>${[
-      stop("2.6rem", "turn"),
-      stop("2.6rem"),
-      stop("1.4rem", "turn"),
-      stop("1.4rem"),
-      stop("2.6rem", "rotate"),
-      stop("2.6rem", "turn lower"),
-      stop("2.6rem", "turn moved"),
-      stop("13.5px"),
-    ].join("")}</ol>`,
-  );
-  const rs = (await measureMarkers(browser, url, { scale: 2 })).map((r) => r.offset);
-  expect(rs.length).toBe(8);
-  const [far, square, near, nearSquare, rotated, lower, moved, close] = rs;
-  for (const o of [square, near, nearSquare, rotated, close])
-    expect(Math.abs(o! - far!)).toBeLessThan(0.25);
-  for (const o of [lower, moved]) expect(Math.abs(o! - far! - 2)).toBeLessThan(0.25);
-}, 60_000);
+        stop("2.6rem", "turn"),
+        stop("2.6rem"),
+        stop("1.4rem", "turn"),
+        stop("1.4rem"),
+        stop("2.6rem", "rotate"),
+        stop("2.6rem", "turn lower"),
+        stop("2.6rem", "turn moved"),
+        stop("13.5px"),
+      ].join("")}</ol>`,
+    );
+    const rs = (await measureMarkers(browser, url, { scale: 2 })).map((r) => r.offset);
+    expect(rs.length).toBe(8);
+    const [far, square, near, nearSquare, rotated, lower, moved, close] = rs;
+    for (const o of [square, near, nearSquare, rotated, close])
+      expect(Math.abs(o! - far!)).toBeLessThan(0.25);
+    for (const o of [lower, moved]) expect(Math.abs(o! - far! - 2)).toBeLessThan(0.25);
+  },
+  limit(60_000),
+);
 
-test("the old fixed checkbox top fails", async () => {
-  expect((await all(OLD_TASKS, 2)).some(failing)).toBe(true);
-}, 60_000);
+test(
+  "the old fixed checkbox top fails",
+  async () => {
+    expect((await all(OLD_TASKS, 2)).some(failing)).toBe(true);
+  },
+  limit(60_000),
+);
 
-test("the read-only tick on the box's own path fails", async () => {
-  const rs = await measureMarkers(browser, BOX_TICK, { scale: 2 });
-  expect(rs.filter((r) => r.label.includes("read-only") && failing(r)).length).toBe(12);
-}, 60_000);
+test(
+  "the read-only tick on the box's own path fails",
+  async () => {
+    const rs = await measureMarkers(browser, BOX_TICK, { scale: 2 });
+    expect(rs.filter((r) => r.label.includes("read-only")).filter(failing)).toHaveLength(12);
+  },
+  limit(60_000),
+);
 
-test("the old list marker fails: off centre at some size, first lines indented after a newline", async () => {
-  const rs = (await all(OLD, 4)).filter((r) => r.kind === "before");
-  expect(rs.some((r) => !r.newline && Math.abs(r.offset) > 0.25)).toBe(true);
-  for (const r of rs.filter((r) => r.newline && !r.label.includes("loose")))
-    expect(r.indent!).toBeGreaterThan(3);
-}, 60_000);
+test(
+  "the old list marker fails: off centre at some size, first lines indented after a newline",
+  async () => {
+    const rs = (await all(OLD, 4)).filter((r) => r.kind === "before");
+    const initial = rs.filter((r) => !r.newline);
+    expect(initial.some((r) => Math.abs(r.offset) > 0.25)).toBe(true);
+    const tight = rs.filter((r) => r.newline).filter((r) => !r.label.includes("loose"));
+    expect(tight.length).toBeGreaterThan(0);
+    expect(Math.min(...tight.map((r) => Number(r.indent)))).toBeGreaterThan(3);
+  },
+  limit(60_000),
+);
 
-test("the middle on the x-height middle fails, list and element alike", async () => {
-  const rs = (await all(X_MIDDLE, 4)).filter((r) => r.kind !== "glyph");
-  expect(rs.filter((r) => r.kind === "before" && failing(r)).length).toBeGreaterThan(30);
-  expect(rs.some((r) => r.kind === "element" && failing(r))).toBe(true);
-}, 60_000);
+test(
+  "the middle on the x-height middle fails, list and element alike",
+  async () => {
+    const rs = (await all(X_MIDDLE, 4)).filter((r) => r.kind !== "glyph");
+    const failed = rs.filter(failing);
+    expect(failed.filter((r) => r.kind === "before").length).toBeGreaterThan(30);
+    expect(failed.some((r) => r.kind === "element")).toBe(true);
+  },
+  limit(60_000),
+);
 
-test("the old element marker fails at some size", async () => {
-  const rs = (await all(OLD, 4)).filter((r) => r.kind === "element");
-  expect(rs.length).toBe(8);
-  expect(rs.some(failing)).toBe(true);
-}, 60_000);
+test(
+  "the old element marker fails at some size",
+  async () => {
+    const rs = (await all(OLD, 4)).filter((r) => r.kind === "element");
+    expect(rs.length).toBe(8);
+    expect(rs.some(failing)).toBe(true);
+  },
+  limit(60_000),
+);
 
-test("the browser's disc is found and fails", async () => {
-  const rs = (await all(NATIVE, 2)).filter((r) => r.kind === "native");
-  expect(rs.length).toBe(46);
-  expect(rs.some(failing)).toBe(true);
-  expect(rs.some((r) => r.double)).toBe(false);
-}, 60_000);
+test(
+  "the browser's disc is found and fails",
+  async () => {
+    const rs = (await all(NATIVE, 2)).filter((r) => r.kind === "native");
+    expect(rs.length).toBe(46);
+    expect(rs.some(failing)).toBe(true);
+    expect(rs.some((r) => r.double)).toBe(false);
+  },
+  limit(60_000),
+);
 
-test("a bullet glyph drawn as ::before content is found", async () => {
-  const rs = (await all(NEW, 2)).filter((r) => r.kind === "glyph");
-  expect(rs.length).toBe(2);
-  expect(rs.every((r) => Number.isFinite(r.offset))).toBe(true);
-}, 60_000);
+test(
+  "a bullet glyph drawn as ::before content is found",
+  async () => {
+    const rs = (await all(NEW, 2)).filter((r) => r.kind === "glyph");
+    expect(rs.length).toBe(2);
+    expect(rs.every((r) => Number.isFinite(r.offset))).toBe(true);
+  },
+  limit(60_000),
+);
 
-test("one marker per item: an emptied ::marker and a row deeper in a disc item are not two", async () => {
-  const page = file(
-    "one.html",
-    `<!doctype html><html><head><meta charset="utf-8">
+test(
+  "one marker per item: an emptied ::marker and a row deeper in a disc item are not two",
+  async () => {
+    const page = file(
+      "one.html",
+      `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
 <link rel="stylesheet" href="${brand("tokens/print.css")}">
 <link rel="stylesheet" href="${brand("tokens/marker.css")}">
@@ -776,28 +884,34 @@ test("one marker per item: an emptied ::marker and a row deeper in a disc item a
 </head><body><ul class="hw-marker-list"><li class="quiet" style="list-style:disc">An emptied marker</li></ul>
 <ul style="list-style:disc;padding-left:1.25rem"><li><div class="row"><span class="hw-marker"></span><span>A row in a disc item</span></div></li></ul>
 <ul class="hw-marker-list"><li style="list-style:disc">The control keeps its disc</li></ul></body></html>`,
-  );
-  const rs = await measureMarkers(browser, page, { scale: 2 });
-  expect(rs.filter((r) => r.double).map((r) => r.label.includes("The control"))).toEqual([true]);
-}, 60_000);
+    );
+    const rs = await measureMarkers(browser, page, { scale: 2 });
+    expect(rs.filter((r) => r.double).map((r) => r.label.includes("The control"))).toEqual([true]);
+  },
+  limit(60_000),
+);
 
 // The talks print page: 1920 px slides in a 1280 px window, a label's marker scrolled into view and
 // its text right of the viewport.
-test("a text box right of the viewport is measured", async () => {
-  const wide = file(
-    "wide.html",
-    `<!doctype html><html><head><meta charset="utf-8">
+test(
+  "a text box right of the viewport is measured",
+  async () => {
+    const wide = file(
+      "wide.html",
+      `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="${brand("generated/tokens.root.css")}">
 <link rel="stylesheet" href="${brand("tokens/print.css")}">
 <link rel="stylesheet" href="${brand("tokens/marker.css")}">
 <style>body { margin: 40px; width: 1800px; font-family: var(--font-sans); }
 .row { display: flex; align-items: baseline; gap: 40px; margin-left: 1220px; }</style>
 </head><body><div class="row" style="font-size:16px;line-height:1.4"><span class="hw-marker"></span><span>Row text</span></div></body></html>`,
-  );
-  const rs = await measureMarkers(browser, wide, { scale: 2, width: 1280 });
-  expect(rs.length).toBe(1);
-  expect(show(rs.filter(failing))).toEqual([]);
-}, 60_000);
+    );
+    const rs = await measureMarkers(browser, wide, { scale: 2, width: 1280 });
+    expect(rs.length).toBe(1);
+    expect(show(rs.filter(failing))).toEqual([]);
+  },
+  limit(60_000),
+);
 
 test("a leading-slash argument is on a server when supplied and names a file otherwise", () => {
   const site = new URL("http://127.0.0.1:1");
@@ -965,55 +1079,71 @@ describe("a page whose markers are all declared exceptions", () => {
   // Under an undeclared name the timeline's square is measured as a list marker, and it is off.
   const measured = `${own} li "xxxxHHHH Stop" (element, 2x): `;
 
-  test("passes when named on the command line; no marker fails, an undeclared name is measured", () => {
-    expect(cli([own], declared).code).toBe(0);
-    const empty = cli([none], declared);
-    expect([empty.code, empty.err]).toEqual([1, `${none}: no marker found\n`]);
-    const undeclared = cli([own], {});
-    expect(undeclared.code).toBe(1);
-    expect(undeclared.err).toContain(measured);
-  }, 60_000);
+  test(
+    "passes when named on the command line; no marker fails, an undeclared name is measured",
+    () => {
+      expect(cli([own], declared).code).toBe(0);
+      const empty = cli([none], declared);
+      expect([empty.code, empty.err]).toEqual([1, `${none}: no marker found\n`]);
+      const undeclared = cli([own], {});
+      expect(undeclared.code).toBe(1);
+      expect(undeclared.err).toContain(measured);
+    },
+    limit(60_000),
+  );
 
   // The declared timeline's square is measured too, and its off reading is printed apart without
   // failing the run; the summary counts it.
-  test("measures a declared exception's markers and reports them apart without failing", () => {
-    const run = cli([own], declared);
-    expect(run.code).toBe(0);
-    expect(run.out).toMatch(
-      new RegExp(
-        `declared exception "track": ${own.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} li "xxxxHHHH Stop" \\(element, 2x\\): -?[\\d.]+ px off`,
-      ),
-    );
-    expect(run.out).toMatch(/2 inside declared exceptions, 2 off/);
-    expect(run.err).not.toContain(measured);
-  }, 60_000);
+  test(
+    "measures a declared exception's markers and reports them apart without failing",
+    () => {
+      const run = cli([own], declared);
+      expect(run.code).toBe(0);
+      expect(run.out).toMatch(
+        new RegExp(
+          `declared exception "track": ${own.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} li "xxxxHHHH Stop" \\(element, 2x\\): -?[\\d.]+ px off`,
+        ),
+      );
+      expect(run.out).toMatch(/2 inside declared exceptions, 2 off/);
+      expect(run.err).not.toContain(measured);
+    },
+    limit(60_000),
+  );
 
-  test('passes when listed in brand-elements.json "pages"; no marker fails, an undeclared name is measured', () => {
-    expect(cli([], { ...declared, pages: [own] }).code).toBe(0);
-    const empty = cli([], { ...declared, pages: [none] });
-    expect(empty.code).toBe(1);
-    expect(empty.err).toContain('no marker on any page of brand-elements.json "pages"');
-    const undeclared = cli([], { pages: [own] });
-    expect(undeclared.code).toBe(1);
-    expect(undeclared.err).toContain(measured);
-  }, 60_000);
+  test(
+    'passes when listed in brand-elements.json "pages"; no marker fails, an undeclared name is measured',
+    () => {
+      expect(cli([], { ...declared, pages: [own] }).code).toBe(0);
+      const empty = cli([], { ...declared, pages: [none] });
+      expect(empty.code).toBe(1);
+      expect(empty.err).toContain('no marker on any page of brand-elements.json "pages"');
+      const undeclared = cli([], { pages: [own] });
+      expect(undeclared.code).toBe(1);
+      expect(undeclared.err).toContain(measured);
+    },
+    limit(60_000),
+  );
 
   // A catalog alone, its stories showing no marker, measures nothing: it fails as named pages do.
-  test("a catalog whose stories show no marker fails", () => {
-    const dir = mkdtempSync(join(tmpdir(), "brand-markers-catalog-"));
-    try {
-      mkdirSync(join(dir, "stories/Parts/plain/default"), { recursive: true });
-      writeFileSync(
-        join(dir, "stories/Parts/plain/default/index.html"),
-        `<!doctype html><p>No list here</p>`,
-      );
-      const run = cli([], { catalog: dir });
-      expect(run.code).toBe(1);
-      expect(run.err).toContain("no marker on any page of brand-elements.json");
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  }, 60_000);
+  test(
+    "a catalog whose stories show no marker fails",
+    () => {
+      const dir = mkdtempSync(join(tmpdir(), "brand-markers-catalog-"));
+      try {
+        mkdirSync(join(dir, "stories/Parts/plain/default"), { recursive: true });
+        writeFileSync(
+          join(dir, "stories/Parts/plain/default/index.html"),
+          `<!doctype html><p>No list here</p>`,
+        );
+        const run = cli([], { catalog: dir });
+        expect(run.code).toBe(1);
+        expect(run.err).toContain("no marker on any page of brand-elements.json");
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
+    limit(60_000),
+  );
 });
 
 // A line drawn in a fallback face reads that face's x-height, so a page whose web face is late or
@@ -1025,23 +1155,30 @@ describe("a page drawn in a fallback face", () => {
 <style>body { margin: 40px; max-width: 420px; font-family: var(--font-sans); } ul { margin: 0; padding: 0; }</style>
 </head><body><ul class="hw-marker-list" style="font-size:16px;line-height:1.6"><li>Short item</li><li>Another item</li></ul></body></html>`;
   // The brand's files, every .woff2 answered after `delay` ms, or 404 where it is negative.
-  const site = (delay: number) =>
-    Bun.serve({
+  const site = (delay: number, missedLoads = 0) => {
+    let pageLoads = 0;
+    return Bun.serve({
       hostname: "127.0.0.1",
       port: 0,
       async fetch(request) {
         const path = new URL(request.url).pathname;
-        if (path === "/") return new Response(html, { headers: { "content-type": "text/html" } });
+        if (path === "/") {
+          pageLoads++;
+          return new Response(html, { headers: { "content-type": "text/html" } });
+        }
         if (path.endsWith(".woff2")) {
           if (delay < 0) return new Response("gone", { status: 404 });
           await Bun.sleep(delay);
+          if (pageLoads <= missedLoads)
+            return new Response("gone", { status: 404, headers: { "cache-control": "no-store" } });
         }
         const f = Bun.file(join(ROOT, path));
         return (await f.exists()) ? new Response(f) : new Response("gone", { status: 404 });
       },
     });
-  const measure = async (delay: number) => {
-    const server = site(delay);
+  };
+  const measure = async (delay: number, missedLoads?: number) => {
+    const server = site(delay, missedLoads);
     try {
       return await measureMarkers(browser, server.url.href, { scale: 2 });
     } finally {
@@ -1051,71 +1188,87 @@ describe("a page drawn in a fallback face", () => {
   const MISSED =
     /page drawn in fallback font .+; Inter Variable missed font-display's block period/;
 
-  test("a face that never arrives fails with the fallback named", async () => {
-    expect(await rejection(measure(-1))).toMatch(MISSED);
-  }, 60_000);
+  test(
+    "a face that never arrives fails with the fallback named",
+    async () => {
+      expect(await rejection(measure(-1))).toMatch(MISSED);
+    },
+    limit(60_000),
+  );
 
-  test("a face 400 ms late fails so or passes once reloaded", async () => {
-    try {
-      const rs = await measure(400);
+  test(
+    "a face unavailable on the first load measures after it arrives on retry",
+    async () => {
+      const rs = await measure(400, 1);
       expect(rs.length).toBe(2);
       expect(show(rs.filter(failing))).toEqual([]);
-    } catch (e) {
-      expect(String(e)).toMatch(MISSED);
-    }
-  }, 60_000);
+    },
+    limit(60_000),
+  );
 
   // One page left in a fallback fails the run without hiding the others: the page that loads its
   // face is still measured and reported.
-  test("brand-markers reports a page left in a fallback and measures the rest", async () => {
-    const [gone, served] = [site(-1), site(0)];
-    try {
-      const run = Bun.spawn(
-        ["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", gone.url.href, served.url.href],
-        { cwd: tmpdir(), stdout: "pipe", stderr: "pipe" },
-      );
-      const [code, out, err] = await Promise.all([
-        run.exited,
-        new Response(run.stdout).text(),
-        new Response(run.stderr).text(),
-      ]);
-      expect(code).toBe(1);
-      expect(err).toContain(`${gone.url.href}: page drawn in fallback font`);
-      expect(err).not.toContain(served.url.href);
-      expect(out).toContain("brand-markers: 4 readings on 2 pages, 0 off");
-    } finally {
-      await gone.stop(true);
-      await served.stop(true);
-    }
-  }, 60_000);
+  test(
+    "brand-markers reports a page left in a fallback and measures the rest",
+    async () => {
+      const [gone, served] = [site(-1), site(0)];
+      try {
+        const run = Bun.spawn(
+          ["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", gone.url.href, served.url.href],
+          { cwd: tmpdir(), stdout: "pipe", stderr: "pipe" },
+        );
+        const [code, out, err] = await Promise.all([
+          run.exited,
+          new Response(run.stdout).text(),
+          new Response(run.stderr).text(),
+        ]);
+        expect(code).toBe(1);
+        expect(err).toContain(`${gone.url.href}: page drawn in fallback font`);
+        expect(err).not.toContain(served.url.href);
+        expect(out).toContain("brand-markers: 4 readings on 2 pages, 0 off");
+      } finally {
+        await gone.stop(true);
+        await served.stop(true);
+      }
+    },
+    limit(60_000),
+  );
 
   // A policy refusing the font is the cause of the fallback, so the run names the refusal too.
-  test("a page left in a fallback by its policy reports the refused font", async () => {
-    const served = site(0);
-    const cwd = mkdtempSync(join(tmpdir(), "brand-markers-csp-"));
-    try {
-      writeFileSync(join(cwd, "brand-elements.json"), JSON.stringify({ csp: "font-src 'none'" }));
-      const run = Bun.spawn(
-        ["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", served.url.href],
-        {
-          cwd,
-          stdout: "pipe",
-          stderr: "pipe",
-        },
-      );
-      const [code, err] = await Promise.all([run.exited, new Response(run.stderr).text()]);
-      expect(code).toBe(1);
-      expect(err).toContain(`${served.url.href}: page drawn in fallback font`);
-      expect(err).toMatch(/refuses \S+\.woff2 \(font-src\)/);
-    } finally {
-      await served.stop(true);
-      rmSync(cwd, { recursive: true, force: true });
-    }
-  }, 60_000);
+  test(
+    "a page left in a fallback by its policy reports the refused font",
+    async () => {
+      const served = site(0);
+      const cwd = mkdtempSync(join(tmpdir(), "brand-markers-csp-"));
+      try {
+        writeFileSync(join(cwd, "brand-elements.json"), JSON.stringify({ csp: "font-src 'none'" }));
+        const run = Bun.spawn(
+          ["bun", join(ROOT, "scan/markers.ts"), "--scale", "2", served.url.href],
+          {
+            cwd,
+            stdout: "pipe",
+            stderr: "pipe",
+          },
+        );
+        const [code, err] = await Promise.all([run.exited, new Response(run.stderr).text()]);
+        expect(code).toBe(1);
+        expect(err).toContain(`${served.url.href}: page drawn in fallback font`);
+        expect(err).toMatch(/refuses \S+\.woff2 \(font-src\)/);
+      } finally {
+        await served.stop(true);
+        rmSync(cwd, { recursive: true, force: true });
+      }
+    },
+    limit(60_000),
+  );
 
-  test("the same page served at once reads 0 off", async () => {
-    const rs = await measure(0);
-    expect(rs.length).toBe(2);
-    expect(show(rs.filter(failing))).toEqual([]);
-  }, 60_000);
+  test(
+    "the same page served at once reads 0 off",
+    async () => {
+      const rs = await measure(0);
+      expect(rs.length).toBe(2);
+      expect(show(rs.filter(failing))).toEqual([]);
+    },
+    limit(60_000),
+  );
 });

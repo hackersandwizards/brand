@@ -10,7 +10,7 @@ import sharp from "sharp";
 import { version } from "../../package.json";
 import { findChrome, NO_KEYCHAIN, type Viewport } from "../linkedin-visuals/render";
 import { lfsOid } from "../../scan/assets";
-import { connectCdp } from "./cdp";
+import { CdpSocketClosed, connectCdp } from "./cdp";
 
 const BRAND = resolve(import.meta.dir, "../..");
 
@@ -172,10 +172,15 @@ export async function browser() {
       shot: page.shot.bind(page),
       pdf: page.pdf.bind(page),
       async close() {
-        await cdp.send("Browser.close").catch(() => {});
-        cdp.close();
-        stop();
-        page.clearDocuments();
+        try {
+          await cdp.send("Browser.close");
+        } catch (error) {
+          if (!(error instanceof CdpSocketClosed)) throw error;
+        } finally {
+          cdp.close();
+          stop();
+          page.clearDocuments();
+        }
       },
     };
   } catch (error) {
