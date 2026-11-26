@@ -18,26 +18,32 @@ const nameOf = (path: string) => path.slice(path.lastIndexOf("/") + 1);
 
 const P = "[PLACEHOLDER]";
 const node = { href: "/space/page", label: P, order: 0, hasPage: true, children: [] };
-const props: Record<string, Record<string, unknown>> = {
-  AppHeader: { product: P },
-  FilterChip: { label: P, removeHref: "/" },
-  FilterChipBar: { show: true, clearHref: "/" },
+const fixtures = {
+  AppHeader: { props: { product: P }, marker: P },
+  FilterChip: { props: { label: P, removeHref: "/" }, marker: P },
+  FilterChipBar: { props: { show: true, clearHref: "/" }, marker: P },
   ListFilter: {
-    id: "f",
-    action: "/",
-    label: P,
-    items: [],
-    state: { q: "", facets: {} },
-    facets: [{ param: "t", legend: P, options: [] }],
-    count: "{shown}",
+    props: {
+      id: "f",
+      action: "/",
+      label: P,
+      items: [],
+      state: { q: "", facets: {} },
+      facets: [{ param: "t", legend: P, options: [] }],
+      count: "{shown}",
+    },
+    marker: P,
   },
-  ListRow: { stripeColor: "bg-teal" },
-  PageHeader: { title: P },
-  Pill: { label: P },
-  SpaceNav: { label: P, base: "/space", nodes: [node], currentPath: "/space", pageCount: 1 },
-  SpaceNavTree: { nodes: [node], currentPath: "/space" },
-  ThemeToggle: {},
-};
+  ListRow: { props: { stripeColor: "bg-teal" }, marker: P },
+  PageHeader: { props: { title: P }, marker: P },
+  Pill: { props: { label: P }, marker: P },
+  SpaceNav: {
+    props: { label: P, base: "/space", nodes: [node], currentPath: "/space", pageCount: 1 },
+    marker: P,
+  },
+  SpaceNavTree: { props: { nodes: [node], currentPath: "/space" }, marker: P },
+  ThemeToggle: { props: {}, marker: 'id="theme-toggle"' },
+} satisfies Record<string, { props: Record<string, unknown>; marker: string }>;
 
 let server: ViteDevServer;
 beforeAll(async () => {
@@ -70,23 +76,16 @@ async function loadComponent(path: string) {
 }
 
 test("every component has placeholder props here", () => {
-  expect(components.map(nameOf).sort()).toEqual(Object.keys(props).sort());
+  expect(components.map(nameOf).sort()).toEqual(Object.keys(fixtures).sort());
 });
 
-const renderMarkers = new Map([["ThemeToggle", 'id="theme-toggle"']]);
-const componentCases = Object.keys(props).map((name) => ({
-  path: `expert/components/${name}`,
-  marker: renderMarkers.get(name) ?? P,
-}));
-
-test.each(componentCases)(
-  "$path renders standalone",
-  async ({ path, marker }) => {
-    const name = nameOf(path);
-    const component = await loadComponent(`/${path}.astro`);
+test.each(Object.entries(fixtures).map(([name, fixture]) => ({ name, ...fixture })))(
+  "$name renders standalone",
+  async ({ name, props, marker }) => {
+    const component = await loadComponent(`/expert/components/${name}.astro`);
     const container = await experimental_AstroContainer.create();
     const html: string = await container.renderToString(component, {
-      props: props[name],
+      props,
       slots: { default: `<p>${P}</p>`, aside: `<p>${P}</p>`, lead: `<p>${P}</p>` },
     });
     expect(html).toContain(marker);
@@ -97,7 +96,9 @@ test.each(componentCases)(
 test("SpaceNav's home link takes hw-nav's weight: no weight class on its list", async () => {
   const component = await loadComponent("/expert/components/SpaceNav.astro");
   const container = await experimental_AstroContainer.create();
-  const html: string = await container.renderToString(component, { props: props.SpaceNav });
+  const html: string = await container.renderToString(component, {
+    props: fixtures.SpaceNav.props,
+  });
   const beforeHome = html.slice(0, html.indexOf(`>${P} home<`));
   expect(html).toContain(`>${P} home<`);
   expect(beforeHome.slice(beforeHome.lastIndexOf("<ul"))).not.toMatch(/\bfont-/);
@@ -131,7 +132,7 @@ test(
     const branch = { ...node, href: "/space/branch", children: [node] };
     const render = (labels?: Record<string, unknown>) =>
       container.renderToString(component, {
-        props: { ...props.SpaceNav, nodes: [branch], pageCount: 2, labels },
+        props: { ...fixtures.SpaceNav.props, nodes: [branch], pageCount: 2, labels },
       });
     const english: string = await render();
     for (const text of ["Browse " + P, "2 pages", P + " home", "Overview", P + " sections"])
@@ -165,7 +166,7 @@ test(
     const facets = [{ param: "t", legend: P, options: [{ value: "a", label: "Alpha" }] }];
     const render = (t: string) =>
       container.renderToString(component, {
-        props: { ...props.ListFilter, facets, state: { q: "", facets: { t } } },
+        props: { ...fixtures.ListFilter.props, facets, state: { q: "", facets: { t } } },
       });
     const chosen: string = await render("a");
     expect(chosen).toContain('aria-label="Filters: Alpha"');
@@ -183,7 +184,7 @@ test(
     const container = await experimental_AstroContainer.create();
     const night = async (color: string) =>
       /--hw-pill-hue-night: ([^"]*)/.exec(
-        await container.renderToString(component, { props: { ...props.Pill, color } }),
+        await container.renderToString(component, { props: { ...fixtures.Pill.props, color } }),
       )?.[1];
     expect(await night("bg-ampersand/15")).toContain("var(--color-ampersand-light,");
     expect(await night("bg-teal/15")).toContain("var(--color-teal-night,");
@@ -197,7 +198,7 @@ test(
     const component = await loadComponent("/expert/components/Pill.astro");
     const container = await experimental_AstroContainer.create();
     const render = (color: string) =>
-      container.renderToString(component, { props: { ...props.Pill, color } });
+      container.renderToString(component, { props: { ...fixtures.Pill.props, color } });
     for (const color of ["bg-warning/15 text-warning", "text-warning"]) {
       const html = await render(color);
       expect(html).toContain('data-tone="warning"');

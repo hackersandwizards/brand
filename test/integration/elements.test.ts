@@ -15,6 +15,7 @@ import type { Csp } from "../../scan/browser-csp";
 import { DEMOS } from "../../catalog/element-demos";
 import { ROOT } from "../../scripts/git";
 import { DRIFT } from "../element-drift";
+import { createBrowserColorProbe } from "./color-probe";
 
 // Every element in every scale and theme, as a spoke's page shows it: tiles holding the samples.
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
@@ -120,6 +121,29 @@ test(
   limit(60_000),
 );
 
+test.each([
+  { kind: "opaque", color: "rgb(51 102 153)", alpha: 1 },
+  { kind: "translucent", color: "rgb(51 102 153 / 0.5)", alpha: 0.5 },
+  { kind: "transparent", color: "rgb(51 102 153 / 0)", alpha: 0 },
+])(
+  "reads $kind alpha from the browser",
+  async ({ color, alpha }) => {
+    const tab = await browser.newPage();
+    try {
+      const colors = await tab.evaluateHandle(createBrowserColorProbe);
+      const result = await tab.evaluate(
+        ({ rgba }, input) => rgba(document.body, input),
+        colors,
+        color,
+      );
+      expect(result).toEqual([0.2, 0.4, 0.6, alpha]);
+    } finally {
+      await tab.close();
+    }
+  },
+  limit(30_000),
+);
+
 // A set priority never takes the outline that means "no value": P2 to P4 fill, each lighter, on
 // the theme's own neutral (P3 and P4 share P2's text and fill colour, at less strength).
 test(
@@ -131,33 +155,40 @@ test(
     const html = only(`<div>${row}</div><div data-theme="dark">${row}</div>`);
     const tab = await browser.newPage();
     await tab.goto(pathToFileURL(file("priority.html", html)).href);
-    const themes = await tab.evaluate(() =>
-      [...document.querySelectorAll("body > div")].map((d) =>
+    const colors = await tab.evaluateHandle(createBrowserColorProbe);
+    const themes = await tab.evaluate(({ rgba }) => {
+      const read = (color: string) => {
+        const [r, g, b, a] = rgba(document.body, color);
+        return { rgb: [r, g, b].join(" "), a };
+      };
+      return [...document.querySelectorAll("body > div")].map((d) =>
         [...d.children].map((e) => {
           const s = getComputedStyle(e);
-          return { bg: s.backgroundColor, border: s.borderTopColor, text: s.color };
+          return {
+            bg: read(s.backgroundColor),
+            border: read(s.borderTopColor),
+            text: read(s.color),
+          };
         }),
-      ),
-    );
+      );
+    }, colors);
     await tab.close();
-    // rgb(), rgba() or color(srgb ...): three channels, then the alpha if any.
-    const parse = (c: string) => {
-      const channels = c.match(/[\d.]+/g);
-      assert(channels, `Expected colour channels in ${c}`);
-      const [r, g, b, a = 1] = channels.map(Number);
-      return { rgb: [r, g, b].join(" "), a };
-    };
-    for (const [p2, p3, p4] of themes) {
-      const [b2, b3, b4] = [p2!, p3!, p4!].map((p) => parse(p.bg));
-      expect(b2!.a).toBeGreaterThan(b3!.a);
-      expect(b3!.a).toBeGreaterThan(b4!.a);
-      expect(b4!.a).toBeGreaterThan(0);
-      for (const p of [p2!, p3!, p4!]) expect(parse(p.border).a).toBe(0);
-      for (const p of [p3!, p4!]) {
-        expect(parse(p.bg).rgb).toBe(b2!.rgb);
-        expect(parse(p.text).rgb).toBe(parse(p2!.text).rgb);
-      }
-    }
+    const fades = themes.map(([p2, p3, p4]) => {
+      assert(p2, "Expected a measured P2 pill");
+      assert(p3, "Expected a measured P3 pill");
+      assert(p4, "Expected a measured P4 pill");
+      return [p2.bg.a > p3.bg.a, p3.bg.a > p4.bg.a, p4.bg.a > 0];
+    });
+    expect(fades).toEqual([
+      [true, true, true],
+      [true, true, true],
+    ]);
+    expect(themes.map((theme) => theme.map(({ border }) => border.a))).toEqual([
+      [0, 0, 0],
+      [0, 0, 0],
+    ]);
+    const pigments = themes.map((theme) => theme.map(({ bg, text }) => [bg.rgb, text.rgb]));
+    expect(pigments).toEqual(pigments.map(([p2]) => [p2, p2, p2]));
   },
   limit(60_000),
 );
@@ -402,35 +433,24 @@ test(
     const tab = await browser.newPage();
     await tab.setViewport({ width: 412, height: 900 });
     await tab.goto(pathToFileURL(file("wash.html", only(grounds))).href);
-    const low = await tab.evaluate(() => {
-      const probe = document.createElement("i");
-      document.body.append(probe);
-      const rgba = (color: string) => {
-        probe.style.color = `color(from ${color} srgb r g b / alpha)`;
-        const normalized = getComputedStyle(probe).color;
-        const [r, g, b, a = 1] = normalized.match(/[-\d.]+(?:e[-+]?\d+)?/gi)!.map(Number);
-        return [r! * 255, g! * 255, b! * 255, a] as const;
-      };
-      const lum = (c: readonly number[]) => {
-        const channels = c.slice(0, 3).map((channel) => channel / 255);
-        probe.style.color = `color(from color(srgb ${channels.join(" ")}) srgb-linear r g b)`;
-        const normalized = getComputedStyle(probe).color;
-        const linear = normalized.match(/-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?/gi)!.map(Number);
-        return [0.2126, 0.7152, 0.0722].reduce((sum, weight, i) => sum + weight * linear[i]!, 0);
-      };
+    const colors = await tab.evaluateHandle(createBrowserColorProbe);
+    const low = await tab.evaluate(({ rgba, luminance }) => {
       return [...document.querySelectorAll<HTMLElement>(".hw-label")]
         .map((el) => {
           const box = el.parentElement!;
-          const ground = rgba(getComputedStyle(box.parentElement!).backgroundColor);
-          const wash = rgba(getComputedStyle(box).backgroundColor);
+          const ground = rgba(document.body, getComputedStyle(box.parentElement!).backgroundColor);
+          const wash = rgba(document.body, getComputedStyle(box).backgroundColor);
           const under = ground.slice(0, 3).map((g, i) => wash[i]! * wash[3] + g * (1 - wash[3]));
-          const [x, y] = [lum(rgba(getComputedStyle(el).color)), lum(under)].sort((p, q) => q - p);
+          const [x, y] = [
+            luminance(document.body, rgba(document.body, getComputedStyle(el).color)),
+            luminance(document.body, under),
+          ].sort((p, q) => q - p);
           const ratio = (x! + 0.05) / (y! + 0.05);
           const name = `${box.closest("[data-theme]")!.getAttribute("style")} ${box.outerHTML.split(">")[0]} ${el.outerHTML}`;
           return { name, ratio };
         })
         .filter(({ ratio }) => !(ratio >= 4.5));
-    });
+    }, colors);
     await tab.close();
     expect(low).toEqual([]);
     const plain = await measurePage(
@@ -458,22 +478,8 @@ test(
     const measure = async (name: string, css: string) => {
       const tab = await browser.newPage();
       await tab.goto(pathToFileURL(file(name, page(css))).href);
-      const low = await tab.evaluate(() => {
-        const probe = document.createElement("i");
-        document.body.append(probe);
-        const rgba = (color: string) => {
-          probe.style.color = `color(from ${color} srgb r g b / alpha)`;
-          const normalized = getComputedStyle(probe).color;
-          const [r, g, b, a = 1] = normalized.match(/[-\d.]+(?:e[-+]?\d+)?/gi)!.map(Number);
-          return [r! * 255, g! * 255, b! * 255, a] as const;
-        };
-        const lum = (c: readonly number[]) => {
-          const channels = c.slice(0, 3).map((channel) => channel / 255);
-          probe.style.color = `color(from color(srgb ${channels.join(" ")}) srgb-linear r g b)`;
-          const normalized = getComputedStyle(probe).color;
-          const linear = normalized.match(/-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?/gi)!.map(Number);
-          return [0.2126, 0.7152, 0.0722].reduce((sum, weight, i) => sum + weight * linear[i]!, 0);
-        };
+      const colors = await tab.evaluateHandle(createBrowserColorProbe);
+      const low = await tab.evaluate(({ rgba, luminance }) => {
         const over = (top: readonly number[], under: number[]) =>
           under.map((u, i) => top[i]! * top[3]! + u * (1 - top[3]!));
         // The fills from the theme section down to el, composited in order.
@@ -485,8 +491,8 @@ test(
           }
           chain.unshift(theme);
           return chain.reduce(
-            (c, e) => over(rgba(getComputedStyle(e).backgroundColor), c),
-            [255, 255, 255],
+            (c, e) => over(rgba(document.body, getComputedStyle(e).backgroundColor), c),
+            [1, 1, 1],
           );
         };
         const tiles = document.querySelectorAll(
@@ -505,7 +511,10 @@ test(
             .filter(({ style }) => style.display !== "none");
           return text.map(({ el, style: s }) => {
             const under = behind(el);
-            const [x, y] = [lum(over(rgba(s.color), under)), lum(under)].sort((p, q) => q - p);
+            const [x, y] = [
+              luminance(document.body, over(rgba(document.body, s.color), under)),
+              luminance(document.body, under),
+            ].sort((p, q) => q - p);
             const ratio = (x! + 0.05) / (y! + 0.05);
             const px = parseFloat(s.fontSize);
             const weight = Number(s.fontWeight);
@@ -531,7 +540,7 @@ test(
           ...regular.filter(({ ratio }) => !(ratio >= 4.5)),
           ...[...large].filter(({ ratio }) => !(ratio >= 3)),
         ];
-      });
+      }, colors);
       // A button or select in a label or a table head takes the role it sits in: its colour, no face.
       const faced = await tab.evaluate(() =>
         [

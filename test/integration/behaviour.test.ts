@@ -8,6 +8,7 @@ import type { Browser, Page } from "puppeteer-core";
 import sharp from "sharp";
 import { launch, open } from "../../scan/browser";
 import { ROOT } from "../../scripts/git";
+import { createBrowserColorProbe } from "./color-probe";
 
 // The keys, focus and placement elements/behaviour.ts gives, in a real browser.
 let browser: Browser;
@@ -1579,44 +1580,40 @@ test(
       grounds("light", "--color-white", "--color-ink") +
         grounds("dark", "--color-night", "--color-night-ink"),
     );
-    const lowest = (cue = "") =>
-      p.evaluate((cue) => {
-        const probe = document.createElement("i");
-        const channels = (el: Element, color: string, space: "srgb" | "srgb-linear") => {
-          probe.style.color = `color(from ${color} ${space} r g b / alpha)`;
-          el.append(probe);
-          const computed = getComputedStyle(probe).color;
-          probe.remove();
-          return computed.match(/-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?/gi)!.map(Number);
-        };
-        const rgba = (el: Element, color: string) => {
-          const [r, g, b, a = 1] = channels(el, color, "srgb");
-          return [r!, g!, b!, a];
-        };
-        const lum = (el: Element, rgb: number[]) =>
-          channels(el, `color(srgb ${rgb.slice(0, 3).join(" ")})`, "srgb-linear")
-            .slice(0, 3)
-            .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i]!, 0);
-        return Math.min(
-          ...[...document.querySelectorAll<HTMLElement>(".hw-table-scroll")].flatMap((w) => {
-            w.style.setProperty("--_hw-table-cue", cue);
-            const section = w.closest("[data-theme]")!;
-            const layers: number[][] = [];
-            for (let ground = w.parentElement!; ground !== section; ground = ground.parentElement!)
-              layers.push(rgba(ground, getComputedStyle(ground).backgroundColor));
-            layers.push(rgba(section, getComputedStyle(section).backgroundColor));
-            const over = (base: number[], top: number[]) =>
-              base.slice(0, 3).map((v, i) => v * (1 - top[3]!) + top[i]! * top[3]!);
-            const ground = layers.reduceRight((base, top) => over(base, top), [1, 1, 1]);
-            const under = over(ground, rgba(w, "var(--_hw-table-cue)"));
-            return [...w.querySelectorAll("th, td, a")].map((t) => {
-              const [a, b] = [lum(t, rgba(t, getComputedStyle(t).color)), lum(w, under)];
-              return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-            });
-          }),
-        );
-      }, cue);
-    expect(await lowest()).toBeGreaterThanOrEqual(4.5);
+    const colors = await p.evaluateHandle(createBrowserColorProbe);
+    const lowest = (cue: string) =>
+      p.evaluate(
+        (cue, { rgba, luminance }) => {
+          return Math.min(
+            ...[...document.querySelectorAll<HTMLElement>(".hw-table-scroll")].flatMap((w) => {
+              w.style.setProperty("--_hw-table-cue", cue);
+              const section = w.closest("[data-theme]")!;
+              const layers: (readonly [number, number, number, number])[] = [];
+              for (
+                let ground = w.parentElement!;
+                ground !== section;
+                ground = ground.parentElement!
+              )
+                layers.push(rgba(ground, getComputedStyle(ground).backgroundColor));
+              layers.push(rgba(section, getComputedStyle(section).backgroundColor));
+              const over = (base: number[], top: readonly number[]) =>
+                base.slice(0, 3).map((v, i) => v * (1 - top[3]!) + top[i]! * top[3]!);
+              const ground = layers.reduceRight((base, top) => over(base, top), [1, 1, 1]);
+              const under = over(ground, rgba(w, "var(--_hw-table-cue)"));
+              return [...w.querySelectorAll("th, td, a")].map((t) => {
+                const [a, b] = [
+                  luminance(t, rgba(t, getComputedStyle(t).color)),
+                  luminance(w, under),
+                ];
+                return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+              });
+            }),
+          );
+        },
+        cue,
+        colors,
+      );
+    expect(await lowest("")).toBeGreaterThanOrEqual(4.5);
     // The control: a shadow of full ink must fail.
     expect(await lowest("var(--color-ink)")).toBeLessThan(4.5);
     await p.close();
