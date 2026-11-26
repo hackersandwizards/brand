@@ -517,6 +517,10 @@
       "sha256": "33c4060ce3709841f9ac124611f2f70d37c260725d4a319d791fe9cc0880c703"
     },
     {
+      "path": "tokens/theme-read.js",
+      "sha256": "fe0a923053b1c21e6eaae53b3e6ebfaa41a8f41b436a3fe5cfa397b4059694fd"
+    },
+    {
       "path": "tokens/stage.css",
       "sha256": "6dd010e979105fdf1974487561d771fcdd2884dcd79f4460acaa29905f72edb3"
     },
