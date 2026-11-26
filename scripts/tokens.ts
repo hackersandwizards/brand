@@ -125,6 +125,12 @@ const copyScript = () => {
 
 const LAYER_ORDER = readFileSync(join(ROOT, "tokens/layers.css"), "utf8").trim();
 
+/** Adjacent top-level :root rules as one, each declaration kept in its place. */
+const mergeAdjacentRootRules = (css: string): string => {
+  const merged = css.replace(/^(:root \{[^{}]*?)\s*\}\s*:root \{/m, "$1");
+  return merged === css ? css : mergeAdjacentRootRules(merged);
+};
+
 /** A stylesheet with its relative @imports replaced by the files, recursively, each where the
  *  browser applies it, its comments dropped and the layer order stated once, at the top. Throws on
  *  an @import of another form and on a relative url(), which would resolve against the flat file's
@@ -134,8 +140,8 @@ export const flat = (path: string): string => {
   const bad = /@import\b[^;]*;?|url\(\s*(["']?)(?!data:|https?:|\/\/|#)[^"')]+\1\s*\)/.exec(css);
   if (bad) throw new Error(`${path}: ${bad[0]} cannot be resolved in place`);
   let first = true;
-  return `${css
-    .replaceAll(LAYER_ORDER, () => (first ? ((first = false), LAYER_ORDER) : ""))
+  const ordered = css.replaceAll(LAYER_ORDER, () => (first ? ((first = false), LAYER_ORDER) : ""));
+  return `${mergeAdjacentRootRules(ordered)
     .replace(/\n\s*\n/g, "\n")
     .trim()}\n`;
 };
@@ -145,6 +151,22 @@ const FLAT = (source: string) =>
    The source with every @import resolved in place: a page that links the stylesheet links this
    one instead, so its first paint waits on one request. */
 ${flat(join(ROOT, source))}`;
+
+const pythonString = (value: string) => {
+  const json = JSON.stringify(value);
+  const doubleQuotes = value.match(/"/g)?.length ?? 0;
+  const singleQuotes = value.match(/'/g)?.length ?? 0;
+  if (doubleQuotes <= singleQuotes) return json;
+  const body = json
+    .slice(1, -1)
+    .replace(/\\\\|\\"/g, (escape) => (escape === '\\"' ? '"' : escape));
+  return `'${body.replaceAll("'", "\\'")}'`;
+};
+
+const pythonDict = (entries: Record<string, string>) =>
+  `{\n${Object.entries(entries)
+    .map(([key, value]) => `    ${pythonString(key)}: ${pythonString(value)},\n`)
+    .join("")}}`;
 
 const generate = () => {
   const css = readFileSync(SOURCE, "utf8");
@@ -167,7 +189,7 @@ const generate = () => {
     "tokens.root.css": `/* ${head} */\n:root {\n${declare(Object.keys(tokens))}\n}\n:where([data-hw-night] [data-theme="light"]) {\n${declare([...dayAgain(tokens)])}\n}\n`,
     "tokens.json": json + "\n",
     "tokens.ts": `// ${dataHead}\nexport const tokens = ${JSON.stringify(data, null, 2)} as const;\n\nexport const colors = ${JSON.stringify(colors, null, 2)} as const;\n`,
-    "tokens.py": `# ${dataHead}\nTOKENS = ${JSON.stringify(data, null, 4)}\n\nCOLORS = ${JSON.stringify(colors, null, 4)}\n`,
+    "tokens.py": `# ${dataHead}\nTOKENS = ${pythonDict(data)}\n\nCOLORS = ${pythonDict(colors)}\n`,
     "code-theme.json": JSON.stringify(codeTheme(tokens, colors), null, 2) + "\n",
     ...fontOutputs(
       readFileSync(join(ROOT, "tokens/fonts.css"), "utf8"),

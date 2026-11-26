@@ -32,6 +32,13 @@
     display: inline-block;
     transition: translate var(--motion-fast);
   }
+  /* One em tall, so the turned arrow's box stays inside the line; the margin keeps a line ending on
+     it inside its block. */
+  .hw-arrow[data-external] > span {
+    margin-inline-end: 0.25em;
+    line-height: 1;
+    rotate: -45deg;
+  }
   :is(.hw-arrow-link, a.hw-card[href], .hw-card-link):is(
       :hover,
       [data-hw-hover],
@@ -41,13 +48,6 @@
     .hw-arrow
     > span {
     translate: 4px 0;
-  }
-  /* One em tall, so the turned arrow's box stays inside the line; the margin keeps a line ending on
-     it inside its block. */
-  .hw-arrow[data-external] > span {
-    margin-inline-end: 0.25em;
-    line-height: 1;
-    rotate: -45deg;
   }
   @media (prefers-reduced-motion: reduce) {
     .hw-arrow > span {

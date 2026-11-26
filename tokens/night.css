@@ -7,8 +7,8 @@
    sets it again inside the same subtree, as this does for scales.css's --hw-line. Unlayered, so on
    <html> it wins over tokens.root.css's :root. Export ./night.css, after tokens.css. */
 @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-  :scope[data-hw-night],
-  [data-hw-night] {
+  [data-hw-night],
+  :scope[data-hw-night] {
     --background: var(--color-night);
     --foreground: var(--color-night-ink);
     --accent: var(--color-teal-night);

@@ -102,8 +102,6 @@
   --slide-edit-field: 60px;
   --slide-edit-field-padding: 8px;
   --slide-edit-field-font: 18px/1.4 system-ui, sans-serif;
-}
-:root {
   --density: 1;
   --weight-regular: 400;
   --weight-medium: 500;
@@ -224,8 +222,6 @@
   --cert-signature-image-width: 70mm;
   --cert-signature-line: 66mm;
   --cert-qr: 26mm;
-}
-:root {
   --op-side: 14mm;
   --op-section: 18px;
   --op-section-tight: 7px;
@@ -269,8 +265,6 @@
   --op-screen-width: 794px;
   --op-screen-margin: 20px auto;
   --op-screen-pad: 42px 53px;
-}
-:root {
   --handout-body-size: 11pt;
   --handout-small-size: 10pt;
   --handout-code-size: 10pt;
@@ -298,8 +292,6 @@
   --handout-toc-gap: 2mm;
   --handout-toc-pad: 1mm 0;
   --handout-toc-number: 7mm;
-}
-:root {
   --deck-rem: 14.2222px;
   --deck-width: 1280px;
   --deck-height: 720px;

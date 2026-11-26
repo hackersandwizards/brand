@@ -73,8 +73,8 @@
     background: color-mix(in srgb, var(--color-teal) 25%, transparent);
   }
   @scope ([data-theme="dark"]) to ([data-theme="light"]) {
-    :scope::selection,
-    ::selection {
+    ::selection,
+    :scope::selection {
       background: color-mix(in srgb, var(--color-teal-night) 25%, transparent);
     }
   }

@@ -38,9 +38,9 @@ TOKENS = {
     "--color-label-text": "var(--color-teal-dark)",
     "--color-label-text-night": "var(--color-teal-night)",
     "--color-subtle": "var(--color-muted)",
-    "--font-mono": "\"JetBrains Mono Variable\", \"JetBrains Mono Fallback\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
-    "--font-code": "\"JetBrains Mono Variable\", \"JetBrains Mono Fallback\", ui-monospace, \"SF Mono\", \"Cascadia Code\", Menlo, monospace",
-    "--font-sans": "\"Inter Variable\", \"Inter\", \"Inter Fallback\", \"Inter Fallback Roboto\", system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "--font-mono": '"JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace',
+    "--font-code": '"JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace',
+    "--font-sans": '"Inter Variable", "Inter", "Inter Fallback", "Inter Fallback Roboto", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     "--text-display": "clamp(1.875rem, 1.413rem + 2.6087vw, 3.5rem)",
     "--text-display--line-height": "1.1",
     "--text-display--letter-spacing": "-0.04em",
@@ -186,7 +186,7 @@ TOKENS = {
     "--text-ui": "0.875rem",
     "--text-ui--line-height": "1.5",
     "--text-micro": "0.75rem",
-    "--text-micro--line-height": "calc(16 / 12)"
+    "--text-micro--line-height": "calc(16 / 12)",
 }
 
 COLORS = {
@@ -224,5 +224,5 @@ COLORS = {
     "--color-purple-night": "#b97af1",
     "--color-label-text": "#155b6a",
     "--color-label-text-night": "#47aec6",
-    "--color-subtle": "#545861"
+    "--color-subtle": "#545861",
 }

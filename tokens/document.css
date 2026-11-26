@@ -157,9 +157,8 @@
   --cert-signature-image-width: 70mm;
   --cert-signature-line: 66mm;
   --cert-qr: 26mm;
-}
-/* ── Onepager ── The website's px rhythm: --op-N is N px, the steps the site's spacing uses. */
-:root {
+
+  /* ── Onepager ── The website's px rhythm: --op-N is N px, the steps the site's spacing uses. */
   --op-side: 14mm;
   /* Two rhythms, as on the site: between sections and inside one. */
   --op-section: 18px;
@@ -209,11 +208,10 @@
   --op-screen-width: 794px;
   --op-screen-margin: 20px auto;
   --op-screen-pad: 42px 53px;
-}
-/* ── Handout ── Read as a PDF on a laptop or an iPad, never printed: on an 11-inch iPad in portrait
-   an A4 page shows at 1.4 times, so 10pt body text reads as 14px. One point more on the text roles
-   brings it to 15px and a full-width line under 90 characters. */
-:root {
+
+  /* ── Handout ── Read as a PDF on a laptop or an iPad, never printed: on an 11-inch iPad in portrait
+     an A4 page shows at 1.4 times, so 10pt body text reads as 14px. One point more on the text roles
+     brings it to 15px and a full-width line under 90 characters. */
   --handout-body-size: 11pt;
   --handout-small-size: 10pt;
   --handout-code-size: 10pt;
@@ -244,12 +242,11 @@
   --handout-toc-gap: 2mm;
   --handout-toc-pad: 1mm 0;
   --handout-toc-number: 7mm;
-}
-/* ── Readout deck ── The survey readout's slides, in the slide engine's look (slides
-   styles/slides.css): its stage is 1440x810 with a rem of 1/90 of the width, so the deck's 1280px
-   page takes a rem of 14.2222px and every engine length is a rem. --deck-N is N/16 rem, the slide
-   engine's N px at its 1440 stage. */
-:root {
+
+  /* ── Readout deck ── The survey readout's slides, in the slide engine's look (slides
+     styles/slides.css): its stage is 1440x810 with a rem of 1/90 of the width, so the deck's 1280px
+     page takes a rem of 14.2222px and every engine length is a rem. --deck-N is N/16 rem, the slide
+     engine's N px at its 1440 stage. */
   --deck-rem: 14.2222px;
   --deck-width: 1280px;
   --deck-height: 720px;

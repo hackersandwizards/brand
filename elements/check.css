@@ -82,13 +82,16 @@
   .hw-check-target > .hw-check {
     margin: 0;
   }
+  .hw-check:checked {
+    border-color: var(--_hw-fill);
+    background-color: var(--_hw-fill);
+  }
   .hw-check:not(:disabled, :checked):is(:hover, [data-hw-hover]) {
     border-color: var(--_hw-hover);
   }
   .hw-check[aria-invalid="true"]:not(:checked, :indeterminate) {
     border-color: var(--_hw-error);
   }
-  .hw-check:checked,
   .hw-check[type="checkbox"]:indeterminate,
   .hw-prose li.task-list-item input[type="checkbox"]:checked {
     border-color: var(--_hw-fill);

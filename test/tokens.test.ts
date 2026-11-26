@@ -11,7 +11,7 @@ import { codeTheme } from "../scripts/code-theme";
 import { declarations } from "../scripts/css-declarations";
 import { faceRules, fallbackFaces, fontFaces } from "../scripts/font-outputs";
 import { ROOT, sha256 } from "../scripts/git";
-import { palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
+import { flat, palettes, parseTokens, resolveColors, rgb, SOURCE } from "../scripts/tokens";
 
 const css = readFileSync(SOURCE, "utf8");
 const tokens = parseTokens(css);
@@ -64,6 +64,11 @@ test("CSS declarations drop comments and collapse whitespace without changing va
   });
 });
 
+test("the flat document puts adjacent stage and document tokens in one root rule", () => {
+  const document = flat(join(ROOT, "tokens/document.css"));
+  expect(document.match(/^:root\s*\{/gm)).toHaveLength(1);
+});
+
 test("the data formats carry expert.css's type steps, its aliases left out; the CSS formats do not", () => {
   const expert = readFileSync(join(ROOT, "expert/expert.css"), "utf8");
   const generated = (file: string) => readFileSync(join(ROOT, "generated", file), "utf8");
@@ -88,7 +93,18 @@ test("the data formats carry expert.css's type steps, its aliases left out; the 
   }
   expect(json["--text-meta"]).toBeUndefined();
   expect<Record<string, string>>(generatedTokens).toEqual(json);
-  expect(generated("tokens.py")).toContain(JSON.stringify(json, null, 4));
+  const python = generated("tokens.py");
+  const pythonTokens = python.slice(python.indexOf("TOKENS = ") + 9, python.indexOf("\n\nCOLORS"));
+  // Ruff's quotes: a value holding more double than single quotes is single-quoted.
+  const asJson: Record<string, string> = { '"': '\\"', "\\'": "'", "\\\\": "\\\\" };
+  const jsonFromPython = pythonTokens
+    .replace(
+      /: '(.+)',$/gm,
+      (_, body: string) =>
+        `: "${body.replace(/\\\\|\\'|"/g, (escape) => String(asJson[escape]))}",`,
+    )
+    .replace(/,\n\}$/, "\n}");
+  expect(JSON.parse(jsonFromPython)).toEqual(json);
 });
 
 test("mixes color-mix() tokens in sRGB", () => {

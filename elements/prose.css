@@ -63,14 +63,6 @@
   ) {
   max-width: var(--container-measure);
 }
-.hw-prose ul:not(.not-prose, .not-prose *) > li:not(:has(img, video, pre, table, figure)) {
-  max-width: var(--container-measure);
-}
-/* A numbered item stands 1.25em inside its list (the ol rule below), so it ends where the
-   measured list would. */
-.hw-prose ol:not(.not-prose, .not-prose *) > li:not(:has(img, video, pre, table, figure)) {
-  max-width: calc(var(--container-measure) - 1.25em);
-}
 .hw-prose :is(table, pre) {
   max-width: none;
 }
@@ -133,6 +125,13 @@
 }
 .hw-prose ol:not(.not-prose, .not-prose *) > li {
   padding-inline-start: 0.375em;
+}
+.hw-prose ul:not(.not-prose, .not-prose *) > li:not(:has(img, video, pre, table, figure)) {
+  max-width: var(--container-measure);
+}
+/* A numbered item stands 1.25em inside its list, so it ends where the measured list would. */
+.hw-prose ol:not(.not-prose, .not-prose *) > li:not(:has(img, video, pre, table, figure)) {
+  max-width: calc(var(--container-measure) - 1.25em);
 }
 .hw-prose :is(ul > li, li.task-list-item) {
   position: relative;

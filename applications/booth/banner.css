@@ -14,7 +14,7 @@ body {
   height: calc((var(--h) + 40) * var(--mm));
   background: var(--night);
   color: var(--ink-on-night);
-  font-family: Inter;
+  font-family: Inter, sans-serif;
   overflow: hidden;
 }
 .final {
@@ -31,7 +31,7 @@ body {
   height: calc(var(--wm) * 1.2 * var(--mm));
 }
 .headline {
-  font-family: "JetBrains Mono";
+  font-family: "JetBrains Mono", monospace;
   font-weight: 700;
   color: #fff;
   font-size: calc(var(--h1) * var(--mm));
@@ -39,7 +39,7 @@ body {
   letter-spacing: -0.02em;
 }
 .offer {
-  font-family: "JetBrains Mono";
+  font-family: "JetBrains Mono", monospace;
   font-weight: 700;
   color: var(--teal-light);
   font-size: calc(var(--h2) * var(--mm));
@@ -58,14 +58,14 @@ body {
   border-radius: calc(24 * var(--mm)) calc(6 * var(--mm));
 }
 .contact .label {
-  font-family: "JetBrains Mono";
+  font-family: "JetBrains Mono", monospace;
   font-weight: 500;
   font-size: calc(var(--label, calc(var(--url) * 0.75)) * var(--mm));
   color: var(--muted-on-night);
   margin-bottom: calc(10 * var(--mm));
 }
 .url-line {
-  font-family: "JetBrains Mono";
+  font-family: "JetBrains Mono", monospace;
   font-weight: 700;
   font-size: calc(var(--url) * var(--mm));
   color: #fff;

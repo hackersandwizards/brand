@@ -57,6 +57,11 @@
     --_hue: var(--color-purple);
     --_hover: color-mix(in srgb, var(--color-purple) 80%, var(--color-ink));
   }
+  /* Disabled: half opacity, as hw-field and hw-check, and no hover change. */
+  .hw-button:is(:disabled, [aria-disabled="true"]) {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
   .hw-button:is(:hover, [data-hw-hover]):not(:disabled, [aria-disabled="true"]) {
     border-color: var(--_hover);
     background: var(--_hover);
@@ -75,11 +80,6 @@
   }
   .hw-button[data-variant="secondary"][data-filled] {
     background: var(--color-white);
-  }
-  /* Disabled: half opacity, as hw-field and hw-check, and no hover change. */
-  .hw-button:is(:disabled, [aria-disabled="true"]) {
-    cursor: not-allowed;
-    opacity: 0.5;
   }
   @media (min-width: 64rem) {
     .hw-button {

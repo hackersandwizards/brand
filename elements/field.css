@@ -88,14 +88,6 @@
     padding-block: calc((var(--hw-field-height, 3rem) - 1lh) / 2);
     resize: vertical;
   }
-  .hw-field:is(:hover, [data-hw-hover]):not(
-      :disabled,
-      [readonly],
-      [aria-invalid="true"],
-      [data-state]
-    ) {
-    border-color: var(--color-ink);
-  }
   .hw-field[aria-invalid="true"] {
     border-color: var(--_hw-error);
     box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-error);
@@ -137,9 +129,17 @@
   .hw-field[list]::-webkit-calendar-picker-indicator {
     opacity: 0;
   }
-  /* The password field's row is a field with a button inside: the field's own line. */
-  .hw-field-row[data-joined]:has(> .hw-field-toggle) {
-    border-color: var(--color-border-strong);
+  .hw-field:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .hw-field:is(:hover, [data-hw-hover]):not(
+      :disabled,
+      [readonly],
+      [aria-invalid="true"],
+      [data-state]
+    ) {
+    border-color: var(--color-ink);
   }
   .hw-field-row[data-joined] > .hw-field-toggle {
     color: var(--hw-muted, var(--color-muted));
@@ -164,10 +164,6 @@
   .hw-field-toggle[aria-pressed="true"]::before {
     mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E");
   }
-  .hw-field:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
   .hw-field-row > .hw-button {
     --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
   }
@@ -178,6 +174,10 @@
     border: var(--hw-hairline, 1px) solid var(--color-border);
     border-radius: var(--hw-corner-sm, var(--radius-sm));
     background: var(--color-white);
+  }
+  /* The password field's row is a field with a button inside: the field's own line. */
+  .hw-field-row[data-joined]:has(> .hw-field-toggle) {
+    border-color: var(--color-border-strong);
   }
   /* The ring goes round the row: neither part draws its own. */
   .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
@@ -198,13 +198,13 @@
     box-shadow: none;
   }
   /* A field's state in the joined row: the row draws the line. */
-  .hw-field-row[data-joined]:has(> .hw-field[data-state]:not([aria-invalid="true"])) {
-    border-color: var(--_hw-state);
-    box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-state);
-  }
   .hw-field-row[data-joined]:has(> .hw-field[aria-invalid="true"]) {
     border-color: var(--_hw-error);
     box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-error);
+  }
+  .hw-field-row[data-joined]:has(> .hw-field[data-state]:not([aria-invalid="true"])) {
+    border-color: var(--_hw-state);
+    box-shadow: inset 0 0 0 var(--hw-hairline, 1px) var(--_hw-state);
   }
   .hw-field-row[data-joined] > button {
     display: flex;
@@ -263,9 +263,6 @@
       border-right-color: var(--color-night-line);
       color: var(--color-teal-night);
     }
-    .hw-field-row[data-joined]:has(> .hw-field-toggle) {
-      border-color: var(--color-night-muted);
-    }
     .hw-field-row[data-joined] > .hw-field-toggle {
       color: var(--color-night-muted);
     }
@@ -276,6 +273,16 @@
     .hw-field::placeholder {
       color: var(--color-night-muted);
     }
+    .hw-field[aria-invalid="true"] {
+      border-color: var(--_hw-error);
+    }
+    .hw-field-row[data-joined] {
+      border-color: var(--color-night-line);
+      background: var(--color-night-2);
+    }
+    .hw-field-row[data-joined]:has(> .hw-field-toggle) {
+      border-color: var(--color-night-muted);
+    }
     .hw-field:is(:hover, [data-hw-hover]):not(
         :disabled,
         [readonly],
@@ -284,18 +291,11 @@
       ) {
       border-color: var(--color-white);
     }
-    .hw-field[aria-invalid="true"] {
-      border-color: var(--_hw-error);
+    .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
+      outline-color: var(--color-purple-night);
     }
     .hw-field-row[data-joined]:has(> .hw-field[aria-invalid="true"]) {
       border-color: var(--_hw-error);
-    }
-    .hw-field-row[data-joined] {
-      border-color: var(--color-night-line);
-      background: var(--color-night-2);
-    }
-    .hw-field-row[data-joined]:has(:is(:focus-visible, [data-hw-focus])) {
-      outline-color: var(--color-purple-night);
     }
   }
 }

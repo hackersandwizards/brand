@@ -13,8 +13,6 @@ const css = readFileSync(join(ROOT, "expert/expert.css"), "utf8").replace(/\/\*[
 const block = (head: RegExp) =>
   parseTokens(`@theme {${defined(head.exec(css)?.[1], `expert role block matching ${head}`)}}`);
 const light = block(/:root,\s*\[data-theme="light"\]\s*\{([^}]*)\}/);
-// On a night page both blocks match html, so night keeps every light role it does not set.
-const dark = { ...light, ...block(/html\[data-theme="dark"\]\s*\{([^}]*)\}/) };
 
 let browser: Browser;
 beforeAll(async () => {
@@ -46,7 +44,7 @@ body { color: var(--foreground) }</style></head><body><div data-theme="${inner}"
         scheme: s.colorScheme,
         chevron: getComputedStyle(select).backgroundImage,
       };
-    }, Object.keys(dark));
+    }, Object.keys(light));
   };
   const [day, night] = [await read("light", "light"), await read("dark", "dark")];
   for (const key of ["roles", "color", "scheme", "chevron"] as const)

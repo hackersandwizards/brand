@@ -55,6 +55,10 @@
 :root {
   --hw-label-family: var(--font-sans);
   --hw-pill-edit-corner: var(--radius-sm);
+  /* Shared by overview and detail pages, so body content lands at the same Y on every route.
+     --page-title-row-h is the row's height, readable anywhere, such as by a detail header of the
+     same height. */
+  --page-title-row-h: 3.875rem;
 }
 
 /* Night is the page's (html), as the apps toggle it; a data-theme="light" element inside it takes
@@ -137,11 +141,9 @@ html[data-theme="dark"] {
   --hue-slate: var(--color-ampersand-light);
 
   --dim-floor: 51%;
-}
 
-/* The night roles the shared elements read inside any data-theme="dark", these night roles where
-   night is the page's. A light island keeps them, so a night element inside it is night again. */
-html[data-theme="dark"] {
+  /* The night roles the shared elements read inside any data-theme="dark", these night roles where
+     night is the page's. A light island keeps them, so a night element inside it is night again. */
   --hw-night-background: var(--background);
   --hw-night-foreground: var(--foreground);
   --hw-night-accent: var(--accent);
@@ -216,12 +218,6 @@ html[data-theme="dark"] {
   }
 }
 
-/* Shared by overview and detail pages, so body content lands at the same Y on every route.
-   --page-title-row-h is the row's height, readable anywhere, such as by a detail header of the
-   same height. */
-:root {
-  --page-title-row-h: 3.875rem;
-}
 .page-title-row {
   display: flex;
   flex-direction: column;
