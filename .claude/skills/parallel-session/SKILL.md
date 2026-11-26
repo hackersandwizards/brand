@@ -18,8 +18,9 @@ checks the item files, and `admin-serve` serves the page across all repos at
 
 - `docs/agent-work/items/<id>.md`: one file per item, YAML frontmatter plus a body starting with
   `# <title>`. `kind` is one of:
-  - `goal`: the goal in the person's words, the limits, a deploy hold, and one to eight done
-    criteria, each checkable by someone who did none of the work and naming its proof.
+  - `goal`: the goal in the person's words, the limits, a deploy hold, the standing duties every
+    batch carries out (such as a tracker kept in step or the repositories tidied), and one to
+    eight done criteria, each checkable by someone who did none of the work and naming its proof.
     Usually `goal.md`, one per repo.
   - `work`: one open piece of work, with `owner` (whoever moves next: the person only for a
     decision or a step no agent tool reaches, else an agent or anyone else) and `evidence` (a commit hash, a file, or "not established"). A question whether
@@ -114,10 +115,10 @@ and `order` of what it costs if missed against the open items.
    the delegate works in the shared checkout or a worktree. A delegate writes only its own item
    files and commits them with their paths named. After merging another session's work, read
    back the fields you wrote: a commit made from a copy older than yours reverts them without a
-   conflict. Each delegate gets one batch with its write paths and a completion check, and ends
-   when that batch is committed. Further work goes to a fresh delegate briefed from paths,
-   commits and open findings, never to a running one. A delegate messages only a result, a
-   blocker or a question.
+   conflict. Each delegate gets one batch with its write paths and a completion check that includes
+   the goal's standing duties, and ends when that batch is committed. Further work goes to a fresh
+   delegate briefed from paths, commits and open findings, never to a running one. A delegate
+   messages only a result, a blocker or a question.
 4. A finished work item is deleted in the commit that finishes it. An item the person decided
    takes `status: decided`, `decision` and `by`, then is deleted: in the commit that carries the
    decision out, or, where work remains, replaced by a `work` item naming the `id`.
@@ -136,21 +137,40 @@ timed event>`.
    Check: where `curl -s http://admin.localhost:4329/` answers, the page lists the item. A batch
    that changes an asset an item's images show, such as a logo, colour or lockup, re-renders those
    images in that batch.
-8. When the person returns, put the open `decision` items to them in one AskUserQuestion call, options
+8. Every message the person types shows them reading now, one that says they are going away again
+   included: in that turn, put the open `decision` items to them in one AskUserQuestion call, options
    read from the item, and report the rest
-   from the items, all ordered by what each costs if missed. Before
-   ending the session, read the transcript from its first message: every item of the first
-   report, every question put and its answer, every promise. Check: each unfinished one has an
-   item.
+   from the items, all ordered by what each costs if missed.
 
 ## While the person is away
 
-When the person says they are away, the session works unattended until they return: every
-question for the person becomes an item (step 2), never a chat message. The session steers: it
-writes briefs, reads reports, keeps items current, and hands every ready batch to a
-delegate. When a delegate finishes, stop the servers and browsers it started and delete its
-scratch then, not at session end. Check: no process or scratch folder of a finished delegate
-remains.
+When the person says they are away, the session works unattended between their messages: every
+question for the person becomes an item (step 2), put to them at their next message (step 8). The
+session steers: it writes briefs, reads reports, keeps items current, and hands every ready batch
+to a delegate. Every message to the person while the goal runs ends, in their terms and before
+any text they must send or paste, on what finished since their last message, the Closing table and
+the top priority.
+
+## Closing
+
+A batch is closed when, each read in that turn:
+
+1. every commit's reviewer, by model, is the one `blind-review` names for its author;
+2. every suite the gate leaves out that the batch's files can break (e2e, visual, smoke; read from
+   `package.json` and the CI workflow) has run once, or the report names the CI run that ran it;
+3. a defect the batch fixed is swept for its class in every repository the same change reached;
+4. its item is deleted or current, and the delegate's servers, browsers and scratch are gone.
+
+The session is closed when every batch is, and:
+
+5. `polish` has run once in each repository the session changed;
+6. every hub rule or skill the session changed is synced;
+7. the transcript is read from its first message: every plan step, every item of the first
+   report, every question put and its answer, every promise. Each unfinished one has an item.
+
+A reply that calls a plan, a job or the session done, and every answer to what is open or remains,
+gives the steps still open as one table (step, who, waits on), these seven included, then what
+waits for the person.
 
 ## Shared checkout or worktree
 
