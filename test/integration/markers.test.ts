@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -274,7 +275,11 @@ const all = (url: string, scale: number) => {
     ...(await measureMarkers(browser, url, { scale })),
     ...(await measureMarkers(browser, url, { scale, newline: true })),
   ];
-  return measured.get(key) ?? measured.set(key, run()).get(key)!;
+  const cached = measured.get(key);
+  if (cached) return cached;
+  const pending = run();
+  measured.set(key, pending);
+  return pending;
 };
 const show = (rs: Reading[]) =>
   rs.map((r) => `${r.label} ${r.kind} ${r.scale}x newline:${r.newline} ${r.offset.toFixed(2)}`);
@@ -521,7 +526,11 @@ test(
     expect(actual.filter((n) => !finite(n))).toEqual(expected.filter((n) => !finite(n)));
     // Two runs without a policy differ by about 1e-4 px; brand-markers reports two decimals.
     const expectedFinite = expected.filter(finite);
-    const drift = actual.filter(finite).map((n, i) => Math.abs(n - expectedFinite[i]!));
+    const drift = actual
+      .filter(finite)
+      .map((n, i) =>
+        Math.abs(n - defined(expectedFinite[i], `expected finite marker offset ${i}`)),
+      );
     expect(Math.max(...drift)).toBeLessThan(0.01);
     expect(refused).toEqual([]);
   },
@@ -791,9 +800,11 @@ p{font-size:.8rem;text-transform:uppercase;margin:0}</style><ol>${[
     const rs = (await measureMarkers(browser, url, { scale: 2 })).map((r) => r.offset);
     expect(rs.length).toBe(8);
     const [far, square, near, nearSquare, rotated, lower, moved, close] = rs;
+    const reference = defined(far, "far marker offset");
     for (const o of [square, near, nearSquare, rotated, close])
-      expect(Math.abs(o! - far!)).toBeLessThan(0.25);
-    for (const o of [lower, moved]) expect(Math.abs(o! - far! - 2)).toBeLessThan(0.25);
+      expect(Math.abs(defined(o, "marker offset") - reference)).toBeLessThan(0.25);
+    for (const o of [lower, moved])
+      expect(Math.abs(defined(o, "marker offset") - reference - 2)).toBeLessThan(0.25);
   },
   limit(60_000),
 );

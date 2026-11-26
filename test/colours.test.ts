@@ -135,12 +135,12 @@ test("keeps a misplaced partner reportable after tightening", () => {
 });
 
 test("an entry turned partner frees no total for another file to grow into", () => {
-  const head: Allowlist = {
+  const head = {
     "a.svg": { ...zero, hex: 50, reason: "r" },
     "b.css": { ...zero, hex: 1, reason: "r" },
   };
   const now: Allowlist = {
-    "a.svg": { ...head["a.svg"]!, partner: "Acme" },
+    "a.svg": { ...head["a.svg"], partner: "Acme" },
     "b.css": { ...zero, hex: 40, reason: "r" },
   };
   const files = { "a.svg": { ...zero, hex: 50 }, "b.css": { ...zero, hex: 40 } };

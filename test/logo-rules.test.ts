@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { assert, expect, test } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -34,7 +35,10 @@ test("sizes names each logo SVG's and logo PNG's width and height, as the file s
   const pngs = files.filter((f) => /^(lockup|wordmark).*\.png$/.test(f));
   const measured = Object.fromEntries<{ width: number; height: number }>([
     ...svgs.map((f): [string, { width: number; height: number }] => {
-      const root = /<svg[^>]*>/.exec(readFileSync(join(ROOT, "logos", f), "utf8"))![0];
+      const root = defined(
+        /<svg[^>]*>/.exec(readFileSync(join(ROOT, "logos", f), "utf8")),
+        "SVG opening tag",
+      )[0];
       const width = / width="(\d+)"/.exec(root)?.[1];
       const height = / height="(\d+)"/.exec(root)?.[1];
       assert(width, `${f} must declare an integer width`);
@@ -64,7 +68,7 @@ test("each night cut fills its day file's shapes with their night tones", () => 
   };
   const fills = (f: string) =>
     [...readFileSync(join(ROOT, `logos/${f}.svg`), "utf8").matchAll(/fill="(#[0-9A-F]{6})"/gi)].map(
-      (m) => m[1]!.toUpperCase(),
+      (m) => defined(m[1], "SVG fill colour").toUpperCase(),
     );
   for (const day of ["wordmark", "lockup", "lockup-compact", "lockup-screen"]) {
     const want = fills(day).map((c) => night[c]);
@@ -76,11 +80,13 @@ test("each night cut fills its day file's shapes with their night tones", () => 
 // The header's img sizes are typed beside the markup: they are the screen cuts' boxes, rounded up.
 test("the header's typed logo sizes are the screen cuts' boxes", () => {
   const size = (f: string) => {
-    const [, , w, h] = /viewBox="([^"]+)"/
-      .exec(readFileSync(join(ROOT, `logos/${f}.svg`), "utf8"))![1]!
+    const [, , w, h] = defined(
+      readFileSync(join(ROOT, `logos/${f}.svg`), "utf8").match(/viewBox="([^"]+)"/)?.[1],
+      "SVG viewBox",
+    )
       .split(" ")
       .map(Number);
-    return `width="${Math.ceil(w!)}" height="${Math.ceil(h!)}"`;
+    return `width="${Math.ceil(defined(w, "viewBox width"))}" height="${Math.ceil(defined(h, "viewBox height"))}"`;
   };
   const read = (f: string) => readFileSync(join(ROOT, f), "utf8");
   for (const f of [

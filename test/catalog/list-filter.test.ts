@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import type { Browser, HTTPRequest, Page } from "puppeteer-core";
@@ -9,6 +10,11 @@ import { BASE, page, serveSite } from "./site";
 // (e2e/components/list-filter.spec.ts) and the trainer hub's, on brand's component.
 let browser: Browser;
 let server: ReturnType<typeof serveSite>;
+declare global {
+  interface Window {
+    requireFilterValue: typeof defined;
+  }
+}
 beforeAll(async () => {
   server = serveSite();
   browser = await launch();
@@ -22,6 +28,7 @@ afterAll(async () => {
 const tab = async () => {
   const p = await browser.newPage();
   p.setDefaultTimeout(limit(30_000));
+  await p.evaluateOnNewDocument("window.requireFilterValue = (" + defined.toString() + ");");
   return p;
 };
 const story = (name: string) =>
@@ -30,9 +37,14 @@ const shown = (p: Page) =>
   p.$$eval("[data-filter-item]", (rows) =>
     rows
       .filter((r) => !(r as HTMLElement).hidden)
-      .map((r) => r.querySelector("[data-filter-title]")!.textContent),
+      .map(
+        (r) =>
+          window.requireFilterValue(r.querySelector("[data-filter-title]"), "filter item title")
+            .textContent,
+      ),
   );
-const text = (p: Page, sel: string) => p.$eval(sel, (e) => e.textContent!.trim());
+const text = (p: Page, sel: string) =>
+  p.$eval(sel, (e) => window.requireFilterValue(e.textContent, "filter element text").trim());
 const settle = () => new Promise((r) => setTimeout(r, 350));
 /** The titles shown once the search's debounce has applied them, or what shows after the wait. */
 const showing = async (p: Page, titles: string[]) => {
@@ -42,7 +54,13 @@ const showing = async (p: Page, titles: string[]) => {
         JSON.stringify(
           [...document.querySelectorAll<HTMLElement>("[data-filter-item]")]
             .filter((r) => !r.hidden)
-            .map((r) => r.querySelector("[data-filter-title]")!.textContent),
+            .map(
+              (r) =>
+                window.requireFilterValue(
+                  r.querySelector("[data-filter-title]"),
+                  "filter item title",
+                ).textContent,
+            ),
         ) === want,
       {},
       JSON.stringify(titles),
@@ -324,7 +342,10 @@ test(
   async () => {
     const q = await held();
     await q.evaluate(async () => {
-      const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+      const input = window.requireFilterValue(
+        document.querySelector<HTMLInputElement>('input[name="q"]'),
+        "filter query input",
+      );
       const typed = (value: string) => {
         input.value = value;
         input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -344,10 +365,13 @@ test(
   async () => {
     const q = await held();
     await after(q, () => {
-      const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+      const input = window.requireFilterValue(
+        document.querySelector<HTMLInputElement>('input[name="q"]'),
+        "filter query input",
+      );
       input.value = "context";
       input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.form!.requestSubmit();
+      window.requireFilterValue(input.form, "filter query form").requestSubmit();
       (window as unknown as { failLoad(): void }).failLoad();
     });
     await expectSearchDestination(q, "context");
@@ -377,7 +401,12 @@ test(
       await new Promise((resolve) => setTimeout(resolve));
     });
     await after(q, () =>
-      document.querySelector<HTMLInputElement>('input[name="topic"][value="tools"]')!.click(),
+      window
+        .requireFilterValue(
+          document.querySelector<HTMLInputElement>('input[name="topic"][value="tools"]'),
+          "tools topic input",
+        )
+        .click(),
     );
     await q.waitForFunction(() => location.pathname.endsWith("/list-filter/dense/"));
     expect(new URL(q.url()).searchParams.get("topic")).toBe("tools");
@@ -403,7 +432,10 @@ test(
   async () => {
     const q = await held();
     await q.evaluate(async () => {
-      const input = document.querySelector<HTMLInputElement>('input[name="q"]')!;
+      const input = window.requireFilterValue(
+        document.querySelector<HTMLInputElement>('input[name="q"]'),
+        "filter query input",
+      );
       input.value = "context";
       input.dispatchEvent(new Event("input", { bubbles: true }));
       await new Promise((resolve) => setTimeout(resolve, 350));
@@ -436,11 +468,11 @@ test(
     await p.waitForFunction(() => document.querySelectorAll("[data-filter-item]").length === 1);
     const dense = new URL("../dense/", p.url()).href;
     expect(
-      await p.$eval("[data-filter-item]", (row) => [
-        row.querySelector("a")!.getAttribute("href"),
-        row.querySelector("img")!.getAttribute("src"),
-        row.querySelector("img")!.getAttribute("srcset"),
-      ]),
+      await p.$eval("[data-filter-item]", (row) => {
+        const link = window.requireFilterValue(row.querySelector("a"), "filter item link");
+        const image = window.requireFilterValue(row.querySelector("img"), "filter item image");
+        return [link.getAttribute("href"), image.getAttribute("src"), image.getAttribute("srcset")];
+      }),
     ).toEqual([`${dense}talk/`, `${dense}t.png`, `${dense}t.png 1x, ${dense}t2.png 2x`]);
     await p.close();
   },
@@ -716,10 +748,16 @@ test(
     // The button has its own row under the search, the row's width for the chosen values.
     expect(
       await p.$eval(toggle, (t) => {
-        const label = t.querySelector("[data-filter-label]")!;
+        const label = window.requireFilterValue(
+          t.querySelector("[data-filter-label]"),
+          "filter toggle label",
+        );
         const box = t.getBoundingClientRect();
-        const row = t.parentElement!.getBoundingClientRect();
-        const search = t.parentElement!.querySelector(".hw-search")!.getBoundingClientRect();
+        const parent = window.requireFilterValue(t.parentElement, "filter toggle parent");
+        const row = parent.getBoundingClientRect();
+        const search = window
+          .requireFilterValue(parent.querySelector(".hw-search"), "filter search control")
+          .getBoundingClientRect();
         return {
           full: label.scrollWidth <= label.clientWidth,
           width: Math.abs(box.width - row.width) < 0.5,
@@ -779,7 +817,10 @@ test(
     const skipped = () =>
       p.$eval(
         "[data-filter-item]:last-child",
-        (row) => !row.firstElementChild!.checkVisibility({ contentVisibilityAuto: true }),
+        (row) =>
+          !window
+            .requireFilterValue(row.firstElementChild, "filter item content")
+            .checkVisibility({ contentVisibilityAuto: true }),
       );
     expect(await skipped()).toBe(true);
     expect(
@@ -827,14 +868,13 @@ test.each([
     // A module script holds DOMContentLoaded, so the page is read while it loads.
     const loaded = p.goto(story(name));
     await p.waitForSelector("[data-filter-count]");
-    const seen = await p.evaluate(
-      () =>
-        new Promise((resolve) =>
-          requestAnimationFrame(() =>
-            resolve(document.querySelector("[data-filter-count]")!.textContent),
-          ),
-        ),
-    );
+    const seen = await p.evaluate(async () => {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      return window.requireFilterValue(
+        document.querySelector("[data-filter-count]"),
+        "filter count",
+      ).textContent;
+    });
     release();
     await loaded;
     expect(seen).toBe(first);

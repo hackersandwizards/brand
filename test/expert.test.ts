@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -8,14 +9,17 @@ import { parseTokens, resolveColors, SOURCE } from "../scripts/tokens";
 // Tailwind emits there under the same names, then the theme's roles. Each role must resolve to a
 // colour, without a cycle through a name the inline block shadows.
 const css = readFileSync(join(ROOT, "expert/expert.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-const block = (head: RegExp) => parseTokens(`@theme {${head.exec(css)![1]}}`);
+const block = (head: RegExp) =>
+  parseTokens(`@theme {${defined(head.exec(css), "expert CSS block")[1]}}`);
 const light = block(/:root,\s*\[data-theme="light"\]\s*\{([^}]*)\}/);
 // On a night page both blocks match html, so night keeps every light role it does not set.
 const dark = { ...light, ...block(/html\[data-theme="dark"\]\s*\{([^}]*)\}/) };
 const inline = block(/@theme inline\s*\{([^}]*)\}/);
 const token = resolveColors(parseTokens(readFileSync(SOURCE, "utf8")));
 const namedRoleNames = (roles: Record<string, string>) =>
-  Object.keys(roles).filter((name) => !/^\d/.test(roles[name]!));
+  Object.entries(roles)
+    .filter(([, value]) => !/^\d/.test(value))
+    .map(([name]) => name);
 const root = (roles: Record<string, string>) => {
   const all = { ...parseTokens(readFileSync(SOURCE, "utf8")), ...inline, ...roles };
   for (const k of namedRoleNames(roles)) all[`--color-role${k}`] = `var(${k})`;
@@ -81,7 +85,7 @@ test("every text-foreground step from /20 to /65 takes the dim floor", () => {
 test("night.css gives a light island inside night expert.css's day roles", () => {
   const nightCss = readFileSync(join(ROOT, "tokens/night.css"), "utf8");
   const island = parseTokens(
-    `@theme {${/\[data-hw-night\] \[data-theme="light"\]\s*\{([^}]*)\}/.exec(nightCss)![1]}}`,
+    `@theme {${defined(/\[data-hw-night\] \[data-theme="light"\]\s*\{([^}]*)\}/.exec(nightCss), "light island CSS block")[1]}}`,
   );
   const roles = ["--background", "--foreground", "--accent", "--muted", "--border"];
   expect(roles.filter((k) => !(k in island))).toEqual([]);

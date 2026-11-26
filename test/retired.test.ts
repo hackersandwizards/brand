@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { afterAll, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -48,7 +49,10 @@ test("finds a retired line raw, split across elements and entity-encoded", () =>
 });
 
 test("decodes umlaut entities and JS escapes, and matches a line only as a whole", () => {
-  const de = verbal.retired.find((r) => r.text.includes("ü"))!.text;
+  const de = defined(
+    verbal.retired.find((r) => r.text.includes("ü")),
+    "retired line with an umlaut",
+  ).text;
   expect(retiredIn(de.replace("ü", "&uuml;"))).toEqual([de]);
   expect(retiredIn(de.replace("ü", "\\u00fc"))).toEqual([de]);
   expect(retiredIn(de.replace("ü", "&#252;"))).toEqual([de]);

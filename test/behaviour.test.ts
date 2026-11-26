@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { assert, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -89,7 +90,7 @@ test("the rehype step wraps each table in a named hw-table-scroll", () => {
   assert(namedTable, "The Name region must contain the original table");
   expect(namedTable.properties?.className).toEqual(["own", "hw-table"]);
   // A table already in a wrapper keeps it: one tab stop, one region.
-  expect(wrapped.children![0]!.tagName).toBe("table");
+  expect(defined(wrapped.children?.[0], "wrapped table").tagName).toBe("table");
 });
 
 test("the Sätteri plugin writes what the rehype step writes, its count fresh in each document", () => {

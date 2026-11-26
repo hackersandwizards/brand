@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { fc, test, unicodeString } from "@hackersandwizards/scaffolding/property";
 import { expect } from "vitest";
 import { fillSignature } from "../applications/mail-signature/fill";
@@ -7,7 +8,7 @@ test.prop([unicodeString], {
 })("HTML escapes the field by code point and text preserves the trimmed value", (name) => {
   const fields = { name, role: "" };
   const expected = Array.from(name.trim(), (char) => {
-    const code = char.codePointAt(0)!;
+    const code = defined(char.codePointAt(0), "character code point");
     return code < 32 || code > 126 || [34, 38, 60, 62].includes(code) ? `&#${code};` : char;
   }).join("");
   expect(fillSignature("{{name}}", fields, "html")).toBe(expected);

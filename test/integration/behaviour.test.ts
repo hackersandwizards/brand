@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -9,6 +10,8 @@ import sharp from "sharp";
 import { launch, open } from "../../scan/browser";
 import { ROOT } from "../../scripts/git";
 import { createBrowserColorProbe } from "./color-probe";
+
+declare const browserDefined: typeof defined;
 
 // The keys, focus and placement elements/behaviour.ts gives, in a real browser.
 let browser: Browser;
@@ -22,7 +25,7 @@ const bundle = async (src: string, global: string, out: string) => {
     `import * as ${global} from ${JSON.stringify(join(ROOT, src))}; Object.assign(window, { ${global} });`,
   );
   const built = await Bun.build({ entrypoints: [entry], format: "iife" });
-  writeFileSync(join(dir, out), await built.outputs[0]!.text());
+  writeFileSync(join(dir, out), await defined(built.outputs[0], `bundle for ${src}`).text());
 };
 await bundle("elements/behaviour.ts", "HW", "b.js");
 await bundle("elements/copy.ts", "HWCopy", "copy.js");
@@ -34,6 +37,7 @@ const css = ["generated/tokens.root.css", "elements/elements.css"]
   .join("");
 const page = async (body: string, lang = "de", reduce = false): Promise<Page> => {
   const p = await browser.newPage();
+  await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
   if (reduce) await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
   const f = join(dir, `${Math.random().toString(36).slice(2)}.html`);
   writeFileSync(
@@ -111,11 +115,15 @@ test(
     await p.keyboard.press("ArrowUp");
     await p.waitForFunction(() => document.activeElement?.matches("[role=menuitem]"));
     expect(await active(p)).toBe("Löschen");
-    const [btn, menu] = await p.evaluate(() => [
-      document.querySelector("#b")!.getBoundingClientRect().bottom,
-      document.querySelector("#m")!.getBoundingClientRect().top,
-    ]);
-    expect(menu!).toBeCloseTo(btn! + 4, 0);
+    const [btn, menu] = await p.evaluate(
+      () =>
+        [
+          browserDefined(document.querySelector("#b"), "menu button #b").getBoundingClientRect()
+            .bottom,
+          browserDefined(document.querySelector("#m"), "menu #m").getBoundingClientRect().top,
+        ] as const,
+    );
+    expect(menu).toBeCloseTo(btn + 4, 0);
     await p.close();
   },
   limit(30_000),
@@ -208,7 +216,9 @@ const KEYS = `<dl style="display:grid;grid-template-columns:auto auto;gap:.5rem 
 const fits = (p: Page, sel: string) =>
   p.$eval(sel, (d) => {
     const r = d.getBoundingClientRect();
-    const box = d.matches(":modal") ? innerWidth : d.parentElement!.clientWidth;
+    const box = d.matches(":modal")
+      ? innerWidth
+      : browserDefined(d.parentElement, "facts container").clientWidth;
     const lines = (e: Element) => {
       const range = document.createRange();
       range.selectNodeContents(e);
@@ -281,11 +291,12 @@ test(
         ]),
       ),
     );
-    const [grid, stack] = rows;
-    expect(grid!.map(([, b]) => b)).toEqual(["0px", "0px", "0px", "1px", "1px"]);
-    expect(new Set(grid!.slice(0, 3).map(([t]) => t)).size).toBe(1);
-    expect(grid![3]![0]).toBe(grid![4]![0]);
-    expect(stack!.map(([, b]) => b)).toEqual(["0px", "1px", "1px", "1px", "1px"]);
+    const grid = defined(rows[0], "facts grid");
+    const stack = defined(rows[1], "facts stack");
+    expect(grid.map(([, b]) => b)).toEqual(["0px", "0px", "0px", "1px", "1px"]);
+    expect(new Set(grid.slice(0, 3).map(([t]) => t)).size).toBe(1);
+    expect(defined(grid[3], "fourth grid item")[0]).toBe(defined(grid[4], "fifth grid item")[0]);
+    expect(stack.map(([, b]) => b)).toEqual(["0px", "1px", "1px", "1px", "1px"]);
     await p.close();
   },
   limit(30_000),
@@ -313,8 +324,14 @@ test(
       await p.$eval("dl", (dl) => {
         const [a, b] = [...dl.children].map((d) => d.getBoundingClientRect());
         const text = document.createRange();
-        text.selectNodeContents(dl.querySelector("dd")!);
-        return text.getBoundingClientRect().right <= Math.min(a!.right, b!.left);
+        text.selectNodeContents(browserDefined(dl.querySelector("dd"), "first fact value"));
+        return (
+          text.getBoundingClientRect().right <=
+          Math.min(
+            browserDefined(a, "first fact label bounds").right,
+            browserDefined(b, "first fact value bounds").left,
+          )
+        );
       }),
     ).toBe(true);
     await p.close();
@@ -333,10 +350,14 @@ test(
         tone: "error",
       }),
     );
-    expect(await p.$eval(".hw-toasts", (b) => b.parentElement!.id)).toBe("d");
+    expect(
+      await p.$eval(".hw-toasts", (b) => browserDefined(b.parentElement, "toast region parent").id),
+    ).toBe("d");
     await p.keyboard.press("Escape");
     await p.waitForFunction(
-      () => document.querySelector(".hw-toasts")!.parentElement === document.body,
+      () =>
+        browserDefined(document.querySelector(".hw-toasts"), "toast region").parentElement ===
+        document.body,
     );
     expect(await p.$$eval(".hw-toast", (t) => t.length)).toBe(1);
     await p.close();
@@ -795,7 +816,11 @@ test(
       await p.$$eval(".hw-carousel-dot", (d) => d.map((x) => x.getAttribute("aria-label"))),
     ).toEqual(["Stimme 1", "Stimme 2"]);
     await p.click("#n");
-    await p.waitForFunction(() => document.querySelector(".hw-carousel-track")!.scrollLeft > 0);
+    await p.waitForFunction(
+      () =>
+        browserDefined(document.querySelector(".hw-carousel-track"), "carousel track").scrollLeft >
+        0,
+    );
     expect(
       await p.$$eval(".hw-carousel-dot", (d) => d.map((x) => x.getAttribute("aria-current"))),
     ).toEqual([null, "true"]);
@@ -803,6 +828,7 @@ test(
     // carousels() alone wires the carousel and installs no document-wide handler, such as the toast
     // region.
     const alone = await browser.newPage();
+    await alone.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     const f = join(dir, "carousels-alone.html");
     writeFileSync(
       f,
@@ -810,7 +836,11 @@ test(
     );
     await open(alone, pathToFileURL(f).href);
     await alone.click("#n");
-    await alone.waitForFunction(() => document.querySelector(".hw-carousel-track")!.scrollLeft > 0);
+    await alone.waitForFunction(
+      () =>
+        browserDefined(document.querySelector(".hw-carousel-track"), "carousel track").scrollLeft >
+        0,
+    );
     expect(await alone.$$eval("[aria-live]", (r) => r.length)).toBe(0);
     await alone.close();
   },
@@ -1248,6 +1278,7 @@ test(
   "the character count reads the limit, then the overrun as an error, and back",
   async () => {
     const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     const f = join(dir, "count.html");
     writeFileSync(
       f,
@@ -1261,11 +1292,13 @@ test(
       (window as unknown as { HWForm: { enhanceForms(): void } }).HWForm.enhanceForms(),
     );
     const read = () =>
-      p.evaluate(() => [
-        document.getElementById("n-count")!.textContent,
-        document.getElementById("n-count")!.getAttribute("data-state"),
-        document.getElementById("n")!.getAttribute("aria-invalid"),
-        getComputedStyle(document.getElementById("n-count")!).color,
+      p.$eval("#n-count", (count) => [
+        count.textContent,
+        count.getAttribute("data-state"),
+        browserDefined(document.getElementById("n"), "counted textarea #n").getAttribute(
+          "aria-invalid",
+        ),
+        getComputedStyle(count).color,
       ]);
     const [left, , , quiet] = await read();
     expect([left, quiet]).toEqual(["Noch 2 Zeichen", before]);
@@ -1372,13 +1405,21 @@ test(
     const wrap = (id: string, n: number) =>
       `<div id="${id}" class="hw-table-scroll" tabindex="0" role="region" aria-label="${id}" style="width: 20rem"><table class="hw-table">${row(n)}</table></div>`;
     const p = await page(wrap("wide", 8) + wrap("narrow", 1));
-    await p.waitForFunction(() => !document.getElementById("narrow")!.hasAttribute("tabindex"));
+    await p.waitForFunction(
+      () =>
+        !browserDefined(document.getElementById("narrow"), "table wrapper #narrow").hasAttribute(
+          "tabindex",
+        ),
+    );
     expect(await attr(p, "#wide", "tabindex")).toBe("0");
     await p.$eval("#narrow tr", (tr) =>
       tr.insertAdjacentHTML("beforeend", "<td>x</td>".repeat(30)),
     );
     await p.waitForFunction(
-      () => document.getElementById("narrow")!.getAttribute("tabindex") === "0",
+      () =>
+        browserDefined(document.getElementById("narrow"), "table wrapper #narrow").getAttribute(
+          "tabindex",
+        ) === "0",
     );
     await p.close();
   },
@@ -1388,9 +1429,9 @@ test(
 /** Whether the focus ring of the control at `sel` shows whole: a purple column at its left and at
  * its right, nearly its height. */
 const ringWhole = async (p: Page, sel: string) => {
-  const a = (await p.$(sel))!;
+  const a = defined(await p.$(sel), `control ${sel}`);
   await a.evaluate((e) => e.setAttribute("data-hw-focus", ""));
-  const r = (await a.boundingBox())!;
+  const r = defined(await a.boundingBox(), `bounds of ${sel}`);
   const clip = { x: r.x - 8, y: r.y - 8, width: r.width + 16, height: r.height + 16 };
   // Within the viewport: capturing beyond it lays the page out again and moves the scroll.
   const { data, info } = await sharp(await p.screenshot({ clip, captureBeyondViewport: false }))
@@ -1401,7 +1442,12 @@ const ringWhole = async (p: Page, sel: string) => {
     let n = 0;
     for (let y = 0; y < info.height; y++) {
       const i = (y * info.width + x) * info.channels;
-      if (data[i + 2]! > 180 && data[i + 1]! < 110 && data[i]! > 100) n++;
+      if (
+        defined(data[i + 2], "blue screenshot channel") > 180 &&
+        defined(data[i + 1], "green screenshot channel") < 110 &&
+        defined(data[i], "red screenshot channel") > 100
+      )
+        n++;
     }
     return n;
   });
@@ -1417,14 +1463,18 @@ test(
     const p = await page(
       `<div class="hw-focus-ring" style="width: 30rem"><div>${wide("plain")}</div><blockquote class="hw-quote">${wide("quote")}</blockquote><div class="hw-card">${wide("card")}</div><div>${fits}</div></div>`,
     );
-    await p.waitForFunction(() => document.getElementById("fits")!.dataset.hwScrolls === "false");
+    await p.waitForFunction(
+      () =>
+        browserDefined(document.getElementById("fits"), "table wrapper #fits").dataset.hwScrolls ===
+        "false",
+    );
     // Per wrapper: its mark, the container's own overflow, how far the wrapper reaches past the
     // container's box, and how far the table starts from the container's content edge. A scrolling
     // table reaches past a container without side padding by the ring's room, inside a card's.
     expect(
       await p.$$eval(".hw-table-scroll", (ws) =>
         ws.map((w) => {
-          const c = w.parentElement!;
+          const c = browserDefined(w.parentElement, "table wrapper container");
           const [a, b] = [c.getBoundingClientRect(), w.getBoundingClientRect()];
           const start =
             a.left +
@@ -1434,7 +1484,8 @@ test(
             (w as HTMLElement).dataset.hwScrolls,
             c.scrollWidth - c.clientWidth,
             Math.max(0, a.left - b.left, b.right - a.right),
-            w.querySelector("table")!.getBoundingClientRect().left - start,
+            browserDefined(w.querySelector("table"), "wrapped table").getBoundingClientRect().left -
+              start,
           ];
         }),
       ),
@@ -1482,7 +1533,11 @@ test(
     const p = await page(
       `<div style="width: 400px"><div id="near" class="hw-table-scroll" tabindex="0"><table class="hw-table" style="width: 405px"><tr><td>Zelle</td></tr></table></div></div>`,
     );
-    await p.waitForFunction(() => document.getElementById("near")!.dataset.hwScrolls === "true");
+    await p.waitForFunction(
+      () =>
+        browserDefined(document.getElementById("near"), "table wrapper #near").dataset.hwScrolls ===
+        "true",
+    );
     // The table grows by a pixel after the mark, as it does when a font loads.
     await p.$eval("#near table", async (t) => {
       (t as HTMLElement).style.width = "406px";
@@ -1503,9 +1558,14 @@ test(
     const p = await page(
       `<div style="zoom: 0.5; width: 400px"><div id="z" class="hw-table-scroll" tabindex="0" data-hw-scrolls="true" style="width: 400px"><table class="hw-table" style="width: 100%"><tr><td>Zelle</td></tr></table></div></div>`,
     );
-    await p.waitForFunction(() => document.getElementById("z")!.dataset.hwScrolls === "false", {
-      timeout: 3000,
-    });
+    await p.waitForFunction(
+      () =>
+        browserDefined(document.getElementById("z"), "table wrapper #z").dataset.hwScrolls ===
+        "false",
+      {
+        timeout: 3000,
+      },
+    );
     expect(await p.$eval("#z", (w) => w.scrollWidth > w.clientWidth)).toBe(false);
     await p.close();
   },
@@ -1520,11 +1580,20 @@ test(
     const p = await page(
       `<div id="grid" style="display: grid; width: 1200px"><div id="t" class="hw-table-scroll" tabindex="0"><table class="hw-table" style="width: 600px"><tr><td>Zelle</td></tr></table></div></div>`,
     );
-    await p.waitForFunction(() => document.getElementById("t")!.dataset.hwScrolls === "false");
+    await p.waitForFunction(
+      () =>
+        browserDefined(document.getElementById("t"), "table wrapper #t").dataset.hwScrolls ===
+        "false",
+    );
     await p.$eval("#grid", (g) => ((g as HTMLElement).style.width = "300px"));
-    await p.waitForFunction(() => document.getElementById("t")!.dataset.hwScrolls === "true", {
-      timeout: 3000,
-    });
+    await p.waitForFunction(
+      () =>
+        browserDefined(document.getElementById("t"), "table wrapper #t").dataset.hwScrolls ===
+        "true",
+      {
+        timeout: 3000,
+      },
+    );
     expect(await p.$eval("#t", (w) => w.getBoundingClientRect().width)).toBeLessThanOrEqual(310);
     await p.close();
   },
@@ -1583,17 +1652,22 @@ test(
           return Math.min(
             ...[...document.querySelectorAll<HTMLElement>(".hw-table-scroll")].flatMap((w) => {
               w.style.setProperty("--_hw-table-cue", cue);
-              const section = w.closest("[data-theme]")!;
+              const section = browserDefined(w.closest("[data-theme]"), "table theme section");
               const layers: (readonly [number, number, number, number])[] = [];
               for (
-                let ground = w.parentElement!;
+                let ground = browserDefined(w.parentElement, "table wrapper container");
                 ground !== section;
-                ground = ground.parentElement!
+                ground = browserDefined(ground.parentElement, "table background ancestor")
               )
                 layers.push(rgba(ground, getComputedStyle(ground).backgroundColor));
               layers.push(rgba(section, getComputedStyle(section).backgroundColor));
-              const over = (base: number[], top: readonly number[]) =>
-                base.slice(0, 3).map((v, i) => v * (1 - top[3]!) + top[i]! * top[3]!);
+              const over = (base: number[], top: readonly [number, number, number, number]) =>
+                base
+                  .slice(0, 3)
+                  .map(
+                    (v, i) =>
+                      v * (1 - top[3]) + browserDefined(top[i], "overlay RGB channel") * top[3],
+                  );
               const ground = layers.reduceRight((base, top) => over(base, top), [1, 1, 1]);
               const under = over(ground, rgba(w, "var(--_hw-table-cue)"));
               return [...w.querySelectorAll("th, td, a")].map((t) => {
@@ -1634,14 +1708,18 @@ test(
         "</div>",
     );
     await p.setViewport({ width: 700, height: 600 });
-    await p.waitForFunction(() => document.getElementById("held")!.dataset.hwScrolls === "true");
+    await p.waitForFunction(
+      () =>
+        browserDefined(document.getElementById("held"), "table wrapper #held").dataset.hwScrolls ===
+        "true",
+    );
     // Scrolled, the held cell stands in the wrapper's room for a ring and covers the room at its left:
     // the strip beside it hits the held cell, not a scrolled one.
     const read = (id: string) =>
       p.$eval(`#${id}`, async (w) => {
         w.scrollLeft = 120;
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-        const td = w.querySelector("td")!;
+        const td = browserDefined(w.querySelector("td"), "held table cell");
         const s = getComputedStyle(td);
         const [a, b] = [w.getBoundingClientRect(), td.getBoundingClientRect()];
         return {

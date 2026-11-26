@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { beforeAll, describe, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import i from "../verbal/imprint.json";
@@ -145,9 +146,10 @@ test("both templates' GmbH lines state imprint.json", () => {
 // A mail cannot read a token, so the template types its colours: each one is a brand colour.
 test("every colour the template types is a token colour", () => {
   const tokenHexes = new Set(Object.values(colors).map((c) => c.toLowerCase()));
-  const typed = readFileSync(join(ROOT, "applications/mail-signature/template.html"), "utf8")
-    .match(/#[0-9a-f]{6}\b/gi)!
-    .map((c) => c.toLowerCase());
+  const typed = defined(
+    template("html").match(/#[0-9a-f]{6}\b/gi),
+    "hex colours in the HTML template",
+  ).map((c) => c.toLowerCase());
   expect(typed.length).toBeGreaterThan(0);
   expect(typed.filter((c) => !tokenHexes.has(c))).toEqual([]);
 });

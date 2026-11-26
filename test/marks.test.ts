@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -18,7 +19,8 @@ const ICONS = {
 const css = readFileSync(join(ROOT, "tokens/marker.css"), "utf8");
 const shapes = (svg: string) =>
   [...svg.matchAll(/<(path|rect|circle|line|polyline|polygon|ellipse)\b([^>]*?)\/?>/g)].map(
-    ([, tag, attrs]) => `${tag} ${attrs!.replaceAll('"', "'").replace(/\s+/g, " ").trim()}`,
+    ([, tag, attrs]) =>
+      `${tag} ${defined(attrs, "SVG shape attributes").replaceAll('"', "'").replace(/\s+/g, " ").trim()}`,
   );
 const lucide = (name: string) =>
   shapes(readFileSync(join(ROOT, `node_modules/lucide-static/icons/${name}.svg`), "utf8"));
@@ -28,7 +30,7 @@ test("every area mark draws its Lucide icon, other the default", () => {
     ...css.matchAll(
       /\.hw-mark((?:\[data-mark="\w+"\])?) \{[^}]*?--_hw-icon: url\("data:image\/svg\+xml,([^"]+)"\)/g,
     ),
-  ].map(([, selector, uri]) => [selector, uri!] as const);
+  ].map(([, selector, uri]) => [selector, defined(uri, "mark SVG data URI")] as const);
   expect(marks.map(([selector]) => selector).sort()).toEqual(Object.keys(ICONS).sort());
   for (const [selector, uri] of marks) {
     expect({ selector, shapes: shapes(decodeURIComponent(uri)) }).toEqual({

@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -16,6 +17,8 @@ import { DEMOS } from "../../catalog/element-demos";
 import { ROOT } from "../../scripts/git";
 import { DRIFT } from "../element-drift";
 import { createBrowserColorProbe } from "./color-probe";
+
+declare const browserDefined: typeof defined;
 
 // Every element in every scale and theme, as a spoke's page shows it: tiles holding the samples.
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
@@ -431,22 +434,34 @@ test(
       )
       .join("");
     const tab = await browser.newPage();
+    await tab.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     await tab.setViewport({ width: 412, height: 900 });
     await tab.goto(pathToFileURL(file("wash.html", only(grounds))).href);
     const colors = await tab.evaluateHandle(createBrowserColorProbe);
     const low = await tab.evaluate(({ rgba, luminance }) => {
       return [...document.querySelectorAll<HTMLElement>(".hw-label")]
         .map((el) => {
-          const box = el.parentElement!;
-          const ground = rgba(document.body, getComputedStyle(box.parentElement!).backgroundColor);
+          const box = browserDefined(el.parentElement, "control parent");
+          const ground = rgba(
+            document.body,
+            getComputedStyle(browserDefined(box.parentElement, "status label background"))
+              .backgroundColor,
+          );
           const wash = rgba(document.body, getComputedStyle(box).backgroundColor);
-          const under = ground.slice(0, 3).map((g, i) => wash[i]! * wash[3] + g * (1 - wash[3]));
+          const under = ground
+            .slice(0, 3)
+            .map(
+              (g, i) =>
+                browserDefined(wash[i], "label wash RGB channel") * wash[3] + g * (1 - wash[3]),
+            );
           const [x, y] = [
             luminance(document.body, rgba(document.body, getComputedStyle(el).color)),
             luminance(document.body, under),
           ].sort((p, q) => q - p);
-          const ratio = (x! + 0.05) / (y! + 0.05);
-          const name = `${box.closest("[data-theme]")!.getAttribute("style")} ${box.outerHTML.split(">")[0]} ${el.outerHTML}`;
+          const ratio =
+            (browserDefined(x, "higher luminance") + 0.05) /
+            (browserDefined(y, "lower luminance") + 0.05);
+          const name = `${browserDefined(box.closest("[data-theme]"), "label theme section").getAttribute("style")} ${box.outerHTML.split(">")[0]} ${el.outerHTML}`;
           return { name, ratio };
         })
         .filter(({ ratio }) => !(ratio >= 4.5));
@@ -477,16 +492,23 @@ test(
       '[data-theme="light"] { background: var(--color-white); color: var(--color-ink) } [data-theme="dark"] { background: var(--color-night); color: var(--color-night-ink) }';
     const measure = async (name: string, css: string) => {
       const tab = await browser.newPage();
+      await tab.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
       await tab.goto(pathToFileURL(file(name, page(css))).href);
       const colors = await tab.evaluateHandle(createBrowserColorProbe);
       const low = await tab.evaluate(({ rgba, luminance }) => {
-        const over = (top: readonly number[], under: number[]) =>
-          under.map((u, i) => top[i]! * top[3]! + u * (1 - top[3]!));
+        const over = (top: readonly [number, number, number, number], under: number[]) =>
+          under.map(
+            (u, i) => browserDefined(top[i], "overlay RGB channel") * top[3] + u * (1 - top[3]),
+          );
         // The fills from the theme section down to el, composited in order.
         const behind = (el: Element) => {
           const chain: Element[] = [];
-          const theme = el.closest("[data-theme]")!;
-          for (let current = el; current !== theme; current = current.parentElement!) {
+          const theme = browserDefined(el.closest("[data-theme]"), "text theme section");
+          for (
+            let current = el;
+            current !== theme;
+            current = browserDefined(current.parentElement, "theme ancestor")
+          ) {
             chain.unshift(current);
           }
           chain.unshift(theme);
@@ -504,7 +526,9 @@ test(
             .filter((el) =>
               [...el.childNodes]
                 .filter((node) => node.nodeType === Node.TEXT_NODE)
-                .some((node) => Boolean(node.textContent!.trim())),
+                .some((node) =>
+                  Boolean(browserDefined(node.textContent, "text node content").trim()),
+                ),
             )
             .map((el) => ({ el, style: getComputedStyle(el) }))
             .filter(({ style }) => style.visibility !== "hidden")
@@ -515,16 +539,18 @@ test(
               luminance(document.body, over(rgba(document.body, s.color), under)),
               luminance(document.body, under),
             ].sort((p, q) => q - p);
-            const ratio = (x! + 0.05) / (y! + 0.05);
+            const ratio =
+              (browserDefined(x, "higher luminance") + 0.05) /
+              (browserDefined(y, "lower luminance") + 0.05);
             const px = parseFloat(s.fontSize);
             const weight = Number(s.fontWeight);
-            const section = tile.parentElement!;
+            const section = browserDefined(tile.parentElement, "tile scale section");
             const name = [
               tile.getAttribute("data-hw-tile"),
               tile.getAttribute("data-hw-sample"),
             ].join("");
             return {
-              element: `${section.dataset.hwScale} ${section.dataset.theme} ${name} ${el.tagName.toLowerCase()} "${el.textContent!.trim().slice(0, 20)}"`,
+              element: `${section.dataset.hwScale} ${section.dataset.theme} ${name} ${el.tagName.toLowerCase()} "${browserDefined(el.textContent, "element text content").trim().slice(0, 20)}"`,
               ratio,
               px,
               weight,
@@ -550,14 +576,17 @@ test(
         ]
           .map((el) => {
             const style = getComputedStyle(el);
-            const { hwScale, theme } = el.closest<HTMLElement>("[data-hw-scale]")!.dataset;
+            const { hwScale, theme } = browserDefined(
+              el.closest<HTMLElement>("[data-hw-scale]"),
+              "control scale section",
+            ).dataset;
             return {
-              element: `${hwScale} ${theme} ${el.textContent!.trim()}`,
+              element: `${hwScale} ${theme} ${browserDefined(el.textContent, "element text content").trim()}`,
               paint: [style.color, style.backgroundColor, style.borderWidth, style.padding].join(
                 "/",
               ),
               expected: [
-                getComputedStyle(el.parentElement!).color,
+                getComputedStyle(browserDefined(el.parentElement, "control parent")).color,
                 "rgba(0, 0, 0, 0)",
                 "0px",
                 "0px",
@@ -599,14 +628,11 @@ test(
     await html.goto(
       `file://${file("nested2.html", page().replace("</body>", '<div data-theme="dark"><div data-theme="light"><span id="probe" class="hw-label">Tag</span></div></div></body>'))}`,
     );
-    const [day, probe] = await html.evaluate(() => {
+    const [day, probe] = await html.$eval("#probe", (probe) => {
       const ref = document.createElement("span");
       ref.className = "hw-label";
       document.body.append(ref);
-      return [
-        getComputedStyle(ref).color,
-        getComputedStyle(document.getElementById("probe")!).color,
-      ];
+      return [getComputedStyle(ref).color, getComputedStyle(probe).color];
     });
     await html.close();
     expect(probe).toBe(day);
@@ -631,13 +657,13 @@ test(
     );
     expect(r.findings).toEqual([]);
     const page2 = await browser.newPage();
+    await page2.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     await page2.goto(`file://${file("cell2.html", page())}`);
-    const [target, icon, pill] = await page2.evaluate(() => {
-      const b = document.querySelector(".hw-pill-remove")!;
+    const [target, icon, pill] = await page2.$eval(".hw-pill-remove", (b) => {
       return [
         b.getBoundingClientRect().width,
         getComputedStyle(b, "::before").width,
-        getComputedStyle(b.parentElement!).fontSize,
+        getComputedStyle(browserDefined(b.parentElement, "pill remove button parent")).fontSize,
       ];
     });
     await page2.close();
@@ -762,8 +788,8 @@ test(
       });
     };
     const expert = readFileSync(join(ROOT, "expert/expert.css"), "utf8");
-    const regular = ["--text-ui", "--text-ui--line-height", "--text-micro"].map(
-      (v) => expert.match(new RegExp(`\\n\\s*${v}: ([^;]+);`))![1]!,
+    const regular = ["--text-ui", "--text-ui--line-height", "--text-micro"].map((v) =>
+      defined(expert.match(new RegExp(`\\n\\s*${v}: ([^;]+);`))?.[1], `expert type value for ${v}`),
     );
     expect(await read('data-hw-scale="dense" data-hw-type="regular"')).toEqual(regular);
     expect(await read('data-hw-scale="dense"')).toEqual(["0.8125rem", "1.45", "0.6875rem"]);
@@ -817,29 +843,33 @@ test(
   "every element keeps one shape on every scale and theme",
   async () => {
     const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     await open(p, pathToFileURL(file("shapes.html", page())).href);
     const shapes = await p.$$eval("section", (sections) =>
       sections.map((section) => {
         const corners = (s: CSSStyleDeclaration) =>
           [
-            s.borderTopLeftRadius,
-            s.borderTopRightRadius,
-            s.borderBottomRightRadius,
-            s.borderBottomLeftRadius,
-          ].map(parseFloat);
+            parseFloat(s.borderTopLeftRadius),
+            parseFloat(s.borderTopRightRadius),
+            parseFloat(s.borderBottomRightRadius),
+            parseFloat(s.borderBottomLeftRadius),
+          ] as const;
         const [card] = corners(
           getComputedStyle(
-            section.querySelector(
-              "[data-hw-tile='card'] > .hw-card, [data-hw-sample='card'] > .hw-card",
-            )!,
+            browserDefined(
+              section.querySelector(
+                "[data-hw-tile='card'] > .hw-card, [data-hw-sample='card'] > .hw-card",
+              ),
+              "section card",
+            ),
           ),
         );
-        const profile = ([tl, tr, br, bl]: number[]) => ({
+        const profile = ([tl, tr, br, bl]: ReturnType<typeof corners>) => ({
           oppositeCornersMatch: [tl, tr].join("/") === [br, bl].join("/"),
           asymmetric: tl !== tr,
           usesCardRadii: tl === card,
           square: tl === 0,
-          pill: tl! > 999,
+          pill: tl > 999,
         });
         return [...section.querySelectorAll("[data-hw-tile], [data-hw-sample]")].flatMap((tile) =>
           [...tile.querySelectorAll("[class*='hw-']")].map((e, i) => {
@@ -876,14 +906,18 @@ test(
         asymmetric: shape.asymmetric,
       }));
     expect(shapes.map(outline)).toEqual(
-      Array<(typeof shapes)[number]>(8).fill(shapes[0]!).map(outline),
+      Array<(typeof shapes)[number]>(8)
+        .fill(defined(shapes[0], "first scale shape profile"))
+        .map(outline),
     );
     const corners = shapes.flat();
     expect(corners.filter(({ shape }) => !shape.oppositeCornersMatch)).toEqual([]);
     const brandRatios = shapes.map((section) =>
-      section.filter(({ shape }) => shape.asymmetric).map(({ radii }) => radii[0]! / radii[1]!),
+      section.filter(({ shape }) => shape.asymmetric).map(({ radii }) => radii[0] / radii[1]),
     );
-    expect(brandRatios).toEqual(Array<number[]>(8).fill(brandRatios[0]!));
+    expect(brandRatios).toEqual(
+      Array<number[]>(8).fill(defined(brandRatios[0], "first scale corner ratios")),
+    );
     const custom = corners.filter(({ shape }) => shape.asymmetric);
     expect(custom.filter(({ shape }) => !shape.usesCardRadii)).toEqual([]);
   },
@@ -899,7 +933,7 @@ test(
       "@layer utilities { .prose :where(a) { color: #111; font-weight: 500 } .prose :where(ul, ol) { padding-inline-start: 1.625em } }";
     const html = (css: string) =>
       only(
-        `<style>${css}</style><div data-hw-tile="prose" data-hw-version="${own.version}">${DEMOS.prose!.replace('class="hw-prose"', 'class="prose hw-prose"')}</div>`,
+        `<style>${css}</style><div data-hw-tile="prose" data-hw-version="${own.version}">${defined(DEMOS.prose, "prose demo").replace('class="hw-prose"', 'class="prose hw-prose"')}</div>`,
       );
     const clean = await measurePage(browser, targetFile("prose-typography.html", html(typography)));
     expect(clean.findings).toEqual([]);
@@ -992,7 +1026,8 @@ test(
       ),
     );
     await p.close();
-    for (const [keycap, inline] of lines) expect(keycap).toBe(inline!);
+    for (const [keycap, inline] of lines)
+      expect(keycap).toBe(defined(inline, "inline keycap height"));
   },
   limit(60_000),
 );
@@ -1007,6 +1042,7 @@ const fieldWithError = `<div class="hw-form-field">${fieldRow("ff")}<p class="hw
 /** Bounding edges for the field fixture at one viewport width. */
 async function fieldEdges(width: number, fixture: { name: string; body: string; ids: string[] }) {
   const tab = await browser.newPage();
+  await tab.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
   try {
     const html = only(`<div data-hw-scale="screen">${fixture.body}</div>`);
     await open(tab, pathToFileURL(file(`field-row-${fixture.name}.html`, html)).href);
@@ -1015,7 +1051,10 @@ async function fieldEdges(width: number, fixture: { name: string; body: string; 
       (ids) =>
         Object.fromEntries(
           ids.map((id) => {
-            const box = document.getElementById(id)!.getBoundingClientRect();
+            const box = browserDefined(
+              document.getElementById(id),
+              `field edge probe #${id}`,
+            ).getBoundingClientRect();
             return [id, { top: box.top, bottom: box.bottom }];
           }),
         ),
@@ -1034,9 +1073,12 @@ test(
       body: fieldWithError,
       ids: ["ff-in", "ff-err", "ff-btn"],
     });
-    expect(phone["ff-in"]!.bottom < phone["ff-err"]!.top).toBe(true);
-    expect(phone["ff-err"]!.bottom < phone["ff-btn"]!.top).toBe(true);
-    expect(phone["ff-btn"]!.top - phone["ff-err"]!.bottom).toBeCloseTo(12, 1);
+    const field = defined(phone["ff-in"], "field bounds");
+    const error = defined(phone["ff-err"], "field error bounds");
+    const button = defined(phone["ff-btn"], "form button bounds");
+    expect(field.bottom < error.top).toBe(true);
+    expect(error.bottom < button.top).toBe(true);
+    expect(button.top - error.bottom).toBeCloseTo(12, 1);
   },
   limit(60_000),
 );
@@ -1049,7 +1091,9 @@ test(
       body: fieldRow("bare"),
       ids: ["bare-in", "bare-btn"],
     });
-    expect(phone["bare-btn"]!.top - phone["bare-in"]!.bottom).toBeCloseTo(12, 1);
+    const button = defined(phone["bare-btn"], "bare button bounds");
+    const field = defined(phone["bare-in"], "bare field bounds");
+    expect(button.top - field.bottom).toBeCloseTo(12, 1);
   },
   limit(60_000),
 );
@@ -1062,8 +1106,11 @@ test(
       body: fieldWithError,
       ids: ["ff-in", "ff-err", "ff-btn"],
     });
-    expect(desk["ff-btn"]!.top).toBe(desk["ff-in"]!.top);
-    expect(desk["ff-err"]!.top > desk["ff-btn"]!.bottom).toBe(true);
+    const button = defined(desk["ff-btn"], "form button bounds");
+    const field = defined(desk["ff-in"], "field bounds");
+    const error = defined(desk["ff-err"], "field error bounds");
+    expect(button.top).toBe(field.top);
+    expect(error.top > button.bottom).toBe(true);
   },
   limit(60_000),
 );
@@ -1073,6 +1120,7 @@ test(
   "a disabled button does not change on hover, on day or night",
   async () => {
     const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     const buttons = ["", ' data-hue="purple"']
       .flatMap((hue) =>
         ["", ' data-variant="secondary"'].map(
@@ -1097,14 +1145,14 @@ test(
         p.$$eval(
           ".hw-button",
           (b, i) => {
-            const s = getComputedStyle(b[i]!);
+            const s = getComputedStyle(browserDefined(b[i], `disabled button ${i}`));
             return [s.backgroundColor, s.borderTopColor, s.color, s.opacity, s.cursor];
           },
           i,
         );
       await p.mouse.move(0, 0);
       const rest = await look();
-      await (await p.$$(".hw-button"))[i]!.hover();
+      await defined((await p.$$(".hw-button"))[i], "disabled button to hover").hover();
       expect(await look()).toEqual(rest);
       expect(rest.slice(3)).toEqual(["0.5", "not-allowed"]);
     }
@@ -1229,11 +1277,18 @@ test(
         viewport: { width: 800, height: 600, isMobile: touch, hasTouch: touch },
         userAgent: "",
       });
+      await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
       await open(p, url);
       const out = await p.$$eval("[data-hw-scale]", (scales) =>
         scales.map((s) => {
-          const row = s.querySelector(".hw-form-field > label")!.getBoundingClientRect();
-          const lone = s.querySelector(".hw-check-target")!.getBoundingClientRect();
+          const row = browserDefined(
+            s.querySelector(".hw-form-field > label"),
+            "form field label",
+          ).getBoundingClientRect();
+          const lone = browserDefined(
+            s.querySelector(".hw-check-target"),
+            "checkbox target",
+          ).getBoundingClientRect();
           return [Math.round(row.height), Math.round(lone.width), Math.round(lone.height)];
         }),
       );
@@ -1250,7 +1305,7 @@ test(
       [44, 44, 44],
     ]);
     // Control: paper keeps the option at its line and the lone box at its own size.
-    expect(mouse[2]![0]).toBeLessThan(32);
+    expect(defined(mouse[2], "paper checkbox target size")[0]).toBeLessThan(32);
     expect(touch[2]).toEqual(mouse[2]);
   },
   limit(60_000),
@@ -1389,18 +1444,23 @@ test(
     const set = `<div class="hw-choices"><label class="hw-choice"><input type="radio" checked>A</label></div><div class="hw-segmented"><button aria-pressed="true">B</button></div><button class="hw-icon-button" aria-pressed="true" data-variant="quiet">C</button>`;
     const body = `<div data-hw-scale="screen">${set}</div><div data-hw-scale="screen" data-theme="dark">${set}</div>`;
     const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     await open(p, pathToFileURL(file("chosen.html", only(body))).href);
     const fills = await p.$$eval("[data-hw-scale]", (scales) =>
       scales.map((s) =>
         [".hw-choice", ".hw-segmented > button", ".hw-icon-button"].map((sel) => {
-          const cs = getComputedStyle(s.querySelector(sel)!);
+          const cs = getComputedStyle(
+            browserDefined(s.querySelector(sel), `selected control matching ${sel}`),
+          );
           return `${cs.backgroundColor} ${cs.color}`;
         }),
       ),
     );
     await p.close();
     for (const theme of fills) expect(new Set(theme).size).toBe(1);
-    expect(fills[0]![0]).not.toBe(fills[1]![0]);
+    expect(defined(fills[0], "day selected control fills")[0]).not.toBe(
+      defined(fills[1], "night selected control fills")[0],
+    );
   },
   limit(30_000),
 );
@@ -1495,13 +1555,17 @@ test(
       .concat(`<div data-hw-scale="dense" style="--hw-nav-pad: 0.5625rem 0.5rem">${nav}</div>`)
       .join("");
     const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     await open(p, pathToFileURL(file("nav-caption.html", only(body))).href);
     const edges = await p.$$eval(".hw-nav", (navs) =>
       navs.map((n) =>
-        [n.querySelector(".hw-nav-group")!, n.querySelector("a")!].map((e) => {
+        [".hw-nav-group", "a"].map((selector) => {
+          const e = browserDefined(n.querySelector(selector), `nav element matching ${selector}`);
           const r = document.createRange();
           r.selectNodeContents(e);
-          return Math.round(r.getClientRects()[0]!.left * 100) / 100;
+          return (
+            Math.round(browserDefined(r.getClientRects()[0], "nav text rectangle").left * 100) / 100
+          );
         }),
       ),
     );
@@ -1611,10 +1675,13 @@ test(
     );
     await p.close();
     const [ul, wideUl, ol, wideOl, mUl, mWideUl] = rights;
-    expect(wideUl).toEqual([ul![0]!, 768, ul![0]!]);
-    expect(wideOl).toEqual([ol![0]!, 768, ol![0]!]);
-    expect(ul![0]).toBe(528);
-    expect(mWideUl).toEqual([mUl![0]!, 768, mUl![0]!]);
+    const firstUl = defined(ul?.[0], "first prose unordered item edge");
+    const firstOl = defined(ol?.[0], "first prose ordered item edge");
+    const firstMeasureUl = defined(mUl?.[0], "first measure unordered item edge");
+    expect(wideUl).toEqual([firstUl, 768, firstUl]);
+    expect(wideOl).toEqual([firstOl, 768, firstOl]);
+    expect(firstUl).toBe(528);
+    expect(mWideUl).toEqual([firstMeasureUl, 768, firstMeasureUl]);
   },
   limit(60_000),
 );
@@ -1658,6 +1725,7 @@ const byPointer = async <T>(name: string, html: string, read: () => T) => {
       viewport: { width: touch ? 390 : 1440, height: 900, isMobile: touch, hasTouch: touch },
       userAgent: "",
     });
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     await open(p, url);
     out.push(await p.evaluate(read));
     await p.close();
@@ -1739,6 +1807,7 @@ test(
       )
       .join("");
     const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     await open(
       p,
       pathToFileURL(file("form-corner.html", only(body, "", ["tokens/print.css"]))).href,
@@ -1746,7 +1815,8 @@ test(
     const corners = await p.$$eval("[data-hw-scale]", (scales) =>
       scales.map((s) => {
         const r = (e: Element) => getComputedStyle(e).borderRadius;
-        const sm = r(s.querySelector(".probe")!);
+        const sm = r(browserDefined(s.querySelector(".probe"), "small corner probe"));
+        const brandRadius = r(browserDefined(s.querySelector(".brand"), "brand corner probe"));
         const form = [
           ...s.querySelectorAll(
             ".hw-field:not(.hw-field-row[data-joined] > *), .hw-field-row[data-joined], .hw-field-row > .hw-button",
@@ -1755,15 +1825,17 @@ test(
         return {
           off: form.filter((e) => r(e) !== sm).map((e) => e.outerHTML.slice(0, 60)),
           count: form.length,
-          alone: r(s.querySelector(":scope > a.hw-button")!) === r(s.querySelector(".brand")!),
-          differ: sm !== r(s.querySelector(".brand")!),
+          alone:
+            r(browserDefined(s.querySelector(":scope > a.hw-button"), "standalone form button")) ===
+            brandRadius,
+          differ: sm !== brandRadius,
         };
       }),
     );
     await p.close();
     for (const c of corners)
       expect(c).toEqual({ off: [], count: c.count, alone: true, differ: true });
-    expect(corners[0]!.count).toBeGreaterThan(8);
+    expect(defined(corners[0], "first scale form corners").count).toBeGreaterThan(8);
   },
   limit(30_000),
 );
@@ -1779,14 +1851,20 @@ test(
     const [mouse, touch] = await byPointer("check-column.html", only(body), () =>
       [...document.querySelectorAll("[data-hw-scale]")].map((s) => {
         const boxes = [...s.querySelectorAll(".hw-check")].map((e) => e.getBoundingClientRect());
-        const mid = (b: DOMRect) => [b.left + b.width / 2, b.top + b.height / 2];
+        const mid = (b: DOMRect) => [b.left + b.width / 2, b.top + b.height / 2] as const;
         const centres = boxes.map(mid);
         const pitches = centres
           .slice(1)
-          .map(([, y], i) => Math.round((y! - centres[i]![1]!) * 4) / 4);
-        const target = s.querySelector(".hw-check-target")!.getBoundingClientRect();
+          .map(
+            ([, y], i) =>
+              Math.round((y - browserDefined(centres[i], "preceding checkbox center")[1]) * 4) / 4,
+          );
+        const target = browserDefined(
+          s.querySelector(".hw-check-target"),
+          "checkbox target",
+        ).getBoundingClientRect();
         return {
-          axes: [...new Set(centres.map(([x]) => Math.round(x! * 4) / 4))].length,
+          axes: [...new Set(centres.map(([x]) => Math.round(x * 4) / 4))].length,
           pitches: [...new Set(pitches)].length,
           target: Math.round(target.width),
         };

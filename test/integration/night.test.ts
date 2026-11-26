@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import type { Browser } from "puppeteer-core";
@@ -5,13 +6,19 @@ import { ROOT } from "../../scripts/git";
 import { parseTokens, SOURCE } from "../../scripts/tokens";
 import { launch } from "../../scan/browser";
 
+declare const browserDefined: typeof defined;
+
 // night.css on the element that also declares the day tokens (html carrying both, as under
 // Tailwind's theme layer): every token computes to a value. A night value that refers to a token
 // derived from the one it replaces loops, and both, and every token reading them, compute empty.
 const css = (f: string) => readFileSync(`${ROOT}/${f}`, "utf8");
 const [tokens, night] = [css("generated/tokens.root.css"), css("tokens/night.css")];
 const names = [
-  ...new Set([...`${tokens}${night}`.matchAll(/^\s*(--[\w-]+):/gm)].map((m) => m[1]!)),
+  ...new Set(
+    [...`${tokens}${night}`.matchAll(/^\s*(--[\w-]+):/gm)].map((m) =>
+      defined(m[1], "CSS custom property name"),
+    ),
+  ),
 ];
 
 let browser: Browser;
@@ -40,22 +47,31 @@ ${night}</style></head><body></body></html>`);
 // there, and the page's colour scheme turns dark.
 test("night.css after tokens.root.css turns every token on a dark html", async () => {
   const scope = night.slice(0, night.indexOf("@layer base"));
-  const set = [...scope.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)].map((m) => [m[1]!, m[2]!]);
+  const set = [...scope.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)].map(
+    (m) =>
+      [
+        defined(m[1], "CSS custom property name"),
+        defined(m[2], "CSS custom property value"),
+      ] as const,
+  );
   expect(set.length).toBeGreaterThan(10);
   const tab = await browser.newPage();
   await tab.setContent(`<!doctype html><html data-theme="dark" data-hw-night><head>
 <style>${tokens}</style><style>${night}</style></head><body><i></i></body></html>`);
-  const computed = await tab.evaluate((set) => {
-    const html = getComputedStyle(document.documentElement);
-    const probe = document.querySelector("i")!;
-    const measured = set.map(([name, value]) => {
-      probe.style.setProperty("--probe", value!);
-      const want = getComputedStyle(probe).getPropertyValue("--probe").trim();
-      const got = html.getPropertyValue(name!).trim();
-      return { name, got, want };
-    });
-    return { measured, scheme: html.colorScheme };
-  }, set);
+  const computed = await tab.$eval(
+    "i",
+    (probe, set) => {
+      const html = getComputedStyle(document.documentElement);
+      const measured = set.map(([name, value]) => {
+        probe.style.setProperty("--probe", value);
+        const want = getComputedStyle(probe).getPropertyValue("--probe").trim();
+        const got = html.getPropertyValue(name).trim();
+        return { name, got, want };
+      });
+      return { measured, scheme: html.colorScheme };
+    },
+    set,
+  );
   await tab.close();
   expect(computed.measured.map(({ name, got }) => ({ name, value: got }))).toEqual(
     computed.measured.map(({ name, want }) => ({ name, value: want })),
@@ -78,19 +94,23 @@ test("a data-theme=light element under a night html keeps every day token", asyn
   const keys = [
     ...Object.keys(parseTokens(readFileSync(SOURCE, "utf8"))),
     "--hw-line",
-    ...[...roles.matchAll(/(--[\w-]+):/g)].map((m) => m[1]!),
+    ...[...roles.matchAll(/(--[\w-]+):/g)].map((m) => defined(m[1], "CSS custom property name")),
   ];
   const read = async (html: string, body: string) => {
     await tab.setContent(`<!doctype html><html data-hw-scale="screen" ${html}><head>
 <style>${tokens}${css("elements/scales.css")}</style>
 <style>${night} body { color: var(--color-ink) }</style></head><body>${body}</body></html>`);
-    return tab.evaluate((keys) => {
-      const s = getComputedStyle(document.querySelector("main")!);
-      return {
-        ...Object.fromEntries(keys.map((n) => [n, s.getPropertyValue(n).trim()])),
-        color: s.color,
-      };
-    }, keys);
+    return tab.$eval(
+      "main",
+      (main, keys) => {
+        const s = getComputedStyle(main);
+        return {
+          ...Object.fromEntries(keys.map((n) => [n, s.getPropertyValue(n).trim()])),
+          color: s.color,
+        };
+      },
+      keys,
+    );
   };
   const day = await read("", `<main style="${roles.replace(/\n/g, " ")}"></main>`);
   const dark = 'data-theme="dark" data-hw-night';
@@ -108,13 +128,21 @@ test("the purple button turns darker on hover under night.css", async () => {
   await tab.setContent(`<!doctype html><html><head><style>
 ${tokens}${night}${css("elements/button.css")} * { transition: none !important }</style></head>
 <body data-theme="dark" data-hw-night><a class="hw-button" data-hue="purple" href="#">Go</a></body></html>`);
+  await tab.evaluate(`globalThis.browserDefined = ${defined.toString()}`);
   const lightness = () =>
     tab.$eval(".hw-button", (e) => {
-      const c = document.createElement("canvas").getContext("2d")!;
+      const c = browserDefined(
+        document.createElement("canvas").getContext("2d"),
+        "2D canvas context",
+      );
       c.fillStyle = getComputedStyle(e).backgroundColor;
       c.fillRect(0, 0, 1, 1);
       const [r, g, b] = c.getImageData(0, 0, 1, 1).data;
-      return r! + g! + b!;
+      return (
+        browserDefined(r, "red channel") +
+        browserDefined(g, "green channel") +
+        browserDefined(b, "blue channel")
+      );
     });
   const rest = await lightness();
   await tab.hover(".hw-button");

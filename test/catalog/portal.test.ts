@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import axe from "axe-core";
@@ -33,7 +34,10 @@ test("the portal shows every shared element and every expert component", () => {
 });
 
 test("an element's page says what it is in its comment's first sentence; the rest stays in the file", () => {
-  const block = html.match(/<h4 id="hw-check">[^]*?<div class="el-matrix">/)![0];
+  const block = defined(
+    html.match(/<h4 id="hw-check">[^]*?<div class="el-matrix">/),
+    "checkbox portal section",
+  )[0];
   expect(block).toContain("painted like an app");
   expect(block).not.toContain("One em square");
 });
@@ -47,7 +51,12 @@ test("PageHeader draws no empty subtitle or action box", () => {
       ...html.matchAll(
         /class="(page-subtitle|page-title-action)[^"]*"[^>]*>([^]*?)<\/(span|div)>/g,
       ),
-    ].map((m) => [m[1], m[2]!.replace(/<[^>]+>/g, "").trim()]);
+    ].map((m) => [
+      m[1],
+      defined(m[2], "story subtitle or action markup")
+        .replace(/<[^>]+>/g, "")
+        .trim(),
+    ]);
   expect(boxes(story("title-only"))).toEqual([]);
   expect(boxes(story("subtitle-text"))).toEqual([["page-subtitle", "6 hubs · 41 pages"]]);
   expect(boxes(story("with-action")).map(([cls]) => cls)).toEqual([
@@ -65,21 +74,27 @@ test("every expert component has its stories in the catalog, which the portal li
 });
 
 test("catalogs.json's portal anchors lead to every element, every colour and every palette", () => {
-  const { portal, anchors } = catalogs.find((c) => c.name === "Brand")!;
+  const { portal, anchors: brandAnchors } = defined(
+    catalogs.find((c) => c.name === "Brand"),
+    "Brand catalog entry",
+  );
+  const anchors = defined(brandAnchors, "Brand portal anchors");
   expect(portal).toBe("https://hackersandwizards.github.io/brand/");
   // Every colour with a value of its own; an alias or a role (var() of another) has no swatch.
   const colours = Object.entries(tokens)
     .filter(([k]) => k.startsWith("--color-"))
     .filter(([, v]) => !v.startsWith("var("))
-    .map(([k]) => anchors!.colour.replace("<colour>", k.slice("--color-".length)));
-  const elements = Object.keys(ELEMENTS).map((n) => anchors!.element.replace("<element>", n));
-  const palettes = ["neutrals", "hues"].map((p) => anchors!.palette.replace("<palette>", p));
+    .map(([k]) => anchors.colour.replace("<colour>", k.slice("--color-".length)));
+  const elements = Object.keys(ELEMENTS).map((n) => anchors.element.replace("<element>", n));
+  const palettes = ["neutrals", "hues"].map((p) => anchors.palette.replace("<palette>", p));
   // A link opens the view, then the id inside it: #<view>/<id>.
   const missing = [...colours, ...elements, ...palettes].filter((a) => {
     const [view, id] = a.slice(1).split("/");
     // The view runs to the next view's opening tag.
     const [, body = ""] = html.split(new RegExp(`<section[^>]* data-page="${view}"`));
-    return !body.split(/<section[^>]* data-page="/)[0]!.includes(` id="${id}"`);
+    return !defined(body.split(/<section[^>]* data-page="/)[0], "portal view body").includes(
+      ` id="${id}"`,
+    );
   });
   expect(colours.length).toBeGreaterThan(10);
   expect(missing).toEqual([]);
@@ -93,8 +108,8 @@ test("the portal lists tokens.css's aliases and no role token among them", () =>
 });
 
 test("the portal counts the logos it shows", () => {
-  const word = html.match(/<p>(\w+) logos, each one line\./)![1];
-  const cards = html.match(/<article class="logo" /g)!.length;
+  const word = defined(html.match(/<p>(\w+) logos, each one line\./), "portal logo count")[1];
+  const cards = defined(html.match(/<article class="logo" /g), "portal logo cards").length;
   expect(["One", "Two", "Three", "Four", "Five", "Six"].indexOf(word) + 1).toBe(cards);
 });
 
@@ -109,33 +124,40 @@ test("the portal links every logo file the package ships, a master's cut or a de
 
 // The design guide: a colour swatch is square, never a scaled corner.
 test("the portal's colour swatches are square", () => {
-  expect(html.match(/\.swatch span \{[^}]*border-radius: ([^;]+);/)![1]).toBe("0");
+  expect(
+    defined(html.match(/\.swatch span \{[^}]*border-radius: ([^;]+);/), "swatch radius")[1],
+  ).toBe("0");
 });
 
 // A download link is one text line tall: the small corner.
 test("the portal's download links take the small corner", () => {
-  expect(html.match(/\.dl a \{[^}]*border-radius: ([^;]+);/)![1]).toBe("var(--radius-sm)");
+  expect(
+    defined(html.match(/\.dl a \{[^}]*border-radius: ([^;]+);/), "download link radius")[1],
+  ).toBe("var(--radius-sm)");
 });
 
 test("every link and image of the portal resolves in dist/", () => {
   const decode = (s: string) =>
-    s.replace(
-      /&(quot|lt|gt|amp);/g,
-      (_, e: string) => ({ quot: '"', lt: "<", gt: ">", amp: "&" })[e]!,
+    s.replace(/&(quot|lt|gt|amp);/g, (_, e: string) =>
+      defined({ quot: '"', lt: "<", gt: ">", amp: "&" }[e], "HTML entity " + e),
     );
   // A frame's document resolves its links against the page, through <base href="../">.
   const frames = [...html.matchAll(/<iframe src="(catalog-assets\/[^"]+\.html)"/g)].map((m) =>
-    page(m[1]!).replace('<base href="../">', ""),
+    page(defined(m[1], "frame source")).replace('<base href="../">', ""),
   );
   expect(frames.length).toBeGreaterThan(30);
   // A script's string literals are no links; its src stays checked.
   const refs = [html, ...frames]
     .map((h) => h.replace(/(<script\b[^>]*>)[^]*?(<\/script>)/g, "$1$2"))
     .flatMap((h) => [...h.matchAll(/\s(?:src|href|data-href)="([^"#]*)(?:#[^"]*)?"/g)])
-    .map((m) => decode(m[1]!).split("?")[0]!)
+    .map((m) =>
+      defined(decode(defined(m[1], "portal reference")).split("?")[0], "portal reference path"),
+    )
     .concat(
       [...html.matchAll(/<style>([^]*?)<\/style>/g)].flatMap((s) =>
-        [...s[1]!.matchAll(/url\("([^"]+)"\)/g)].map((m) => m[1]!),
+        [...defined(s[1], "portal stylesheet").matchAll(/url\("([^"]+)"\)/g)].map((m) =>
+          defined(m[1], "stylesheet URL"),
+        ),
       ),
     )
     .filter(Boolean)
@@ -150,7 +172,9 @@ test("every link and image of the portal resolves in dist/", () => {
     closeSync(fd);
     return b;
   };
-  expect([...new Set(refs)].filter((r) => lfsOid(head(fileOf(r)!)))).toEqual([]);
+  expect(
+    [...new Set(refs)].filter((r) => lfsOid(head(defined(fileOf(r), "dist file for " + r)))),
+  ).toEqual([]);
 });
 
 test("catalogue.html forwards to the portal with its anchor", () => {

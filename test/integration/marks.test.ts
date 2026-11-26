@@ -1,7 +1,10 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { expect, test } from "vitest";
 import { join } from "node:path";
 import { ROOT } from "../../scripts/git";
+
+declare const browserDefined: typeof defined;
 
 // Rendered: beside running text, in a label, in a baseline-aligned flex row and before an H1, on
 // light and night, the mark's middle sits within half a pixel of the cap-height middle, and a line
@@ -49,19 +52,29 @@ test(
     const browser = await launch();
     try {
       const page = await browser.newPage();
+      await page.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
       await page.goto(pathToFileURL(html).href, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready);
       const found = await page.evaluate(() =>
         [...document.querySelectorAll("p:has(.hw-mark)")].map((p) => {
-          const probe = p.querySelector("[data-probe]")!.getBoundingClientRect();
-          const mark = p.querySelector(".hw-mark")!.getBoundingClientRect();
-          const ctx = document.createElement("canvas").getContext("2d")!;
+          const probe = browserDefined(
+            p.querySelector("[data-probe]"),
+            "mark probe",
+          ).getBoundingClientRect();
+          const mark = browserDefined(
+            p.querySelector(".hw-mark"),
+            "inline mark",
+          ).getBoundingClientRect();
+          const plainLine = browserDefined(p.nextElementSibling, "plain comparison line");
+          const ctx = browserDefined(
+            document.createElement("canvas").getContext("2d"),
+            "2D canvas context",
+          );
           ctx.font = getComputedStyle(p).font;
           const cap = ctx.measureText("H").actualBoundingBoxAscent;
           return {
             lineDifference:
-              p.getBoundingClientRect().height -
-              p.nextElementSibling!.getBoundingClientRect().height,
+              p.getBoundingClientRect().height - plainLine.getBoundingClientRect().height,
             off: mark.top + mark.height / 2 - (probe.bottom - cap / 2),
           };
         }),

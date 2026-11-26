@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { assert, expect, test } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -80,7 +81,9 @@ test("the data formats carry expert.css's type steps, its aliases left out; the 
   ])
     expect(stepNames).toContain(name);
   for (const [, name, value] of steps) {
-    expect(json[name!]).toBe(value!);
+    expect(json[defined(name, "expert type step name")]).toBe(
+      defined(value, "expert type step value"),
+    );
     expect(root).not.toContain(`${name}:`);
   }
   expect(json["--text-meta"]).toBeUndefined();
@@ -181,13 +184,16 @@ test("every code colour clears 4.5:1 on night and night-2", () => {
 
 test("every chart series clears 3:1 on white", () => {
   for (let i = 1; i <= 6; i++) {
-    const ref = tokens[`--chart-${i}`].match(/^var\((--color-[\w-]+)\)$/)![1];
+    const ref = defined(
+      tokens[`--chart-${i}`].match(/^var\((--color-[\w-]+)\)$/),
+      "chart colour reference",
+    )[1];
     expect(contrast(colors[ref], "#ffffff")).toBeGreaterThan(3);
   }
 });
 
 test("print.css's page-box variables match its @page rule, which cannot read them", () => {
-  const v = (name: string) => print.match(new RegExp(`${name}: ([^;]+);`))![1];
+  const v = (name: string) => defined(print.match(new RegExp(`${name}: ([^;]+);`)), name)[1];
   expect(print).toContain(
     `@page {\n  size: A4;\n  margin: 14mm 0 ${v("--print-margin-bottom")};\n}`,
   );
@@ -226,7 +232,9 @@ test("font data skips commented faces and keeps the live face's descriptors", ()
 test("print.css's latin-ext faces take fonts.css's range, at every Latin weight", () => {
   const faces = fontFaces(print);
   const range = Object.fromEntries(
-    fonts.faces.filter((f) => f.unicodeRange).map((f) => [f.fontFamily, f.unicodeRange!]),
+    fonts.faces
+      .filter((f) => f.unicodeRange)
+      .map((f) => [f.fontFamily, defined(f.unicodeRange, "unicode range for " + f.fontFamily)]),
   );
   const weights = (subset: string) =>
     faces
@@ -258,13 +266,25 @@ test("each stack names its fallback face after the web face, and both font files
   const screen = fallbackFaces(readFileSync(join(ROOT, "tokens/fonts.css"), "utf8"));
   const stacked = new Set<string>();
   for (const stack of ["--font-sans", "--font-mono", "--font-code"]) {
-    const names = tokens[stack]!.split(",").map((f) => f.trim());
-    const fallback = names[0]!.replace(" Variable", " Fallback");
+    const names = defined(tokens[stack], stack)
+      .split(",")
+      .map((f) => f.trim());
+    const primary = defined(names[0], "primary font family");
+    const fallback = primary.replace(" Variable", " Fallback");
     const at = names.indexOf(fallback);
-    expect(names.slice(0, at).every((n) => n.startsWith(names[0]!.split(" ")[0]!))).toBe(at > 0);
-    for (let i = at; names[i]?.startsWith(fallback.slice(0, -1)); i++) stacked.add(names[i]!);
+    expect(
+      names
+        .slice(0, at)
+        .every((n) => n.startsWith(defined(primary.split(" ")[0], "primary font prefix"))),
+    ).toBe(at > 0);
+    for (let i = at; names[i]?.startsWith(fallback.slice(0, -1)); i++)
+      stacked.add(defined(names[i], "fallback font family"));
   }
-  expect(new Set(screen.map((face) => face.match(/font-family: ("[^"]+")/)![1]))).toEqual(stacked);
+  expect(
+    new Set(
+      screen.map((face) => defined(face.match(/font-family: ("[^"]+")/), "quoted font family")[1]),
+    ),
+  ).toEqual(stacked);
   for (const face of screen)
     for (const d of [
       "size-adjust",
@@ -278,7 +298,7 @@ test("each stack names its fallback face after the web face, and both font files
     screen,
   );
   expect(fonts.fallbacks.map((f) => f.fontFamily)).toEqual(
-    screen.map((face) => face.match(/font-family: "([^"]+)"/)![1]),
+    screen.map((face) => defined(face.match(/font-family: "([^"]+)"/), "font family")[1]),
   );
 });
 
@@ -377,8 +397,8 @@ const SHARED = [
 const collisions = (source: string) => {
   const names = (ns: string) =>
     new Set(
-      [...source.matchAll(new RegExp(`--${ns}-([a-z0-9-]+?)(?:--[\\w-]+)?\\s*:`, "g"))].map(
-        (m) => m[1]!,
+      [...source.matchAll(new RegExp(`--${ns}-([a-z0-9-]+?)(?:--[\\w-]+)?\\s*:`, "g"))].map((m) =>
+        defined(m[1], "token name"),
       ),
     );
   return SHARED.flatMap(([a, b]) => {
@@ -422,9 +442,9 @@ const INTERNAL_LITERALS = ["--hw-fg", "--hw-bg", "--hw-accent", "--hw-header-fil
 const INTERNAL_FAMILIES = { "--_*": /^--_/, "--tw-prose-*": /^--tw-prose-/ };
 
 test("every custom property is interface or named internal in docs/exports.md", () => {
-  const defined = (f: string) =>
-    [...readFileSync(join(ROOT, f), "utf8").matchAll(/(?:^|[;{\s])(--[\w-]+)\s*:/g)].map(
-      (m) => m[1]!,
+  const declared = (f: string) =>
+    [...readFileSync(join(ROOT, f), "utf8").matchAll(/(?:^|[;{\s])(--[\w-]+)\s*:/g)].map((m) =>
+      defined(m[1], "custom property name"),
     );
   const opening = (f: string) => {
     const comment = /^\/\*[\s\S]*?\*\//.exec(readFileSync(join(ROOT, f), "utf8"));
@@ -441,7 +461,7 @@ test("every custom property is interface or named internal in docs/exports.md", 
   const settings = elements.flatMap((file) =>
     [...opening(file).matchAll(/--[\w-]+/g)].map(([name]) => name),
   );
-  const iface = new Set([...files.flatMap(defined), ...settings]);
+  const iface = new Set([...files.flatMap(declared), ...settings]);
   const section = /## Custom properties\n([\s\S]*?)(\n## |$)/.exec(
     readFileSync(join(ROOT, "docs/exports.md"), "utf8"),
   );
@@ -453,7 +473,7 @@ test("every custom property is interface or named internal in docs/exports.md", 
     [...INTERNAL_LITERALS, ...Object.keys(INTERNAL_FAMILIES)].sort(),
   );
   const rest = [...elements, "expert/header.css", "expert/app-base.css"]
-    .flatMap((f) => defined(f).map((p) => [f, p] as const))
+    .flatMap((f) => declared(f).map((p) => [f, p] as const))
     .filter(([, p]) => !iface.has(p))
     .filter(([, p]) => !INTERNAL_LITERALS.includes(p))
     .filter(([, p]) => !Object.values(INTERNAL_FAMILIES).some((pattern) => pattern.test(p)));

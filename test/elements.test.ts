@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { afterAll, assert, expect, test } from "vitest";
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -45,7 +46,7 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
     "test/x.css": ".chip { border: 0 }",
   };
   files["deck/readout.css"] = ".quote { font-size: 2rem }";
-  const out = sourceFindings(Object.keys(files), (p) => files[p]!, {
+  const out = sourceFindings(Object.keys(files), (p) => defined(files[p], p), {
     "doc-tag": "the type tag",
     readout: { reason: "the deck's own medium", files: ["deck/readout.css"] },
   });
@@ -74,9 +75,12 @@ test("the strip and the expert header strip draw the strip gradient, teal to pur
 // The print preset leaves the type sizes to print.css, which owns paper sizes; the screen preset
 // sets every setting, so a screen cell inside a paper page is whole.
 test("the screen preset sets every setting an element reads", () => {
-  const screen = readFileSync(join(ROOT, "elements/scales.css"), "utf8").match(
-    /\[data-hw-scale="screen"\] \{([^}]*)\}/,
-  )![1]!;
+  const screen = defined(
+    readFileSync(join(ROOT, "elements/scales.css"), "utf8").match(
+      /\[data-hw-scale="screen"\] \{([^}]*)\}/,
+    )?.[1],
+    "screen scale declarations",
+  );
   const optional = new Set([
     "--hw-label-family",
     "--hw-muted",
@@ -135,8 +139,8 @@ test("a gap, flex-flow or logical property sets the longhands an element owns", 
     ["callout", "border-inline-start"],
     ["card", "border-block-end-color"],
     ["card", "border-start-end-radius"],
-  ])
-    expect({ element, prop, owned: setsOwned(element!, prop!) }).toEqual({
+  ] as const)
+    expect({ element, prop, owned: setsOwned(element, prop) }).toEqual({
       element,
       prop,
       owned: true,
@@ -150,7 +154,7 @@ test("source: a compound forks an element in any class order; an --hw-* setting 
     "src/components/TeamCard.astro": `<div class="team-card" style="gap:var(--hw-card-pad)"/>`,
     "src/components/NoteCard.astro": `<div class="hw-card"/>`,
   };
-  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+  expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
     'src/a.css: .project-card.is-open styles an element named like a shared one; use the hw-* element or list "project-card" as an exception',
     'src/a.css: .is-open.project-card styles an element named like a shared one; use the hw-* element or list "project-card" as an exception',
     'src/components/TeamCard.astro: a component named like a shared element; render the hw-* element or list "team-card" as an exception',
@@ -164,7 +168,7 @@ test("source: a component named like an element renders that element's class; an
     "src/pages/index.html": `<style>.card { border-radius: 12px; background: #fff }</style>`,
     "src/content/doc.html": `<style data-hw-document>.card { border-radius: 12px }</style>`,
   };
-  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+  expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
     'src/components/ProjectCard.astro: a component named like a shared element; render the hw-* element or list "project-card" as an exception',
     'src/pages/index.html: .card styles an element named like a shared one; use the hw-* element or list "card" as an exception',
   ]);
@@ -179,7 +183,7 @@ test("source: a button component may render the icon button, a fact component on
     "src/components/Facts.astro": `<dl class="my-facts"><dt>Ort</dt><dd>Hamburg</dd></dl>`,
     "src/components/FactList.astro": `<dl class="my-facts"><dt>Ort</dt><dd>Hamburg</dd></dl>`,
   };
-  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+  expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
     'src/components/SaveButton.astro: a component named like a shared element; render the hw-* element or list "save-button" as an exception',
     'src/components/FactBox.astro: a component named like a shared element; render the hw-* element or list "fact-box" as an exception',
     'src/components/Facts.astro: a component named like a shared element; render the hw-* element or list "facts" as an exception',
@@ -194,7 +198,7 @@ test("source: a PascalCase component, a camelCase class and a nested rule are re
     "src/components/Notebook.astro": `<div/>`,
     "src/a.scss": `.card { border-radius: 8px; &:hover { color: red } } .projectCard { padding: 0 }`,
   };
-  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+  expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
     'src/components/ProjectCard.astro: a component named like a shared element; render the hw-* element or list "project-card" as an exception',
     'src/components/StatusPill.tsx: a component named like a shared element; render the hw-* element or list "status-pill" as an exception',
     'src/a.scss: .card styles an element named like a shared one; use the hw-* element or list "card" as an exception',
@@ -353,7 +357,7 @@ test("every focus rule of the elements and the expert layer also matches data-hw
       ...readFileSync(join(ROOT, f), "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .matchAll(/([^{};]+)\{/g),
-    ].map((m) => `${f}: ${m[1]!.trim()}`),
+    ].map((m) => `${f}: ${defined(m[1], "CSS rule selector").trim()}`),
   );
   const focus = new Set(rules.filter((s) => /:focus\b|:focus-(visible|within)\b/.test(s)));
   const explicit = new Set(rules.filter((s) => s.includes("[data-hw-focus]")));

@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import axe from "axe-core";
@@ -39,7 +40,9 @@ test(
     // Eight tabs at a time, since each page waits for the network to go quiet, about a second.
     const results = await pool(pages, 8, (p) => measurePage(browser, elementPage(p)));
     // An expert component may hold no shared element, such as the header's frame.
-    const emptyStories = pages.filter((_, i) => !results[i]!.seen.length);
+    const emptyStories = pages.filter(
+      (_, i) => !defined(results[i], "story measurement").seen.length,
+    );
     expect(emptyStories.filter((p) => !expertStory(p))).toEqual([]);
     expect(results.flatMap((r) => r.findings)).toEqual([]);
     expect(results.flatMap((r) => r.unstyled)).toEqual([]);
@@ -115,7 +118,10 @@ test(
 test(
   "a faint choice count fails the contrast check and brand-elements",
   async () => {
-    const url = storyPages().find((p) => p.endsWith("/Forms/filter-value/screen/"))!;
+    const url = defined(
+      storyPages().find((p) => p.endsWith("/Forms/filter-value/screen/")),
+      "screen filter value story",
+    );
     const faint = ".hw-choice-count { opacity: 0.8 }";
     expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
     const { findings } = await measurePage(browser, elementPage(url), faint);
@@ -127,7 +133,10 @@ test(
 test(
   "faint text in a scrolling table fails the contrast check that lays it out whole",
   async () => {
-    const url = storyPages().find((p) => p.endsWith("/table-scroll/screen/"))!;
+    const url = defined(
+      storyPages().find((p) => p.endsWith("/table-scroll/screen/")),
+      "screen scrolling table story",
+    );
     // The last column, which sits past the column's edge until the pass fits the table.
     const faint = `${UNSCROLLED} .hw-table-scroll td:last-child { opacity: 0.3 }`;
     expect((await contrastFailures(url, faint)).length).toBeGreaterThan(0);
@@ -202,7 +211,13 @@ async function checkStoryGeometry(scale: string, viewport: Viewport, css: string
       const round = (n: number) => Math.round(n * 4) / 4;
       return [
         new Set(mid.map(([x]) => round(x))).size,
-        new Set(mid.slice(1).map(([, y], i) => round(y - mid[i]![1]))).size,
+        new Set(
+          mid.slice(1).map(([, y], i) => {
+            const previous = mid[i];
+            if (!previous) throw new Error("Missing previous checkbox midpoint");
+            return round(y - previous[1]);
+          }),
+        ).size,
       ];
     });
   } finally {
@@ -245,10 +260,12 @@ test.each([
     ([nav]) => nav,
   );
   expect(navs.length).toBe(1);
-  const links = [...navs[0]!.matchAll(/<a([^>]*)>([^<]*)<\/a>/g)].map(([, attrs, name]) => [
-    name,
-    attrs!.match(/aria-current="(\w+)"/)?.[1],
-  ]);
+  const links = [...defined(navs[0], "catalog navigation").matchAll(/<a([^>]*)>([^<]*)<\/a>/g)].map(
+    ([, attrs, name]) => [
+      name,
+      defined(attrs, "navigation link attributes").match(/aria-current="(\w+)"/)?.[1],
+    ],
+  );
   expect(links.map(([name]) => name)).toEqual([
     "Brand",
     "Catalog",

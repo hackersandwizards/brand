@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
@@ -10,6 +11,8 @@ import { launch } from "../../scan/browser";
 import catalogs from "../../expert/catalogs.json";
 import { isStringList } from "../../scan/help";
 import { ROOT } from "../../scripts/git";
+
+declare const browserDefined: typeof defined;
 
 const SCRATCH = mkdtempSync(join(tmpdir(), "hw-header-"));
 afterAll(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -56,7 +59,10 @@ const misses = (css: string, width: number): string[] => {
     { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
   );
   const result: unknown = JSON.parse(
-    /<pre id="out">(.*?)<\/pre>/s.exec(dom)![1].replace(/&quot;/g, '"'),
+    defined(/<pre id="out">(.*?)<\/pre>/s.exec(dom)?.[1], "header probe output").replace(
+      /&quot;/g,
+      '"',
+    ),
   );
   if (!isStringList(result)) throw new Error("Expected a list of header hit-test misses");
   return result;
@@ -105,7 +111,7 @@ document.getElementById("out").textContent = String(Math.max(n.top - (l.top - gr
     ],
     { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
   );
-  return Number(/<pre id="out">(.*?)<\/pre>/s.exec(dom)![1]);
+  return Number(defined(/<pre id="out">(.*?)<\/pre>/s.exec(dom)?.[1], "header probe output"));
 };
 
 describe("expert/header.css focus", () => {
@@ -153,8 +159,15 @@ describe("expert/header.css with the catalog list", () => {
 <a class="hw-header-brand" href="/"><img class="hw-header-logo" alt="" width="8042" height="1489"><span class="hw-header-product">Mail</span></a>
 ${nav}</div></header>
 <div id="probe" style="height: var(--spacing-app-header)"></div></body></html>`);
+    await tab.evaluate(`globalThis.browserDefined = ${defined.toString()}`);
     const r = await tab.evaluate(() => {
-      const box = document.querySelector("[data-hw-catalogs]")!.getBoundingClientRect();
+      const catalogs = browserDefined(
+        document.querySelector("[data-hw-catalogs]"),
+        "catalog links",
+      );
+      const header = browserDefined(document.querySelector(".hw-header"), "header");
+      const probe = browserDefined(document.getElementById("probe"), "header height probe");
+      const box = catalogs.getBoundingClientRect();
       return {
         inView: [...document.querySelectorAll("[data-hw-catalogs] .hw-header-link")]
           .map((a) => a.getBoundingClientRect())
@@ -162,9 +175,9 @@ ${nav}</div></header>
             (b) =>
               b.left >= 0 && b.right <= innerWidth && b.top >= box.top && b.bottom <= box.bottom,
           ),
-        height: document.querySelector(".hw-header")!.getBoundingClientRect().height,
-        token: document.getElementById("probe")!.getBoundingClientRect().height,
-        bg: getComputedStyle(document.querySelector(".hw-header")!).backgroundColor,
+        height: header.getBoundingClientRect().height,
+        token: probe.getBoundingClientRect().height,
+        bg: getComputedStyle(header).backgroundColor,
         marked: [...document.querySelectorAll("[data-hw-catalogs] .hw-header-link")]
           .filter((a) => getComputedStyle(a).fontWeight === "500")
           .map((a) => a.textContent),
@@ -248,7 +261,10 @@ describe("AppHeader's night lockup", () => {
 
   it("loads only once the page turns night", async () => {
     const component = readFileSync(join(ROOT, "expert/components/AppHeader.astro"), "utf8");
-    const img = /<img class="hw-header-logo-night"[^>]*>/.exec(component)![0];
+    const img = defined(
+      /<img class="hw-header-logo-night"[^>]*>/.exec(component)?.[0],
+      "night lockup image markup",
+    );
     const file = join(SCRATCH, "night-lockup.html");
     writeFileSync(
       file,
@@ -257,6 +273,7 @@ describe("AppHeader's night lockup", () => {
 ${img.replace("{lockupNight}", `"file://${ROOT}/logos/lockup-screen-night.svg"`)}</a></div></header></body></html>`,
     );
     const tab = await browser.newPage();
+    await tab.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
     const fetched: string[] = [];
     tab.on("request", (r) => fetched.push(r.url()));
     const night = () => fetched.some((u) => u.endsWith("lockup-screen-night.svg"));
@@ -265,7 +282,11 @@ ${img.replace("{lockupNight}", `"file://${ROOT}/logos/lockup-screen-night.svg"`)
     const onLight = night();
     await tab.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
     await tab.waitForFunction(
-      () => document.querySelector<HTMLImageElement>(".hw-header-logo-night")!.naturalWidth > 0,
+      () =>
+        browserDefined(
+          document.querySelector<HTMLImageElement>(".hw-header-logo-night"),
+          "night lockup image",
+        ).naturalWidth > 0,
       { timeout: 5000 },
     );
     await tab.$eval(".hw-header-logo-night", (image) => (image as HTMLImageElement).decode());

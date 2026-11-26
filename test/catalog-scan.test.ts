@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { expect, test } from "vitest";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -37,7 +38,7 @@ test("source: an @apply sets the properties its utilities stand for; btn names a
 .photo-card { @apply bg-[url(https://x.test/a.png)]; }
 .box-card { @apply @md:p-6; }`,
   };
-  expect(sourceFindings(Object.keys(files), (p) => files[p]!, {})).toEqual([
+  expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
     'src/a.css: .my-card styles an element named like a shared one; use the hw-* element or list "my-card" as an exception',
     'src/a.css: .btn-primary styles an element named like a shared one; use the hw-* element or list "btn-primary" as an exception',
     'src/a.css: .wide-card styles an element named like a shared one; use the hw-* element or list "wide-card" as an exception',

@@ -1,3 +1,4 @@
+import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, assert, beforeAll, expect, test } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -40,8 +41,7 @@ test.each([
     const tab = await browser.newPage();
     await open(tab, pathToFileURL(file).href);
     await tab.keyboard.press("Tab");
-    const measured = await tab.evaluate(() => {
-      const s = document.querySelector("summary")!;
+    const measured = await tab.$eval("summary", (s) => {
       return { focused: s.matches(":focus-visible"), width: getComputedStyle(s).outlineWidth };
     });
     await tab.close();
@@ -92,7 +92,7 @@ test(
         const { model } = await cdp.send("DOM.getBoxModel", {
           backendNodeId: before.backendNodeId,
         });
-        return { top: model.border[1]!, height: model.height };
+        return { top: defined(model.border[1], "chevron border top"), height: model.height };
       }),
     );
     const span = await tab.$eval(".hw-disclosure-chevron", (s) => {
@@ -110,7 +110,7 @@ test(
     );
     await tab.close();
     const centres = [...chevrons, span].map((c, i) => {
-      const line = lines[i]!;
+      const line = defined(lines[i], `summary line ${i}`);
       return Math.abs(c.top + c.height / 2 - (line.top + line.height / 2));
     });
     expect(headingPseudos).toEqual(["none"]);
@@ -134,14 +134,11 @@ test(
     );
     const tab = await browser.newPage();
     await open(tab, pathToFileURL(file).href);
-    const [count, nightInk] = await tab.evaluate(() => {
+    const [count, nightInk] = await tab.$eval(".hw-disclosure-count", (count) => {
       const probe = document.createElement("i");
       probe.style.color = "color-mix(in srgb, var(--color-night-ink) 70%, transparent)";
       document.body.append(probe);
-      return [
-        getComputedStyle(document.querySelector(".hw-disclosure-count")!).color,
-        getComputedStyle(probe).color,
-      ];
+      return [getComputedStyle(count).color, getComputedStyle(probe).color];
     });
     await tab.close();
     expect(count).toBe(nightInk);
