@@ -154,7 +154,6 @@ type BannerSize = { widthMm: number; heightMm: number };
 type BannerSheet = BannerSize & { stem: string; html: string };
 type BoothView = { path: string; camera: Camera; lighting: Lighting };
 
-// Read the output directory, exhibition views and optional print run from the CLI.
 export function parseBoothArgs(args: string[]) {
   const out = args[0];
   if (!out) throw new Error("usage: generate.ts <out dir> [--pdf]");

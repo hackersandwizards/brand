@@ -120,9 +120,9 @@ function pseudoMarkerKind(host: Element): Exclude<Kind, "element"> | undefined {
   const before = getComputedStyle(host, "::before");
   if (isSquareBefore(before)) return "before";
   if (host.tagName !== "LI" || host.parentElement?.tagName !== "UL") return;
-  if (ownMarker(host)) return "native";
   // A bullet glyph drawn as content, rather than the brand's square.
   if (before.display !== "none" && /^"[•·▪■◦‣–—-]"$/.test(before.content)) return "glyph";
+  if (ownMarker(host)) return "native";
 }
 
 /** A square pseudo-element belongs to a list item or its loose paragraph. */

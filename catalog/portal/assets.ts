@@ -15,14 +15,12 @@ export class PortalAssets {
     "elements.css": Buffer.from(elementsCss).toString("base64"),
   };
 
-  // An asset named by its content's hash; returns its path from the page.
   private hashedAsset(content: string | Buffer, ext: string) {
     const name = `${createHash("sha256").update(content).digest("hex").slice(0, 16)}.${ext}`;
     this.files[name] = Buffer.from(content).toString("base64");
     return `${ASSETS}/${name}`;
   }
 
-  // Gives each PNG embedded in an SVG a URL beside the portal.
   pngFiles(svg: string) {
     return svg.replace(
       /href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/g,

@@ -1,9 +1,7 @@
-// Carousel navigation, its controls, and the optional autoplay clock.
 import { german, wireOnce } from "./copy.ts";
 import { reducedMotion } from "./motion-preference.ts";
 import { holdWhileUsed } from "./usage-hold.ts";
 
-/** Creates the labelled button and fill for one slide. */
 function carouselDot(label: string) {
   const dot = document.createElement("button");
   dot.type = "button";
@@ -271,7 +269,6 @@ function createCarouselAutoplay(viewport: CarouselViewport) {
   return new CarouselAutoplay(viewport, surfaces, step);
 }
 
-/** Connects a complete track and its controls once, when both are present. */
 function enhanceCarousel(carousel: HTMLElement) {
   const track = carousel.querySelector<HTMLElement>(".hw-carousel-track");
   const controls =
@@ -281,7 +278,6 @@ function enhanceCarousel(carousel: HTMLElement) {
   if (!track || !controls || !wireOnce(carousel, "carousel")) return;
   const viewport = new CarouselViewport(carousel, track, controls);
   viewport.updateControlVisibility();
-  // The autoplay's hooks: a new slide starts its step afresh, a reader's step holds it.
   const autoplay = createCarouselAutoplay(viewport);
   viewport.controls.connect(viewport, (index) => {
     viewport.controls.announce(viewport.go(index));

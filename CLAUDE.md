@@ -24,8 +24,8 @@ data or secret.
   file each with the four scales in `scales.css`, and the framework-free scripts the elements need
   (`behaviour.ts`, with `copy.ts` for a copy-only page and `carousel.ts` for carousel-only wiring,
   `form.ts`, `code.ts`, `list-filter-browser.ts` (with the shared list-filter protocol in
-  `list-filter.ts`), `table.ts`). The behaviour modules `command.ts`,
-  `list-navigation.ts`, `motion-preference.ts`, `popover.ts`, `tree.ts` and `usage-hold.ts` are
+  `list-filter-state.ts` and the compatibility exports in `list-filter.ts`), `table.ts`). The
+  behaviour modules `command.ts`, `list-navigation.ts`, `motion-preference.ts`, `popover.ts`, `tree.ts` and `usage-hold.ts` are
   internal implementation files. This repo owns every one of them: no other repo is a source.
 - `press/`: the press kit's photos, the founders' portraits and their photo together, as the
   website's press page publishes them, with `press.json` naming what each shows and the credit.

@@ -131,7 +131,6 @@ test.each([
       body: encode(cropped),
       expected: drawing,
     },
-    // Without the engine's marker, the unmodified wordmark is a copy too.
     {
       label: `an original ${format} wordmark without the engine marker`,
       style: "<style>.slide{}</style>",
@@ -172,7 +171,6 @@ test("finds a logo inside a base64 or percent-encoded data: URI in any file", ()
   expect(css(`data:image/svg+xml;base64,${b64}`)).toContain("drawing");
   expect(css(`"data:image/svg+xml;charset=utf-8;base64,${b64}"`)).toContain("drawing");
   expect(css(`"data:image/svg+xml,${encodeURIComponent(red)}"`)).toContain("drawing");
-  // Nested: a base64 page carrying the base64 logo.
   const page = Buffer.from(`<img src="data:image/svg+xml;base64,${b64}">`).toString("base64");
   expect(css(`data:text/html;base64,${page}`)).toContain("drawing");
   expect(

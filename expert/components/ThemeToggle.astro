@@ -50,7 +50,6 @@ import { MOON, SUN } from "./theme-icons";
     new MutationObserver(updatePressed).observe(root, { attributeFilter: ["data-theme"] });
 
     for (const toggle of toggles) {
-      // A re-init must not stack listeners.
       if (toggle.dataset.themeInit) continue;
       toggle.dataset.themeInit = "1";
 

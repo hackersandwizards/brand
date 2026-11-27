@@ -89,7 +89,6 @@ const rendered = renderCatalog({
 if (!rendered.includes(ROOT_DIV)) throw new Error(`renderCatalog wrote no ${ROOT_DIV}`);
 const catalogPage = rendered.replace(ROOT_DIV, `${ROOT_DIV} data-mode="overview"`);
 
-// The search index: what a reader types, where it leads.
 const index = [
   ...tokenReference.index,
   ...logos.index,

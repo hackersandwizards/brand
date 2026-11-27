@@ -241,7 +241,6 @@ test.each([
   expect(scanSource(src, ext).counts).toEqual(expected);
 });
 
-// Controls: tokens, keywords and script that only looks like a colour.
 test.each([
   {
     label: "brand fonts and CSS keywords",

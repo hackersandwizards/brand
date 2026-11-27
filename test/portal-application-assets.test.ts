@@ -1,3 +1,10 @@
+import { renderCatalog } from "@hackersandwizards/scaffolding/catalog/render.ts";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { applicationsGroup } from "../catalog/portal/applications";
+import { PortalAssets } from "../catalog/portal/assets";
+import { renderPortalDocument } from "../catalog/portal/document";
+import { ROOT } from "../scripts/git";
 import { expect, test } from "vitest";
 import { assetCard, groupApplicationFiles } from "../catalog/portal/application-assets";
 
@@ -70,5 +77,21 @@ test.each([
   const html = assetCard({ dir: "applications/example", stem: "sample", files }, "example-sample");
   expect(html).toBe(
     `<figure class="asset" id="example-sample"><div class="views" data-theme="light"><a href="applications/example/${primary}" target="_blank">${preview}</a></div><figcaption><code>sample</code><span class="dl">${links}</span></figcaption></figure>`,
+  );
+});
+
+test("the generated portal head inlines the canonical pre-paint theme reader", () => {
+  const head = renderPortalDocument("", [], "").split("</head>")[0];
+  const script = readFileSync(join(ROOT, "tokens/theme-read.js"), "utf8");
+  expect(head?.includes(`<script>\n${script}</script>`)).toBe(true);
+});
+
+test.each(["documents", "mail"])("the %s tile displays and indexes its package", (pkg) => {
+  const group = applicationsGroup(new PortalAssets());
+  const item = group.items.find(({ href }) => href === `#applications/app-${pkg}`);
+  expect(item?.note).toBe(`@hackersandwizards/${pkg}`);
+  const html = renderCatalog({ title: "Brand", lead: "", groups: [group] });
+  expect(html).toMatch(
+    new RegExp(`href="#applications/app-${pkg}" data-search="[^"]+ @hackersandwizards/${pkg} "`),
   );
 });

@@ -1,3 +1,4 @@
+import { codeToHtml } from "shiki";
 import { expect, test } from "vitest";
 import theme from "../generated/code-theme.json";
 import { readFileSync } from "node:fs";
@@ -13,47 +14,31 @@ test("codeTokenClasses are exactly the token selectors of code.css", () => {
   expect(new Set(codeTokenClasses)).toEqual(new Set(selectors));
 });
 
-const themedToken = (color: string, fontStyle = 0) => {
-  const token: Parameters<typeof codeClasses.tokens>[0][number][number] = {
-    color,
-    fontStyle,
-    htmlAttrs: { style: `color:${color}` },
-  };
-  codeClasses.tokens([[token]]);
-  return token;
+const themedSpan = (color: string, fontStyle = 0) => {
+  const node = { properties: { style: `color:${color}` } as Record<string, unknown> };
+  codeClasses.span(node, 0, 0, node, { color, fontStyle });
+  return node.properties;
 };
 
 test("every colour of code-theme.json becomes a class, never an inline style", () => {
   const colours = new Set(theme.tokenColors.map((t) => t.settings.foreground.toUpperCase()));
   expect(colours.size).toBeGreaterThan(0);
-  for (const colour of colours) {
-    const { htmlAttrs, htmlStyle } = themedToken(colour);
-    expect({ style: htmlAttrs?.style, override: htmlStyle }).toEqual({
-      style: undefined,
-      override: {},
-    });
-  }
-  const keyword = themedToken("#B97AF1", 3);
-  expect({ attrs: keyword.htmlAttrs, override: keyword.htmlStyle }).toEqual({
-    attrs: { class: "hw-code-keyword hw-code-italic hw-code-bold" },
-    override: {},
+  for (const colour of colours) expect(themedSpan(colour)).not.toHaveProperty("style");
+  expect(themedSpan("#B97AF1", 3)).toEqual({
+    class: "hw-code-keyword hw-code-italic hw-code-bold",
   });
-  const foreground = themedToken(theme.colors["editor.foreground"]);
-  expect({ attrs: foreground.htmlAttrs, override: foreground.htmlStyle }).toEqual({
-    attrs: {},
-    override: {},
-  });
+  expect(themedSpan(theme.colors["editor.foreground"])).toEqual({});
 });
 
 test("codeTokenClasses are exactly the classes the transformer puts on a token", () => {
   const emitted = theme.tokenColors.flatMap((t) =>
-    String(themedToken(t.settings.foreground, 7).htmlAttrs?.class).split(" "),
+    String(themedSpan(t.settings.foreground, 7).class).split(" "),
   );
   expect(new Set(codeTokenClasses)).toEqual(new Set(emitted));
 });
 
 test("a colour outside the code palette fails instead of turning grey", () => {
-  expect(() => themedToken("#F97583")).toThrow("no code palette colour");
+  expect(() => themedSpan("#F97583")).toThrow("no code palette colour");
 });
 
 test("the block's class is set once, even where the theme's name already gave it", () => {
@@ -72,12 +57,29 @@ test("the terminal's 16 ANSI colours are core colours", () => {
 
 test("a terminal colour outside the roles keeps its inline style, a stray colour still fails", () => {
   const amber = theme.colors["terminal.ansiYellow"];
-  const { htmlAttrs, htmlStyle, color, fontStyle } = themedToken(amber, 1);
-  expect({ attrs: htmlAttrs, override: htmlStyle, color, fontStyle }).toEqual({
-    attrs: { style: `color:${amber}`, class: "hw-code-italic" },
-    override: undefined,
-    color: amber,
-    fontStyle: 1,
+  const token = { color: amber, fontStyle: 1 };
+  const node = { properties: { style: `color:${amber}` } };
+  codeClasses.span(node, 0, 0, node, token);
+  expect({ properties: node.properties, token }).toEqual({
+    properties: { style: `color:${amber}`, class: "hw-code-italic" },
+    token: { color: amber, fontStyle: 1 },
   });
-  expect(() => themedToken("#F97583")).toThrow("no code palette colour");
+  expect(() => themedSpan("#F97583")).toThrow("no code palette colour");
+});
+
+test("the span hook keeps an earlier transformer's class and clears its inline style", async () => {
+  const html = await codeToHtml("return", {
+    lang: "javascript",
+    theme: { ...theme, type: "dark" },
+    transformers: [
+      {
+        span(node) {
+          node.properties.class = ["earlier"];
+          node.properties.style = "font-weight:500";
+        },
+      },
+      codeClasses,
+    ],
+  });
+  expect(html).toContain('<span class="earlier hw-code-keyword">return</span>');
 });

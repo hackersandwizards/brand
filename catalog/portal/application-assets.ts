@@ -15,7 +15,6 @@ export const assetStems = (dir: string) => {
   return groupApplicationFiles(dir, ls.stdout.split("\0").filter(Boolean));
 };
 
-// Groups a directory's listed files into sorted variants for each displayable stem.
 export function groupApplicationFiles(dir: string, paths: readonly string[]) {
   const stems = new Map<string, ApplicationAsset>();
   for (const f of paths.map((p) => basename(p)).sort()) {
@@ -28,7 +27,6 @@ export function groupApplicationFiles(dir: string, paths: readonly string[]) {
   return stems;
 }
 
-// Renders one tracked application asset with its preferred preview and every downloadable variant.
 export const assetCard = ({ dir, stem, files }: ApplicationAsset, id: string) => {
   const ext = (f: string) => f.slice(f.lastIndexOf(".") + 1);
   const shown = PREVIEW.map((e) => files.find((f) => ext(f) === e)).find(Boolean);

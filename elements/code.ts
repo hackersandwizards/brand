@@ -9,8 +9,6 @@ type Node = { properties: Record<string, unknown> };
 type Token = {
   color?: string;
   fontStyle?: number;
-  htmlAttrs?: Record<string, string>;
-  htmlStyle?: Record<string, string>;
 };
 
 // The text colour takes no class: the block sets it.
@@ -49,7 +47,6 @@ function addClasses(properties: Record<string, unknown>, add: string[]) {
   properties.class = [...new Set([...have, ...add])].join(" ");
 }
 
-/** Recognises inherited, palette, and terminal colours before rendering. */
 function colorRole(color: string | undefined) {
   if (!color) return "fg";
   const hex = color.toLowerCase();
@@ -62,18 +59,14 @@ function colorRole(color: string | undefined) {
   throw new Error(`${color} is no code palette colour: highlight with code-theme.json`);
 }
 
-/** Writes palette and font classes and preserves ANSI rendering styles. */
-function decorateCodeToken(token: Token) {
+function decorateCodeSpan(properties: Node["properties"], token: Token) {
   const role = colorRole(token.color);
   const classes = STYLES.filter(([flag]) => (token.fontStyle ?? 0) & flag).map(([, s]) =>
     tokenClass(s),
   );
   if (role !== "fg" && role !== "ansi") classes.unshift(tokenClass(role));
-  if (classes.length) addClasses((token.htmlAttrs ??= {}), classes);
-  if (role === "ansi") return;
-  delete token.htmlAttrs?.style;
-  // An empty override keeps Shiki from deriving inline styles from the token's theme.
-  token.htmlStyle = {};
+  if (classes.length) addClasses(properties, classes);
+  if (role !== "ansi") delete properties.style;
 }
 
 /** The Shiki transformer: classes from the code palette, no inline style. */
@@ -83,7 +76,10 @@ export const codeClasses = {
     addClasses(node.properties, ["hw-code"]);
     delete node.properties.style;
   },
-  tokens(lines: Token[][]) {
-    for (const line of lines) for (const token of line) decorateCodeToken(token);
+  span(
+    node: Node,
+    ...[, , , token]: [line: number, column: number, lineElement: Node, token: Token]
+  ) {
+    decorateCodeSpan(node.properties, token);
   },
 };

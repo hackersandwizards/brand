@@ -1,4 +1,3 @@
-// Source stripping and off-token colour, radius, shadow and font extraction for a single file.
 import {
   fnColour,
   isTokenValue,
@@ -231,7 +230,6 @@ export const extractFunctionColours = (src: string): ColourLiteral[] => {
 /** Extracts candidate words with source offsets, reading only value strings inside `${...}`. */
 export const extractInterpolatedWords = (value: string, from: number) => {
   const words: { word: string; at: number }[] = [];
-  // An interpolation (${...}) adds only the strings it can take; its names are the code's.
   let read = value;
   for (let i = value.indexOf("${"); i >= 0;) {
     const x = expressionSlice(value, i + 1);
@@ -303,7 +301,6 @@ export const extractNamedColours = (src: string, ext: string): ColourLiteral[] =
     ...[...src.matchAll(COLOUR_AT)].flatMap((m) => colourPropertyWords(src, m, ext)),
     ...customPropertyWords(src, ext),
   ];
-  // A color-mix() inside a colour property is read once, by the position of each word.
   const seen = new Set<number>();
   const hits: ColourLiteral[] = [];
   for (const { word, at } of positioned) {
@@ -327,7 +324,6 @@ export const extractFontFamilies = (src: string) => {
   const fonts: string[] = [];
   for (const m of src.matchAll(FONT)) {
     const v = (m.slice(1).find((g) => g !== undefined) ?? "").trim();
-    // An @font-face naming one of brand's faces, a fallback face of tokens/fonts.css included.
     if (
       BRAND_FACE.test(v.replace(/["';\s]+$/, "")) &&
       src.lastIndexOf("@font-face", m.index) > src.lastIndexOf("}", m.index)
@@ -367,7 +363,6 @@ export const scanFonts = (src: string, ext: string) => [
 
 /** The counts of one file's source, plus the off-token colours and off-brand fonts it holds. */
 export const scanSource = (raw: string, ext: string) => {
-  // Radii and shadows first: a shadow's colour belongs to the shadow and counts there only.
   const style = scanStyleRadiiAndShadows(stripSource(raw, ext));
   const utility = scanUtilityRadiiAndShadows(style.src);
   const src = utility.src;

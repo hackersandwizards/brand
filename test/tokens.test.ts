@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { defined } from "@hackersandwizards/scaffolding/defined";
 import { assert, expect, test } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -16,7 +17,6 @@ import {
   mergeAdjacentRootRules,
   palettes,
   parseTokens,
-  pythonDict,
   pythonString,
   resolveColors,
   rgb,
@@ -135,13 +135,36 @@ test("the data formats carry expert.css's type steps, its aliases left out; the 
   expect<Record<string, string>>(generatedTokens).toEqual(json);
 });
 
-test("tokens.py writes the generated JSON dictionaries verbatim in Python format", () => {
-  const head =
-    "# Generated from tokens/tokens.css and expert/expert.css by scripts/tokens.ts. Edit the sources, never this file.";
-  const json = jsonTokens;
-  expect(readFileSync(join(ROOT, "generated/tokens.py"), "utf8")).toBe(
-    `${head}\nTOKENS = ${pythonDict(json)}\n\nCOLORS = ${pythonDict(jsonColors)}\n`,
+test("tokens.py holds the generated JSON dictionaries in order", () => {
+  const python = `
+import ast
+import json
+import sys
+
+assignments = ast.parse(sys.stdin.read()).body
+dictionaries = []
+for statement in assignments:
+    target, = statement.targets
+    entries = [
+        [ast.literal_eval(key), ast.literal_eval(value)]
+        for key, value in zip(statement.value.keys, statement.value.values)
+    ]
+    dictionaries.append([target.id, entries])
+print(json.dumps(dictionaries))
+`;
+  const source = readFileSync(join(ROOT, "generated/tokens.py"), "utf8");
+  expect(source.split("\n")[0]).toBe(
+    "# Generated from tokens/tokens.css and expert/expert.css by scripts/tokens.ts. Edit the sources, never this file.",
   );
+  const result = spawnSync("python3", ["-c", python], {
+    input: source,
+    encoding: "utf8",
+  });
+  expect(result.status, [result.error, result.stderr].join("\n")).toBe(0);
+  expect(JSON.parse(result.stdout)).toEqual([
+    ["TOKENS", Object.entries(jsonTokens)],
+    ["COLORS", Object.entries(jsonColors)],
+  ]);
 });
 
 test.each([
@@ -390,7 +413,6 @@ test("print.css imports fonts.css's fallback faces before any rule", () => {
   ).toBe(true);
 });
 
-// A surface serving the font files from its own path writes fonts.css's rules with its own urls.
 test("fontFaceRules gives fonts.css's rules, each url the base or the function's answer", () => {
   const screen = readFileSync(join(ROOT, "tokens/fonts.css"), "utf8");
   const rules = faceRules(screen).join("\n\n");

@@ -1,5 +1,3 @@
-// Brand colour palette, SVG tint ladder, CSS colour function evaluation, named colour resolution
-// and radius/shadow token classification.
 import { colors, tokens } from "../generated/tokens";
 
 export type TokenKind = "radius" | "shadow";
@@ -82,7 +80,6 @@ const NEUTRAL = /^(0|0px|none|inherit|initial|unset|revert|revert-layer)$/;
 const DYNAMIC_VALUE = /^(?:$|[a-z_][\w.]*$)|[${}]/;
 const BRACKET_KEY = /^[a-z_$][\w$.]*\[(["'`])([^"'`]*)\1\]$/;
 
-// A var() whose fallback is a literal or another such var(), at any depth, and theme().
 const VAR = /var\(--[\w-]+(, [^()]+)?\)/g;
 /** Recognises standalone variable references with literal or nested fallbacks. */
 const isPureVar = (v: string) => {

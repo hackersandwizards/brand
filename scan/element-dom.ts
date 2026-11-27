@@ -255,7 +255,6 @@ function readElementPair(
   rules: ElementStyleRules,
   tolerance: number,
 ) {
-  // Each side read while its focus target holds focus; the page's own focus back after the pair.
   const actual = readElementSide(el, rules, focus?.got);
   const reference = readElementSide(clone, rules, focus?.want);
   if (focus) {

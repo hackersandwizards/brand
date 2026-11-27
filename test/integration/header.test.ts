@@ -168,17 +168,25 @@ ${nav}</div></header>
       const header = browserDefined(document.querySelector(".hw-header"), "header");
       const probe = browserDefined(document.getElementById("probe"), "header height probe");
       const box = catalogs.getBoundingClientRect();
+      const links = [...catalogs.querySelectorAll(".hw-header-link")];
       return {
-        inView: [...document.querySelectorAll("[data-hw-catalogs] .hw-header-link")]
-          .map((a) => a.getBoundingClientRect())
-          .every(
-            (b) =>
-              b.left >= 0 && b.right <= innerWidth && b.top >= box.top && b.bottom <= box.bottom,
-          ),
+        count: links.length,
+        inView: links.every((link) => {
+          const b = link.getBoundingClientRect();
+          return (
+            getComputedStyle(link).visibility === "visible" &&
+            b.width > 0 &&
+            b.height > 0 &&
+            b.left >= 0 &&
+            b.right <= innerWidth &&
+            b.top >= box.top &&
+            b.bottom <= box.bottom
+          );
+        }),
         height: header.getBoundingClientRect().height,
         token: probe.getBoundingClientRect().height,
         bg: getComputedStyle(header).backgroundColor,
-        marked: [...document.querySelectorAll("[data-hw-catalogs] .hw-header-link")]
+        marked: links
           .filter((a) => getComputedStyle(a).fontWeight === "500")
           .map((a) => a.textContent),
       };
@@ -197,6 +205,7 @@ ${nav}</div></header>
     async ({ width, nested }) => {
       const r = await catalogPage(width, { nested });
       expect(r.inView).toBe(true);
+      expect(r.count).toBe(catalogs.length);
       expect(r.height).toBe(r.token);
     },
   );

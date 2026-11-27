@@ -1,7 +1,7 @@
 // `initListFilter`, the browser side of expert/components/ListFilter.astro, which a page without
 // Astro can run over the same markup.
 // One list filter per page: each reads and writes `?q=`.
-import { isActive, readState, stateUrl, type FilterState } from "./list-filter.ts";
+import { isActive, readState, stateUrl, type FilterState } from "./list-filter-state.ts";
 import { FilterForm } from "./list-filter-form.ts";
 import { FilterSource } from "./list-filter-source.ts";
 import { FilterView } from "./list-filter-view.ts";
@@ -49,7 +49,6 @@ function bindSearchShortcut(input: HTMLInputElement) {
  *  Escape returning focus to the toggle. A pick by pointer closes them too, so the rows show,
  *  the focus on the toggle; a pick by key keeps them open, the focus where it was. */
 function bindFacetDrawer(root: HTMLElement, panel: HTMLElement, toggle: HTMLButtonElement) {
-  // A pick by pointer, which folds the phone's facets; a pick by key keeps them open.
   let tapped = false;
   const open = (next: boolean) => {
     root.toggleAttribute("data-closed", !next);
@@ -181,6 +180,7 @@ class BrowserListFilter {
   private readonly view: FilterView;
   private readonly source: FilterSource;
   private readonly navigation: FilterHistory;
+  private loading?: Promise<void>;
 
   constructor(root: HTMLElement) {
     this.controls = new FilterForm(root);
@@ -195,7 +195,7 @@ class BrowserListFilter {
 
   /** Load and install the optional source page's rows, then refresh the filter. */
   private readonly load = () => {
-    this.source
+    this.loading ??= this.source
       .load(
         (rows) => this.view.install(rows),
         this.apply,
@@ -244,7 +244,6 @@ class BrowserListFilter {
  *  that page load on first use, and until they do the form's submit goes there. Once wired the
  *  root carries data-ready. */
 export function initListFilter(root: HTMLElement) {
-  // Wired once: a second call would stack every listener.
   if ("ready" in root.dataset) return;
   const { input, panel, toggle } = new BrowserListFilter(root).controls;
   bindSearchShortcut(input);

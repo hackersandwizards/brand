@@ -42,13 +42,10 @@ test.prop([fc.integer({ min: 0, max: 15 }), fc.boolean()], {
     [15, true],
   ],
 })("sets the italic, bold and underline bits with or without inline style", (fontStyle, styled) => {
-  const token: Parameters<typeof codeClasses.tokens>[0][number][number] = {
-    fontStyle,
-    htmlAttrs: styled ? { style: "color: black" } : {},
-  };
-  codeClasses.tokens([[token]]);
+  const node = { properties: styled ? { style: "color: black" } : {} };
+  codeClasses.span(node, 0, 0, node, { fontStyle });
   const flags = fontStyle.toString(2).padStart(3, "0").slice(-3).split("").reverse();
   const classes = ["italic", "bold", "underline"].filter((_, index) => flags[index] === "1");
   const attrs = classes.length ? { class: classes.map((name) => `hw-code-${name}`).join(" ") } : {};
-  expect({ attrs: token.htmlAttrs, override: token.htmlStyle }).toEqual({ attrs, override: {} });
+  expect(node.properties).toEqual(attrs);
 });

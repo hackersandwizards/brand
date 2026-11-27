@@ -80,7 +80,6 @@ ${themeToggle}
 </div>
 </header>`;
 
-// Assembles the document, the shared header, and the portal's inline scripts and styles.
 export const renderPortalDocument = (
   catalogPage: string,
   index: PortalSearchEntry[],
@@ -91,18 +90,7 @@ export const renderPortalDocument = (
 <head>
 <meta charset="utf-8">
 <script>
-{
-  let theme;
-  try {
-    theme = localStorage.getItem("theme");
-  } catch (error) {
-    if (!(error instanceof DOMException) || error.name !== "SecurityError") throw error;
-    // Blocked storage leaves the system colour scheme in effect.
-    theme = null;
-  }
-  if (theme === "dark" || (theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.dataset.theme = "dark";
-}
-</script>
+${readFileSync(join(ROOT, "tokens/theme-read.js"), "utf8")}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hackers&amp;wizards brand</title>
 <meta name="description" content="${esc(lead)}">

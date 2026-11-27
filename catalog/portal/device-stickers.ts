@@ -9,7 +9,6 @@ import { deferImages, scopeIds } from "./svg-mockups";
 
 // Device stickers: each device's SVG inline, all at one scale, with what goes where as its caption.
 const DEVICES = "applications/device-stickers";
-// Embeds device sticker drawings and indexes their placement captions.
 export function renderDeviceStickers(assets: PortalAssets): SearchableSection {
   const devices = stickerCaptions().map(({ file, title, lines }) => {
     const id = `device-stickers-${file}`;

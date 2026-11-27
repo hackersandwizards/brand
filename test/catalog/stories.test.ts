@@ -13,9 +13,6 @@ import { catalogPages } from "../../scan/site";
 import catalogs from "../../expert/catalogs.json";
 import { BASE, contrastMessageKey, DIST, page, serveSite } from "./site";
 
-// brand-elements over every element story, as a spoke's gate runs it over its catalog: each state
-// matches the element's rule, and every element shows on a story. The pages are the ones the
-// catalog key names.
 let browser: Browser;
 let server: ReturnType<typeof serveSite>;
 beforeAll(async () => {
@@ -27,7 +24,6 @@ afterAll(async () => {
   await server?.stop(true);
 });
 
-// An expert component's stories (expert/components, each in ExpertFrame.astro).
 test("the catalog includes expert component stories", () => {
   const expert = storyPages().filter(expertStory);
   expect(expert.length).toBeGreaterThan(0);
@@ -91,7 +87,6 @@ async function contrastFailures(url: string, css = "") {
   }
 }
 
-// A story in ExpertFrame.astro, which names its expert component in data-story-of.
 const expertStory = (url: string) =>
   page(`${decodeURIComponent(new URL(url).pathname).slice(BASE.length)}index.html`).includes(
     "data-story-of=",
@@ -99,9 +94,7 @@ const expertStory = (url: string) =>
 const storyPages = () =>
   catalogPages({ dir: join(DIST, "catalog"), at: `${server.url}${BASE.slice(1)}catalog` });
 
-// A scrolling table clips the cells at its edge and lays a gradient there, and axe reads the
-// contrast of neither: the pass fits every table into its column, whole and without the shadow,
-// and test/behaviour.test.ts measures each table text colour over the shadow at full strength.
+// Axe misses contrast on clipped cells and gradients, so this check fits the table without its edge shadow. test/integration/behaviour.test.ts checks contrast under the full shadow.
 const UNSCROLLED =
   ".hw-table-scroll { background: none !important; overflow: visible !important; } .hw-table-scroll .hw-table { width: 100%; table-layout: fixed; overflow-wrap: anywhere; }";
 
@@ -114,7 +107,6 @@ test(
   limit(300_000),
 );
 
-// The control: a one-digit count back at a lowered opacity, which both checks must report.
 test(
   "a faint choice count fails the contrast check and brand-elements",
   async () => {
@@ -251,7 +243,6 @@ test(
   limit(60_000),
 );
 
-// The catalog's header lists every catalog once, Catalog marked: "page" on the home, "true" below.
 test.each([
   ["catalog/index.html", "page"],
   ["catalog/dashboard/Actions/button/dense/index.html", "true"],

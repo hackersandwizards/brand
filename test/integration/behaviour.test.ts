@@ -13,11 +13,9 @@ import { createBrowserColorProbe } from "./color-probe";
 
 declare const browserDefined: typeof defined;
 
-// The keys, focus and placement elements/behaviour.ts gives, in a real browser.
 let browser: Browser;
 const dir = mkdtempSync(join(tmpdir(), "brand-behaviour-"));
 const brand = (f: string) => pathToFileURL(join(ROOT, f)).href;
-/** Bundles an elements/ script into dir/`out`, its exports on window as `global`. */
 const bundle = async (src: string, global: string, out: string) => {
   const entry = join(dir, `${out}.entry.ts`);
   writeFileSync(
@@ -653,7 +651,6 @@ const CAPTURE_TIMERS = `<script>{
   window.clearTimeout = (id) => window.timers.delete(id) || clear(id);
 }</script>`;
 type Timers = { timers: Map<number, [() => void, number]> };
-/** Fires every captured timer pending now, and returns their delays. */
 const fire = (p: Page) =>
   p.evaluate(() => {
     const { timers } = window as unknown as Timers;
@@ -869,8 +866,6 @@ test(
   limit(30_000),
 );
 
-// The clipboard as a page sees it: each text copies or fails after its own delay, the hidden
-// field's execCommand answers `exec`, and every hw-copy event is logged.
 const CLIPBOARD = () => {
   const w = window as unknown as {
     copied: string[];
@@ -1054,7 +1049,6 @@ test(
   limit(30_000),
 );
 
-/** A page with only copy.js and `head`, `script` running once it is parsed. */
 const copyPage = async (body: string, script: string, head = "") => {
   const p = await browser.newPage();
   const f = join(dir, `${Math.random().toString(36).slice(2)}.html`);

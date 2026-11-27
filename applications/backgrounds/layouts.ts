@@ -267,7 +267,6 @@ function layoutWall({ base, wallpaper: { file: f }, elements }: LayoutJob) {
   return wallPage(fileSize(f), bg, [glow, ...layers]);
 }
 
-// Read the base tones and optional set of layout IDs from the command line.
 export function parseLayoutArgs(args: string[]) {
   const opt = (key: string) => (args.includes(key) ? args[args.indexOf(key) + 1] : undefined);
   const base = opt("--base") as Base | undefined;

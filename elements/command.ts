@@ -1,4 +1,4 @@
-import { hasWords, searchWords } from "./list-filter.ts";
+import { hasWords, searchWords } from "./list-filter-state.ts";
 import { moveInList } from "./list-navigation.ts";
 
 // Command palette: focus stays in the field, the highlight moves over the visible options.

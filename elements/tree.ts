@@ -32,14 +32,12 @@ function treeOf(node: HTMLElement) {
 }
 type TreePosition = { node: HTMLElement; visible: HTMLElement[]; index: number };
 
-/** Expands a closed branch or moves to its next visible node. */
 function enterBranch({ node, visible, index }: TreePosition) {
   const expanded = node.getAttribute("aria-expanded");
   if (expanded === "false") node.setAttribute("aria-expanded", "true");
   if (expanded === "true") focusTreeIndex(visible, index + 1);
 }
 
-/** Collapses an open branch or moves to its visible parent. */
 function leaveBranch({ node, visible }: TreePosition) {
   if (node.getAttribute("aria-expanded") === "true") {
     node.setAttribute("aria-expanded", "false");
@@ -49,7 +47,6 @@ function leaveBranch({ node, visible }: TreePosition) {
   if (parent && visible.includes(parent)) focusNode(parent);
 }
 
-/** Follows the row's own link or activates the node. */
 function followTreeNode({ node }: TreePosition) {
   const link = node.querySelector<HTMLElement>(":scope > .hw-tree-row a");
   if (link) link.click();

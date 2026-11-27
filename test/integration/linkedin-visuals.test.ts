@@ -19,7 +19,6 @@ type Region = { left: number; top: number; width: number; height: number };
 
 const near = (a: number[], b: number[]) => a.reduce((d, c, i) => d + Math.abs(c - b[i]), 0) < 30;
 
-// Read RGB samples relative to the decoded image's channel count and row width.
 async function readFrame(file: string) {
   const { data, info } = await sharp(file).raw().toBuffer({ resolveWithObject: true });
   const pixel = ({ x, y }: Point) => {

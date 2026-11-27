@@ -44,11 +44,15 @@ describe("LinkedIn terminal specs", () => {
     expect(specFaults({ ...spec, highlight })).toEqual(["highlight is no index of a line"]);
   });
 
-  it("still checks the highlight against a malformed list's length", () => {
-    const input = JSON.parse(
-      '{"title":"T","note":"N","lines":"abcd","highlight":1}',
-    ) as typeof spec;
-    expect(specFaults(input)).toEqual(["lines is no list of four to six texts"]);
+  it.each([
+    { highlight: 1, faults: ["lines is no list of four to six texts"] },
+    {
+      highlight: 4,
+      faults: ["lines is no list of four to six texts", "highlight is no index of a line"],
+    },
+  ])("checks highlight $highlight against a malformed list's length", ({ highlight, faults }) => {
+    const input = JSON.parse('{"title":"T","note":"N","lines":"abcd"}') as typeof spec;
+    expect(specFaults({ ...input, highlight })).toEqual(faults);
   });
 
   it("lists every missing field in display order", () => {

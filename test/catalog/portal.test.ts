@@ -65,7 +65,6 @@ test("PageHeader draws no empty subtitle or action box", () => {
   ]);
 });
 
-// The portal sends a reader to the catalog for the expert components: each has its stories there.
 test("every expert component has its stories in the catalog, which the portal links", () => {
   const stories = join(DIST, "catalog/stories");
   const shown = new Set(readdirSync(stories).flatMap((group) => readdirSync(join(stories, group))));
@@ -90,7 +89,6 @@ test("catalogs.json's portal anchors lead to every element, every colour and eve
   // A link opens the view, then the id inside it: #<view>/<id>.
   const missing = [...colours, ...elements, ...palettes].filter((a) => {
     const [view, id] = a.slice(1).split("/");
-    // The view runs to the next view's opening tag.
     const [, body = ""] = html.split(new RegExp(`<section[^>]* data-page="${view}"`));
     return !defined(body.split(/<section[^>]* data-page="/)[0], "portal view body").includes(
       ` id="${id}"`,
@@ -122,7 +120,6 @@ test("the portal links every logo file the package ships, a master's cut or a de
   expect(shipped.filter((p) => !html.includes(`href="${p}" download`))).toEqual([]);
 });
 
-// The design guide: a colour swatch is square, never a scaled corner.
 test("the portal's colour swatches are square", () => {
   expect(
     defined(html.match(/\.swatch span \{[^}]*border-radius: ([^;]+);/), "swatch radius")[1],
@@ -146,7 +143,6 @@ test("every link and image of the portal resolves in dist/", () => {
     page(defined(m[1], "frame source")).replace('<base href="../">', ""),
   );
   expect(frames.length).toBeGreaterThan(30);
-  // A script's string literals are no links; its src stays checked.
   const refs = [html, ...frames]
     .map((h) => h.replace(/(<script\b[^>]*>)[^]*?(<\/script>)/g, "$1$2"))
     .flatMap((h) => [...h.matchAll(/\s(?:src|href|data-href)="([^"#]*)(?:#[^"]*)?"/g)])
@@ -282,7 +278,7 @@ test(
     await p.click("#theme-toggle");
     expect(await theme()).toEqual(["light", "false", "light"]);
     await p.reload();
-    expect(await theme()).toEqual([null, "false", "light"]);
+    expect(await theme()).toEqual(["light", "false", "light"]);
     await p.click("#theme-toggle");
     await p.reload();
     expect(await theme()).toEqual(["dark", "true", "dark"]);

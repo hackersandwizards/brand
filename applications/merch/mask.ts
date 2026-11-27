@@ -38,7 +38,6 @@ export const dilate = (mask: Mask, radius: number): Mask => ({
   data: Uint8Array.from(distances(mask), (d) => (d <= radius ** 2 ? 1 : 0)),
 });
 
-// Swap the inside and outside of a binary mask.
 const invertMask = (mask: Mask): Mask => ({
   ...mask,
   data: Uint8Array.from(mask.data, (x) => 1 - x),

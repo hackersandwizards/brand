@@ -181,7 +181,6 @@ const SCREEN_MOCKS: Record<Screen, (wall: string, tone: Tone) => ScreenMock> = {
   }),
 };
 
-// Select the mock that fits a device and its system screen.
 export function screenMock(screen: Screen, wall: string, tone: Tone) {
   return SCREEN_MOCKS[screen](fileUrl(wall), tone);
 }

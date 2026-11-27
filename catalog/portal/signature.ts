@@ -10,7 +10,6 @@ const SIGNATURE = "applications/mail-signature";
 const signatureTemplate = readFileSync(join(ROOT, SIGNATURE, "template.html"), "utf8");
 const signatureDocument = fillSignature(signatureTemplate, EXAMPLE, "html");
 
-// Shows the filled example signature and links the unfilled templates.
 export function renderSignature(assets: PortalAssets): SearchableSection {
   return {
     index: [
@@ -25,5 +24,4 @@ export function renderSignature(assets: PortalAssets): SearchableSection {
   };
 }
 
-// Frames the filled signature for its family tile.
 export const signaturePreview = (assets: PortalAssets) => assets.sampleFrame(signatureDocument);

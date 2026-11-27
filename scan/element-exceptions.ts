@@ -10,7 +10,7 @@ export const exceptionFindings = (config: Config, results: { exceptions: string[
   for (const [name, exception] of Object.entries(config.exceptions ?? {}))
     if (!reasonOf(exception)?.trim()) out.push(`${LIST}: exception "${name}" names no reason`);
   for (const name of new Set(results.flatMap((r) => r.exceptions)))
-    if (!(name in (config.exceptions ?? {})))
+    if (!Object.hasOwn(config.exceptions ?? {}, name))
       out.push(
         `${name}: a [data-hw-exception="${name}"] on a page, but ${LIST} declares no such exception`,
       );

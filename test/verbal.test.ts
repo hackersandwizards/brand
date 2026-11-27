@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import verbal from "../verbal/verbal.json";
 
-// The claim's highlight word stands in the claim in each language, so a surface can find it.
 test("the claim carries its word in both languages", () => {
   for (const lang of ["en", "de"] as const)
     expect(verbal.claim[lang].split(/\W+/u)).toContain(verbal.claim.word[lang]);

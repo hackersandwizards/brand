@@ -9,9 +9,7 @@ import type { PortalAssets } from "./assets";
 import { code, esc } from "./markup";
 import type { PortalSearchEntry, SearchableSection } from "./search";
 
-// The shared elements: each file's own words (the first sentence of its comment and its settings), then its
-// sample live in a matrix of the four scales by light and night. Every cell loads the same file;
-// only the data-hw-scale on the cell changes.
+// Each demo cell sets its own scale and theme while sharing the element stylesheet. The portal takes descriptions and settings from the stylesheet's opening comment.
 const ELEMENT_ORDER = SECTIONS.flatMap(([section, els]) =>
   els.map(([name, title, file]) => ({ section, name, title, file })),
 );
@@ -46,7 +44,6 @@ const uniqueIds = (html: string, suffix: string) => {
   );
 };
 const CLASS: Record<string, string> = { "focus-ring": ".hw-focus-ring", link: ".hw-link" };
-// Search words for what an element holds beyond its name.
 const KEYWORDS: Record<string, string> = {
   field:
     "select dropdown hw-select textarea form-input readonly read-only file upload date combobox datalist autocomplete size small large password toggle",
@@ -75,7 +72,6 @@ const KEYWORDS: Record<string, string> = {
   tree: "hierarchy folders treeitem",
   carousel: "slider swipe scroller",
 };
-// Renders a shared element at all four scales and indexes its title, CSS file and keywords.
 const elementHtml = ({
   name,
   title,
@@ -126,7 +122,6 @@ ${FORMS}
 enhanceForms();
 </script>`;
 
-// Builds the shared-element matrix and the lazy previews that lead to it.
 export function renderElements(assets: PortalAssets): SearchableSection & { group: CatalogGroup } {
   const sections = SECTIONS.map(([section, els]) => ({
     section,

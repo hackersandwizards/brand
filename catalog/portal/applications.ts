@@ -14,6 +14,7 @@ type Family = {
   title: string;
   note: string;
   dir?: string;
+  packageName?: string;
   // Pages elsewhere that show the family, as [label, href]: an engine's published catalog and
   // its repository on GitHub.
   links?: [string, string][];
@@ -95,6 +96,7 @@ const FAMILY_DESCRIPTIONS: Family[] = [
   },
   {
     id: "documents",
+    packageName: "@hackersandwizards/documents",
     title: "Documents",
     note: "Proposals, rate cards, Leistungsnachweise, certificates and handouts come from the document engine, the package @hackersandwizards/documents, rendered by Company OS and the trainer hub. Its catalog shows every document type with invented data.",
     links: [
@@ -104,6 +106,7 @@ const FAMILY_DESCRIPTIONS: Family[] = [
   },
   {
     id: "mail",
+    packageName: "@hackersandwizards/mail",
     title: "Mail",
     note: "Designed mails, such as the monthly customer update, come from the mail engine, the package @hackersandwizards/mail: React Email components on the brand tokens and a command that renders a mail's HTML and plain-text parts from a data file, used by Company OS. Its catalog shows every building block and every mail type with invented data. A personal mail carries the signature above.",
     links: [
@@ -121,7 +124,6 @@ type FamilyWithAssets = (typeof FAMILIES)[number];
 const fileCount = (family: FamilyWithAssets) =>
   [...family.stems.values()].reduce((count, asset) => count + asset.files.length, 0);
 
-// Links an asset's variants and registers its stem and filenames for search.
 function renderApplicationCard(asset: ApplicationAsset, family: Family) {
   const id = slug(`${family.id}-${asset.stem}`);
   return {
@@ -135,7 +137,6 @@ function renderApplicationCard(asset: ApplicationAsset, family: Family) {
   };
 }
 
-// Presents a file-based family's tracked variants and their search entries.
 function renderAssetCards(family: FamilyWithAssets): SearchableSection {
   if (!family.dir) return { html: "", index: [] };
   const cards = [...family.stems.values()].map((asset) => renderApplicationCard(asset, family));
@@ -145,7 +146,6 @@ function renderAssetCards(family: FamilyWithAssets): SearchableSection {
   };
 }
 
-// Adds a family's heading, links and file location to its body.
 function familyHtml(f: Family, body: string) {
   const links = f.links
     ? `<p class="dl">${f.links.map(([label, href]) => `<a href="${esc(href)}">${esc(label)}</a>`).join("")}</p>`
@@ -153,7 +153,6 @@ function familyHtml(f: Family, body: string) {
   return `<h3 id="app-${f.id}">${esc(f.title)}</h3><p>${esc(f.note)}</p>${links}${f.dir ? `<p class="meta">${esc(f.dir)}</p>${body}` : ""}`;
 }
 
-// Renders the applications view from tracked files and the bespoke family displays.
 export function renderApplications(assets: PortalAssets): SearchableSection {
   // A family that draws its own section instead of one card per file.
   // Search lists these sections first, then the tracked-file cards in family order.
@@ -195,13 +194,12 @@ const familyPreview = (f: FamilyWithAssets, assets: PortalAssets) => {
       : "";
 };
 
-// Lists the application families with a preview and their tracked file counts.
 export const applicationsGroup = (assets: PortalAssets): CatalogGroup => ({
   name: "Applications",
   items: FAMILIES.map((f) => ({
     name: f.title,
     href: `#applications/app-${f.id}`,
-    note: f.dir ?? "@hackersandwizards/documents",
+    note: f.dir ?? f.packageName,
     pill: f.dir ? `${fileCount(f)} files` : undefined,
     html: familyPreview(f, assets),
   })),

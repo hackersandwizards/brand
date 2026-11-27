@@ -438,3 +438,25 @@ test("owned style properties keep multiword selectors and part declaration order
     card: { own: ["padding-left"], parts: [] },
   });
 });
+
+test("an exception named constructor must be explicitly declared", () => {
+  const results = [{ exceptions: ["constructor"] }];
+  expect(exceptionFindings({ pages: [] }, results)).toEqual([
+    'constructor: a [data-hw-exception="constructor"] on a page, but brand-elements.json declares no such exception',
+  ]);
+  expect(
+    exceptionFindings({ pages: [], exceptions: { constructor: "A reason" } }, results),
+  ).toEqual([]);
+});
+
+test.each([
+  { selector: ".card.badge", name: "badge" },
+  { selector: ".card-badge", name: "card-badge" },
+])("checks the badge's owned property in $selector", ({ selector, name }) => {
+  const file = "src/a.css";
+  const read = () => `${selector} { color: red }`;
+  expect(sourceFindings([file], read, {})).toEqual([
+    `${file}: ${selector} styles an element named like a shared one; use the hw-* element or list "${name}" as an exception`,
+  ]);
+  expect(sourceFindings([file], read, { [name]: "A reason" })).toEqual([]);
+});

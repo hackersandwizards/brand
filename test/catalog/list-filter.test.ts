@@ -79,7 +79,6 @@ test(
     expect(await text(p, "[data-filter-count]")).toBe("4 von 4 Einheiten");
     await p.type('input[name="q"]', "context");
     expect(await showing(p, ["Context Engineering"])).toEqual(["Context Engineering"]);
-    // The counts follow the search: Werkzeuge holds the one match.
     expect({
       count: await text(p, "[data-filter-count]"),
       q: new URL(p.url()).searchParams.get("q"),
@@ -447,6 +446,44 @@ test(
 );
 
 test(
+  "malformed source facets are reported once and the search navigates to the source",
+  async () => {
+    const p = await tab();
+    const errors: string[] = [];
+    p.on("pageerror", (error) => errors.push(String(error)));
+    try {
+      await p.evaluateOnNewDocument(() => {
+        Object.assign(window, {
+          fetch: () =>
+            new Promise<Response>((resolve) => {
+              Object.assign(window, {
+                finishSource: () =>
+                  resolve(
+                    new Response(
+                      '<ul data-filter-list><li data-filter-item data-filter-facets="{">Row</li></ul>',
+                    ),
+                  ),
+              });
+            }),
+        });
+      });
+      await p.goto(story("source"));
+      await p.type('input[name="q"]', "context");
+      await p.waitForFunction(() => new URLSearchParams(location.search).get("q") === "context");
+      const arrived = p.waitForNavigation({ timeout: limit(3000) });
+      await after(p, () => (window as unknown as { finishSource(): void }).finishSource());
+      await arrived;
+      expect(new URL(p.url()).pathname.endsWith("/list-filter/dense/")).toBe(true);
+      expect(new URL(p.url()).searchParams.get("q")).toBe("context");
+      expect(errors.map((error) => error.split(":")[0])).toEqual(["SyntaxError"]);
+    } finally {
+      await p.close();
+    }
+  },
+  limit(30_000),
+);
+
+test(
   "a source page's relative links and images resolve against that page",
   async () => {
     const p = await tab();
@@ -538,7 +575,6 @@ test(
       await p.tap('label.hw-choice:has(input[value="tools"])');
       expect(await text(p, toggle)).toBe("Werkzeuge");
       expect(await p.$eval(toggle, (e) => e.hasAttribute("data-variant"))).toBe(false);
-      // The way back shows while the rows load.
       expect(await p.$eval("form [data-filter-clear]", (e) => (e as HTMLElement).hidden)).toBe(
         false,
       );
@@ -673,7 +709,6 @@ test(
     expect(await p.$("[data-filter-toggle]")).toBeNull();
     await p.type('input[name="q"]', "agenten");
     expect(await showing(p, ["Agenten im Team"])).toEqual(["Agenten im Team"]);
-    // Control: the screen story on a phone has its Filters button.
     await p.goto(story("screen"), { waitUntil: "networkidle0" });
     expect(await p.$("[data-filter-toggle]")).not.toBeNull();
     await p.close();
@@ -732,7 +767,6 @@ test(
   limit(60_000),
 );
 
-// Control: a pick by arrow key keeps them open.
 test(
   "on a phone an arrow key keeps the facets open and both labels fit the button's row",
   async () => {
@@ -770,7 +804,6 @@ test(
   limit(60_000),
 );
 
-// A shared link names its chosen values.
 test(
   "on a phone the Filters button names the facet in a shared link",
   async () => {
@@ -856,29 +889,42 @@ test.each([
   "the %s count line reads %j before the script runs",
   async (name, first) => {
     const p = await tab();
-    // The module waits until the first frame's count line is read.
-    const { promise: held, resolve: release } = Promise.withResolvers<void>();
-    const scripts = await p.createCDPSession();
-    await scripts.send("Fetch.enable", {
-      patterns: [{ urlPattern: "*ListFilter.astro_astro_type_script*" }],
-    });
-    scripts.on("Fetch.requestPaused", ({ requestId }) => {
-      held.then(() => scripts.send("Fetch.continueRequest", { requestId })).catch(reportError);
-    });
-    // A module script holds DOMContentLoaded, so the page is read while it loads.
-    const loaded = p.goto(story(name));
-    await p.waitForSelector("[data-filter-count]");
-    const seen = await p.evaluate(async () => {
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      return window.requireFilterValue(
-        document.querySelector("[data-filter-count]"),
-        "filter count",
-      ).textContent;
-    });
-    release();
-    await loaded;
-    expect(seen).toBe(first);
-    await p.close();
+    try {
+      const paused = Promise.withResolvers<string>();
+      const scripts = await p.createCDPSession();
+      await scripts.send("Fetch.enable", {
+        patterns: [{ urlPattern: "*ListFilter.astro_astro_type_script*" }],
+      });
+      scripts.once("Fetch.requestPaused", ({ requestId }) => paused.resolve(requestId));
+      // A module script holds DOMContentLoaded, so the page is read while it loads.
+      const loaded = p.goto(story(name));
+      const requestId = defined(
+        await Promise.race([paused.promise, loaded.then(() => undefined)]),
+        "the ListFilter bundle must pause before navigation completes",
+      );
+      try {
+        await p.waitForSelector("[data-filter-count]");
+        const seen = await p.evaluate(async () => {
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+          return {
+            count: window.requireFilterValue(
+              document.querySelector("[data-filter-count]"),
+              "filter count",
+            ).textContent,
+            ready: document.querySelector("[data-list-filter]")?.hasAttribute("data-ready"),
+          };
+        });
+        expect(seen).toEqual({ count: first, ready: false });
+      } finally {
+        await scripts.send("Fetch.continueRequest", { requestId });
+      }
+      await loaded;
+      expect(await p.$eval("[data-list-filter]", (root) => root.hasAttribute("data-ready"))).toBe(
+        true,
+      );
+    } finally {
+      await p.close();
+    }
   },
   limit(60_000),
 );

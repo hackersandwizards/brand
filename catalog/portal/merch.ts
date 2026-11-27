@@ -96,7 +96,6 @@ const PRODUCTS: [Product, ...Product[]] = [
   },
 ];
 
-// Draws each product with its print dimensions and links to the tracked print variants.
 export function renderMerch(merchFiles: ReadonlyMap<string, ApplicationAsset>): SearchableSection {
   const products = PRODUCTS.map((p) => {
     const id = `merch-${slug(p.name)}`;

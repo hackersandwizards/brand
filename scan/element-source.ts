@@ -26,12 +26,12 @@ const WORD: Record<string, string> = {
 // What a component named for an element renders to pass, where more than its hw-* class: a button
 // may be the icon button.
 const RENDERS: Record<string, string> = { button: "(?<![\\w-])hw-(icon-)?button(?![\\w-])" };
-const NAMED = new RegExp(`(^|-)(${Object.keys(WORD).join("|")})s?($|-)`);
 const NAMED_ALL = new RegExp(`(?<=^|-)(${Object.keys(WORD).join("|")})s?(?=$|-)`, "g");
 /** A name in kebab case, so ProjectCard and projectCard read as project-card. */
 export const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-/** The element a class is named like. */
-const namedAs = (cls: string) => WORD[NAMED.exec(kebab(cls))?.[2] ?? ""];
+/** The shared elements a class or component name refers to. */
+const namedElements = (name: string) =>
+  [...kebab(name).matchAll(NAMED_ALL)].map(([, word]) => WORD[word]);
 const STYLED = new Set([".css", ".scss", ".astro", ".vue", ".svelte", ".html"]);
 
 /** The CSS of a source file: the file itself, or its style blocks, those the documents engine wrote
@@ -64,7 +64,7 @@ function componentFinding(path: string, raw: string, allow: Record<string, Excep
   const name = kebab(basename(path, ext));
   if (name in allow) return;
   // Each element the name names, such as callout and card in note-card; rendering one passes.
-  const elements = [...name.matchAll(NAMED_ALL)].map(([, word]) => WORD[word]);
+  const elements = namedElements(name);
   if (!elements.length) return;
   if (elements.some((e) => new RegExp(RENDERS[e] ?? `(?<![\\w-])hw-${e}(?![\\w-])`).test(raw)))
     return;
@@ -79,10 +79,11 @@ function stylingFork(selector: string, props: string[], allow: Record<string, Ex
   // A compound with an hw-* class is the element itself; any other class named like one forks it.
   const classes = subjects(selector);
   if (classes.some((c) => c.startsWith("hw-"))) return;
-  const cls = classes.find(namedAs);
-  if (!cls || cls in allow) return;
-  const element = namedAs(cls);
-  return props.some((prop) => setsOwned(element, prop)) ? cls : undefined;
+  return classes.find(
+    (cls) =>
+      !Object.hasOwn(allow, cls) &&
+      namedElements(cls).some((element) => props.some((prop) => setsOwned(element, prop))),
+  );
 }
 
 /** Findings in a stylesheet, including the style blocks of a component or document. */

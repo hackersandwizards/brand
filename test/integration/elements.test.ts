@@ -45,7 +45,6 @@ ${["screen", "dense", "print", "stage"]
 <div data-hw-exception="total-band"><table class="hw-table"><tr><td>Sum</td></tr></table></div>
 </body></html>`;
 
-/** A page holding only `body`, on the tokens, the elements and any further brand `sheets`. */
 const only = (body: string, bodyClass = "", sheets: string[] = []) =>
   `<!doctype html><html><head>${["generated/tokens.root.css", "elements/elements.css", ...sheets].map((f) => `<link rel="stylesheet" href="${brand(f)}">`).join("")}</head><body class="${bodyClass}">${body}</body></html>`;
 
@@ -1039,7 +1038,6 @@ const fieldRow = (id: string) =>
   `<div class="hw-field-row"><input class="hw-field" id="${id}-in" aria-invalid="true"><button class="hw-button" id="${id}-btn" type="submit">Prüfen</button></div>`;
 const fieldWithError = `<div class="hw-form-field">${fieldRow("ff")}<p class="hw-form-error" id="ff-err">Gebt eine ID ein.</p></div>`;
 
-/** Bounding edges for the field fixture at one viewport width. */
 async function fieldEdges(width: number, fixture: { name: string; body: string; ids: string[] }) {
   const tab = await browser.newPage();
   await tab.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
@@ -1215,7 +1213,6 @@ test(
     );
     expect(hidden.findings).toEqual([]);
     expect(hidden.seen).toEqual(["label"]);
-    // Control: the same cards shown are measured, and the drift is red.
     const shown = await measurePage(
       browser,
       targetFile(

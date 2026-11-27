@@ -3,7 +3,6 @@ import { decodeEscaped } from "../../scan/help";
 export type PortalSearchEntry = { t: string; k: string; h: string; x?: string };
 export type SearchableSection = { html: string; index: PortalSearchEntry[] };
 
-// Embeds the search index and the browser program that opens and filters the views.
 export const searchScript = (index: PortalSearchEntry[]) => `<script>
 const decodeHash = ${decodeEscaped.toString()};
 const INDEX = ${JSON.stringify(index).replace(/</g, "\\u003c")};
@@ -25,8 +24,7 @@ const show = () => {
   if (el) { el.scrollIntoView({ block: "start" }); if (view) { el.style.outline = "3px solid var(--color-purple)"; el.style.outlineOffset = "3px"; setTimeout(() => (el.style.outline = ""), 2000); } }
   else scrollTo(0, 0);
 };
-// The search filters the tiles (renderCatalog) and lists every token, colour, logo, file and photo
-// it hits that no shown tile already leads to.
+// Omit index entries whose destinations already appear among the matching tiles.
 const search = () => {
   const w = words();
   const hit = (s) => w.every((x) => s.toLowerCase().includes(x));

@@ -4,7 +4,7 @@ import {
   tally,
   type FilterItem,
   type FilterState,
-} from "./list-filter.ts";
+} from "./list-filter-state.ts";
 
 /** Each facet's values in the form's order: a fieldset of radios sharing its name, or a select. */
 function facetOptions(form: HTMLFormElement) {

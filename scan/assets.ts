@@ -1,5 +1,3 @@
-// Brand asset inventory, Git LFS pointer parsing, content hashing and byte-copy matching shared by
-// the brand-colours and brand-copies scans and the repository's own asset checks.
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";

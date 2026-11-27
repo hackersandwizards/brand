@@ -1,7 +1,8 @@
 import { rejection } from "@hackersandwizards/scaffolding/rejection";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, assert, beforeAll, expect, test } from "vitest";
-import { readdirSync } from "node:fs";
+import { runInNewContext } from "node:vm";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { getViteConfig } from "astro/config";
 import { experimental_AstroContainer } from "astro/container";
@@ -172,7 +173,6 @@ test(
     const chosen: string = await render("a");
     expect(chosen).toContain('aria-label="Filters: Alpha"');
     expect(chosen).toMatch(/data-filter-label[^>]*>Alpha</);
-    // Control: nothing chosen, the button says Filters.
     expect(await render("")).toMatch(/data-filter-label[^>]*>Filters</);
   },
   limit(30_000),
@@ -205,7 +205,6 @@ test(
       expect(html).toContain('data-tone="warning"');
       expect(html).not.toContain("--hw-pill-hue");
     }
-    // Control: the error role keeps its hue.
     expect(await render("bg-error/15 text-error")).toContain("--hw-pill-hue: var(--error,");
   },
   limit(30_000),
@@ -229,4 +228,54 @@ test("a Brand tile without a portal names its missing catalog setting", async ()
   } finally {
     brand.portal = portal;
   }
+});
+
+const unexpectedStorageError = new TypeError("unexpected storage failure");
+
+test.each([
+  { error: new DOMException("blocked", "SecurityError"), thrown: undefined },
+  { error: new DOMException("full", "QuotaExceededError"), thrown: undefined },
+  { error: unexpectedStorageError, thrown: unexpectedStorageError },
+])("the theme toggle flips when storage throws $error.name", ({ error, thrown }) => {
+  const component = readFileSync(join(ROOT, "expert/components/ThemeToggle.astro"), "utf8");
+  const script = component.split("<script>")[1]?.split("</script>")[0];
+  assert(script, "ThemeToggle script missing");
+  const attrs = new Map([["data-theme", "light"]]);
+  let click: (() => void) | undefined;
+  const toggle = {
+    dataset: {},
+    setAttribute() {},
+    addEventListener(_event: string, listener: () => void) {
+      click = listener;
+    },
+  };
+  runInNewContext(new Bun.Transpiler({ loader: "ts" }).transformSync(script), {
+    DOMException,
+    document: {
+      documentElement: {
+        getAttribute: (name: string) => attrs.get(name),
+        setAttribute: (name: string, value: string) => attrs.set(name, value),
+        classList: new Set<string>(),
+      },
+      querySelectorAll: () => [toggle],
+    },
+    MutationObserver: class {
+      observe() {}
+    },
+    requestAnimationFrame() {},
+    localStorage: {
+      setItem() {
+        throw error;
+      },
+    },
+  });
+  assert(click, "ThemeToggle click handler missing");
+  let caught: unknown;
+  try {
+    click();
+  } catch (error) {
+    caught = error;
+  }
+  expect(caught).toBe(thrown);
+  expect(attrs.get("data-theme")).toBe("dark");
 });

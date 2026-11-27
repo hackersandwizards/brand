@@ -32,7 +32,6 @@ const formats = new Map([
   ["text", { encode: plain, finish: (value: string) => `${value.trim()}\n` }],
 ]);
 
-// Normalize contact fields before substituting any template value.
 export function signatureValues(fields: SignatureFields): Record<string, string> {
   const linkedin = fields.linkedin?.trim() ?? "";
   // The value lands in an href: any other scheme (javascript:, data:) would run or load in the mail.

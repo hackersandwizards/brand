@@ -24,7 +24,6 @@ function onMenuKey(e: KeyboardEvent, menu: HTMLElement) {
     return;
   }
   const items = menuItems(menu);
-  // A menu whose every item is disabled has nowhere to move.
   if (!items.length) return;
   const now = items.indexOf(document.activeElement as HTMLElement);
   let next = moveInList(items, e.key, now);
@@ -73,7 +72,6 @@ export function closeMenuOnItemClick(target: HTMLElement) {
   target.closest('.hw-menu [role^="menuitem"]')?.closest<HTMLElement>("[popover]")?.hidePopover();
 }
 
-/** Consumes the opening focus direction when a menu becomes visible. */
 function focusInitialMenuItem(menu: HTMLElement) {
   const items = menuItems(menu);
   (firstFocus.get(menu) === "last" ? items.at(-1) : items[0])?.focus();

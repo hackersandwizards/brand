@@ -1,6 +1,6 @@
 import { rejection } from "@hackersandwizards/scaffolding/rejection";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { connectCdp, parseCdpMessage } from "../applications/backgrounds/cdp";
+import { CdpSocketClosed, connectCdp, parseCdpMessage } from "../applications/backgrounds/cdp";
 
 test.each([
   {
@@ -34,18 +34,21 @@ test.each([
   expect(parseCdpMessage(JSON.stringify(wire))).toEqual(parsed);
 });
 
+const { OPEN, CLOSED } = WebSocket;
+
 class FakeSocket extends EventTarget {
   sent: string[] = [];
+  readyState: number = OPEN;
 
   send(message: string) {
     this.sent.push(message);
   }
 
   close() {
+    this.readyState = CLOSED;
     this.dispatchEvent(new Event("close"));
   }
 
-  // Deliver a wire message as the browser socket would.
   deliver(message: object) {
     this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify(message) }));
   }
@@ -54,9 +57,15 @@ class FakeSocket extends EventTarget {
 // Keep connection opening under the test's control.
 function socketFixture() {
   const socket = new FakeSocket();
-  vi.stubGlobal("WebSocket", function () {
-    return socket;
-  });
+  vi.stubGlobal(
+    "WebSocket",
+    Object.assign(
+      function () {
+        return socket;
+      },
+      { OPEN },
+    ),
+  );
   return { socket, connected: connectCdp("ws://127.0.0.1:9222/devtools/browser/fixture") };
 }
 
@@ -122,6 +131,28 @@ describe("DevTools socket", () => {
     socket.deliver({ method: "Page.loadEventFired", sessionId: "page-a" });
     await ready;
     expect(observed).toHaveBeenCalledOnce();
+  });
+
+  test("rejects pending and future commands and event waits on disconnect", async () => {
+    const { socket, connected } = socketFixture();
+    socket.dispatchEvent(new Event("open"));
+    const cdp = await connected;
+    const rejected = (promise: Promise<unknown>) => promise.catch((error: unknown) => error);
+    const loaded = rejected(cdp.once("Page.loadEventFired", "page-a"));
+    const navigation = cdp.send("Page.navigate", {}, "page-a");
+    socket.deliver({ id: 1, result: {} });
+    await navigation;
+    const command = rejected(cdp.send("Page.captureScreenshot", {}, "page-a"));
+    socket.close();
+    expect(await command).toBeInstanceOf(CdpSocketClosed);
+    expect(await Promise.race([loaded, Promise.resolve("pending")])).toBeInstanceOf(
+      CdpSocketClosed,
+    );
+    expect(await rejected(cdp.send("Page.enable"))).toBeInstanceOf(CdpSocketClosed);
+    expect(await rejected(cdp.once("Page.loadEventFired", "page-a"))).toBeInstanceOf(
+      CdpSocketClosed,
+    );
+    expect(socket.sent).toHaveLength(2);
   });
 
   test("rejects outstanding commands when the socket closes", async () => {

@@ -1,13 +1,4 @@
 #!/usr/bin/env bun
-// The copy check a consumer runs in its own gate, over its working tree from the current directory
-// down (tracked and untracked files, .gitignore honoured, brand-colours' built-in exceptions
-// applied). A brand file belongs in node_modules/@hackersandwizards/brand, never in the consumer:
-// exits 1 on a file byte-identical to a file this package ships (through a Git LFS pointer too),
-// on a modified copy of a brand logo (a file named like one of logos/, or a text file carrying a
-// logo's path data, written out or in a base64 or percent-encoded data: URI), unless brand-copies.json lists it ({ "<path>": "<reason>" }), on an entry
-// without a reason, on an entry whose file is no copy (stale), and on an entry added against HEAD: the list may only shrink. Where the working
-// tree changes the brand pin package.json holds at HEAD, an entry may also name a file committed
-// at HEAD and unchanged since, which a newer scanner finds.
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import {

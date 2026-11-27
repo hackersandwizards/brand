@@ -1,30 +1,4 @@
 #!/usr/bin/env bun
-// The brand colour scan a consumer runs in its own gate, over its working tree from the current
-// directory down (tracked and untracked files, .gitignore honoured). Counts per file: colour
-// literals off the token set, as hex or a CSS colour name in a colour property (a JSX or Astro
-// expression prop's strings included), SVG colour attribute, color-mix(), Tailwind arbitrary value
-// or a custom property set to that name alone (`hex`), or as a colour function, rgb() and hsl()
-// through oklch(), lab(), hwb() and color() (`rgb`), an interpolation's names (${...}) never
-// read as one, colour literals repeating a token value instead of naming it, white and black included
-// (`tokenHex`), font stacks that do not open on a brand family, in font-family, the font
-// shorthand, an SVG attribute or a style key, and Tailwind's font-serif (`font`), Tailwind default
-// palette classes (`palette`), radii (`radius`)
-// and box shadows (`shadow`) whose value is no brand token, vendor-prefixed ones included,
-// Tailwind's default radius and shadow classes with a size included (bare `rounded` and `shadow`
-// match prose, so they are not read). Compares the counts with the consumer's brand-colours.json
-// and exits 1 on any count above or below its entry (an allowance above the count would let a new
-// finding there pass), any unlisted file with a count, an entry without a reason, an entry on a
-// file with no count (stale, so an old allowance cannot hide a new finding there), or an entry
-// that grew against HEAD: the allowlist may only shrink. An entry may grow, a new file's included,
-// where the allowlist's total for that metric does not grow against HEAD, so a value moved from one
-// file to another moves its entry in the same commit. Where the working tree changes the brand
-// pin package.json holds at HEAD, an entry may also grow to what this scanner finds in the file as
-// committed at HEAD, so a pin raise lists a newer scanner's findings in the same commit while
-// anything the consumer's own new code adds still fails. An entry on an SVG naming a `partner`, the
-// third party whose mark it is (a conference's or a client's logo), keeps that file out of the
-// counts with its reason, and may be added in any commit: its colours are its owner's. Prints every
-// built-in exception it applied with the number of files it skipped, and every partner mark it
-// allowed.
 import { readFileSync } from "node:fs";
 import { extname } from "node:path";
 import {
@@ -89,7 +63,6 @@ export const countViolations = (files: Record<string, Counts>, allow: Allowlist)
     for (const k of METRICS) {
       const allowed = entry?.[k] ?? 0;
       if (counts[k] > allowed) out.push(`${file}: ${k} ${counts[k]}, allowed ${allowed}`);
-      // An allowance above the count would let a new finding there pass unseen.
       else if (counts[k] < allowed)
         out.push(
           `${ALLOWLIST}: ${file}: ${k} ${counts[k]}, allowed ${allowed}; lower it (brand-colours --tighten)`,
@@ -108,7 +81,6 @@ export const entryViolations = (
   const out: string[] = [];
   const partner = isPartner(file, entry);
   if (!entry.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
-  // An entry left on a clean file would let a new finding there pass unseen.
   if (!partner && METRICS.every((k) => !counts?.[k]))
     out.push(`${ALLOWLIST}: ${file} is clean; drop its entry (brand-colours --tighten)`);
   if (entry.partner !== undefined && !partner)
@@ -268,7 +240,6 @@ if (import.meta.main) {
         METRICS.some((k) => counts[k] > (committed[file]?.[k] ?? 0)) && committedCounts(file);
       if (c) ceiling[file] = c;
     }
-  // Writes a tightened list and says so; a list that allows nothing is no file where none was.
   if (process.argv.includes("--tighten")) {
     const wrote = writeAllowlist(ALLOWLIST, tighten(files, allow, ceiling));
     console.log(

@@ -1,7 +1,7 @@
 import { defined } from "@hackersandwizards/scaffolding/defined";
 import { limit } from "@hackersandwizards/scaffolding/test-timeout";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -15,7 +15,7 @@ import { installMarkerDom } from "../../scan/marker-dom";
 import { hasMarkers } from "../../scan/marker-page";
 import type { Reading } from "../../scan/marker-readings";
 import { failing, measureMarkers } from "../../scan/markers";
-import { catalogPages, serve, toUrl } from "../../scan/site";
+import { catalogPages, fileIn, serve, toUrl } from "../../scan/site";
 
 // marker.css on lists at five text sizes, wrapped and not, and on element markers in baseline rows,
 // against the rules it replaced: the inline-block list marker lifted by whole pixels (the website's
@@ -368,7 +368,6 @@ test.each([
     '<ul><li class="square" style="--side:17px">Line</li></ul>',
     [],
   ],
-  ["a disc wins over a glyph", '<ul class="disc"><li class="glyph">Line</li></ul>', ["native"]],
   ["a glyph is recognized without a disc", '<ul><li class="glyph">Line</li></ul>', ["glyph"]],
   [
     "a painted 16 px square is recognized",
@@ -424,6 +423,30 @@ test.each([
   },
   limit(30_000),
 );
+
+test.each([
+  {
+    name: "a glyph and a disc",
+    before: 'li::before { content: "•" }',
+    kind: "glyph",
+    double: true,
+  },
+  { name: "a native disc alone", before: "", kind: "native", double: false },
+])("measures $name", async ({ before, kind, double }) => {
+  const page = await browser.newPage();
+  try {
+    await page.setContent(
+      `<style>ul { list-style: disc } ${before}</style><ul><li>A list item</li></ul>`,
+    );
+    const dom = await installMarkerDom(page);
+    const markers = await dom.evaluate((api) =>
+      api.buildProbes(api.findMarkers()).probes.map(({ kind, double }) => ({ kind, double })),
+    );
+    expect(markers).toEqual([{ kind, double }]);
+  } finally {
+    await page.close();
+  }
+});
 
 test.each([
   [
@@ -939,6 +962,8 @@ describe("a served built folder", () => {
     mkdirSync(join(site, "catalog"), { recursive: true });
     writeFileSync(join(site, "catalog/index.html"), "<p>catalog</p>");
     writeFileSync(join(base, "outside.txt"), "outside");
+    symlinkSync("catalog/index.html", join(site, "inside.html"));
+    symlinkSync("../outside.txt", join(site, "outside.html"));
     server = serve(site);
   });
 
@@ -954,8 +979,23 @@ describe("a served built folder", () => {
     expect([moved.status, moved.headers.get("location")]).toEqual([301, "/catalog/"]);
   });
 
-  test.each(["/100%.html", "/%2e%2e/outside.txt"])("the server rejects path %s", async (path) => {
-    expect((await fetch(`${server.url.origin}${path}`)).status).toBe(404);
+  test("serves symlinks whose targets stay inside the root", async () => {
+    const response = await fetch(new URL("/inside.html", server.url));
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("<p>catalog</p>");
+  });
+
+  test("rejects symlinks whose targets leave the root", async () => {
+    expect((await fetch(new URL("/outside.html", server.url))).status).toBe(404);
+  });
+
+  test("the server rejects a malformed escape", async () => {
+    expect((await fetch(`${server.url.origin}/100%.html`)).status).toBe(404);
+  });
+
+  test("the resolver rejects decoded parent segments that leave the root", () => {
+    expect(fileIn(site, "/catalog/")).toBe(join(site, "catalog/index.html"));
+    expect(fileIn(site, "/%2e%2e/outside.txt")).toBeUndefined();
   });
 });
 

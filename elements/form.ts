@@ -5,14 +5,12 @@
 import { wireOnce } from "./copy.ts";
 
 const once = (e: Element) => wireOnce(e, "form");
-/** Runs `update` now, on every input, and after its form's reset. */
 const follow = (field: HTMLInputElement | HTMLTextAreaElement, update: () => void) => {
   field.addEventListener("input", update);
   field.form?.addEventListener("reset", () => setTimeout(update));
   update();
 };
 
-/** Shows the overrun and records invalid state only when the count owns it. */
 function markCountOver(count: HTMLElement, field: HTMLTextAreaElement) {
   count.dataset.state = "over";
   if (field.getAttribute("aria-invalid") === "true") return;
@@ -24,7 +22,6 @@ function markCountOver(count: HTMLElement, field: HTMLTextAreaElement) {
 function clearCountOver(count: HTMLElement, field: HTMLTextAreaElement) {
   // The count clears only the state it set, never one the page set.
   if (count.dataset.state === "over") delete count.dataset.state;
-  // Likewise the field's invalid state.
   if (field.dataset.hwCountInvalid === undefined) return;
   delete field.dataset.hwCountInvalid;
   field.removeAttribute("aria-invalid");
@@ -35,7 +32,6 @@ function countAnnouncement(count: HTMLElement) {
   let pause: ReturnType<typeof setTimeout>;
   let wiring = true;
   return (text: string) => {
-    // Silent while typing, read once the reader pauses.
     count.setAttribute("aria-live", "off");
     count.textContent = text;
     clearTimeout(pause);
@@ -68,7 +64,6 @@ function wireCount(count: HTMLElement) {
   });
 }
 
-/** Reveals or conceals the named password field. */
 function wirePasswordToggle(button: HTMLButtonElement) {
   const id = button.getAttribute("aria-controls");
   if (id === null) return;
@@ -82,7 +77,6 @@ function wirePasswordToggle(button: HTMLButtonElement) {
   });
 }
 
-/** Updates the range fill from the input's own bounds. */
 function wireRange(range: HTMLInputElement) {
   if (!once(range)) return;
   const min = Number(range.min || 0);

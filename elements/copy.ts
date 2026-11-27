@@ -120,13 +120,11 @@ const COPY_MESSAGES = {
   failed: { de: "Kopieren fehlgeschlagen", en: "Copy failed" },
 };
 
-/** Chooses the outcome from the write result and whether its text can be selected. */
 function copyOutcome(ok: boolean, text: string) {
   if (ok) return "copied";
   return onPage(text) ? "select" : "failed";
 }
 
-/** Updates the button labels to reflect which write owns the clipboard. */
 function showCopyOutcome(
   button: HTMLElement,
   outcome: keyof typeof COPY_MESSAGES,

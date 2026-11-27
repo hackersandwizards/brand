@@ -1,20 +1,6 @@
 #!/usr/bin/env bun
-// Generates the token formats a non-Tailwind consumer reads from tokens/tokens.css, the source:
-// generated/tokens.root.css (the @theme block as :root and on a light element under night),
-// tokens.json, tokens.ts and tokens.py, those three with expert/expert.css's type steps too, and
-// code-theme.json, the Shiki theme of the --code-* tokens
-// and the terminal's ANSI colours; and from tokens/fonts.css fonts.json, its faces and fallback
-// faces, and the two font stacks a mail client can show, from the mail signature template; font-faces.ts, fonts.css's rules with the
-// url of each font file the caller's; and static-fonts.css, tokens/print.css's
-// @font-face rules and fonts.css's fallback faces, for a surface that needs the static faces without
-// the print scale; fallback-faces.css, fonts.css's fallback faces alone, which print.css imports;
-// and cursor.svg, the slide player's pointer, three teal rings a deck's `cursor: url()` names, hotspot 6 6;
-// copy.js, elements/copy.ts's copy buttons bundled and wired, for a page that loads one script; and
-// elements.css and document.css, elements/elements.css and tokens/document.css with every
-// @import resolved in place, for a page that links them and must not wait on a request chain.
-// Every value stays the CSS value as written; colours also get a resolved hex, color-mix() mixed
-// in sRGB like the browser. `--check` exits 1 where a generated file is stale instead of writing.
-// Usage: bun scripts/tokens.ts [--check]
+// Run `bun run check:tokens` to report stale generated files without regenerating them.
+// The slide cursor uses hotspot 6 6. Colour mixes resolve in sRGB like the browser.
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { inlineImports } from "../applications/linkedin-visuals/render";

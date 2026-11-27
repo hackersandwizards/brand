@@ -1,5 +1,5 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { decodeEscaped, isRecord } from "./help";
 
@@ -17,38 +17,65 @@ export const toUrl = (arg: string, site?: URL) =>
       ? new URL(arg, site).href
       : pathToFileURL(resolve(arg)).href;
 
+const missingPath = (error: unknown) =>
+  isRecord(error) &&
+  (error.code === "ENOENT" || error.code === "ENOTDIR" || error.code === "ELOOP");
+
 /** Follows symlinks. A path through a file or a symlink loop also names no file. */
 export function statIfPresent(file: string) {
   if (file.includes("\0")) return undefined;
   try {
     return statSync(file, { throwIfNoEntry: false });
   } catch (error) {
-    if (
-      isRecord(error) &&
-      (error.code === "ENOENT" || error.code === "ENOTDIR" || error.code === "ELOOP")
-    )
-      return undefined;
+    if (missingPath(error)) return undefined;
     throw error;
   }
 }
 
-/** The file a path names inside `root`, a folder answering with its index.html, as a static host
- * does; undefined for none or for a path leaving `root`. */
-export const fileIn = (root: string, path: string) => {
-  const decoded = decodeEscaped(path);
-  if (decoded === undefined) return; // A malformed escape names no file.
-  let file = join(root, decoded);
-  if (!file.startsWith(`${root}/`)) return;
-  if (statIfPresent(file)?.isDirectory()) file = join(file, "index.html");
-  return statIfPresent(file)?.isFile() ? file : undefined;
+const inside = (root: string, file: string) => {
+  const path = relative(root, file);
+  return path !== ".." && !path.startsWith(`..${sep}`) && !isAbsolute(path);
 };
+
+function canonicalPath(file: string) {
+  try {
+    return realpathSync(file);
+  } catch (error) {
+    if (missingPath(error)) return;
+    throw error;
+  }
+}
+
+function siteTarget(root: string, path: string) {
+  const decoded = decodeEscaped(path);
+  if (decoded === undefined) return;
+  const file = join(root, decoded);
+  if (!inside(root, file)) return;
+  const stat = statIfPresent(file);
+  if (!stat) return;
+  const directory = stat.isDirectory();
+  return { file: directory ? join(file, "index.html") : file, directory };
+}
+
+function siteFile(root: string, path: string, canonicalRoot?: string) {
+  const target = siteTarget(root, path);
+  if (!target) return;
+  const base = canonicalRoot ?? canonicalPath(root);
+  const file = canonicalPath(target.file);
+  if (base && file && inside(base, file) && statIfPresent(file)?.isFile())
+    return { file, path: target.file, directory: target.directory };
+}
+
+/** The file a path names inside the root, using index.html for directories; its canonical path
+ * must lie inside the canonical root. */
+export const fileIn = (root: string, path: string) => siteFile(root, path)?.path;
 
 /** A built site folder served on a free local port at `at`, its root by default, or the base path
  * it was built for, such as /mail/: pages whose links start at / then load as published, and a
  * folder's path without its slash redirects to it, so relative links resolve as on Pages. */
 export const serve = (dir: string, at = "/") => {
-  const root = resolve(dir);
-  if (!existsSync(root)) throw new Error(`no site folder ${root}; build it first`);
+  const root = canonicalPath(resolve(dir));
+  if (!root) throw new Error(`no site folder ${resolve(dir)}; build it first`);
   // The request path arrives URL-encoded, so a base path such as /über/ is matched as URL parses it.
   const prefix = new URL(basePath(at), "http://localhost").pathname;
   return Bun.serve({
@@ -57,17 +84,14 @@ export const serve = (dir: string, at = "/") => {
     fetch(request) {
       const { pathname, search } = new URL(request.url);
       if (`${pathname}/` === prefix) return Response.redirect(`${prefix}${search}`, 301);
-      const file = pathname.startsWith(prefix)
-        ? fileIn(root, pathname.slice(prefix.length - 1))
+      const match = pathname.startsWith(prefix)
+        ? siteFile(root, pathname.slice(prefix.length - 1), root)
         : undefined;
-      if (
-        file &&
-        !pathname.endsWith("/") &&
-        file.endsWith("/index.html") &&
-        !pathname.endsWith(".html")
-      )
+      if (match?.directory && !pathname.endsWith("/"))
         return Response.redirect(`${pathname}/${search}`, 301);
-      return file ? new Response(Bun.file(file)) : new Response("Not found", { status: 404 });
+      return match
+        ? new Response(Bun.file(match.file))
+        : new Response("Not found", { status: 404 });
     },
   });
 };

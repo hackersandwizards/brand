@@ -1,4 +1,3 @@
-// Consumer scan allowlists and the HEAD baseline that governs their growth.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import own from "../package.json";
 import { isRecord } from "./help";

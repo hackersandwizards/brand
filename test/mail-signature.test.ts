@@ -9,7 +9,8 @@ import { ROOT } from "../scripts/git";
 
 const template = (ext: string) =>
   readFileSync(join(ROOT, "applications/mail-signature", `template.${ext}`), "utf-8");
-const GMBH = "HRB&nbsp;198840";
+const register = i.register.replaceAll(" ", "&nbsp;");
+const legalLines = `Sitz ${i.seat}, ${i.street}, ${i.postcode} ${i.city}\n${i.court}, ${i.register}\nGeschäftsführer: ${i.managingDirectors.join(", ")}`;
 
 describe("the HTML signature for an h&w account", () => {
   let html: string;
@@ -23,7 +24,7 @@ describe("the HTML signature for an h&w account", () => {
   });
 
   test("includes the GmbH register number", () => {
-    expect(html).toContain(GMBH);
+    expect(html).toContain(register);
   });
 
   test("renders the international phone href", () => {
@@ -55,7 +56,7 @@ describe("the HTML signature for an h&w account", () => {
 
 test("renders the full plain-text contact line and GmbH imprint", () => {
   expect(fillSignature(template("txt"), EXAMPLE, "text")).toBe(
-    "Kim Beispiel\nFreie Trainerin, hackers&wizards\n+49 40 1234 5678 | hackersandwizards.dev | linkedin.com/in/kim-beispiel\n\nhackers&wizards GmbH, Sitz Hamburg, Osterstraße 95, 20259 Hamburg\nAmtsgericht Hamburg, HRB 198840\nGeschäftsführer: Benedikt Stemmildt, Stefan Munz\n",
+    `Kim Beispiel\nFreie Trainerin, hackers&wizards\n+49 40 1234 5678 | hackersandwizards.dev | linkedin.com/in/kim-beispiel\n\nhackers&wizards GmbH, ${legalLines}\n`,
   );
 });
 
@@ -135,10 +136,8 @@ test("the imprint names its country's ISO code", () => {
 
 // The imprint's one source is verbal/imprint.json; the template writes it out for mail clients.
 test("both templates' GmbH lines state imprint.json", () => {
-  const lines = `Sitz ${i.seat}, ${i.street}, ${i.postcode} ${i.city}\n${i.court}, ${i.register}\nGeschäftsführer: ${i.managingDirectors.join(", ")}`;
-  expect(template("txt")).toContain(`${lines}\n`);
+  expect(template("txt")).toContain(`${legalLines}\n`);
   const street = i.street.replaceAll("ß", "&szlig;").split(" ").join("&nbsp;");
-  const register = i.register.split(" ").join("&nbsp;");
   const html = `Sitz ${i.seat}, ${street}, ${i.postcode}&nbsp;${i.city}<br />${i.court}, ${register}<br />Gesch&auml;ftsf&uuml;hrer: ${i.managingDirectors.join(", ")}`;
   expect(template("html").replace(/\s+/g, " ")).toContain(html);
 });

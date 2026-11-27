@@ -1,3 +1,4 @@
+import { rejection } from "@hackersandwizards/scaffolding/rejection";
 import { afterEach, assert, describe, expect, it, test, vi } from "vitest";
 import {
   countLine,
@@ -12,6 +13,12 @@ import {
   readState,
   type FilterState,
 } from "../elements/list-filter";
+import { carousels as legacyCarousels } from "@hackersandwizards/brand/elements/behaviour.ts";
+import {
+  initListFilter as legacyInitListFilter,
+  rebaseSrcset as legacyRebaseSrcset,
+} from "@hackersandwizards/brand/elements/list-filter.ts";
+import { carousels } from "../elements/carousel";
 import { acceptsText, initListFilter, isSearchChord } from "../elements/list-filter-browser";
 import { FilterForm } from "../elements/list-filter-form";
 import { FilterSource, rebaseSrcset, sourceAddress } from "../elements/list-filter-source";
@@ -318,6 +325,29 @@ describe("source rows", () => {
     expect(apply).not.toHaveBeenCalled();
   });
 
+  it("marks and reports a malformed source once without retrying the load", async () => {
+    const fetched = vi.fn(() => Promise.resolve(new Response("")));
+    vi.stubGlobal("fetch", fetched);
+    stubSourceDocument();
+    const source = new FilterSource(address);
+    const syntax = new SyntaxError("malformed facet JSON");
+    const install = vi.fn(() => {
+      throw syntax;
+    });
+    const apply = vi.fn();
+    const fail = vi.fn(() => source.failed);
+
+    const load = source.load(install, apply, fail);
+    assert(load, "Source load promise missing");
+    const pending = source.load(install, apply, fail);
+    expect(await rejection(load)).toBe(String(syntax));
+    const settled = source.load(install, apply, fail);
+    expect([pending === load, settled === load]).toEqual([true, true]);
+    expect([fetched, install, apply].map((call) => call.mock.calls.length)).toEqual([1, 1, 0]);
+    expect(fail.mock.results).toEqual([{ type: "return", value: true }]);
+    expect(source.loaded).toBe(false);
+  });
+
   it.each([{ address: undefined }, { address: "" }])(
     "uses local rows without fetching when the address is $address",
     ({ address }) => {
@@ -515,4 +545,12 @@ test("counts a row once when it repeats a constructor facet value", () => {
       ["1", 1],
     ]),
   );
+});
+
+test("the old entry points still export the browser helpers", () => {
+  expect({
+    initListFilter: legacyInitListFilter,
+    rebaseSrcset: legacyRebaseSrcset,
+    carousels: legacyCarousels,
+  }).toEqual({ initListFilter, rebaseSrcset, carousels });
 });

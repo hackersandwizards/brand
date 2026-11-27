@@ -18,6 +18,7 @@ import {
 import { scrollStops } from "./table.ts";
 import { initTrees, onTreeKey, onTreeRowClick } from "./tree.ts";
 
+export { carousels };
 export { copyButton } from "./copy.ts";
 
 const byId = (id: string | null) => (id ? document.getElementById(id) : null);
@@ -45,7 +46,6 @@ export function openDialog(dialog: HTMLDialogElement) {
   dialog.querySelector<HTMLInputElement>('[role="combobox"]')?.focus();
 }
 
-/** Opens the named dialog on Ctrl or Command when Alt is absent. */
 function onDialogShortcut(e: KeyboardEvent) {
   const shortcut =
     !e.altKey && (e.metaKey || e.ctrlKey)
@@ -86,7 +86,6 @@ function dialogBackdrop() {
   };
 }
 
-/** Opens and closes dialogs through their declared controls. */
 function onDialogClick(target: HTMLElement) {
   const opener = target.closest<HTMLElement>("[data-hw-open]");
   if (opener) {
@@ -137,7 +136,6 @@ function onTabKey(e: KeyboardEvent, tab: HTMLElement) {
   selectTab(next);
 }
 
-/** Selects the clicked tab and reveals its panel. */
 function onTabClick(target: HTMLElement) {
   const tab = target.closest<HTMLElement>('.hw-tabs [role="tab"]');
   if (tab) selectTab(tab);
@@ -241,7 +239,6 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
   return el;
 }
 
-/** Keeps the toast region reachable when a dialog changes state. */
 function followToastModal(e: Event) {
   if (e.target instanceof HTMLDialogElement) region();
 }

@@ -25,7 +25,7 @@ import {
   type CountCopy,
   type FilterItem,
   type FilterState,
-} from "../../elements/list-filter";
+} from "../../elements/list-filter-state";
 
 interface Option {
   value: string;
@@ -93,7 +93,6 @@ const {
 
 const active = isActive(state);
 const listed = browse === "always" || active || keep;
-// Under an overview with nowhere else to send the query, the rows wait in a template.
 const inert = browse === "active" && !source && !keep && !active;
 const asChoices = (facet: Facet) =>
   [copy.all, ...facet.options.map((option) => option.label)].join("").length <= budget;
@@ -101,7 +100,6 @@ const shown = items.filter((item) => matches(item, state)).length;
 const countText = listed ? countLine(count, shown, items.length) : "";
 
 const faceted = Object.values(state.facets).some(Boolean);
-// The phone's Filters button names what is picked, since its panel closes over it.
 const filtersButton = filtersLabel(
   copy.filters,
   facets.map(
@@ -237,7 +235,6 @@ const filtersButton = filtersLabel(
 }
 <script is:inline>
   {
-    /** Read the list markup next to the script before changing its first-paint state. */
     const readFirstPaint = (root) => {
       if (!(root instanceof HTMLElement) || !root.hasAttribute("data-list-filter")) return;
       const form = root.querySelector("form");
@@ -252,7 +249,6 @@ const filtersButton = filtersLabel(
       return { root, form, list, count };
     };
 
-    /** Set the initial visibility and restore the rendered markup if hydration fails. */
     const prepareFirstPaint = () => {
       const root = document.currentScript?.previousElementSibling;
       const markup = readFirstPaint(root);

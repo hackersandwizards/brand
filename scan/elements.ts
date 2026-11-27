@@ -1,59 +1,4 @@
 #!/usr/bin/env bun
-// The element check a consumer runs in its own gate: the shared elements (elements/*.css) as its
-// own design-system page renders them, against the brand's rule at the same scale, plus the source
-// that could fork one. It reads the consumer's brand-elements.json:
-//
-//   { "pages": ["<url, html file or site path>", ...],
-//     "exceptions": { "<name>": "<reason>"            every element the system keeps as its own,
-//                     | { "reason": "...", "files": ["<path>", ...] }, ... },
-//     "lightOnly": true,                              optional: the pages never turn to night
-//     "csp": "<policy>"                               optional: the Content-Security-Policy the
-//            | { "<glob>": "<policy>", ... },         host sends, added to every page opened, or
-//                                                     by path (docs/checks.md)
-//     "site": "<folder>"                              optional: a built site, served on a free
-//             | { "dir": "<folder>", "at": "<path>" }, port at its root, or at "at", the base path
-//                                                     it was built for (such as "/mail/"), which
-//                                                     a page starting with / names
-//     "catalog": "<folder>"                           optional: a built catalog, every story page
-//                | { "dir": "<folder>", "at": "<page>",  under it measured too, named below "at"
-//                    "exclude": ["<glob>", ...] } }      (default: the folder, or its path on
-//                                                     "site"), but those an exclude glob matches,
-//                                                     relative to its stories folder, such as
-//                                                     "Slides/**" for a group another repo owns
-//
-// --base <url> names the server a page starting with / is on, such as one the consumer's gate
-// started on a free port, instead of "site".
-//
-// 1. Rendered. Every closed <details> outside a header or nav is opened, as brand-markers does. Every
-//    hub element on the pages (an hw-* class; for the focus ring, each focusable inside
-//    [data-hw-tile="focus-ring"] but a link into brand's portal or to its entry there (catalogs.json),
-//    focused; not one inside a [data-hw-exception], which is that
-//    exception's instance, nor one inside [data-hw-shell], the scaffolding catalog shell's own
-//    card and pill, nor one carrying or inside [hidden], which draws nothing) is compared with a
-//    reference: the same markup in a shadow root beside it, styled only by this package's element
-//    files and inheriting the page's tokens, theme and scale. An instance holding the page's focus
-//    (a story's focused state) is read focused, and its reference too.
-//    Any difference in a computed property the element sets (OWNS: its corner, fill, line, text
-//    colour, type, padding or size) fails, by more than 0.02px for a length, a link's underline
-//    offset, gap and icon size compared in em of its own font size. Each brand token an
-//    element reads must be defined where it renders; with "lightOnly" the tokens only its night
-//    rules read are left out, since a page without night never draws them. An element drawn with
-//    the brand corner (top-left and bottom-right larger than top-right) inside another so drawn
-//    fails too: the brand corner sits on the outermost block only (tokens.css). So does an element
-//    carrying an hw-* class, or one of BRAND_CLASSES, that no rule of a loaded stylesheet names (but
-//    inside :not()) draws unstyled; not one inside [data-hw-shell].
-//    Each source the page's policy refuses fails ("csp" or its own), with the element it hit;
-//    brand-markers too.
-// 2. Source. A CSS rule in a .css, .scss, .astro, .vue or .svelte file whose subject class is named
-//    like an element (card; chip, pill, tag, badge; eyebrow, kicker, label; callout, note; quote;
-//    icon-button; button, btn; breadcrumb; fact) and sets a property that element owns (a shorthand counts for its
-//    longhands, an @apply utility for the properties it sets) fails, and so
-//    does a component file of such a name, unless it carries the hw-* class (a button's the icon
-//    button's too, a fact's a dt, one row of the facts list), its name is an
-//    exception, or its file is one an exception lists in "files" (a stylesheet of the system's own
-//    medium, such as a slide deck's).
-// 3. Exceptions. Each declared exception names its reason, and each [data-hw-exception] on a page
-//    names a declared one.
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { launch } from "./browser";
 import { listedCsp, policies, refusalLine } from "./browser-csp";
@@ -155,7 +100,6 @@ if (import.meta.main) {
     if (result === undefined) throw new Error(`Element scan result missing: ${url}`);
     return result.seen.length === 0;
   });
-  // No shared element on any page or story: a run that measures nothing passes nothing.
   const nothing = results.every((r) => !r.seen.length);
   if (nothing) console.error(`brand-elements: no shared element on any page of ${LIST}`);
   const tree = listTree("brand-elements");

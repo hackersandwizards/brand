@@ -103,8 +103,7 @@ export class RenderPage {
     if (!remote) writeFileSync(file, html);
     const loaded = this.cdp.once("Page.loadEventFired", this.sessionId);
     const url = remote ? html : fileUrl(file);
-    await this.cdp.send("Page.navigate", { url }, this.sessionId);
-    await loaded;
+    await Promise.all([this.cdp.send("Page.navigate", { url }, this.sessionId), loaded]);
     await this.cdp.send(
       "Runtime.evaluate",
       { expression: ready, awaitPromise: true },

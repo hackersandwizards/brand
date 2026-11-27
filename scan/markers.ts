@@ -161,8 +161,6 @@ if (import.meta.main) {
     console.error(`brand-markers: ${(e as Error).message}`);
     process.exit(2);
   }
-  // The config's pages where none is named, each measured, like a story, where it shows a marker;
-  // a site path only where a site or --base serves it, as brand-elements takes --base from its gate.
   const served = !!site || !!flagBase;
   const searched = listedPages.filter((p) => served || !p.startsWith("/"));
   for (const p of listedPages.filter((p) => !searched.includes(p)))
@@ -247,8 +245,6 @@ if (import.meta.main) {
     .filter(
       (url) => !readings.some((r) => r.page === url) && !excepted.has(url) && !fallbacks.has(url),
     );
-  // Only searched pages and stories, none showing a marker: a run that measures nothing passes
-  // nothing.
   const nothing =
     stories.length > 0 &&
     !readings.length &&

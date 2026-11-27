@@ -1,5 +1,3 @@
-// Inline styles for the portal views and their previews.
-
 export const pageStyles = `<style>
   /* Controls take the website's own roles: a field is white with the small corner, a choice is a
      pill that fills teal-dark when checked, focus is the 3 px purple ring. */
@@ -7,8 +5,6 @@ export const pageStyles = `<style>
   body { margin: 0; min-height: 100vh; background: var(--color-bg); color: var(--color-ink); font: var(--type-body-weight) var(--text-small)/1.5 var(--type-body-family); }
   :root { --header-h: var(--spacing-app-header); }
   input[type=search]::-webkit-search-cancel-button { cursor: pointer; }
-  /* The overview shows the tiles, quick start and refresh; a search the tiles it hits and the other
-     matches; a view its own section only. */
   .hw-catalog:not([data-mode="overview"]) .quick,
   .hw-catalog:not([data-mode="search"]) #results,
   .hw-catalog:not([data-mode="view"]) .portal-views,
@@ -48,10 +44,8 @@ export const pageStyles = `<style>
     .portal-views :is(h2, h3, h4):not(.el-cell *) { font-family: var(--font-mono); letter-spacing: -0.02em; }
     .portal-views h2:not(.el-cell *) { font-size: var(--text-h2); margin: 0 0 1rem; }
     .portal-views :is(h3, h4):not(.el-cell *) { font-size: var(--text-h4); margin: 2rem 0 0.75rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
-    /* A section of the elements: a ruled heading above its elements. */
     .portal-views h3[id^="el-"] { font-size: var(--text-h3); margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
     .meta { color: var(--color-muted); }
-    /* The words view: ruled tables (hw-table) at the view's width, one paragraph per text. */
     .portal-views .hw-table { width: 100%; }
     .portal-views .hw-table p { margin: 0; }
     .portal-views .hw-table p + p { margin-top: 0.25rem; }
@@ -135,7 +129,6 @@ export const pageStyles = `<style>
     .el-head ~ .el-head { margin-top: calc(var(--spacing-grid) - 0.5rem); }
     .el-cell { min-height: 7rem; overflow: auto; padding: 1rem; border: 1px solid var(--color-border); background: var(--color-white); color: var(--color-ink); font-size: var(--text-body); line-height: var(--text-body--line-height); }
     .el-cell[data-theme="dark"] { border-color: var(--color-night); background: var(--color-night); color: var(--color-night-ink); }
-    /* On a night page a night cell is the page's own ground, framed by the night line as a day cell is by its line. */
     html[data-theme="dark"] & .el-cell[data-theme="dark"] { border-color: var(--color-night-line); }
     /* A day cell draws its element without the apps' roles, as a day page here does: the light
        island of night.css gives it expert.css's day roles, which turn a dialog's white ground to bg. */

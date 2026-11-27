@@ -15,7 +15,6 @@ export class CdpSocketClosed extends Error {
   }
 }
 
-// Decode a reply's success payload or its protocol error.
 function parseCdpResponse(id: number, { error, result }: CdpResult): CdpResponse {
   if (error) {
     const detail = typeof error === "object" && "message" in error ? error.message : undefined;
@@ -30,7 +29,6 @@ function parseCdpResponse(id: number, { error, result }: CdpResult): CdpResponse
   return { kind: "error", id, error: "Invalid Chrome DevTools result" };
 }
 
-// Distinguish command replies from events sent to a particular page session.
 export function parseCdpMessage(raw: string): CdpResponse | CdpEvent | undefined {
   const message = JSON.parse(raw) as CdpResult | null;
   if (!message || typeof message !== "object") return;
@@ -41,10 +39,9 @@ export function parseCdpMessage(raw: string): CdpResponse | CdpEvent | undefined
   return { kind: "event", method, sessionId };
 }
 
-// Route DevTools messages to the command or page listener waiting for them.
 class CdpConnection {
   #pending = new Map<number, Pending>();
-  #events = new Set<(event: CdpEvent) => void>();
+  #events = new Map<(event: CdpEvent) => void, (error: Error) => void>();
   #id = 0;
   private readonly socket: WebSocket;
 
@@ -55,16 +52,18 @@ class CdpConnection {
     );
     // A Chrome that exits mid-run answers no pending call: fail them, so no await hangs.
     socket.addEventListener("close", () => {
-      for (const request of this.#pending.values()) request.reject(new CdpSocketClosed());
+      const error = new CdpSocketClosed();
+      for (const request of this.#pending.values()) request.reject(error);
+      for (const reject of this.#events.values()) reject(error);
       this.#pending.clear();
+      this.#events.clear();
     });
   }
 
-  // Deliver the reply to its command, or broadcast an event to listeners.
   private receive(message: CdpResponse | CdpEvent | undefined) {
     if (!message) return;
     if (message.kind === "event") {
-      for (const listener of this.#events) listener(message);
+      for (const listener of this.#events.keys()) listener(message);
       return;
     }
     const request = this.#pending.get(message.id);
@@ -78,24 +77,29 @@ class CdpConnection {
     return this.#id;
   }
 
-  // Correlate the eventual reply with this request's wire ID.
   send(method: string, params: object = {}, sessionId?: string) {
+    if (this.socket.readyState !== WebSocket.OPEN) return Promise.reject(new CdpSocketClosed());
     return new Promise<CdpResult>((resolve, reject) => {
       const id = ++this.#id;
       this.#pending.set(id, { resolve, reject });
-      this.socket.send(JSON.stringify({ id, method, params, sessionId }));
+      try {
+        this.socket.send(JSON.stringify({ id, method, params, sessionId }));
+      } catch (error) {
+        this.#pending.delete(id);
+        reject(error);
+      }
     });
   }
 
-  // Resolve when the named event arrives for this page session.
   once(method: string, sessionId: string) {
-    return new Promise<void>((resolve) => {
+    if (this.socket.readyState !== WebSocket.OPEN) return Promise.reject(new CdpSocketClosed());
+    return new Promise<void>((resolve, reject) => {
       const listener = (event: CdpEvent) => {
         if (event.method !== method || event.sessionId !== sessionId) return;
         this.#events.delete(listener);
         resolve();
       };
-      this.#events.add(listener);
+      this.#events.set(listener, reject);
     });
   }
 
@@ -104,7 +108,6 @@ class CdpConnection {
   }
 }
 
-// Open the DevTools socket before the first protocol request.
 export async function connectCdp(url: string) {
   const socket = new WebSocket(url);
   await new Promise<Event>((resolve, reject) => {

@@ -221,7 +221,6 @@ const homePage = (d: Device, ground = HOME_GROUND, big = false) =>
     ),
   ]);
 
-// Read the variant selection and whether to render comparison screens.
 export function parseBackgroundArgs(args: string[]) {
   const out = args[0];
   if (!out) throw new Error("usage: generate.ts <out dir> [variant ...] [--mocks]");

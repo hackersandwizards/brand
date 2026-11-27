@@ -8,12 +8,11 @@ import {
   type CountCopy,
   type FilterItem,
   type FilterState,
-} from "./list-filter.ts";
+} from "./list-filter-state.ts";
 import type { SourceRows } from "./list-filter-source.ts";
 
 type Row = { el: HTMLElement; title: HTMLElement | null; plain: string; item: FilterItem };
 
-/** Decode the count copy the server put on the filter root. */
 function readCountCopy(json: string | undefined): CountCopy {
   if (json === undefined) throw new Error("List filter count copy missing: data-count");
   const value: unknown = JSON.parse(json);
@@ -30,7 +29,6 @@ function readCountCopy(json: string | undefined): CountCopy {
   throw new Error("data-count must be a string or contain one and other strings");
 }
 
-/** Decode the facet values carried by a server-rendered row. */
 function readFilterFacets(json: string): FilterItem["facets"] {
   const value: unknown = JSON.parse(json);
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -70,7 +68,6 @@ function observeRowHeight(list: HTMLElement, rows: () => Row[]) {
   }).observe(list);
 }
 
-/** Use the rendered rows to set the long list's layout estimate. */
 function measureRowHeight(list: HTMLElement, rows: Row[]) {
   const rendered = rows.filter(
     ({ el }) =>
@@ -89,7 +86,6 @@ function measureRowHeight(list: HTMLElement, rows: Row[]) {
   list.style.setProperty("--hw-list-filter-row", `${mean - inset}px`);
 }
 
-/** Show the matching rows and mark their titles, returning the number the view shows. */
 function showRows(rows: Row[], state: FilterState): number {
   const words = searchWords(state.q);
   let shown = 0;

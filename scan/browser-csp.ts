@@ -138,7 +138,7 @@ export function recordRefusals() {
  *  pseudo-element whose computed style draws a url() from the refused source. */
 function readRefusals() {
   const recorded = (window as unknown as { __hwRefused?: Recorded[] }).__hwRefused ?? [];
-  // A source refused many times is looked up once.
+  // Deduplicate document-level refusals by URI and directive before searching computed styles.
   const list = [
     ...new Map(
       recorded.map((r) => [r.target instanceof Element ? r : `${r.uri} ${r.directive}`, r]),

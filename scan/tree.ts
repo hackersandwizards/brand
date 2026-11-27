@@ -1,4 +1,3 @@
-// Consumer working-tree traversal and built-in scan exceptions.
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { extname } from "node:path";

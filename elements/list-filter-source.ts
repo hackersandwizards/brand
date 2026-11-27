@@ -111,16 +111,21 @@ export class FilterSource {
   /** Share the first request between focus and filtering, including when that request failed. */
   load(install: (rows: SourceRows) => void, apply: () => void, onFailure: () => void) {
     if (!this.address) return;
-    this.loading ??= fetchSourceRows(this.address).then((rows) => {
-      if (rows === undefined) {
-        this.failed = true;
-        onFailure();
-        return;
-      }
-      install(rows);
-      this.loaded = true;
-      apply();
-    });
+    const fail = () => {
+      this.failed = true;
+      onFailure();
+    };
+    this.loading ??= fetchSourceRows(this.address)
+      .then((rows) => {
+        if (rows === undefined) return fail();
+        install(rows);
+        this.loaded = true;
+        apply();
+      })
+      .catch((error: unknown) => {
+        if (!this.loaded && !this.failed) fail();
+        throw error;
+      });
     return this.loading;
   }
 }

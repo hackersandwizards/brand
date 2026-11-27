@@ -149,7 +149,6 @@ async function writeCut(base: string, kind: CutKind) {
   const next = grow(base, box, ink);
   const output = sizedSvg(svg, next);
   writeSvg(name, output);
-  // A cut has a PNG where manifest.json lists one.
   if (manifest.files.some((entry) => entry.path === `logos/${name}.png`))
     await writePng(name, output, await scaledPngWidth(base, next[2], box[2]));
 }
