@@ -14,12 +14,15 @@ import { brand, browser, fileUrl, toJpeg } from "../backgrounds/render";
 import verbal from "../../verbal/verbal.json";
 
 const BOOTH = import.meta.dir;
-const boothCss = (f: string) => `<link rel="stylesheet" href="${fileUrl(join(BOOTH, f))}">`;
+const boothCss = (file: URL) => `<link rel="stylesheet" href="${file.href}">`;
+const styles =
+  boothCss(new URL("./tokens.css", import.meta.url)) +
+  boothCss(new URL("./banner.css", import.meta.url));
 const qr = fileUrl(join(BOOTH, "qr-hackersandwizards-dev.svg"));
 
 function docHead(title: string, w: number, h: number) {
   const over = `<style>body{background:#fff}.sheet{background:var(--gradient-magic)}.contact img{box-shadow:0 0 0 calc(3*var(--mm)) rgba(25,40,58,.12)}</style>`;
-  return `<!doctype html><html lang="en"><head><title>${title}</title><meta charset="utf-8">${boothCss("tokens.css")}${boothCss("banner.css")}<style>@page{size:${w + 40}mm ${h + 40}mm;margin:0}</style>${over}</head><body>`;
+  return `<!doctype html><html lang="en"><head><title>${title}</title><meta charset="utf-8">${styles}<style>@page{size:${w + 40}mm ${h + 40}mm;margin:0}</style>${over}</head><body>`;
 }
 
 // The outline lockup as the package draws it, inline so its wizard can take the 4096 px master

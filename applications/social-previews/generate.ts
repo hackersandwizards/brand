@@ -9,7 +9,7 @@
 // bun applications/social-previews/generate.ts [repository ...]   (needs gh, signed in)
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { colors } from "../../generated/tokens";
 import { brand, browser, fontFaces } from "../backgrounds/render";
 import { escHtml } from "../linkedin-visuals/render";
@@ -53,10 +53,12 @@ const REPOSITORIES: Record<string, keyof typeof CATEGORY> = {
   discussions: "community",
 };
 
-const lucideIcon = (name: string) =>
-  readFileSync(require.resolve(`lucide-static/icons/${name}.svg`), "utf8")
+const lucideIcon = (name: string) => {
+  const icons = join(dirname(require.resolve("lucide-static/package.json")), "icons");
+  return readFileSync(join(icons, `${name}.svg`), "utf8")
     .replace(/<!--.*?-->/s, "")
     .replace(/width="24"\s+height="24"/, 'width="96" height="96"');
+};
 
 function card(name: string, description: string, category: keyof typeof CATEGORY) {
   const [label, iconName] = CATEGORY[category];

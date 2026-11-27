@@ -13,7 +13,8 @@ import { sourceFindings } from "../scan/element-source";
 import { diffElementStyles, type StyleSnapshot } from "../scan/element-values";
 
 import { tokens } from "../generated/tokens";
-import { packed, ROOT } from "../scripts/git";
+import { ROOT } from "../scripts/git";
+import { packed } from "./packed";
 import { DRIFT } from "./element-drift";
 
 test("every element has its drift", () => {

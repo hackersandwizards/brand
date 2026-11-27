@@ -10,7 +10,7 @@ import { FilterSource, sourceAddress } from "../elements/list-filter-source";
 import { attachCsp, refusals } from "../scan/browser-csp";
 import { copyOf } from "../scan/copies";
 import { scanRetiredPaths } from "../scan/retired";
-import { fileIn, pathOf } from "../scan/site";
+import { siteFile, pathOf } from "../scan/site";
 import { waitForTitles } from "./wait-for-titles";
 
 const failure = new TypeError("dependency failed");
@@ -54,14 +54,14 @@ test("a static request propagates a decoder failure", () => {
   vi.spyOn(globalThis, "decodeURIComponent").mockImplementationOnce(() => {
     throw failure;
   });
-  expect(() => fileIn("/root", "/untouched")).toThrow(failure);
+  expect(() => siteFile("/root", "/untouched")).toThrow(failure);
 });
 
 test("a static request propagates a stat permission failure", () => {
   filesystem.stat.mockImplementationOnce(() => {
     throw denied;
   });
-  expect(() => fileIn("/root", "/untouched")).toThrow(denied);
+  expect(() => siteFile("/root", "/untouched")).toThrow(denied);
 });
 
 function denyDescendant(file: string) {

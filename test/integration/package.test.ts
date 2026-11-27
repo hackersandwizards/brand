@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { expect, test } from "vitest";
-import { packed } from "../../scripts/git";
+import { packed } from "../packed";
 import { checkoutRoot } from "../checkout";
 
 // A tag install is GitHub's tarball of the tag, which `git archive` builds and bun unpacks whole,

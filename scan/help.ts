@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 /** A command in bin calls this first: on --help or -h before any "--" it prints its usage and exits 0. */
 export const answerHelp = (usage: string) => {
   const args = process.argv.slice(2);
@@ -7,6 +10,17 @@ export const answerHelp = (usage: string) => {
   console.log(usage);
   process.exit(0);
 };
+
+export function printSketchPrompt(dir: string) {
+  console.log(readFileSync(join(dir, "sketch-prompt.txt"), "utf-8"));
+  for (const file of readdirSync(dir)
+    .filter((f) => /^sketch-example-.+\.txt$/.test(f))
+    .sort())
+    console.log(
+      `\nWorked example ${file.replace(/\.txt$/, "")}:\n\n${readFileSync(join(dir, file), "utf-8")}`,
+    );
+}
+
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 

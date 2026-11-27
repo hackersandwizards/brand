@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileIn } from "../../scan/site";
+import { siteFile } from "../../scan/site";
 import { ROOT } from "../../scripts/git";
 
 export const DIST = join(ROOT, "dist");
@@ -9,7 +9,7 @@ if (!existsSync(join(DIST, "index.html")))
   throw new Error("dist/index.html missing: run `bun run build` before these tests");
 
 /** The file a site path names, or undefined: a folder serves its index.html, as Pages does. */
-export const fileOf = (path: string) => fileIn(DIST, `/${path}`);
+export const fileOf = (path: string) => siteFile(DIST, `/${path}`)?.path;
 
 export const page = (path: string) => readFileSync(join(DIST, path), "utf8");
 

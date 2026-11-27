@@ -15,7 +15,7 @@ import { installMarkerDom } from "../../scan/marker-dom";
 import { hasMarkers } from "../../scan/marker-page";
 import type { Reading } from "../../scan/marker-readings";
 import { failing, measureMarkers } from "../../scan/markers";
-import { catalogPages, fileIn, serve, toUrl } from "../../scan/site";
+import { catalogPages, siteFile, serve, toUrl } from "../../scan/site";
 
 // marker.css on lists at five text sizes, wrapped and not, and on element markers in baseline rows,
 // against the rules it replaced: the inline-block list marker lifted by whole pixels (the website's
@@ -994,8 +994,8 @@ describe("a served built folder", () => {
   });
 
   test("the resolver rejects decoded parent segments that leave the root", () => {
-    expect(fileIn(site, "/catalog/")).toBe(join(site, "catalog/index.html"));
-    expect(fileIn(site, "/%2e%2e/outside.txt")).toBeUndefined();
+    expect(siteFile(site, "/catalog/")?.path).toBe(join(site, "catalog/index.html"));
+    expect(siteFile(site, "/%2e%2e/outside.txt")?.path).toBeUndefined();
   });
 });
 

@@ -4,7 +4,8 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { decodeJsEscapes, retiredIn, scanRetiredPaths } from "../scan/retired";
-import { packed, ROOT } from "../scripts/git";
+import { ROOT } from "../scripts/git";
+import { packed } from "./packed";
 import verbal from "../verbal/verbal.json";
 
 const dirs: string[] = [];

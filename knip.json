@@ -1,0 +1,9 @@
+{
+  "entry": [
+    "catalog/portal.ts!",
+    "scripts/{ampersand,copy-entry,outline,tokens}.ts!",
+    "applications/{avatars,backgrounds,booth,social-previews}/generate.ts!",
+    "applications/device-stickers/devices.ts!",
+    "applications/merch/w1.ts!"
+  ]
+}

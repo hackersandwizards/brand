@@ -57,7 +57,7 @@ function siteTarget(root: string, path: string) {
   return { file: directory ? join(file, "index.html") : file, directory };
 }
 
-function siteFile(root: string, path: string, canonicalRoot?: string) {
+export function siteFile(root: string, path: string, canonicalRoot?: string) {
   const target = siteTarget(root, path);
   if (!target) return;
   const base = canonicalRoot ?? canonicalPath(root);
@@ -65,10 +65,6 @@ function siteFile(root: string, path: string, canonicalRoot?: string) {
   if (base && file && inside(base, file) && statIfPresent(file)?.isFile())
     return { file, path: target.file, directory: target.directory };
 }
-
-/** The file a path names inside the root, using index.html for directories; its canonical path
- * must lie inside the canonical root. */
-export const fileIn = (root: string, path: string) => siteFile(root, path)?.path;
 
 /** A built site folder served on a free local port at `at`, its root by default, or the base path
  * it was built for, such as /mail/: pages whose links start at / then load as published, and a

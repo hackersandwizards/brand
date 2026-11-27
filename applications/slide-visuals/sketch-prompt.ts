@@ -6,19 +6,10 @@
  *
  *   bun run brand-slide-sketch-prompt
  */
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { answerHelp } from "../../scan/help";
+import { answerHelp, printSketchPrompt } from "../../scan/help";
 
 answerHelp(
   "usage: brand-slide-sketch-prompt\nPrints the prompt for a generated slide sketch, then each worked example.",
 );
 
-const dir = import.meta.dir;
-console.log(readFileSync(join(dir, "sketch-prompt.txt"), "utf-8"));
-for (const file of readdirSync(dir)
-  .filter((f) => /^sketch-example-.+\.txt$/.test(f))
-  .sort())
-  console.log(
-    `\nWorked example ${file.replace(/\.txt$/, "")}:\n\n${readFileSync(join(dir, file), "utf-8")}`,
-  );
+printSketchPrompt(import.meta.dir);

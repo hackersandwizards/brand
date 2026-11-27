@@ -1,7 +1,8 @@
 import { expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { packed as listPacked, ROOT } from "../scripts/git";
+import { ROOT } from "../scripts/git";
+import { packed as listPacked } from "./packed";
 
 const SHIPPED =
   /^(package\.json|manifest\.json|README\.md|LICENSE|docs\/[\w-]+\.md|(tokens|generated|expert|elements|logos|press|verbal)\/.+|applications\/(linkedin|slide)-visuals\/[\w-]+\.(ts|txt)|applications\/mail-signature\/(template\.(html|txt)|fill\.ts|cli\.ts)|scan\/(allowlist|assets|engine-style|colour-scan|colour-tokens|colours|copies|components|markers|marker-capture|marker-dom|marker-page|marker-readings|browser|browser-csp|browser-workers|site|elements-config|elements|element-classes|element-dom|element-exceptions|element-page|element-properties|element-rules|element-source|element-stylesheet|element-values|retired|help|tree)\.ts|catalog\/(Element\.astro|ElementScript\.astro|element-demos\.ts))$/;
