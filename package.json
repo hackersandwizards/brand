@@ -126,9 +126,9 @@
     "axe-core": "4.14.1",
     "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-astro": "3.2.1",
+    "eslint-plugin-astro": "3.2.2",
     "lightningcss": "1.33.0",
-    "lucide-static": "1.77.0",
+    "lucide-static": "1.81.0",
     "prettier": "3.10.1",
     "satteri": "0.11.7",
     "sharp": "0.35.5",
@@ -136,11 +136,11 @@
     "svgo": "4.1.0",
     "tailwindcss": "4.3.5",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "8.73.0"
+    "typescript-eslint": "8.74.0"
   },
   "prettier": "@hackersandwizards/scaffolding/prettier",
   "dependencies": {
-    "puppeteer-core": "25.18.1"
+    "puppeteer-core": "25.19.0"
   },
   "admin": {
     "label": "Brand",
