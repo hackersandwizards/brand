@@ -116,7 +116,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.42.1",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.46.9",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.46.10",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v3.7.0",
     "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.5",
@@ -128,7 +128,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-astro": "3.2.2",
     "lightningcss": "1.33.0",
-    "lucide-static": "1.81.0",
+    "lucide-static": "1.82.0",
     "prettier": "3.10.1",
     "satteri": "0.11.7",
     "sharp": "0.35.5",
