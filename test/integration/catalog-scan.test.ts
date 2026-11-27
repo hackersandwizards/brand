@@ -256,7 +256,6 @@ test.each([
 test(
   "brand-markers: fails when configured pages have no marker",
   () => {
-    // Pages without any marker measure nothing, which proves nothing.
     const none = markerRun({ pages: [plain] });
     expect(none.code).toBe(1);
     expect(none.err.trim()).toBe(
@@ -282,7 +281,6 @@ test(
 test(
   "brand-markers: --catalog scans its folder as files when the config names a site",
   () => {
-    // --catalog names its own folder, read as files: the config's site stays unserved.
     const flagged = markerRun({ site: "site", pages: [] }, ["--catalog", "site/catalog"]);
     expect(forkPages(markerReadings(flagged.out))).toEqual([
       expect.stringMatching(/^file:.*\/Lifted\/default\/index\.html$/),
@@ -294,7 +292,6 @@ test(
 test(
   "brand-markers: an explicit page replaces the configured page",
   () => {
-    // Control: a page named on the command line replaces the list.
     const named = markerRun({ site: "site", pages: ["/catalog/stories/Lists/Lifted/default/"] }, [
       "site/catalog/index.html",
     ]);

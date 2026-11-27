@@ -40,10 +40,9 @@ async function collectMarkerProbes(
   }
 }
 
-/** The page with its lines rewritten, each probe's line drawn in the first family its font-family
- * names where the page declares that family with @font-face: a line drawn in a fallback face reads
- * the fallback's x-height. document.fonts.ready may resolve, and the face report loaded, while a
- * line still shows the fallback; the page is opened afresh twice, then throws FallbackFace. */
+/** Retries twice before throwing FallbackFace when Chrome reports only platform fonts for a probe
+ * whose first family is declared with @font-face, since document.fonts.ready can resolve while the
+ * line still draws in a fallback face and reads its x-height. */
 export async function drawn(
   browser: Browser | BrowserContext,
   url: string,

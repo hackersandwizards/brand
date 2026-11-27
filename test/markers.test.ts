@@ -58,7 +58,6 @@ test("marker exceptions keep off readings by decoded path and leave other failur
 });
 
 test("an exception keeping nothing is stale only on a measured page", () => {
-  // A page not measured in this run makes no entry stale.
   const exceptions = {
     "**/ground-intro/": { reason: "engine rounding", off: 1 },
     "**/not-measured/": { reason: "engine rounding", off: 1 },

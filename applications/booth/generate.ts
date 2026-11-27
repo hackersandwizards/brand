@@ -111,12 +111,8 @@ const HALL = {
   },
 };
 
-// A booth aisle drawn to scale: k pixels per millimetre, the stand wall in one of WALLS. The 1 x 2 m frame
-// stands on the floor, the 1 x 1 m frame on feet with its top at 2 m, a high table beside it.
-// lit: the frames are LED lightboxes in a dark hall. The banner pixels stay as rendered (paper white is
-// the brightest the frame gets), a blurred copy screened over each frame is the bloom, and the floor
-// catches light in proportion to the banners' mean luminance `lit` (0 to 1).
-// The scale k is camera.pixelsPerMm, and lit is lighting.luminance in a backlit view.
+// The backlit view simulates LED lightboxes with a screened glow over the original banner pixels
+// and uses their mean luminance to scale the floor spill.
 function boothView(banners: BannerPair, camera: Camera, lighting: Lighting) {
   const { width: W, height: H, floorY, bannerX: bx, aisle } = camera;
   const mm = (v: number) => v * camera.pixelsPerMm;
@@ -179,9 +175,8 @@ export function cropBleed(png: Buffer, { widthMm, heightMm }: BannerSize) {
     .toBuffer();
 }
 
-// Capture the trimmed final-format banner at the booth mockups' raster density.
 async function writeBoothBanner(b: BoothCamera, out: string, sheet: BannerSheet) {
-  // 1040 x 2040 mm sheet at 0.8 px per mm (the tokens' screen scale), twice for detail.
+  // Capture each sheet with 20 mm of bleed per edge at the tokens' screen scale, doubled for detail.
   const viewport = {
     width: (sheet.widthMm + 40) * 0.8,
     height: (sheet.heightMm + 40) * 0.8,
@@ -202,7 +197,6 @@ export async function boothLuminance({ tall, square }: BannerPair<string | Buffe
   return (2 * (await lum(tall)) + (await lum(square))) / 3;
 }
 
-// Pair each requested wall and light setting with the near and far cameras.
 export function planBoothViews(out: string, selection: IlluminatedViews): BoothView[] {
   const walls =
     selection.mode === "backlit"
@@ -232,7 +226,6 @@ export function planBoothViews(out: string, selection: IlluminatedViews): BoothV
   );
 }
 
-// Write separate print masters with their HTML sources and all sides of the bleed.
 async function writeBoothPdfs(b: BoothCamera, out: string, sheets: BannerSheet[]) {
   for (const sheet of sheets) writeFileSync(join(out, `${sheet.stem}.html`), sheet.html);
   for (const { stem, html, widthMm, heightMm } of sheets) {

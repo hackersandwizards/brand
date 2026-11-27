@@ -39,8 +39,7 @@ export const listedSite = (site?: unknown, at?: string): MountedSite | undefined
   return { dir: folder.dir, at: basePath(at || (typeof prefix === "string" ? prefix : "") || "/") };
 };
 
-/** The catalog and site a parsed brand-elements.json names, so brand-markers takes the catalog
- * brand-elements measures without a flag. Empty where it names no catalog. */
+/** Reads the catalog settings that brand-elements and brand-markers share in brand-elements.json. */
 export const listedCatalog = ({ catalog }: { catalog?: unknown }): Partial<CatalogDirectory> => {
   if (catalog == null) return {};
   const entry = folderEntry(catalog);

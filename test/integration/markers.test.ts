@@ -1224,7 +1224,8 @@ describe("a page drawn in a fallback face", () => {
 <link rel="stylesheet" href="/tokens/marker.css">
 <style>body { margin: 40px; max-width: 420px; font-family: var(--font-sans); } ul { margin: 0; padding: 0; }</style>
 </head><body><ul class="hw-marker-list" style="font-size:16px;line-height:1.6"><li>Short item</li><li>Another item</li></ul></body></html>`;
-  // The brand's files, every .woff2 answered after `delay` ms, or 404 where it is negative.
+  // Delay font responses and return 404s for the first missedLoads page loads, or return 404s
+  // immediately on every load when delay is negative.
   const site = (delay: number, missedLoads = 0) => {
     let pageLoads = 0;
     return Bun.serve({
@@ -1293,7 +1294,7 @@ describe("a page drawn in a fallback face", () => {
           new Response(run.stderr).text(),
         ]);
         expect(code).toBe(1);
-        expect(err).toContain(gone.url.href);
+        expect(err).toContain(`${gone.url.href}: page drawn in fallback font`);
         expect(err).toMatch(MISSED);
         expect(err).not.toContain(served.url.href);
         expect(out).toContain("brand-markers: 4 readings on 2 pages, 0 off");
@@ -1323,7 +1324,7 @@ describe("a page drawn in a fallback face", () => {
         );
         const [code, err] = await Promise.all([run.exited, new Response(run.stderr).text()]);
         expect(code).toBe(1);
-        expect(err).toContain(served.url.href);
+        expect(err).toContain(`${served.url.href}: page drawn in fallback font`);
         expect(err).toMatch(MISSED);
         expect(err).toMatch(/refuses \S+\.woff2 \(font-src\)/);
       } finally {

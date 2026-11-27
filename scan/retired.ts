@@ -167,14 +167,9 @@ if (import.meta.main) {
     process.exit(2);
   }
   if (hits.size) {
-    const list = [...hits].flatMap(([file, lines]) =>
-      lines.map(
-        (l) =>
-          `${file}: "${l}" is retired and should no longer appear in builds. Replace it in the source with the current value of the field its "replacedBy" names in verbal.json, import only the fields you use if the whole file is bundled, and rebuild.`,
-      ),
-    );
+    const list = [...hits].flatMap(([file, lines]) => lines.map((l) => `${file}: "${l}"`));
     console.error(
-      `${list.join("\n")}\nbrand-retired: a retired line in ${hits.size} of ${read} files read. Take the current text from @hackersandwizards/brand/verbal.json.`,
+      `${list.join("\n")}\nbrand-retired: a retired line in ${hits.size} of ${read} files read. Replace it in the source with the current value of the field its "replacedBy" names in @hackersandwizards/brand/verbal.json, import only the fields you use if the whole file is bundled, and rebuild.`,
     );
     process.exit(1);
   }

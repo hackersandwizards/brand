@@ -17,8 +17,6 @@ import { escHtml } from "../linkedin-visuals/render";
 const ORG = "hackersandwizards";
 const [W, H] = [1280, 640];
 
-// The category of each repository: its label and its Lucide icon. A public repository missing here
-// stops the run, so a new one never goes without a card.
 const CATEGORY = {
   design: ["Package · Design system", "palette"],
   tools: ["Package · Developer tools", "blocks"],

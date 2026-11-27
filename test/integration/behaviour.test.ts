@@ -976,7 +976,6 @@ test(
     const p = await page(
       `<div id="k" class="hw-carousel" data-hw-autoplay data-hw-controls="c" style="width:300px">${items}</div><p>Text</p>`,
     );
-    // Wired once its controls are there.
     await p.evaluate((html) => {
       document.body.insertAdjacentHTML("beforeend", html);
       (window as unknown as { HW: { enhance: () => void } }).HW.enhance();

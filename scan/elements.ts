@@ -102,7 +102,6 @@ if (import.meta.main) {
   const browser = await launch();
   const results: PageResult[] = [];
   try {
-    // Tabs side by side, at least 8: each page mostly waits for the network to go quiet.
     const measure = config.lightOnly ? measureLightPage : measurePage;
     results.push(
       ...(await pool(pages, tabs(8), (url) =>

@@ -77,7 +77,7 @@ function componentFinding(path: string, raw: string, allow: Record<string, Excep
 /** The subject class of a selector that overrides a property a shared element owns. */
 function stylingFork(selector: string, props: string[], allow: Record<string, Exception>) {
   if (STATE.test(last(selector))) return;
-  // A compound with an hw-* class is the element itself; any other class named like one forks it.
+  // A compound with an hw-* class targets the shared element itself.
   const classes = subjects(selector);
   if (classes.some((c) => c.startsWith("hw-"))) return;
   for (const cls of classes) {

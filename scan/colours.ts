@@ -158,7 +158,7 @@ export const tighten = (
     const c = Object.fromEntries(
       METRICS.map((k) => [k, Math.min(limit(k), counts[k])]).filter(([, n]) => n),
     ) as Partial<Counts>;
-    // A misplaced partner stays, so the next run still reports it.
+    // Keep misplaced partner metadata on surviving entries so the next scan can still flag it.
     if (Object.keys(c).length)
       next.set(file, {
         ...c,

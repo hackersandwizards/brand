@@ -112,8 +112,8 @@ async function answerPaused(
       body: base64Encoded ? body : Buffer.from(body).toString("base64"),
     });
   } catch (error) {
-    // Failed loudly: a document left paused would time out without its cause. Where the page
-    // closed meanwhile, this fails too.
+    // Release the request so the document cannot hang while paused, and ignore errors for requests
+    // that already ended.
     await releasePaused(cdp, e.requestId, error);
   }
 }

@@ -139,20 +139,21 @@ test("brand-retired passes a clean build that also contains a binary asset", () 
 });
 
 test.each([
-  { label: "page copy", file: "about/index.html", content: retiredPage, retired: line },
+  { label: "page copy", file: "about/index.html", content: retiredPage, retired: [line] },
   {
     label: "bundled verbal.json",
     file: "app.js",
     content: `export const verbal = ${JSON.stringify(verbal)};`,
-    retired: verbal.retired[0].text,
+    retired: verbal.retired.map(({ text }) => text),
   },
 ])("brand-retired reports the path and retired line in $label", ({ file, content, retired }) => {
   const dir = built({ [file]: content });
   const hit = run(dir);
   expect(hit.code).toBe(1);
-  expect(hit.out.split("\n")[0]).toBe(
-    `${join(dir, file)}: "${retired}" is retired and should no longer appear in builds. Replace it in the source with the current value of the field its "replacedBy" names in verbal.json, import only the fields you use if the whole file is bundled, and rebuild.`,
-  );
+  expect(hit.out.trimEnd().split("\n")).toEqual([
+    ...retired.map((text) => `${join(dir, file)}: "${text}"`),
+    'brand-retired: a retired line in 1 of 1 files read. Replace it in the source with the current value of the field its "replacedBy" names in @hackersandwizards/brand/verbal.json, import only the fields you use if the whole file is bundled, and rebuild.',
+  ]);
 });
 
 test.each<{ label: string; files: Record<string, string>; paths: string[] }>([
@@ -227,7 +228,7 @@ test("brand-retired identifies a build containing no text", () => {
     code: 2,
     out: `brand-retired: no text files in ${binary}, so the scan cannot check these inputs. Build first and pass folders or files containing the rendered text.\n`,
   });
-  // Each path needs a text file of its own: a second build that came out empty fails too.
+  // An input without text still fails alongside a readable input.
   expect(run(built({ "index.html": PAGE }), binary).code).toBe(2);
 });
 

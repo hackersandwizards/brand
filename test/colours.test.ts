@@ -130,7 +130,6 @@ test("preserves a named partner SVG entry when tightening", () => {
 });
 
 test("keeps a misplaced partner reportable after tightening", () => {
-  // Tightening keeps a misplaced partner, so the run after it still fails on it.
   const counts = { "a.ts": { ...zero, hex: 1 } };
   expect(violations(counts, tighten(counts, misplacedPartner), { committed: {} })).toEqual(
     violations(counts, misplacedPartner, { committed: {} }),
