@@ -198,6 +198,93 @@ test(
   limit(30_000),
 );
 
+async function inlineDialogExit(dialog: HTMLDialogElement, closeWithButton: boolean) {
+  const rect = () => {
+    const { x, y, width, height } = dialog.getBoundingClientRect();
+    return [x, y, width, height];
+  };
+  const state = () => ({
+    animations: dialog.getAnimations().length,
+    display: getComputedStyle(dialog).display,
+  });
+  const openRect = rect();
+  const openDisplay = getComputedStyle(dialog).display;
+  if (closeWithButton)
+    browserDefined(dialog.querySelector("button"), "drawer close button").click();
+  else dialog.close();
+  for (const animation of dialog.getAnimations()) {
+    animation.pause();
+    animation.currentTime = 0;
+  }
+  const atClose = state();
+  // The hidden dialog has no box. Restore only display to measure its closed-state layout.
+  if (atClose.display === "none") dialog.style.display = openDisplay;
+  const closeRect = rect();
+  if (atClose.display === "none") dialog.style.removeProperty("display");
+  await new Promise(requestAnimationFrame);
+  return {
+    atClose,
+    nextFrame: state(),
+    rectShift: Math.max(...closeRect.map((value, index) => Math.abs(value - openRect[index]))),
+  };
+}
+
+test(
+  "inline drawers close in place and can reopen with modal motion",
+  async () => {
+    const p = await page(
+      `<div style="width:357px">
+        <dialog class="hw-dialog" id="scripted" data-variant="drawer">Filter</dialog>
+        <dialog open class="hw-dialog" id="parsed" data-variant="drawer">
+          Filter <button data-hw-close>Schließen</button>
+        </dialog>
+      </div>`,
+    );
+    try {
+      await p.setViewport({ width: 390, height: 844 });
+      await p.$eval("dialog#scripted", async (dialog) => {
+        const toggled = new Promise<void>((resolve) =>
+          dialog.addEventListener("toggle", () => resolve(), { once: true }),
+        );
+        dialog.show();
+        await toggled;
+      });
+      const closed = { animations: 0, display: "none" };
+      const scripted = await p.$eval("dialog#scripted", inlineDialogExit, false);
+      expect(scripted, "the show() drawer closes immediately").toMatchObject({
+        atClose: closed,
+        nextFrame: closed,
+      });
+      expect(scripted.rectShift).toBeLessThanOrEqual(1);
+
+      const parsed = await p.$eval("dialog#parsed", inlineDialogExit, true);
+      expect(parsed).toMatchObject({ atClose: closed, nextFrame: closed });
+      expect(parsed.rectShift).toBeLessThanOrEqual(1);
+
+      const modal = await p.$eval("dialog#scripted", async (dialog) => {
+        const toggled = new Promise<void>((resolve) =>
+          dialog.addEventListener("toggle", () => resolve(), { once: true }),
+        );
+        dialog.showModal();
+        const properties = dialog
+          .getAnimations()
+          .filter((animation) => animation instanceof CSSTransition)
+          .map((transition) => transition.transitionProperty);
+        await toggled;
+        return {
+          slides: properties.includes("translate"),
+          modal: dialog.matches(":modal"),
+          inline: dialog.hasAttribute("data-hw-inline"),
+        };
+      });
+      expect(modal).toEqual({ slides: true, modal: true, inline: false });
+    } finally {
+      await p.close();
+    }
+  },
+  limit(30_000),
+);
+
 test(
   "dialog motion slides from its edge, preserves the sheet on exit and honours reduced motion",
   async () => {

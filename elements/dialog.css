@@ -2,10 +2,11 @@
    the browser holds focus inside, closes on Escape and returns focus to the opener. The panel is
    the overlay surface: white or the app's background, on night the night ground lifted 7 %, a
    hairline, the brand corner, the overlay shadow; the page behind dims. A dialog that is open but
-   not modal stands in the flow, as a sample does, no wider than its container. The title and
-   the body hyphenate in the page's language and break inside a word rather than run past the
-   panel, and the actions wrap to a second row; content outside the body scrolls. A dialog
-   holding no control takes the focus itself and draws no ring, under hw-focus-ring or not.
+   not modal stands in the flow, as a sample does, no wider than its container, and
+   elements/behaviour.ts marks it with data-hw-inline. The title and the body hyphenate in the
+   page's language and break inside a word rather than run past the panel. The actions wrap to a
+   second row and content outside the body scrolls. A dialog holding no control takes the focus
+   itself and draws no ring, under hw-focus-ring or not.
 
    A dialog asks one thing and waits: hw-dialog-title, hw-dialog-body, hw-dialog-actions with the
    main button last. data-size="small" is 24rem wide, unset 32rem, "large" 48rem, "full" fills the
@@ -71,7 +72,7 @@
       overlay var(--_hw-dialog-travel) allow-discrete,
       display var(--_hw-dialog-travel) allow-discrete;
   }
-  .hw-dialog:where(:not([open])) {
+  .hw-dialog:where(:not([open], [data-hw-inline])) {
     opacity: var(--_hw-dialog-hidden-opacity);
     translate: var(--_hw-dialog-offset);
     scale: var(--_hw-dialog-hidden-scale);
@@ -101,7 +102,7 @@
   .hw-dialog:is(:focus-visible, [data-hw-focus]) {
     outline: none;
   }
-  .hw-dialog[open]:not(:modal) {
+  .hw-dialog:is([open]:not(:modal), [data-hw-inline]:not([open])) {
     position: relative;
     inset: auto;
     max-width: 100%;
@@ -194,7 +195,7 @@
   .hw-dialog[data-variant="drawer"][data-side="bottom"]:not([data-size="full"]) {
     --_hw-dialog-offset: 0 var(--_hw-drawer-distance);
   }
-  .hw-dialog[data-variant="drawer"][open]:not(:modal) {
+  .hw-dialog[data-variant="drawer"]:is([open]:not(:modal), [data-hw-inline]:not([open])) {
     margin: 0;
     width: auto;
     height: auto;
@@ -208,7 +209,7 @@
       )::backdrop {
       --_hw-dialog-enter: 250ms;
     }
-    .hw-dialog:is(:modal, :not([open])):not(
+    .hw-dialog:is(:modal, :not([open], [data-hw-inline])):not(
         [data-size="full"],
         [data-variant="drawer"],
         [data-variant="command"]
@@ -224,13 +225,13 @@
         var(--hw-card-corner, var(--radius-brand)) 0 0;
       padding-bottom: calc(var(--hw-card-pad, var(--spacing-card)) + env(safe-area-inset-bottom));
     }
-    .hw-dialog:is(:modal, :not([open])) .hw-dialog-actions {
+    .hw-dialog:is(:modal, :not([open], [data-hw-inline])) .hw-dialog-actions {
       flex-direction: column-reverse;
     }
-    .hw-dialog:is(:modal, :not([open])) .hw-dialog-actions > * {
+    .hw-dialog:is(:modal, :not([open], [data-hw-inline])) .hw-dialog-actions > * {
       width: 100%;
     }
-    .hw-dialog[data-variant="drawer"]:is(:modal, :not([open])) {
+    .hw-dialog[data-variant="drawer"]:is(:modal, :not([open], [data-hw-inline])) {
       --_hw-drawer-distance: 100%;
       margin: 0;
       width: 100vw;
@@ -240,7 +241,10 @@
       border-radius: 0;
       padding-bottom: calc(var(--hw-card-pad, var(--spacing-card)) + env(safe-area-inset-bottom));
     }
-    .hw-dialog[data-variant="drawer"][data-side="bottom"]:is(:modal, :not([open])) {
+    .hw-dialog[data-variant="drawer"][data-side="bottom"]:is(
+        :modal,
+        :not([open], [data-hw-inline])
+      ) {
       margin: auto 0 0;
       height: fit-content;
       max-height: 90dvh;

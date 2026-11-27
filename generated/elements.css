@@ -3232,7 +3232,7 @@
       overlay var(--_hw-dialog-travel) allow-discrete,
       display var(--_hw-dialog-travel) allow-discrete;
   }
-  .hw-dialog:where(:not([open])) {
+  .hw-dialog:where(:not([open], [data-hw-inline])) {
     opacity: var(--_hw-dialog-hidden-opacity);
     translate: var(--_hw-dialog-offset);
     scale: var(--_hw-dialog-hidden-scale);
@@ -3261,7 +3261,7 @@
   .hw-dialog:is(:focus-visible, [data-hw-focus]) {
     outline: none;
   }
-  .hw-dialog[open]:not(:modal) {
+  .hw-dialog:is([open]:not(:modal), [data-hw-inline]:not([open])) {
     position: relative;
     inset: auto;
     max-width: 100%;
@@ -3354,7 +3354,7 @@
   .hw-dialog[data-variant="drawer"][data-side="bottom"]:not([data-size="full"]) {
     --_hw-dialog-offset: 0 var(--_hw-drawer-distance);
   }
-  .hw-dialog[data-variant="drawer"][open]:not(:modal) {
+  .hw-dialog[data-variant="drawer"]:is([open]:not(:modal), [data-hw-inline]:not([open])) {
     margin: 0;
     width: auto;
     height: auto;
@@ -3368,7 +3368,7 @@
       )::backdrop {
       --_hw-dialog-enter: 250ms;
     }
-    .hw-dialog:is(:modal, :not([open])):not(
+    .hw-dialog:is(:modal, :not([open], [data-hw-inline])):not(
         [data-size="full"],
         [data-variant="drawer"],
         [data-variant="command"]
@@ -3384,13 +3384,13 @@
         var(--hw-card-corner, var(--radius-brand)) 0 0;
       padding-bottom: calc(var(--hw-card-pad, var(--spacing-card)) + env(safe-area-inset-bottom));
     }
-    .hw-dialog:is(:modal, :not([open])) .hw-dialog-actions {
+    .hw-dialog:is(:modal, :not([open], [data-hw-inline])) .hw-dialog-actions {
       flex-direction: column-reverse;
     }
-    .hw-dialog:is(:modal, :not([open])) .hw-dialog-actions > * {
+    .hw-dialog:is(:modal, :not([open], [data-hw-inline])) .hw-dialog-actions > * {
       width: 100%;
     }
-    .hw-dialog[data-variant="drawer"]:is(:modal, :not([open])) {
+    .hw-dialog[data-variant="drawer"]:is(:modal, :not([open], [data-hw-inline])) {
       --_hw-drawer-distance: 100%;
       margin: 0;
       width: 100vw;
@@ -3400,7 +3400,10 @@
       border-radius: 0;
       padding-bottom: calc(var(--hw-card-pad, var(--spacing-card)) + env(safe-area-inset-bottom));
     }
-    .hw-dialog[data-variant="drawer"][data-side="bottom"]:is(:modal, :not([open])) {
+    .hw-dialog[data-variant="drawer"][data-side="bottom"]:is(
+        :modal,
+        :not([open], [data-hw-inline])
+      ) {
       margin: auto 0 0;
       height: fit-content;
       max-height: 90dvh;
@@ -3594,7 +3597,7 @@
     overflow: hidden;
     font-size: var(--hw-field-size, var(--type-body-size));
   }
-  .hw-dialog[data-variant="command"][open]:not(:modal) {
+  .hw-dialog[data-variant="command"]:is([open]:not(:modal), [data-hw-inline]:not([open])) {
     margin: 0;
   }
   .hw-command-field {
@@ -3678,7 +3681,7 @@
     }
   }
   @media (max-width: 40rem) {
-    .hw-dialog[data-variant="command"]:is(:modal, :not([open])) {
+    .hw-dialog[data-variant="command"]:is(:modal, :not([open], [data-hw-inline])) {
       margin: 0.5rem auto auto;
     }
   }

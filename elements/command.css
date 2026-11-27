@@ -32,7 +32,7 @@
     overflow: hidden;
     font-size: var(--hw-field-size, var(--type-body-size));
   }
-  .hw-dialog[data-variant="command"][open]:not(:modal) {
+  .hw-dialog[data-variant="command"]:is([open]:not(:modal), [data-hw-inline]:not([open])) {
     margin: 0;
   }
   .hw-command-field {
@@ -116,7 +116,7 @@
     }
   }
   @media (max-width: 40rem) {
-    .hw-dialog[data-variant="command"]:is(:modal, :not([open])) {
+    .hw-dialog[data-variant="command"]:is(:modal, :not([open], [data-hw-inline])) {
       margin: 0.5rem auto auto;
     }
   }

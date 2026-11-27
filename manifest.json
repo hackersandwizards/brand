@@ -590,7 +590,7 @@
     },
     {
       "path": "elements/behaviour.ts",
-      "sha256": "86df3bd77b8e2621cde3e311343a1700b07f28543e3a7409c4dedf14cadecce0"
+      "sha256": "8dcd19c5731104254f22d8f2025264942e414d60cdaedd428fe3a194a331f474"
     },
     {
       "path": "elements/tree.ts",
@@ -626,7 +626,7 @@
     },
     {
       "path": "elements/command.css",
-      "sha256": "494de68eb515928fd8ccc06a7b65b147b0559e679cfb13781cc9e91c61d1c135"
+      "sha256": "02e9d32d5c061e5a8271af25c5f53f157408a14814c7246a983d551d0f14afa8"
     },
     {
       "path": "elements/copy.ts",
@@ -634,7 +634,7 @@
     },
     {
       "path": "elements/dialog.css",
-      "sha256": "4ff03bd0c571a9a2f898a92772f5ac6b54939d6c693e1f46ef76d0433a6e124d"
+      "sha256": "361976a1f10c5f511f71a4e98af2b6c2ee9302791704dfb119ebaeced3e6c1e4"
     },
     {
       "path": "elements/empty.css",

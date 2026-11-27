@@ -239,8 +239,12 @@ export function toast(message: string, { tone = "info", duration = 4000, action 
   return el;
 }
 
-function followToastModal(e: Event) {
-  if (e.target instanceof HTMLDialogElement) region();
+function onDialogToggle(e: Event) {
+  const dialog = e.target;
+  if (!(dialog instanceof HTMLDialogElement)) return;
+  if ((e as ToggleEvent).newState === "open" && dialog.matches(".hw-dialog"))
+    dialog.toggleAttribute("data-hw-inline", !dialog.matches(":modal"));
+  region();
 }
 
 function installDocument() {
@@ -250,7 +254,7 @@ function installDocument() {
   document.addEventListener("pointerdown", backdrop.press, true);
   // A toast stays reachable: its region follows the open modal, and leaves it when that closes.
   document.addEventListener("close", region, true);
-  document.addEventListener("toggle", followToastModal, true);
+  document.addEventListener("toggle", onDialogToggle, true);
   document.addEventListener("toggle", onPopoverToggle, true);
   document.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
@@ -280,6 +284,10 @@ function installDocument() {
 /** Wires every common element in `root`. Safe to call again after adding markup. */
 export function enhance(root: ParentNode = document) {
   installDocument();
+  const inline = "dialog.hw-dialog[open]:not(:modal)";
+  if (root instanceof HTMLDialogElement && root.matches(inline))
+    root.setAttribute("data-hw-inline", "");
+  for (const dialog of root.querySelectorAll(inline)) dialog.setAttribute("data-hw-inline", "");
   // A live region is only announced if it exists before its first message.
   region();
   initTabs(root);
