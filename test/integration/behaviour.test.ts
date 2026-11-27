@@ -198,6 +198,130 @@ test(
   limit(30_000),
 );
 
+test(
+  "dialog motion slides from its edge, preserves the sheet on exit and honours reduced motion",
+  async () => {
+    const p = await page(
+      `${DIALOG}<dialog class="hw-dialog" id="drawer" data-variant="drawer" data-side="end">Filter</dialog>`,
+    );
+    const centre = await p.$eval("dialog#d", async (dialog) => {
+      const pauseAt = async (time: number) => {
+        const animations = document.getAnimations();
+        for (const animation of animations) {
+          animation.pause();
+          animation.currentTime = time;
+        }
+        await Promise.all(animations.map((animation) => animation.ready));
+        return animations;
+      };
+      const finish = async (animations: Animation[]) => {
+        for (const animation of animations) animation.finish();
+        await Promise.all(animations.map((animation) => animation.finished));
+      };
+      dialog.showModal();
+      const entry = await pauseAt(0);
+      const properties = entry
+        .filter((animation) => animation instanceof CSSTransition)
+        .map((transition) => transition.transitionProperty);
+      const { translate, scale } = getComputedStyle(dialog);
+      for (const animation of entry) animation.currentTime = 40;
+      const entryOpacity = Number(getComputedStyle(dialog).opacity);
+      await finish(entry);
+      dialog.close();
+      const exit = await pauseAt(60);
+      const exitOpacity = Number(getComputedStyle(dialog).opacity);
+      for (const animation of exit) animation.currentTime = 100;
+      const retained = getComputedStyle(dialog).getPropertyValue("overlay");
+      const scrim = Number(getComputedStyle(dialog, "::backdrop").opacity);
+      await finish(exit);
+      return {
+        properties,
+        rise: Number(translate.split(" ")[1]?.replace("px", "")),
+        scale: Number(scale),
+        entryOpacity,
+        exitOpacity,
+        retained,
+        scrim,
+        display: getComputedStyle(dialog).display,
+        modal: document.querySelector(":modal") !== null,
+      };
+    });
+    expect(centre.properties).toEqual(expect.arrayContaining(["translate", "scale"]));
+    expect(
+      {
+        rises: centre.rise > 0,
+        scalesFromPoint96: centre.scale === 0.96,
+        opaqueOnEntry: centre.entryOpacity >= 0.7,
+        transparentOnExit: centre.exitOpacity <= 0.3,
+        scrimRetained: centre.scrim > 0,
+        overlayDuringExit: centre.retained,
+        displayAfterExit: centre.display,
+        modalAfterExit: centre.modal,
+      },
+      JSON.stringify(centre),
+    ).toEqual({
+      rises: true,
+      scalesFromPoint96: true,
+      opaqueOnEntry: true,
+      transparentOnExit: true,
+      scrimRetained: true,
+      overlayDuringExit: "auto",
+      displayAfterExit: "none",
+      modalAfterExit: false,
+    });
+
+    const drawer = await p.$eval("dialog#drawer", async (dialog) => {
+      dialog.showModal();
+      const entry = document.getAnimations();
+      for (const animation of entry) {
+        animation.pause();
+        animation.currentTime = 0;
+      }
+      await Promise.all(entry.map((animation) => animation.ready));
+      const { left, width } = dialog.getBoundingClientRect();
+      for (const animation of entry) animation.finish();
+      await Promise.all(entry.map((animation) => animation.finished));
+      const distance = left - dialog.getBoundingClientRect().left;
+      dialog.close();
+      const exit = document.getAnimations();
+      for (const animation of exit) animation.finish();
+      await Promise.all(exit.map((animation) => animation.finished));
+      return { distance, width };
+    });
+    expect(drawer.distance).toBeGreaterThanOrEqual(drawer.width);
+
+    await p.setViewport({ width: 390, height: 844 });
+    const distanceFromBottom = await p.$eval("dialog#d", async (dialog) => {
+      dialog.showModal();
+      const entry = document.getAnimations();
+      for (const animation of entry) animation.finish();
+      await Promise.all(entry.map((animation) => animation.finished));
+      dialog.close();
+      const exit = document.getAnimations();
+      for (const animation of exit) {
+        animation.pause();
+        animation.currentTime = 0;
+      }
+      await Promise.all(exit.map((animation) => animation.ready));
+      return Math.abs(innerHeight - dialog.getBoundingClientRect().bottom);
+    });
+    expect(distanceFromBottom).toBeLessThanOrEqual(1);
+    await p.close();
+
+    const reduced = await page(DIALOG, "de", true);
+    expect(
+      await reduced.$eval("dialog#d", (dialog) => {
+        dialog.showModal();
+        const animations = document.getAnimations().length;
+        const { opacity, scale, translate } = getComputedStyle(dialog);
+        return { animations, opacity, scale, translate };
+      }),
+    ).toEqual({ animations: 0, opacity: "1", scale: "none", translate: "none" });
+    await reduced.close();
+  },
+  limit(30_000),
+);
+
 const LONG = "Donaudampfschifffahrtsgesellschaftskapitänsmützenhalterungsverordnung";
 const KEYS = `<dl style="display:grid;grid-template-columns:auto auto;gap:.5rem 1.5rem;margin:0">${[
   "PageDown Space Shift",

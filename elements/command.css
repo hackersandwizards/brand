@@ -116,7 +116,7 @@
     }
   }
   @media (max-width: 40rem) {
-    .hw-dialog[data-variant="command"]:modal {
+    .hw-dialog[data-variant="command"]:is(:modal, :not([open])) {
       margin: 0.5rem auto auto;
     }
   }

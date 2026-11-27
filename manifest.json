@@ -626,7 +626,7 @@
     },
     {
       "path": "elements/command.css",
-      "sha256": "fae1496186c03656decb78e47f73067cd91dc9b1348bb94e99551bd1b03f8734"
+      "sha256": "494de68eb515928fd8ccc06a7b65b147b0559e679cfb13781cc9e91c61d1c135"
     },
     {
       "path": "elements/copy.ts",
@@ -634,7 +634,7 @@
     },
     {
       "path": "elements/dialog.css",
-      "sha256": "cd57e50afef1fcda06cf47a94d5e149783e37eae702e2c62df4120c505d6276a"
+      "sha256": "4ff03bd0c571a9a2f898a92772f5ac6b54939d6c693e1f46ef76d0433a6e124d"
     },
     {
       "path": "elements/empty.css",
