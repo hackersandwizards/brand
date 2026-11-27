@@ -56,15 +56,16 @@ function readRow(el: HTMLElement): Row {
 }
 
 /** In a long list a row off screen skips layout (list-filter.css) and stands in at the mean
- *  content height of the rows the browser renders, measured whenever the list's width changes
- *  (from 0 too, as a hidden list shows); a row once rendered keeps its own height. */
+ *  content height of the rendered rows, with a small sample rendered for the read if needed.
+ *  Measure on width changes, including when a hidden list shows. An auto-visibility row keeps
+ *  its own height once rendered. */
 function observeRowHeight(list: HTMLElement, rows: () => Row[]) {
   let width = -1;
   new ResizeObserver(([entry]) => {
     if (entry === undefined) throw new Error("Resize entry missing: list filter");
     if (entry.contentRect.width === width) return;
     width = entry.contentRect.width;
-    if (list.hasAttribute("data-long")) measureRowHeight(list, rows());
+    if (width > 0 && list.hasAttribute("data-long")) measureRowHeight(list, rows());
   }).observe(list);
 }
 
@@ -74,15 +75,27 @@ function measureRowHeight(list: HTMLElement, rows: Row[]) {
       !el.hidden &&
       [...el.children].some((child) => child.checkVisibility?.({ contentVisibilityAuto: true })),
   );
-  const [first] = rendered;
+  const sample = rendered.length
+    ? rendered.map(({ el }) => el)
+    : [...list.querySelectorAll<HTMLElement>("[data-filter-item]:not([hidden])")].slice(0, 3);
+  const [first] = sample;
   if (first === undefined) return;
+  const restore = rendered.length
+    ? []
+    : sample.map(({ style }) => {
+        const value = style.getPropertyValue("content-visibility");
+        const priority = style.getPropertyPriority("content-visibility");
+        style.setProperty("content-visibility", "visible");
+        return () => style.setProperty("content-visibility", value, priority);
+      });
   // The stand-in is the content box's height: padding and border come on top.
-  const box = getComputedStyle(first.el);
+  const box = getComputedStyle(first);
   const inset = [box.paddingTop, box.paddingBottom, box.borderTopWidth, box.borderBottomWidth]
     .map(parseFloat)
     .reduce((a, b) => a + b);
   const mean =
-    rendered.reduce((sum, { el }) => sum + el.getBoundingClientRect().height, 0) / rendered.length;
+    sample.reduce((sum, el) => sum + el.getBoundingClientRect().height, 0) / sample.length;
+  for (const restoreVisibility of restore) restoreVisibility();
   list.style.setProperty("--hw-list-filter-row", `${mean - inset}px`);
 }
 

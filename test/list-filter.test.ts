@@ -22,6 +22,8 @@ import { carousels } from "../elements/carousel";
 import { acceptsText, initListFilter, isSearchChord } from "../elements/list-filter-browser";
 import { FilterForm } from "../elements/list-filter-form";
 import { FilterSource, rebaseSrcset, sourceAddress } from "../elements/list-filter-source";
+import { LONG_LIST } from "../elements/list-filter-state";
+import { FilterView } from "../elements/list-filter-view";
 
 describe("list filter", () => {
   it("fills the count line, one or other, and joins the query onto a base with or without one", () => {
@@ -207,6 +209,77 @@ describe("initListFilter", () => {
     } finally {
       vi.unstubAllGlobals();
     }
+  });
+});
+
+function skippedRowsFixture() {
+  const rows = Array.from({ length: LONG_LIST }, () => {
+    const properties = new Map<string, string>();
+    return {
+      dataset: {},
+      hidden: false,
+      children: [{ checkVisibility: () => false }],
+      querySelector: () => null,
+      style: {
+        getPropertyValue: (name: string) => properties.get(name) ?? "",
+        getPropertyPriority: () => "",
+        setProperty: (name: string, value: string) => properties.set(name, value),
+      },
+      getBoundingClientRect: () => ({
+        height: properties.get("content-visibility") === "visible" ? 80 : 62,
+      }),
+    };
+  });
+  const style = new Map<string, string>();
+  const attributes = new Set<string>();
+  const items = new Map([
+    ["[data-filter-item]", rows],
+    ["[data-filter-item]:not([hidden])", rows],
+  ]);
+  const list = {
+    querySelector: () => null,
+    querySelectorAll: (selector: string) => items.get(selector) ?? [],
+    toggleAttribute: (name: string, force: boolean) =>
+      force ? attributes.add(name) : attributes.delete(name),
+    hasAttribute: (name: string) => attributes.has(name),
+    style: { setProperty: (name: string, value: string) => style.set(name, value) },
+  };
+  const root = {
+    dataset: { count: '"{shown} of {total}"' },
+    querySelector: (selector: string) => (selector === "[data-filter-list]" ? list : {}),
+  };
+  let resize: ResizeObserverCallback | undefined;
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      constructor(callback: ResizeObserverCallback) {
+        resize = callback;
+      }
+      observe = vi.fn();
+    },
+  );
+  vi.stubGlobal("getComputedStyle", () => ({
+    paddingTop: "6px",
+    paddingBottom: "6px",
+    borderTopWidth: "1px",
+    borderBottomWidth: "1px",
+  }));
+  new FilterView(root as unknown as HTMLElement).activate();
+  assert(resize, "List resize callback missing");
+  return { style, rows, resize };
+}
+
+describe("FilterView", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("measures the content height of a long list when every row skips layout", () => {
+    const { style, rows, resize } = skippedRowsFixture();
+    resize([{ contentRect: { width: 640 } } as ResizeObserverEntry], {} as ResizeObserver);
+
+    expect(style.get("--hw-list-filter-row")).toBe("66px");
+    expect(rows.every(({ style }) => style.getPropertyValue("content-visibility") === "")).toBe(
+      true,
+    );
   });
 });
 

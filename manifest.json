@@ -566,7 +566,7 @@
     },
     {
       "path": "elements/list-filter-view.ts",
-      "sha256": "9ab35f6e839587a3fbc7926c3317c74d619cdce1e5ae89a76e55c7b590dbc88b"
+      "sha256": "c74aaeaa29584ec2b4a86b64a32ea1270c79e2091340095e9a1ea691accc9ab4"
     },
     {
       "path": "elements/choice.css",
