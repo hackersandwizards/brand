@@ -24,7 +24,10 @@ export const fontFaces = (css: string) =>
     .map(([, body]): Record<string, string> => {
       const { src, ...rest } = declarations(body);
       const source = src?.match(/url\("fonts\/([^"]+)"\) format\("([^"]+)"\)/);
-      if (source == null) throw new Error(`Font file or format missing: ${rest["font-family"]}`);
+      if (source == null)
+        throw new Error(
+          `Font file or format missing for ${rest["font-family"]}, so the generator cannot list the web face in fonts.json. Set its @font-face src in tokens/fonts.css to url("fonts/<file>") format("<format>").`,
+        );
       const [, file, format] = source;
       return { file, format, ...camelCased(rest) };
     });
@@ -66,7 +69,7 @@ const mailStacks = () => {
   const mono = stacks.find((s) => s.endsWith("monospace"));
   if (!sans || !mono || stacks.some((s) => s !== sans && s !== mono))
     throw new Error(
-      "mail-signature/template.html: every font-family is one sans or one mono stack",
+      "mail-signature/template.html must supply both stacks for generated/fonts.json. In applications/mail-signature/template.html, reuse one font-family stack ending in sans-serif and one ending in monospace.",
     );
   return { sans, mono };
 };
@@ -76,7 +79,9 @@ const fontFaceModule = (screen: string) => {
   const rulesByFace = faceRules(screen);
   const rules = rulesByFace.join("\n\n");
   if (rules.match(/url\(/g)?.length !== rules.match(/url\("fonts\/[^"]+"\)/g)?.length)
-    throw new Error('tokens/fonts.css: a url() not written url("fonts/<file>")');
+    throw new Error(
+      'tokens/fonts.css contains a font URL the generated fontFaceRules cannot rebase. Write each @font-face URL as url("fonts/<file>").',
+    );
   return `// Generated from tokens/fonts.css by scripts/tokens.ts. Edit the source, never this file.
 
 const FACES = ${JSON.stringify(rulesByFace, null, 2)} as const;

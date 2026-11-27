@@ -70,27 +70,42 @@ const CSS = ".a { border-radius: 6px; color: #123456; }\n";
 const entry = (radius: number) =>
   JSON.stringify({ "a.css": { hex: 1, radius, reason: "r" } }, null, 2);
 
+test("brand-colours explains how to run it when Git cannot list a checkout", () => {
+  const dir = mkdtempSync(join(tmpdir(), "brand-upgrade-"));
+  dirs.push(dir);
+  const result = Bun.spawnSync(["bun", join(ROOT, "scan", "colours.ts")], {
+    cwd: dir,
+    env: { ...process.env, GIT_CEILING_DIRECTORIES: dirname(dir), LC_ALL: "C" },
+  });
+  expect(result.exitCode).toBe(1);
+  expect(result.stderr.toString()).toContain(
+    "brand-colours: Git could not list the files to check (fatal: not a git repository (or any of the parent directories): .git). Run from the project's Git checkout and make sure git ls-files works there.",
+  );
+});
+
 test.each([
   {
     label: "working-tree array",
     before: "{}",
     after: "[]",
     source: "",
-    error: "expected an object of allowances",
+    error:
+      "the scan cannot read allowances from this JSON shape. Use an object keyed by file path.",
   },
   {
     label: "committed array",
     before: "[]",
     after: "{}",
     source: "",
-    error: "expected an object of allowances",
+    error:
+      "the scan cannot read allowances from this JSON shape. Use an object keyed by file path.",
   },
   {
     label: "non-numeric metric",
     before: entry(1),
     after: '{"a.css":{"hex":"invalid","radius":1,"reason":"r"}}',
     source: CSS,
-    error: '"a.css": "hex" needs a non-negative integer',
+    error: '"a.css": "hex" cannot be used as an allowance. Set it to a non-negative safe integer.',
   },
 ])(
   "brand-colours rejects a $label before checking or tightening",
@@ -204,10 +219,10 @@ test.each([
     const dir = consumer({ [file]: committed });
     write(dir, { [file]: working });
     expect(() => checkConsumerCopies(dir)).toThrow(
-      "brand-copies.json: expected an object of reasons",
+      "brand-copies.json: the scan cannot read exceptions from this JSON shape. Use an object mapping each exception key to its reason string.",
     );
     expect(() => checkConsumerCopies(dir, ["--tighten"])).toThrow(
-      "brand-copies.json: expected an object of reasons",
+      "brand-copies.json: the scan cannot read exceptions from this JSON shape. Use an object mapping each exception key to its reason string.",
     );
   },
 );
@@ -216,7 +231,7 @@ test("brand-copies --tighten rejects an allowance whose reason is not a string",
   const file = "brand-copies.json";
   const dir = consumer({ [file]: '{"copy.svg":null}' });
   expect(() => checkConsumerCopies(dir, ["--tighten"])).toThrow(
-    'brand-copies.json: "copy.svg" needs a string reason',
+    'brand-copies.json: "copy.svg" has a reason the scan cannot read. Set the entry\'s string value to explain why the exception is needed.',
   );
   expect(readFileSync(join(dir, file), "utf8")).toBe('{"copy.svg":null}');
 });

@@ -138,10 +138,21 @@ test("brand-retired passes a clean build that also contains a binary asset", () 
   expect(run(clean).code).toBe(0);
 });
 
-test("brand-retired reports the path and retired line found in a built folder", () => {
-  const hit = run(built({ "about/index.html": retiredPage }));
+test.each([
+  { label: "page copy", file: "about/index.html", content: retiredPage, retired: line },
+  {
+    label: "bundled verbal.json",
+    file: "app.js",
+    content: `export const verbal = ${JSON.stringify(verbal)};`,
+    retired: verbal.retired[0].text,
+  },
+])("brand-retired reports the path and retired line in $label", ({ file, content, retired }) => {
+  const dir = built({ [file]: content });
+  const hit = run(dir);
   expect(hit.code).toBe(1);
-  expect(hit.out).toContain(`about/index.html: "${line}"`);
+  expect(hit.out.split("\n")[0]).toBe(
+    `${join(dir, file)}: "${retired}" is retired and should no longer appear in builds. Replace it in the source with the current value of the field its "replacedBy" names in verbal.json, import only the fields you use if the whole file is bundled, and rebuild.`,
+  );
 });
 
 test.each<{ label: string; files: Record<string, string>; paths: string[] }>([
@@ -198,12 +209,26 @@ test("no file the package ships carries a retired line, verbal.json aside", () =
   expect(diagnostics).toEqual([]);
 });
 
-test("brand-retired exits 2 on no path, a missing path and a folder without a text file", () => {
+test("brand-retired exits 2 on no path", () => {
   expect(run().code).toBe(2);
-  expect(run(join(tmpdir(), "brand-retired-missing")).code).toBe(2);
-  expect(run(built({ "a.png": new Uint8Array([0]) })).code).toBe(2);
+});
+
+test("brand-retired identifies a missing output path", () => {
+  const missing = join(built({}), "missing");
+  expect(run(missing)).toEqual({
+    code: 2,
+    out: `brand-retired: missing output at ${missing} blocks the scan. Build first and pass the actual output folders or files.\n`,
+  });
+});
+
+test("brand-retired identifies a build containing no text", () => {
+  const binary = built({ "a.png": new Uint8Array([0]) });
+  expect(run(binary)).toEqual({
+    code: 2,
+    out: `brand-retired: no text files in ${binary}, so the scan cannot check these inputs. Build first and pass folders or files containing the rendered text.\n`,
+  });
   // Each path needs a text file of its own: a second build that came out empty fails too.
-  expect(run(built({ "index.html": PAGE }), built({ "a.png": new Uint8Array([0]) })).code).toBe(2);
+  expect(run(built({ "index.html": PAGE }), binary).code).toBe(2);
 });
 
 test("brand-retired reads past a dangling symlink", () => {

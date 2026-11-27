@@ -116,7 +116,10 @@ export const codeTheme = (tokens: Record<string, string>, colors: Record<string,
   const code = (role: string) => {
     const value = tokens[`--code-${role}`];
     const hex = value?.startsWith("var(") ? colors[value.slice(4, -1)] : value;
-    if (!hex) throw new Error(`--code-${role}: ${value} resolves to no colour`);
+    if (!hex)
+      throw new Error(
+        `--code-${role}: ${value} resolves to no colour for the Shiki theme. Set this role in tokens/tokens.css to a six-digit hex colour or a var() of a defined --color-* token.`,
+      );
     return hex;
   };
   return {

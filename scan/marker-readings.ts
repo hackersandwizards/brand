@@ -55,10 +55,17 @@ export function applyExceptions(
       !Number.isInteger(e.off) ||
       e.off < 1
     )
-      return [`markers exception "${glob}": needs a "reason" and an "off" count of at least 1`];
+      return [
+        `markers exception "${glob}": the check cannot validate this allowance. In brand-elements.json "markers", give the glob a nonempty "reason" and an integer "off" count of at least 1.`,
+      ];
     if (n === 0 && measured.some((page) => new Bun.Glob(glob).match(pathOf(page))))
-      return [`markers exception "${glob}" is stale: it keeps no off reading`];
-    if (n > e.off) return [`markers exception "${glob}": ${n} off readings, ${e.off} kept`];
+      return [
+        `markers exception "${glob}" is stale: it keeps no off reading. Remove this glob from brand-elements.json "markers".`,
+      ];
+    if (n > e.off)
+      return [
+        `markers exception "${glob}": ${n} off readings, ${e.off} kept, so the matched pages exceed the allowed count. Fix marker alignment on those pages using marker.css.`,
+      ];
     return [];
   });
   const kept = entries.flatMap(({ readings }) => readings);

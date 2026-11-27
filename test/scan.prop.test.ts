@@ -48,10 +48,10 @@ test.prop([fc.oneof(fc.constantFrom("constructor", "__proto__", "toString"), uni
     `src/Component.astro: forks the expert component ${name}; import it from the package`,
   ]);
   expect(unlisted({}, { allow, committed: allow })).toEqual([
-    `brand-scan.json: ${name} forks nothing; drop its entry (brand-scan --tighten)`,
+    `brand-scan.json: ${name} has an unused fork allowance that could hide a new fork. Run bun run brand-scan --tighten to drop the entry.`,
   ]);
   expect(unlisted(found, { allow, committed: {} })).toEqual([
-    `brand-scan.json: ${name} added against HEAD; the list may only shrink, or during a pin change name a fork committed as is`,
+    `brand-scan.json: ${name} adds a fork exception beyond what HEAD and the pin-change rule permit. Import the expert component from the package and remove this entry.`,
   ]);
   expect(unlisted(found, { allow, committed: allow })).toEqual([]);
 });

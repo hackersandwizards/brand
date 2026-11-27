@@ -24,7 +24,7 @@ test("flags an unlisted fork, an entry without a reason, one added against HEAD 
   expect(unlisted(found, { allow: { pill: " " }, committed: { pill: "r" } })).toHaveLength(1);
   expect(unlisted(found, { allow: { pill: "r" }, committed: {} })).toHaveLength(1);
   expect(unlisted({}, { allow: { pill: "r" }, committed: { pill: "r" } })).toEqual([
-    "brand-scan.json: pill forks nothing; drop its entry (brand-scan --tighten)",
+    "brand-scan.json: pill has an unused fork allowance that could hide a new fork. Run bun run brand-scan --tighten to drop the entry.",
   ]);
 });
 
@@ -34,11 +34,11 @@ test("fork findings name the files and the reason a new allowlist entry is block
     "features/Pill.astro, shared/pill.tsx: forks the expert component pill; import it from the package",
   ]);
   expect(unlisted(found, { allow: { pill: " " }, committed: { pill: "Old entry" } })).toEqual([
-    "brand-scan.json: pill names no reason",
+    "brand-scan.json: pill has an undocumented component exception. Set the entry's string value to explain why the fork must stay.",
   ]);
   const allow = { pill: "Existing layout" };
   expect(unlisted(found, { allow, committed: {} }, (key) => key === "pill")).toEqual([]);
   expect(unlisted(found, { allow, committed: {} }, (key) => key === "header")).toEqual([
-    "brand-scan.json: pill added against HEAD; the list may only shrink, or during a pin change name a fork committed as is",
+    "brand-scan.json: pill adds a fork exception beyond what HEAD and the pin-change rule permit. Import the expert component from the package and remove this entry.",
   ]);
 });

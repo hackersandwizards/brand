@@ -82,7 +82,10 @@ export const runGit = (args: string[]) =>
 /** Every file under the current directory, tracked or untracked, .gitignore honoured. */
 export const listTree = (cmd: string) => {
   const ls = runGit(["ls-files", "-z", "--cached", "--others", "--exclude-standard"]);
-  if (ls.status !== 0) throw new Error(`${cmd}: not a git checkout: ${ls.stderr}`);
+  if (ls.status !== 0)
+    throw new Error(
+      `${cmd}: Git could not list the files to check (${ls.stderr?.trim() ?? ls.error?.message}). Run from the project's Git checkout and make sure git ls-files works there.`,
+    );
   return [...new Set(ls.stdout.split("\0"))].filter((p) => p && existsSync(p));
 };
 

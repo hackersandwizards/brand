@@ -1,5 +1,5 @@
 import { basename, extname } from "node:path";
-import type { Exception } from "./elements-config";
+import { LIST, type Exception } from "./elements-config";
 import { setsOwned } from "./element-properties";
 import { outside, rules } from "./element-stylesheet";
 import { ENGINE_STYLE } from "./engine-style";
@@ -70,7 +70,8 @@ function componentFinding(path: string, raw: string, allow: Record<string, Excep
     return;
   // A fact, singular, is one row (dt and dd) of the facts list its parent renders, never a list.
   if (/(^|-)fact($|-)/.test(name) && /<dt\b/.test(raw) && !/<dl\b/.test(raw)) return;
-  return `${path}: a component named like a shared element; render the hw-* element or list "${name}" as an exception`;
+  const classes = elements.map((element) => `.hw-${element}`).join(" or ");
+  return `${path}: this component is named for a shared element and renders its own markup. Render ${classes} or give "${name}" a reason in ${LIST} "exceptions".`;
 }
 
 /** The subject class of a selector that overrides a property a shared element owns. */
@@ -79,11 +80,13 @@ function stylingFork(selector: string, props: string[], allow: Record<string, Ex
   // A compound with an hw-* class is the element itself; any other class named like one forks it.
   const classes = subjects(selector);
   if (classes.some((c) => c.startsWith("hw-"))) return;
-  return classes.find(
-    (cls) =>
-      !Object.hasOwn(allow, cls) &&
-      namedElements(cls).some((element) => props.some((prop) => setsOwned(element, prop))),
-  );
+  for (const cls of classes) {
+    if (Object.hasOwn(allow, cls)) continue;
+    const elements = namedElements(cls).filter((element) =>
+      props.some((prop) => setsOwned(element, prop)),
+    );
+    if (elements.length) return { cls, elements };
+  }
 }
 
 /** Findings in a stylesheet, including the style blocks of a component or document. */
@@ -93,10 +96,10 @@ function stylesheetFindings(path: string, raw: string, allow: Record<string, Exc
   const out: string[] = [];
   for (const { selectors, props } of rules(styles(raw, ext))) {
     for (const sel of selectors) {
-      const cls = stylingFork(sel, props, allow);
-      if (cls)
+      const fork = stylingFork(sel, props, allow);
+      if (fork)
         out.push(
-          `${path}: ${sel} styles an element named like a shared one; use the hw-* element or list "${cls}" as an exception`,
+          `${path}: ${sel} sets styles owned by ${fork.elements.map((element) => `.hw-${element}`).join(", ")}. Use the shared element stylesheet or give "${fork.cls}" a reason in ${LIST} "exceptions".`,
         );
     }
   }

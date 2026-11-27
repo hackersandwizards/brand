@@ -128,14 +128,20 @@ export const unlistedCopies = (
     .filter(([p]) => !Object.hasOwn(allow, p))
     .map(([p, why]) => `${p}: ${why}; import it from the package`),
   ...Object.entries(allow).flatMap(([p, r]) => [
-    ...(r?.trim() ? [] : [`${LIST}: ${p} names no reason`]),
+    ...(r?.trim()
+      ? []
+      : [
+          `${LIST}: ${p} has an undocumented copy exception. Set the entry's string value to explain why the copy must stay.`,
+        ]),
     // An entry on a file that is no copy would let a copy placed there later pass unseen.
     ...(Object.hasOwn(found, p)
       ? []
-      : [`${LIST}: ${p} is no copy; drop its entry (brand-copies --tighten)`]),
+      : [
+          `${LIST}: ${p} has an unused copy allowance that could hide a new copy. Run bun run brand-copies --tighten to drop the entry.`,
+        ]),
     ...(committed && !Object.hasOwn(committed, p) && !mayAdd(p)
       ? [
-          `${LIST}: ${p} added against HEAD; the list may only shrink, or during a pin change name a file committed as is`,
+          `${LIST}: ${p} adds a copy exception beyond what HEAD and the pin-change rule permit. Use the package file and remove this entry.`,
         ]
       : []),
   ]),

@@ -188,7 +188,7 @@ test("flags an unlisted copy, an entry without a reason, one added against HEAD 
   ).toHaveLength(1);
   expect(unlistedCopies(found, { allow, committed: {} })).toHaveLength(1);
   expect(unlistedCopies({}, { allow, committed: allow })).toEqual([
-    "brand-copies.json: public/favicon.svg is no copy; drop its entry (brand-copies --tighten)",
+    "brand-copies.json: public/favicon.svg has an unused copy allowance that could hide a new copy. Run bun run brand-copies --tighten to drop the entry.",
   ]);
 });
 
@@ -200,11 +200,13 @@ test("copy findings identify the file and reason, with new entries allowed only 
   ]);
   expect(
     unlistedCopies(found, { allow: { [path]: " " }, committed: { [path]: "Old entry" } }),
-  ).toEqual(["brand-copies.json: src/assets/copied.svg names no reason"]);
+  ).toEqual([
+    "brand-copies.json: src/assets/copied.svg has an undocumented copy exception. Set the entry's string value to explain why the copy must stay.",
+  ]);
   const allow = { [path]: "Existing artwork" };
   expect(unlistedCopies(found, { allow, committed: {} }, (p) => p === path)).toEqual([]);
   expect(unlistedCopies(found, { allow, committed: {} }, (p) => p === "other.svg")).toEqual([
-    "brand-copies.json: src/assets/copied.svg added against HEAD; the list may only shrink, or during a pin change name a file committed as is",
+    "brand-copies.json: src/assets/copied.svg adds a copy exception beyond what HEAD and the pin-change rule permit. Use the package file and remove this entry.",
   ]);
 });
 

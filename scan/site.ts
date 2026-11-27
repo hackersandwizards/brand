@@ -101,7 +101,9 @@ export const basePath = (at: string) => `/${at.replace(/^\/+|\/+$/g, "")}/`.repl
 /** Validates exclusions and discovers built story states, skipping redirects. */
 function storyStates(stories: string, exclude: string[]) {
   if (!Array.isArray(exclude))
-    throw new Error(`"exclude" is a list of globs, not ${JSON.stringify(exclude)}`);
+    throw new Error(
+      `brand-elements.json "catalog.exclude": ${JSON.stringify(exclude)} cannot select stories to skip. Set "exclude" to an array of glob strings relative to the stories folder.`,
+    );
   const pages = existsSync(stories)
     ? readdirSync(stories, { recursive: true, encoding: "utf8" }).filter((f) =>
         f.endsWith("/index.html"),
@@ -111,7 +113,9 @@ function storyStates(stories: string, exclude: string[]) {
   const skip = exclude.map((g) => {
     const glob = new Bun.Glob(g);
     if (!pages.some((f) => glob.match(f)))
-      throw new Error(`exclude "${g}" matches no story under ${stories}`);
+      throw new Error(
+        `exclude "${g}" matches no story under ${stories}, so it skips nothing. Remove or correct this glob in brand-elements.json "catalog.exclude" using paths relative to the stories folder.`,
+      );
     return glob;
   });
   const states = pages
@@ -122,7 +126,10 @@ function storyStates(stories: string, exclude: string[]) {
     )
     .map((f) => `stories/${f.slice(0, -"index.html".length)}`)
     .sort();
-  if (!states.length) throw new Error(`no story page under ${stories}; build the catalog first`);
+  if (!states.length)
+    throw new Error(
+      `no story page under ${stories}, so the check cannot measure the catalog. Build the catalog at that path and make sure brand-elements.json "catalog.exclude" leaves a nonredirect story.`,
+    );
   return states;
 }
 

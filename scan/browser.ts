@@ -31,7 +31,10 @@ export async function open(page: Page, url: string, csp?: Csp) {
       waitUntil: "networkidle0",
       timeout: 30_000 * loadFactor(),
     });
-    if (answer && answer.status() >= 400) throw new Error(`${url}: HTTP ${answer.status()}`);
+    if (answer && answer.status() >= 400)
+      throw new Error(
+        `${url}: HTTP ${answer.status()} prevented the check from opening the page. Fix the route on the scan server or correct the URL in brand-elements.json or the command arguments.`,
+      );
     if (unmatched.length)
       throw new Error(
         `brand-elements.json "csp": no glob matches ${unmatched.join(", ")}; name the policy your host sends there`,
@@ -39,7 +42,10 @@ export async function open(page: Page, url: string, csp?: Csp) {
   } finally {
     page.off("requestfailed", failed).off("response", status);
   }
-  if (missing.length) throw new Error(`${url}: stylesheet not loaded: ${missing.join(", ")}`);
+  if (missing.length)
+    throw new Error(
+      `${url}: stylesheet not loaded: ${missing.join(", ")}. Fix the stylesheet URL or serve the stylesheet at that URL so the check can measure the styled page.`,
+    );
 }
 
 /** Runs in the page: opens every closed <details>, whose contents are drawn only once it opens. Not

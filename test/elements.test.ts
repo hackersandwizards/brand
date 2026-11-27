@@ -1,11 +1,18 @@
 import { defined } from "@hackersandwizards/scaffolding/defined";
 import { afterAll, assert, expect, test } from "vitest";
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { definedClasses, isBrandClass, unstyledBrandClasses } from "../scan/element-classes";
-import { exceptionFindings } from "../scan/element-exceptions";
-import type { Config } from "../scan/elements-config";
+import { exceptionFindings, listedElementExceptions } from "../scan/element-exceptions";
+import { listedElementPages, readElementsConfig, type Config } from "../scan/elements-config";
 import { elementStyleRules, setsOwned } from "../scan/element-properties";
 import { ELEMENTS, SETTINGS } from "../scan/element-rules";
 import { rules, utility as utilityProperties } from "../scan/element-stylesheet";
@@ -29,8 +36,8 @@ test("exceptions: one without a reason, one a page carries but the list does not
   expect(
     exceptionFindings(config, [{ exceptions: ["total-band", "own-chart"] }, { exceptions: [] }]),
   ).toEqual([
-    'brand-elements.json: exception "total-band" names no reason',
-    'own-chart: a [data-hw-exception="own-chart"] on a page, but brand-elements.json declares no such exception',
+    'brand-elements.json: exception "total-band" skips measurements without a reason. In "exceptions", explain why "total-band" is exempt in its string value or "reason" field.',
+    'own-chart: [data-hw-exception="own-chart"] hides elements from measurement without a declared reason. Remove the attribute or give "own-chart" a reason in brand-elements.json "exceptions".',
   ]);
 });
 
@@ -52,16 +59,16 @@ test("source: a rule styling an element-named class is red unless hw-* or an exc
     readout: { reason: "the deck's own medium", files: ["deck/readout.css"] },
   });
   expect(out).toEqual([
-    'src/a.css: .side-card:not(.x) styles an element named like a shared one; use the hw-* element or list "side-card" as an exception',
-    'src/a.css: .total-note styles an element named like a shared one; use the hw-* element or list "total-note" as an exception',
-    'src/a.css: .callout styles an element named like a shared one; use the hw-* element or list "callout" as an exception',
-    'src/a.css: .eyebrow styles an element named like a shared one; use the hw-* element or list "eyebrow" as an exception',
-    'src/a.css: .text-button styles an element named like a shared one; use the hw-* element or list "text-button" as an exception',
-    'src/a.css: .event-facts styles an element named like a shared one; use the hw-* element or list "event-facts" as an exception',
-    'src/a.css: .icon-button styles an element named like a shared one; use the hw-* element or list "icon-button" as an exception',
-    'src/components/Breadcrumbs.astro: a component named like a shared element; render the hw-* element or list "breadcrumbs" as an exception',
-    'src/components/Card.astro: a component named like a shared element; render the hw-* element or list "card" as an exception',
-    'src/components/Chip.astro: a component named like a shared element; render the hw-* element or list "chip" as an exception',
+    'src/a.css: .side-card:not(.x) sets styles owned by .hw-card. Use the shared element stylesheet or give "side-card" a reason in brand-elements.json "exceptions".',
+    'src/a.css: .total-note sets styles owned by .hw-callout. Use the shared element stylesheet or give "total-note" a reason in brand-elements.json "exceptions".',
+    'src/a.css: .callout sets styles owned by .hw-callout. Use the shared element stylesheet or give "callout" a reason in brand-elements.json "exceptions".',
+    'src/a.css: .eyebrow sets styles owned by .hw-label. Use the shared element stylesheet or give "eyebrow" a reason in brand-elements.json "exceptions".',
+    'src/a.css: .text-button sets styles owned by .hw-button. Use the shared element stylesheet or give "text-button" a reason in brand-elements.json "exceptions".',
+    'src/a.css: .event-facts sets styles owned by .hw-facts. Use the shared element stylesheet or give "event-facts" a reason in brand-elements.json "exceptions".',
+    'src/a.css: .icon-button sets styles owned by .hw-icon-button. Use the shared element stylesheet or give "icon-button" a reason in brand-elements.json "exceptions".',
+    'src/components/Breadcrumbs.astro: this component is named for a shared element and renders its own markup. Render .hw-breadcrumb or give "breadcrumbs" a reason in brand-elements.json "exceptions".',
+    'src/components/Card.astro: this component is named for a shared element and renders its own markup. Render .hw-card or give "card" a reason in brand-elements.json "exceptions".',
+    'src/components/Chip.astro: this component is named for a shared element and renders its own markup. Render .hw-pill or give "chip" a reason in brand-elements.json "exceptions".',
   ]);
 });
 
@@ -156,9 +163,9 @@ test("source: a compound forks an element in any class order; an --hw-* setting 
     "src/components/NoteCard.astro": `<div class="hw-card"/>`,
   };
   expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
-    'src/a.css: .project-card.is-open styles an element named like a shared one; use the hw-* element or list "project-card" as an exception',
-    'src/a.css: .is-open.project-card styles an element named like a shared one; use the hw-* element or list "project-card" as an exception',
-    'src/components/TeamCard.astro: a component named like a shared element; render the hw-* element or list "team-card" as an exception',
+    'src/a.css: .project-card.is-open sets styles owned by .hw-card. Use the shared element stylesheet or give "project-card" a reason in brand-elements.json "exceptions".',
+    'src/a.css: .is-open.project-card sets styles owned by .hw-card. Use the shared element stylesheet or give "project-card" a reason in brand-elements.json "exceptions".',
+    'src/components/TeamCard.astro: this component is named for a shared element and renders its own markup. Render .hw-card or give "team-card" a reason in brand-elements.json "exceptions".',
   ]);
 });
 
@@ -170,8 +177,8 @@ test("source: a component named like an element renders that element's class; an
     "src/content/doc.html": `<style data-hw-document>.card { border-radius: 12px }</style>`,
   };
   expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
-    'src/components/ProjectCard.astro: a component named like a shared element; render the hw-* element or list "project-card" as an exception',
-    'src/pages/index.html: .card styles an element named like a shared one; use the hw-* element or list "card" as an exception',
+    'src/components/ProjectCard.astro: this component is named for a shared element and renders its own markup. Render .hw-card or give "project-card" a reason in brand-elements.json "exceptions".',
+    'src/pages/index.html: .card sets styles owned by .hw-card. Use the shared element stylesheet or give "card" a reason in brand-elements.json "exceptions".',
   ]);
 });
 
@@ -185,10 +192,10 @@ test("source: a button component may render the icon button, a fact component on
     "src/components/FactList.astro": `<dl class="my-facts"><dt>Ort</dt><dd>Hamburg</dd></dl>`,
   };
   expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
-    'src/components/SaveButton.astro: a component named like a shared element; render the hw-* element or list "save-button" as an exception',
-    'src/components/FactBox.astro: a component named like a shared element; render the hw-* element or list "fact-box" as an exception',
-    'src/components/Facts.astro: a component named like a shared element; render the hw-* element or list "facts" as an exception',
-    'src/components/FactList.astro: a component named like a shared element; render the hw-* element or list "fact-list" as an exception',
+    'src/components/SaveButton.astro: this component is named for a shared element and renders its own markup. Render .hw-button or give "save-button" a reason in brand-elements.json "exceptions".',
+    'src/components/FactBox.astro: this component is named for a shared element and renders its own markup. Render .hw-facts or give "fact-box" a reason in brand-elements.json "exceptions".',
+    'src/components/Facts.astro: this component is named for a shared element and renders its own markup. Render .hw-facts or give "facts" a reason in brand-elements.json "exceptions".',
+    'src/components/FactList.astro: this component is named for a shared element and renders its own markup. Render .hw-facts or give "fact-list" a reason in brand-elements.json "exceptions".',
   ]);
 });
 
@@ -200,10 +207,10 @@ test("source: a PascalCase component, a camelCase class and a nested rule are re
     "src/a.scss": `.card { border-radius: 8px; &:hover { color: red } } .projectCard { padding: 0 }`,
   };
   expect(sourceFindings(Object.keys(files), (p) => defined(files[p], p), {})).toEqual([
-    'src/components/ProjectCard.astro: a component named like a shared element; render the hw-* element or list "project-card" as an exception',
-    'src/components/StatusPill.tsx: a component named like a shared element; render the hw-* element or list "status-pill" as an exception',
-    'src/a.scss: .card styles an element named like a shared one; use the hw-* element or list "card" as an exception',
-    'src/a.scss: .projectCard styles an element named like a shared one; use the hw-* element or list "projectCard" as an exception',
+    'src/components/ProjectCard.astro: this component is named for a shared element and renders its own markup. Render .hw-card or give "project-card" a reason in brand-elements.json "exceptions".',
+    'src/components/StatusPill.tsx: this component is named for a shared element and renders its own markup. Render .hw-pill or give "status-pill" a reason in brand-elements.json "exceptions".',
+    'src/a.scss: .card sets styles owned by .hw-card. Use the shared element stylesheet or give "card" a reason in brand-elements.json "exceptions".',
+    'src/a.scss: .projectCard sets styles owned by .hw-card. Use the shared element stylesheet or give "projectCard" a reason in brand-elements.json "exceptions".',
   ]);
 });
 
@@ -264,7 +271,10 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }));
 test("brand-elements exits 2 on a brand-elements.json naming no page", () => {
   file("brand-elements.json", '{"pages":[]}');
   const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
-  expect(r.exitCode).toBe(2);
+  expect([r.exitCode, r.stderr.toString().trim()]).toEqual([
+    2,
+    'brand-elements: brand-elements.json names no page, so the check measures nothing. Add a page to "pages" or set "catalog" to a built catalog folder.',
+  ]);
 });
 
 test("brand-elements exits 2 on a site path with no site or --base to serve it", () => {
@@ -272,7 +282,7 @@ test("brand-elements exits 2 on a site path with no site or --base to serve it",
   const r = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
   expect([r.exitCode, r.stderr.toString().trim()]).toEqual([
     2,
-    "brand-elements: /catalog/: a site path, but no site or --base to serve it",
+    'brand-elements: /catalog/: the check cannot open these site paths without a server. Set "site" in brand-elements.json or pass --base with the server URL.',
   ]);
 });
 
@@ -285,7 +295,9 @@ test.each(["elements", "markers"])("brand-%s exits 2 on a malformed csp", (scan)
   });
   rmSync(repo, { recursive: true });
   expect(r.exitCode).toBe(2);
-  expect(r.stderr.toString()).toContain(`brand-${scan}: brand-elements.json "csp"`);
+  expect(r.stderr.toString().trim()).toBe(
+    `brand-${scan}: brand-elements.json "csp": the browser cannot apply the policy {}. Set "csp" to one nonempty policy line or an object mapping page globs to policy lines.`,
+  );
 });
 
 test.each([
@@ -308,7 +320,9 @@ test("brand-elements exits 2 when lightOnly is a string", () => {
   file("brand-elements.json", '{"lightOnly":"true"}');
   const run = Bun.spawnSync(["bun", join(import.meta.dir, "../scan/elements.ts")], { cwd: dir });
   expect(run.exitCode).toBe(2);
-  expect(run.stderr.toString()).toContain('"lightOnly": expected a boolean');
+  expect(run.stderr.toString().trim()).toBe(
+    'brand-elements: brand-elements.json "lightOnly": the check cannot tell whether to require night tokens. Set "lightOnly" to true or false.',
+  );
 });
 
 test("a rule setting only private custom properties defines its class; an unclosed :not( ends", () => {
@@ -443,7 +457,7 @@ test("owned style properties keep multiword selectors and part declaration order
 test("an exception named constructor must be explicitly declared", () => {
   const results = [{ exceptions: ["constructor"] }];
   expect(exceptionFindings({ pages: [] }, results)).toEqual([
-    'constructor: a [data-hw-exception="constructor"] on a page, but brand-elements.json declares no such exception',
+    'constructor: [data-hw-exception="constructor"] hides elements from measurement without a declared reason. Remove the attribute or give "constructor" a reason in brand-elements.json "exceptions".',
   ]);
   expect(
     exceptionFindings({ pages: [], exceptions: { constructor: "A reason" } }, results),
@@ -457,7 +471,87 @@ test.each([
   const file = "src/a.css";
   const read = () => `${selector} { color: red }`;
   expect(sourceFindings([file], read, {})).toEqual([
-    `${file}: ${selector} styles an element named like a shared one; use the hw-* element or list "${name}" as an exception`,
+    `${file}: ${selector} sets styles owned by .hw-pill. Use the shared element stylesheet or give "${name}" a reason in brand-elements.json "exceptions".`,
   ]);
   expect(sourceFindings([file], read, { [name]: "A reason" })).toEqual([]);
+});
+
+test("brand-elements needs a configuration in the working directory", () => {
+  const cwd = mkdtempSync(join(tmpdir(), "elements-no-config-"));
+  try {
+    const run = Bun.spawnSync(["bun", join(ROOT, "scan/elements.ts")], { cwd });
+    expect([run.exitCode, run.stderr.toString().trim()]).toEqual([
+      2,
+      `brand-elements: no brand-elements.json in ${realpathSync(cwd)}, so the check has no pages to measure. Run from the folder containing brand-elements.json or create it there with "pages" or "catalog".`,
+    ]);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test("an array cannot hold the scan configuration", () => {
+  expect(() => readElementsConfig("[]")).toThrow(
+    'brand-elements.json: the check needs an object to read page and catalog settings. Put "pages" or "catalog" in a JSON object.',
+  );
+});
+
+test("page entries must be usable as addresses", () => {
+  expect(() => listedElementPages([42])).toThrow(
+    'brand-elements.json "pages": the check cannot read the page list. Set "pages" to an array of URL or path strings.',
+  );
+});
+
+test("exception records must be keyed by their name", () => {
+  expect(() => listedElementExceptions([])).toThrow(
+    'brand-elements.json "exceptions": the check cannot read the named exceptions. Set "exceptions" to an object keyed by data-hw-exception name.',
+  );
+});
+
+test("an exception cannot use a number as its reason", () => {
+  expect(() => listedElementExceptions({ chart: { reason: 42 } })).toThrow(
+    'brand-elements.json "exceptions": the check cannot read the exemption for "chart". Set it to a reason string or an object with a string "reason" and an optional array of paths in "files".',
+  );
+});
+
+test.each(["elements", "markers"])("brand-%s rejects a non-HTTP base", (scan) => {
+  file("brand-elements.json", '{"pages":["/catalog/"]}');
+  const run = Bun.spawnSync(["bun", join(ROOT, `scan/${scan}.ts`), "--base", "file:///catalog/"], {
+    cwd: dir,
+  });
+  expect([run.exitCode, run.stderr.toString().trim()]).toEqual([
+    2,
+    `brand-${scan}: the check cannot open site paths with this --base. Pass --base with an http:// or https:// server URL.`,
+  ]);
+});
+
+test.each([
+  {
+    args: ["--scale"],
+    config: {},
+    message:
+      "error: Option value missing: --scale needs device scales for the measurements. Pass a comma-separated list such as --scale 2,4.",
+  },
+  {
+    args: [],
+    config: { markers: [] },
+    message:
+      'brand-markers: brand-elements.json "markers": the check cannot read the allowed marker deviations. Set "markers" to an object keyed by page glob, with "reason" and "off" for each entry.',
+  },
+  {
+    args: [],
+    config: { exceptions: [] },
+    message:
+      'brand-markers: brand-elements.json "exceptions": the check cannot read the named exceptions. Set "exceptions" to an object keyed by data-hw-exception name.',
+  },
+  {
+    args: [],
+    config: {},
+    message:
+      'brand-markers: the check has no page to measure. Pass a page as an argument or set "pages" or "catalog" in brand-elements.json.',
+  },
+])("brand-markers gives the repair for $message", ({ args, config, message }) => {
+  file("brand-elements.json", JSON.stringify(config));
+  const run = Bun.spawnSync(["bun", join(ROOT, "scan/markers.ts"), ...args], { cwd: dir });
+  expect(run.exitCode).not.toBe(0);
+  expect(run.stderr.toString().split("\n")).toContain(message);
 });

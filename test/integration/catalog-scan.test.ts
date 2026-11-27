@@ -112,7 +112,9 @@ test(
       catalog: { dir: "site/catalog", at: "/catlog/" },
     });
     expect(r.code).not.toBe(0);
-    expect(r.err).toContain("HTTP 404");
+    expect(r.err).toMatch(
+      /http:\/\/127\.0\.0\.1:\d+\/catlog\/stories\/[^/]+\/[^/]+\/default\/: HTTP 404 prevented the check from opening the page\. Fix the route on the scan server or correct the URL in brand-elements\.json or the command arguments\./,
+    );
   },
   limit(60_000),
 );
@@ -139,12 +141,20 @@ test(
     expect(markers(["Lists/**"]).filter((p) => p.includes("Lifted"))).toEqual([]);
     expect(markers([]).filter((p) => p.includes("Lifted")).length).toBeGreaterThan(0);
     rmSync(join(dir, "brand-elements.json"));
-    // A glob that matches no story, or an exclude that is no list, is a usage error.
-    for (const exclude of [["Slides/**"], "Cards/**"])
-      expect(elements({ pages: [], catalog: { dir: "site/catalog", exclude } }).code).toBe(2);
   },
   limit(60_000),
 );
+
+test("a catalog exclusion that matches no story gives the config repair", () => {
+  const stale = elements({ pages: [], catalog: { dir: "site/catalog", exclude: ["Slides/**"] } });
+  expect([stale.code, stale.err.trim()]).toEqual([
+    2,
+    'brand-elements: exclude "Slides/**" matches no story under site/catalog/stories, so it skips nothing. Remove or correct this glob in brand-elements.json "catalog.exclude" using paths relative to the stories folder.',
+  ]);
+  expect(elements({ pages: [], catalog: { dir: "site/catalog", exclude: "Cards/**" } }).code).toBe(
+    2,
+  );
+});
 
 const markerOff = (out: string) => markerReadings(out).filter((r) => !(Math.abs(r.offset) <= 0.25));
 const liftedPages = (out: string) => forkPages(markerOff(out));
@@ -249,7 +259,9 @@ test(
     // Pages without any marker measure nothing, which proves nothing.
     const none = markerRun({ pages: [plain] });
     expect(none.code).toBe(1);
-    expect(none.err).toContain("no marker on any page");
+    expect(none.err.trim()).toBe(
+      'brand-markers: no marker on any page of brand-elements.json "pages", so the check measures nothing. Name a page that renders a list marker in "pages" or as a command argument.',
+    );
   },
   limit(60_000),
 );
@@ -259,7 +271,9 @@ test(
   () => {
     // A site path with no site to serve it is left out, named, rather than opened as a file.
     const unserved = markerRun({ pages: ["/design-system/", plain], catalog: "site/catalog" });
-    expect(unserved.err).toContain("/design-system/: a site path, but no site or --base");
+    expect(unserved.err.trim()).toBe(
+      'brand-markers: /design-system/: the check cannot measure this site path without a server. Set "site" in brand-elements.json, pass --site with the built folder, or pass --base with the server URL.',
+    );
     expect(forkPages(markerReadings(unserved.out))).toEqual([expect.stringMatching(lifted)]);
   },
   limit(60_000),
@@ -289,6 +303,52 @@ test(
     expect(pages).toHaveLength(1);
     expect(pages[0]).toContain("index.html");
     rmSync(join(dir, "brand-elements.json"));
+  },
+  limit(60_000),
+);
+
+test(
+  "brand-elements describes the fix for a visible shared element with an override",
+  () => {
+    write(
+      "brand-elements.json",
+      JSON.stringify({ pages: ["site/catalog/stories/Cards/Fork/default/index.html"] }),
+    );
+    const result = run("elements.ts");
+    expect(result.code).toBe(1);
+    expect(result.err).toMatch(
+      /border-top-left-radius 2px, brand 20px, so the rendered style differs from the reference\. Find the rule in the page CSS that changes border-top-left-radius and use the value rendered by the shared stylesheet\./,
+    );
+  },
+  limit(60_000),
+);
+
+test(
+  "brand-elements names the fix when the configured page contains no shared element",
+  () => {
+    write("brand-elements.json", JSON.stringify({ pages: [plain] }));
+    const result = run("elements.ts");
+    expect(result.code).toBe(1);
+    const lines = result.err.trim().split("\n");
+    expect(lines).toEqual([
+      'brand-elements: no shared element on any page of brand-elements.json, so there is nothing to compare. Point "pages" or "catalog" at a build with a visible shared element.',
+      `${plain}: no shared element found, so the check cannot compare its styles. Render a visible shared element on this page or replace it in brand-elements.json "pages".`,
+    ]);
+  },
+  limit(60_000),
+);
+
+test(
+  "brand-elements names the small radius for a nested brand corner",
+  () => {
+    const page = "site/nested-corner.html";
+    write(page, html('<div class="hw-card"><div style="border-radius:20px 5px">Inner</div></div>'));
+    write("brand-elements.json", JSON.stringify({ pages: [page] }));
+    const result = run("elements.ts");
+    expect(result.code).toBe(1);
+    expect(result.err.trim()).toBe(
+      `${page} corner div "Inner": border-radius draws the brand corner inside div.hw-card "Inner", breaking the outer-only corner rule. Use the small corner on the inner element with var(--hw-corner-sm, var(--radius-sm)) from elements/card.css.`,
+    );
   },
   limit(60_000),
 );

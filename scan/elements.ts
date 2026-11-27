@@ -4,7 +4,13 @@ import { launch } from "./browser";
 import { listedCsp, policies, refusalLine } from "./browser-csp";
 import { pool, tabs } from "./browser-workers";
 import { exceptionFindings, listedElementExceptions } from "./element-exceptions";
-import { elementPage, measureLightPage, measurePage, type PageResult } from "./element-page";
+import {
+  elementPage,
+  measureLightPage,
+  measurePage,
+  type Finding,
+  type PageResult,
+} from "./element-page";
 import { sourceFindings } from "./element-source";
 import {
   type Config,
@@ -24,17 +30,30 @@ finding, and on a named page with no hub element (a zero proves nothing; a story
 none). Exits 2 on a config naming no page and on a catalog folder without a story page. Needs
 Chrome for Testing (CHROME_BINARY overrides).`;
 
+function renderedFinding(f: Finding) {
+  const label = `${f.page} ${f.element} ${f.label}:`;
+  if (f.got === "undefined")
+    return `${label} reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`;
+  if (f.element === "corner")
+    return `${label} ${f.prop} draws ${f.got}, breaking the outer-only corner rule. Use ${f.want} on the inner element with var(--hw-corner-sm, var(--radius-sm)) from elements/card.css.`;
+  return `${label} ${f.prop} ${f.got}, brand ${f.want}, so the rendered style differs from the reference. Find the rule in the page CSS that changes ${f.prop} and use the value rendered by the shared stylesheet.`;
+}
+
 if (import.meta.main) {
   answerHelp(USAGE);
   const json = process.argv.includes("--json");
   if (!existsSync(LIST)) {
-    console.error(`brand-elements: no ${LIST} in ${process.cwd()}`);
+    console.error(
+      `brand-elements: no ${LIST} in ${process.cwd()}, so the check has no pages to measure. Run from the folder containing ${LIST} or create it there with "pages" or "catalog".`,
+    );
     process.exit(2);
   }
   const i = process.argv.indexOf("--base");
   const externalBase = i >= 0 ? (URL.parse(process.argv[i + 1] ?? "") ?? undefined) : undefined;
   if (i >= 0 && !/^https?:$/.test(externalBase?.protocol ?? "")) {
-    console.error(USAGE);
+    console.error(
+      "brand-elements: the check cannot open site paths with this --base. Pass --base with an http:// or https:// server URL.",
+    );
     process.exit(2);
   }
   let config: Config;
@@ -43,7 +62,9 @@ if (import.meta.main) {
   try {
     const raw = readElementsConfig(readFileSync(LIST, "utf8"));
     if (raw.lightOnly != null && typeof raw.lightOnly !== "boolean")
-      throw new Error(`${LIST} "lightOnly": expected a boolean`);
+      throw new Error(
+        `${LIST} "lightOnly": the check cannot tell whether to require night tokens. Set "lightOnly" to true or false.`,
+      );
     config = {
       pages: listedElementPages(raw.pages),
       exceptions: listedElementExceptions(raw.exceptions),
@@ -62,7 +83,7 @@ if (import.meta.main) {
   const pages = [...named, ...stories];
   if (!pages.length) {
     console.error(
-      `brand-elements: ${LIST} names no page; a run that measures nothing passes nothing`,
+      `brand-elements: ${LIST} names no page, so the check measures nothing. Add a page to "pages" or set "catalog" to a built catalog folder.`,
     );
     process.exit(2);
   }
@@ -72,7 +93,7 @@ if (import.meta.main) {
   );
   if (unserved.length) {
     console.error(
-      `brand-elements: ${unserved.join(", ")}: a site path, but no site or --base to serve it`,
+      `brand-elements: ${unserved.join(", ")}: the check cannot open these site paths without a server. Set "site" in ${LIST} or pass --base with the server URL.`,
     );
     process.exit(2);
   }
@@ -101,7 +122,10 @@ if (import.meta.main) {
     return result.seen.length === 0;
   });
   const nothing = results.every((r) => !r.seen.length);
-  if (nothing) console.error(`brand-elements: no shared element on any page of ${LIST}`);
+  if (nothing)
+    console.error(
+      `brand-elements: no shared element on any page of ${LIST}, so there is nothing to compare. Point "pages" or "catalog" at a build with a visible shared element.`,
+    );
   const tree = listTree("brand-elements");
   const source = sourceFindings(tree, (p) => readFileSync(p, "utf8"), config.exceptions ?? {});
   const excepted = exceptionFindings(config, results);
@@ -112,21 +136,17 @@ if (import.meta.main) {
   else {
     const report = skippedReport("brand-elements", tree);
     if (report) console.log(report);
-    for (const f of rendered)
-      console.error(
-        `${f.page} ${f.element} ${f.label}: ${
-          f.got === "undefined"
-            ? `reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`
-            : `${f.prop} ${f.got}, brand ${f.want}`
-        }`,
-      );
+    for (const f of rendered) console.error(renderedFinding(f));
     for (const u of unstyled)
       console.error(
         `${u.page} ${u.label}: carries .${u.cls}, which no stylesheet on the page defines, so it draws unstyled: take the hw-* element brand defines now, or define the class in your own CSS`,
       );
     for (const r of refused) console.error(refusalLine(r));
     for (const line of [...source, ...excepted]) console.error(line);
-    for (const url of empty) console.error(`${url}: no shared element found`);
+    for (const url of empty)
+      console.error(
+        `${url}: no shared element found, so the check cannot compare its styles. Render a visible shared element on this page or replace it in brand-elements.json "pages".`,
+      );
     const shown = new Set(results.flatMap((r) => r.seen));
     console.log(
       `brand-elements: ${shown.size} elements on ${pages.length} pages, ${rendered.length} rendered differences, ${unstyled.length} unstyled classes, ${refused.length} refused by the page's policy, ${source.length} source findings, ${excepted.length} exception findings`,

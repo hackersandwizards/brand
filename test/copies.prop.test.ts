@@ -57,10 +57,10 @@ test.prop([pathKey], {
     `${file}: byte copy; import it from the package`,
   ]);
   expect(unlistedCopies({}, { allow, committed: allow })).toEqual([
-    `brand-copies.json: ${file} is no copy; drop its entry (brand-copies --tighten)`,
+    `brand-copies.json: ${file} has an unused copy allowance that could hide a new copy. Run bun run brand-copies --tighten to drop the entry.`,
   ]);
   expect(unlistedCopies(found, { allow, committed: {} })).toEqual([
-    `brand-copies.json: ${file} added against HEAD; the list may only shrink, or during a pin change name a file committed as is`,
+    `brand-copies.json: ${file} adds a copy exception beyond what HEAD and the pin-change rule permit. Use the package file and remove this entry.`,
   ]);
   expect(unlistedCopies(found, { allow, committed: allow })).toEqual([]);
 });

@@ -175,16 +175,16 @@ test("reports count mismatches while exempting named partner marks", () => {
       { "a.css": { reason: "legacy", rgb: 1 }, "mark.svg": { reason: "mark", partner: "Owner" } },
     ),
   ).toEqual([
-    "a.css: hex 2, allowed 0",
-    "brand-colours.json: a.css: rgb 0, allowed 1; lower it (brand-colours --tighten)",
+    "a.css: hex 2, allowed 0. Reference matching brand tokens from tokens.css or tokens.json in the source that produces the styling.",
+    "brand-colours.json: a.css: rgb 0, allowed 1. Run bun run brand-colours --tighten to lower the allowance to the file's count.",
   ]);
 });
 
 test("reports missing reason, stale count and misplaced partner on one entry in order", () => {
   expect(entryViolations("a.css", { reason: "", partner: "Owner" }, zero)).toEqual([
-    "brand-colours.json: a.css names no reason",
-    "brand-colours.json: a.css is clean; drop its entry (brand-colours --tighten)",
-    'brand-colours.json: a.css: "partner" names a third party\'s mark, an SVG, by name',
+    'brand-colours.json: a.css has an undocumented exception. Set its "reason" to explain why the exception is needed.',
+    "brand-colours.json: a.css has no off-token findings, so its allowance could hide new ones. Run bun run brand-colours --tighten to drop the entry.",
+    'brand-colours.json: a.css: "partner" can only exempt a named third-party SVG mark. Set "partner" to the mark owner\'s name on an SVG entry or remove the field.',
   ]);
 });
 
@@ -212,7 +212,7 @@ test("reports growth beyond both a committed allowance and a pin-change ceiling"
 
 test("rejects a count above the safe integer range", () => {
   expect(() => validateColourCounts({ hex: 2 ** 53 }, "a.css")).toThrow(
-    'a.css: "hex" needs a non-negative integer',
+    'a.css: "hex" cannot be used as an allowance. Set it to a non-negative safe integer.',
   );
 });
 
@@ -222,4 +222,27 @@ test("defaults a missing reason and preserves extra partner metadata", () => {
     review: true,
     reason: "",
   });
+});
+
+test.each([
+  {
+    label: "an allowance that is an array",
+    entry: [],
+    message:
+      'brand-colours.json: "mark.svg" cannot be read as an allowance. Use an object with metric counts and a "reason" string.',
+  },
+  {
+    label: "a numeric reason",
+    entry: { reason: 7 },
+    message:
+      'brand-colours.json: "mark.svg": "reason" cannot explain the exception in its current form. Set it to a string that explains why the file needs the exception.',
+  },
+  {
+    label: "a numeric partner",
+    entry: { reason: "mark", partner: 7 },
+    message:
+      'brand-colours.json: "mark.svg": "partner" cannot identify the mark owner in its current form. Set it to the owner\'s name as a string for a third-party SVG mark or remove the field.',
+  },
+])("reports how to fix $label", ({ entry, message }) => {
+  expect(() => parseAllowlistEntry("mark.svg", entry)).toThrow(message);
 });

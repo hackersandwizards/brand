@@ -62,10 +62,13 @@ export const countViolations = (files: Record<string, Counts>, allow: Allowlist)
     const entry = allow[file];
     for (const k of METRICS) {
       const allowed = entry?.[k] ?? 0;
-      if (counts[k] > allowed) out.push(`${file}: ${k} ${counts[k]}, allowed ${allowed}`);
+      if (counts[k] > allowed)
+        out.push(
+          `${file}: ${k} ${counts[k]}, allowed ${allowed}. Reference matching brand tokens from tokens.css or tokens.json in the source that produces the styling.`,
+        );
       else if (counts[k] < allowed)
         out.push(
-          `${ALLOWLIST}: ${file}: ${k} ${counts[k]}, allowed ${allowed}; lower it (brand-colours --tighten)`,
+          `${ALLOWLIST}: ${file}: ${k} ${counts[k]}, allowed ${allowed}. Run bun run brand-colours --tighten to lower the allowance to the file's count.`,
         );
     }
   }
@@ -80,11 +83,18 @@ export const entryViolations = (
 ) => {
   const out: string[] = [];
   const partner = isPartner(file, entry);
-  if (!entry.reason?.trim()) out.push(`${ALLOWLIST}: ${file} names no reason`);
+  if (!entry.reason?.trim())
+    out.push(
+      `${ALLOWLIST}: ${file} has an undocumented exception. Set its "reason" to explain why the exception is needed.`,
+    );
   if (!partner && METRICS.every((k) => !counts?.[k]))
-    out.push(`${ALLOWLIST}: ${file} is clean; drop its entry (brand-colours --tighten)`);
+    out.push(
+      `${ALLOWLIST}: ${file} has no off-token findings, so its allowance could hide new ones. Run bun run brand-colours --tighten to drop the entry.`,
+    );
   if (entry.partner !== undefined && !partner)
-    out.push(`${ALLOWLIST}: ${file}: "partner" names a third party's mark, an SVG, by name`);
+    out.push(
+      `${ALLOWLIST}: ${file}: "partner" can only exempt a named third-party SVG mark. Set "partner" to the mark owner's name on an SVG entry or remove the field.`,
+    );
   return out;
 };
 
@@ -123,7 +133,7 @@ export const violations = (
     const raised = grownEntryMetrics(entry, baseline.committed[file], baseline.ceiling?.[file]);
     for (const k of raised.filter((metric) => grown.has(metric)))
       out.push(
-        `${ALLOWLIST}: ${file} ${k} grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed`,
+        `${ALLOWLIST}: ${file} ${k} increases the total allowance beyond what HEAD and the pin-change rule permit. Replace excess values with brand tokens, then run bun run brand-colours --tighten.`,
       );
   }
   return out;
@@ -165,19 +175,28 @@ export function validateColourCounts(entry: Record<string, unknown>, label: stri
     const count = entry[metric];
     if (count === undefined) continue;
     if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0)
-      throw new Error(`${label}: "${metric}" needs a non-negative integer`);
+      throw new Error(
+        `${label}: "${metric}" cannot be used as an allowance. Set it to a non-negative safe integer.`,
+      );
   }
 }
 
 /** Validates one path’s allowance and supplies the default empty reason. */
 export function parseAllowlistEntry(file: string, entry: unknown): Allowlist[string] {
   const label = `${ALLOWLIST}: "${file}"`;
-  if (!isRecord(entry)) throw new Error(`${label} needs an object of counts and a reason`);
+  if (!isRecord(entry))
+    throw new Error(
+      `${label} cannot be read as an allowance. Use an object with metric counts and a "reason" string.`,
+    );
   const { reason, partner } = entry;
   if (reason !== undefined && typeof reason !== "string")
-    throw new Error(`${label}: "reason" needs a string`);
+    throw new Error(
+      `${label}: "reason" cannot explain the exception in its current form. Set it to a string that explains why the file needs the exception.`,
+    );
   if (partner !== undefined && typeof partner !== "string")
-    throw new Error(`${label}: "partner" needs a string`);
+    throw new Error(
+      `${label}: "partner" cannot identify the mark owner in its current form. Set it to the owner's name as a string for a third-party SVG mark or remove the field.`,
+    );
   validateColourCounts(entry, label);
   // Tightening keeps an existing partner entry, including its metadata and key order.
   return { ...entry, reason: reason ?? "" };
@@ -186,7 +205,10 @@ export function parseAllowlistEntry(file: string, entry: unknown): Allowlist[str
 /** Reads a JSON object of colour allowances, validating every path entry. */
 function parseColourAllowlist(json: string): Allowlist {
   const value: unknown = JSON.parse(json);
-  if (!isRecord(value)) throw new Error(`${ALLOWLIST}: expected an object of allowances`);
+  if (!isRecord(value))
+    throw new Error(
+      `${ALLOWLIST}: the scan cannot read allowances from this JSON shape. Use an object keyed by file path.`,
+    );
   return Object.fromEntries(
     Object.entries(value).map(([file, entry]) => [file, parseAllowlistEntry(file, entry)]),
   );

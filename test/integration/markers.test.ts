@@ -1095,7 +1095,7 @@ test("a page whose stylesheet does not load throws rather than measuring the uns
     expect(await measureMarkers(browser, toUrl(join(site, "file.html")))).toEqual([]);
     for (const p of ["/file.html", "/gone.html"])
       expect(await rejection(measureMarkers(browser, toUrl(p, server.url)))).toMatch(
-        "stylesheet not loaded",
+        /stylesheet not loaded: .+\. Fix the stylesheet URL or serve the stylesheet at that URL so the check can measure the styled page\./,
       );
   } finally {
     await server.stop(true);
@@ -1135,10 +1135,25 @@ describe("a page whose markers are all declared exceptions", () => {
     () => {
       expect(cli([own], declared).code).toBe(0);
       const empty = cli([none], declared);
-      expect([empty.code, empty.err]).toEqual([1, `${none}: no marker found\n`]);
+      expect([empty.code, empty.err]).toEqual([
+        1,
+        `${none}: no marker found, so the check cannot measure alignment. Pass a page that renders a list marker or render a list with .hw-marker-list from marker.css on this page.\n`,
+      ]);
       const undeclared = cli([own], {});
       expect(undeclared.code).toBe(1);
       expect(undeclared.err).toContain(measured);
+    },
+    limit(60_000),
+  );
+
+  test(
+    "names the stylesheet rule that aligns the measured marker",
+    () => {
+      const undeclared = cli([own], {});
+      expect(undeclared.code).toBe(1);
+      expect(undeclared.err).toMatch(
+        /px off(?:, first line -?[\d.]+ px in)?\. Use \.hw-marker-list on the list or a single \.hw-marker in a baseline-aligned row from marker\.css\./,
+      );
     },
     limit(60_000),
   );
@@ -1167,7 +1182,9 @@ describe("a page whose markers are all declared exceptions", () => {
       expect(cli([], { ...declared, pages: [own] }).code).toBe(0);
       const empty = cli([], { ...declared, pages: [none] });
       expect(empty.code).toBe(1);
-      expect(empty.err).toContain('no marker on any page of brand-elements.json "pages"');
+      expect(empty.err.trim()).toBe(
+        'brand-markers: no marker on any page of brand-elements.json "pages", so the check measures nothing. Name a page that renders a list marker in "pages" or as a command argument.',
+      );
       const undeclared = cli([], { pages: [own] });
       expect(undeclared.code).toBe(1);
       expect(undeclared.err).toContain(measured);
@@ -1188,7 +1205,9 @@ describe("a page whose markers are all declared exceptions", () => {
         );
         const run = cli([], { catalog: dir });
         expect(run.code).toBe(1);
-        expect(run.err).toContain("no marker on any page of brand-elements.json");
+        expect(run.err.trim()).toBe(
+          'brand-markers: no marker on any page of brand-elements.json "pages" or its catalog, so the check measures nothing. Name a page that renders a list marker in "pages" or as a command argument.',
+        );
       } finally {
         rmSync(dir, { recursive: true, force: true });
       }
@@ -1237,7 +1256,7 @@ describe("a page drawn in a fallback face", () => {
     }
   };
   const MISSED =
-    /page drawn in fallback font .+; Inter Variable missed font-display's block period/;
+    /page drawn in fallback font .+, so the check cannot measure markers against Inter Variable\. Check the @font-face src for Inter Variable and preload its font file if it arrives after the first paint\./;
 
   test(
     "a face that never arrives fails with the fallback named",
@@ -1274,7 +1293,8 @@ describe("a page drawn in a fallback face", () => {
           new Response(run.stderr).text(),
         ]);
         expect(code).toBe(1);
-        expect(err).toContain(`${gone.url.href}: page drawn in fallback font`);
+        expect(err).toContain(gone.url.href);
+        expect(err).toMatch(MISSED);
         expect(err).not.toContain(served.url.href);
         expect(out).toContain("brand-markers: 4 readings on 2 pages, 0 off");
       } finally {
@@ -1303,7 +1323,8 @@ describe("a page drawn in a fallback face", () => {
         );
         const [code, err] = await Promise.all([run.exited, new Response(run.stderr).text()]);
         expect(code).toBe(1);
-        expect(err).toContain(`${served.url.href}: page drawn in fallback font`);
+        expect(err).toContain(served.url.href);
+        expect(err).toMatch(MISSED);
         expect(err).toMatch(/refuses \S+\.woff2 \(font-src\)/);
       } finally {
         await served.stop(true);

@@ -57,7 +57,7 @@ export async function drawn(
       if (!miss) return { page, found };
       if (tries === 3)
         throw new FallbackFace(
-          `${url}: page drawn in fallback font ${miss.face}; ${miss.family} missed font-display's block period`,
+          `${url}: page drawn in fallback font ${miss.face}, so the check cannot measure markers against ${miss.family}. Check the @font-face src for ${miss.family} and preload its font file if it arrives after the first paint.`,
           await refusals(page, url),
         );
     } catch (e) {

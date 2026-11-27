@@ -47,14 +47,20 @@ export const unlisted = (
       ([k, ps]) => `${ps.join(", ")}: forks the expert component ${k}; import it from the package`,
     ),
   ...Object.entries(allow).flatMap(([k, r]) => [
-    ...(r?.trim() ? [] : [`${LIST}: ${k} names no reason`]),
+    ...(r?.trim()
+      ? []
+      : [
+          `${LIST}: ${k} has an undocumented component exception. Set the entry's string value to explain why the fork must stay.`,
+        ]),
     // An entry no fork answers would let a fork of that name added later pass unseen.
     ...(Object.hasOwn(found, k)
       ? []
-      : [`${LIST}: ${k} forks nothing; drop its entry (brand-scan --tighten)`]),
+      : [
+          `${LIST}: ${k} has an unused fork allowance that could hide a new fork. Run bun run brand-scan --tighten to drop the entry.`,
+        ]),
     ...(committed && !Object.hasOwn(committed, k) && !mayAdd(k)
       ? [
-          `${LIST}: ${k} added against HEAD; the list may only shrink, or during a pin change name a fork committed as is`,
+          `${LIST}: ${k} adds a fork exception beyond what HEAD and the pin-change rule permit. Import the expert component from the package and remove this entry.`,
         ]
       : []),
   ]),

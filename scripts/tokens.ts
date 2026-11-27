@@ -13,11 +13,13 @@ export const SOURCE = join(ROOT, "tokens/tokens.css");
 
 /** The custom properties of tokens.css's theme blocks, static ones included, in source order.
  *  Throws on a theme block it cannot read, such as one holding a nested rule. */
-export const parseTokens = (css: string) => {
+export const parseTokens = (css: string, source = "tokens/tokens.css") => {
   const bare = css.replace(/\/\*[\s\S]*?\*\//g, "");
   const blocks = [...bare.matchAll(/@theme(?:\s+(?:static|inline))?\s*\{([^{}]*)\}/g)];
   if (blocks.length !== bare.match(/@theme\b/g)?.length)
-    throw new Error("a @theme block parseTokens cannot read");
+    throw new Error(
+      `${source} has a missing or unreadable @theme block, so token generation stopped. Put custom property declarations in a flat @theme, @theme static, or @theme inline block.`,
+    );
   return Object.fromEntries(
     Object.entries(declarations(blocks.map((m) => m[1]).join(";"))).filter(([k]) =>
       k.startsWith("--"),
@@ -29,8 +31,11 @@ export const parseTokens = (css: string) => {
  *  throws, since the data formats hold one value per name. */
 const expertSteps = (css: string, tokens: Record<string, string>) =>
   Object.fromEntries(
-    Object.entries(parseTokens(css)).filter(([k, v]) => {
-      if (k.startsWith("--text-") && k in tokens) throw new Error(`expert.css repeats ${k}`);
+    Object.entries(parseTokens(css, "expert/expert.css")).filter(([k, v]) => {
+      if (k.startsWith("--text-") && k in tokens)
+        throw new Error(
+          `expert.css repeats ${k} from tokens/tokens.css, which would give the generated data two values for one name. Remove the duplicate declaration from expert/expert.css or give the expert step its own name.`,
+        );
       return k.startsWith("--text-") && !v.startsWith("var(");
     }),
   );
@@ -74,7 +79,9 @@ export const colorValue = (tokens: Record<string, string>) => {
       const [a, b] = [rgb(value(mix[1])), rgb(value(mix[3]))];
       return hex(a.map((x, i) => x * p + b[i] * (1 - p)));
     }
-    throw new Error(`unresolvable colour ${v}`);
+    throw new Error(
+      `The generator cannot resolve colour ${v} to hex. In tokens/tokens.css, use a six-digit hex value, white, black, var() of a defined token, or an sRGB color-mix().`,
+    );
   };
   return value;
 };
@@ -162,7 +169,10 @@ export const mergeAdjacentRootRules = (css: string): string => {
 export const flat = (path: string): string => {
   const css = inlineImports(path).replace(/\/\*[^]*?\*\//g, "");
   const bad = /@import\b[^;]*;?|url\(\s*(["']?)(?!data:|https?:|\/\/|#)[^"')]+\1\s*\)/.exec(css);
-  if (bad) throw new Error(`${path}: ${bad[0]} cannot be resolved in place`);
+  if (bad)
+    throw new Error(
+      `${path}: ${bad[0]} would leave an unresolved import or asset in the flat stylesheet. Point imports to a local stylesheet on a line of the form @import "./file.css"; and embed relative assets as data URLs.`,
+    );
   let first = true;
   const ordered = css.replaceAll(LAYER_ORDER, () => (first ? ((first = false), LAYER_ORDER) : ""));
   return `${mergeAdjacentRootRules(ordered)

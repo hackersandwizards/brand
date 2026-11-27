@@ -105,5 +105,8 @@ export async function screenshot(
     ],
     { timeout: 60_000 },
   );
-  if (!existsSync(out)) throw new Error(`Chrome produced no image at ${out}`);
+  if (!existsSync(out))
+    throw new Error(
+      `Chrome produced no image at ${out}, so rendering stopped. Set CHROME_BINARY to a working Chrome for Testing executable and rerun the render command.`,
+    );
 }

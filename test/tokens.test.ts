@@ -65,7 +65,11 @@ test("reads compact and multiline custom properties and skips commented theme bl
 test.each(["body { font-size: 1rem }", "@theme { .nested { --step: 1rem } }"])(
   "rejects the missing or unreadable theme block in %s",
   (css) => {
-    expect(() => parseTokens(css)).toThrow("a @theme block parseTokens cannot read");
+    expect(() => parseTokens(css)).toThrow(
+      new Error(
+        "tokens/tokens.css has a missing or unreadable @theme block, so token generation stopped. Put custom property declarations in a flat @theme, @theme static, or @theme inline block.",
+      ),
+    );
   },
 );
 
@@ -184,8 +188,24 @@ test("mixes color-mix() tokens in sRGB", () => {
   expect(colors["--color-subtle"]).toBe(colors["--color-muted"]);
 });
 
+test("points to a supported colour value when token generation cannot resolve one", () => {
+  expect(() => resolveColors({ "--color-example": "rebeccapurple" })).toThrow(
+    new Error(
+      "The generator cannot resolve colour rebeccapurple to hex. In tokens/tokens.css, use a six-digit hex value, white, black, var() of a defined token, or an sRGB color-mix().",
+    ),
+  );
+});
+
 test("the Shiki theme maps token roles and ANSI colours to the shipped theme", () => {
   expect(codeTheme(tokens, colors)).toEqual(generatedCodeTheme);
+});
+
+test("points to the source for an unresolved Shiki colour role", () => {
+  expect(() => codeTheme({ "--code-bg": "var(--color-missing)" }, {})).toThrow(
+    new Error(
+      "--code-bg: var(--color-missing) resolves to no colour for the Shiki theme. Set this role in tokens/tokens.css to a six-digit hex colour or a var() of a defined --color-* token.",
+    ),
+  );
 });
 
 test("Shiki scopes keep their role colours and font styles", () => {
@@ -316,6 +336,16 @@ test("font data skips commented faces and keeps the live face's descriptors", ()
       unicodeRange: "U+0020,U+0050-0059",
     },
   ]);
+});
+
+test("points to the font source format when a web face has no format", () => {
+  expect(() =>
+    fontFaces('@font-face { font-family: "Example"; src: url("fonts/example.woff2"); }'),
+  ).toThrow(
+    new Error(
+      'Font file or format missing for "Example", so the generator cannot list the web face in fonts.json. Set its @font-face src in tokens/fonts.css to url("fonts/<file>") format("<format>").',
+    ),
+  );
 });
 
 // A static latin-ext face covers what its Latin file lacks only if its range is fonts.css's.

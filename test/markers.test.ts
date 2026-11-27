@@ -5,6 +5,7 @@ import { readMarkerPixels } from "../scan/marker-capture";
 import type { Probe } from "../scan/marker-dom";
 import { applyExceptions, type Reading } from "../scan/marker-readings";
 import { failing } from "../scan/markers";
+import { catalogPages } from "../scan/site";
 
 test("a page path with a malformed escape is matched as it stands", () => {
   const reading = { page: "http://h/caf%E9/", offset: 3, indent: null, double: false } as Reading;
@@ -29,7 +30,7 @@ test("a reading with no ink on either side fails", () => {
 test("a marker exception needs a reason beyond whitespace", () => {
   const exceptions = { "/list/": { reason: " \t ", off: 1 } };
   expect(applyExceptions([], exceptions).findings).toEqual([
-    'markers exception "/list/": needs a "reason" and an "off" count of at least 1',
+    'markers exception "/list/": the check cannot validate this allowance. In brand-elements.json "markers", give the glob a nonempty "reason" and an integer "off" count of at least 1.',
   ]);
 });
 
@@ -64,7 +65,7 @@ test("an exception keeping nothing is stale only on a measured page", () => {
   };
   const { findings } = applyExceptions([], exceptions, ["http://127.0.0.1:1/x/ground-intro/"]);
   expect(findings).toEqual([
-    'markers exception "**/ground-intro/" is stale: it keeps no off reading',
+    'markers exception "**/ground-intro/" is stale: it keeps no off reading. Remove this glob from brand-elements.json "markers".',
   ]);
 });
 
@@ -74,8 +75,8 @@ test("over-count and invalid exceptions are reported in configuration order", ()
     "**/units/**": { reason: "", off: 1 },
   });
   expect(over.findings).toEqual([
-    'markers exception "**/at-rest/": 2 off readings, 1 kept',
-    'markers exception "**/units/**": needs a "reason" and an "off" count of at least 1',
+    'markers exception "**/at-rest/": 2 off readings, 1 kept, so the matched pages exceed the allowed count. Fix marker alignment on those pages using marker.css.',
+    'markers exception "**/units/**": the check cannot validate this allowance. In brand-elements.json "markers", give the glob a nonempty "reason" and an integer "off" count of at least 1.',
   ]);
 });
 
@@ -104,7 +105,9 @@ test.each([undefined, null])("an absent site entry (%s) has no mount", (site) =>
 });
 
 test("a site entry with a path but no folder is malformed", () => {
-  expect(() => listedSite({ at: "/mail/" })).toThrow('"site": a folder');
+  expect(() => listedSite({ at: "/mail/" })).toThrow(
+    'brand-elements.json "site": {"at":"/mail/"} does not tell the check where to serve the build. Set "site" to the built folder or to { "dir": "<folder>", "at": "<path>" }.',
+  );
 });
 
 test("a --site-at override supplies the mount before config path validation", () => {
@@ -127,7 +130,7 @@ test.each([
   { dir: "dist/catalog", exclude: null },
 ])("a malformed catalog entry throws: %j", (catalog) => {
   expect(() => listedCatalog({ catalog })).toThrow(
-    'brand-elements.json "catalog": expected a folder',
+    'brand-elements.json "catalog": the check cannot locate or filter stories with this setting. Use a built folder path or set "dir" with an optional string "at" and an optional array of glob strings in "exclude".',
   );
 });
 
@@ -191,3 +194,9 @@ test.each([
     ]);
   },
 );
+
+test("a catalog caller cannot supply a single string as its exclusion list", () => {
+  expect(() => catalogPages({ dir: "dist", exclude: "Parts/**" as unknown as string[] })).toThrow(
+    'brand-elements.json "catalog.exclude": "Parts/**" cannot select stories to skip. Set "exclude" to an array of glob strings relative to the stories folder.',
+  );
+});

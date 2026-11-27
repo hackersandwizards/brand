@@ -34,7 +34,7 @@ export const listedSite = (site?: unknown, at?: string): MountedSite | undefined
   const prefix = folder?.at;
   if (!folder || (!at && prefix != null && typeof prefix !== "string"))
     throw new Error(
-      `"site": a folder or { "dir": "<folder>", "at": "<path>" }, not ${JSON.stringify(site)}`,
+      `brand-elements.json "site": ${JSON.stringify(site)} does not tell the check where to serve the build. Set "site" to the built folder or to { "dir": "<folder>", "at": "<path>" }.`,
     );
   return { dir: folder.dir, at: basePath(at || (typeof prefix === "string" ? prefix : "") || "/") };
 };
@@ -49,20 +49,27 @@ export const listedCatalog = ({ catalog }: { catalog?: unknown }): Partial<Catal
     (entry.at != null && typeof entry.at !== "string") ||
     (entry.exclude !== undefined && !isStringList(entry.exclude))
   )
-    throw new Error('brand-elements.json "catalog": expected a folder or { dir, at?, exclude? }');
+    throw new Error(
+      'brand-elements.json "catalog": the check cannot locate or filter stories with this setting. Use a built folder path or set "dir" with an optional string "at" and an optional array of glob strings in "exclude".',
+    );
   if (typeof catalog === "string") return { dir: entry.dir };
   return { dir: entry.dir, at: entry.at ?? undefined, exclude: entry.exclude };
 };
 
 export const readElementsConfig = (json: string) => {
   const config: unknown = JSON.parse(json);
-  if (!isRecord(config)) throw new Error("brand-elements.json: expected an object");
+  if (!isRecord(config))
+    throw new Error(
+      'brand-elements.json: the check needs an object to read page and catalog settings. Put "pages" or "catalog" in a JSON object.',
+    );
   return config;
 };
 
 export const listedElementPages = (value: unknown) => {
   if (value == null) return [];
   if (!isStringList(value))
-    throw new Error('brand-elements.json "pages": expected a list of strings');
+    throw new Error(
+      'brand-elements.json "pages": the check cannot read the page list. Set "pages" to an array of URL or path strings.',
+    );
   return value;
 };

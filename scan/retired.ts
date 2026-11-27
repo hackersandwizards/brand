@@ -154,16 +154,25 @@ if (import.meta.main) {
   }
   const missing = paths.filter((p) => !existsSync(p));
   if (missing.length) {
-    console.error(`brand-retired: ${missing.join(", ")} not found; build first`);
+    console.error(
+      `brand-retired: missing output at ${missing.join(", ")} blocks the scan. Build first and pass the actual output folders or files.`,
+    );
     process.exit(2);
   }
   const { hits, empty, read } = scanRetiredPaths(paths);
   if (empty.length) {
-    console.error(`brand-retired: no text file in ${empty.join(", ")}; build first`);
+    console.error(
+      `brand-retired: no text files in ${empty.join(", ")}, so the scan cannot check these inputs. Build first and pass folders or files containing the rendered text.`,
+    );
     process.exit(2);
   }
   if (hits.size) {
-    const list = [...hits].flatMap(([file, lines]) => lines.map((l) => `${file}: "${l}"`));
+    const list = [...hits].flatMap(([file, lines]) =>
+      lines.map(
+        (l) =>
+          `${file}: "${l}" is retired and should no longer appear in builds. Replace it in the source with the current value of the field its "replacedBy" names in verbal.json, import only the fields you use if the whole file is bundled, and rebuild.`,
+      ),
+    );
     console.error(
       `${list.join("\n")}\nbrand-retired: a retired line in ${hits.size} of ${read} files read. Take the current text from @hackersandwizards/brand/verbal.json.`,
     );

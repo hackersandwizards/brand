@@ -116,7 +116,10 @@ if (import.meta.main) {
     return i < 0 ? fallback : args.splice(i, 2)[1];
   };
   const scale = opt("--scale", "2,4");
-  if (scale === undefined) throw new Error("Option value missing: --scale");
+  if (scale === undefined)
+    throw new Error(
+      "Option value missing: --scale needs device scales for the measurements. Pass a comma-separated list such as --scale 2,4.",
+    );
   const scales = scale.split(",").map(Number);
   const width = Number(opt("--width", "1280"));
   const flagSite = opt("--site", "");
@@ -128,7 +131,9 @@ if (import.meta.main) {
   const named = args.filter((a) => a !== "--json");
   const externalBase = flagBase ? (URL.parse(flagBase) ?? undefined) : undefined;
   if (flagBase && !/^https?:$/.test(externalBase?.protocol ?? "")) {
-    console.error(USAGE);
+    console.error(
+      "brand-markers: the check cannot open site paths with this --base. Pass --base with an http:// or https:// server URL.",
+    );
     process.exit(2);
   }
   let site;
@@ -150,10 +155,14 @@ if (import.meta.main) {
     csp = listedCsp(config.csp);
     if (csp !== undefined) policies(csp);
     if (config.exceptions != null && !isRecord(config.exceptions))
-      throw new Error('brand-elements.json "exceptions": expected an object');
+      throw new Error(
+        'brand-elements.json "exceptions": the check cannot read the named exceptions. Set "exceptions" to an object keyed by data-hw-exception name.',
+      );
     exceptions = Object.keys(config.exceptions ?? {});
     if (config.markers !== undefined && !isRecord(config.markers))
-      throw new Error('brand-elements.json "markers": expected an object');
+      throw new Error(
+        'brand-elements.json "markers": the check cannot read the allowed marker deviations. Set "markers" to an object keyed by page glob, with "reason" and "off" for each entry.',
+      );
     markerExceptions = config.markers;
     if (catalog)
       stories = catalogPages({ dir: catalog, at, exclude: listed.exclude }, site, externalBase);
@@ -164,9 +173,14 @@ if (import.meta.main) {
   const served = !!site || !!flagBase;
   const searched = listedPages.filter((p) => served || !p.startsWith("/"));
   for (const p of listedPages.filter((p) => !searched.includes(p)))
-    console.error(`brand-markers: ${p}: a site path, but no site or --base; not measured`);
+    console.error(
+      `brand-markers: ${p}: the check cannot measure this site path without a server. Set "site" in brand-elements.json, pass --site with the built folder, or pass --base with the server URL.`,
+    );
   stories = [...searched, ...stories];
   if (!named.length && !stories.length) {
+    console.error(
+      'brand-markers: the check has no page to measure. Pass a page as an argument or set "pages" or "catalog" in brand-elements.json.',
+    );
     console.error(USAGE);
     process.exit(2);
   }
@@ -252,7 +266,7 @@ if (import.meta.main) {
     !stories.some((p) => fallbacks.has(toUrl(p, base)));
   if (nothing)
     console.error(
-      `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}`,
+      `brand-markers: no marker on any page of brand-elements.json "pages"${catalog ? " or its catalog" : ""}, so the check measures nothing. Name a page that renders a list marker in "pages" or as a command argument.`,
     );
   const apart = readings.filter((r) => r.exception);
   const { bad, kept, findings } = applyExceptions(
@@ -271,8 +285,14 @@ if (import.meta.main) {
       );
     for (const r of apart.filter(failing))
       console.log(`declared exception "${r.exception}": ${readingLine(r)}`);
-    for (const r of bad) console.error(readingLine(r));
-    for (const url of empty) console.error(`${url}: no marker found`);
+    for (const r of bad)
+      console.error(
+        `${readingLine(r)}. Use .hw-marker-list on the list or a single .hw-marker in a baseline-aligned row from marker.css.`,
+      );
+    for (const url of empty)
+      console.error(
+        `${url}: no marker found, so the check cannot measure alignment. Pass a page that renders a list marker or render a list with .hw-marker-list from marker.css on this page.`,
+      );
     console.log(
       `brand-markers: ${readings.length} readings on ${pages.length} pages, ${bad.length} off by more than ${TOLERANCE} px, ${kept.length} kept` +
         (apart.length

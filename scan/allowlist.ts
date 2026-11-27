@@ -21,10 +21,16 @@ export type ReasonAllowlists = {
 export function readReasonAllowlists(file: string): ReasonAllowlists {
   const { allow = {}, committed } = readAllowlists(file, (json): Record<string, string> => {
     const value: unknown = JSON.parse(json);
-    if (!isRecord(value)) throw new Error(`${file}: expected an object of reasons`);
+    if (!isRecord(value))
+      throw new Error(
+        `${file}: the scan cannot read exceptions from this JSON shape. Use an object mapping each exception key to its reason string.`,
+      );
     return Object.fromEntries(
       Object.entries(value).map(([name, reason]) => {
-        if (typeof reason !== "string") throw new Error(`${file}: "${name}" needs a string reason`);
+        if (typeof reason !== "string")
+          throw new Error(
+            `${file}: "${name}" has a reason the scan cannot read. Set the entry's string value to explain why the exception is needed.`,
+          );
         return [name, reason] as const;
       }),
     );

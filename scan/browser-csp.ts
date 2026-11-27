@@ -20,7 +20,7 @@ function readCsp(csp: unknown): Csp {
   const entries = isRecord(csp) ? Object.entries(csp) : [];
   if (!entries.length || !entries.every((entry): entry is [string, string] => valid(entry[1])))
     throw new Error(
-      `brand-elements.json "csp": one line of policy or { "<glob>": "<policy>" }, not ${JSON.stringify(csp)}`,
+      `brand-elements.json "csp": the browser cannot apply the policy ${JSON.stringify(csp)}. Set "csp" to one nonempty policy line or an object mapping page globs to policy lines.`,
     );
   return Object.fromEntries(entries);
 }

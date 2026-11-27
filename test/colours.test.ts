@@ -62,13 +62,16 @@ test("flags a count above its entry, an unlisted file, a missing reason, a grown
     violations({ "a.css": { ...zero, hex: 3 }, "b.css": { ...zero, font: 1 } }, allow, {
       committed: allow,
     }),
-  ).toEqual(["a.css: hex 3, allowed 2", "b.css: font 1, allowed 0"]);
+  ).toEqual([
+    "a.css: hex 3, allowed 2. Reference matching brand tokens from tokens.css or tokens.json in the source that produces the styling.",
+    "b.css: font 1, allowed 0. Reference matching brand tokens from tokens.css or tokens.json in the source that produces the styling.",
+  ]);
   expect(violations(a, { "a.css": { ...zero, hex: 2, reason: " " } }, undefined)).toHaveLength(1);
   expect(
     violations(a, allow, { committed: { "a.css": { ...zero, hex: 1, reason: "r" } } }),
   ).toHaveLength(1);
   expect(violations({}, allow, { committed: allow })).toEqual([
-    "brand-colours.json: a.css is clean; drop its entry (brand-colours --tighten)",
+    "brand-colours.json: a.css has no off-token findings, so its allowance could hide new ones. Run bun run brand-colours --tighten to drop the entry.",
   ]);
 });
 
@@ -85,7 +88,7 @@ test("a value moved to another file moves its entry, while the list's total for 
   expect(
     violations({ ...files, "b.css": { ...zero, hex: 3 } }, grown, { committed: before }),
   ).toEqual([
-    "brand-colours.json: b.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+    "brand-colours.json: b.css hex increases the total allowance beyond what HEAD and the pin-change rule permit. Replace excess values with brand tokens, then run bun run brand-colours --tighten.",
   ]);
 });
 
@@ -110,8 +113,8 @@ test("exempts a named partner SVG from HEAD growth checks", () => {
 test("flags a partner entry on a non-SVG file", () => {
   // Only an SVG named for its owner is a partner's mark.
   expect(violations({ "a.ts": { ...zero, hex: 1 } }, misplacedPartner, { committed: {} })).toEqual([
-    `brand-colours.json: a.ts: "partner" names a third party's mark, an SVG, by name`,
-    "brand-colours.json: a.ts hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+    'brand-colours.json: a.ts: "partner" can only exempt a named third-party SVG mark. Set "partner" to the mark owner\'s name on an SVG entry or remove the field.',
+    "brand-colours.json: a.ts hex increases the total allowance beyond what HEAD and the pin-change rule permit. Replace excess values with brand tokens, then run bun run brand-colours --tighten.",
   ]);
 });
 
@@ -145,7 +148,7 @@ test("an entry turned partner frees no total for another file to grow into", () 
   };
   const files = { "a.svg": { ...zero, hex: 50 }, "b.css": { ...zero, hex: 40 } };
   expect(violations(files, now, { committed: head })).toEqual([
-    "brand-colours.json: b.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+    "brand-colours.json: b.css hex increases the total allowance beyond what HEAD and the pin-change rule permit. Replace excess values with brand tokens, then run bun run brand-colours --tighten.",
   ]);
 });
 
@@ -157,7 +160,7 @@ test("removing a partner mark frees no allowance and adding one with a count cos
   };
   const files = { "new.svg": { ...zero, hex: 8 }, "page.css": { ...zero, hex: 1 } };
   expect(violations(files, allow, { committed })).toEqual([
-    "brand-colours.json: page.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+    "brand-colours.json: page.css hex increases the total allowance beyond what HEAD and the pin-change rule permit. Replace excess values with brand tokens, then run bun run brand-colours --tighten.",
   ]);
 });
 
@@ -188,7 +191,7 @@ test("clamps an RGB channel of 256 before emitting its hex bytes", () => {
 
 test("an allowance above the file's count is a finding: lower it", () => {
   expect(violations({ "a.css": { ...zero, hex: 1 } }, allow, { committed: allow })).toEqual([
-    "brand-colours.json: a.css: hex 1, allowed 2; lower it (brand-colours --tighten)",
+    "brand-colours.json: a.css: hex 1, allowed 2. Run bun run brand-colours --tighten to lower the allowance to the file's count.",
   ]);
   // Control: the count the entry allows.
   expect(violations({ "a.css": { ...zero, hex: 2 } }, allow, { committed: allow })).toEqual([]);
@@ -536,7 +539,7 @@ test("a pin change may add up to the scanner's count for the file as committed",
   expect(
     violations(files, current, { committed, ceiling: { "art.css": { ...zero, hex: 1 } } }),
   ).toEqual([
-    "brand-colours.json: art.css hex grew against HEAD; the allowlist's total may only shrink, or during a pin change an entry grow to the count of the file as committed",
+    "brand-colours.json: art.css hex increases the total allowance beyond what HEAD and the pin-change rule permit. Replace excess values with brand tokens, then run bun run brand-colours --tighten.",
   ]);
 });
 
@@ -544,9 +547,9 @@ test("a clean file with an empty reason gets distinct allowlist findings", () =>
   expect(
     violations({ "art.css": zero }, { "art.css": { hex: 1, reason: " " } }, undefined),
   ).toEqual([
-    "brand-colours.json: art.css: hex 0, allowed 1; lower it (brand-colours --tighten)",
-    "brand-colours.json: art.css names no reason",
-    "brand-colours.json: art.css is clean; drop its entry (brand-colours --tighten)",
+    "brand-colours.json: art.css: hex 0, allowed 1. Run bun run brand-colours --tighten to lower the allowance to the file's count.",
+    'brand-colours.json: art.css has an undocumented exception. Set its "reason" to explain why the exception is needed.',
+    "brand-colours.json: art.css has no off-token findings, so its allowance could hide new ones. Run bun run brand-colours --tighten to drop the entry.",
   ]);
 });
 
