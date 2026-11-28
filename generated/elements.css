@@ -660,6 +660,7 @@
     --print-radius: var(--hw-corner-sm, var(--radius-sm));
     --slide-radius: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
     --deck-corner: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
+    --_hw-repeated-corner: 1;
   }
   .hw-card[data-variant="tint"] {
     border-color: var(--hw-card-tint-line, var(--color-teal-light));

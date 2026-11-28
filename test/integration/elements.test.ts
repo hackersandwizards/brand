@@ -9,9 +9,10 @@ import { transform } from "lightningcss";
 import type { Browser } from "puppeteer-core";
 import own from "../../package.json";
 import { installElementDom } from "../../scan/element-dom";
-import { ELEMENTS } from "../../scan/element-rules";
-import { elementPage, measureLightPage, measurePage } from "../../scan/element-page";
-import { launch, open } from "../../scan/browser";
+import { elementStyleRules, OWNS } from "../../scan/element-properties";
+import { ELEMENT_CSS, ELEMENTS, SETTINGS, TOKENS } from "../../scan/element-rules";
+import { elementPage, measureLightPage, measurePage, TOLERANCE } from "../../scan/element-page";
+import { focusAll, launch, open } from "../../scan/browser";
 import type { Csp } from "../../scan/browser-csp";
 import { DEMOS } from "../../catalog/element-demos";
 import { ROOT } from "../../scripts/git";
@@ -2009,6 +2010,130 @@ test(
     expect(hard.findings.map((f) => [f.element, f.got])).toEqual([
       ["corner", "the brand corner on an internal surface"],
     ]);
+  },
+  limit(60_000),
+);
+
+test(
+  "a forced brand corner on an automatically repeated rounded-brand tile is red while its sibling passes",
+  async () => {
+    const html = only(
+      `<style>.rounded-brand { border-radius: var(--radius-brand) }</style>
+      <div><div class="rounded-brand">First</div><div class="rounded-brand" style="border-radius: 20px 5px">Forced</div></div>`,
+    );
+    const r = await measurePage(browser, targetFile("repeat-auto-hard.html", html));
+    expect(r.findings.map((f) => [f.element, f.label, f.got])).toEqual([
+      ["corner", 'div.rounded-brand "Forced"', "the brand corner on a repeated item"],
+    ]);
+  },
+  limit(60_000),
+);
+
+test(
+  "an exception element inside a repeated group still gets the corner check",
+  async () => {
+    const html = only(
+      `<div data-hw-repeat><div data-hw-exception="card-tone" style="border-radius: 20px 5px">Tone</div></div>`,
+    );
+    const r = await measurePage(browser, targetFile("repeat-exception-hard.html", html));
+    expect(r.findings.map((f) => [f.element, f.got])).toEqual([
+      ["corner", "the brand corner on a repeated item"],
+    ]);
+  },
+  limit(60_000),
+);
+
+test(
+  "a brand corner on an internal body is red",
+  async () => {
+    const html = `<!doctype html><html><head><link rel="stylesheet" href="${brand("generated/tokens.root.css")}"><link rel="stylesheet" href="${brand("elements/elements.css")}"></head><body data-hw-surface="internal" style="border-radius: 20px 5px">Body</body></html>`;
+    const r = await measurePage(browser, targetFile("internal-body-hard.html", html));
+    expect(r.findings.map((f) => [f.element, f.got])).toEqual([
+      ["corner", "the brand corner on an internal surface"],
+    ]);
+  },
+  limit(60_000),
+);
+
+const FOCUS_TRAP_HTML = only(
+  `<style>#trap:focus { background-color: red !important }</style>
+  <div data-hw-tile="focus-ring"><button type="button" id="trap" class="hw-button">Save</button></div>`,
+  "hw-focus-ring",
+);
+const FOCUS_TRAP_RULES = {
+  css: ELEMENT_CSS,
+  selectors: ELEMENTS,
+  styles: elementStyleRules(OWNS),
+  settings: SETTINGS,
+  tolerance: TOLERANCE,
+  tokens: TOKENS,
+};
+
+test(
+  "probing focus-ring blurs an unfocused button before later reads and leaves document.activeElement unfocused",
+  async () => {
+    const tab = await browser.newPage();
+    try {
+      await tab.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+      const cdp = await focusAll(tab);
+      try {
+        await open(tab, pathToFileURL(file("focus-probe-out.html", FOCUS_TRAP_HTML)).href);
+        const before = await tab.evaluate(() => document.activeElement === document.body);
+        const dom = await installElementDom(tab);
+        try {
+          const result = await dom.evaluate((api, r) => api.compare(r), FOCUS_TRAP_RULES);
+          const after = await tab.evaluate(() => document.activeElement === document.body);
+          expect(before).toBe(true);
+          expect(result.findings.filter((f) => f.prop === "background-color")).toEqual([]);
+          expect(after).toBe(true);
+        } finally {
+          await dom.dispose();
+        }
+      } finally {
+        await cdp.detach();
+      }
+    } finally {
+      await tab.close();
+    }
+  },
+  limit(60_000),
+);
+
+test(
+  "probing focus-ring preserves an already focused button so its focus-only fill finding is reported and focus stays",
+  async () => {
+    const tab = await browser.newPage();
+    try {
+      await tab.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+      const cdp = await focusAll(tab);
+      try {
+        await open(tab, pathToFileURL(file("focus-probe-in.html", FOCUS_TRAP_HTML)).href);
+        await tab.$eval("#trap", (el) => (el as HTMLElement).focus());
+        const before = await tab.evaluate(
+          () => document.activeElement === document.getElementById("trap"),
+        );
+        const dom = await installElementDom(tab);
+        try {
+          const result = await dom.evaluate((api, r) => api.compare(r), FOCUS_TRAP_RULES);
+          const after = await tab.evaluate(
+            () => document.activeElement === document.getElementById("trap"),
+          );
+          expect(before).toBe(true);
+          expect(
+            result.findings
+              .filter((f) => f.prop === "background-color")
+              .map((f) => [f.element, f.got]),
+          ).toEqual([["button", "rgb(255, 0, 0)"]]);
+          expect(after).toBe(true);
+        } finally {
+          await dom.dispose();
+        }
+      } finally {
+        await cdp.detach();
+      }
+    } finally {
+      await tab.close();
+    }
   },
   limit(60_000),
 );

@@ -45,7 +45,7 @@ an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed
 Internal tools (Company OS, admin, the trainer hub and other internal surfaces) draw no brand corner:
 put `data-hw-surface="internal"` on the page root (`<html>` or `<body>`) or an internal app wrapper
 so every block, button and `rounded-brand` utility takes the small corner (`elements/scales.css`),
-while any nested `print` or `stage` subtree keeps its own scale's corner. On marketing websites,
+while a nested `print` or `stage` subtree keeps its own scale's corner on the shared elements (a `rounded-brand` utility there only where the engine sets `--radius-brand` on that root, as the slide engine does). On marketing websites,
 decks and documents, repeated cards, tiles and buttons in a grid, list or row take the small corner
 automatically when adjacent or in a multi-item list (`elements/card.css`); put `data-hw-repeat` on
 a grid or row container whose cards sit inside individual wrappers.

@@ -136,8 +136,15 @@ function cloneElementInstance(
 ): Reference {
   const clone = instance.el.cloneNode(true) as HTMLElement;
   const focus = referenceFocus({ ...instance, clone }, active);
-  const actual = readElementSide(instance.el, rules, focus?.got);
-  if (focus) focus.restore.node?.focus({ focusVisible: focus.restore.visible });
+  let actual: ElementSide;
+  try {
+    actual = readElementSide(instance.el, rules, focus?.got);
+  } finally {
+    if (focus) {
+      if (focus.restore.node) focus.restore.node.focus({ focusVisible: focus.restore.visible });
+      else focus.got.node?.blur();
+    }
+  }
   return { ...instance, clone, focus, actual };
 }
 

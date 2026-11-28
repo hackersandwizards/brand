@@ -236,9 +236,10 @@ Run `brand-elements` in your gate as a script such as `"check:elements": "brand-
 computed corner, fill, line, text colour, type, padding or size differs from the brand rule at the
 same scale and theme (a reference beside it styled only by this package), on any element drawn
 with the brand corner inside another so drawn, inside an internal surface (`data-hw-surface="internal"`,
-except a nested `print` or `stage` subtree) or inside a repeated group (`data-hw-repeat`) (inside
-those, `elements/scales.css` and `elements/card.css` give every element and every `rounded-brand`
-the small corner), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
+except a nested `print` or `stage` subtree) or on a repeated item (inside `data-hw-repeat` or
+matched by the automatic repeat rule of `elements/card.css`; inside those, `elements/scales.css`
+and `elements/card.css` give every element and every `rounded-brand` the small corner; elements
+with `data-hw-exception` still get this corner check), on a CSS rule named like an element (card; chip, pill, tag, badge; eyebrow, kicker, label;
 callout, note; quote; icon-button; button, btn; breadcrumb; fact) that sets a property that element owns (a card's corner, fill, line or
 padding, a label's type and colour; a shorthand counts, and so does a Tailwind utility in `@apply`, a state variant such as `hover:` excepted), read from `.css`, `.scss` and the style
 elements of `.astro`, `.vue`, `.svelte` and `.html` (the documents engine's left out), or a component file under a `components/` folder of such a name that renders

@@ -280,8 +280,9 @@
 
 /* Internal tools (Company OS, admin, trainer hub and other internal surfaces) draw no brand corner:
    every block and button takes the small corner of its scale. Set on the page root (<html> or
-   <body>) or an internal app wrapper; an embedded print or stage subtree keeps its own scale's
-   corner. */
+   <body>) or an internal app wrapper. A nested print or stage subtree keeps its scale's corner on
+   the shared elements; a rounded-brand utility there keeps it only where the engine's stylesheet
+   sets --radius-brand on that root, as the slide engine does. */
 [data-hw-surface="internal"] {
   --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
   --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));

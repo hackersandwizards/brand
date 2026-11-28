@@ -51,11 +51,12 @@
     --slide-radius: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
     --deck-corner: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
   }
-  /* Repeated cards, tiles and buttons in a grid, list or row take the small corner (tokens.css).
-     Adjacent cards or buttons, items in a multi-item list, and anything inside [data-hw-repeat]
-     (for grids where each card sits in its own wrapper) switch to the small corner. Catalog
-     specimen tiles ([data-hw-tile], [data-hw-sample], .el-inner, .sample) show variants side by
-     side and keep the standalone corner unless placed in a list or [data-hw-repeat]. */
+  /* Repeated cards, tiles and buttons take the small corner (tokens.css): sibling cards, statuses,
+     buttons or rounded-brand utilities of one kind, a card or button in a list of several items,
+     and everything inside [data-hw-repeat], for a group whose items sit in wrappers or between
+     other nodes. A catalog specimen ([data-hw-tile], [data-hw-sample], .el-inner, .sample) keeps
+     the standalone corner beside its siblings. --_hw-repeated-corner marks the repeat for the
+     brand-elements corner check. */
   [data-hw-repeat],
   :where(
     li:not([hidden]):has(~ li:not([hidden])) > :where(.hw-card, .hw-button, .rounded-brand),
@@ -78,6 +79,7 @@
     --print-radius: var(--hw-corner-sm, var(--radius-sm));
     --slide-radius: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
     --deck-corner: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
+    --_hw-repeated-corner: 1;
   }
   .hw-card[data-variant="tint"] {
     border-color: var(--hw-card-tint-line, var(--color-teal-light));

@@ -342,7 +342,7 @@
     },
     {
       "path": "elements/card.css",
-      "sha256": "967af2b725f346bc21902f24af479b331444547c54bf11c4fa657890e8ef1656"
+      "sha256": "c4f8a50d3ec8efd2282ab2cf0adff5d144e0d9a440ba53cbdb582db886324467"
     },
     {
       "path": "elements/code.css",
@@ -390,7 +390,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "58207214b29ee2ea860ef200869e0f1814c47cb6bcfa150e9098dfce080e445a"
+      "sha256": "485982cbe3236ea5a5f21689ff770881931df7402f17008a103e0b518553269f"
     },
     {
       "path": "elements/strip.css",
