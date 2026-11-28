@@ -11,10 +11,10 @@
 @import "../elements/disclosure.css";
 
 /* The UI scale: an expert system is read at desk distance all day, so it takes the brand's
-   families, colours, roles and corner, and sets its own sizes here, in one place, instead of the
-   website's marketing steps. Each step takes a web role's size at its widest: page h3, heading
-   lead, subheading body, ui small, micro label. Every text in the app takes one of these steps,
-   never the web roles' fluid steps. */
+   families, colours, roles and small corner (no brand corner in internal tools, tokens.css), and
+   sets its own sizes here, in one place, instead of the website's marketing steps. Each step takes
+   a web role's size at its widest: page h3, heading lead, subheading body, ui small, micro label.
+   Every text in the app takes one of these steps, never the web roles' fluid steps. */
 @theme {
   /* h1: the page title, in the heading face. */
   --text-page: 1.5rem;

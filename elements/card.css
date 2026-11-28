@@ -1,5 +1,7 @@
-/* The card: a block that sets one piece of content apart from the page. It takes the brand
-   corner, a hairline, white and the card padding. data-variant="tint" is the emphasised card:
+/* The card: a block that sets one piece of content apart from the page. It takes a hairline, white,
+   the card padding, and the brand corner when standing alone on a marketing website, deck or
+   document; repeated cards in a grid, list or row, nested blocks and internal tools take the small
+   corner (tokens.css). data-variant="tint" is the emphasised card:
    teal at 7 % with a 40 % teal line. On night the card is glass, white at 7 % with
    a 15 % white line; the tinted one takes teal-night. Layout and shadow stay the surface's.
 
@@ -30,7 +32,7 @@
     padding: var(--hw-card-pad, var(--spacing-card));
     background: var(--color-white);
   }
-  /* The brand corner on the outermost block only (tokens.css), at the medium's small corner. */
+  /* The brand corner on the outermost standalone block only (tokens.css), at the medium's small corner. */
   :where(
       .hw-card,
       .hw-callout,
@@ -42,6 +44,34 @@
       .rounded-brand
     )
     * {
+    --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
+    --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
+    --radius-brand: var(--hw-corner-sm, var(--radius-sm));
+    --print-radius: var(--hw-corner-sm, var(--radius-sm));
+    --slide-radius: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
+    --deck-corner: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
+  }
+  /* Repeated cards, tiles and buttons in a grid, list or row take the small corner (tokens.css).
+     Adjacent cards or buttons, items in a multi-item list, and anything inside [data-hw-repeat]
+     (for grids where each card sits in its own wrapper) switch to the small corner. Catalog
+     specimen tiles ([data-hw-tile], [data-hw-sample], .el-inner, .sample) show variants side by
+     side and keep the standalone corner unless placed in a list or [data-hw-repeat]. */
+  [data-hw-repeat],
+  :where(
+    li:not([hidden]):has(~ li:not([hidden])) > :where(.hw-card, .hw-button, .rounded-brand),
+    li:not([hidden]) ~ li:not([hidden]) > :where(.hw-card, .hw-button, .rounded-brand),
+    li.hw-card:not([hidden]):has(~ li:not([hidden])),
+    li:not([hidden]) ~ li.hw-card:not([hidden]),
+    :not([data-hw-tile], [data-hw-sample], .el-inner, .sample)
+      > :is(
+        :is(.hw-card, .hw-status):not([hidden]):has(+ :is(.hw-card, .hw-status):not([hidden])),
+        :is(.hw-card, .hw-status):not([hidden]) + :is(.hw-card, .hw-status):not([hidden]),
+        .hw-button:not([hidden]):has(+ .hw-button:not([hidden])),
+        .hw-button:not([hidden]) + .hw-button:not([hidden]),
+        .rounded-brand:not([hidden]):has(+ .rounded-brand:not([hidden])),
+        .rounded-brand:not([hidden]) + .rounded-brand:not([hidden])
+      )
+  ) {
     --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
     --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
     --radius-brand: var(--hw-corner-sm, var(--radius-sm));

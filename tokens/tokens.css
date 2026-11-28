@@ -6,15 +6,20 @@
    beside it in print.css. */
 @theme {
   /* Three radii and a square, one job each, on every surface:
-     brand  the brand corner, large top-left and bottom-right: everything that holds content or
-            is pressed with words on it: cards, panels, callouts, code blocks, pictures and
-            buttons (a slide's "Read more" included), on every medium alike. The outermost one
-            only: a block, picture or button inside a block with the brand corner takes sm
-            (elements/card.css).
-     sm     the small corner: everything one text line tall that is no pill: a label box (PART ONE),
-            a number or icon tile, inline code, the segmented control and its segments (the slide's
-            stage strip included), every form field (input, select, text area, file field) and the
-            button beside one, a checkbox (a radio is round) and a picture in a mail.
+     brand  the brand corner, large top-left and bottom-right: only on a block or action that
+            stands alone in its view on a marketing website, deck or document — a hero panel, a
+            single callout, a cover box, a lone button, a single code block or a dialog. Never on
+            a card, tile or button that repeats in a grid, list or row, never inside another
+            brand-cornered block (elements/card.css), and never in internal tools (Company OS,
+            admin, trainer hub and other internal surfaces, elements/scales.css), where every block
+            and button takes sm.
+     sm     the small corner: everything one text line tall that is no pill (a label box such as
+            PART ONE, a number or icon tile, inline code, the segmented control and its segments,
+            the slide's stage strip included, every form field — input, select, text area, file
+            field — and the button beside one, a checkbox — a radio is round — and a picture in a
+            mail), every card, tile or button that repeats in a grid, list or row, every block,
+            picture or button inside a brand-cornered block, and every block and button in internal
+            tools.
      pill   round: chips, badges and toggles, and every control that holds only an icon (play,
             pause, previous, next, theme); one over a picture is solid teal with a white icon.
             In the apps a label changed where it shows takes sm, one only read stays pill.

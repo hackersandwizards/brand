@@ -151,6 +151,7 @@
   --hw-marker-gap: var(--list-marker-gap, 0.625em);
   --hw-card-pad: 14pt;
   --hw-card-corner: var(--print-radius);
+  --hw-button-corner: initial;
   --hw-callout-pad: 14pt;
   --hw-rule-accent: 3pt;
   --hw-rule-bar: 24mm;
@@ -192,6 +193,7 @@
   --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: 2rem;
   --hw-card-corner: 1.875rem 0.46875rem;
+  --hw-button-corner: initial;
   --hw-callout-pad: 1.875rem;
   --hw-rule-accent: 0.375rem;
   --hw-rule-bar: 10rem;
@@ -230,6 +232,11 @@
   --hw-choice-pad: 1.3125rem;
   --hw-nav-pad: 0.5625rem 1.125rem;
   --hw-search-icon: 1.875rem;
+}
+[data-hw-surface="internal"] {
+  --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
+  --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
+  --radius-brand: var(--hw-corner-sm, var(--radius-sm));
 }
 @layer components {
   :is(.hw-choice, .hw-segmented, .hw-icon-button) {
@@ -624,6 +631,29 @@
       .rounded-brand
     )
     * {
+    --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
+    --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
+    --radius-brand: var(--hw-corner-sm, var(--radius-sm));
+    --print-radius: var(--hw-corner-sm, var(--radius-sm));
+    --slide-radius: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
+    --deck-corner: var(--slide-radius-sm, var(--hw-corner-sm, var(--radius-sm)));
+  }
+  [data-hw-repeat],
+  :where(
+    li:not([hidden]):has(~ li:not([hidden])) > :where(.hw-card, .hw-button, .rounded-brand),
+    li:not([hidden]) ~ li:not([hidden]) > :where(.hw-card, .hw-button, .rounded-brand),
+    li.hw-card:not([hidden]):has(~ li:not([hidden])),
+    li:not([hidden]) ~ li.hw-card:not([hidden]),
+    :not([data-hw-tile], [data-hw-sample], .el-inner, .sample)
+      > :is(
+        :is(.hw-card, .hw-status):not([hidden]):has(+ :is(.hw-card, .hw-status):not([hidden])),
+        :is(.hw-card, .hw-status):not([hidden]) + :is(.hw-card, .hw-status):not([hidden]),
+        .hw-button:not([hidden]):has(+ .hw-button:not([hidden])),
+        .hw-button:not([hidden]) + .hw-button:not([hidden]),
+        .rounded-brand:not([hidden]):has(+ .rounded-brand:not([hidden])),
+        .rounded-brand:not([hidden]) + .rounded-brand:not([hidden])
+      )
+  ) {
     --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
     --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
     --radius-brand: var(--hw-corner-sm, var(--radius-sm));

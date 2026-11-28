@@ -187,6 +187,7 @@
   --hw-marker-gap: var(--list-marker-gap, 0.625em);
   --hw-card-pad: 14pt;
   --hw-card-corner: var(--print-radius);
+  --hw-button-corner: initial;
   --hw-callout-pad: 14pt;
   --hw-rule-accent: 3pt;
   --hw-rule-bar: 24mm;
@@ -231,6 +232,7 @@
   --hw-card-tint-line: var(--color-teal-light);
   --hw-card-pad: 2rem;
   --hw-card-corner: 1.875rem 0.46875rem;
+  --hw-button-corner: initial;
   --hw-callout-pad: 1.875rem;
   --hw-rule-accent: 0.375rem;
   --hw-rule-bar: 10rem;
@@ -274,4 +276,14 @@
   --hw-choice-pad: 1.3125rem;
   --hw-nav-pad: 0.5625rem 1.125rem;
   --hw-search-icon: 1.875rem;
+}
+
+/* Internal tools (Company OS, admin, trainer hub and other internal surfaces) draw no brand corner:
+   every block and button takes the small corner of its scale. Set on the page root (<html> or
+   <body>) or an internal app wrapper; an embedded print or stage subtree keeps its own scale's
+   corner. */
+[data-hw-surface="internal"] {
+  --hw-card-corner: var(--hw-corner-sm, var(--radius-sm));
+  --hw-button-corner: var(--hw-corner-sm, var(--radius-sm));
+  --radius-brand: var(--hw-corner-sm, var(--radius-sm));
 }

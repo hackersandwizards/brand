@@ -1,5 +1,9 @@
 import type { JSHandle, Page } from "puppeteer-core";
 import {
+  elementCornerFunctions,
+  type nestedCornerFindings as NestedCornerFindings,
+} from "./element-corners";
+import {
   elementStyleFunctions,
   type diffElementStyles as DiffElementStyles,
   type snapshotStyles as SnapshotStyles,
@@ -10,6 +14,7 @@ import type { ElementStyleRules } from "./element-properties";
 // The declarations installed by installElementDom supply these names inside the page.
 declare const snapshotStyles: typeof SnapshotStyles;
 declare const diffElementStyles: typeof DiffElementStyles;
+declare const nestedCornerFindings: typeof NestedCornerFindings;
 
 export type ElementFinding = { element: string; label: string } & StyleDifference;
 
@@ -27,7 +32,12 @@ export type ElementReference = {
 type Instance = { element: string; el: Element; settings: [string, string][] };
 type PageFocus = { node: HTMLElement | null; visible: boolean };
 type ReferenceFocus = { got: PageFocus; want: PageFocus; restore: PageFocus };
-type Reference = Instance & { clone: HTMLElement; focus: ReferenceFocus | null };
+type ElementSide = ReturnType<typeof readElementSide>;
+type Reference = Instance & {
+  clone: HTMLElement;
+  focus: ReferenceFocus | null;
+  actual: ElementSide;
+};
 type MountedReference = Reference & { host: HTMLSpanElement };
 
 /** Identifies a rendered element in a finding. */
@@ -67,40 +77,6 @@ function discoverElementInstances({ selectors, tokens, settings }: ElementRefere
   return { instances, findings };
 }
 
-/** Whether the computed corners have the brand's large and small diagonals. */
-function hasBrandCorner(el: Element) {
-  const g = getComputedStyle(el);
-  const [tl, tr, br, bl] = [
-    g.borderTopLeftRadius,
-    g.borderTopRightRadius,
-    g.borderBottomRightRadius,
-    g.borderBottomLeftRadius,
-  ].map(parseFloat);
-  return tl > tr && tl === br && tr === bl;
-}
-
-// The brand corner inside a brand corner, over every element of the page (a closed panel too),
-// before any reference.
-function nestedCornerFindings() {
-  const branded = new Set([...document.querySelectorAll("body *")].filter(hasBrandCorner));
-  const findings: ElementFinding[] = [];
-  for (const el of branded) {
-    if (el.closest(SKIP)) continue;
-    for (let p = el.parentElement; p; p = p.parentElement)
-      if (branded.has(p)) {
-        findings.push({
-          element: "corner",
-          label: elementLabel(el),
-          prop: "border-radius",
-          got: `the brand corner inside ${elementLabel(p)}`,
-          want: "the small corner",
-        });
-        break;
-      }
-  }
-  return findings;
-}
-
 // The element the page focused (a story's focused state): an instance holding it is read, and
 // its reference too, while the same node holds focus, since a computed style reads the live state.
 function initialPageFocus(): PageFocus {
@@ -135,7 +111,7 @@ function counterpart(root: Element, copy: HTMLElement, node: Element) {
 // Each side's focus target: the focus ring's own element, else the page's focused node inside the
 // instance and its place in the reference.
 function referenceFocus(
-  { element, el, clone }: Omit<Reference, "focus">,
+  { element, el, clone }: Instance & { clone: HTMLElement },
   restore: PageFocus,
 ): ReferenceFocus | null {
   if (element === "focus-ring")
@@ -152,10 +128,17 @@ function referenceFocus(
   };
 }
 
-/** Clones an instance and locates the reference's focus target before changing the page. */
-function cloneElementInstance(instance: Instance, active: PageFocus): Reference {
-  const copy = { ...instance, clone: instance.el.cloneNode(true) as HTMLElement };
-  return { ...copy, focus: referenceFocus(copy, active) };
+/** Clones an instance, locates its focus target and reads its live styles before changing the page. */
+function cloneElementInstance(
+  instance: Instance,
+  active: PageFocus,
+  rules: ElementStyleRules,
+): Reference {
+  const clone = instance.el.cloneNode(true) as HTMLElement;
+  const focus = referenceFocus({ ...instance, clone }, active);
+  const actual = readElementSide(instance.el, rules, focus?.got);
+  if (focus) focus.restore.node?.focus({ focusVisible: focus.restore.visible });
+  return { ...instance, clone, focus, actual };
 }
 
 /** Wraps the reference in a bare box with the class that provides its styling context. */
@@ -251,11 +234,10 @@ function readElementSide(el: Element, { own, parts }: ElementStyleRules, focus?:
 
 /** Findings for one instance and its reference, with the page's original focus restored. */
 function readElementPair(
-  { el, clone, element, focus }: MountedReference,
+  { el, clone, element, focus, actual }: MountedReference,
   rules: ElementStyleRules,
   tolerance: number,
 ) {
-  const actual = readElementSide(el, rules, focus?.got);
   const reference = readElementSide(clone, rules, focus?.want);
   if (focus) {
     focus.want.node?.blur();
@@ -301,9 +283,11 @@ function compareElementPage(reference: ElementReference) {
   // settings and tokens, insert every reference, then read every pair.
   const { instances, findings } = discoverElementInstances(reference);
   findings.push(...nestedCornerFindings());
-  // Every clone before any reference goes in, so none holds another instance's reference, and each
-  // focus target found while the page's child order is still the clone's.
-  const clones = instances.map((instance) => cloneElementInstance(instance, active));
+  // Every clone and live read before any reference goes in, so none holds another instance's
+  // reference and sibling selectors (+, ~, :only-child) on the live page are measured undisturbed.
+  const clones = instances.map((instance) =>
+    cloneElementInstance(instance, active, reference.styles[instance.element]),
+  );
   // A constructed sheet, which no page policy's style-src refuses, as it would a <style>.
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(reference.css);
@@ -331,10 +315,9 @@ type ElementDom = {
 export async function installElementDom(page: Page) {
   const functions = [
     ...elementStyleFunctions,
+    ...elementCornerFunctions,
     elementLabel,
     discoverElementInstances,
-    hasBrandCorner,
-    nestedCornerFindings,
     initialPageFocus,
     counterpart,
     referenceFocus,

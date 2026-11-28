@@ -122,7 +122,7 @@
     },
     {
       "path": "tokens/tokens.css",
-      "sha256": "8de9da67bfc75d58937a228c451f7ad329a9a77604d413581dfd7e4d1e112c94"
+      "sha256": "d54054bac1b1c3c78589e2df6f83b74eaa7c19e518c4268fcd5ea3fc72d659ca"
     },
     {
       "path": "logos/emoji-logo-short-cmyk.tif",
@@ -262,7 +262,7 @@
     },
     {
       "path": "expert/expert.css",
-      "sha256": "7b246e1a789659403ce068baccddcf09dad5296c2f29017a71146c77483e2224"
+      "sha256": "c66abbcaef1409b75311d556b18ff2d6eb6fbf1b846609c4c8967870fe5f644d"
     },
     {
       "path": "expert/catalogs.json",
@@ -318,7 +318,7 @@
     },
     {
       "path": "expert/components/SpaceNav.astro",
-      "sha256": "752c6859d5e29fdad11901a3cc5d73023a6d03f2c6badcf9a1f74010c11fa8bf"
+      "sha256": "19066cf4ab66e2a7012e6905f2dc481b6d1543f5b97ce2a790a468bf74954adc"
     },
     {
       "path": "expert/components/SpaceNavTree.astro",
@@ -338,15 +338,15 @@
     },
     {
       "path": "elements/callout.css",
-      "sha256": "cbec71934029e04eb086eb751332fbaef0fb135ae2dc0a620b0eefff1b82bca8"
+      "sha256": "a041dfece54bdfc764353d203f320ffe615778b25fb6494c967007f7f7cfa3b3"
     },
     {
       "path": "elements/card.css",
-      "sha256": "13a796040b087c2876bb1d9bbb990a06746be0b0e02a3f756f9db3a08fe3aff3"
+      "sha256": "967af2b725f346bc21902f24af479b331444547c54bf11c4fa657890e8ef1656"
     },
     {
       "path": "elements/code.css",
-      "sha256": "e9ee752f1ab42fab9e6ed9dfb80defcb252a37dc4646a010c55eb74c1d57c23a"
+      "sha256": "825498b786f1ca74b15af9e814b2e6a168625f3b9e0e626926dbb7d655eb7e7f"
     },
     {
       "path": "elements/code.ts",
@@ -390,7 +390,7 @@
     },
     {
       "path": "elements/scales.css",
-      "sha256": "9ea669a1991fa687723cb034192a9b137e0374a3003a00a0ae5f434ea7e3efbb"
+      "sha256": "58207214b29ee2ea860ef200869e0f1814c47cb6bcfa150e9098dfce080e445a"
     },
     {
       "path": "elements/strip.css",
@@ -434,7 +434,7 @@
     },
     {
       "path": "elements/button.css",
-      "sha256": "5738cc12c009a19a2b37f79dae882f645b93e590942d3f038385f002dc2d0c98"
+      "sha256": "1a0d4846c85fefb300499d0998b7948ccf94d1071b9c3b7bda6124f9dc6ab569"
     },
     {
       "path": "elements/check.css",

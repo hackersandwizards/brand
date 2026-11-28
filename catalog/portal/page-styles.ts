@@ -66,7 +66,7 @@ export const pageStyles = `<style>
     .swatch small { grid-column: 2; color: var(--color-muted); font-size: 0.7rem; }
     .swatch.copied small::after { content: " copied"; color: var(--color-teal); }
     .logos { display: grid; gap: 1rem; margin-top: 1.5rem; }
-    .logo { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
+    .logo { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1rem; }
     .logo h3 { margin: 0.75rem 0 0.25rem; }
     .logo p { margin: 0.25rem 0; }
     .pair { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0.5rem; }
@@ -83,8 +83,7 @@ export const pageStyles = `<style>
     .pv { width: 4rem; height: 2rem; background: var(--raised); border: 1px solid var(--color-border); }
     .pv.bar { height: 0.5rem; max-width: 100%; background: var(--color-teal); border: 0; }
     .rules { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-bottom: 1rem; }
-    .rules > div { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; }
-    .rules > div:has(> .corner-demo) { border-radius: var(--radius-sm); }
+    .rules > div { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1rem; }
     .rules p { margin: 0.5rem 0 0; }
     .corner-demo { height: 3rem; background: var(--wash); border: 1px solid var(--color-border); border-radius: var(--radius-brand); }
     .square-demo, .icon-demo, .shape-demo { display: flex; align-items: center; gap: 0.5rem; height: 3rem; margin: 0 !important; }
@@ -101,7 +100,7 @@ export const pageStyles = `<style>
     .sw { display: inline-block; width: 1rem; height: 1rem; border-radius: 0; border: 1px solid var(--color-border); vertical-align: -0.2rem; margin-right: 0.3rem; }
     .assets { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
     .products { display: grid; gap: 1rem; }
-    .product { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-brand); padding: 1rem; scroll-margin-top: 1rem; }
+    .product { background: var(--raised); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1rem; scroll-margin-top: 1rem; }
     .product h4 { font-family: var(--font-mono); font-size: var(--text-h4); margin: 0.75rem 0 0.25rem; }
     .product p { margin: 0.25rem 0; }
     .mock { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, 15.5rem); }
@@ -119,7 +118,7 @@ export const pageStyles = `<style>
     .asset { margin: 0; }
     .asset .views { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 0.25rem; }
     .asset .dl { display: block; }
-    .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
+    .asset img, .asset .pdf { display: grid; place-items: center; width: 100%; height: 8rem; object-fit: contain; background: var(--color-tint); border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-sizing: border-box; }
     .asset img[src$=".png"] { object-fit: scale-down; }
     .assets:has(iframe) { grid-template-columns: repeat(auto-fill, minmax(36rem, 1fr)); }
     /* A scale per row, day beside night, so a wide sample shows whole; each row stands apart from
@@ -137,7 +136,7 @@ export const pageStyles = `<style>
     .el-cell[data-hw-scale="print"] { font-size: var(--type-body-size); line-height: var(--type-body-line-height); }
     .el-cell[data-hw-scale="stage"] > .el-inner { zoom: 0.5; --hw-zoom: 0.5; font-size: 1.5rem; line-height: 1.4; }
     .el-inner > * + *:where(:not(.hw-check-target)) { margin-top: 0.5em; }
-    .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-brand); box-sizing: border-box; }
+    .asset iframe { display: block; width: 100%; height: 11.5rem; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-sizing: border-box; }
     .asset figcaption { padding-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.75rem; }
   }
   @media (max-width: 47.98rem) {

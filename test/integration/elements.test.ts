@@ -1873,3 +1873,142 @@ test(
   },
   limit(30_000),
 );
+
+test(
+  "repeated cards, buttons and [data-hw-repeat] groups take the small corner while standalone blocks keep the brand corner",
+  async () => {
+    const html = only(
+      `<div data-hw-scale="screen">
+        <div class="hw-card" id="alone-card">Cover</div>
+        <h2>Section</h2>
+        <div class="hw-card" id="second-alone-card">Summary</div>
+        <a class="hw-button" id="alone-btn" href="#">Offer</a>
+        <div class="grid"><div class="hw-card" id="adj-card-1">A</div><div class="hw-card" id="adj-card-2">B</div></div>
+        <div class="row"><a class="hw-button" id="adj-btn-1" href="#">A</a><a class="hw-button" id="adj-btn-2" href="#">B</a></div>
+        <ul><li><article class="hw-card" id="li-card-1">One</article></li><li><article class="hw-card" id="li-card-2">Two</article></li></ul>
+        <div data-hw-repeat><div><div class="hw-card" id="wrap-card-1">W1</div></div><div><div class="hw-card" id="wrap-card-2">W2</div></div></div>
+      </div>`,
+    );
+    const r = await measurePage(browser, targetFile("repeat-corners.html", html));
+    expect(r.findings).toEqual([]);
+    const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
+    await open(p, pathToFileURL(file("repeat-corners-read.html", html)).href);
+    const radii = await p.evaluate(() => {
+      const ids = [
+        "alone-card",
+        "second-alone-card",
+        "alone-btn",
+        "adj-card-1",
+        "adj-card-2",
+        "adj-btn-1",
+        "adj-btn-2",
+        "li-card-1",
+        "li-card-2",
+        "wrap-card-1",
+        "wrap-card-2",
+      ];
+      return Object.fromEntries(
+        ids.map((id) => [
+          id,
+          getComputedStyle(browserDefined(document.getElementById(id), `element #${id}`))
+            .borderRadius,
+        ]),
+      );
+    });
+    await p.close();
+    expect(radii).toEqual({
+      "alone-card": "20px 5px",
+      "second-alone-card": "20px 5px",
+      "alone-btn": "20px 5px",
+      "adj-card-1": "5px",
+      "adj-card-2": "5px",
+      "adj-btn-1": "5px",
+      "adj-btn-2": "5px",
+      "li-card-1": "5px",
+      "li-card-2": "5px",
+      "wrap-card-1": "5px",
+      "wrap-card-2": "5px",
+    });
+    const hard = await measurePage(
+      browser,
+      targetFile(
+        "repeat-hard.html",
+        only(`<div data-hw-repeat><div style="border-radius: 20px 5px">R</div></div>`),
+      ),
+    );
+    expect(hard.findings.map((f) => [f.element, f.got])).toEqual([
+      ["corner", "the brand corner on a repeated item"],
+    ]);
+  },
+  limit(60_000),
+);
+
+test(
+  "internal surfaces draw no brand corner while nested print and stage subtrees keep theirs",
+  async () => {
+    const html = only(
+      `<div data-hw-scale="dense" data-hw-surface="internal">
+        <div class="hw-card" id="int-card">Card</div>
+        <button type="button" class="hw-button" id="int-btn">Save</button>
+        <div class="hw-callout" id="int-callout">Note</div>
+        <div id="int-var" style="border-radius: var(--radius-brand)">Box</div>
+        <div data-hw-scale="print">
+          <div class="hw-card" id="print-card">Offer</div>
+          <a class="hw-button" id="print-btn" href="#">Contact</a>
+        </div>
+        <div data-hw-scale="stage">
+          <div class="hw-card" id="stage-card">Slide</div>
+        </div>
+      </div>`,
+      "",
+      ["tokens/print.css"],
+    );
+    const r = await measurePage(browser, targetFile("internal-corners.html", html));
+    expect(r.findings).toEqual([]);
+    const p = await browser.newPage();
+    await p.evaluateOnNewDocument(`globalThis.browserDefined = ${defined.toString()}`);
+    await open(p, pathToFileURL(file("internal-corners-read.html", html)).href);
+    const radii = await p.evaluate(() => {
+      const ids = [
+        "int-card",
+        "int-btn",
+        "int-callout",
+        "int-var",
+        "print-card",
+        "print-btn",
+        "stage-card",
+      ];
+      return Object.fromEntries(
+        ids.map((id) => [
+          id,
+          getComputedStyle(browserDefined(document.getElementById(id), `element #${id}`))
+            .borderRadius,
+        ]),
+      );
+    });
+    await p.close();
+    expect(radii).toEqual({
+      "int-card": "5px",
+      "int-btn": "5px",
+      "int-callout": "5px",
+      "int-var": "5px",
+      "print-card": "16px 4px",
+      "print-btn": "16px 4px",
+      "stage-card": "30px 7.5px",
+    });
+    const hard = await measurePage(
+      browser,
+      targetFile(
+        "internal-hard.html",
+        only(
+          `<div data-hw-scale="dense" data-hw-surface="internal"><div style="border-radius: 20px 5px">Leak</div></div>`,
+        ),
+      ),
+    );
+    expect(hard.findings.map((f) => [f.element, f.got])).toEqual([
+      ["corner", "the brand corner on an internal surface"],
+    ]);
+  },
+  limit(60_000),
+);

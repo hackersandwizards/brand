@@ -34,8 +34,13 @@ function renderedFinding(f: Finding) {
   const label = `${f.page} ${f.element} ${f.label}:`;
   if (f.got === "undefined")
     return `${label} reads ${f.prop}, which this page does not define: add it to the tokens the page emits (a pick-list of token names, or tokens.css without Tailwind's theme(static))`;
-  if (f.element === "corner")
+  if (f.element === "corner") {
+    if (f.got === "the brand corner on an internal surface")
+      return `${label} ${f.prop} draws ${f.got}, breaking the internal-surface corner rule. Use ${f.want} with var(--hw-corner-sm, var(--radius-sm)) from elements/scales.css.`;
+    if (f.got === "the brand corner on a repeated item")
+      return `${label} ${f.prop} draws ${f.got}, breaking the standalone-only corner rule. Use ${f.want} with var(--hw-corner-sm, var(--radius-sm)) from elements/card.css.`;
     return `${label} ${f.prop} draws ${f.got}, breaking the outer-only corner rule. Use ${f.want} on the inner element with var(--hw-corner-sm, var(--radius-sm)) from elements/card.css.`;
+  }
   return `${label} ${f.prop} ${f.got}, brand ${f.want}, so the rendered style differs from the reference. Find the rule in the page CSS that changes ${f.prop} and use the value rendered by the shared stylesheet.`;
 }
 

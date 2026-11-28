@@ -1,5 +1,6 @@
 /* The callout: a box that sums up or flags, before or beside the body ("In short"). Teal at
-   --tint-callout (10 %) in the brand corner, no rule: a rule on the left marks a quote (quote.css).
+   --tint-callout (10 %), with the brand corner when standing alone on a marketing website, deck or
+   document (small corner inside a block, repeated or in internal tools, tokens.css), no rule: a rule on the left marks a quote (quote.css).
    Text in weight 500; its label is an hw-label with data-tone="muted". data-hue="purple" marks a
    result. On night the night tone of the hue at --tint-callout-night (14 %).
 

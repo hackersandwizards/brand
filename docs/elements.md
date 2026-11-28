@@ -42,6 +42,14 @@ website's px), `"dense"` (the apps and the talks site; it also sets the expert s
 from `print.css`) or `"stage"` (slides on the 1440 stage) on any container. A surface may also set
 an element's own settings (`--hw-card-pad`, `--hw-label-size`, ...), each listed in its file.
 
+Internal tools (Company OS, admin, the trainer hub and other internal surfaces) draw no brand corner:
+put `data-hw-surface="internal"` on the page root (`<html>` or `<body>`) or an internal app wrapper
+so every block, button and `rounded-brand` utility takes the small corner (`elements/scales.css`),
+while any nested `print` or `stage` subtree keeps its own scale's corner. On marketing websites,
+decks and documents, repeated cards, tiles and buttons in a grid, list or row take the small corner
+automatically when adjacent or in a multi-item list (`elements/card.css`); put `data-hw-repeat` on
+a grid or row container whose cards sit inside individual wrappers.
+
 ## The dropdown
 
 A native `<select>` wears the brand chevron in place of the system's arrow: the brand dropdown is
