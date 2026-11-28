@@ -1,6 +1,6 @@
 {
   "name": "@hackersandwizards/brand",
-  "version": "2.31.1",
+  "version": "2.31.2",
   "private": true,
   "description": "The hackers&wizards brand: tokens, print layer, fonts, logos, the expert UI layer and its components, the press photos, the verbal identity (claim, home headline, mission, vision, values, terms, retired slogans), the LinkedIn post renderers with their sketch prompt, the mail signature template, the colour, copy, component, element and retired-line checks a consumer runs in its gate and the list-marker check it runs by hand, the list marker rule and the shared elements.",
   "keywords": [
@@ -115,7 +115,7 @@
   },
   "devDependencies": {
     "@hackersandwizards/admin": "git+https://github.com/hackersandwizards/admin.git#v1.42.4",
-    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.47.10",
+    "@hackersandwizards/scaffolding": "git+https://github.com/hackersandwizards/scaffolding.git#v5.47.11",
     "@hackersandwizards/testimonials": "git+https://github.com/hackersandwizards/testimonials.git#v3.7.0",
     "@tailwindcss/vite": "4.3.5",
     "@types/bun": "1.4.5",
@@ -123,7 +123,7 @@
     "astro": "7.4.13",
     "astrobook": "0.13.3",
     "axe-core": "4.14.1",
-    "eslint": "10.15.0",
+    "eslint": "10.16.0",
     "eslint-plugin-astro": "3.2.2",
     "lightningcss": "1.33.0",
     "lucide-static": "1.82.0",
