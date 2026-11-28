@@ -59,8 +59,8 @@ repository of its own: commit and push every change to a schedule file there, a 
 6. Every run ends its report with its outcome, done, deferred or blocked, and the reason for
    anything but done. Check: the task text demands that line.
 7. Harness, model, effort, permission mode and tool grants live on the trigger, never in the file.
-   The trigger runs Claude Haiku at high effort, and the colleague the file hands the run to runs on
-   Claude Opus at medium effort.
+   The trigger runs Claude Opus at medium effort, and the colleague the file hands the run to runs on
+   the trigger's model.
    - **Claude Desktop task.** Its prompt file, `~/.claude/scheduled-tasks/<name>/SKILL.md`, holds
      the frontmatter and the trigger line. Set model and mode in the app's edit form: the app
      rewrites `scheduled-tasks.json` from its own store and has dropped a permission mode edited

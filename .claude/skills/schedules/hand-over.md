@@ -2,12 +2,9 @@
 
 A scheduled run that names this file hands its run over, waits and cleans up this way.
 
-Where this session runs on a Haiku model, the Agent call carries `model: "opus"` and
-`effort: "medium"`, or the effort the task names. On any other model it carries neither, and the
-delegate runs on this session's model. A delegate reporting only `wrong model` ran on Haiku:
-launch it again with those two parameters.
+The Agent call carries no model and no effort: the delegate runs on this session's model.
 
-Add these three paragraphs to the instruction, `<scratchpad>` replaced by this session's scratchpad
+Add these two paragraphs to the instruction, `<scratchpad>` replaced by this session's scratchpad
 path and `<task>` by the task's name:
 
 > Your scratch folder is `<scratchpad>/<task>/`: create it first, write every scratch file there,
@@ -16,8 +13,6 @@ path and `<task>` by the task's name:
 >
 > Wait in the foreground for every command you start in the background, and end your turn only with
 > your report: the session that launched you reads the end of your turn as the end of the run.
->
-> Where the model you run on is a Haiku model, do no work and report only `wrong model`.
 
 Once the report is in and no delegate of this session still runs, delete the scratch folder and
 each scratch path the report lists outside it by its literal path. Where the delegate fails or is
